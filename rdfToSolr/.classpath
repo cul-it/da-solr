@@ -6,6 +6,59 @@
 	<classpathentry kind="lib" path="lib/arq-2.8.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jena-2.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-config-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-console-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-http-client-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-http-protocol-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-http-server-spring-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-model-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-query-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryalgebra-evaluation-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryalgebra-model-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryparser-api-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryparser-serql-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryparser-sparql-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryresultio-api-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryresultio-binary-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryresultio-sparqljson-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryresultio-sparqlxml-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-queryresultio-text-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-api-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-contextaware-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-dataset-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-event-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-http-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-manager-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-sail-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-repository-sparql-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-api-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-binary-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-n3-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-ntriples-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-rdfxml-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-trig-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-trix-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-rio-turtle-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-runtime-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-sail-api-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-sail-inferencer-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-sail-memory-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-sail-nativerdf-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-sail-rdbms-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/sesame-util-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/pellet-core.jar"/>
+	<classpathentry kind="lib" path="lib/pellet-datatypes.jar"/>
+	<classpathentry kind="lib" path="lib/pellet-el.jar"/>
+	<classpathentry kind="lib" path="lib/pellet-jena.jar"/>
+	<classpathentry kind="lib" path="lib/pellet-rules.jar"/>
+	<classpathentry kind="lib" path="lib/iri-0.8.jar"/>
+	<classpathentry kind="lib" path="lib/icu4j-3.4.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

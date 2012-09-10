@@ -17,13 +17,15 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparql;
  */
 public class CmdLineRecordToDocument {
 
-	public void main(String [] args){				
+	public static void main(String [] args){				
 		if( help( args ) ) 
 			return;
 		
 		String readEndpointURI = args[0];
 		String recordURI = args[1];
 		String recToDocImplClassName = args[2];
+		
+		System.out.println("endpoint URL: '" + readEndpointURI + "'" );
 		
 		//make an instance of the record 2 document class
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
@@ -43,7 +45,7 @@ public class CmdLineRecordToDocument {
 		}			
 	}
 	
-	private RecordToDocument getRecordToDocumentImpl( String recToDocImplClassName){
+	private static RecordToDocument getRecordToDocumentImpl( String recToDocImplClassName){
 		try{
 			Class recToDocImplClass = Class.forName(recToDocImplClassName);
 			Constructor zeroArgCons = recToDocImplClass.getConstructor(null);
@@ -58,7 +60,7 @@ public class CmdLineRecordToDocument {
 	}
 	
 
-	private boolean help(String[] args) {		
+	private static boolean help(String[] args) {		
 		if( args == null || args.length != 3 ||
 		    (args.length == 1 && args[0] != null && args[0].toLowerCase().startsWith("-h")) ){
 			System.out.print(helptext);

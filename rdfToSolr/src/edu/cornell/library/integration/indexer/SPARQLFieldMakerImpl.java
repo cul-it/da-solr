@@ -96,28 +96,46 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 		
 		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
 
-		//run local queries
-		Map<String,String> queries = getLocalStoreQueries();
-		for( String queryName : queries.keySet()){			
-			String query = queries.get(queryName);
-			ResultSet rs = sparqlSelectQuery(query, localStore);
-			results.put(queryName, rs);			
+		//run local queries		
+		if( localStore != null ){
+			Map<String,String> queries = getLocalStoreQueries();
+			if( queries != null ){
+				for( String queryName : queries.keySet()){			
+					String query = queries.get(queryName);
+					query = substitueInRecordURI( recordURI, query );
+					ResultSet rs = sparqlSelectQuery(query, localStore);
+					results.put(queryName, rs);			
+				}
+			}
 		}
 		
 		//run remote queries
-		queries = getMainStoreQueries();
-		for( String queryName : queries.keySet()){			
-			String query = queries.get(queryName);
-			ResultSet rs = sparqlSelectQuery(query, mainStore);
-			results.put(queryName, rs);			
-		}		
-				
+		if( mainStore != null ){
+			Map<String,String> queries = getMainStoreQueries();
+			if( queries != null){
+				for( String queryName : queries.keySet()){			
+					String query = queries.get(queryName);
+					query = substitueInRecordURI( recordURI, query );
+					ResultSet rs = sparqlSelectQuery(query, mainStore);
+					results.put(queryName, rs);			
+				}
+			}
+		}
+		
 		return getResultSetToFields().toFields(results);
 	}	
+	
+	private String substitueInRecordURI(String recordURI, String query) {
+		if( query == null )
+			return null;			
+		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		
+	}
+	
 	
 	protected ResultSet sparqlSelectQuery(String query, RDFQueryService rdfService) {
 		ResultSet resultSet = null;
 		try {
+			System.out.println(query);
 			InputStream resultStream = rdfService.sparqlSelectQuery(query,
 					RDFQueryService.ResultFormat.JSON);
 			resultSet = ResultSetFactory.fromJSON(resultStream);
