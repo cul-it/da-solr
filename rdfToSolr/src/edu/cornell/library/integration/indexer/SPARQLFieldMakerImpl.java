@@ -135,13 +135,13 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	protected ResultSet sparqlSelectQuery(String query, RDFQueryService rdfService) {
 		ResultSet resultSet = null;
 		try {
-			System.out.println(query);
 			InputStream resultStream = rdfService.sparqlSelectQuery(query,
 					RDFQueryService.ResultFormat.JSON);
 			resultSet = ResultSetFactory.fromJSON(resultStream);
 			return resultSet;
-		} catch (RDFServiceException e) {
-			log.error("error executing sparql select query: " + e.getMessage());
+		} catch (Exception e) {
+			log.error("error executing sparql select query: \n"+
+					query + "\n" + e.getMessage());
 		}
 
 		return resultSet;

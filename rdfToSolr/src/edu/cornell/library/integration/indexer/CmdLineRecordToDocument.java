@@ -23,9 +23,7 @@ public class CmdLineRecordToDocument {
 		
 		String readEndpointURI = args[0];
 		String recordURI = args[1];
-		String recToDocImplClassName = args[2];
-		
-		System.out.println("endpoint URL: '" + readEndpointURI + "'" );
+		String recToDocImplClassName = args[2];				
 		
 		//make an instance of the record 2 document class
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
@@ -34,7 +32,7 @@ public class CmdLineRecordToDocument {
 		RDFService queryService = new RDFServiceSparql( readEndpointURI );
 					
 		try{						
-			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);
+			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);			
 			System.out.print(doc.toString());
 		}catch(Exception ex){
 			System.err.print( ex.toString());
