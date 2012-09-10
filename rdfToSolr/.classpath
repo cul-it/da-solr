@@ -5,6 +5,7 @@
 	<classpathentry kind="lib" path="lib/vitroCore.jar"/>
 	<classpathentry kind="lib" path="lib/arq-2.8.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jena-2.6.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
