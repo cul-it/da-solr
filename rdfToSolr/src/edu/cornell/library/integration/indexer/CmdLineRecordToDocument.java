@@ -25,12 +25,13 @@ public class CmdLineRecordToDocument {
 		String recordURI = args[1];
 		String recToDocImplClassName = args[2];				
 		
-		//make an instance of the record 2 document class
+		//make an instance of the RecordToDocument class
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
 		
 		//setup SPARQL RDFService
 		RDFService queryService = new RDFServiceSparql( readEndpointURI );
-					
+			
+		//make the solr document
 		try{						
 			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);			
 			System.out.print(doc.toString());

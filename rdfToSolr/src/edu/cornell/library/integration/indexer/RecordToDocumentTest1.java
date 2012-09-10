@@ -11,14 +11,14 @@ public class RecordToDocumentTest1 extends RecordToDocumentBase {
 		return Arrays.asList(
 				
 				new SPARQLFieldMakerImpl().					
-				setName("fieldMakerTest1.field1").
-				addMainStoreQueries( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
-				setResultSetToFields( new AllResultsToField("f1") ) ,						
+					setName("fieldMakerTest1.field1"). 
+					addMainStoreQuery( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
+					setResultSetToFields( new AllResultsToField("solrField1") ) ,						
 				
 				new SPARQLFieldMakerImpl().					
-				setName("fieldMakerTest1.field2").
-				addMainStoreQueries( "query2", "SELECT * WHERE { $recordURI$ ?p ?o }").
-				setResultSetToFields( new AllResultsToField( "f2") )			
+				 	setName("fieldMakerTest1.field2").
+				 	addMainStoreQuery( "query2", "SELECT * WHERE { $recordURI$ ?p ?o }").
+				 	setResultSetToFields( new AllResultsToField( "solrField2") )			
 		);
 	}
 

@@ -71,7 +71,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 		this.mainStoreQueries = mainStoreQueries;
 		return this;
 	}
-	public SPARQLFieldMakerImpl addMainStoreQueries(String key, String query){
+	public SPARQLFieldMakerImpl addMainStoreQuery(String key, String query){
 		if( this.mainStoreQueries == null )
 			this.mainStoreQueries = new HashMap<String, String>();
 		
