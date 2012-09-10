@@ -68,5 +68,6 @@ public class CmdLineRecordToDocument {
 		}				
 	}
 	
-	private static final String helptext ="Expected: URLofSPARQLEndpoint URLofRecordToIndex FQPN_of_RecordToDocument\n";
+	private static final String helptext =
+		"Expected: URLofSPARQLEndpoint URLofRecordToIndex FQN_of_RecordToDocument_Class\n";
 }
