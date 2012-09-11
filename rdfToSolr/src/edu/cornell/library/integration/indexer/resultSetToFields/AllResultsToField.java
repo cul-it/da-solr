@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer;
+package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -11,6 +11,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+
 
 public class AllResultsToField implements ResultSetToFields {
 

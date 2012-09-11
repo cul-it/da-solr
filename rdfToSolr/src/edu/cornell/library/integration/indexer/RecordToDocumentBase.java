@@ -3,8 +3,12 @@ package edu.cornell.library.integration.indexer;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
+import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -57,7 +61,11 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		//get all the fields
 		SolrInputDocument doc = new SolrInputDocument();
 		for( FieldMaker maker : getFieldMakers()){
-			doc.putAll( maker.buildFields(recordURI, mainStorQueryService, localStore));
+			try {
+				doc.putAll( maker.buildFields(recordURI, mainStorQueryService, localStore));
+			} catch (Exception e) {
+				log.error(e,e);
+			}
 		}
 		
 		//Post process the Document
@@ -71,4 +79,5 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		return doc;
 	}
 
+	Log log = LogFactory.getLog(RecordToDocumentBase.class);
 }

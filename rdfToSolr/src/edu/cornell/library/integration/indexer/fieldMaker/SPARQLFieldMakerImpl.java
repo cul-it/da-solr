@@ -1,7 +1,9 @@
-package edu.cornell.library.integration.indexer;
+package edu.cornell.library.integration.indexer.fieldMaker;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -11,8 +13,10 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
+
+import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
 
 /**
  * FieldMaker that runs a SPARQL query and uses the results
@@ -38,7 +42,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	
 			
 	/** Process the results of the SPARQL queries into fields */
-	ResultSetToFields resultSetToFields;
+	List<ResultSetToFields> resultSetToFields;
 
 	public String getName() {
 		return name;
@@ -80,11 +84,17 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	}
 
 
-	public ResultSetToFields getResultSetToFields() {
+	public List<ResultSetToFields> getResultSetToFields() {
 		return resultSetToFields;
 	}
-	public SPARQLFieldMakerImpl  setResultSetToFields(ResultSetToFields resultSetToFields) {
-		this.resultSetToFields = resultSetToFields;
+	public SPARQLFieldMakerImpl  setResultSetToFieldsList(List<ResultSetToFields> resultSetToFieldsList) {
+		this.resultSetToFields = resultSetToFieldsList;
+		return this;
+	}
+	public SPARQLFieldMakerImpl  addResultSetToFields(ResultSetToFields resultSetToFields) {
+		if( this.resultSetToFields == null )
+			this.resultSetToFields = new ArrayList<ResultSetToFields>();		
+		this.resultSetToFields.add( resultSetToFields );
 		return this;
 	}
 	
@@ -92,7 +102,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	public Map<? extends String, ? extends SolrInputField> buildFields(
 			String recordURI, 
 			RDFQueryService mainStore,
-			RDFQueryService localStore) {
+			RDFQueryService localStore) throws Exception {
 		
 		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
 
@@ -122,14 +132,17 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 			}
 		}
 		
-		return getResultSetToFields().toFields(results);
+		return toSolrFields( results );
 	}	
 	
-	private String substitueInRecordURI(String recordURI, String query) {
-		if( query == null )
-			return null;			
-		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		
-	}
+	
+	Map<? extends String, ? extends SolrInputField> toSolrFields( Map<String, ResultSet> results ) throws Exception{
+		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
+		for( ResultSetToFields r2f : getResultSetToFields() ){
+			fields.putAll( r2f.toFields( results ) );
+		}
+		return fields;
+	}		
 	
 	
 	protected ResultSet sparqlSelectQuery(String query, RDFQueryService rdfService) {
