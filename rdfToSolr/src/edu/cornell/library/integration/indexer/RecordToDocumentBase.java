@@ -7,13 +7,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrInputDocument;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeListener;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceFactory;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
 /**
  * This class is intended to be configured to convert a record 
@@ -24,9 +29,27 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	/** list of objects to build the fields of the solr doc. */
 	abstract List<? extends FieldMaker> getFieldMakers();	
 	
-	/** Factory for empty local RDF stores. Return null if not needed. */
-	RDFServiceFactory getLocalStoreFactory(){
-		return null;
+	/** Factory for empty local in-memory RDF stores. */
+	RDFServiceFactory getLocalStoreFactory(){		
+		return new RDFServiceFactory(){
+			@Override
+			public RDFService getRDFService() {
+				Model model = ModelFactory.createDefaultModel();
+				return new RDFServiceModel(model);
+			}
+
+			@Override
+			public void registerListener(ChangeListener changeListener)
+					throws RDFServiceException {
+				throw new RDFServiceException("registerListener is not implemented");
+			}
+
+			@Override
+			public void unregisterListener(ChangeListener changeListener)
+					throws RDFServiceException { 
+				throw new RDFServiceException("unregisterListener is not implemented");				
+			}			
+		};		
 	}
 	
 	/** list of objects to construct a local RDF graph. 
@@ -44,7 +67,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			RDFQueryService mainStorQueryService) throws RDFServiceException {	
+			RDFService mainStorQueryService) throws RDFServiceException {	
 						
 		//construct local graph
 		RDFService localStore = null;
@@ -52,8 +75,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			 localStore = getLocalStoreFactory().getRDFService();
 			if( localStore != null ){
 				for( LocalDataMaker con : getLocalDataMakers()){
-					ChangeSet cs = con.gather(recordURI, mainStorQueryService);
-					localStore.changeSetUpdate(cs);				
+					con.gather(recordURI, mainStorQueryService, localStore);								
 				}
 			}
 		}

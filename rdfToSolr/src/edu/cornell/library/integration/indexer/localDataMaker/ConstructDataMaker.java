@@ -1,10 +1,14 @@
 package edu.cornell.library.integration.indexer.localDataMaker;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.library.integration.indexer.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
 public class ConstructDataMaker implements LocalDataMaker{
 	
@@ -16,8 +20,21 @@ public class ConstructDataMaker implements LocalDataMaker{
 	}
 	
 	@Override
-	public ChangeSet gather(String recordURI, RDFQueryService mainStore) {
+	public void gather(String recordURI, RDFService mainStore, RDFService localStore) 
+			throws RDFServiceException {
+				
+		RDFQueryService.ModelSerializationFormat format = RDFQueryService.ModelSerializationFormat.N3;
 		
+		for( String construct : SPARQLConstructs ){			
+			ChangeSet changes = localStore.manufactureChangeSet();
+			
+			String query = IndexingUtilities.substitueInRecordURI(recordURI, construct);
+			InputStream is = mainStore.sparqlConstructQuery(query, format);
+			
+			changes.addAddition(is, format, (String)null);
+			localStore.changeSetUpdate(changes);
+		}
+							
 	}
 
 }
