@@ -1,15 +1,11 @@
 package edu.cornell.library.integration.indexer;
 
 import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
-import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -49,7 +45,8 @@ public class CmdLineRecordToDocument {
 		try{			
 			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);						
 			System.out.println( toString( doc ) );
-			ClientUtils.toXML( doc );
+			System.out.println( ClientUtils.toXML( doc ) );
+			
 			//index the solr doc if a server was specified 
 			if( solrIndexURL != null )
 				indexDoc( solrIndexURL, doc );

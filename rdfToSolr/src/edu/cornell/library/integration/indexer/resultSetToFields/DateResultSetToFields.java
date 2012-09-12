@@ -48,13 +48,16 @@ public class DateResultSetToFields implements ResultSetToFields {
 							} else if (resultKey.equals("machine_dates")) {
 								Matcher m = p.matcher(value);
 								if (m.matches()) {
-									addField(fields,"date_pub",value);
+									addField(fields,"pub_date",value);
 									if (name.equals("date1")) {
-										addField(fields,"date_pub_sort",value);
+										addField(fields,"pub_date_sort",value);
 									}									
 								} else {
-									if (3000 > Integer.parseInt( value )) {
-										addField(fields,"date_pub",value);										
+									try{
+										if (3000 > Integer.parseInt( value )) 
+											addField(fields,"pub_date",value);																			
+									}catch(NumberFormatException nfe){
+										// not a problem?
 									}
 								}							
 								// debug stmt should be added. Node is not a date in \d\d\d\d format.
