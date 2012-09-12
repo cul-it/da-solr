@@ -47,32 +47,67 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker().
 					setSubfieldCodes("a").
 					setMarcFieldNumber("245").
-					setSolrFieldName("title_t")	,			
+					setSolrFieldName("title_display")	,			
 
-   	            new SubfieldCodeMaker().
-					setSubfieldCodes("abnps").
-					setMarcFieldNumber("245").
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefghijklmnopqrstuvwxyz").
+					setMarcFieldNumber("130").
 					setSolrFieldName("title_addl_t"),				
-
-	   	        new SubfieldCodeMaker().
+				new SubfieldCodeMaker().
 					setSubfieldCodes("ab").
 					setMarcFieldNumber("210").
 					setSolrFieldName("title_addl_t"),				
-	
 			    new SubfieldCodeMaker().
 					setSubfieldCodes("ab").
 					setMarcFieldNumber("222").
-					setSolrFieldName("title_addl_t"),				
-	
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgklmnopqrs").
-					setMarcFieldNumber("246").
-					setSolrFieldName("title_addl_t"),				
-
+					setSolrFieldName("title_addl_t"),
 				new SubfieldCodeMaker().
 					setSubfieldCodes("abcdefgklmnopqrs").
 					setMarcFieldNumber("240").
-					setSolrFieldName("title_addl_t")					
+					setSolrFieldName("title_addl_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abnp").
+					setMarcFieldNumber("242").
+					setSolrFieldName("title_addl_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgklmnopqrs").
+					setMarcFieldNumber("243").
+					setSolrFieldName("title_addl_t"),
+   	            new SubfieldCodeMaker().
+					setSubfieldCodes("abnps").
+					setMarcFieldNumber("245").
+					setSolrFieldName("title_addl_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgklmnopqrs").
+					setMarcFieldNumber("246").
+					setSolrFieldName("title_addl_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgnp").
+					setMarcFieldNumber("247").
+					setSolrFieldName("title_addl_t"),
+	
+				new SubfieldCodeMaker().
+					setSubfieldCodes("gklmnoprst").
+					setMarcFieldNumber("700").
+					setSolrFieldName("title_added_entry_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("fgklmnopqrst").
+					setMarcFieldNumber("710").
+					setSolrFieldName("title_added_entry_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("fgklnpst").
+					setMarcFieldNumber("711").
+					setSolrFieldName("title_added_entry_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgklmnopqrst").
+					setMarcFieldNumber("730").
+					setSolrFieldName("title_added_entry_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("anp").
+					setMarcFieldNumber("740").
+					setSolrFieldName("title_added_entry_t")
+	
+
 					
 		);
 	}

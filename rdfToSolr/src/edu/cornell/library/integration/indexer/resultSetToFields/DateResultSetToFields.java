@@ -48,7 +48,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 								Matcher m = p.matcher(nodeToString(node));
 								if (m.matches()) {
 										if (name.equals("date1")) {
-											fields.put("date_pub_facet",
+											fields.put("date_pub_sort",
 													new SolrInputField(nodeToString(node)));
 											if (fields.containsKey("date_pub")) {
 											fields.get("date_pub").addValue(nodeToString(node), 1);
