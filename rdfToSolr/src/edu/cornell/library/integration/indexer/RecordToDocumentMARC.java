@@ -3,10 +3,8 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
-import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
-import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
-import edu.cornell.library.integration.indexer.resultSetToFields.ExampleResultSetToFields;
+import edu.cornell.library.integration.indexer.fieldMaker.*;
+import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
 /**
  * An example RecordToDocument implementation. 
@@ -39,7 +37,43 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?f marcrdf:hasSubfield ?s. \n" +
 				    		"        ?s marcrdf:code \"c\". \n" +
 				    		"        ?s marcrdf:value ?date } ").
-				    addResultSetToFields( new AllResultsToField("dates"))
+				    addResultSetToFields( new DateResultSetToFields()) ,
+				    
+				new SPARQLFieldMakerImpl().
+					setName("id").
+					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
+					addResultSetToFields( new AllResultsToField("id") ),
+				    
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("245").
+					setSolrFieldName("title_t")	,			
+
+   	            new SubfieldCodeMaker().
+					setSubfieldCodes("abnps").
+					setMarcFieldNumber("245").
+					setSolrFieldName("title_addl_t"),				
+
+	   	        new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("210").
+					setSolrFieldName("title_addl_t"),				
+	
+			    new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("222").
+					setSolrFieldName("title_addl_t"),				
+	
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgklmnopqrs").
+					setMarcFieldNumber("246").
+					setSolrFieldName("title_addl_t"),				
+
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcdefgklmnopqrs").
+					setMarcFieldNumber("240").
+					setSolrFieldName("title_addl_t")					
+					
 		);
 	}
 
