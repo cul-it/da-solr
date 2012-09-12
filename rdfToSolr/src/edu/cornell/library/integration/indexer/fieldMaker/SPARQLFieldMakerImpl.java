@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
+import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +17,6 @@ import com.hp.hpl.jena.query.ResultSetFactory;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
-
-import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
 
 /**
  * FieldMaker that runs a SPARQL query and uses the results
@@ -87,14 +87,14 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	public List<ResultSetToFields> getResultSetToFields() {
 		return resultSetToFields;
 	}
-	public SPARQLFieldMakerImpl  setResultSetToFieldsList(List<ResultSetToFields> resultSetToFieldsList) {
-		this.resultSetToFields = resultSetToFieldsList;
+	public SPARQLFieldMakerImpl  setResultSetToFieldsList(List<ResultSetToFields> list) {
+		this.resultSetToFields = list;
 		return this;
 	}
-	public SPARQLFieldMakerImpl  addResultSetToFields(ResultSetToFields resultSetToFields) {
+	public SPARQLFieldMakerImpl  addResultSetToFields(ResultSetToFields rs2f) {
 		if( this.resultSetToFields == null )
 			this.resultSetToFields = new ArrayList<ResultSetToFields>();		
-		this.resultSetToFields.add( resultSetToFields );
+		this.resultSetToFields.add( rs2f );
 		return this;
 	}
 	
