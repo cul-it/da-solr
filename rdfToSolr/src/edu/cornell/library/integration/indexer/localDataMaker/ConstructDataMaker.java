@@ -8,6 +8,7 @@ import edu.cornell.library.integration.indexer.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService.ModelSerializationFormat;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
 public class ConstructDataMaker implements LocalDataMaker{
@@ -23,7 +24,7 @@ public class ConstructDataMaker implements LocalDataMaker{
 	public void gather(String recordURI, RDFService mainStore, RDFService localStore) 
 			throws RDFServiceException {
 				
-		RDFQueryService.ModelSerializationFormat format = RDFQueryService.ModelSerializationFormat.N3;
+		ModelSerializationFormat format = RDFService.ModelSerializationFormat.N3;
 		
 		for( String construct : SPARQLConstructs ){			
 			ChangeSet changes = localStore.manufactureChangeSet();

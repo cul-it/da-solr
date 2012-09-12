@@ -5,7 +5,7 @@ import java.lang.reflect.Constructor;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparql;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 
 
 /**
@@ -29,7 +29,7 @@ public class CmdLineRecordToDocument {
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
 		
 		//setup SPARQL RDFService
-		RDFService queryService = new RDFServiceSparql( readEndpointURI );
+		RDFService queryService = new RDFServiceSparqlHttp( readEndpointURI );
 			
 		//make the solr document
 		try{						

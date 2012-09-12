@@ -16,7 +16,25 @@ public class RecordToDocumentTest1 extends RecordToDocumentBase {
 	
 	@Override
 	List<? extends FieldMaker> getFieldMakers() {
+		String badquery = 
+		"PREFIX marcrdf:  <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
+	    "SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2)    \n"+ 
+	    "WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4722> marcrdf:hasField ?f. \n"+ 
+	    "        ?f marcrdf:tag \"008\".\n"+
+	    "        ?f marcrdf:value ?val }  ";
+
+		
 		return Arrays.asList(
+				
+				new SPARQLFieldMakerImpl().					
+				setName("fieldMakerTest1.field0"). 
+				addMainStoreQuery( "badquery", badquery).
+				addResultSetToFields( new AllResultsToField("solrField0") ) ,
+				
+				new SPARQLFieldMakerImpl().					
+					setName("fieldMakerTest1.field1"). 
+					addMainStoreQuery( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
+					addResultSetToFields( new AllResultsToField("solrField1") ) ,
 				
 				new SPARQLFieldMakerImpl().					
 					setName("fieldMakerTest1.field1"). 

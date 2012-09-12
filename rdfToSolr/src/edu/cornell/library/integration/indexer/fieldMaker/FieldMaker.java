@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public interface FieldMaker {
 	/** 	
@@ -18,6 +18,6 @@ public interface FieldMaker {
 	 */
 	Map<? extends String, ? extends SolrInputField> buildFields( 
 			String recordURI, 
-			RDFQueryService mainStore, 
-			RDFQueryService localStore) throws Exception; 
+			RDFService mainStore, 
+			RDFService localStore) throws Exception; 
 }

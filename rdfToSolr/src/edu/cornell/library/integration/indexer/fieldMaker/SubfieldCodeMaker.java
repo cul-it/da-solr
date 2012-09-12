@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.fieldMaker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,10 +11,9 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.sparql.util.StringUtils;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
  * Get values for subfields List in order and put into
@@ -54,8 +52,8 @@ public class SubfieldCodeMaker implements FieldMaker {
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
-			String recordURI, RDFQueryService mainStore,
-			RDFQueryService localStore) throws Exception {
+			String recordURI, RDFService mainStore,
+			RDFService localStore) throws Exception {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
 		String query = 

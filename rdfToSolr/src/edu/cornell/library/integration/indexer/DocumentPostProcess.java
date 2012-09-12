@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
  * Interface to represent objects that will have a 
@@ -18,7 +18,7 @@ public interface DocumentPostProcess {
 	 * @param document - may be modified by instances of this interface.
 	 */
 	void p( String recordURI, 
-			RDFQueryService mainStore, 
-			RDFQueryService localStore, 
+			RDFService mainStore, 
+			RDFService localStore, 
 			SolrInputDocument document);
 }

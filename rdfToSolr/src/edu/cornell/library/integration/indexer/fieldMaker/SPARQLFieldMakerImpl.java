@@ -17,6 +17,7 @@ import com.hp.hpl.jena.query.ResultSetFactory;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
  * FieldMaker that runs a SPARQL query and uses the results
@@ -108,8 +109,8 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
 			String recordURI, 
-			RDFQueryService mainStore,
-			RDFQueryService localStore) throws Exception {
+			RDFService mainStore,
+			RDFService localStore) throws Exception {
 		
 		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
 
@@ -158,16 +159,16 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	}		
 	
 	
-	protected ResultSet sparqlSelectQuery(String query, RDFQueryService rdfService) {
+	protected ResultSet sparqlSelectQuery(String query, RDFService rdfService) {
 		ResultSet resultSet = null;
 		try {
-			InputStream resultStream = rdfService.sparqlSelectQuery(query,
-					RDFQueryService.ResultFormat.JSON);
+			InputStream resultStream = rdfService.sparqlSelectQuery(query,RDFService.ResultFormat.JSON);
+			
 			resultSet = ResultSetFactory.fromJSON(resultStream);
 			return resultSet;
 		} catch (Exception e) {
 			log.error("error executing sparql select query: \n"+
-					query + "\n" + e.getMessage());
+					query + "\n" + e.getMessage(),e);
 		}
 
 		return resultSet;
