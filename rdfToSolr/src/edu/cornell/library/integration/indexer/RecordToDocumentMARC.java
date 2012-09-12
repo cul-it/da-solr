@@ -37,7 +37,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?f marcrdf:hasSubfield ?s. \n" +
 				    		"        ?s marcrdf:code \"c\". \n" +
 				    		"        ?s marcrdf:value ?date } ").
-				    addResultSetToFields( new DateResultSetToFields()) ,
+				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
 				new SPARQLFieldMakerImpl().
 					setName("id").

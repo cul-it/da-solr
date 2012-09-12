@@ -42,10 +42,10 @@ public class AllResultsToField implements ResultSetToFields {
 			}
 		}
 		
-		return Collections.singletonMap(
-				fieldName, 
-				new SolrInputField( sb.toString() ) 
-		);
+		SolrInputField field = new SolrInputField(fieldName);
+		field.setValue(sb.toString().trim(), 1.0f);
+		
+		return Collections.singletonMap(fieldName,field);
 	}
 	
 	private String nodeToString( RDFNode node){

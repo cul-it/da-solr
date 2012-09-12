@@ -1,12 +1,18 @@
 package edu.cornell.library.integration.indexer;
 
 import java.lang.reflect.Constructor;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
-import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.client.solrj.impl.XMLResponseParser;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
@@ -41,9 +47,9 @@ public class CmdLineRecordToDocument {
 			
 		//make the solr document
 		try{			
-			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);			
-			System.out.print( doc.toString() );
-			
+			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);						
+			System.out.println( toString( doc ) );
+			ClientUtils.toXML( doc );
 			//index the solr doc if a server was specified 
 			if( solrIndexURL != null )
 				indexDoc( solrIndexURL, doc );
@@ -57,20 +63,36 @@ public class CmdLineRecordToDocument {
 		}			
 	}
 	
+
+	//TODO: maybe key of id field should be configurable
+	private static final String idFieldKey = "id";
+
 	private static void indexDoc(String solrIndexURL, SolrInputDocument doc) throws Exception {
-		SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
-		server.add( doc );
-		server.commit();
 		
-		/*
-Setting the RequestWriter
-
-SolrJ lets you upload content in XML and Binary format. The default is set to be XML. Use the following to upload using Binary format. This is the same format which SolrJ uses to fetch results, and can greatly improve performance as it reduces XML marshalling overhead.
-server.setRequestWriter(new BinaryRequestWriter());
-Note -- be sure you have also enabled the "BinaryUpdateRequestHandler" in your solrconfig.xml for example like:
-
-<requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" />
-		 */
+		if( doc == null )
+			throw new Exception("not attempting to index null SolrInputDocument");
+		if( solrIndexURL == null )
+			throw new Exception("solrIndexURL is required");
+		if( doc.getField( idFieldKey ) == null )
+			throw new Exception("a identifier field of '" +idFieldKey+"' is required");				    
+		
+        boolean useMultiPartPost = true;
+        //It would be nice to use the default binary handler but there seem to be library problems
+        CommonsHttpSolrServer server = 
+        		//new CommonsHttpSolrServer(new URL(solrIndexURL),null,new XMLResponseParser(),useMultiPartPost);
+        		new CommonsHttpSolrServer(new URL(solrIndexURL));
+        		
+		//SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
+		//server.setRequestWriter(new BinaryRequestWriter());
+		
+		//this might not work well if there are multiple values for the id field
+		server.deleteByQuery(idFieldKey + ":" + doc.getField( idFieldKey ).getValue());
+		
+		List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+		docs.add( doc );
+		
+		server.add(docs);		
+		server.commit();		
 	}
 
 	private static RecordToDocument getRecordToDocumentImpl( String recToDocImplClassName){
@@ -101,5 +123,14 @@ Note -- be sure you have also enabled the "BinaryUpdateRequestHandler" in your s
 	}
 	
 	private static final String helptext =
-		"Expected: URLofSPARQLEndpoint URLofRecordToIndex FQN_of_RecordToDocument_Class [URL_of_SOLR_index]\n";
+		"Expected: URLofSPARQLEndpoint URLofRecordToIndex FQN_of_RecordToDocument_Class [solrIndexURL]\n";
+	
+	private static String toString(SolrInputDocument doc){
+		String out ="SolrInputDocument[\n" ;
+		for( String name : doc.getFieldNames()){
+			SolrInputField f = doc.getField(name);
+			out = out + "  " + name +": '" + f.toString() + "'\n";
+		}
+		return out + "]\n";						
+	}
 }
