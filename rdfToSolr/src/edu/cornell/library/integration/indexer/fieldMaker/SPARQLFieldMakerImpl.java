@@ -43,7 +43,15 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 			
 	/** Process the results of the SPARQL queries into fields */
 	List<ResultSetToFields> resultSetToFields;
-
+	
+	
+	Map<String,String> defaultPrefixes;
+	
+	public SPARQLFieldMakerImpl() {
+		this.defaultPrefixes = new HashMap<String,String>();
+		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -78,7 +86,6 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	public SPARQLFieldMakerImpl addMainStoreQuery(String key, String query){
 		if( this.mainStoreQueries == null )
 			this.mainStoreQueries = new HashMap<String, String>();
-		
 		this.mainStoreQueries.put(key, query);
 		return this;		
 	}
@@ -123,9 +130,15 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 		if( mainStore != null ){
 			Map<String,String> queries = getMainStoreQueries();
 			if( queries != null){
-				for( String queryName : queries.keySet()){			
-					String query = queries.get(queryName);
-					query = substitueInRecordURI( recordURI, query );
+				for( String queryName : queries.keySet()){
+					StringBuilder querybuild = new StringBuilder();
+					if (! this.defaultPrefixes.isEmpty()) {
+						for( String prefix : this.defaultPrefixes.keySet() ) {
+							querybuild.append("PREFIX " + prefix + ":  <" + this.defaultPrefixes.get(prefix) + ">\n");
+						}
+					}
+					querybuild.append(substitueInRecordURI( recordURI, queries.get(queryName) ));
+					String query = querybuild.toString();
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
 					results.put(queryName, rs);			
 				}
