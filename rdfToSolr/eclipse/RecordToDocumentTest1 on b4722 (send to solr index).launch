@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/rdfToSolr/src/edu/cornell/library/integration/indexer/CmdLineRecordToDocument.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.debug.ui.CONSIDER_INHERITED_MAIN" value="true"/>
+<booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.cornell.library.integration.indexer.CmdLineRecordToDocument"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://bdc34-dev.library.cornell.edu:8890/sparql http://fbw4-dev.library.cornell.edu/individuals/b4722 edu.cornell.library.integration.indexer.RecordToDocumentTest1 http://bdc34-dev.library.cornell.edu:8080/solr"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="rdfToSolr"/>
+</launchConfiguration>

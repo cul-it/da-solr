@@ -96,7 +96,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 				if( values != null )
 					sortedVals = sortedVals + " " + values;
 			}
-			SolrInputField solrField = new SolrInputField(sortedVals);
+			SolrInputField solrField = new SolrInputField(sortedVals);			
 			
 			return Collections.singletonMap(solrFieldName, solrField);
 		}		
