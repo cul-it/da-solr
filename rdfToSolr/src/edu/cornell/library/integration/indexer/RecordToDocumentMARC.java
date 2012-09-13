@@ -39,7 +39,31 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"                            ?f marcrdf:tag \"007\".\n" +
 							"                            ?f marcrdf:value ?seven. }}").
 					addResultSetToFields( new FormatResultSetToFields() ),
-			    
+					
+				new SPARQLFieldMakerImpl().
+				    setName("language").
+				    addMainStoreQuery("language_main",
+				    		"SELECT DISTINCT ?language\n" +
+				    		" WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
+				    		"        ?f marcrdf:tag \"008\".\n" +
+				    		"        ?f marcrdf:value ?val.\n" +
+				    		"        ?l rdf:type intlayer:Language.\n" +
+				    		"        ?l intlayer:code ?langcode.\n" +
+				    		"        FILTER( SUBSTR( xsd:string(?val),36,3) = xsd:string(?langcode) )\n" +
+				    		"        ?l rdfs:label ?language.\n" +
+				    		"	}").
+				    addMainStoreQuery("languages_041",
+				    		"SELECT DISTINCT ?language\n"+
+				            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
+				            "        ?f marcrdf:tag \"041\".\n" +
+				            "        ?f marcrdf:hasSubfield ?sf.\n" +
+				            "        {?sf marcrdf:code \"a\"} UNION {?sf marcrdf:code \"d\"}" +
+				            "        ?sf marcrdf:value ?langcode.\n" +
+				            "        ?l intlayer:code ?langcode.\n" +
+				            "        ?l rdfs:label ?language.\n" +
+				            "}").
+				    addResultSetToFields( new AllResultsToField("language_facet")),
+				    		
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
