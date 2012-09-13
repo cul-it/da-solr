@@ -16,6 +16,15 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * These are intended as publicly usable code.
  */
 public class ResultSetUtilities {
+	public static String nodeToString(RDFNode node){
+		if( node == null )
+			return "";
+		else if ( node.canAs( Literal.class )){
+			return ((Literal)node).getLexicalForm();			
+		}else {
+			return node.toString();
+		}
+	}	
 	
 	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {		
 		SolrInputField field = fields.get(fieldName);

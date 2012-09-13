@@ -10,8 +10,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.*;
  * An example RecordToDocument implementation. 
  */
 public class RecordToDocumentMARC extends RecordToDocumentBase {
-
-	
 	
 	@Override
 	List<DocumentPostProcess> getDocumentPostProcess() {
@@ -43,92 +41,29 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?s marcrdf:code \"c\". \n" +
 				    		"        ?s marcrdf:value ?date } ").
 				    addResultSetToFields( new DateResultSetToFields() ) ,
-				    
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abc").
-					setMarcFieldNumber("260").
-					setSolrFieldName("pub_info")	,			
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abc").
-					setMarcFieldNumber("264").
-					setSolrFieldName("pub_info")	,			
-				    
-				new SubfieldCodeMaker().
-					setSubfieldCodes("a").
-					setMarcFieldNumber("245").
-					setSolrFieldName("title_display")	,			
-
-				new SubfieldCodeMaker().
-					setSubfieldCodes("b").
-					setMarcFieldNumber("245").
-					setSolrFieldName("subtitle_display"),
-					
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefghijklmnopqrstuvwxyz").
-					setMarcFieldNumber("130").
-					setSolrFieldName("title_addl_t"),				
-				new SubfieldCodeMaker().
-					setSubfieldCodes("ab").
-					setMarcFieldNumber("210").
-					setSolrFieldName("title_addl_t"),				
-				new SubfieldCodeMaker().
-					setSubfieldCodes("ab").
-					setMarcFieldNumber("222").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgklmnopqrs").
-					setMarcFieldNumber("240").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abnp").
-					setMarcFieldNumber("242").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgklmnopqrs").
-					setMarcFieldNumber("243").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abnps").
-					setMarcFieldNumber("245").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgklmnopqrs").
-					setMarcFieldNumber("246").
-					setSolrFieldName("title_addl_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgnp").
-					setMarcFieldNumber("247").
-					setSolrFieldName("title_addl_t"),
-	
-				new SubfieldCodeMaker().
-					setSubfieldCodes("gklmnoprst").
-					setMarcFieldNumber("700").
-					setSolrFieldName("title_added_entry_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("fgklmnopqrst").
-					setMarcFieldNumber("710").
-					setSolrFieldName("title_added_entry_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("fgklnpst").
-					setMarcFieldNumber("711").
-					setSolrFieldName("title_added_entry_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcdefgklmnopqrst").
-					setMarcFieldNumber("730").
-					setSolrFieldName("title_added_entry_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("anp").
-					setMarcFieldNumber("740").
-					setSolrFieldName("title_added_entry_t"),
-	
-				new SubfieldCodeMaker().
-					setSubfieldCodes("anpv").
-					setMarcFieldNumber("440").
-					setSolrFieldName("title_series_t"),
-				new SubfieldCodeMaker().
-					setSubfieldCodes("av").
-					setMarcFieldNumber("490").
-					setSolrFieldName("title_series_t"),
+				  
+				 //pub_info does not exist in solr schema.xml, using dyanmic field
+				new SubfieldCodeMaker("260", "abc", "pub_info_t"),
+				new SubfieldCodeMaker("264", "abc", "pub_info_t"),
+				
+				new SubfieldCodeMaker("245", "a","title_display"),
+				new SubfieldCodeMaker("245", "b", "subtitle_display"),
+				new SubfieldCodeMaker("130", "abcdefghijklmnopqrst,vwxyz","title_addl_t" ),
+				new SubfieldCodeMaker("210", "ab", "title_addl_t"),
+                new SubfieldCodeMaker("222", "ab","title_addl_t"),
+				new SubfieldCodeMaker("240", "abcdefgklmnopqrs","title_addl_t"),
+				new SubfieldCodeMaker("242", "abnp","title_addl_t"),
+				new SubfieldCodeMaker("243", "abcdefgklmnopqrs","title_addl_t"),
+				new SubfieldCodeMaker("245", "abnps","title_addl_t"),
+				new SubfieldCodeMaker("246", "abcdefgklmnopqrs","title_addl_t"),
+				new SubfieldCodeMaker("247", "abcdefgnp","title_addl_t"),
+				new SubfieldCodeMaker("700", "gklmnoprst","title_added_entry_t"),
+				new SubfieldCodeMaker("710", "fgklmnopqrst","title_added_entry_t"),
+				new SubfieldCodeMaker("711", "fgklnpst","title_added_entry_t"),
+				new SubfieldCodeMaker("730", "abcdefgklmnopqrst","title_added_entry_t"),
+				new SubfieldCodeMaker("740", "anp","title_added_entry_t"),	
+				new SubfieldCodeMaker("440", "anpv","title_series_t"),
+				new SubfieldCodeMaker("490", "av","title_series_t"),
 
 				new SPARQLFieldMakerImpl().
 					setName("titles").
@@ -149,16 +84,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                         "           ?f2 marcrdf:hasSubfield ?sf2_6.\n" +
 				        "           ?sf2_6 marcrdf:code \"6\".\n" +
                         "           ?sf2_6 marcrdf:value ?link2.\n" +
-				  	    "           BIND( SUBSTR( xsd:string(?link2),5,2 ) AS ?link_code2).\n" +
  				        "           ?f marcrdf:hasSubfield ?sf_6.\n" +
 				        "           ?sf_6 marcrdf:code \"6\".\n" +
                         "           ?sf_6 marcrdf:value ?link.\n" +
-			  		    "           BIND( SUBSTR( xsd:string(?link),5,2 ) AS ?link_code).\n" +
-                        "           FILTER( ?link_code = ?link_code2 ) }\n" +
+                        "           FILTER(  SUBSTR( xsd:string(?link),5,2 ) = SUBSTR( xsd:string(?link2),5,2 ) ) }\n" +
 				        "      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields())
-					
-		);
+			);
 	}
+			
 
 }
