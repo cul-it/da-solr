@@ -36,7 +36,7 @@ public class TitleResultSetToFields implements ResultSetToFields {
 						String title_a = nodeToString(sol.get("value"));
 						Integer offset = Integer.valueOf(nodeToString(sol.get("ind2")));
 						SolrInputField title_t = new SolrInputField(title_a);
-						fields.put("title_sort", new SolrInputField(title_a.substring(offset)));
+						fields.put("title_sort", new SolrInputField( title_a.substring(offset).toLowerCase() ));
 						if (sol.get("vern_val") != null) {
 							String vern_val = nodeToString(sol.get("vern_val"));
 							if (! vern_val.equals("")) {
