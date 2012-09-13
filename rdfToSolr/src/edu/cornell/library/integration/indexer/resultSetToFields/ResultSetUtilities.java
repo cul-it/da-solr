@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,12 +20,26 @@ public class ResultSetUtilities {
 	public static String nodeToString(RDFNode node){
 		if( node == null )
 			return "";
-		else if ( node.canAs( Literal.class )){
+		else if ( node.canAs( Literal.class )){			
+			heyItsUtf8( ((Literal)node).getLexicalForm() ) ;
 			return ((Literal)node).getLexicalForm();			
 		}else {
+			heyItsUtf8( node.toString() );
 			return node.toString();
 		}
 	}	
+	
+	/**
+	 * not sure what the hell is going on here.
+	 * Results from vitruoso are in iso-8859-1?
+	 */
+	private static String heyItsUtf8(String s){
+		try {
+			return new String(s.getBytes("iso-8859-1"), "utf-8") ;
+		} catch (UnsupportedEncodingException e) {
+			throw new Error("all java implementations are required to implement utf-8");
+		}		 		
+	}
 	
 	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {		
 		SolrInputField field = fields.get(fieldName);
