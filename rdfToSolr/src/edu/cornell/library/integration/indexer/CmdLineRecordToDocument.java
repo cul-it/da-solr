@@ -82,8 +82,8 @@ public class CmdLineRecordToDocument {
 		//SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
 		//server.setRequestWriter(new BinaryRequestWriter());
 		
-		//this might not work well if there are multiple values for the id field
-        String idValue = ClientUtils.escapeQueryChars( doc.getField( idFieldKey ).getValue().toString());
+		//this might not work well if there are multiple values for the id field        
+        String idValue = ClientUtils.escapeQueryChars( (String)doc.getField( idFieldKey ).getFirstValue() );         
 		server.deleteByQuery(idFieldKey + ":" + idValue );
 		
 		List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();

@@ -23,11 +23,12 @@ public class IndexingUtilities {
 			Map<? extends String, ? extends SolrInputField> newFields) {		
 		for( String newFieldKey : newFields.keySet() ){
 			SolrInputField newField = newFields.get(newFieldKey);
+			
 			if( doc.containsKey( newFieldKey )){				
 				SolrInputField existingField=doc.get(newFieldKey);
 				mergeValuesForField(existingField, newField);
 			}else{
-				doc.addField(newFieldKey, newField);
+				doc.put(newFieldKey, newField);				
 			}
 		}		
 	}
