@@ -93,8 +93,13 @@ public class SubfieldCodeMaker implements FieldMaker {
 			String sortedVals = "";			
 			for( char code : getSubfieldCodes().toCharArray()){
 				String values = codeMap.get(Character.toString( code ));
-				if( values != null )
-					sortedVals = sortedVals + " " + values;
+				if( values != null ) {
+					if (sortedVals.equals("")) {
+						sortedVals = values;
+					} else {
+						sortedVals = sortedVals + " " + values;
+					}
+				}
 			}
 			SolrInputField solrField = new SolrInputField(sortedVals);			
 			
