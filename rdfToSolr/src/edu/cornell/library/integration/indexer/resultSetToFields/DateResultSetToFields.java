@@ -12,6 +12,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -39,44 +40,33 @@ public class DateResultSetToFields implements ResultSetToFields {
 					Iterator<String> names = sol.varNames();
 					while(names.hasNext() ){						
 						String name = names.next();
-						RDFNode node = sol.get(name);
+						RDFNode node = sol.get(name);						
 						if( node != null ) {
+							String value = nodeToString(node);
 							if (resultKey.equals("human_dates")) {
-								fields.put("pub_date_display", 
-										new SolrInputField(nodeToString(node)));
+								addField(fields, "pub_date_display", value);
 							} else if (resultKey.equals("machine_dates")) {
-								Matcher m = p.matcher(nodeToString(node));
+								Matcher m = p.matcher(value);
 								if (m.matches()) {
-										if (name.equals("date1")) {
-											fields.put("date_pub_sort",
-													new SolrInputField(nodeToString(node)));
-											if (fields.containsKey("date_pub")) {
-											fields.get("date_pub").addValue(nodeToString(node), 1);
-										} else {
-											fields.put("date_pub",
-													new SolrInputField(nodeToString(node)));										
-										}
-									} else {
-										if (3000 > Integer.parseInt(nodeToString(node))) {
-											if (fields.containsKey("date_pub")) {
-												fields.get("date_pub").addValue(nodeToString(node), 1);
-											} else {
-												fields.put("date_pub",
-														new SolrInputField(nodeToString(node)));										
-											}
-										}
-									}
+									addField(fields,"pub_date",value);
+									if (name.equals("date1")) {
+										addField(fields,"pub_date_sort",value);
+									}									
 								} else {
-									// debug stmt should be added. Node is not a date in \d\d\d\d format.
-								}
+									try{
+										if (3000 > Integer.parseInt( value )) 
+											addField(fields,"pub_date",value);																			
+									}catch(NumberFormatException nfe){
+										// not a problem?
+									}
+								}							
+								// debug stmt should be added. Node is not a date in \d\d\d\d format.
 							}
 						}
 					}
 				}
 			}
-		}
-		
-		
+		}	
 		return fields;
 	}
 

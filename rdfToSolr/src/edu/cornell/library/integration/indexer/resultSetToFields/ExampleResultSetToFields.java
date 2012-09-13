@@ -27,14 +27,17 @@ public class ExampleResultSetToFields implements ResultSetToFields {
 		//Here is an example of using a result set as a table of lookup values:		
 		ResultSet languageNamesRS = results.get("languages");
 		
-		String fullLanguageName = 
+		String fullLanguage = 
 			ResultSetUtilities.findValueByKey(languageNamesRS, "ENG");
 		
-		if( fullLanguageName == null ){
-			fullLanguageName = "unknown";
+		if( fullLanguage == null ){
+			fullLanguage = "unknown";
 		}
 		
-		fields.put("FullLanguageName", new SolrInputField(fullLanguageName));
+		String fieldName = "FullLanguageName";
+		SolrInputField field = new SolrInputField(fieldName);
+		field.addValue(fullLanguage,1.0f);
+		fields.put(fieldName, field);
 		
 		
 		

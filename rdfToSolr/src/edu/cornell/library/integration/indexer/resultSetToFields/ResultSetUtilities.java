@@ -1,6 +1,9 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -13,6 +16,15 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * These are intended as publicly usable code.
  */
 public class ResultSetUtilities {
+	
+	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {		
+		SolrInputField field = fields.get(fieldName);
+		if( field == null ){
+			field = new SolrInputField(fieldName);
+			fields.put(fieldName,field);
+		}
+		field.addValue(value,1.0f);				
+	}
 	
 	/** 
 	 * This method will take a key and a ResultSet and will return
