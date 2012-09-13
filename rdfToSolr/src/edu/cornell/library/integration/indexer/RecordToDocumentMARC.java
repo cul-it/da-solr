@@ -87,24 +87,29 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("titles").
 					addMainStoreQuery("245_880",
 			    		"SELECT ?ind2 ?code ?value ?vern_val\n" +
-			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
-			    		"        ?f marcrdf:tag \"245\". \n" +
-			    		"        ?f marcrdf:ind2 ?ind2 . \n" +
-			    		"        ?f marcrdf:hasSubfield ?sf .\n" +
-			    		"        ?sf marcrdf:code ?code.\n" +
-			    		"        ?sf marcrdf:value ?value.\n" +
+			    		"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
+			    		"        ?f245 marcrdf:tag \"245\". \n" +
+			    		"        ?f245 marcrdf:ind2 ?ind2 . \n" +
+			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
+			    		"        ?f245sf marcrdf:code ?code.\n" +
+			    		"        ?f245sf marcrdf:value ?value.\n" +
+			    		
 			    		"        OPTIONAL {" +
-			    		"           $recordURI$ marcrdf:hasField ?f2.\n" +
-			    		"           ?f2 marcrdf:tag \"880\".\n" +
-			    		"           ?f2 marcrdf:hasSubfield ?sf2.\n" +
-			    		"           ?sf2 marcrdf:code ?code.\n" +
-				        "           ?sf2 marcrdf:value ?vern_val.\n" +
-                        "           ?f2 marcrdf:hasSubfield ?sf2_6.\n" +
-				        "           ?sf2_6 marcrdf:code \"6\".\n" +
-                        "           ?sf2_6 marcrdf:value ?link2.\n" +
- 				        "           ?f marcrdf:hasSubfield ?sf_6.\n" +
-				        "           ?sf_6 marcrdf:code \"6\".\n" +
-                        "           ?sf_6 marcrdf:value ?link.\n" +
+			    		"           $recordURI$ marcrdf:hasField ?f880.\n" +
+			    		"           ?f880 marcrdf:tag \"880\".\n" +
+			    		"           ?f880 marcrdf:hasSubfield ?f880sf.\n" +		
+			    		//should this ?code be something like ?f880sfcode
+			    		"           ?f880sf marcrdf:code ?code.\n" +
+				        "           ?f880sf marcrdf:value ?vern_val.\n" +	
+			    		
+						"           ?f245 marcrdf:hasSubfield ?f245sf6.\n" +
+						"           ?f245sf6 marcrdf:code \"6\".\n" +
+						"           ?f245sf6 marcrdf:value ?link.\n" +
+
+                        "           ?f880 marcrdf:hasSubfield ?f880sf6.\n" +				        
+				        "           ?f880sf6 marcrdf:code \"6\".\n" +
+                        "           ?f880sf6 marcrdf:value ?link2.\n" +                                                                         				       
+				        
                         "           FILTER( SUBSTR( xsd:string(?link2),5,2 ) " +
                         "                   = SUBSTR( xsd:string(?link),5,2 ) ) }\n" +
 				        "      }\n").

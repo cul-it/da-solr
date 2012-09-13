@@ -12,6 +12,8 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+
+
 /**
  * static utility methods for working with ResultSet objects.
  * These are intended as publicly usable code.
@@ -21,11 +23,10 @@ public class ResultSetUtilities {
 		if( node == null )
 			return "";
 		else if ( node.canAs( Literal.class )){			
-			heyItsUtf8( ((Literal)node).getLexicalForm() ) ;
-			return ((Literal)node).getLexicalForm();			
+			return heyItsUtf8( ((Literal)node).getLexicalForm() ) ;
+						
 		}else {
-			heyItsUtf8( node.toString() );
-			return node.toString();
+			return heyItsUtf8( node.toString() );			
 		}
 	}	
 	
