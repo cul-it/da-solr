@@ -33,9 +33,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("bib_id","SELECT (SUBSTR(?leader,7,1) as ?rectype)\n" +
 					        "                          (SUBSTR(?leader,8,1) as ?biblvl)\n" +
 							"                          (SUBSTR(?seven,1,1) as ?cat)\n" +
-							"                    WHERE { $recordURI$ marcrdf:leader ?leader.\n" + 
-							"                            $recordURI$ marcrdf:hasField ?seven.\n" +
-							"                            ?seven marcrdf:tag \"007\".}").
+							"                    WHERE { $recordURI$ marcrdf:leader ?leader.\n" +
+							"                            OPTIONAL {\n" +
+							"                            $recordURI$ marcrdf:hasField ?f.\n" +
+							"                            ?f marcrdf:tag \"007\".\n" +
+							"                            ?f marcrdf:value ?seven. }}").
 					addResultSetToFields( new FormatResultSetToFields() ),
 			    
 				new SPARQLFieldMakerImpl().
