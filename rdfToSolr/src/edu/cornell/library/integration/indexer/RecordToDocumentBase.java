@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -13,8 +15,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeListener;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceFactory;
@@ -84,7 +84,8 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		SolrInputDocument doc = new SolrInputDocument();
 		for( FieldMaker maker : getFieldMakers()){
 			try {
-				doc.putAll( maker.buildFields(recordURI, mainStorQueryService, localStore));
+				//this needs to merge the values from fields with the same key
+				combineFields( doc, maker.buildFields(recordURI,mainStorQueryService, localStore));				
 			} catch (Exception e) {
 				log.error(e,e);
 			}
@@ -99,7 +100,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		}
 		
 		return doc;
-	}
+	}	
 
 	Log log = LogFactory.getLog(RecordToDocumentBase.class);
 }
