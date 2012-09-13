@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.IndexingUtilities.substitueInRecordURI;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
@@ -51,6 +50,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	public SPARQLFieldMakerImpl() {
 		this.defaultPrefixes = new HashMap<String,String>();
 		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
+		defaultPrefixes.put("intlayer","http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/");
 	}
 	
 	public String getName() {
