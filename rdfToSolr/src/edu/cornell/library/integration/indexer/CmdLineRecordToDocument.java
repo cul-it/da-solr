@@ -83,7 +83,8 @@ public class CmdLineRecordToDocument {
 		//server.setRequestWriter(new BinaryRequestWriter());
 		
 		//this might not work well if there are multiple values for the id field
-		server.deleteByQuery(idFieldKey + ":" + doc.getField( idFieldKey ).getValue());
+        String idValue = ClientUtils.escapeQueryChars( doc.getField( idFieldKey ).getValue().toString());
+		server.deleteByQuery(idFieldKey + ":" + idValue );
 		
 		List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 		docs.add( doc );

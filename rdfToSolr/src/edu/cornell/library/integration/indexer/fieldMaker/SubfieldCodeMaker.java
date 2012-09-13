@@ -90,10 +90,13 @@ public class SubfieldCodeMaker implements FieldMaker {
 					}
 				}
 			}
-			SolrInputField solrField = new SolrInputField(solrFieldName);			
-			solrField.addValue(sortedVals, 1.0f);
-			
-			return Collections.singletonMap(solrFieldName, solrField);
+			if( sortedVals.trim().length() != 0){
+				SolrInputField solrField = new SolrInputField(solrFieldName);			
+				solrField.addValue(sortedVals, 1.0f);
+				return Collections.singletonMap(solrFieldName, solrField);
+			}else{ 
+				return Collections.emptyMap();
+			}
 		}		
 
 		private void addSolToMap(Map<String,String> codeMap, QuerySolution sol){
