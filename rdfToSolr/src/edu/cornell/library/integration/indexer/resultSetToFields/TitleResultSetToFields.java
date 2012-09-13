@@ -32,30 +32,30 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			if( rs != null){
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
-					if (resultKey.equals("title")) {
-						if (nodeToString(sol.get("code")).equals("a") ) {
-							String title_a = nodeToString(sol.get("value"));
-							Integer offset = Integer.valueOf(nodeToString(sol.get("ind2")));
-							SolrInputField title_t = new SolrInputField(title_a);
-							fields.put("title_sort", new SolrInputField(title_a.substring(offset)));
-							if (sol.get("vern_val") != null) {
-								String vern_val = nodeToString(sol.get("vern_val"));
-								if (! vern_val.equals("")) {
-									title_t.addValue(vern_val, 1);
-									fields.put("title_vern_display", new SolrInputField(vern_val));									
-								}
+					if (nodeToString(sol.get("code")).equals("a") ) {
+						String title_a = nodeToString(sol.get("value"));
+						Integer offset = Integer.valueOf(nodeToString(sol.get("ind2")));
+						SolrInputField title_t = new SolrInputField(title_a);
+						fields.put("title_sort", new SolrInputField(title_a.substring(offset)));
+						if (sol.get("vern_val") != null) {
+							String vern_val = nodeToString(sol.get("vern_val"));
+							if (! vern_val.equals("")) {
+								title_t.addValue(vern_val, 1);
+								fields.put("title_vern_display", new SolrInputField(vern_val));									
 							}
-						} else if (nodeToString(sol.get("code")).equals("b")) {
-							String title_b = nodeToString(sol.get("value"));
-							SolrInputField subtitle_t = new SolrInputField(title_b);
-							if (sol.get("vern_val") != null) {
-								String vern_val = nodeToString(sol.get("vern_val"));
-								if (! vern_val.equals("")) {
-									subtitle_t.addValue(vern_val, 1);
-									fields.put("subtitle_vern_display", new SolrInputField(vern_val));									
-								}
+						}
+						fields.put("title_t", title_t);
+					} else if (nodeToString(sol.get("code")).equals("b")) {
+						String title_b = nodeToString(sol.get("value"));
+						SolrInputField subtitle_t = new SolrInputField(title_b);
+						if (sol.get("vern_val") != null) {
+							String vern_val = nodeToString(sol.get("vern_val"));
+							if (! vern_val.equals("")) {
+								subtitle_t.addValue(vern_val, 1);
+								fields.put("subtitle_vern_display", new SolrInputField(vern_val));									
 							}							
 						}
+						fields.put("subtitle_t", subtitle_t);
 					}
 				}
 			}
