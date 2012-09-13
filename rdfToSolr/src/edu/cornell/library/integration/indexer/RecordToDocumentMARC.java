@@ -143,7 +143,23 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("notes_display","588","a"),
 				new SubfieldCodeMaker("notes_display","940","a"),
 				new SubfieldCodeMaker("notes_display","856","3z"),
-				new SubfieldCodeMaker("notes_display","856","m")
+				new SubfieldCodeMaker("notes_display","856","m"),
+				
+				new SubfieldCodeMaker("author_t","100","abcegqu"),
+				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_t","111","acdegjnqu"),
+
+				new SubfieldCodeMaker("author_addl_t","700","abcegqu"),
+				new SubfieldCodeMaker("author_addl_t","710","abcdegnu"),
+				new SubfieldCodeMaker("author_addl_t","711","acdegjnqu"),
+				
+				new SubfieldCodeMaker("author_display","100","abcdq"),
+				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_display","700","abcdq"),
+				new SubfieldCodeMaker("author_display","710","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_display","711","abcdefghijklmnopqrstuvwxyz")
+				
 					
 		);
 	}
