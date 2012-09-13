@@ -21,28 +21,18 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  */
 public class SubfieldCodeMaker implements FieldMaker {
 	
+	
+	public SubfieldCodeMaker(String subfieldCodes, String marcFieldNumber,
+			String solrFieldName) {
+		super();
+		this.subfieldCodes = subfieldCodes;
+		this.marcFieldNumber = marcFieldNumber;
+		this.solrFieldName = solrFieldName;
+	}
+
 	String subfieldCodes = "";
 	String marcFieldNumber = null;
-	String solrFieldName = null;
-	
-	public String getSubfieldCodes() {
-		return subfieldCodes;
-	}
-	public SubfieldCodeMaker setSubfieldCodes(String subfieldCodes) {
-		this.subfieldCodes = subfieldCodes;
-		return this;
-	}
-
-	public SubfieldCodeMaker setMarcFieldNumber(String marcFieldNumber) {
-		this.marcFieldNumber = marcFieldNumber;
-		return this;
-	}
-
-	public SubfieldCodeMaker setSolrFieldName(String solrFieldName) {
-		this.solrFieldName = solrFieldName;
-		return this;
-	}
- 		
+	String solrFieldName = null;		
 
 	private String getName() {
 		return SubfieldCodeMaker.class.getSimpleName() +
@@ -63,7 +53,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 				"?field <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sfield .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n"+
-				"FILTER( CONTAINS( \"" + getSubfieldCodes() + "\" , ?code) )\n"+
+				"FILTER( CONTAINS( \"" + subfieldCodes + "\" , ?code) )\n"+
 				"} ORDER BY ?sfield";
 										
 		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl();
@@ -91,7 +81,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 			}
 			
 			String sortedVals = "";			
-			for( char code : getSubfieldCodes().toCharArray()){
+			for( char code : subfieldCodes.toCharArray()){
 				String values = codeMap.get(Character.toString( code ));
 				if( values != null ) {
 					if (sortedVals.equals("")) {
