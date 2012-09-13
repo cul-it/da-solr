@@ -52,7 +52,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        FILTER( SUBSTR( xsd:string(?val),36,3) = xsd:string(?langcode) )\n" +
 				    		"        ?l rdfs:label ?language.\n" +
 				    		"	}").
-				    addResultSetToFields( new AllResultsToField("language")),
+				    addMainStoreQuery("languages_041",
+				    		"SELECT DISTINCT ?language\n"+
+				            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
+				            "        ?f marcrdf:tag \"041\".\n" +
+				            "        ?f marcrdf:hasSubfield ?sf.\n" +
+				            "        {?sf marcrdf:code \"a\"} UNION {?sf marcrdf:code \"d\"}" +
+				            "        ?sf marcrdf:value ?langcode.\n" +
+				            "        ?l intlayer:code ?langcode.\n" +
+				            "        ?l rdfs:label ?language.\n" +
+				            "}").
+				    addResultSetToFields( new AllResultsToField("language_facet")),
 				    		
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
