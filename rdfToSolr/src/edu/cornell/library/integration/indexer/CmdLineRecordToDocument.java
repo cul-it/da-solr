@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer;
 
-import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.List;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
@@ -24,7 +22,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlH
  * A third argument for the URL of the solr index to
  * add the document to is optional.  
  */
-public class CmdLineRecordToDocument {
+public class CmdLineRecordToDocument extends CommandBase{
 
 	public static void main(String [] args){				
 		if( help( args ) ) 
@@ -59,8 +57,24 @@ public class CmdLineRecordToDocument {
 			queryService.close();
 		}			
 	}
-	
 
+	private static boolean help(String[] args) {		
+		if( args == null || 
+		    args.length < 3 ||
+		    args.length > 4 ||
+		    (args.length == 1 && args[0] != null && args[0].toLowerCase().startsWith("-h")) ){
+			System.out.print(helptext);
+			return true;
+		}else{
+			return false;
+		}				
+	}
+	
+	private static final String helptext =
+		"Expected: URLofSPARQLEndpoint URLofRecordToIndex FQN_of_RecordToDocument_Class [solrIndexURL]\n";
+	
+	
+	
 	//TODO: maybe key of id field should be configurable
 	private static final String idFieldKey = "id";
 
@@ -91,44 +105,5 @@ public class CmdLineRecordToDocument {
 		
 		server.add(docs);		
 		server.commit();		
-	}
-
-	private static RecordToDocument getRecordToDocumentImpl( String recToDocImplClassName){
-		try{
-			Class recToDocImplClass = Class.forName(recToDocImplClassName);
-			Constructor zeroArgCons = recToDocImplClass.getConstructor(null);
-			return (RecordToDocument) zeroArgCons.newInstance(null);			
-		}catch(Exception ex){
-			System.err.println("could not instanciate class " + recToDocImplClassName);
-			System.err.print( ex.toString());
-			ex.printStackTrace(System.err);
-			System.exit(1);
-		}	
-		return null;
-	}
-	
-
-	private static boolean help(String[] args) {		
-		if( args == null || 
-		    args.length < 3 ||
-		    args.length > 4 ||
-		    (args.length == 1 && args[0] != null && args[0].toLowerCase().startsWith("-h")) ){
-			System.out.print(helptext);
-			return true;
-		}else{
-			return false;
-		}				
-	}
-	
-	private static final String helptext =
-		"Expected: URLofSPARQLEndpoint URLofRecordToIndex FQN_of_RecordToDocument_Class [solrIndexURL]\n";
-	
-	private static String toString(SolrInputDocument doc){
-		String out ="SolrInputDocument[\n" ;
-		for( String name : doc.getFieldNames()){
-			SolrInputField f = doc.getField(name);
-			out = out + "  " + name +": '" + f.toString() + "'\n";
-		}
-		return out + "]\n";						
 	}
 }

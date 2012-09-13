@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -94,6 +95,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		SolrInputField format_field = new SolrInputField("format");
 		format_field.addValue(format, 1);
 		fields.put("format", format_field);
+		SolrInputDocument doc = new SolrInputDocument();
 		
 		return fields;
 	}
