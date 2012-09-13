@@ -24,6 +24,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		return Arrays.asList(
 				 	
 				new SPARQLFieldMakerImpl().
+					setName("id").
+					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
+					addResultSetToFields( new AllResultsToField("id") ),
+			    
+				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
 				    		"SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2) \n" +
@@ -39,16 +44,25 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?s marcrdf:value ?date } ").
 				    addResultSetToFields( new DateResultSetToFields()) ,
 				    
-				new SPARQLFieldMakerImpl().
-					setName("id").
-					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
-					addResultSetToFields( new AllResultsToField("id") ),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abc").
+					setMarcFieldNumber("260").
+					setSolrFieldName("pub_info")	,			
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abc").
+					setMarcFieldNumber("264").
+					setSolrFieldName("pub_info")	,			
 				    
 				new SubfieldCodeMaker().
 					setSubfieldCodes("a").
 					setMarcFieldNumber("245").
 					setSolrFieldName("title_display")	,			
 
+				new SubfieldCodeMaker().
+					setSubfieldCodes("b").
+					setMarcFieldNumber("245").
+					setSolrFieldName("subtitle_display"),
+					
 				new SubfieldCodeMaker().
 					setSubfieldCodes("abcdefghijklmnopqrstuvwxyz").
 					setMarcFieldNumber("130").
@@ -57,7 +71,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setSubfieldCodes("ab").
 					setMarcFieldNumber("210").
 					setSolrFieldName("title_addl_t"),				
-			    new SubfieldCodeMaker().
+				new SubfieldCodeMaker().
 					setSubfieldCodes("ab").
 					setMarcFieldNumber("222").
 					setSolrFieldName("title_addl_t"),
@@ -73,7 +87,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setSubfieldCodes("abcdefgklmnopqrs").
 					setMarcFieldNumber("243").
 					setSolrFieldName("title_addl_t"),
-   	            new SubfieldCodeMaker().
+				new SubfieldCodeMaker().
 					setSubfieldCodes("abnps").
 					setMarcFieldNumber("245").
 					setSolrFieldName("title_addl_t"),
@@ -105,9 +119,44 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker().
 					setSubfieldCodes("anp").
 					setMarcFieldNumber("740").
-					setSolrFieldName("title_added_entry_t")
+					setSolrFieldName("title_added_entry_t"),
 	
+				new SubfieldCodeMaker().
+					setSubfieldCodes("anpv").
+					setMarcFieldNumber("440").
+					setSolrFieldName("title_series_t"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("av").
+					setMarcFieldNumber("490").
+					setSolrFieldName("title_series_t"),
 
+				new SPARQLFieldMakerImpl().
+					setName("titles").
+					addMainStoreQuery("245_880",
+			    		"SELECT ?ind2 ?code ?value ?vern_val\n" +
+			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
+			    		"        ?f marcrdf:tag \"245\". \n" +
+			    		"        ?f marcrdf:ind2 ?ind2 . \n" +
+			    		"        ?f marcrdf:hasSubfield ?sf .\n" +
+			    		"        ?sf marcrdf:code ?code.\n" +
+			    		"        ?sf marcrdf:value ?value.\n" +
+			    		"        OPTIONAL {" +
+			    		"           $recordURI$ marcrdf:hasField ?f2.\n" +
+			    		"           ?f2 marcrdf:tag \"880\".\n" +
+			    		"           ?f2 marcrdf:hasSubfield ?sf2.\n" +
+			    		"           ?sf2 marcrdf:code ?code.\n" +
+				        "           ?sf2 marcrdf:value ?vern_val.\n" +
+                        "           ?f2 marcrdf:hasSubfield ?sf2_6.\n" +
+				        "           ?sf2_6 marcrdf:code \"6\".\n" +
+                        "           ?sf2_6 marcrdf:value ?link2.\n" +
+				  	    "           BIND( SUBSTR( xsd:string(?link2),5,2 ) AS ?link_code2).\n" +
+ 				        "           ?f marcrdf:hasSubfield ?sf_6.\n" +
+				        "           ?sf_6 marcrdf:code \"6\".\n" +
+                        "           ?sf_6 marcrdf:value ?link.\n" +
+			  		    "           BIND( SUBSTR( xsd:string(?link),5,2 ) AS ?link_code).\n" +
+                        "           FILTER( ?link_code = ?link_code2 ) }\n" +
+				        "      }\n").
+			    	addResultSetToFields( new TitleResultSetToFields())
 					
 		);
 	}
