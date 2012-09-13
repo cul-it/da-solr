@@ -22,22 +22,21 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class SubfieldCodeMaker implements FieldMaker {
 	
 	
-	public SubfieldCodeMaker(String subfieldCodes, String marcFieldNumber,
-			String solrFieldName) {
-		super();
-		this.subfieldCodes = subfieldCodes;
-		this.marcFieldNumber = marcFieldNumber;
+	public SubfieldCodeMaker(String solrFieldName, String marcFieldTag, String marcSubfieldCodes){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
 		this.solrFieldName = solrFieldName;
 	}
 
-	String subfieldCodes = "";
-	String marcFieldNumber = null;
+	String marcSubfieldCodes = "";
+	String marcFieldTag = null;
 	String solrFieldName = null;		
 
 	private String getName() {
 		return SubfieldCodeMaker.class.getSimpleName() +
-				" for MARC field " + marcFieldNumber + 
-				" and codes " + subfieldCodes;
+				" for MARC field " + marcFieldTag + 
+				" and codes " + marcSubfieldCodes;
 	}
 	
 	@Override
@@ -49,11 +48,11 @@ public class SubfieldCodeMaker implements FieldMaker {
 		String query = 
 				"SELECT ?code ?value WHERE { \n"+
 				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?field . \n"+
-			    "?field <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"" + marcFieldNumber + "\" . \n"+
+			    "?field <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"" + marcFieldTag + "\" . \n"+
 				"?field <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sfield .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n"+
-				"FILTER( CONTAINS( \"" + subfieldCodes + "\" , ?code) )\n"+
+				"FILTER( CONTAINS( \"" + marcSubfieldCodes + "\" , ?code) )\n"+
 				"} ORDER BY ?sfield";
 										
 		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl();
@@ -81,7 +80,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 			}
 			
 			String sortedVals = "";			
-			for( char code : subfieldCodes.toCharArray()){
+			for( char code : marcSubfieldCodes.toCharArray()){
 				String values = codeMap.get(Character.toString( code ));
 				if( values != null ) {
 					if (sortedVals.equals("")) {
