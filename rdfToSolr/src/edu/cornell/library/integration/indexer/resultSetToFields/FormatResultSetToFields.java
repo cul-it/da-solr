@@ -90,7 +90,10 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			format = "Unknown";
 		}
 		
-		fields.put("format", new SolrInputField( format ));
+//		fields.put("format", new SolrInputField( format ));
+		SolrInputField format_field = new SolrInputField("format");
+		format_field.addValue(format, 1);
+		fields.put("format", format_field);
 		
 		return fields;
 	}
