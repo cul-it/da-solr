@@ -29,6 +29,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addResultSetToFields( new AllResultsToField("id") ),
 			    
 				new SPARQLFieldMakerImpl().
+					setName("format").
+					addMainStoreQuery("bib_id","SELECT (SUBSTR(?leader,7,1) as ?rectype)\n" +
+					        "                          (SUBSTR(?leader,8,1) as ?biblvl)\n" +
+							"                          (SUBSTR(?seven,1,1) as ?cat)\n" +
+							"                    WHERE { $recordURI$ marcrdf:leader ?leader.\n" + 
+							"                            $recordURI$ marcrdf:hasField ?seven.\n" +
+							"                            ?seven marcrdf:tag \"007\".}").
+					addResultSetToFields( new FormatResultSetToFields() ),
+			    
+				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
 				    		"SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2) \n" +
@@ -52,7 +62,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setSubfieldCodes("abc").
 					setMarcFieldNumber("264").
 					setSolrFieldName("pub_info")	,			
-				    
+					
+				new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("250").
+					setSolrFieldName("edition")	,			
+					
 				new SubfieldCodeMaker().
 					setSubfieldCodes("a").
 					setMarcFieldNumber("245").
@@ -156,7 +171,145 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			  		    "           BIND( SUBSTR( xsd:string(?link),5,2 ) AS ?link_code).\n" +
                         "           FILTER( ?link_code = ?link_code2 ) }\n" +
 				        "      }\n").
-			    	addResultSetToFields( new TitleResultSetToFields())
+			    	addResultSetToFields( new TitleResultSetToFields()),
+			    	
+			    new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("500").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("501").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("502").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("503").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("504").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("508").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("513").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("adop").
+					setMarcFieldNumber("518").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("521").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("522").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("523").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("525").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("527").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abc3").
+					setMarcFieldNumber("530").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("aebcdfn3").
+					setMarcFieldNumber("533").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcefmpt").
+					setMarcFieldNumber("534").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("abcd3").
+					setMarcFieldNumber("535").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("537").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("538").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("544").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("ab").
+					setMarcFieldNumber("546").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("547").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("550").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("556").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("ab3").
+					setMarcFieldNumber("561").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("565").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("567").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("570").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("580").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("582").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("588").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("a").
+					setMarcFieldNumber("940").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("3z").
+					setMarcFieldNumber("856").
+					setSolrFieldName("notes"),
+				new SubfieldCodeMaker().
+					setSubfieldCodes("m").
+					setMarcFieldNumber("856").
+					setSolrFieldName("notes")
+
 					
 		);
 	}
