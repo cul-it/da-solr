@@ -27,29 +27,26 @@ public class RecordToDocumentTest1 extends RecordToDocumentBase {
 		return Arrays.asList(
 				
 				new SPARQLFieldMakerImpl().					
-				setName("fieldMakerTest1.field0"). 
-				addMainStoreQuery( "badquery", badquery).
-				addResultSetToFields( new AllResultsToField("solrField0") ) ,
+					setName("fieldMakerTest1.field1"). 
+					addMainStoreQuery( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
+					addResultSetToFields( new AllResultsToField("id") ) ,
+				
+				new SPARQLFieldMakerImpl().					
+					setName("fieldMakerTest1.field0"). 
+					addMainStoreQuery( "badquery", badquery).
+					addResultSetToFields( new AllResultsToField("solrField0_t") ) ,								
 				
 				new SPARQLFieldMakerImpl().					
 					setName("fieldMakerTest1.field1"). 
 					addMainStoreQuery( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
-					addResultSetToFields( new AllResultsToField("solrField1") ) ,
-				
-				new SPARQLFieldMakerImpl().					
-					setName("fieldMakerTest1.field1"). 
-					addMainStoreQuery( "query1", "SELECT * WHERE { $recordURI$ ?p ?o }").
-					addResultSetToFields( new AllResultsToField("solrField1") ) ,						
+					addResultSetToFields( new AllResultsToField("solrField1_t") ) ,						
 				
 				new SPARQLFieldMakerImpl().					
 				 	setName("fieldMakerTest1.field2").
 				 	addMainStoreQuery( "query2", "SELECT * WHERE { $recordURI$ ?p ?o }").
 				 	addResultSetToFields( new ExampleResultSetToFields() ) ,
 				
-				new SubfieldCodeMaker().
-					setSubfieldCodes("abcde").
-					setMarcFieldNumber("050").
-					setSolrFieldName("solr_field_name_for_050")					
+				new SubfieldCodeMaker("050","abcde","solr_field_name_for_050_t")					
 				 	
 		);
 	}
