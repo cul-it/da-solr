@@ -28,9 +28,9 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		
 		String vern_a = null;
-		String vern_b = null;
+		String vern_b = "";
 		String title_a = null;
-		String title_b = null;
+		String title_b = "";
 		Integer ind2 = 0;
 		
 		for( String resultKey: results.keySet()){
@@ -72,7 +72,8 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		addField(fields,"title_vern_display",vern_a);
 		addField(fields,"title_sort",title_a.substring(ind2).toLowerCase());
 		addField(fields,"subtitle_t",title_b);
-		addField(fields,"subtitle_t",vern_b);
+		if (! title_b.equals(vern_b))
+			addField(fields,"subtitle_t",vern_b);
 		addField(fields,"subtitle_vern_display",vern_b);		
 		
 		return fields;
