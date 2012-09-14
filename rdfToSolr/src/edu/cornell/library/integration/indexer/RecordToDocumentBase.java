@@ -24,10 +24,15 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  * This class is intended to be configured to convert a record 
  * into a SolrInputDocument by querying RDF sources. 
  */
-public abstract class RecordToDocumentBase implements RecordToDocument{
-		
+public abstract class RecordToDocumentBase implements RecordToDocument{	
+	
 	/** list of objects to build the fields of the solr doc. */
 	abstract List<? extends FieldMaker> getFieldMakers();	
+	
+	public void setDebug(boolean d){
+		debug = d;
+	}
+	boolean debug = false;
 	
 	/** Factory for empty local in-memory RDF stores. */
 	RDFServiceFactory getLocalStoreFactory(){		
@@ -60,7 +65,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	/** list of object to post process the solr document. Return empty
 	 * list if not needed. */
-	List<DocumentPostProcess> getDocumentPostProcess(){	
+	List<? extends DocumentPostProcess> getDocumentPostProcess(){	
 		return Collections.emptyList(); 
 	}	
 	
@@ -69,6 +74,9 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	public SolrInputDocument buildDoc(String recordURI,
 			RDFService mainStorQueryService) throws RDFServiceException {	
 						
+		if(debug)
+			System.out.println("building document for " + recordURI);
+		
 		//construct local graph
 		RDFService localStore = null;
 		if( getLocalStoreFactory() != null && getLocalDataMakers() != null ){
@@ -83,6 +91,9 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		//get all the fields
 		SolrInputDocument doc = new SolrInputDocument();
 		for( FieldMaker maker : getFieldMakers()){
+			if( debug )
+				System.out.println("executing: " + maker.getName());
+			
 			try {
 				//this needs to merge the values from fields with the same key
 				combineFields( doc, maker.buildFields(recordURI,mainStorQueryService, localStore));				
@@ -92,7 +103,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		}
 		
 		//Post process the Document
-		List<DocumentPostProcess> dpps = getDocumentPostProcess();
+		List<? extends DocumentPostProcess> dpps = getDocumentPostProcess();
 		if( dpps != null ){
 			for( DocumentPostProcess dpp : dpps){
 				dpp.p(recordURI, mainStorQueryService, localStore, doc);

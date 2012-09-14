@@ -35,6 +35,7 @@ public class CmdLineRecordToDocument extends CommandBase{
 		
 		//make an instance of the RecordToDocument class
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
+		r2d.setDebug(true);
 		
 		//setup SPARQL RDFService
 		RDFService queryService = new RDFServiceSparqlHttp( readEndpointURI );

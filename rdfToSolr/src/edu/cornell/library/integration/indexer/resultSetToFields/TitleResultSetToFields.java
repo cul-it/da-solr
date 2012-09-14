@@ -33,37 +33,28 @@ public class TitleResultSetToFields implements ResultSetToFields {
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
 					if (nodeToString(sol.get("code")).equals("a") ) {
-						String title_a = nodeToString(sol.get("value"));
-						Integer offset = Integer.valueOf(nodeToString(sol.get("ind2")));
-						SolrInputField title_t = new SolrInputField("title_t");
-						title_t.addValue(title_a, 1);
-						SolrInputField title_sort = new SolrInputField("title_sort");
-						title_sort.addValue(title_a.substring(offset).toLowerCase(), 1);
-						fields.put("title_sort", title_sort);
+						String title_a =nodeToString(sol.get("value"));
+						addField(fields, "title_t", title_a);
+												
 						if (sol.get("vern_val") != null) {
 							String vern_val = nodeToString(sol.get("vern_val"));
 							if (! vern_val.equals("")) {
-								title_t.addValue(vern_val, 1);
-								SolrInputField title_vern_display = new SolrInputField("title_vern_display");
-								title_vern_display.addValue(vern_val, 1);
-								fields.put("title_vern_display", title_vern_display);
+								addField(fields,"title_t",vern_val);
+								addField(fields,"title_vern_display",vern_val);							
 							}
-						}
-						fields.put("title_t", title_t);
+						}						
 					} else if (nodeToString(sol.get("code")).equals("b")) {
-						String title_b = nodeToString(sol.get("value"));
-						SolrInputField subtitle_t = new SolrInputField("subtitle_t");
-						subtitle_t.addValue(title_b, 1);
+						String title_b = nodeToString(sol.get("value"));						
+						addField(fields,"subtitle_t",title_b);						
+						
 						if (sol.get("vern_val") != null) {
 							String vern_val = nodeToString(sol.get("vern_val"));
 							if (! vern_val.equals("")) {
-								subtitle_t.addValue(vern_val, 1);
-								SolrInputField subtitle_vern_display = new SolrInputField( "subtitle_vern_display");
-								subtitle_vern_display.addValue(vern_val, 1);
-								fields.put("subtitle_vern_display", subtitle_vern_display);									
+								
+								addField(fields,"subtitle_t",vern_val);
+								addField(fields,"subtitle_vern_display",vern_val);									
 							}							
-						}
-						fields.put("subtitle_t", subtitle_t);
+						}						
 					}
 				}
 			}

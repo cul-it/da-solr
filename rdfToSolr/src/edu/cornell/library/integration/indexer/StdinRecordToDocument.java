@@ -23,6 +23,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlH
  */
 public class StdinRecordToDocument extends CommandBase {
 	static String idFieldKey = "id";
+	static int commitCount = 1;
 	
 	public static void main(String [] args){				
 		if( help( args ) ) 
@@ -34,6 +35,7 @@ public class StdinRecordToDocument extends CommandBase {
 		
 		//make an instance of the RecordToDocument class
 		RecordToDocument r2d = getRecordToDocumentImpl( recToDocImplClassName );		
+		r2d.setDebug(true);
 		
 		//setup SPARQL RDFService
 		RDFService rdfService = new RDFServiceSparqlHttp( rdfEndpointURI );
@@ -48,18 +50,29 @@ public class StdinRecordToDocument extends CommandBase {
 		}
 		
 		try{	
+			int count =0;
 			BufferedReader in = new BufferedReader(new InputStreamReader( System.in ));
 			String recordURI = in.readLine();
 			while(  recordURI != null ){
+				
 				System.err.println(recordURI);
-				addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService) );
+				try{
+					addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService) );
+				}catch(Exception ex){
+					System.out.println("exception while working on " + recordURI + "\n" + ex.getMessage());
+					ex.printStackTrace(System.out);
+				}
+				count++;
+				if( count % commitCount == 0)
+					solrServer.commit();
+				
 				recordURI = in.readLine();
 			}
 			
 			solrServer.commit();
 		}catch(Exception ex){
-			System.err.println( ex.toString() );
-			ex.printStackTrace(System.err);
+			System.out.println( ex.toString() );
+			ex.printStackTrace(System.out);
 			System.exit(1);
 		}finally{			
 			rdfService.close();			
@@ -72,7 +85,9 @@ public class StdinRecordToDocument extends CommandBase {
 
 		//this might not work well if there are multiple values for the id field        
         String idValue = ClientUtils.escapeQueryChars( (String)doc.getField( idFieldKey ).getFirstValue() );         
-		solrServer.deleteByQuery(idFieldKey + ":" + idValue );				
+		solrServer.deleteByQuery(idFieldKey + ":" + idValue );
+		
+		System.out.println( toString(doc) );
 		solrServer.add(doc);			
 	}
 

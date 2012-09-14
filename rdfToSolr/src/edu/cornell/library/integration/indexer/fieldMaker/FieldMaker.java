@@ -7,6 +7,8 @@ import org.apache.solr.common.SolrInputField;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public interface FieldMaker {
+	public String getName();
+	
 	/** 	
 	 * For the record identified by recordURI, build the some fields that for
 	 * a Solr Document that will be the indexed representation of that record  

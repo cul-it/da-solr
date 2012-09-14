@@ -10,13 +10,13 @@ import edu.cornell.library.integration.indexer.resultSetToFields.*;
  * An example RecordToDocument implementation. 
  */
 public class RecordToDocumentMARC extends RecordToDocumentBase {
-
 	
 	
 	@Override
-	List<DocumentPostProcess> getDocumentPostProcess() {
-		// TODO Auto-generated method stub
-		return super.getDocumentPostProcess();
+	List<? extends DocumentPostProcess> getDocumentPostProcess() {
+		return Arrays.asList(
+			new SinglePubDateSort()
+		);
 	}
 
 	@Override
@@ -84,10 +84,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("pub_info_display","264","abc"),
 					
 				new SubfieldCodeMaker("edition_display","250","ab"),
-					
-				new SubfieldCodeMaker("title_display","245","a"),
-				new SubfieldCodeMaker("subtitle_display","245","b"),
-					
+									
 				new SubfieldCodeMaker("title_addl_t","130","abcdefghijklmnopqrstuvwxyz"),
 				new SubfieldCodeMaker("title_addl_t","210","ab"),
 				new SubfieldCodeMaker("title_addl_t","222","ab"),
@@ -106,38 +103,56 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SubfieldCodeMaker("title_series_t","440","anpv"),
 				new SubfieldCodeMaker("title_series_t","490","av"),
+
+				
+				new SubfieldCodeMaker("title_display","245","a"),
+				new SubfieldCodeMaker("subtitle_display","245","b"),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
 					addMainStoreQuery("245_880",
-			    		"SELECT ?ind2 ?code ?value ?vern_val\n" +
+			    		"SELECT ?code ?value ?vern_val\n" +
 			    		"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
 			    		"        ?f245 marcrdf:tag \"245\". \n" +
-			    		"        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
 			    		"        ?f245sf marcrdf:code ?code.\n" +
 			    		"        ?f245sf marcrdf:value ?value.\n" +
 			    		
-			    		"        OPTIONAL {" +
-			    		"           $recordURI$ marcrdf:hasField ?f880.\n" +
-			    		"           ?f880 marcrdf:tag \"880\".\n" +
-			    		"           ?f880 marcrdf:hasSubfield ?f880sf.\n" +		
-			    		//should this ?code be something like ?f880sfcode
-			    		"           ?f880sf marcrdf:code ?code.\n" +
-				        "           ?f880sf marcrdf:value ?vern_val.\n" +	
+			    		"        OPTIONAL {" +			    	
 			    		
 						"           ?f245 marcrdf:hasSubfield ?f245sf6.\n" +
 						"           ?f245sf6 marcrdf:code \"6\".\n" +
 						"           ?f245sf6 marcrdf:value ?link.\n" +
 
+			    		"           $recordURI$ marcrdf:hasField ?f880.\n" +
+			    		"           ?f880 marcrdf:tag \"880\".\n" +
+			    		"           ?f880 marcrdf:hasSubfield ?f880sf.\n" +		
+
                         "           ?f880 marcrdf:hasSubfield ?f880sf6.\n" +				        
 				        "           ?f880sf6 marcrdf:code \"6\".\n" +
                         "           ?f880sf6 marcrdf:value ?link2.\n" +                                                                         				       
+
+			    		//"           ?f880sf marcrdf:code ?code.\n" +
+				        "           ?f880sf marcrdf:value ?vern_val.\n" +	
 				        
-                        "           FILTER( SUBSTR( xsd:string(?link2),5,2 ) " +
+                        "           FILTER( SUBSTR( xsd:string(?link2),5,2 ) \n" +
                         "                   = SUBSTR( xsd:string(?link),5,2 ) ) }\n" +
 				        "      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
+			    
+			    new SPARQLFieldMakerImpl().
+					setName("sort_title").
+					addMainStoreQuery("sort_title",
+			    		"SELECT ?ind2 ?title \n" +
+			    		"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
+			    		"        ?f245 marcrdf:tag \"245\". \n" +
+			    		"        ?f245 marcrdf:ind2 ?ind2 . \n" +
+			    		"        ?f245 marcrdf:hasSubfield ?f245sfa .\n" +
+			    		"        ?f245sfa marcrdf:code 'a' . \n" +
+			    		"        ?f245sfa marcrdf:value ?title .\n" +			    					    		
+				        "      }\n").
+			    	addResultSetToFields( new SortTitleResultSetToFields()),
+			    	
 			    	
 				new SubfieldCodeMaker("notes_display","500","a"),
 				new SubfieldCodeMaker("notes_display","501","a"),

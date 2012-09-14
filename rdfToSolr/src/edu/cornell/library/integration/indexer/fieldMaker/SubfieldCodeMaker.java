@@ -13,6 +13,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
@@ -33,7 +34,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 	String marcFieldTag = null;
 	String solrFieldName = null;		
 
-	private String getName() {
+	public String getName() {
 		return SubfieldCodeMaker.class.getSimpleName() +
 				" for MARC field " + marcFieldTag + 
 				" and codes " + marcSubfieldCodes;
@@ -103,8 +104,8 @@ public class SubfieldCodeMaker implements FieldMaker {
 			Literal codeLit = sol.getLiteral("code");
 			Literal valueLit = sol.getLiteral("value");
 			if( codeLit != null || valueLit != null ){
-				String code = codeLit.getLexicalForm();
-				String value = valueLit.getLexicalForm();
+				String code = nodeToString( codeLit );
+				String value = nodeToString( valueLit );
 				String values = codeMap.get(code);
 				if( values == null ){					
 					codeMap.put(code, value);

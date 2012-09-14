@@ -13,8 +13,8 @@ public interface RecordToDocument {
 	
 	/** Query for information about a record and build a Solr document for that record. 
 	 * @throws RDFServiceException */
-	public 
-	SolrInputDocument buildDoc(String recordURI, RDFService queryService ) 
+	public 	SolrInputDocument buildDoc(String recordURI, RDFService queryService ) 
 	throws RDFServiceException;
 
+	public void setDebug(boolean d);
 }
