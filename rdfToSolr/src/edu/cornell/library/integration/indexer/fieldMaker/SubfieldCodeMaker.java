@@ -47,14 +47,14 @@ public class SubfieldCodeMaker implements FieldMaker {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
 		String query = 
-				"SELECT ?code ?value WHERE { \n"+
-				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?field . \n"+
-			    "?field <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"" + marcFieldTag + "\" . \n"+
-				"?field <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sfield .\n"+
+				"SELECT (str(?f) as ?field) ?code ?value WHERE { \n"+
+				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f . \n"+
+			    "?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"" + marcFieldTag + "\" . \n"+
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sfield .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sfield <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n"+
 				"FILTER( CONTAINS( \"" + marcSubfieldCodes + "\" , ?code) )\n"+
-				"} ORDER BY ?sfield";
+				"} ";
 										
 		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl();
 		impl.setMainStoreQueries(Collections.singletonMap(queryKey, query));
@@ -74,44 +74,63 @@ public class SubfieldCodeMaker implements FieldMaker {
 			if( results == null || results.get(queryKey) == null )
 				throw new Exception( getName() + " did not get any result sets");
 				
-			Map<String,String> codeMap = new HashMap<String,String>();
+			Map<String,Map<String,String>> codeMap = new HashMap<String, Map<String, String>>();
 			ResultSet rs = results.get(queryKey);
 			while( rs.hasNext() ){
-				addSolToMap( codeMap, rs.nextSolution() );				
+				QuerySolution sol = rs.nextSolution();
+				addSolToMap( codeMap, sol );				
 			}
-			
-			String sortedVals = "";			
-			for( char code : marcSubfieldCodes.toCharArray()){
-				String values = codeMap.get(Character.toString( code ));
-				if( values != null ) {
-					if (sortedVals.equals("")) {
-						sortedVals = values;
-					} else {
-						sortedVals = sortedVals + " " + values;
+
+			SolrInputField solrField = new SolrInputField(solrFieldName);			
+
+			for (String field : codeMap.keySet()) {
+
+				String sortedVals = "";	
+				Map<String,String> fieldMap = codeMap.get(field);
+				for( char code : marcSubfieldCodes.toCharArray()){
+					String values = fieldMap.get(Character.toString( code ));
+					if( values != null ) {
+						if (sortedVals.equals("")) {
+							sortedVals = values;
+						} else {
+							sortedVals = sortedVals + " " + values;
+						}
 					}
 				}
+				if( sortedVals.trim().length() != 0){
+					solrField.addValue(sortedVals, 1.0f);
+				}				
 			}
-			if( sortedVals.trim().length() != 0){
-				SolrInputField solrField = new SolrInputField(solrFieldName);			
-				solrField.addValue(sortedVals, 1.0f);
+
+			if (solrField.getValueCount() > 0) {
 				return Collections.singletonMap(solrFieldName, solrField);
-			}else{ 
+			} else { 
 				return Collections.emptyMap();
 			}
 		}		
 
-		private void addSolToMap(Map<String,String> codeMap, QuerySolution sol){
+		private void addSolToMap(Map<String,Map<String,String>> codeMap,
+								 QuerySolution sol){
 			Literal codeLit = sol.getLiteral("code");
+			Literal fieldLit = sol.getLiteral("field");
 			Literal valueLit = sol.getLiteral("value");
 			if( codeLit != null || valueLit != null ){
+				String field = nodeToString( fieldLit );
 				String code = nodeToString( codeLit );
 				String value = nodeToString( valueLit );
-				String values = codeMap.get(code);
+				Map<String,String> fieldMap ;
+				if (codeMap.containsKey(field)) {
+					fieldMap = codeMap.get(field);
+				} else {
+					fieldMap = new HashMap<String,String>();
+				}
+				String values = fieldMap.get(code);
 				if( values == null ){					
-					codeMap.put(code, value);
+					fieldMap.put(code, value);
 				}else{
-					codeMap.put(code, values + ' ' + value);				
-				}	
+					fieldMap.put(code, values + ' ' + value);				
+				}
+				codeMap.put(field, fieldMap);
 			}
 		}
 	};
