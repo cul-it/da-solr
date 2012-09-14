@@ -42,7 +42,8 @@ public class ResultSetUtilities {
 		}		 		
 	}
 	
-	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {		
+	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {
+		if ((value == null) || (value.equals(""))) {  return; }
 		SolrInputField field = fields.get(fieldName);
 		if( field == null ){
 			field = new SolrInputField(fieldName);

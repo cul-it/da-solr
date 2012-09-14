@@ -110,49 +110,33 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
-					addMainStoreQuery("245_880",
-			    		"SELECT ?code ?value ?vern_val\n" +
-			    		"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
+					addMainStoreQuery("title_main",
+						"SELECT ?code ?value\n" +
+						" WHERE { $recordURI$ marcrdf:hasField ?f245.\n" +
 			    		"        ?f245 marcrdf:tag \"245\". \n" +
 			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
 			    		"        ?f245sf marcrdf:code ?code.\n" +
 			    		"        ?f245sf marcrdf:value ?value.\n" +
-			    		
-			    		"        OPTIONAL {" +			    	
-			    		
-						"           ?f245 marcrdf:hasSubfield ?f245sf6.\n" +
-						"           ?f245sf6 marcrdf:code \"6\".\n" +
-						"           ?f245sf6 marcrdf:value ?link.\n" +
-
-			    		"           $recordURI$ marcrdf:hasField ?f880.\n" +
-			    		"           ?f880 marcrdf:tag \"880\".\n" +
-			    		"           ?f880 marcrdf:hasSubfield ?f880sf.\n" +		
-
-                        "           ?f880 marcrdf:hasSubfield ?f880sf6.\n" +				        
-				        "           ?f880sf6 marcrdf:code \"6\".\n" +
-                        "           ?f880sf6 marcrdf:value ?link2.\n" +                                                                         				       
-
-			    		//"           ?f880sf marcrdf:code ?code.\n" +
-				        "           ?f880sf marcrdf:value ?vern_val.\n" +	
-				        
-                        "           FILTER( SUBSTR( xsd:string(?link2),5,2 ) \n" +
-                        "                   = SUBSTR( xsd:string(?link),5,2 ) ) }\n" +
-				        "      }\n").
-			    	addResultSetToFields( new TitleResultSetToFields()),
-			    
-			    new SPARQLFieldMakerImpl().
-					setName("sort_title").
-					addMainStoreQuery("sort_title",
-			    		"SELECT ?ind2 ?title \n" +
-			    		"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
-			    		"        ?f245 marcrdf:tag \"245\". \n" +
-			    		"        ?f245 marcrdf:ind2 ?ind2 . \n" +
-			    		"        ?f245 marcrdf:hasSubfield ?f245sfa .\n" +
-			    		"        ?f245sfa marcrdf:code 'a' . \n" +
-			    		"        ?f245sfa marcrdf:value ?title .\n" +			    					    		
-				        "      }\n").
-			    	addResultSetToFields( new SortTitleResultSetToFields()),
-			    	
+			    		" }").
+			    	addMainStoreQuery("title_vern",
+			    		"SELECT ?code ?value\n" +
+						" WHERE { $recordURI$ marcrdf:hasField ?f880.\n" +
+				   		"        ?f880 marcrdf:tag \"880\". \n" +
+						"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
+						"        ?f880sf marcrdf:code ?code.\n" +
+						"        ?f880sf marcrdf:value ?value.\n" +
+						"        ?f880 marcrdf:hasSubfield ?f880sf6.\n" +
+						"        ?f880sf6 marcrdf:code \"6\".\n" +
+						"        ?f880sf6 marcrdf:value ?value6.\n" +
+						"        FILTER( regex( str(?value6), \"^245\" ))\n" +
+			    		" }"	).
+			    	addMainStoreQuery("title_sort_offset",
+					    "SELECT ?ind2 \n" +
+						"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
+						"        ?f245 marcrdf:tag \"245\". \n" +
+					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
+			    		"      }\n").
+			    	addResultSetToFields( new TitleResultSetToFields()),			    	
 			    	
 				new SubfieldCodeMaker("notes_display","500","a"),
 				new SubfieldCodeMaker("notes_display","501","a"),
