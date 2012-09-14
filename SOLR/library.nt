@@ -1,9 +1,9 @@
 
 <http://fbw4-dev.library.cornell.edu/individuals/lg_oku> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/LibraryGroup> .
 <http://fbw4-dev.library.cornell.edu/individuals/lg_oku> <http://www.w3.org/2000/01/rdf-schema#label> "Olin, Kroch and Uris" .
-<http://fbw4-dev.library.cornell.edu/individuals/lib_olin> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/lg_oku> .
-<http://fbw4-dev.library.cornell.edu/individuals/lib_uris> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/lg_oku> .
-<http://fbw4-dev.library.cornell.edu/individuals/lib_kroch> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/lg_oku> .
+<http://fbw4-dev.library.cornell.edu/individuals/lib_olin> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/individuals/lg_oku> .
+<http://fbw4-dev.library.cornell.edu/individuals/lib_uris> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/individuals/lg_oku> .
+<http://fbw4-dev.library.cornell.edu/individuals/lib_kroch> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/hasGroup> <http://fbw4-dev.library.cornell.edu/individuals/lg_oku> .
 
 
 
