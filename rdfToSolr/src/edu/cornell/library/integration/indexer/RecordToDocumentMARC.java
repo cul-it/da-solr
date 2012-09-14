@@ -136,7 +136,33 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						"        ?f245 marcrdf:tag \"245\". \n" +
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
-			    	addResultSetToFields( new TitleResultSetToFields()),			    	
+			    	addResultSetToFields( new TitleResultSetToFields()),
+			    	
+			    new SPARQLFieldMakerImpl().
+			        setName("Locations").
+			        addMainStoreQuery("location",
+			        	"SELECT ?bib_id ?location_name ?library_name ?group_name \n"+
+			        	"WHERE {\n"+
+                        "  $recordURI$ rdfs:label ?bib_id.\n"+
+			        	"  OPTIONAL {\n" +
+			        	"    ?hold marcrdf:hasField ?hold04.\n" +
+			        	"    ?hold04 marcrdf:tag \"004\".\n" +
+			        	"    ?hold04 marcrdf:value ?bib_id.\n" +
+			        	"    ?hold marcrdf:hasField ?hold852.\n" +
+			        	"    ?hold852 marcrdf:tag \"852\".\n" +
+			        	"    ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
+			        	"    ?hold852b marcrdf:code \"b\".\n" +
+			        	"    ?hold852b marcrdf:value ?loccode.\n" +
+			        	"    ?location intlayer:code ?loccode.\n" +
+			        	"    ?location rdfs:label ?location_name.\n" +
+			        	"    OPTIONAL {\n" +
+			        	"      ?location intlayer:hasLibrary ?library.\n" +
+			        	"      ?library rdfs:label ?library_name.\n" +
+			        	"      OPTIONAL {\n" +
+			        	"        ?library intlayer:hasGroup ?libgroup.\n" +
+			        	"        ?libgroup rdfs:label ?group_name.\n" +
+			        	"}}}}").
+			        addResultSetToFields( new LocationResultSetToFields() ),
 			    	
 				new SubfieldCodeMaker("notes_display","500","a"),
 				new SubfieldCodeMaker("notes_display","501","a"),
