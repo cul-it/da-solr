@@ -21,9 +21,12 @@ public class SinglePubDateSort implements DocumentPostProcess{
 		SolrInputField pubDate = document.getField("pub_date");
 		
 		//do our own fake copy field
-		if( pubDateSort == null && pubDate != null ){
-			document.addField("pub_date_sort", pubDate.getFirstValue());			
+		if( pubDateSort == null) {
+			if (pubDate != null ) {
+				document.addField("pub_date_sort", pubDate.getFirstValue());			
+			}
 		}else{
+			//make sure there aren't multiple values
 			if( pubDateSort.getValueCount() > 1 ){
 				Object value1 = pubDateSort.getFirstValue();
 				pubDateSort = new SolrInputField("pub_date_sort");
