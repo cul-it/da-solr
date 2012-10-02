@@ -47,8 +47,8 @@ public class CmdLineRecordToDocument extends CommandBase{
 		//make the solr document
 		try{			
 			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);						
-			System.out.println( toString( doc ) );
-			System.out.println( ClientUtils.toXML( doc ) );
+			System.out.println( toString( doc ) + "\n\n" );
+			System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 			
 			//index the solr doc if a server was specified 
 			if( solrIndexURL != null )
