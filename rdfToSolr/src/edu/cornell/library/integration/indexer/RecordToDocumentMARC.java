@@ -108,6 +108,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_display","245","a"),
 				new SubfieldCodeMaker("subtitle_display","245","b"),
 				
+				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs"),
+				new SubfieldCodeMaker("title_other_display","246","abfnpgi"),
+				new SubfieldCodeMaker("title_other_display","247","abfgnpx"),
+				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh"),
+				new SubfieldCodeMaker("title_other_display","740","iahnp"),
+
+				
+				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
 					addMainStoreQuery("title_main",
@@ -137,6 +145,40 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
+
+			    new SPARQLFieldMakerImpl().
+			        setName("CallNumbers").
+			        addMainStoreQuery("holdings_callno",
+			        	"SELECT ?part1 ?part2 \n"+
+			        	"WHERE {\n"+
+                        "  $recordURI$ rdfs:label ?bib_id.\n"+
+			        	"  ?hold marcrdf:hasField ?hold04.\n" +
+			        	"  ?hold04 marcrdf:tag \"004\".\n" +
+			        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+			        	"  ?hold marcrdf:hasField ?hold852.\n" +
+			        	"  ?hold852 marcrdf:tag \"852\".\n" +
+			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
+			        	"  ?hold852b marcrdf:code \"h\".\n" +
+			        	"  ?hold852b marcrdf:value ?part1.\n" +
+			        	"  OPTIONAL {\n" +
+			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
+			        	"    ?hold852b marcrdf:code \"i\".\n" +
+			        	"    ?hold852b marcrdf:value ?part2. }\n" +
+			        	"}").
+				    addMainStoreQuery("bib_callno",
+					    "SELECT ?part1 ?part2 \n"+
+				    	"WHERE {\n"+
+		                "  $recordURI$ marcrdf:hasField ?f50.\n" +
+				    	"  ?f50 marcrdf:tag \"050\".\n" +
+				    	"  ?f50 marcrdf:hasSubfield ?f50a.\n" +
+				      	"  ?f50a marcrdf:code \"a\".\n" +
+				      	"  ?f50a marcrdf:value ?part1.\n" +
+					    "  OPTIONAL {\n" +
+					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
+					   	"    ?f50b marcrdf:code \"b\".\n" +
+					   	"    ?f50b marcrdf:value ?part2. }\n" +
+					    "}").
+			        addResultSetToFields( new CallNumberResultSetToFields() ),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
