@@ -123,6 +123,7 @@
           <str name="facet.field">lc_alpha_facet</str>
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
@@ -143,6 +144,7 @@
           <str name="facet.field">lc_alpha_facet</str>
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
@@ -169,6 +171,7 @@
           <str name="facet.field">lc_alpha_facet</str>
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
@@ -189,6 +192,7 @@
           <str name="facet.field">lc_alpha_facet</str>
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
@@ -347,6 +351,7 @@
         format, 
         isbn_t, 
         language_facet, 
+        location_facet, 
         lc_callnum_display,
         material_type_display, 
         published_display,
@@ -371,6 +376,7 @@
       <str name="facet.field">lc_alpha_facet</str>
       <str name="facet.field">lc_b4cutter_facet</str>
       <str name="facet.field">language_facet</str>
+      <str name="facet.field">location_facet</str>
       <str name="facet.field">pub_date</str>
       <str name="facet.field">subject_era_facet</str>
       <str name="facet.field">subject_geo_facet</str>
@@ -487,6 +493,7 @@
         format, 
         isbn_t, 
         language_facet, 
+        location_facet, 
         lc_callnum_display,
         material_type_display, 
         published_display,
@@ -511,6 +518,7 @@
       <str name="facet.field">lc_alpha_facet</str>
       <str name="facet.field">lc_b4cutter_facet</str>
       <str name="facet.field">language_facet</str>
+      <str name="facet.field">location_facet</str>
       <str name="facet.field">pub_date</str>
       <str name="facet.field">subject_era_facet</str>
       <str name="facet.field">subject_geo_facet</str>
