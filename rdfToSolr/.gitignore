@@ -6,7 +6,8 @@ nbproject/private/
 
 #ignore eclipse build directory
 bin/
-
+.classpath
+.project
 
 ## generic files to ignore
 *~
