@@ -35,7 +35,6 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
-			System.out.println(resultKey);
 			if( rs != null){
 				if (resultKey.equals("title_sort_offset")) {
 					QuerySolution sol = rs.nextSolution();
