@@ -2,7 +2,10 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -26,6 +29,8 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		List<String> facets = new ArrayList<String>();		
+		List<String> displays = new ArrayList<String>();		
 		
 		
 		for( String resultKey: results.keySet()){
@@ -33,12 +38,17 @@ public class LocationResultSetToFields implements ResultSetToFields {
 			if( rs != null){
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
-					addField(fields,"location_display",nodeToString(sol.get("location_name")));
-					addField(fields,"location_facet",nodeToString(sol.get("library_name")));
-					addField(fields,"location_facet",nodeToString(sol.get("group_name")));
+					displays.add(nodeToString(sol.get("location_name")));
+					facets.add(nodeToString(sol.get("library_name")));
+					facets.add(nodeToString(sol.get("group_name")));
 				}
 			}
 		}
+
+		Iterator<String> i = facets.iterator();
+		while (i.hasNext()) addField(fields,"location_facet",i.next());
+		i = displays.iterator();
+		while (i.hasNext()) addField(fields,"location_display",i.next());
 		
 		return fields;
 	}
