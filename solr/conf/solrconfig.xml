@@ -33,7 +33,7 @@
     -->
   <!-- <lib dir="../../contrib/clustering/lib/downloads/" /> -->
   
-  <dataDir>${solr.data.dir:./solr/data}</dataDir>
+  <dataDir>${solr.data.dir:}</dataDir>
   
   <!-- index time configurations -->
   <indexDefaults>

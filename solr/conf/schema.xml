@@ -302,7 +302,7 @@
   <copyField source="subject_topic_facet" dest="subject_topic_unstem_search"/>
   
   <!-- sort fields -->
-  <copyField source="pub_date" dest="pub_date_sort"/>
+  <!-- pub_date may have multiple values so pub_date_sort needs to be manually created -->
   
 
   <!-- spellcheck fields -->
