@@ -2,12 +2,15 @@ package edu.cornell.library.integration.indexer;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.NamedList;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
@@ -104,10 +107,27 @@ public class CmdLineRecordToDocument extends CommandBase{
 		docs.add( doc );
 		
 		UpdateResponse resp = server.add(docs);
-		if( resp != null && (resp.getStatus() < 200 || resp.getStatus() > 299 ) ){			
-			throw new Exception("Could not add document  "+ idFieldKey +" to Solr index: " + resp.toString() );
+		System.out.println( respToString( resp ) );
+		
+		server.commit();		
+	}
+	
+	private static String respToString( UpdateResponse resp){
+		String out="response not yet set";
+		if( resp == null ){
+			out = "no responnse";
 		}else{
-			server.commit();
+			int status = resp.getStatus();
+			NamedList<Object>objs = resp.getResponse();
+			out = "status: " +status + "\n";
+			if( objs != null ){
+				Iterator<Entry<String,Object>> it =  objs.iterator();
+				while(it.hasNext()){
+					Entry<String, Object> e = it.next();
+					out = out + " " + e.getKey() + ": " + e.getValue() + "\n";
+				}				
+			}
 		}
+		return out;
 	}
 }
