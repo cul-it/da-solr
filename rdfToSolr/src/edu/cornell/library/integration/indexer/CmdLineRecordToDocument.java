@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
@@ -88,10 +89,8 @@ public class CmdLineRecordToDocument extends CommandBase{
 		if( doc.getField( idFieldKey ) == null )
 			throw new Exception("a identifier field of '" +idFieldKey+"' is required");				    
 		
-        boolean useMultiPartPost = true;
         //It would be nice to use the default binary handler but there seem to be library problems
         CommonsHttpSolrServer server = 
-        		//new CommonsHttpSolrServer(new URL(solrIndexURL),null,new XMLResponseParser(),useMultiPartPost);
         		new CommonsHttpSolrServer(new URL(solrIndexURL));
         		
 		//SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
@@ -104,7 +103,11 @@ public class CmdLineRecordToDocument extends CommandBase{
 		List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 		docs.add( doc );
 		
-		server.add(docs);		
-		server.commit();		
+		UpdateResponse resp = server.add(docs);
+		if( resp != null && (resp.getStatus() < 200 || resp.getStatus() > 299 ) ){			
+			throw new Exception("Could not add document  "+ idFieldKey +" to Solr index: " + resp.toString() );
+		}else{
+			server.commit();
+		}
 	}
 }
