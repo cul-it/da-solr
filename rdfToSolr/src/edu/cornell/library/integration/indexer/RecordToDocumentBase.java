@@ -29,8 +29,9 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	/** list of objects to build the fields of the solr doc. */
 	abstract List<? extends FieldMaker> getFieldMakers();	
 	
-	public void setDebug(boolean d){
+	public RecordToDocument setDebug(boolean d){
 		debug = d;
+		return this;
 	}
 	boolean debug = false;
 	
