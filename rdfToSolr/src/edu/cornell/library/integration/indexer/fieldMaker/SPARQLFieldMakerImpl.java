@@ -189,10 +189,4 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	}
 	
 	static final Log log = LogFactory.getLog( SPARQLFieldMakerImpl.class);
-
-	@Override
-	public FieldMaker setDebug(boolean d) {
-		this.debug = d;
-		return this;
-	}
 }
