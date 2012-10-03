@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
 import edu.cornell.library.integration.indexer.fieldMaker.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
@@ -12,9 +13,10 @@ import edu.cornell.library.integration.indexer.resultSetToFields.*;
 public class RecordToDocumentMARC extends RecordToDocumentBase {
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
-		return Arrays.asList(
+		return (List<? extends DocumentPostProcess>) Arrays.asList(
 			new SinglePubDateSort()
 		);
 	}
