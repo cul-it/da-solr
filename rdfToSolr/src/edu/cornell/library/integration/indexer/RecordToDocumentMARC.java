@@ -3,9 +3,17 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
-import edu.cornell.library.integration.indexer.fieldMaker.*;
-import edu.cornell.library.integration.indexer.resultSetToFields.*;
+import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
+import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
+import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
+import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
+import edu.cornell.library.integration.indexer.resultSetToFields.CallNumberResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetToFields;
 
 /**
  * An example RecordToDocument implementation. 

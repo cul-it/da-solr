@@ -12,6 +12,7 @@ import org.apache.solr.common.SolrInputDocument;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeListener;
@@ -73,7 +74,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			RDFService mainStorQueryService) throws RDFServiceException {	
+			RDFService mainStorQueryService) throws Exception {	
 						
 		if(debug)
 			System.out.println("building document for " + recordURI);

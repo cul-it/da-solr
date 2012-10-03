@@ -12,9 +12,10 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 public interface RecordToDocument {
 	
 	/** Query for information about a record and build a Solr document for that record. 
-	 * @throws RDFServiceException */
+	 * @throws RDFServiceException 
+	 * @throws Exception */
 	public 	SolrInputDocument buildDoc(String recordURI, RDFService queryService ) 
-	throws RDFServiceException;
+	throws RDFServiceException, Exception;
  
 	public RecordToDocument setDebug(boolean d);
 }
