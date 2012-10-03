@@ -14,7 +14,7 @@ public interface FieldMaker {
 	 * a Solr Document that will be the indexed representation of that record  
 	 * @param recordURI - URI of record to build Solr document for.
 	 * @param mainStore - Service for main triple store
-	 * @param localStore - Service for localy constructed triple store
+	 * @param localStore - Service for locally constructed triple store
 	 * @return A Map of Solr field name to SolrInputField objects.
 	 * @throws Exception 
 	 */
@@ -22,4 +22,9 @@ public interface FieldMaker {
 			String recordURI, 
 			RDFService mainStore, 
 			RDFService localStore) throws Exception; 
+	
+	/**
+	 * If set to true, the FieldMaker should output some debugging info.
+	 */
+	FieldMaker setDebug(boolean d);
 }

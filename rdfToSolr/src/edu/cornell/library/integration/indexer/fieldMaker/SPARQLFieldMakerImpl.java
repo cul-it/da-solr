@@ -46,6 +46,8 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	
 	
 	Map<String,String> defaultPrefixes;
+
+	protected boolean debug;
 	
 	public SPARQLFieldMakerImpl() {
 		this.defaultPrefixes = new HashMap<String,String>();
@@ -121,6 +123,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 				for( String queryName : queries.keySet()){			
 					String query = queries.get(queryName);
 					query = substitueInRecordURI( recordURI, query );
+					debugLocalQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, localStore);
 					results.put(queryName, rs);			
 				}
@@ -140,6 +143,7 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 					}
 					querybuild.append(substitueInRecordURI( recordURI, queries.get(queryName) ));
 					String query = querybuild.toString();
+					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
 					results.put(queryName, rs);			
 				}
@@ -150,6 +154,16 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	}	
 	
 	
+	private void debugRemoteQuery(String query) {
+		if( debug )
+			System.out.println("Remote query for " + getName() + ":'" + query + "'");
+	}
+
+	private void debugLocalQuery(String query) {
+		if( debug )
+			System.out.println("Local query for " + getName() + ":'" + query + "'");		
+	}
+
 	Map<? extends String, ? extends SolrInputField> toSolrFields( Map<String, ResultSet> results ) throws Exception{
 		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
 		for( ResultSetToFields r2f : getResultSetToFields() ){
@@ -175,4 +189,10 @@ public class SPARQLFieldMakerImpl implements FieldMaker{
 	}
 	
 	static final Log log = LogFactory.getLog( SPARQLFieldMakerImpl.class);
+
+	@Override
+	public FieldMaker setDebug(boolean d) {
+		this.debug = d;
+		return this;
+	}
 }
