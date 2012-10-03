@@ -69,11 +69,11 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		addField(fields,"title_t",title_a);
 		addField(fields,"title_t",vern_a);
 		addField(fields,"title_vern_display",vern_a);
-		addField(fields,"title_sort",title_a.substring(ind2).toLowerCase());
-		addField(fields,"subtitle_t",title_b);
+		addField(fields,"title_sort",RemoveTrailingPunctuation(title_a.substring(ind2).toLowerCase(),":/ "));
+		addField(fields,"subtitle_t",RemoveTrailingPunctuation(title_b,":/ "));
 		if (! title_b.equals(vern_b))
 			addField(fields,"subtitle_t",vern_b);
-		addField(fields,"subtitle_vern_display",vern_b);		
+		addField(fields,"subtitle_vern_display",RemoveTrailingPunctuation(vern_b,":/ "));		
 		
 		return fields;
 	}

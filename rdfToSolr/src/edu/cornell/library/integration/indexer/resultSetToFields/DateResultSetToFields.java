@@ -44,7 +44,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 						if( node != null ) {
 							String value = nodeToString(node);
 							if (resultKey.equals("human_dates")) {
-								addField(fields, "pub_date_display", value);
+								addField(fields, "pub_date_display", RemoveTrailingPunctuation(value,"."));
 							} else if (resultKey.equals("machine_dates")) {
 								Matcher m = p.matcher(value);
 								if (m.matches()) {

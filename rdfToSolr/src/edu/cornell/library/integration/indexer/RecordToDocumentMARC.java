@@ -119,11 +119,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_display","245","a",":/ "),
 				new SubfieldCodeMaker("subtitle_display","245","b",":/ "),
 				
-				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs"),
-				new SubfieldCodeMaker("title_other_display","246","abfnpgi"),
-				new SubfieldCodeMaker("title_other_display","247","abfgnpx"),
-				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh"),
-				new SubfieldCodeMaker("title_other_display","740","iahnp"),
+				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
+				new SubfieldCodeMaker("title_other_display","246","abfnpgi",":/ "),
+				new SubfieldCodeMaker("title_other_display","247","abfgnpx",":/ "),
+				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh",":/ "),
+				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
 				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
@@ -262,20 +262,57 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("notes_display","856","3z"),
 				new SubfieldCodeMaker("notes_display","856","m"),
 				
-				new SubfieldCodeMaker("author_t","100","abcegqu"),
-				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_t","111","acdegjnqu"),
+				new SubfieldCodeMaker("subject_era_facet","650","y","."),
+				new SubfieldCodeMaker("subject_era_facet","651","y","."),
+				new SubfieldCodeMaker("subject_era_facet","654","y","."),
+				new SubfieldCodeMaker("subject_era_facet","655","y","."),
 
-				new SubfieldCodeMaker("author_addl_t","700","abcegqu"),
-				new SubfieldCodeMaker("author_addl_t","710","abcdegnu"),
-				new SubfieldCodeMaker("author_addl_t","711","acdegjnqu"),
+				new SubfieldCodeMaker("subject_geo_facet","651","a","."),
+				new SubfieldCodeMaker("subject_geo_facet","650","z","."),
+
+				new SubfieldCodeMaker("subject_topic_facet","600","abcdq",",."),
+				new SubfieldCodeMaker("subject_topic_facet","610","ab",",."),
+				new SubfieldCodeMaker("subject_topic_facet","611","ab",",."),
+				new SubfieldCodeMaker("subject_topic_facet","630","a",",."),
+				new SubfieldCodeMaker("subject_topic_facet","630","ap",",."),
+				new SubfieldCodeMaker("subject_topic_facet","650","a",",."),
+				new SubfieldCodeMaker("subject_topic_facet","653","a","."),
+				new SubfieldCodeMaker("subject_topic_facet","654","ab","."),
+				new SubfieldCodeMaker("subject_topic_facet","655","ab","."),
+
+				new SubfieldCodeMaker("subject_t","600","abcdefghijklmnopqrstu"),
+				new SubfieldCodeMaker("subject_t","610","abcdefghijklmnopqrstu"),
+				new SubfieldCodeMaker("subject_t","611","abcdefghijklmnopqrstu"),
+				new SubfieldCodeMaker("subject_t","630","abcdefghijklmnopqrst"),
+				new SubfieldCodeMaker("subject_t","650","abcde"),
+				new SubfieldCodeMaker("subject_t","651","ae"),
+				new SubfieldCodeMaker("subject_t","653","a"),
+				new SubfieldCodeMaker("subject_t","654","abcde"),
+				new SubfieldCodeMaker("subject_t","655","abc"),
+
+				new SubfieldCodeMaker("subject_addl_t","600","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","610","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","611","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","630","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","650","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","653","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","654","vwxyz","."),
+				new SubfieldCodeMaker("subject_addl_t","655","vwxyz","."),
 				
-				new SubfieldCodeMaker("author_display","100","abcdq"),
-				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_addl_display","700","abcdq"),
-				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz")
+				new SubfieldCodeMaker("author_t","100","abcdqegu"),
+				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_t","111","abcdefghijklmnopqrstuvwxyz"),
+
+				new SubfieldCodeMaker("author_addl_t","700","abcdqegu"),
+				new SubfieldCodeMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz"),
+				
+				new SubfieldCodeMaker("author_display","100","abcdq","."),
+				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz","."),
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz","."),
+				new SubfieldCodeMaker("author_addl_display","700","abcdq","."),
+				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz","."),
+				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".")
 				
 					
 		);
