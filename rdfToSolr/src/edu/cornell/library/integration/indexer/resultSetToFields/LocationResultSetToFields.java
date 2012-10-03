@@ -2,10 +2,10 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -29,8 +29,8 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		List<String> facets = new ArrayList<String>();		
-		List<String> displays = new ArrayList<String>();		
+		Collection<String> facets = new HashSet<String>();
+		Collection<String> displays = new HashSet<String>();
 		
 		
 		for( String resultKey: results.keySet()){
