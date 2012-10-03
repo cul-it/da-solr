@@ -108,8 +108,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_series_t","490","av"),
 
 				
-				new SubfieldCodeMaker("title_display","245","a"),
-				new SubfieldCodeMaker("subtitle_display","245","b"),
+				new SubfieldCodeMaker("title_display","245","a",":/ "),
+				new SubfieldCodeMaker("subtitle_display","245","b",":/ "),
 				
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs"),
 				new SubfieldCodeMaker("title_other_display","246","abfnpgi"),

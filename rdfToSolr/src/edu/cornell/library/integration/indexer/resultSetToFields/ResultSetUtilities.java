@@ -3,6 +3,8 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -50,6 +52,16 @@ public class ResultSetUtilities {
 			fields.put(fieldName,field);
 		}
 		field.addValue(value,1.0f);				
+	}
+	
+	public static String RemoveTrailingPunctuation ( String s, String unwantedChars ) {
+		if (s == null) return null;
+		if (unwantedChars == null) return s;
+		if (s.equals("")) return s;
+		if (unwantedChars.equals("")) return s;
+		Pattern p = Pattern.compile ("[" + unwantedChars + "]*$");
+		Matcher m = p.matcher(s);
+		return m.replaceAll("");
 	}
 	
 	/** 

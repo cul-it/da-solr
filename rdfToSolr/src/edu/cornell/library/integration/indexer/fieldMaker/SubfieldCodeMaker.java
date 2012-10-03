@@ -13,7 +13,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**
@@ -23,16 +23,25 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class SubfieldCodeMaker implements FieldMaker {
 	
 	
+	public SubfieldCodeMaker(String solrFieldName, String marcFieldTag, String marcSubfieldCodes, String unwantedChars){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.unwantedChars = unwantedChars;
+	}
+
 	public SubfieldCodeMaker(String solrFieldName, String marcFieldTag, String marcSubfieldCodes){ 			
 		super(); 		
 		this.marcSubfieldCodes = marcSubfieldCodes;
 		this.marcFieldTag = marcFieldTag;
 		this.solrFieldName = solrFieldName;
 	}
-
+	
 	String marcSubfieldCodes = "";
 	String marcFieldTag = null;
-	String solrFieldName = null;		
+	String solrFieldName = null;
+	String unwantedChars = null;
 
 	public String getName() {
 		return SubfieldCodeMaker.class.getSimpleName() +
@@ -98,7 +107,11 @@ public class SubfieldCodeMaker implements FieldMaker {
 					}
 				}
 				if( sortedVals.trim().length() != 0){
-					solrField.addValue(sortedVals, 1.0f);
+					if (unwantedChars != null) {
+						solrField.addValue(RemoveTrailingPunctuation(sortedVals,unwantedChars), 1.0f);
+					} else {
+						solrField.addValue(sortedVals, 1.0f);						
+					}
 				}				
 			}
 
