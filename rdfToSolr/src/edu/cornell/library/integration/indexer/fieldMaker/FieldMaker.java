@@ -21,10 +21,5 @@ public interface FieldMaker {
 	Map<? extends String, ? extends SolrInputField> buildFields( 
 			String recordURI, 
 			RDFService mainStore, 
-			RDFService localStore) throws Exception; 
-	
-	/**
-	 * If set to true, the FieldMaker should output some debugging info.
-	 */
-	FieldMaker setDebug(boolean d);
+			RDFService localStore) throws Exception; 	
 }
