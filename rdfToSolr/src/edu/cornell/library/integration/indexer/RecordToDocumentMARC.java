@@ -85,16 +85,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					
 				new SubfieldCodeMaker("edition_display","250","ab"),
 									
-				new SubfieldCodeMaker("title_addl_t","130","abcdefghijklmnopqrstuvwxyz"),
 				new SubfieldCodeMaker("title_addl_t","210","ab"),
 				new SubfieldCodeMaker("title_addl_t","222","ab"),
-				new SubfieldCodeMaker("title_addl_t","240","abcdefgklmnopqrs"),
 				new SubfieldCodeMaker("title_addl_t","242","abnp"),
 				new SubfieldCodeMaker("title_addl_t","243","abcdefgklmnopqrs"),
 				new SubfieldCodeMaker("title_addl_t","245","abnps"),
 				new SubfieldCodeMaker("title_addl_t","246","abcdefgklmnopqrs"),
 				new SubfieldCodeMaker("title_addl_t","247","abcdefgnp"),
-	
+
+				new SubfieldCodeMaker("title_uniform_t","130","abcdefghijklmnopqrstuvwxyz"),
+				new SubfieldCodeMaker("title_uniform_t","240","abcdefgklmnopqrs"),
+				
 				new SubfieldCodeMaker("title_added_entry_t","700","gklmnoprst"),
 				new SubfieldCodeMaker("title_added_entry_t","710","fgklmnopqrst"),
 				new SubfieldCodeMaker("title_added_entry_t","711","fgklnpst"),
@@ -113,8 +114,18 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_other_display","247","abfgnpx"),
 				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh"),
 				new SubfieldCodeMaker("title_other_display","740","iahnp"),
-
 				
+				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
+				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
+				
+				new SubfieldCodeMaker("title_series_display","400","abdfklnptvcegu"),				
+				new SubfieldCodeMaker("title_series_display","410","abdfklnptvcegu"),				
+				new SubfieldCodeMaker("title_series_display","411","acdefklnptgquv"),
+				new SubfieldCodeMaker("title_series_display","440","anpv"),
+				new SubfieldCodeMaker("title_series_display","800","abcdefghklmnopqrstuv"),
+				new SubfieldCodeMaker("title_series_display","810","abcdefghklmnopqrstuv"),
+				new SubfieldCodeMaker("title_series_display","811","acdefghklnpqstuv"),
+				new SubfieldCodeMaker("title_series_display","830","adfghklmnoprstv"),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
