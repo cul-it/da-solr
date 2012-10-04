@@ -50,11 +50,11 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 		Map<String,ResultSet> resultSet =
 				super.runQueries(recordURI, mainStore, localStore, 
 						getLocalStoreQueries(), getMainStoreQueries());
-		resultSetsToSolrFields( resultSet );
+		fields.putAll(resultSetsToSolrFields( resultSet ));
 		while (( ! mainStoreQueries.isEmpty() ) || ( ! localStoreQueries.isEmpty())) {
 			resultSet =	super.runQueries(recordURI, mainStore, localStore, 
 					    	getLocalStoreQueries(), getMainStoreQueries());
-			resultSetsToSolrFields( resultSet );
+			fields.putAll(resultSetsToSolrFields( resultSet ));
 		}
 		return fields;
 	}
@@ -68,6 +68,7 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 		resultSetsToSolrFields( Map<String, ResultSet> results ) 
 		throws Exception {
 		
+		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
 		mainStoreQueries = new HashMap<String,String>();
 		localStoreQueries = new HashMap<String,String>();
 		
@@ -75,8 +76,7 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 			
 			FieldMakerStep step =  r2f.toFields( results );
 			fields.putAll(step.getFields());
-			mainStoreQueries.putAll(step.getMainStoreQueries());
-			
+			mainStoreQueries.putAll(step.getMainStoreQueries());			
 			localStoreQueries.putAll(step.getLocalStoreQueries());
 		}
 		return fields;

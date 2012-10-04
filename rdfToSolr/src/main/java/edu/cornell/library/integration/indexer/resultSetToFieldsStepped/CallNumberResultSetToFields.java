@@ -37,7 +37,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			
-			if ( resultKey.equals("letter_subject")) {
+			if ( resultKey.startsWith("letter_subject")) {
 				if( rs != null){
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
@@ -51,6 +51,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
 						String callno = nodeToString( sol.get("part1") );
+						if (callno.startsWith("MLC")) continue;
 						letters.add( callno.substring(0,1) );
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
@@ -73,13 +74,13 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
-			System.out.println(l);
-			step.addMainStoreQuery("letter_subject",
-			    		"SELECT ?code ?subject\n" +
-			    		"WHERE {\n" +
-			    		" ?lc intlayer:code \""+l+"\".\n" +
-			    		" ?lc intlayer:code ?code.\n" +
-			    		" ?lc rdfs:label ?subject. }\n" );
+			String query = 
+		    		"SELECT ?code ?subject\n" +
+		    		"WHERE {\n" +
+		    		" ?lc intlayer:code \""+l+"\".\n" +
+		    		" ?lc intlayer:code ?code.\n" +
+		    		" ?lc rdfs:label ?subject. }\n";
+			step.addMainStoreQuery("letter_subject_"+l,query );
 //			temp.buildFields(recordURI, mainStore, localStore);
 		}
 		
