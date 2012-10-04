@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -22,19 +21,24 @@ public class SinglePubDateSort implements DocumentPostProcess{
 		SolrInputField pubDate = document.getField("pub_date");
 		
 		//do our own fake copy field
-		if( pubDateSort == null && pubDate != null ){
-			document.addField("pub_date_sort", pubDate.getFirstValue());			
-		}else{
-			if( pubDateSort.getValueCount() > 1 ){
-				Object value1 = pubDateSort.getFirstValue();
+		if( pubDate != null ){
+			if( pubDateSort == null ){				
+				document.addField("pub_date_sort", pubDate.getFirstValue());
+			}else{
+				//over write existing pub_date_sort
 				pubDateSort = new SolrInputField("pub_date_sort");
-				pubDateSort.setValue(value1, 1.0f);
+				pubDateSort.setValue(pubDate.getFirstValue(), 1.0f);
 				document.put( "pub_date_sort", pubDateSort);
 			}
 		}
 		
-		
-		
+		//must be only one pub date sort
+		if( pubDateSort != null && pubDateSort.getValueCount() > 1 ){
+			Object value1 = pubDateSort.getFirstValue();
+			pubDateSort = new SolrInputField("pub_date_sort");
+			pubDateSort.setValue(value1, 1.0f);
+			document.put( "pub_date_sort", pubDateSort);
+		}		
 	}
 
 }

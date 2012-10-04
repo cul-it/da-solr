@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 
 import org.apache.solr.common.SolrInputDocument;
@@ -29,5 +30,5 @@ public class CommandBase {
 		}	
 		return null;
 	}
-
+	
 }
