@@ -7,9 +7,10 @@ import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostP
 import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
+import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
-import edu.cornell.library.integration.indexer.resultSetToFields.CallNumberResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
@@ -74,6 +75,40 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				            "}").
 				    addResultSetToFields( new AllResultsToField("language_facet")),
 				    		
+				    new SPARQLFieldMakerStepped().
+			        setName("call_numbers").
+			        addMainStoreQuery("holdings_callno",
+			        	"SELECT ?part1 ?part2 ?code ?subject\n"+
+			        	"WHERE {\n"+
+                        "  $recordURI$ rdfs:label ?bib_id.\n"+
+			        	"  ?hold marcrdf:hasField ?hold04.\n" +
+			        	"  ?hold04 marcrdf:tag \"004\".\n" +
+			        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+			        	"  ?hold marcrdf:hasField ?hold852.\n" +
+			        	"  ?hold852 marcrdf:tag \"852\".\n" +
+			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
+			        	"  ?hold852h marcrdf:code \"h\".\n" +
+			        	"  ?hold852h marcrdf:value ?part1.\n" +
+			        	"  OPTIONAL {\n" +
+			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
+			        	"    ?hold852i marcrdf:code \"i\".\n" +
+			        	"    ?hold852i marcrdf:value ?part2. }\n" +
+			        	"}").
+				    addMainStoreQuery("bib_callno",
+					    "SELECT ?part1 ?part2 ?code ?subject\n"+
+				    	"WHERE {\n"+
+		                "  $recordURI$ marcrdf:hasField ?f50.\n" +
+				    	"  ?f50 marcrdf:tag \"050\".\n" +
+				    	"  ?f50 marcrdf:hasSubfield ?f50a.\n" +
+				      	"  ?f50a marcrdf:code \"a\".\n" +
+				      	"  ?f50a marcrdf:value ?part1.\n" +
+					    "  OPTIONAL {\n" +
+					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
+					   	"    ?f50b marcrdf:code \"b\".\n" +
+					   	"    ?f50b marcrdf:value ?part2. }\n" +
+					    "}").
+			        addResultSetToFieldsStepped( new CallNumberResultSetToFields() ),
+			    	
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
@@ -167,40 +202,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
 
-			    new SPARQLFieldMakerImpl().
-			        setName("CallNumbers").
-			        addMainStoreQuery("holdings_callno",
-			        	"SELECT ?part1 ?part2 \n"+
-			        	"WHERE {\n"+
-                        "  $recordURI$ rdfs:label ?bib_id.\n"+
-			        	"  ?hold marcrdf:hasField ?hold04.\n" +
-			        	"  ?hold04 marcrdf:tag \"004\".\n" +
-			        	"  ?hold04 marcrdf:value ?bib_id.\n" +
-			        	"  ?hold marcrdf:hasField ?hold852.\n" +
-			        	"  ?hold852 marcrdf:tag \"852\".\n" +
-			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
-			        	"  ?hold852h marcrdf:code \"h\".\n" +
-			        	"  ?hold852h marcrdf:value ?part1.\n" +
-			        	"  OPTIONAL {\n" +
-			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
-			        	"    ?hold852i marcrdf:code \"i\".\n" +
-			        	"    ?hold852i marcrdf:value ?part2. }\n" +
-			        	"}").
-				    addMainStoreQuery("bib_callno",
-					    "SELECT ?part1 ?part2 \n"+
-				    	"WHERE {\n"+
-		                "  $recordURI$ marcrdf:hasField ?f50.\n" +
-				    	"  ?f50 marcrdf:tag \"050\".\n" +
-				    	"  ?f50 marcrdf:hasSubfield ?f50a.\n" +
-				      	"  ?f50a marcrdf:code \"a\".\n" +
-				      	"  ?f50a marcrdf:value ?part1.\n" +
-					    "  OPTIONAL {\n" +
-					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
-					   	"    ?f50b marcrdf:code \"b\".\n" +
-					   	"    ?f50b marcrdf:value ?part2. }\n" +
-					    "}").
-			        addResultSetToFields( new CallNumberResultSetToFields() ),
-			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
 			        addMainStoreQuery("location",

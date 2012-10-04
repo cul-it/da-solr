@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.resultSetToFields;
+package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
@@ -18,27 +18,40 @@ import com.hp.hpl.jena.query.ResultSet;
  * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
  * specialized handling. 
  */
-public class CallNumberResultSetToFields implements ResultSetToFields {
+public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public FieldMakerStep toFields(
 			Map<String, ResultSet> results) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 		
-		//This method needs to return a map of fields:
+		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		Collection<String> callnos = new HashSet<String>();
+		Collection<String> letters = new HashSet<String>();
+		
+		this.getClass().getResourceAsStream("callnumber_map.properties");
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			
-			if ( resultKey.equals("holdings_callno")) {
+			if ( resultKey.equals("letter_subject")) {
+				if( rs != null){
+					while(rs.hasNext()){
+						QuerySolution sol = rs.nextSolution();
+						String letter = nodeToString( sol.get("code") );
+						String subject = nodeToString( sol.get("subject") );
+						addField(fields,"lc_1letter_facet",letter+" - "+subject);
+					}
+				}
+			} else {
 				if( rs != null){
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
 						String callno = nodeToString( sol.get("part1") );
+						letters.add( callno.substring(0,1) );
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
 							if (! part2.equals("")) {
@@ -57,7 +70,22 @@ public class CallNumberResultSetToFields implements ResultSetToFields {
 			addField(fields,"lc_callnum_display",callno);
 		}		
 		
-		return fields;
+		i = letters.iterator();
+		while (i.hasNext()) {
+			String l = i.next();
+			System.out.println(l);
+			step.addMainStoreQuery("letter_subject",
+			    		"SELECT ?code ?subject\n" +
+			    		"WHERE {\n" +
+			    		" ?lc intlayer:code \""+l+"\".\n" +
+			    		" ?lc intlayer:code ?code.\n" +
+			    		" ?lc rdfs:label ?subject. }\n" );
+//			temp.buildFields(recordURI, mainStore, localStore);
+		}
+		
+		
+		step.setFields(fields);
+		return step;
 	}
 
 
