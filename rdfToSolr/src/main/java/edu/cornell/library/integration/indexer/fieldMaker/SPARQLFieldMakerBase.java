@@ -31,10 +31,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	 * Map of name_for_query -> SPARQL_query */
 	Map<String,String> mainStoreQueries;
 	
-			
-	/** Process the results of the SPARQL queries into fields */
-	List<ResultSetToFields> resultSetToFields;
-		
+	
 	Map<String,String> defaultPrefixes;
 
 	protected boolean debug;
@@ -65,13 +62,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		this.mainStoreQueries = mainStoreQueries;		
 	}
 
-
-	public List<ResultSetToFields> getResultSetToFields() {
-		return resultSetToFields;
-	}	
-	public void setResultSetToFieldsList(List<ResultSetToFields> list) {
-		this.resultSetToFields = list;
-	}
 	
 	/**
 	 * Substitute in recordURI to queries and run them against their stores, then

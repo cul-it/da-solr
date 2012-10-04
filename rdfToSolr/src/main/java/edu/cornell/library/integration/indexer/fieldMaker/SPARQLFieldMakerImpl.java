@@ -68,9 +68,9 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		throws Exception {
 		
 		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
-		List<ResultSetToFields>rs2f = getResultSetToFields();
-		if( rs2f != null){
-			for( ResultSetToFields r2f : getResultSetToFields() ){
+		
+		if( resultSetToFields != null){
+			for( ResultSetToFields r2f : resultSetToFields ){
 				fields.putAll( r2f.toFields( results ) );
 			}
 		}

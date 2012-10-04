@@ -65,12 +65,9 @@ public class SubfieldCodeMaker implements FieldMaker {
 				"FILTER( CONTAINS( \"" + marcSubfieldCodes + "\" , ?code) )\n"+
 				"} ";
 										
-		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl();
-		impl.setMainStoreQueries(Collections.singletonMap(queryKey, query));
-		
-		List<ResultSetToFields> rs2fs = new ArrayList<ResultSetToFields>();
-		rs2fs.add( new SubfieldsRStoFields());
-		impl.setResultSetToFieldsList(rs2fs);
+		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl()
+			.addMainStoreQuery(queryKey, query)			
+			.addResultSetToFields(new SubfieldsRStoFields());
 		
 		return impl.buildFields(recordURI, mainStore, localStore);		
 	}
