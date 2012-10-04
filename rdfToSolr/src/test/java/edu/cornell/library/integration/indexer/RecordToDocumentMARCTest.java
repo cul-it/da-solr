@@ -27,19 +27,14 @@ public class RecordToDocumentMARCTest {
 		indexStandardTestRecords( solr );
 		solr.commit();
 	}
-	
-	private String getTempSolrDir() {
-		fail("Not yet implemented");
-		return null;
-	}
-
+		
 	@After
 	public void tareDown(){
 		//delete solrdir?
 	}
 	
 	public SolrServer setupSolrIndex(File file){		 				
-//		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
+		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
 //		CoreContainer coreContainer = initializer.initialize();
 //		EmbeddedSolrServer server = new EmbeddedSolrServer(coreContainer, "");		
 		return null;
