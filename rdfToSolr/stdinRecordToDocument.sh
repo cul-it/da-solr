@@ -5,7 +5,7 @@
 
 CLASS=edu.cornell.library.integration.indexer.StdinRecordToDocument
 COMPILED=./bin
-LIB=./lib
+LIB=./libs
 
 RDFURL=http://bdc34-dev.library.cornell.edu:8890/sparql
 SOLRURL=http://bdc34-dev.library.cornell.edu:8080/solr/core1
