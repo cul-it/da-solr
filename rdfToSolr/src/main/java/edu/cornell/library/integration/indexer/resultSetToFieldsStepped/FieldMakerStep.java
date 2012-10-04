@@ -12,12 +12,12 @@ public class FieldMakerStep {
 	/** Gets the SPARQL queries to run.  These get run against
 	 * the local store. This should return a 
 	 * Map of name_for_query -> SPARQL_query */
-	Map<String,String> localStoreQueries;
+	Map<String,String> localStoreQueries = new HashMap<String,String>();
 	
 	/** Gets the SPARQL queries to run. These get run against the
 	 * main store. This should return a 
 	 * Map of name_for_query -> SPARQL_query */
-	Map<String,String> mainStoreQueries;
+	Map<String,String> mainStoreQueries = new HashMap<String,String>();
 
 	
 
