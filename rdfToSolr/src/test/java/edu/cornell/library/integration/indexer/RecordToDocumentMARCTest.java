@@ -6,18 +6,26 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.core.CoreContainer;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,16 +39,27 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
+/**
+ * This tests the RecordToDocumentMARC class.  The test will
+ * setup a temp solr service, setup a temp rdf store, load the 
+ * store wit some records, and then use RecordToDocumentMARC
+ * to index solr documents for the records.
+ * 
+ * Once this is done test queries can be run against the solr
+ * service.
+ * 
+ * @author bdc34 
+ */
 public class RecordToDocumentMARCTest {
-	SolrServer solr = null;	
-	RDFService rdf  = null;
+	static SolrServer solr = null;	
+	static RDFService rdf  = null;
 	
-	final String fallbackSolrDir1 = new File("../solr").getAbsolutePath() ;
-	final String fallbackSolrDir2 = new File("./solr").getAbsolutePath() ;
-	final String fallbackMARC1 = new File("../rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
-	final String fallbackMARC2 = new File("./rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
+	static final String fallbackSolrDir1 = new File("../solr").getAbsolutePath() ;
+	static final String fallbackSolrDir2 = new File("./solr").getAbsolutePath() ;
+	static final String fallbackMARC1 = new File("../rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
+	static final String fallbackMARC2 = new File("./rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
 
-	final String[] rMarcURIS = {
+	static final String[] rMarcURIS = {
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
@@ -53,11 +72,12 @@ public class RecordToDocumentMARCTest {
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC010"
 	};
 	
-	@Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public static TemporaryFolder folder = null;
 	
-	@Before
-	public void setup() throws Exception{
+	@BeforeClass
+	public static void setup() throws Exception{
+		folder = new TemporaryFolder();
+		folder.create();
 		
 		String solrTemplateDir = getSolrTemplateDir();
 		if( solrTemplateDir == null)
@@ -68,20 +88,82 @@ public class RecordToDocumentMARCTest {
 		indexStandardTestRecords( solr );		
 	}
 
+	@AfterClass
+	public static void down() throws Exception{
+		folder.delete();
+	}
+	
 	@Test
-	public void testSolrInit() throws SolrServerException, IOException {
+	public void testSolrWasStarted() throws SolrServerException, IOException {
 		assertNotNull( solr );
 		solr.ping();
 	}
+
+	@Test
+	public void testRadioactiveIds() throws SolrServerException{
+		SolrQuery query = new SolrQuery();
+		query.setQuery("id:UNTRadMARC*");
+		query.setParam("qt", "standard");
+		
+		testQueryGetsDocs(query,
+			new String[]{
+				"UNTRadMARC001", 		
+				"UNTRadMARC002",
+				"UNTRadMARC003",
+				"UNTRadMARC004",
+				"UNTRadMARC005",
+				"UNTRadMARC006",
+				"UNTRadMARC007",
+				"UNTRadMARC008",
+				"UNTRadMARC009",
+				"UNTRadMARC010"} );
+	}
 	
+	/** 
+	 * Test that a document with the given IDs are in the results for the query. 
+	 * @throws SolrServerException */
+	void testQueryGetsDocs(SolrQuery query, String[] docIds) throws SolrServerException{
+		assertNotNull(query);
+		assertNotNull( docIds );
+									
+		QueryResponse resp = solr.query(query);
+		assertNotNull(resp);
+		
+		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
+		for( SolrDocument doc : resp.getResults()){
+			assertNotNull(doc);
+			String id = (String) doc.getFirstValue("id");
+			assertNotNull(id);
+			expecteIds.remove( id );			
+		}
+		if( expecteIds.size() > 0){
+			String errorMsg = 
+					"The query '"+ query + "' was expected " +
+					"to return the following ids but did not:";
+			for( String id : expecteIds){
+				errorMsg= errorMsg+"\n" + id;
+			}
+			
+			System.err.println("The query '"+query+"' did reutrn the following documents:");
+			for( SolrDocument doc : resp.getResults()){
+				System.err.println("  " + doc.getFirstValue("id"));
+			}
+			
+			fail(errorMsg);
+		}
+	}
 	
 	/**
+	 * I was hoping to do this in a better way but right
+	 * now the solr template directory is just guessed based
+	 * on the CWD.
+	 * 
 	 * First attempt: get the value from a resource file.
 	 * (didn't work out)
 	 * Second attempt: guess based on CWD
 	 * @return
 	 */
-	private String getSolrTemplateDir() {
+	private static String getSolrTemplateDir() {
 		String key = "solrTemplateDirectory";
 		System.out.println( new File(".").getAbsolutePath() );
 		//get the testSolr.properties file and load it
@@ -111,14 +193,14 @@ public class RecordToDocumentMARCTest {
 		return solrTemplateDir;		
 	}
 
-	public File prepareTmpSolrDir(String solrTemplateDir, TemporaryFolder folder) throws IOException{
+	public static File prepareTmpSolrDir(String solrTemplateDir, TemporaryFolder folder) throws IOException{
 		File base = folder.newFolder("recordToDocumentMARCTest_solr");
 		System.out.println( solrTemplateDir );
 		FileUtils.copyDirectory(new File(solrTemplateDir), base );				
 		return base;
 	}
 	
-	public SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
+	public static SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
 		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
 		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
 		CoreContainer coreContainer = initializer.initialize();
@@ -131,7 +213,7 @@ public class RecordToDocumentMARCTest {
 //	    return new EmbeddedSolrServer( container, "core1" );
 	}
 		
-	private void indexStandardTestRecords(SolrServer solr2) throws RDFServiceException, Exception {
+	private static void indexStandardTestRecords(SolrServer solr2) throws RDFServiceException, Exception {
 		//load an RDF file of the radioactive MARC into a triple store 
 		rdf = loadRMARC();
 		
@@ -139,7 +221,7 @@ public class RecordToDocumentMARCTest {
 		indexRdf();
 	}
 
-	private RDFService loadRMARC() throws Exception {
+	private static RDFService loadRMARC() throws Exception {
 		
 		Model model = ModelFactory.createDefaultModel();
 		InputStream in = FileManager.get().open( fallbackMARC1 );
@@ -153,7 +235,7 @@ public class RecordToDocumentMARCTest {
 		return new RDFServiceModel( model );
 	}
 	
-	private void indexRdf() throws Exception {
+	private static void indexRdf() throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
 		
 		for( String uri: rMarcURIS){
@@ -179,7 +261,7 @@ public class RecordToDocumentMARCTest {
 	
 	
 	//from http://stackoverflow.com/questions/3861989/preferred-way-of-loading-resources-in-java
-	public URL getResource(String resource){
+	public static URL getResource(String resource){
 	    URL url ;
 
 	    //Try with the Thread Context Loader. 
@@ -192,13 +274,13 @@ public class RecordToDocumentMARCTest {
 	    }
 
 	    //Let's now try with the classloader that loaded this class.
-	    classLoader = getClass().getClassLoader();
-	    if(classLoader != null){
-	        url = classLoader.getResource(resource);
-	        if(url != null){
-	            return url;
-	        }
-	    }
+//	    classLoader = getClass().getClassLoader();
+//	    if(classLoader != null){
+//	        url = classLoader.getResource(resource);
+//	        if(url != null){
+//	            return url;
+//	        }
+//	    }
 
 	    classLoader = ClassLoader.getSystemClassLoader();
 	    if(classLoader != null){
