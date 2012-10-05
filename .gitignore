@@ -9,6 +9,10 @@ bin/
 .classpath
 .project
 
+#gradle
+.gradle
+
+rdf/output
 ## generic files to ignore
 *~
 *.lock

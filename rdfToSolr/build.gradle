@@ -1,7 +1,22 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+task copyToLib(type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-   runtime fileTree(dir: 'libs', include: '*.jar')
+   //runtime fileTree(dir: 'libs', include: '*.jar')
+   compile fileTree(dir: 'libs', include: '*.jar')   
+    
+   compile 'org.apache.jena:jena-arq:2.9.3'  
+   compile 'org.apache.solr:solr-solrj:3.5.0'   
+   compile 'org.apache.solr:solr-core:3.5.0'
+   compile 'junit:junit:4.9'   
    compile fileTree(dir: 'libs', include: '*.jar')
 }

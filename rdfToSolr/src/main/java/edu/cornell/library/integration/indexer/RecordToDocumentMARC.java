@@ -41,9 +41,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    
 				new SPARQLFieldMakerImpl().
 					setName("format").
-					addMainStoreQuery("bib_id","SELECT (SUBSTR(?leader,7,1) as ?rectype)\n" +
-					        "                          (SUBSTR(?leader,8,1) as ?biblvl)\n" +
-							"                          (SUBSTR(?seven,1,1) as ?cat)\n" +
+					addMainStoreQuery("bib_id","SELECT ( SUBSTR( ?leader,7,1) as ?rectype)\n" +
+					        "                          ( SUBSTR( ?leader,8,1) as ?biblvl)\n" +
+							"                          ( SUBSTR( ?seven,1,1) as ?cat)\n" +
 							"                    WHERE { $recordURI$ marcrdf:leader ?leader.\n" +
 							"                            OPTIONAL {\n" +
 							"                            $recordURI$ marcrdf:hasField ?f.\n" +
@@ -60,7 +60,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?f marcrdf:value ?val.\n" +
 				    		"        ?l rdf:type intlayer:Language.\n" +
 				    		"        ?l intlayer:code ?langcode.\n" +
-				    		"        FILTER( SUBSTR( xsd:string(?val),36,3) = xsd:string(?langcode) )\n" +
+				    		"        FILTER( SUBSTR( str(?val),36,3) = str(?langcode) )\n" +
 				    		"        ?l rdfs:label ?language.\n" +
 				    		"	}").
 				    addMainStoreQuery("languages_041",

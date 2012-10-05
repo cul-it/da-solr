@@ -87,7 +87,7 @@ public class StdinRecordToDocument extends CommandBase {
         String idValue = ClientUtils.escapeQueryChars( (String)doc.getField( idFieldKey ).getFirstValue() );         
 		solrServer.deleteByQuery(idFieldKey + ":" + idValue );
 		
-		System.out.println( toString(doc) );
+		System.out.println( IndexingUtilities.toString(doc) );
 		solrServer.add(doc);			
 	}
 

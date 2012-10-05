@@ -71,7 +71,11 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		
 		if( resultSetToFields != null){
 			for( ResultSetToFields r2f : resultSetToFields ){
-				fields.putAll( r2f.toFields( results ) );
+				if( r2f != null ){					
+					Map<? extends String, ? extends SolrInputField> newFields =r2f.toFields( results ) ;
+					if( newFields != null)
+						fields.putAll( newFields);
+				}
 			}
 		}
 		return fields;
