@@ -14,9 +14,8 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * Build Call number display and facet fields in two steps. 
+ * All code is executed in each pass, so it needs to have necessary conditionals.
  */
 public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 
@@ -32,21 +31,16 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		Collection<String> callnos = new HashSet<String>();
 		Collection<String> letters = new HashSet<String>();
 		
-		this.getClass().getResourceAsStream("callnumber_map.properties");
-		
+		/*
+		 * Step 1. 
+		 * Retrieve call number list, and identify initial call number letters for facet.
+		 * Build queries to retrieve subject names for the initial letters found.
+		 */
+				
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			
-			if ( resultKey.startsWith("letter_subject")) {
-				if( rs != null){
-					while(rs.hasNext()){
-						QuerySolution sol = rs.nextSolution();
-						String letter = nodeToString( sol.get("code") );
-						String subject = nodeToString( sol.get("subject") );
-						addField(fields,"lc_1letter_facet",letter+" - "+subject);
-					}
-				}
-			} else {
+			if ( resultKey.endsWith("callno")) {
 				if( rs != null){
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
@@ -66,10 +60,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		}
 
 		Iterator<String> i = callnos.iterator();
-		while (i.hasNext()) {
-			String callno = i.next();
-			addField(fields,"lc_callnum_display",callno);
-		}		
+		while (i.hasNext())
+			addField(fields,"lc_callnum_display",i.next());
 		
 		i = letters.iterator();
 		while (i.hasNext()) {
@@ -81,7 +73,25 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		    		" ?lc intlayer:code ?code.\n" +
 		    		" ?lc rdfs:label ?subject. }\n";
 			step.addMainStoreQuery("letter_subject_"+l,query );
-//			temp.buildFields(recordURI, mainStore, localStore);
+		}
+		
+		/*
+		 * Step 2
+		 * Add facet fields by concatenating initial letters with their subject names.
+		 */
+		for( String resultKey: results.keySet()){
+			ResultSet rs = results.get(resultKey);
+			
+			if ( resultKey.startsWith("letter_subject")) {
+				if( rs != null){
+					while(rs.hasNext()){
+						QuerySolution sol = rs.nextSolution();
+						String letter = nodeToString( sol.get("code") );
+						String subject = nodeToString( sol.get("subject") );
+						addField(fields,"lc_1letter_facet",letter+" - "+subject);
+					}
+				}
+			}
 		}
 		
 		
