@@ -44,9 +44,6 @@ public class TitleResultSetToFields implements ResultSetToFields {
 				} else {
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
-						System.out.println( nodeToString(sol.get("code")) +  
-								" => " + nodeToString(sol.get("value")));
-	
 						String code = nodeToString(sol.get("code"));
 						String val = nodeToString(sol.get("value"));
 						if (code.equals("a") ) {

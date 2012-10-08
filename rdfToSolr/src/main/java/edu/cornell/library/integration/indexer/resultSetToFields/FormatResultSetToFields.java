@@ -50,13 +50,10 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						RDFNode node = sol.get(name);
 						if (name.equals("cat")) {
 							category = nodeToString( node );
-							System.out.println("category = "+category);
 						} else if (name.equals("rectype")) {
 							record_type = nodeToString( node );
-							System.out.println("record_type = "+record_type);
 						} else if (name.equals("biblvl")) {
 							bibliographic_level = nodeToString( node );
-							System.out.println("bibliographic_level = "+bibliographic_level);
 						} else if (name.equals("sf245h")) {
 							sf245hs.add(nodeToString( node ));
 						} else if (name.equals("sf653a")) {
@@ -68,7 +65,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-		System.out.println(record_type + ", "+ bibliographic_level+" => "+sf245hs.size()+" "+sf653as.size()+" "+sf948fs.size());
 
 		Iterator<String> i = sf245hs.iterator();
 		while (i.hasNext())
@@ -76,89 +72,86 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				online = true;
 
 		i = sf948fs.iterator();
-		while (i.hasNext()) {
+		while (i.hasNext())
 			if (i.next().toLowerCase().equals("j"))
 				if (online) //i.e. If 245h said [electronic resource]
 					format = "Journal";
 
-			i = sf948fs.iterator();
-			while (i.hasNext()) {
-				String val = i.next();
-				if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
-					format = "Database";
-					online = true;
-				}
+		i = sf948fs.iterator();
+		while (i.hasNext()) {
+			String val = i.next();
+			if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
+				format = "Database";
+				online = true;
 			}
+		}
 
-			i = sf653as.iterator();
-			while (i.hasNext()) {
-				String val = i.next();
-				System.out.println(val);
-				if (val.equalsIgnoreCase("research guide")) {
-					format = "Research Guide";
-					online = true;
-				} else if (val.equalsIgnoreCase("course guide")) {
-					format = "Course Guide";
-					online = true;
-				} else if (val.equalsIgnoreCase("library guide")) {
-					format = "Library Guide";
-					online = true;
-				}
+		i = sf653as.iterator();
+		while (i.hasNext()) {
+			String val = i.next();
+			if (val.equalsIgnoreCase("research guide")) {
+				format = "Research Guide";
+				online = true;
+			} else if (val.equalsIgnoreCase("course guide")) {
+				format = "Course Guide";
+				online = true;
+			} else if (val.equalsIgnoreCase("library guide")) {
+				format = "Library Guide";
+				online = true;
 			}
+		}
 
-			i = sf948fs.iterator();
-			while (i.hasNext())
-				if (i.next().toLowerCase().equals("ebk"))
-					online = true;
+		i = sf948fs.iterator();
+		while (i.hasNext())
+			if (i.next().toLowerCase().equals("ebk"))
+				online = true;
 
-			if (format == null) {
-				if (record_type.equals("a")) {
-					if ((bibliographic_level.equals("a"))
-							|| (bibliographic_level.equals("m"))
-							|| (bibliographic_level.equals("d"))
-							|| (bibliographic_level.equals("c")) ) {
-						System.out.println("I should get here.");
-						format = "Book";
-					}
+		if (format == null) {
+			if (record_type.equals("a")) {
+				if ((bibliographic_level.equals("a"))
+						|| (bibliographic_level.equals("m"))
+						|| (bibliographic_level.equals("d"))
+						|| (bibliographic_level.equals("c")) ) {
+					format = "Book";
 				} else if ((bibliographic_level.equals("b"))
 						|| (bibliographic_level.equals("s"))) {
 					format = "Journal";
-				} else if (record_type.equals("t")) {
-					if ((bibliographic_level.equals("a"))
-							|| (bibliographic_level.equals("m"))) {
-						format = "Book";
-					}
-				} else if ((record_type.equals("c"))
-						|| (record_type.equals("d"))) {
-					format = "Musical Score";
-				} else if ((record_type.equals("e"))
-						|| (record_type.equals("f"))) {
-					format = "Map or Globe";
-				} else if (record_type.equals("g")) {
-					format = "Video";
-				} else if (record_type.equals("i")) {
-					format = "Non-musical Recording";
-				} else if (record_type.equals("j")) {
-					format = "Musical Recording";
-				} else if (record_type.equals("k")) {
-					format = "Image";
-				} else if (record_type.equals("m")) {
-					format = "Computer File";
-				} else if (record_type.equals("o")) {
-					format = "Kit";
-					//			} else if (record_type.equals("p")) { // p is either mixed-materials
-					//				format = "Manuscript";            // or manuscript depending on source
-				} else if (record_type.equals("t")) {
-					format = "Manuscript";
-				} else if (category.equals("h")) {
-					format = "Microform";
-				} else if (category.equals("q")) {
-					format = "Musical Score";
-				} else if (category.equals("v")) {
-					format = "Video";
-				} else {
-					format = "Unknown";
 				}
+			} else if (record_type.equals("t")) {
+				if ((bibliographic_level.equals("a"))
+						|| (bibliographic_level.equals("m"))) {
+					format = "Book";
+				}
+			} else if ((record_type.equals("c"))
+					|| (record_type.equals("d"))) {
+				format = "Musical Score";
+			} else if ((record_type.equals("e"))
+					|| (record_type.equals("f"))) {
+				format = "Map or Globe";
+			} else if (record_type.equals("g")) {
+				format = "Video";
+			} else if (record_type.equals("i")) {
+				format = "Non-musical Recording";
+			} else if (record_type.equals("j")) {
+				format = "Musical Recording";
+			} else if (record_type.equals("k")) {
+				format = "Image";
+			} else if (record_type.equals("m")) {
+				format = "Computer File";
+			} else if (record_type.equals("o")) {
+				format = "Kit";
+				//			} else if (record_type.equals("p")) { // p is either mixed-materials
+				//				format = "Manuscript";            // or manuscript depending on source
+			} else if (record_type.equals("t")) {
+				format = "Manuscript";
+			} else if (category.equals("h")) {
+				format = "Microform";
+			} else if (category.equals("q")) {
+				format = "Musical Score";
+			} else if (category.equals("v")) {
+				format = "Video";
+			} else {
+				format = "Unknown";
 			}
 		}
 

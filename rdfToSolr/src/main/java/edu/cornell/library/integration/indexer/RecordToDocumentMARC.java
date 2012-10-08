@@ -9,12 +9,8 @@ import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
-import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
 /**
  * An example RecordToDocument implementation. 
@@ -52,18 +48,21 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("format_653",
 							"SELECT ?sf653a\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:tag \"653\".\n" +
 							"       ?f marcrdf:hasSubfield ?sf653.\n" +
 							"       ?sf653 marcrdf:code \"a\".\n" +
 							"       ?sf653 marcrdf:value ?sf653a. }").
 					addMainStoreQuery("format_948",
 							"SELECT ?sf948f\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:tag \"948\".\n" +
 							"       ?f marcrdf:hasSubfield ?sf948.\n" +
 							"       ?sf948 marcrdf:code \"f\".\n" +
 							"       ?sf948 marcrdf:value ?sf948f. }").
 					addMainStoreQuery("format_245",
 							"SELECT ?sf245h\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:tag \"245\".\n" +
 							"       ?f marcrdf:hasSubfield ?sf245.\n" +
 							"       ?sf245 marcrdf:code \"h\".\n" +
 							"       ?sf245 marcrdf:value ?sf245h. }").
@@ -219,6 +218,36 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
+			    	
+			    new SPARQLFieldMakerImpl().
+			        setName("title_changes").
+			        addMainStoreQuery("title_changes", 
+			        	"SELECT *\n" +
+			        	" WHERE {\n" +
+			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+			        	"  {?f marcrdf:tag \"780\".} UNION {?f marcrdf:tag \"785\".}\n" +
+			        	"  ?f marcrdf:tag ?t.\n" +
+			        	"  ?f marcrdf:ind2 ?i2.\n" +
+			        	"  ?f marcrdf:ind1 ?i1.\n" +
+			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+			        	"  ?sf marcrdf:code ?c.\n" +
+			        	"  ?sf marcrdf:value ?v. }").
+			        addResultSetToFields( new TitleChangeResultSetToFields()),
+			    	
+			    new SPARQLFieldMakerImpl().
+			        setName("table of contents").
+			        addMainStoreQuery("table of contents", 
+			        	"SELECT *\n" +
+			        	" WHERE {\n" +
+			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+			        	"  ?f marcrdf:tag \"505\".\n" +
+			        	"  ?f marcrdf:tag ?t.\n" +
+			        	"  ?f marcrdf:ind2 ?i2.\n" +
+			        	"  ?f marcrdf:ind1 ?i1.\n" +
+			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+			        	"  ?sf marcrdf:code ?c.\n" +
+			        	"  ?sf marcrdf:value ?v. }").
+			        addResultSetToFields( new TOCResultSetToFields()),
 
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
@@ -280,6 +309,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("notes_display","940","a"),
 				new SubfieldCodeMaker("notes_display","856","3z"),
 				new SubfieldCodeMaker("notes_display","856","m"),
+
+				new SubfieldCodeMaker("summary_display","520","ab"),
+				
+				new SubfieldCodeMaker("description_display","300","abcefg"),
 				
 				new SubfieldCodeMaker("subject_era_facet","650","y","."),
 				new SubfieldCodeMaker("subject_era_facet","651","y","."),
