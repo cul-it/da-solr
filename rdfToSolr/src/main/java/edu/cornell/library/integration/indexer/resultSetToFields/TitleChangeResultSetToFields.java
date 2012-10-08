@@ -67,7 +67,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if ((ind.equals("00")) || (ind.equals("01"))) {
 					relation = "continues";
 				} else if ((ind.equals("00")) || (ind.equals("01"))) {
-					relation = "supercedes";
+					relation = "supersedes";
 				} else if ((ind.equals("05")) || (ind.equals("06"))) {
 					relation = "absorbed";
 				}
@@ -75,7 +75,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if ((ind.equals("00")) || (ind.equals("01")) || (ind.equals("10"))) {
 					relation = "continued_by";
 				} else if ((ind.equals("02")) || (ind.equals("03"))) {
-					relation = "superceded_by";
+					relation = "superseded_by";
 				} else if ((ind.equals("04")) || (ind.equals("05"))) {
 					relation = "absorbed_by";
 				} else if (ind.equals("06")) {
