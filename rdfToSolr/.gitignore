@@ -8,6 +8,10 @@ nbproject/private/
 bin/
 .classpath
 .project
+.settings
+
+#gradle build
+build/
 
 ## generic files to ignore
 *~

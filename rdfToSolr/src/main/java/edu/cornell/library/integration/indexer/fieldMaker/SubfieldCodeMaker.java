@@ -21,8 +21,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  * a SolrInputField  
  */
 public class SubfieldCodeMaker implements FieldMaker {
-	
-	
+		
 	public SubfieldCodeMaker(String solrFieldName, String marcFieldTag, String marcSubfieldCodes, String unwantedChars){ 			
 		super(); 		
 		this.marcSubfieldCodes = marcSubfieldCodes;

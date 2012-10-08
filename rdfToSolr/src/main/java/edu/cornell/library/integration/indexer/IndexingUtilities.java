@@ -22,6 +22,14 @@ public class IndexingUtilities {
 		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		
 	}
 
+	public static String toString(SolrInputDocument doc) {
+		String out ="SolrInputDocument[\n" ;
+		for( String name : doc.getFieldNames()){
+			SolrInputField f = doc.getField(name);
+			out = out + "  " + name +": '" + f.toString() + "'\n";
+		}
+		return out + "]\n";						
+	}
 	
 	/**
 	 * For all newFields, add them to doc, taking into account

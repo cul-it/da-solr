@@ -1,0 +1,139 @@
+/* Build script for integration layer */
+
+/* The current thinking is to setup a build
+   script at the base integrationLayer directory
+   with scripts in the sub sections lie rdfToSolr. */
+     
+task prepareForTesting(dependsOn: ['convertRadioactiveMARCToRDF', 'copySolrTemplateDirToTestingResources']) << {
+ 
+}
+
+task convertRadioactiveMARCToRDF (type: Xslt)  {  
+  source file('rdf/sources/RadMARCATS1.xml' )
+  destDir = file('rdf/output')
+  extension = 'nt' 
+  stylesheetFile = file( 'rdf/voyager-to-vitroTriples.datamap.xsl' )
+}
+
+task copySolrTemplateDirToTestingResources (type: Sync) {
+  //Need to use the solr template dir in the unit tests.
+  //So it needs to be copied to the testing resource directory.  
+  from './solr'
+  into 'rdfToSolr/src/test/resources/solr'
+}
+
+task solrTestPropertiesFile  {
+  File solrDir = new File ('./solr')
+  String from = './rdfToSolr/src/test/resources/testSolr.properties.example'
+  String to   = './rdfToSolr/src/test/resources/testSolr.properties'
+  
+  Map filters = [ solrTemplateDirectory: solrDir.absolutePath ]
+  ant.copy(file: from, tofile: to) {
+    filterset() {
+       filters.each { key, value -> filter(token: key, value: value) }       
+    }
+  } 
+}
+
+
+/* bdc34: I'd rather have this as a file named Xslt.groovy in the
+   buildSrc directory but I haven't been able to 
+   get it to work.  So it lives here for now.  */
+   
+/**
+ *  Gradle plug-in for running a set of one or more
+ *  files through an XSLT transform.  A styleSheet
+ *  file must be specified.  The source file(s) are
+ *  configured just like any other source task:
+ *     source <file>
+ *       ...or...
+ *     source <directory>
+ *       ...and then optionally...
+ *     include '*.xml'
+ *     exclude, etc.
+ *
+ *  One of destDir or destFile must be specified, though if
+ *  there are multiple source files then destFile will just
+ *  keep getting rewritten.
+ *
+ *  The extension is stripped from the source files and the
+ *  specified extension is appended (whether it is set or not)
+ *  it defaults to no extension.
+ *
+ *  Example task formatting a check style report:
+ *
+ *  task checkstyleReport(type: Xslt, dependsOn: check) {
+ *      source project.checkstyleResultsDir
+ *      include '*.xml'
+ *
+ *      destDir = project.checkstyleResultsDir
+ *      extension = 'html'
+ *
+ *      stylesheetFile = file( 'config/checkstyle/checkstyle-noframes.xsl' )
+ *  }
+ *
+ *  The above definition requires that the specified XSL file be
+ *  copied in with the other checkstyle configuration files.  (The
+ *  file in the example is part of the checkstyle distribution.)
+ *
+ */
+
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
+
+
+// Trying to work around a small defficiency in plug-in class
+// resolution.
+project.Xslt = Xslt.class
+
+class Xslt extends SourceTask {
+
+    @OutputFile @Optional
+    File destFile
+
+    @OutputDirectory @Optional
+    File destDir
+
+    @InputFile
+    File stylesheetFile
+
+    @Optional
+    String extension
+
+    @TaskAction
+    def transform() {
+        if (!((destFile != null) ^ (destDir != null))) {
+            throw new InvalidUserDataException("Must specify exactly 1 of output file or dir.")
+        }
+
+        println( "Using XSL style sheet:" + stylesheetFile );
+
+        def factory = TransformerFactory.newInstance()
+        def transformer = factory.newTransformer(new StreamSource(stylesheetFile));
+
+        source.visit { FileVisitDetails fvd ->
+            if (fvd.isDirectory()) {
+                return
+            }
+
+            println( "Processing " + fvd )
+
+            File d = destFile;
+            if( d == null )
+                {
+                // Remove the extension from the file name
+                name = fvd.file.name.replaceAll( '[.][^\\.]*$', '' )
+                if( extension != null )
+                    name += '.' + extension
+                d = new File( destDir, name )
+                }
+            println( "--> output:" + d )
+
+            transformer.transform(new StreamSource(fvd.file), new StreamResult(d))
+
+
+        }
+    }
+
+}
