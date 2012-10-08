@@ -351,6 +351,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("subject_addl_t","654","vwxyz","."),
 				new SubfieldCodeMaker("subject_addl_t","655","vwxyz","."),
 				
+				new SubfieldCodeMaker("donor_display","920","b"),
+
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
 				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
 				new SubfieldCodeMaker("author_t","111","abcdefghijklmnopqrstuvwxyz"),
