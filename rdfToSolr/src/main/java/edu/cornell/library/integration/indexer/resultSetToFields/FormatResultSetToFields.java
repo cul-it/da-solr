@@ -1,6 +1,9 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -21,17 +24,21 @@ public class FormatResultSetToFields implements ResultSetToFields {
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
 			Map<String, ResultSet> results) throws Exception {
-		
+
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
-		
+
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		String category ="";
 		String record_type ="";
 		String bibliographic_level ="";
+		Collection<String> sf653as = new HashSet<String>();
+		Collection<String> sf245hs = new HashSet<String>();
+		Collection<String> sf948fs = new HashSet<String>();
 		String format = null;
-						
+		Boolean online = false;
+
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){
@@ -43,59 +50,126 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						RDFNode node = sol.get(name);
 						if (name.equals("cat")) {
 							category = nodeToString( node );
+							System.out.println("category = "+category);
 						} else if (name.equals("rectype")) {
 							record_type = nodeToString( node );
+							System.out.println("record_type = "+record_type);
 						} else if (name.equals("biblvl")) {
 							bibliographic_level = nodeToString( node );
+							System.out.println("bibliographic_level = "+bibliographic_level);
+						} else if (name.equals("sf245h")) {
+							sf245hs.add(nodeToString( node ));
+						} else if (name.equals("sf653a")) {
+							sf653as.add(nodeToString( node ));
+						} else if (name.equals("sf948f")) {
+							sf948fs.add(nodeToString( node ));
 						}
 					}
 				}
 			}
 		}
-		
-		if (record_type.equals("a")) {
-			if ((bibliographic_level.equals("a"))
-					|| (bibliographic_level.equals("m"))) {
-				format = "Book";
-			} else if ((bibliographic_level.equals("b"))
-					|| (bibliographic_level.equals("s"))) {
-				format = "Serial";
+		System.out.println(record_type + ", "+ bibliographic_level+" => "+sf245hs.size()+" "+sf653as.size()+" "+sf948fs.size());
+
+		Iterator<String> i = sf245hs.iterator();
+		while (i.hasNext())
+			if (i.next().toLowerCase().contains("[electronic resource]"))
+				online = true;
+
+		i = sf948fs.iterator();
+		while (i.hasNext()) {
+			if (i.next().toLowerCase().equals("j"))
+				if (online) //i.e. If 245h said [electronic resource]
+					format = "Journal";
+
+			i = sf948fs.iterator();
+			while (i.hasNext()) {
+				String val = i.next();
+				if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
+					format = "Database";
+					online = true;
+				}
 			}
-		} else if (record_type.equals("t")) {
-			if ((bibliographic_level.equals("a"))
-					|| (bibliographic_level.equals("m"))) {
-				format = "Book";
+
+			i = sf653as.iterator();
+			while (i.hasNext()) {
+				String val = i.next();
+				System.out.println(val);
+				if (val.equalsIgnoreCase("research guide")) {
+					format = "Research Guide";
+					online = true;
+				} else if (val.equalsIgnoreCase("course guide")) {
+					format = "Course Guide";
+					online = true;
+				} else if (val.equalsIgnoreCase("library guide")) {
+					format = "Library Guide";
+					online = true;
+				}
 			}
-		} else if ((record_type.equals("c"))
-				|| (record_type.equals("d"))) {
-			format = "Musical Score";
-		} else if ((record_type.equals("e"))
-				|| (record_type.equals("f"))) {
-			format = "Map or Globe";
-		} else if (record_type.equals("i")) {
-			format = "Non-musical Recording";
-		} else if (record_type.equals("j")) {
-			format = "Musical Recording";
-		} else if (record_type.equals("k")) {
-			format = "Image";
-		} else if (record_type.equals("m")) {
-			format = "Computer File";
-		} else if (category.equals("h")) {
-			format = "Microform";
-		} else if (category.equals("q")) {
-			format = "Musical Score";
-		} else if (category.equals("v")) {
-			format = "Video";
-		} else {
-			format = "Unknown";
+
+			i = sf948fs.iterator();
+			while (i.hasNext())
+				if (i.next().toLowerCase().equals("ebk"))
+					online = true;
+
+			if (format == null) {
+				if (record_type.equals("a")) {
+					if ((bibliographic_level.equals("a"))
+							|| (bibliographic_level.equals("m"))
+							|| (bibliographic_level.equals("d"))
+							|| (bibliographic_level.equals("c")) ) {
+						System.out.println("I should get here.");
+						format = "Book";
+					}
+				} else if ((bibliographic_level.equals("b"))
+						|| (bibliographic_level.equals("s"))) {
+					format = "Journal";
+				} else if (record_type.equals("t")) {
+					if ((bibliographic_level.equals("a"))
+							|| (bibliographic_level.equals("m"))) {
+						format = "Book";
+					}
+				} else if ((record_type.equals("c"))
+						|| (record_type.equals("d"))) {
+					format = "Musical Score";
+				} else if ((record_type.equals("e"))
+						|| (record_type.equals("f"))) {
+					format = "Map or Globe";
+				} else if (record_type.equals("g")) {
+					format = "Video";
+				} else if (record_type.equals("i")) {
+					format = "Non-musical Recording";
+				} else if (record_type.equals("j")) {
+					format = "Musical Recording";
+				} else if (record_type.equals("k")) {
+					format = "Image";
+				} else if (record_type.equals("m")) {
+					format = "Computer File";
+				} else if (record_type.equals("o")) {
+					format = "Kit";
+					//			} else if (record_type.equals("p")) { // p is either mixed-materials
+					//				format = "Manuscript";            // or manuscript depending on source
+				} else if (record_type.equals("t")) {
+					format = "Manuscript";
+				} else if (category.equals("h")) {
+					format = "Microform";
+				} else if (category.equals("q")) {
+					format = "Musical Score";
+				} else if (category.equals("v")) {
+					format = "Video";
+				} else {
+					format = "Unknown";
+				}
+			}
 		}
-		
-		SolrInputField format_field = new SolrInputField("format");
-		format_field.addValue(format, 1);
-		fields.put("format", format_field);
-		
+
+		addField(fields,"format",format);
+		if (online) {
+			addField(fields,"online_facet","online");
+		}
 		return fields;
+
 	}
+
 
 	private String nodeToString( RDFNode node){
 		if( node == null )

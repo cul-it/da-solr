@@ -22,7 +22,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetT
 public class RecordToDocumentMARC extends RecordToDocumentBase {
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
@@ -41,14 +40,33 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    
 				new SPARQLFieldMakerImpl().
 					setName("format").
-					addMainStoreQuery("bib_id","SELECT (SUBSTR(?leader,7,1) as ?rectype)\n" +
-					        "                          (SUBSTR(?leader,8,1) as ?biblvl)\n" +
-							"                          (SUBSTR(?seven,1,1) as ?cat)\n" +
-							"                    WHERE { $recordURI$ marcrdf:leader ?leader.\n" +
-							"                            OPTIONAL {\n" +
-							"                            $recordURI$ marcrdf:hasField ?f.\n" +
-							"                            ?f marcrdf:tag \"007\".\n" +
-							"                            ?f marcrdf:value ?seven. }}").
+					addMainStoreQuery("format_leader_seven",
+							"SELECT (SUBSTR(?leader,7,1) as ?rectype)\n" +
+					        "       (SUBSTR(?leader,8,1) as ?biblvl)\n" +
+							"       (SUBSTR(?seven,1,1) as ?cat)\n" +
+							" WHERE { $recordURI$ marcrdf:leader ?leader.\n" +
+							"       OPTIONAL {\n" +
+							"          $recordURI$ marcrdf:hasField ?f.\n" +
+							"          ?f marcrdf:tag \"007\".\n" +
+							"          ?f marcrdf:value ?seven. }}").
+					addMainStoreQuery("format_653",
+							"SELECT ?sf653a\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:hasSubfield ?sf653.\n" +
+							"       ?sf653 marcrdf:code \"a\".\n" +
+							"       ?sf653 marcrdf:value ?sf653a. }").
+					addMainStoreQuery("format_948",
+							"SELECT ?sf948f\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:hasSubfield ?sf948.\n" +
+							"       ?sf948 marcrdf:code \"f\".\n" +
+							"       ?sf948 marcrdf:value ?sf948f. }").
+					addMainStoreQuery("format_245",
+							"SELECT ?sf245h\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"       ?f marcrdf:hasSubfield ?sf245.\n" +
+							"       ?sf245 marcrdf:code \"h\".\n" +
+							"       ?sf245 marcrdf:value ?sf245h. }").
 					addResultSetToFields( new FormatResultSetToFields() ),
 					
 				new SPARQLFieldMakerImpl().
@@ -78,7 +96,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
 			        addMainStoreQuery("holdings_callno",
-			        	"SELECT ?part1 ?part2 ?code ?subject\n"+
+			        	"SELECT ?part1 ?part2\n"+
 			        	"WHERE {\n"+
                         "  $recordURI$ rdfs:label ?bib_id.\n"+
 			        	"  ?hold marcrdf:hasField ?hold04.\n" +
@@ -95,7 +113,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"    ?hold852i marcrdf:value ?part2. }\n" +
 			        	"}").
 				    addMainStoreQuery("bib_callno",
-					    "SELECT ?part1 ?part2 ?code ?subject\n"+
+					    "SELECT ?part1 ?part2\n"+
 				    	"WHERE {\n"+
 		                "  $recordURI$ marcrdf:hasField ?f50.\n" +
 				    	"  ?f50 marcrdf:tag \"050\".\n" +
@@ -155,7 +173,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("subtitle_display","245","b",":/ "),
 				
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
-				new SubfieldCodeMaker("title_other_display","246","abfnpgi",":/ "),
+				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
 				new SubfieldCodeMaker("title_other_display","247","abfgnpx",":/ "),
 				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh",":/ "),
 				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
@@ -192,7 +210,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						"        ?f880 marcrdf:hasSubfield ?f880sf6.\n" +
 						"        ?f880sf6 marcrdf:code \"6\".\n" +
 						"        ?f880sf6 marcrdf:value ?value6.\n" +
-						"        FILTER( regex( str(?value6), \"^245\" ))\n" +
+						"        FILTER( regex( xsd:string(?value6), \"^245\" ))\n" +
 			    		" }"	).
 			    	addMainStoreQuery("title_sort_offset",
 					    "SELECT ?ind2 \n" +
