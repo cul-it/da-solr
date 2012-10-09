@@ -233,14 +233,12 @@
     
     <!-- field that can be used for left anchored search and auto complete -->
     <fieldType name="ngram" class="solr.TextField" >
-    <analyzer type="index">
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+    <analyzer type="index">        
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
     </analyzer>
-    <analyzer type="query">
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+    <analyzer type="query">        
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
     </analyzer>
