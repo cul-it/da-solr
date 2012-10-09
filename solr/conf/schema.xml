@@ -230,8 +230,25 @@
 -->
       </analyzer>
     </fieldType>
+    
+    <!-- field that can be used for left anchored search and auto complete -->
+    <fieldType name="ngram" class="solr.TextField" >
+    <analyzer type="index">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
+    </analyzer>
+    <analyzer type="query">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+    </analyzer>
+    </fieldType>
+    
   </types>
 
+  
   <fields>   
     <!-- NOTE: this is not a full list of fields in the index; dynamic fields are also used -->
     <field name="id" type="string" indexed="true" stored="true" required="true" />
@@ -272,13 +289,13 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-
+	
     <dynamicField name="*_facet" type="string" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="alphaOnlySort" indexed="true" stored="false"/>
     <dynamicField name="*_unstem_search" type="textNoStem" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
-    
+    <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false"/>         
   </fields>
 
   <uniqueKey>id</uniqueKey>
@@ -289,6 +306,7 @@
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>
+  <copyField source="title_t" dest="title_ngram"/>
   <copyField source="subtitle_t" dest="subtitle_unstem_search"/>
   <copyField source="title_uniform_t" dest="title_uniform_unstem_search"/>
   <copyField source="title_addl_t" dest="title_addl_unstem_search"/>
