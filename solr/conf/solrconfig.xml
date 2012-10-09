@@ -118,6 +118,7 @@
           <str name="facet.mincount">1</str>
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
           <str name="facet.field">lc_1letter_facet</str>
           <str name="f.lc_1letter_facet.facet.sort">false</str>
           <str name="facet.field">lc_alpha_facet</str>
@@ -139,6 +140,7 @@
           <str name="facet.mincount">1</str>
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
           <str name="facet.field">lc_1letter_facet</str>
           <str name="f.lc_1letter_facet.facet.sort">false</str>
           <str name="facet.field">lc_alpha_facet</str>
@@ -166,6 +168,7 @@
           <str name="facet.mincount">1</str>
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
           <str name="facet.field">lc_1letter_facet</str>
           <str name="f.lc_1letter_facet.facet.sort">false</str>
           <str name="facet.field">lc_alpha_facet</str>
@@ -187,6 +190,7 @@
           <str name="facet.mincount">1</str>
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
           <str name="facet.field">lc_1letter_facet</str>
           <str name="f.lc_1letter_facet.facet.sort">false</str>
           <str name="facet.field">lc_alpha_facet</str>
@@ -361,6 +365,7 @@
         author_display,
         author_vern_display, 
         format, 
+        online, 
         isbn_t, 
         language_facet, 
         location_facet, 
@@ -384,6 +389,7 @@
       <str name="facet.mincount">1</str>
       <str name="facet.limit">10</str>
       <str name="facet.field">format</str>
+      <str name="facet.field">online</str>
       <str name="facet.field">lc_1letter_facet</str>
       <str name="facet.field">lc_alpha_facet</str>
       <str name="facet.field">lc_b4cutter_facet</str>
@@ -509,6 +515,7 @@
         author_display,
         author_vern_display, 
         format, 
+        online, 
         isbn_t, 
         language_facet, 
         location_facet, 
@@ -532,6 +539,7 @@
       <str name="facet.mincount">1</str>
       <str name="facet.limit">10</str>
       <str name="facet.field">format</str>
+      <str name="facet.field">online</str>
       <str name="facet.field">lc_1letter_facet</str>
       <str name="facet.field">lc_alpha_facet</str>
       <str name="facet.field">lc_b4cutter_facet</str>
