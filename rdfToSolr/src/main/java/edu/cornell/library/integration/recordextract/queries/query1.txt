@@ -1,0 +1,9 @@
+#query1.txt ( this is a UTF-8 file )
+
+CONSTRUCT { 
+ $recordURI$ ?p ?o .
+} 
+WHERE
+{ 
+  $recordURI$ ?p ?o . 
+}

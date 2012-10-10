@@ -1,0 +1,25 @@
+#get the field and subfield data
+#( this is a UTF-8 file )
+
+prefix marc: <http://marcrdf.library.cornell.edu/canonical/0.1/> 
+
+CONSTRUCT {
+
+  $recordURI$ marc:hasField ?f .  
+  ?f ?fp ?fo.  
+  ?f marc:hasSubfield ?sf .
+  ?sf ?sfp ?sfo. 
+
+} WHERE {
+
+ $recordURI$ marc:hasField ?f.
+ ?f ?fp ?fo.
+  
+ optional{ 
+   ?f marc:hasSubfield ?sf
+     optional{
+       ?sf ?sfp ?sfo 
+     }
+ }
+
+}
