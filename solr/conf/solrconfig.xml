@@ -255,6 +255,7 @@
         author_unstem_search^250
         author_addl_unstem_search^250
         author_t^100
+        publisher_t^100
         author_addl_t^50
         subject_addl_unstem_search^250
         subject_addl_t^50
@@ -282,6 +283,7 @@
         author_unstem_search^2500
         author_addl_unstem_search^2500
         author_t^1000
+        publisher_t^1000
         author_addl_t^500
         subject_addl_unstem_search^2500
         subject_addl_t^500

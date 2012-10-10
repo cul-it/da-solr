@@ -144,6 +144,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    
 				new SubfieldCodeMaker("pub_info_display","260","abc"),
 				new SubfieldCodeMaker("pub_info_display","264","abc"),
+				
+				new SubfieldCodeMaker("publisher_t","260","b"),
+				new SubfieldCodeMaker("publisher_t","264","b"),
 					
 				new SubfieldCodeMaker("edition_display","250","ab"),
 									
