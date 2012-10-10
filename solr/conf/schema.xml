@@ -303,6 +303,8 @@
 
   <!-- Copy Fields -->
 
+  <copyField source="lc_callnum_display" dest="lc_callnum_s"/>
+
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>
   <copyField source="title_t" dest="title_ngram"/>
