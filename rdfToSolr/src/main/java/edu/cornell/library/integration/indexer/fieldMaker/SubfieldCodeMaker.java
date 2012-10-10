@@ -1,9 +1,7 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;

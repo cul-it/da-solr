@@ -368,6 +368,21 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("subject_addl_t","654","vwxyz","."),
 				new SubfieldCodeMaker("subject_addl_t","655","vwxyz","."),
 				
+			    new SPARQLFieldMakerImpl().
+			    	setName("subject display").
+			    	addMainStoreQuery("subject display", 
+		        	"SELECT *\n" +
+		        	" WHERE {\n" +
+		        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+		        	"  ?f marcrdf:tag ?t.\n" +
+		        	"  FILTER( REGEX( ?t, \"^6\" ))\n" +
+		        	"  ?f marcrdf:ind2 ?i2.\n" +
+		        	"  ?f marcrdf:ind1 ?i1.\n" +
+		        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+		        	"  ?sf marcrdf:code ?c.\n" +
+		        	"  ?sf marcrdf:value ?v. }").
+		        	addResultSetToFields( new SubjectResultSetToFields()),
+				
 				new SubfieldCodeMaker("donor_display","920","b"),
 
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
