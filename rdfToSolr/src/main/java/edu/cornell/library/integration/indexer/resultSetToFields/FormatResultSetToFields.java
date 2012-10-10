@@ -157,7 +157,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		addField(fields,"format",format);
 		if (online) {
-			addField(fields,"online_facet","online");
+			addField(fields,"online","online");
 		}
 		return fields;
 
