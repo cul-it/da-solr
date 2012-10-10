@@ -294,7 +294,7 @@
     <dynamicField name="*_sort" type="alphaOnlySort" indexed="true" stored="false"/>
     <dynamicField name="*_unstem_search" type="textNoStem" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false"/>         
+    <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false" multiValued="true"/>         
   </fields>
 
   <uniqueKey>id</uniqueKey>
