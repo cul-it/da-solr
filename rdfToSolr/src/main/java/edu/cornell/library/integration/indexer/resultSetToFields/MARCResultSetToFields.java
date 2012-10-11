@@ -37,9 +37,12 @@ public class MARCResultSetToFields implements ResultSetToFields {
 		
 		if (results.containsKey("marc_leader")) {
 			ResultSet marc_leader = results.get("marc_leader");
-			QuerySolution sol = marc_leader.nextSolution();
-			leader = nodeToString( sol.get("l"));
-		} else {
+			if( marc_leader != null && marc_leader.hasNext() ){
+				QuerySolution sol = marc_leader.nextSolution();
+				leader = nodeToString( sol.get("l"));
+			}
+		} 		
+		if( leader == null || leader.trim().isEmpty()){
 			System.out.println("Error: leader should NEVER be missing from a MARC record.");
 			return null;
 		}
