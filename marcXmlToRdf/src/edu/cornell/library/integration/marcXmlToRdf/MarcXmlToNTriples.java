@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.FileInputStream;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -30,7 +30,7 @@ public class MarcXmlToNTriples {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String sourcefile = "/users/fbw4/git/integrationLayer/rdf/sources/RadMARCATS1.xml";
+		String sourcefile = "/users/fbw4/voyager-harvest/data/fulldump/bib.106_30000.xml";
 		try {
 			marcXmlToNTriples( sourcefile );
 		} catch (Exception e) {
@@ -41,6 +41,31 @@ public class MarcXmlToNTriples {
 	
 	public static void displayRecord( MarcRecord rec ) {
 		System.out.println("000    "+rec.leader);
+		int id = 0;
+		while( rec.control_fields.containsKey(id+1) ) {
+			ControlField f = rec.control_fields.get(++id);
+			System.out.println(f.tag + "    " + f.value);
+		}
+
+		while( rec.data_fields.containsKey(id+1) ) {
+			DataField f = rec.data_fields.get(++id);
+			StringBuilder sb = new StringBuilder();
+			sb.append(f.tag);
+			sb.append(" ");
+			sb.append(f.ind1);
+			sb.append(f.ind2);
+			sb.append(" ");
+			int sf_id = 0;
+			while( f.subfields.containsKey(sf_id+1) ) {
+				Subfield sf = f.subfields.get(++sf_id);
+				sb.append("|");
+				sb.append(sf.code);
+				sb.append(" ");
+				sb.append(sf.value);
+			}
+			System.out.println(sb.toString());
+		}
+		System.out.println();
 	}
 	
 	public static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
@@ -63,7 +88,7 @@ public class MarcXmlToNTriples {
 						if (r.getAttributeLocalName(i).equals("tag"))
 							f.tag = r.getAttributeValue(i);
 					f.value = r.getElementText();
-					rec.control_fields.add(f);
+					rec.control_fields.put(f.id, f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
 					f.id = ++id;
@@ -75,6 +100,7 @@ public class MarcXmlToNTriples {
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							f.ind2 = r.getAttributeValue(i).charAt(0);
 					f.subfields = processSubfields(r);
+					rec.data_fields.put(f.id, f);
 				}
 		
 			}
@@ -82,8 +108,8 @@ public class MarcXmlToNTriples {
 		return rec;
 	}
 	
-	public static Collection<Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Collection<Subfield> fields = new HashSet<Subfield>();
+	public static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
@@ -98,7 +124,7 @@ public class MarcXmlToNTriples {
 						if (r.getAttributeLocalName(i).equals("code"))
 							f.code = r.getAttributeValue(i).charAt(0);
 					f.value = r.getElementText();
-					fields.add(f);
+					fields.put(f.id, f);
 				}
 		}
 		return fields; // We should never reach this line.
@@ -139,8 +165,10 @@ public class MarcXmlToNTriples {
 	static class MarcRecord {
 		
 		public String leader;
-		public Collection<ControlField> control_fields = new HashSet<ControlField>();
-		public Collection<DataField> data_fields = new HashSet<DataField>();
+		public Map<Integer,ControlField> control_fields 
+									= new HashMap<Integer,ControlField>();
+		public Map<Integer,DataField> data_fields
+									= new HashMap<Integer,DataField>();
 	}
 	
 	static class ControlField {
@@ -156,7 +184,7 @@ public class MarcXmlToNTriples {
 		public String tag;
 		public Character ind1;
 		public Character ind2;
-		public Collection<Subfield> subfields;
+		public Map<Integer,Subfield> subfields;
 		
 		public Integer equivalance_index;
 		public int mapped_field;

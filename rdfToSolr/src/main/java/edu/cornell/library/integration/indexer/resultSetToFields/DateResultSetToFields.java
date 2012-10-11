@@ -54,7 +54,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 									}									
 								} else {
 									try{
-										if (3000 > Integer.parseInt( value )) 
+										if (9999 != Integer.parseInt( value )) 
 											addField(fields,"pub_date",value);																			
 									}catch(NumberFormatException nfe){
 										// not a problem?
