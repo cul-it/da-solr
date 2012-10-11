@@ -1,32 +1,19 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.solr.common.SolrInputField;
 
-import javax.xml.stream.XMLEventFactory;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartDocument;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -75,7 +62,7 @@ public class MARCResultSetToFields implements ResultSetToFields {
 				Integer field_no = Integer.valueOf( f.substring( f.lastIndexOf('_') + 1 ) );
 
 				if (data_fields[field_no] == null) {
-					data_fields[field_no] = new String[20];
+					data_fields[field_no] = new String[100];
 					data_fields[field_no][0] = nodeToString(sol.get("t")) +
 												nodeToString(sol.get("i1")) +
 												nodeToString(sol.get("i2"));
