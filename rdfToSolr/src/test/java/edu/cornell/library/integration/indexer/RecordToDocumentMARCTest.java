@@ -6,14 +6,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -24,9 +27,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.core.CoreContainer;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
@@ -54,12 +55,37 @@ public class RecordToDocumentMARCTest {
 	static SolrServer solr = null;	
 	static RDFService rdf  = null;
 	
+	/**
+	 * This test needs to load a set of RDF to use to build
+	 * documents from. This is the list of directories to 
+	 * check in.
+	 */
+	static final String testRDFDir =  "rdf/output/";
+	
+	/**
+	 * These are the path prefixes to try to use 
+	 * when looking for RDF directories. The intent
+	 * is to allow the test to be run from different 
+	 * directories.  It would be better to load these
+	 * from resources but you cannot access directories
+	 * from resources.  
+	 * 
+	 * A better system for this would be welcome. The
+	 * test need to be run from the build script
+	 * and from eclipse. 
+	 */
+	static final String[] testRDFDirBases = {
+		"./",
+		"../"
+	};
+	
 	static final String fallbackSolrDir1 = new File("../solr").getAbsolutePath() ;
 	static final String fallbackSolrDir2 = new File("./solr").getAbsolutePath() ;
 	static final String fallbackMARC1 = new File("../rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
 	static final String fallbackMARC2 = new File("./rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
-
+	
 	static final String[] rMarcURIS = {
+		"http://fbw4-dev.library.cornell.edu/individuals/b4696",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
@@ -106,7 +132,7 @@ public class RecordToDocumentMARCTest {
 		query.setParam("qt", "standard");
 		
 		testQueryGetsDocs(query,
-			new String[]{
+			new String[]{				
 				"UNTRadMARC001", 		
 				"UNTRadMARC002",
 				"UNTRadMARC003",
@@ -119,15 +145,28 @@ public class RecordToDocumentMARCTest {
 				"UNTRadMARC010"} );
 	}
 	
+	
+	@Test
+	public void testBronte() throws SolrServerException{
+		
+		/* make sure that we have the document in the index before we do anything */
+		SolrQuery query = new SolrQuery();
+		query.setQuery("id:4696");
+		query.setParam("qt", "standard");		
+		assertNull( testQueryGetsDocs(query,new String[]{ "4696" } ) );			
+		
+	}
+	
 	/** 
 	 * Test that a document with the given IDs are in the results for the query. 
 	 * @throws SolrServerException */
-	void testQueryGetsDocs(SolrQuery query, String[] docIds) throws SolrServerException{
+	String testQueryGetsDocs(SolrQuery query, String[] docIds) throws SolrServerException{
 		assertNotNull(query);
 		assertNotNull( docIds );
 									
 		QueryResponse resp = solr.query(query);
-		assertNotNull(resp);
+		if( resp == null )
+			return "Could not get a solr response";
 		
 		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
 		for( SolrDocument doc : resp.getResults()){
@@ -149,7 +188,10 @@ public class RecordToDocumentMARCTest {
 				System.err.println("  " + doc.getFirstValue("id"));
 			}
 			
-			fail(errorMsg);
+			return errorMsg;
+		}else{
+			//on success return null
+			return null;
 		}
 	}
 	
@@ -221,20 +263,40 @@ public class RecordToDocumentMARCTest {
 		indexRdf();
 	}
 
-	private static RDFService loadRMARC() throws Exception {
+	private static RDFService loadRMARC() throws Exception {		
+		//find test dir
+		File testRDFDir = findTestDir();
+		
+		//load all files in test dir.
+		File[] files = testRDFDir.listFiles();
+		assertNotNull("no test RDF files found",files);
+		assertTrue("no test RDF files found", files.length > 0 );
 		
 		Model model = ModelFactory.createDefaultModel();
-		InputStream in = FileManager.get().open( fallbackMARC1 );
-		if (in == null) {
-		   in = FileManager.get().open( fallbackMARC2 );
-		   if( in == null ){
-			   throw new Exception("Could not load marc file " + fallbackMARC2);
-		   }
-		}
-		model.read(in,null,"N-TRIPLE"); 
+		for (File file : files ){
+			InputStream in = FileManager.get().open( file.getAbsolutePath() );			
+			assertNotNull("Could not load marc file " + file.getAbsolutePath(), in );				   			
+			model.read(in,null,"N-TRIPLE");	
+		}				 
 		return new RDFServiceModel( model );
 	}
 	
+	private static File findTestDir() {
+		List<String> attempted = new ArrayList<String>();		
+		File f = null;
+		for( String base: testRDFDirBases){
+			String attemptedDir =base + testRDFDir ;
+			attempted.add( attemptedDir);
+			f = new File( attemptedDir );
+			if( f != null && f.exists() && f.isDirectory() )
+				break;
+		}				
+		assertNotNull("Could not find directory " +
+				"of test RDF, check in these locations:\n" +
+				StringUtils.join(attempted,"\n  "), f);
+		return f;
+	}
+
 	private static void indexRdf() throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
 		
