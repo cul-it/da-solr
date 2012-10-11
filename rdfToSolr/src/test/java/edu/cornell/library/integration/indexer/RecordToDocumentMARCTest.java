@@ -131,18 +131,20 @@ public class RecordToDocumentMARCTest {
 		query.setQuery("id:UNTRadMARC*");
 		query.setParam("qt", "standard");
 		
-		testQueryGetsDocs(query,
-			new String[]{				
-				"UNTRadMARC001", 		
-				"UNTRadMARC002",
-				"UNTRadMARC003",
-				"UNTRadMARC004",
-				"UNTRadMARC005",
-				"UNTRadMARC006",
-				"UNTRadMARC007",
-				"UNTRadMARC008",
-				"UNTRadMARC009",
-				"UNTRadMARC010"} );
+		testQueryGetsDocs(
+				"Making sure all Radioactive MARC can be found by id",
+				query,
+				new String[]{				
+						"UNTRadMARC001", 		
+						"UNTRadMARC002",
+						"UNTRadMARC003",
+						"UNTRadMARC004",
+						"UNTRadMARC005",
+						"UNTRadMARC006",
+						"UNTRadMARC007",
+						"UNTRadMARC008",
+						"UNTRadMARC009",
+						"UNTRadMARC010"} );
 	}
 	
 	
@@ -150,48 +152,52 @@ public class RecordToDocumentMARCTest {
 	public void testBronte() throws SolrServerException{
 		
 		/* make sure that we have the document in the index before we do anything */
-		SolrQuery query = new SolrQuery();
-		query.setQuery("id:4696");
-		query.setParam("qt", "standard");		
-		assertNull( testQueryGetsDocs(query,new String[]{ "4696" } ) );			
+		SolrQuery query = 
+				new SolrQuery().setQuery("id:4696").setParam("qt", "standard");		
+	
+		testQueryGetsDocs("Expect to find Bronte document by doc:id 4696",
+				query,new String[]{ "4696" } ) ;			
 		
+		query =  new SolrQuery().setQuery("bronte");
+		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'bronte'",
+				query,new String[]{ "4696" } ) ;
+		
+		query = new SolrQuery().setQuery( "Selected Bronte\u0308 poems") ;
+		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems'",
+				query,new String[]{ "4696" } ) ;
+		
+		query = new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ;
+		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
+				query,new String[]{ "4696" } ) ;
 	}
 	
 	/** 
 	 * Test that a document with the given IDs are in the results for the query. 
 	 * @throws SolrServerException */
-	String testQueryGetsDocs(SolrQuery query, String[] docIds) throws SolrServerException{
-		assertNotNull(query);
-		assertNotNull( docIds );
+	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException{
+		assertNotNull(errmsg + " but query was null", query);
+		assertNotNull(errmsg + " but docIds was null", docIds );
 									
 		QueryResponse resp = solr.query(query);
 		if( resp == null )
-			return "Could not get a solr response";
+			fail( errmsg + " but Could not get a solr response");
 		
 		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
 		for( SolrDocument doc : resp.getResults()){
-			assertNotNull(doc);
+			assertNotNull(errmsg + ": solr doc was null", doc);
 			String id = (String) doc.getFirstValue("id");
-			assertNotNull(id);
+			assertNotNull(errmsg+": no id field in solr doc" , id);
 			expecteIds.remove( id );			
 		}
 		if( expecteIds.size() > 0){
 			String errorMsg = 
-					"The query '"+ query + "' was expected " +
+					"\nThe query '"+ query + "' was expected " +
 					"to return the following ids but did not:";
 			for( String id : expecteIds){
 				errorMsg= errorMsg+"\n" + id;
-			}
+			}					
 			
-			System.err.println("The query '"+query+"' did reutrn the following documents:");
-			for( SolrDocument doc : resp.getResults()){
-				System.err.println("  " + doc.getFirstValue("id"));
-			}
-			
-			return errorMsg;
-		}else{
-			//on success return null
-			return null;
+			fail( errmsg + errorMsg);
 		}
 	}
 	
@@ -274,9 +280,13 @@ public class RecordToDocumentMARCTest {
 		
 		Model model = ModelFactory.createDefaultModel();
 		for (File file : files ){
-			InputStream in = FileManager.get().open( file.getAbsolutePath() );			
-			assertNotNull("Could not load marc file " + file.getAbsolutePath(), in );				   			
-			model.read(in,null,"N-TRIPLE");	
+			InputStream in = FileManager.get().open( file.getAbsolutePath() );	
+			assertNotNull("Could not load marc file " + file.getAbsolutePath(), in );
+			try{
+				model.read(in,null,"N-TRIPLE");
+			}catch(Throwable th){
+				throw new Exception( "Could not load file " + file.getAbsolutePath() , th);
+			}
 		}				 
 		return new RDFServiceModel( model );
 	}
