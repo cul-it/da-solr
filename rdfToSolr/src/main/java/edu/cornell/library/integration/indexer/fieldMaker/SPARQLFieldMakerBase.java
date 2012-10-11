@@ -40,8 +40,9 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		this.defaultPrefixes = new HashMap<String,String>();
 		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
 		defaultPrefixes.put("intlayer","http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/");
-		defaultPrefixes.put("rdfs","http://www.w3.org/2000/01/rdf-schema#");		                           
-		defaultPrefixes.put("rdf","http://www.w3c.org/1999/02/22-rdf-syntax-ns#");
+		defaultPrefixes.put("rdfs",    "http://www.w3.org/2000/01/rdf-schema#");		                           
+		defaultPrefixes.put("rdf",     "http://www.w3c.org/1999/02/22-rdf-syntax-ns#");
+		defaultPrefixes.put("xsd",     "http://www.w3.org/2001/XMLSchema#");
 		
 	}
 	
