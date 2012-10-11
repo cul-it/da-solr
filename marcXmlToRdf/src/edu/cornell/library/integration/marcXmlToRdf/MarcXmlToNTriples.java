@@ -20,7 +20,8 @@ public class MarcXmlToNTriples {
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
-					displayRecord(rec);
+//					System.out.println(rec.toString());
+					mapNonRomanFieldsToRomanizedFields(rec);
 				}
 		}
 		xmlstream.close();
@@ -39,35 +40,47 @@ public class MarcXmlToNTriples {
 		}
 	}
 	
-	public static void displayRecord( MarcRecord rec ) {
-		System.out.println("000    "+rec.leader);
-		int id = 0;
-		while( rec.control_fields.containsKey(id+1) ) {
-			ControlField f = rec.control_fields.get(++id);
-			System.out.println(f.tag + "    " + f.value);
-		}
+	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) {
+		Map<Integer,Integer> eighteighties = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
+		String bib_id = rec.control_fields.get(1).value;
 
-		while( rec.data_fields.containsKey(id+1) ) {
-			DataField f = rec.data_fields.get(++id);
-			StringBuilder sb = new StringBuilder();
-			sb.append(f.tag);
-			sb.append(" ");
-			sb.append(f.ind1);
-			sb.append(f.ind2);
-			sb.append(" ");
-			int sf_id = 0;
-			while( f.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = f.subfields.get(++sf_id);
-				sb.append("|");
-				sb.append(sf.code);
-				sb.append(" ");
-				sb.append(sf.value);
+		for ( int id: rec.data_fields.keySet() ) {
+			DataField f = rec.data_fields.get(id);
+			for ( int sf_id: f.subfields.keySet() ) {
+				Subfield sf = f.subfields.get(sf_id);
+				if (sf.code.equals('6')) {
+					int n = Integer.valueOf(sf.value.substring(4, 6));
+					if (f.tag.equals("880")) {
+						if (eighteighties.containsKey(n)) {
+							System.out.println("Error: (bib_id:" + bib_id + ") More than one 880 with the same link index.");
+						}
+						eighteighties.put(n, id);
+					} else {
+						if (others.containsKey(n)) {
+							System.out.println("Error: (bib_id:" + bib_id + ") More than one field linking to 880s with the same link index.");
+						}
+						others.put(n, id);
+					}
+				}
 			}
-			System.out.println(sb.toString());
 		}
-		System.out.println();
+		
+		for( int link_id: others.keySet() ) {
+			if (eighteighties.containsKey(link_id)) {
+				// LINK FOUND
+				rec.data_fields.get(others.get(link_id)).mapped_field = eighteighties.get(link_id);
+				rec.data_fields.get(eighteighties.get(link_id)).mapped_field = others.get(link_id);
+			} else {
+				System.out.println("Error: (bib_id:" + bib_id + ") Field linking to non-existant 880.");
+			}
+		}
+		for ( int link_id: eighteighties.keySet() )
+			if ( ! others.containsKey(link_id))
+				System.out.println("Error: (bib_id:" + bib_id + ") 880 field linking to non-existant main field.");
+		
 	}
-	
+		
 	public static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
@@ -169,6 +182,37 @@ public class MarcXmlToNTriples {
 									= new HashMap<Integer,ControlField>();
 		public Map<Integer,DataField> data_fields
 									= new HashMap<Integer,DataField>();
+		
+		public String toString( ) {
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("000    "+this.leader+"\n");
+			int id = 0;
+			while( this.control_fields.containsKey(id+1) ) {
+				ControlField f = this.control_fields.get(++id);
+				sb.append(f.tag + "    " + f.value+"\n");
+			}
+
+			while( this.data_fields.containsKey(id+1) ) {
+				DataField f = this.data_fields.get(++id);
+				sb.append(f.tag);
+				sb.append(" ");
+				sb.append(f.ind1);
+				sb.append(f.ind2);
+				sb.append(" ");
+				int sf_id = 0;
+				while( f.subfields.containsKey(sf_id+1) ) {
+					Subfield sf = f.subfields.get(++sf_id);
+					sb.append("|");
+					sb.append(sf.code);
+					sb.append(" ");
+					sb.append(sf.value);
+				}
+				sb.append("\n");
+			}
+			return sb.toString();
+		}
+
 	}
 	
 	static class ControlField {
@@ -185,8 +229,7 @@ public class MarcXmlToNTriples {
 		public Character ind1;
 		public Character ind2;
 		public Map<Integer,Subfield> subfields;
-		
-		public Integer equivalance_index;
+
 		public int mapped_field;
 	}
 	

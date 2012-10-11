@@ -9,7 +9,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
 /**
@@ -181,40 +181,39 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_addl_t","245","abnps"),
 				new SubfieldCodeMaker("title_addl_t","246","abcdefgklmnopqrs"),
 				new SubfieldCodeMaker("title_addl_t","247","abcdefgnp"),
+				new SubfieldCodeMaker("title_addl_t","740","anp"),
 
 				new SubfieldCodeMaker("title_uniform_t","130","abcdefghijklmnopqrstuvwxyz"),
 				new SubfieldCodeMaker("title_uniform_t","240","abcdefgklmnopqrs"),
-				
-				new SubfieldCodeMaker("title_added_entry_t","700","gklmnoprst"),
-				new SubfieldCodeMaker("title_added_entry_t","710","fgklmnopqrst"),
-				new SubfieldCodeMaker("title_added_entry_t","711","fgklnpst"),
-				new SubfieldCodeMaker("title_added_entry_t","730","abcdefgklmnopqrst"),
-				new SubfieldCodeMaker("title_added_entry_t","740","anp"),
+				new SubfieldCodeMaker("title_uniform_t","730","abcdefgklmnopqrst"),
+				new SubfieldCodeMaker("title_uniform_t","700","gklmnoprst"),
+				new SubfieldCodeMaker("title_uniform_t","710","fgklmnopqrst"),
+				new SubfieldCodeMaker("title_uniform_t","711","fgklnpst"),
 
+				new SubfieldCodeMaker("title_series_t","400","abdfklnptvcegu"),				
+				new SubfieldCodeMaker("title_series_t","410","abdfklnptvcegu"),				
+				new SubfieldCodeMaker("title_series_t","411","acdefklnptgquv"),
 				new SubfieldCodeMaker("title_series_t","440","anpv"),
-				new SubfieldCodeMaker("title_series_t","490","av"),
+				new SubfieldCodeMaker("title_series_t","800","abcdefghklmnopqrstuv"),
+				new SubfieldCodeMaker("title_series_t","810","abcdefghklmnopqrstuv"),
+				new SubfieldCodeMaker("title_series_t","811","acdefghklnpqstuv"),
+				new SubfieldCodeMaker("title_series_t","830","adfghklmnoprstv"),
+				new SubfieldCodeMaker("title_series_t","490","anpv"),
 
-				
 				new SubfieldCodeMaker("title_display","245","a",":/ "),
 				new SubfieldCodeMaker("subtitle_display","245","b",":/ "),
 				
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
 				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
 				new SubfieldCodeMaker("title_other_display","247","abfgnpx",":/ "),
-				new SubfieldCodeMaker("title_other_display","730","iaplskfmnordgh",":/ "),
 				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
 				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
-				
-				new SubfieldCodeMaker("title_series_display","400","abdfklnptvcegu"),				
-				new SubfieldCodeMaker("title_series_display","410","abdfklnptvcegu"),				
-				new SubfieldCodeMaker("title_series_display","411","acdefklnptgquv"),
-				new SubfieldCodeMaker("title_series_display","440","anpv"),
-				new SubfieldCodeMaker("title_series_display","800","abcdefghklmnopqrstuv"),
-				new SubfieldCodeMaker("title_series_display","810","abcdefghklmnopqrstuv"),
-				new SubfieldCodeMaker("title_series_display","811","acdefghklnpqstuv"),
-				new SubfieldCodeMaker("title_series_display","830","adfghklmnoprstv"),
+				new SubfieldCodeMaker("title_uniform_display","700","gklmnoprst"),
+				new SubfieldCodeMaker("title_uniform_display","710","fgklmnopqrst"),
+				new SubfieldCodeMaker("title_uniform_display","711","fgklnpst"),
+				new SubfieldCodeMaker("title_uniform_display","730","iaplskfmnordgh",":/ "),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
@@ -260,6 +259,18 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?sf marcrdf:code ?c.\n" +
 			        	"  ?sf marcrdf:value ?v. }").
 			        addResultSetToFields( new TitleChangeResultSetToFields()),
+			        
+			    new SPARQLFieldMakerStepped().
+			        setName("title_series_display").
+			        addMainStoreQuery("title_series_830", 
+				        	"SELECT *\n" +
+				        	" WHERE {\n" +
+				        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+				        	"  ?f marcrdf:tag \"830\".\n" +
+				        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+				        	"  ?sf marcrdf:code ?c.\n" +
+				        	"  ?sf marcrdf:value ?v. }").
+			        addResultSetToFieldsStepped( new TitleSeriesResultSetToFields()),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("table of contents").
