@@ -17,8 +17,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlH
  */
 public class RecordExtract {
 	static final String[] queryFiles = {
-		"query1.txt"
-		//,"query2.txt"		
+		"query1.txt" 
+		,"query2.txt"		
 		,"query3.txt"
 		};
 	
