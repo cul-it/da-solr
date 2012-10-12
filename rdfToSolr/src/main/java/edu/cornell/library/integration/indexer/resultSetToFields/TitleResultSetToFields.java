@@ -58,7 +58,7 @@ public class TitleResultSetToFields implements ResultSetToFields {
 								vern_a = val;
 							}
 						} else if (code.equals("b")) {
-							if (resultKey.equals("title_vern")) {
+							if (resultKey.equals("title_main")) {
 								title_b = val;
 							} else {
 								vern_b = val;
@@ -71,11 +71,15 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		addField(fields,"title_t",title_a);
 		addField(fields,"title_t",vern_a);
 		addField(fields,"title_vern_display",vern_a);
-		addField(fields,"title_sort",RemoveTrailingPunctuation(title_a.substring(ind2).toLowerCase(),":/ "));
+		addField(fields,"title_sort",RemoveTrailingPunctuation(title_a.substring(ind2).toLowerCase(),":/ ")+
+				" " + title_b.toLowerCase());
 		addField(fields,"subtitle_t",RemoveTrailingPunctuation(title_b,":/ "));
-		if (! title_b.equals(vern_b))
+		if (! title_b.equals(vern_b)) {
 			addField(fields,"subtitle_t",vern_b);
-		addField(fields,"subtitle_vern_display",RemoveTrailingPunctuation(vern_b,":/ "));		
+			addField(fields,"subtitle_vern_display",RemoveTrailingPunctuation(vern_b,":/ "));
+		}
+		addField(fields,"title_display",RemoveTrailingPunctuation(title_a,":/ "));
+		addField(fields,"subtitle_display",RemoveTrailingPunctuation(title_b,":/ "));
 		
 		return fields;
 	}

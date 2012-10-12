@@ -66,7 +66,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			if (t.equals("780")) {
 				if ((ind.equals("00")) || (ind.equals("01"))) {
 					relation = "continues";
-				} else if ((ind.equals("00")) || (ind.equals("01"))) {
+				} else if ((ind.equals("02")) || (ind.equals("03"))) {
 					relation = "supersedes";
 				} else if ((ind.equals("05")) || (ind.equals("06"))) {
 					relation = "absorbed";
