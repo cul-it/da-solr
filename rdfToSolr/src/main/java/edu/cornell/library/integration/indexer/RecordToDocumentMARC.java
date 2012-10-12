@@ -21,7 +21,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
-			new SinglePubDateSort()
+				new SinglePubDateSort()
 		);
 	}
 

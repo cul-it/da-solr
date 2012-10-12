@@ -63,7 +63,7 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 		}
 
 		String nexttag = "";
-		if (tag.equals("830"))      { nexttag = "490"; } 
+		if      (tag.equals("830")) { nexttag = "490"; } 
 		else if (tag.equals("490")) { nexttag = "440"; }
 		else if (tag.equals("440")) { nexttag = "400"; }
 		else if (tag.equals("400")) { nexttag = "410"; }
