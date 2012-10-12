@@ -20,8 +20,10 @@ public class MarcXmlToNTriples {
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
-//					System.out.println(rec.toString());
+					System.out.println(rec.toString());
 					mapNonRomanFieldsToRomanizedFields(rec);
+					String ntriples = generateNTriples( rec );
+					System.out.println( ntriples );
 				}
 		}
 		xmlstream.close();
@@ -38,6 +40,60 @@ public class MarcXmlToNTriples {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static String generateNTriples ( MarcRecord rec ) {
+		StringBuilder sb = new StringBuilder();
+		String id = rec.control_fields.get(1).value;
+		String uri_host = "http://fbw4-dev.library.cornell.edu/individuals/";
+		String record_uri = "<"+uri_host+"b"+id+">";
+		sb.append(record_uri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .\n");
+		sb.append(record_uri + " <http://www.w3.org/2000/01/rdf-schema#label> \""+id+"\".\n");
+		sb.append(record_uri + " <http://marcrdf.library.cornell.edu/canonical/0.1/leader> \""+rec.leader+"\".\n");
+		int fid = 0;
+		while( rec.control_fields.containsKey(fid+1) ) {
+			ControlField f = rec.control_fields.get(++fid);
+			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+"\n");
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+"\n");
+			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples(f.value)+"\".\n");
+		}
+		while( rec.data_fields.containsKey(fid+1) ) {
+			DataField f = rec.data_fields.get(++fid);
+			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+"\n");
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+"\n");
+			if ((f.mapped_field > 0) && (! f.tag.equals("880")))
+				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasNonRomanEquivalent> <"+uri_host+"b"+id+"_"+f.mapped_field+">.\n");
+			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \""+f.ind1+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> \""+f.ind2+"\".\n");
+
+			int sfid = 0;
+			while( f.subfields.containsKey(sfid+1) ) {
+				Subfield sf = f.subfields.get(++sfid);
+				String subfield_uri = "<"+uri_host+"b"+id+"_"+fid+"_"+sfid+">";
+				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> "+subfield_uri+".\n");
+				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield"+Character.toUpperCase( sf.code )+"> "+subfield_uri+".\n");
+				sb.append(subfield_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .\n");
+				sb.append(subfield_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/code> \""+sf.code+"\".\n");
+				sb.append(subfield_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples( sf.value )+"\".\n");
+			}
+
+		}
+
+		return sb.toString();
+	}
+	
+	public static String escapeForNTriples( String s ) {
+		s.replaceAll("\\\\", "\\\\\\\\");
+		s.replaceAll("\"", "\\\\\\\"");
+		s.replaceAll("[\n\r]+", "\\\\n");
+		s.replaceAll("\t","\\\\t");
+		return s;
 	}
 	
 	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) {
