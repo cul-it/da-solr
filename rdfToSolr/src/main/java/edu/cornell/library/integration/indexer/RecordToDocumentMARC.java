@@ -424,7 +424,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	"  ?sf marcrdf:value ?v. }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
 				
-				new SubfieldCodeMaker("donor_display","920","b"),
+				new SubfieldCodeMaker("donor_s","902","b"),
 
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
 				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),

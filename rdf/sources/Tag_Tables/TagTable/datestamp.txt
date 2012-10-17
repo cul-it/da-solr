@@ -1,0 +1,4 @@
+﻿# part of the CUL Unicode tag tables 12/05/05 STR
+# part of the CUL Unified2000 tag tables 12/31/00 MMK
+
+# This version of the Unicode tag tables contains changes entered through Oct. 12, 2012.
