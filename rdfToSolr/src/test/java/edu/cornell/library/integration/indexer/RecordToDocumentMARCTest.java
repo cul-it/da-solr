@@ -128,8 +128,7 @@ public class RecordToDocumentMARCTest {
 	@Test
 	public void testRadioactiveIds() throws SolrServerException{
 		SolrQuery query = new SolrQuery();
-		query.setQuery("id:UNTRadMARC*");
-		query.setParam("qt", "standard");
+		query.setQuery("id:UNTRadMARC*");		
 		
 		testQueryGetsDocs(
 				"Making sure all Radioactive MARC can be found by id",
@@ -151,24 +150,22 @@ public class RecordToDocumentMARCTest {
 	@Test
 	public void testBronte() throws SolrServerException{
 		
-		/* make sure that we have the document in the index before we do anything */
-		SolrQuery query = 
-				new SolrQuery().setQuery("id:4696").setParam("qt", "standard");		
-	
+		/* make sure that we have the document in the index before we do anything */			
 		testQueryGetsDocs("Expect to find Bronte document by doc:id 4696",
-				query,new String[]{ "4696" } ) ;			
+				new SolrQuery().setQuery("id:4696").setParam("qt", "standard"),
+				new String[]{ "4696" } ) ;			
 		
-		query =  new SolrQuery().setQuery("bronte");
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'bronte'",
-				query,new String[]{ "4696" } ) ;
-		
-		query = new SolrQuery().setQuery( "Selected Bronte\u0308 poems") ;
+				new SolrQuery().setQuery("bronte"),
+				new String[]{ "4696" } ) ;
+				
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems'",
-				query,new String[]{ "4696" } ) ;
-		
-		query = new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ;
+				new SolrQuery().setQuery( "Selected Bronte\u0308 poems") ,
+				new String[]{ "4696" } ) ;
+				
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
-				query,new String[]{ "4696" } ) ;
+				new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ,
+				new String[]{ "4696" } ) ;
 	}
 	
 	/** 
