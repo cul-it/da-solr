@@ -22,7 +22,9 @@ public class MarcToSolrDocsMapper <K> extends Mapper<K, Text, Text, Text>{
 			Context context)
 	throws IOException, InterruptedException {
 		String marcXMLURL = value.toString();
-		//get the file and convert to RDF file
+		//get the MARC XML file 
+		
+		//convert to RDF file
 		
 		//load the RDF to a triple store
 		
@@ -30,5 +32,7 @@ public class MarcToSolrDocsMapper <K> extends Mapper<K, Text, Text, Text>{
 		
 		//for each bib-record make a solr document and write that out.		
 		//context.write(new Text( bibRecordURI), new Text( doc.toXML() ));		
+		context.write(new Text( marcXMLURL ), 
+				   	  new Text( "<fakeXml>"+marcXMLURL+"</fakeXml>" ));
 	}
 }
