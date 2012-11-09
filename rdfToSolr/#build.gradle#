@@ -10,9 +10,7 @@ dependencies {
    //use the jars from the solr download
    compile project(':solr')
 
-   compile 'org.apache.hadoop:hadoop-core:1.0.3'
-
-   compile fileTree(dir: 'libs', include: '*.jar')   
+   //compile fileTree(dir: 'libs', include: '*.jar')   
 
    //get us core, tdb, arq, and iri
    compile 'org.apache.jena:apache-jena:2.7.3'
@@ -21,15 +19,10 @@ dependencies {
    compile 'org.openrdf.sesame:sesame-runtime:2.6.6'
 
    compile "javax.servlet:servlet-api:2.5"   
-   compile 'junit:junit:4.9'   
+   compile 'junit:junit:4.9'                  
 }
 
 
 task list(dependsOn: configurations.compile) << {
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
-}
-
-jar {
-    dependsOn configurations.runtime
-    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
 }
