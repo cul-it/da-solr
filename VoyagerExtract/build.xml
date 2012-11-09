@@ -1,0 +1,146 @@
+<!-- ANT v1.6.5 build file Hopefully you will not have to alter this file 
+	to make it work on your system. Instead, create a localbuild.properties file 
+	from the localbuild.properties.in template. Targets: The default target (build) 
+	will compile all classes "deploy" will deploy the application "clean" will 
+	remove the classfiles -->
+<project name="VoyagerExtract" default="build" basedir=".">
+
+
+	<!-- Create the build.properties file from localbuild.properties and set 
+		the necessary variables there, try to avoid altering this file -->
+	<property file="build.properties" />
+
+	<!-- The directories containing source code, properties, and webapp files -->
+
+	<property name="src.dir" value="./src" />
+	<property name="test.src" location="test/src" />
+	<property name="build.test.dir" location="build/tests" />
+	<property name="properties" value="./resources" /> 
+	<property name="dist.dir" value="./dist" />
+	<property name="build.dir" value="./build" /> 
+	 
+
+	<property name="java.lib" value="./lib" /> 
+	<path id="compile.classpath">
+		<!-- Include all JAR files that will be included in /lib -->
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset> 
+	</path>
+
+	<path id="run-classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>		 
+		<pathelement path="${build.dir}/classes" />
+	</path>
+
+	<path id="test-classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset> 
+		<pathelement path="${build.dir}/classes" />
+		<pathelement path="${build.test.dir}" />
+	</path>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/classes" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<target name="build" depends="compile, lib, resources"
+		description="Compile main source tree java files">
+	</target>
+
+
+	<target name="compile" depends="prepare">
+		<javac destdir="${build.dir}/classes" srcdir="${src.dir}" debug="true"
+			deprecation="false" optimize="false" failonerror="true">
+			<classpath refid="compile.classpath" />
+			<compilerarg value="${java.opts}" />
+		</javac>
+	</target> 
+
+	<target name="jar" depends="compile" description="create jar file">
+		<jar destfile="${build.dir}/${app.name}.jar">
+			<fileset dir="${build.dir}/classes">
+				<include name="**/*.*" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="lib" description="dependency jar files">
+		<!-- copy libraries to build dir -->
+		<copy todir="${build.dir}/lib" preservelastmodified="true">
+			<flattenmapper />
+			<fileset dir="lib/">
+				<include name="**/*.jar" />
+				<include name="**/*.mar" /> 
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resources">
+		<copy todir="${build.dir}/classes" preservelastmodified="true">
+			<fileset dir="resources">
+				<include name="**/*.xml" />
+				<include name="**/*.dtd" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.dir}/classes" preservelastmodified="true">
+			<fileset dir="resources">
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+
+	</target>
+
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete file="${build.dir}/${app.name}.jar" />
+	</target>
+
+	<target name="compile.tests" depends="jar"
+		description="compile the junit test source ">
+		<mkdir dir="${build.test.dir}" />
+		<!-- Compile the java code from ${test.src} into ${test.build} -->
+		<javac srcdir="${test.src}" destdir="${build.test.dir}" debug="${compile.debug}"
+			deprecation="false" optimize="false" source="${compile.source}"
+			target="${compile.target}">
+			<classpath refid="test-classpath" />
+		</javac>
+		<!-- Copy the test resources to output directory -->
+		<copy todir="${build.test.dir}">
+			<fileset dir="test/resources" />
+		</copy>
+		<!-- Copy resources that have been placed in the src directory -->
+		<copy todir="${build.test.dir}">
+			<fileset dir="${test.src}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="OracleTables" depends="build" description="Get Oracle Tables" >
+      <echo message="Invoking OracleTables"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.support.OracleTables" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="Marc2MarcXML" depends="build" description="Run Marc2MarcXML" >
+      <echo message="Running Marc2MarcXML"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXML" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+
+
+</project>
