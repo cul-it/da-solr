@@ -1,0 +1,12 @@
+<property name="sourceDir"><value>${sourceDir}</value></property> 
+<property name="saveDir"><value>${saveDir}</value></property> 
+<property name="outputDir"><value>${outputDir}</value></property> 
+<property name="destination"><value>${destination}</value></property> 
+<property name="errorDir"><value>${errorDir}</value></property> 
+<property name="errorXmlDir"><value>${errorXmlDir}</value></property> 
+<property name="logDir"><value>${logDir}</value></property> 
+<property name="logLevel"><value>${logLevel}</value></property>
+<property name="marcSchema"><value>${marcSchema}</value></property> 
+<property name="splitSize"><value>${splitSize}</value></property> 
+<property name="translateLeaderBadCharsToZero"><value>${translateLeaderBadCharsToZero}</value></property> 
+<property name="translateNonleaderBadCharsToSpaces"><value>${translateNonleaderBadCharsToSpaces}</value></property> 

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd"
+                           default-autowire="byName">
+ 
+  
+  
+  <bean id="importerConfiguration"
+	class="info.extensiblecatalog.OAIToolkit.importer.ImporterConfiguration"
+  >
+		<property name="sourceDir"><value>${sourceDir}</value></property> 
+		<property name="destinationXmlDir"><value>${destinationXmlDir}</value></property> 
+		<property name="destinationDir"><value>${destinationDir}</value></property> 
+		<property name="errorDir"><value>${errorDir}</value></property> 
+		<property name="errorXmlDir"><value>${errorXmlDir}</value></property> 
+		<property name="logDir"><value>${logDir}</value></property> 
+		<property name="needLogDetail"><value>${needLogDetail}</value></property>
+		<property name="marcSchema"><value>${marcSchema}</value></property>
+		<property name="marcEncoding"><value>${marcEncoding}</value></property> 
+		<property name="splitSize"><value>${splitSize}</value></property> 
+		<property name="translateLeaderBadCharsToZero"><value>${translateLeaderBadCharsToZero}</value></property> 
+		<property name="translateNonleaderBadCharsToSpaces"><value>${translateNonleaderBadCharsToSpaces}</value></property>
+      <property name="needConvert"><value>${needConvert}</value></property>
+      <property name="needLoad"><value>${needLoad}</value></property>
+      <property name="needModify"><value>${needModify}</value></property>
+   </bean>
+   
+   <bean id="integrationDataProperties" 
+      class="edu.cornell.library.integration.config.IntegrationDataProperties"
+   >
+      <property name="voyagerBibMrcDaily"><value>${voyager_bib_mrc_daily}</value></property>
+      <property name="voyagerBibMrcFull"><value>${voyager_bib_mrc_full}</value></property>
+      <property name="voyagerBibXmlDaily"><value>${voyager_bib_xml_daily}</value></property>
+      <property name="voyagerBibXmlFull"><value>${voyager_bib_xml_full}</value></property>
+      <property name="davUser"><value>${dav_user}</value></property>
+      <property name="davPass"><value>${dav_pass}</value></property>
+   </bean>
+   
+      
+   <bean id="catalogDataSource"
+          class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+
+        <property name="driverClass"><value>${jdbc.catalog.driverClassName}</value></property>
+        <property name="jdbcUrl"><value>${jdbc.catalog.url}</value></property>
+        <property name="user"><value>${jdbc.catalog.username}</value></property>
+        <property name="password"><value>${jdbc.catalog.password}</value></property>
+
+        <property name="initialPoolSize"><value>10</value></property>
+        <property name="minPoolSize"><value>10</value></property>
+        <property name="maxPoolSize"><value>100</value></property>
+        <property name="checkoutTimeout"><value>5000</value></property>   <!-- 0 means: no checkoutTimeout -->
+        <property name="idleConnectionTestPeriod"><value>200</value></property>
+        <property name="acquireIncrement"><value>1</value></property>
+        <property name="maxStatements"><value>0</value></property>  <!-- 0 means: statement caching is turned off.  -->
+        <property name="numHelperThreads"><value>3</value></property>  <!-- 3 is default -->
+
+    </bean>
+ 
+
+   <bean id="catalogDao" class="edu.cornell.library.integration.dao.CatalogDaoImpl">
+      <property name="dataSource"><ref local="catalogDataSource"/></property>
+   </bean>
+
+   <bean id="catalogService"
+      class="edu.cornell.library.integration.service.CatalogServiceImpl">
+      <property name="catalogDao"><ref  bean="catalogDao" /></property>
+   </bean>
+   
+   <bean id="httpService"
+      class="edu.cornell.library.integration.service.HttpService"> 
+   </bean>
+   
+   <bean id="davService"
+      class="edu.cornell.library.integration.service.DavServiceImpl">
+      <property name="integrationDataProperties"><ref local="integrationDataProperties"/></property> 
+   </bean>
+                           
+</beans>
