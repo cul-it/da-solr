@@ -10,13 +10,17 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-   //runtime fileTree(dir: 'libs', include: '*.jar')
-   compile fileTree(dir: 'libs', include: '*.jar')   
-    
+dependencies {             
+   compile 'org.apache.hadoop:hadoop-core:1.0.3'
+   
    compile 'org.apache.jena:jena-arq:2.9.3'  
    compile 'org.apache.solr:solr-solrj:3.5.0'   
    compile 'org.apache.solr:solr-core:3.5.0'
    compile 'junit:junit:4.9'   
    compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+jar {
+    dependsOn configurations.runtime
+    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
 }
