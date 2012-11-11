@@ -19,6 +19,7 @@
          <value>classpath:voyager.full.converter.properties</value> 
          <value>classpath:jdbc.properties</value> 
          <value>classpath:integration.datastore.properties</value> 
+         <value>classpath:dav.properties</value> 
        </list>
     </property>
   </bean>
