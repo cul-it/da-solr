@@ -6,8 +6,7 @@ public class IntegrationDataProperties {
    private String voyagerBibMrcFull;
    private String voyagerBibXmlDaily;
    private String voyagerBibXmlFull;
-   private String davUser;
-   private String davPass;
+   private String voyagerLocationsXml;
 
    public IntegrationDataProperties() {
       // TODO Auto-generated constructor stub
@@ -70,31 +69,18 @@ public class IntegrationDataProperties {
    }
 
    /**
-    * @return the davUser
+    * @return the voyagerLocationsXml
     */
-   public String getDavUser() {
-      return davUser;
+   public String getVoyagerLocationsXml() {
+      return voyagerLocationsXml;
    }
 
    /**
-    * @param davUser the davUser to set
+    * @param voyagerLocationsXml the voyagerLocationsXml to set
     */
-   public void setDavUser(String davUser) {
-      this.davUser = davUser;
+   public void setVoyagerLocationsXml(String voyagerLocationsXml) {
+      this.voyagerLocationsXml = voyagerLocationsXml;
    }
 
-   /**
-    * @return the davPass
-    */
-   public String getDavPass() {
-      return davPass;
-   }
-
-   /**
-    * @param davPass the davPass to set
-    */
-   public void setDavPass(String davPass) {
-      this.davPass = davPass;
-   }
 
 }
