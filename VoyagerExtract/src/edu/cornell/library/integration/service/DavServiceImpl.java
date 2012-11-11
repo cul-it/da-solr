@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.service;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,35 +13,60 @@ import edu.cornell.library.integration.config.IntegrationDataProperties;
 
 public class DavServiceImpl implements DavService {
    
-   private IntegrationDataProperties integrationDataProperties;
+   private String davUser;
+   private String davPass;
 
    public DavServiceImpl() {
       // TODO Auto-generated constructor stub
    }
 
    /**
-    * @return the integrationDataProperties
+    * @return the davUser
     */
-   public IntegrationDataProperties getIntegrationDataProperties() {
-      return integrationDataProperties;
+   public String getDavUser() {
+      return this.davUser;
    }
 
    /**
-    * @param integrationDataProperties the integrationDataProperties to set
+    * @param davUser the davUser to set
     */
-   public void setIntegrationDataProperties(
-         IntegrationDataProperties integrationDataProperties) {
-      this.integrationDataProperties = integrationDataProperties;
+   public void setDavUser(String davUser) {
+      this.davUser = davUser;
    }
 
-   public List<String> getFileList(String pathProp) throws IOException {
+
+   /**
+    * @return the davPass
+    */
+   public String getDavPass() {
+      return this.davPass;
+   }
+
+   /**
+    * @param davPass the davPass to set
+    */
+   public void setDavPass(String davPass) {
+      this.davPass = davPass;
+   }
+
+   public List<String> getFileList(String url) throws IOException {
       List<String> filelist = new ArrayList<String>();
-      Sardine sardine = SardineFactory.begin(integrationDataProperties.getDavUser(), integrationDataProperties.getDavPass());
-      List<DavResource> resources = sardine.list(pathProp);
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      List<DavResource> resources = sardine.list(url);
       for (DavResource res : resources) {
-          filelist.add(res.toString());
+          filelist.add(res.getPath());
       }
       return filelist;
    }
 
+   public InputStream getFile(String url) throws IOException {
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      InputStream istream = sardine.get(url);
+      return istream;
+   }
+
+   public void saveFile(String url, InputStream dataStream) throws IOException {
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      sardine.put(url, dataStream);
+   }
 }
