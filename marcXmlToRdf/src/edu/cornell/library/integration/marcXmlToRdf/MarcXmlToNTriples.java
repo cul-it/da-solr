@@ -1,8 +1,16 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -10,63 +18,108 @@ import javax.xml.stream.events.XMLEvent;
 
 public class MarcXmlToNTriples {
 	
-	public static void marcXmlToNTriples(String xmlfile) throws Exception {
+	private static String logfile = "xmltordf.log";
+	private static BufferedWriter logout;
+	
+	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
+		RecordType type ;
+		if (xmlfile.getName().startsWith("mfhd"))
+			type = RecordType.HOLDINGS;
+		else if (xmlfile.getName().startsWith("auth"))
+			type = RecordType.AUTHORITY;
+		else if (xmlfile.getName().startsWith("bib"))
+			type = RecordType.BIBLIOGRAPHIC;
+		else { 
+			System.out.println("Not processing file. Record type unidentified from filename prefix.");
+			return;
+		}		
+		marcXmlToNTriples( xmlfile, targetfile, type );
+	}
+
+	public static void marcXmlToNTriples(File xmlfile, File targetfile, RecordType type) throws Exception {
 		FileInputStream xmlstream = new FileInputStream( xmlfile );
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
 		XMLStreamReader r  = 
-				input_factory.createXMLStreamReader(xmlfile, xmlstream);
+				input_factory.createXMLStreamReader(xmlfile.getPath(), xmlstream);
+		BufferedOutputStream out = 
+				new BufferedOutputStream(new GZIPOutputStream(
+						new FileOutputStream(targetfile)));
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
-					System.out.println(rec.toString());
 					mapNonRomanFieldsToRomanizedFields(rec);
-					String ntriples = generateNTriples( rec );
-					System.out.println( ntriples );
+					String ntriples = generateNTriples( rec, type );
+					out.write( ntriples.getBytes() );
 				}
 		}
 		xmlstream.close();
+		out.close();
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String sourcefile = "/users/fbw4/voyager-harvest/data/fulldump/bib.106_30000.xml";
-		try {
-			marcXmlToNTriples( sourcefile );
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		String destdir = "/users/fbw4/voyager-harvest/data/clean";
+		File file = new File( "/users/fbw4/voyager-harvest/data/fulldump" );
+		File[] files = file.listFiles();
+		for (File f: files) {
+			String xmlfilename = f.getName();
+			File destfile = new File(destdir+File.separator+xmlfilename.replaceAll(".xml$", ".nt.gz"));
+			System.out.println(f+" => "+destfile.getPath());
+			try {
+				marcXmlToNTriples( f, destfile );
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	public static String generateNTriples ( MarcRecord rec ) {
+
+	public static String generateNTriples ( MarcRecord rec, RecordType type ) {
 		StringBuilder sb = new StringBuilder();
 		String id = rec.control_fields.get(1).value;
 		String uri_host = "http://fbw4-dev.library.cornell.edu/individuals/";
-		String record_uri = "<"+uri_host+"b"+id+">";
-		sb.append(record_uri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .\n");
+		String id_pref;
+		String record_type_uri;
+		if (type == RecordType.BIBLIOGRAPHIC) {
+			id_pref = "b";
+			record_type_uri = "<http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord>";
+		} else if (type == RecordType.HOLDINGS) {
+			id_pref = "h";
+			record_type_uri = "<http://marcrdf.library.cornell.edu/canonical/0.1/HoldingsRecord>";
+		} else { //if (type == RecordType.AUTHORITY) {
+			id_pref = "a";
+			record_type_uri = "<http://marcrdf.library.cornell.edu/canonical/0.1/AuthorityRecord>";
+		}
+		String record_uri = "<"+uri_host+id_pref+id+">";
+		sb.append(record_uri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " + record_type_uri +" .\n");
 		sb.append(record_uri + " <http://www.w3.org/2000/01/rdf-schema#label> \""+id+"\".\n");
 		sb.append(record_uri + " <http://marcrdf.library.cornell.edu/canonical/0.1/leader> \""+rec.leader+"\".\n");
 		int fid = 0;
 		while( rec.control_fields.containsKey(fid+1) ) {
 			ControlField f = rec.control_fields.get(++fid);
-			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
-			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+"\n");
-			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+"\n");
+			String field_uri = "<"+uri_host+id_pref+id+"_"+fid+">";
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+".\n");
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+".\n");
 			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples(f.value)+"\".\n");
+			if ((f.tag.contentEquals("004")) && (type == RecordType.HOLDINGS)) {
+				sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> <"+uri_host+"b"+escapeForNTriples(f.value)+">.\n");
+			}
 		}
 		while( rec.data_fields.containsKey(fid+1) ) {
 			DataField f = rec.data_fields.get(++fid);
 			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
-			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+"\n");
-			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+"\n");
-			if ((f.mapped_field > 0) && (! f.tag.equals("880")))
-				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasNonRomanEquivalent> <"+uri_host+"b"+id+"_"+f.mapped_field+">.\n");
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+".\n");
+			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+".\n");
+			if (f.alttag != null)
+				sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.alttag+"> "+field_uri+".\n");
 			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \""+f.ind1+"\".\n");
@@ -87,7 +140,7 @@ public class MarcXmlToNTriples {
 
 		return sb.toString();
 	}
-	
+		
 	public static String escapeForNTriples( String s ) {
 		s.replaceAll("\\\\", "\\\\\\\\");
 		s.replaceAll("\"", "\\\\\\\"");
@@ -96,45 +149,66 @@ public class MarcXmlToNTriples {
 		return s;
 	}
 	
-	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) {
-		Map<Integer,Integer> eighteighties = new HashMap<Integer,Integer>();
+	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
+		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
+		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
 		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
 		String bib_id = rec.control_fields.get(1).value;
+		Pattern p = Pattern.compile("^[0-9]{3}.[0-9]{2}.*");
+		
+		if (logout == null) {
+			FileWriter logstream = new FileWriter(logfile);
+			logout = new BufferedWriter( logstream );
+		}
 
 		for ( int id: rec.data_fields.keySet() ) {
 			DataField f = rec.data_fields.get(id);
 			for ( int sf_id: f.subfields.keySet() ) {
 				Subfield sf = f.subfields.get(sf_id);
 				if (sf.code.equals('6')) {
-					int n = Integer.valueOf(sf.value.substring(4, 6));
-					if (f.tag.equals("880")) {
-						if (eighteighties.containsKey(n)) {
-							System.out.println("Error: (bib_id:" + bib_id + ") More than one 880 with the same link index.");
+					Matcher m = p.matcher(sf.value);
+					if (m.matches()) {
+						int n = Integer.valueOf(sf.value.substring(4, 6));
+						if (f.tag.equals("880")) {
+							if (n == 0) {
+								unlinkedeighteighties.put(id, sf.value.substring(0, 3));
+							} else {
+								if (linkedeighteighties.containsKey(n)) {
+									logout.write("Error: (bib_id:" + bib_id + ") More than one 880 with the same link index.\n");
+								}
+								linkedeighteighties.put(n, id);
+							}
+						} else {
+							if (others.containsKey(n)) {
+								logout.write("Error: (bib_id:" + bib_id + ") More than one field linking to 880s with the same link index.\n");
+							}
+							others.put(n, id);
 						}
-						eighteighties.put(n, id);
 					} else {
-						if (others.containsKey(n)) {
-							System.out.println("Error: (bib_id:" + bib_id + ") More than one field linking to 880s with the same link index.");
-						}
-						others.put(n, id);
+						logout.write("Error: (bib_id:" + bib_id +") "+
+								f.tag+" field has ‡6 with unexpected format: \""+sf.value+"\".\n");
 					}
 				}
 			}
 		}
-		
+
+		for( int fid: unlinkedeighteighties.keySet() ) {
+			rec.data_fields.get(fid).alttag = unlinkedeighteighties.get(fid);
+		}
 		for( int link_id: others.keySet() ) {
-			if (eighteighties.containsKey(link_id)) {
+			if (linkedeighteighties.containsKey(link_id)) {
 				// LINK FOUND
-				rec.data_fields.get(others.get(link_id)).mapped_field = eighteighties.get(link_id);
-				rec.data_fields.get(eighteighties.get(link_id)).mapped_field = others.get(link_id);
+				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
 			} else {
-				System.out.println("Error: (bib_id:" + bib_id + ") Field linking to non-existant 880.");
+				logout.write("Error: (bib_id:" + bib_id + ") "+
+						rec.data_fields.get(others.get(link_id)).tag+
+						" field linking to non-existant 880.\n");
 			}
 		}
-		for ( int link_id: eighteighties.keySet() )
+		for ( int link_id: linkedeighteighties.keySet() )
 			if ( ! others.containsKey(link_id))
-				System.out.println("Error: (bib_id:" + bib_id + ") 880 field linking to non-existant main field.");
-		
+				logout.write("Error: (bib_id:" + bib_id + ") 880 field linking to non-existant main field.\n");
+		logout.flush();
 	}
 		
 	public static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
@@ -286,7 +360,8 @@ public class MarcXmlToNTriples {
 		public Character ind2;
 		public Map<Integer,Subfield> subfields;
 
-		public int mapped_field;
+		// Linked field number if field is 880
+		public String alttag;
 	}
 	
 	static class Subfield {
@@ -294,5 +369,9 @@ public class MarcXmlToNTriples {
 		public int id;
 		public Character code;
 		public String value;
+	}
+	
+	static enum RecordType {
+		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
 	}
 }
