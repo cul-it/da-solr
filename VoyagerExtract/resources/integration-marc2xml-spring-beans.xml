@@ -83,5 +83,5 @@
       <property name="davUser"><value>${dav_user}</value></property>
       <property name="davPass"><value>${dav_pass}</value></property>
    </bean>
-                           
+   
 </beans>
