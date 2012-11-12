@@ -16,9 +16,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  
+import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.dao.CatalogDao; 
 
 public class CatalogDaoImpl implements CatalogDao {
@@ -92,6 +94,39 @@ public class CatalogDaoImpl implements CatalogDao {
       String sql = "SELECT 1";
       return jdbcTemplate.queryForInt(sql);
    }
+   
+   public List<Location> getAllLocation() throws Exception{
+      String sql = new String();
+      //sql = "SELECT * FROM CORNELLDB.LOCATION";
+      sql = ""
+      +"SELECT "
+      +" LOCATION.LOCATION_CODE, "
+      +" LOCATION.LOCATION_ID, "
+      +" LOCATION.SUPPRESS_IN_OPAC, "
+      +" LOCATION.MFHD_COUNT, "
+      +" LOCATION.LOCATION_OPAC, "
+      +" LOCATION.LOCATION_NAME, "
+      +" LOCATION.LOCATION_SPINE_LABEL, "
+      +" LOCATION.LOCATION_DISPLAY_NAME, "
+      +" LOCATION.LIBRARY_ID "
+      +" FROM LOCATION ";
+       
+      //System.out.println(sql);
+      try {
+          List<Location> locationList =  this.jdbcTemplate.query(sql, new LocationMapper());
+          return locationList;
+       } catch (EmptyResultDataAccessException ex) {
+          logger.warn("Empty result set");
+          logger.info("Query was: "+sql);
+          return null;
+       } catch (Exception ex) {
+          logger.error("Exception: ", ex);
+          logger.info("Query was: "+sql);
+          throw ex;
+       }
+
+      
+   }
 
 
 
@@ -110,6 +145,24 @@ public class CatalogDaoImpl implements CatalogDao {
          e.printStackTrace();
       }
 
+   }
+   
+   private static final class LocationMapper implements RowMapper {
+      public Location mapRow(ResultSet rs, int rowNum) throws SQLException {
+         Location location = new Location(); 
+         location.setLocationId(rs.getString("LOCATION_ID"));
+         location.setLocationCode(rs.getString("LOCATION_CODE"));
+         location.setSuppressInOpac(rs.getString("SUPPRESS_IN_OPAC"));
+         location.setMfhdCount(rs.getInt("MFHD_COUNT"));
+         location.setLibraryId(rs.getString("LIBRARY_ID"));
+         location.setLocationOpac(rs.getString("LOCATION_OPAC"));
+         location.setLocationSpineLabel(rs.getString("LOCATION_SPINE_LABEL"));
+         location.setLocationDisplayName(rs.getString("LOCATION_DISPLAY_NAME"));   
+         location.setLocationName(rs.getString("LOCATION_NAME"));   
+         //location.setLibraryName(rs.getString("LIBRARY_NAME"));
+        // location.setLibraryDisplayName(rs.getString("LIBRARY_DISPLAY_NAME"));
+         return location;
+       }
    }
 
 }
