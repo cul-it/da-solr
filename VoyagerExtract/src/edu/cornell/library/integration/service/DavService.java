@@ -8,7 +8,9 @@ import java.util.List;
 public interface DavService {   
     
    public List<String>  getFileList(String url) throws IOException;
-   public InputStream getFile(String url) throws Exception;
+   
+   public String getFileAsString(String url) throws Exception; 
+   
    public void saveFile(String fileName, InputStream dataStream) throws Exception;
 
    
