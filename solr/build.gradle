@@ -44,7 +44,7 @@ task list(dependsOn: configurations.compile) << {
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }
 
-task solrDownload( dependsOn: 'resources' ) << {  
+task solrDownload() << {  
      downloadDir.mkdirs()      
      solrTar = file( "$downloadDir/$solrDownloadedFile" )
      if (!solrTar.isFile()) {
@@ -68,3 +68,10 @@ task solrDownload( dependsOn: 'resources' ) << {
      }
 } 
 
+jar {
+    dependsOn configurations.compile, solrDownload
+    //make a fat jar
+    from { 
+         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+    }
+}

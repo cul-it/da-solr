@@ -33,7 +33,7 @@ public class OracleQuery {
         // TODO Auto-generated method stub
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
         System.out.println("Got Connection");
-        String sql = getReserveItemLookupQuery();
+        String sql = getLocationsQuery();
         queryDatabase(conn, sql);
 
         closeConnection(conn);
@@ -110,53 +110,28 @@ public class OracleQuery {
 
      }
 
-     public static String getNewLaptopQuery() {
+     public static String getLocationsQuery() {
         String sql = ""
-        +"SELECT MFHD_ITEM.MFHD_ID, "
-        +" MFHD_ITEM.ITEM_ENUM, "
-        +" MFHD_ITEM.CHRON, "
-        +" CIRC_TRANSACTIONS.CURRENT_DUE_DATE "
-        +" FROM MFHD_ITEM LEFT OUTER JOIN "
-        +" CIRC_TRANSACTIONS ON MFHD_ITEM.ITEM_ID = CIRC_TRANSACTIONS.ITEM_ID "
-        +" WHERE (MFHD_ITEM.MFHD_ID = 7111918)"
-        +" ORDER BY MFHD_ITEM.ITEM_ID";
+        +"SELECT "
+        +" LOCATION.LOCATION_CODE, "
+        +" LOCATION.LOCATION_ID, "
+        +" LOCATION.SUPPRESS_IN_OPAC, "
+        +" LOCATION.MFHD_COUNT, "
+        +" LOCATION.LOCATION_OPAC, "
+        +" LOCATION.LOCATION_NAME, "
+        +" LOCATION.LOCATION_SPINE_LABEL, "
+        +" LOCATION.LOCATION_DISPLAY_NAME, "
+        +" LOCATION.LIBRARY_ID, "
+        +" LIBRARY.LIBRARY_NAME, "
+        +" LIBRARY.LIBRARY_DISPLAY_NAME  "
+        +" FROM LOCATION LEFT OUTER JOIN "
+        +" LIBRARY ON LOCATION.LIBRARY_ID = LIBRARY.LIBRARY_ID ";
         return sql;
      }
 
-     public static String getOldLaptopQuery() {
-         int bibid = 3939392;
-        //int bibid = 7111918;"
+     public static String getLibrariesQuery() {
         String sql = ""
-        +"SELECT ITEM.ITEM_ID, "
-        +" MFHD_ITEM.ITEM_ENUM, "
-        +" BIB_TEXT.TITLE,  "
-        +" ITEM_BARCODE.ITEM_BARCODE, "
-        +" CIRC_TRANSACTIONS.CURRENT_DUE_DATE, "
-        +" MFHD_ITEM.CHRON"
-        +" FROM ITEM, BIB_ITEM, BIB_TEXT, MFHD_ITEM, CIRC_TRANSACTIONS, ITEM_BARCODE "
-        +" WHERE ITEM.ITEM_ID = BIB_ITEM.ITEM_ID"
-        +" AND BIB_ITEM.BIB_ID = BIB_TEXT.BIB_ID"
-        +" AND ITEM.ITEM_ID = MFHD_ITEM.ITEM_ID"
-        +" AND ITEM.ITEM_ID = ITEM_BARCODE.ITEM_ID"
-        +" AND ITEM.ITEM_ID = CIRC_TRANSACTIONS.ITEM_ID (+) "
-        +" AND (BIB_TEXT.BIB_ID="+ bibid +")"
-        +" ORDER BY MFHD_ITEM.ITEM_ID";
+        +"SELECT *"
+        +" FROM LIBRARY";
         return sql;
-     }
-     public static String getReserveItemLookupQuery() {
-        String barcode = "31924105764074";
-        // String barcode = "31924087325001";
-        String sql = ""
-        +"SELECT CORNELLDB.CIRC_TRANSACTIONS.CURRENT_DUE_DATE, "
-        +" CORNELLDB.LOCATION.LOCATION_DISPLAY_NAME, "
-        +" CORNELLDB.ITEM.COPY_NUMBER "
-        +" FROM CORNELLDB.ITEM_BARCODE, CORNELLDB.LOCATION,  "
-        +" { oj CORNELLDB.ITEM LEFT OUTER JOIN CORNELLDB.CIRC_TRANSACTIONS  "
-        +" ON CORNELLDB.ITEM.ITEM_ID = CORNELLDB.CIRC_TRANSACTIONS.ITEM_ID } "
-        +" WHERE CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID  "
-        +" AND CORNELLDB.ITEM.TEMP_LOCATION = CORNELLDB.LOCATION.LOCATION_ID "
-        +" AND CORNELLDB.ITEM_BARCODE.ITEM_BARCODE ='31924087325001'";
-        return sql;
-
-     }
-}
+     }}

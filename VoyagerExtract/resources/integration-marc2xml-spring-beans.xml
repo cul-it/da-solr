@@ -40,8 +40,7 @@
       <property name="voyagerBibMrcFull"><value>${voyager_bib_mrc_full}</value></property>
       <property name="voyagerBibXmlDaily"><value>${voyager_bib_xml_daily}</value></property>
       <property name="voyagerBibXmlFull"><value>${voyager_bib_xml_full}</value></property>
-      <property name="davUser"><value>${dav_user}</value></property>
-      <property name="davPass"><value>${dav_pass}</value></property>
+      <property name="voyagerLocationsXml"><value>${voyager_locations_xml}</value></property>
    </bean>
    
       
@@ -81,7 +80,8 @@
    
    <bean id="davService"
       class="edu.cornell.library.integration.service.DavServiceImpl">
-      <property name="integrationDataProperties"><ref local="integrationDataProperties"/></property> 
+      <property name="davUser"><value>${dav_user}</value></property>
+      <property name="davPass"><value>${dav_pass}</value></property>
    </bean>
-                           
+   
 </beans>

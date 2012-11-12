@@ -124,9 +124,27 @@
 		</copy>
 	</target>
 	
-	<target name="OracleTables" depends="build" description="Get Oracle Tables" >
+   <target name="OracleTables" depends="build" description="Get Oracle Tables" >
       <echo message="Invoking OracleTables"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.support.OracleTables" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="OracleTest" depends="build" description="Oracle Test" >
+      <echo message="Invoking OracleTest"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.support.OracleTest" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="OracleQuery" depends="build" description="Oracle Query" >
+      <echo message="Invoking OracleQuery"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.support.OracleQuery" >
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -136,6 +154,15 @@
    <target name="Marc2MarcXML" depends="build" description="Run Marc2MarcXML" >
       <echo message="Running Marc2MarcXML"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXML" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+
+   <target name="GetLocations" depends="build" description="Run GetLocations" >
+      <echo message="Running GetLocations"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetLocations" >
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
