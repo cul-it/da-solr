@@ -64,47 +64,99 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			String t = fti.substring(fti.length()-5, fti.length()-2);
 			String relation ="";
 			if (t.equals("780")) {
-				if ((ind.equals("00")) || (ind.equals("01"))) {
+				if (ind.endsWith("0"))/**/ {
 					relation = "continues";
-				} else if ((ind.equals("02")) || (ind.equals("03"))) {
+				} else if (ind.endsWith("1"))/**/ {
+					relation = "continues_in_part";
+				} else if (ind.endsWith("2") || ind.endsWith("3")) {
 					relation = "supersedes";
-				} else if ((ind.equals("05")) || (ind.equals("06"))) {
+				} else if (ind.endsWith("4"))/**/ {
+					relation = "merger_of";
+				} else if (ind.endsWith("5"))/**/ {
 					relation = "absorbed";
+				} else if (ind.endsWith("6"))/**/ {
+					relation = "absorbed_in_part";
+				} else if (ind.endsWith("7"))/**/ {
+					relation = "separated_from";
 				}
 			} else if (t.equals("785")) {
-				if ((ind.equals("00")) || (ind.equals("01")) || (ind.equals("10"))) {
+				if (ind.endsWith("0"))/**/ {
 					relation = "continued_by";
-				} else if ((ind.equals("02")) || (ind.equals("03"))) {
+				} else if (ind.endsWith("1"))/**/ {
+					relation = "continued_in_part_by";
+				} else if (ind.endsWith("2") || ind.endsWith("3")) {
 					relation = "superseded_by";
-				} else if ((ind.equals("04")) || (ind.equals("05"))) {
+				} else if (ind.endsWith("4"))/**/  {
 					relation = "absorbed_by";
-				} else if (ind.equals("06")) {
+				} else if (ind.endsWith("5"))/**/ {
+					relation = "absorbed_in_part_by";
+				} else if (ind.endsWith("6"))/**/ {
 					relation = "split_into";
+				} else if (ind.endsWith("7"))/**/ {
+					relation = "merger"; //Should never display from 785
 				}
+			} else if (t.equals("765")) {
+				relation = "translation_of";
+			} else if (t.equals("767")) {
+				relation = "has_translation";
+			} else if (t.equals("775")) {
+				relation = "other_edition";
+			} else if (t.equals("770")) {
+				relation = "has_supplement";
+			} else if (t.equals("772")) {
+				relation = "supplement_to";
+			} else if (t.equals("776")) {
+				relation = "other_form";
+			} else if (t.equals("777")) {
+				relation = "issued_with";
+			}
+			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
+			String clicktosearch = combine_subfields("t",fieldparts);
+			if (clicktosearch.length() < 2) {
+				continue;				
 			}
 			if (! relation.equals("")) {
-				HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-				String subfields = "iabcdgkqrst";
-				List<String> ordered = new ArrayList<String>();
-				for (int i = 0; i < subfields.length(); i++) {
-					String c = subfields.substring(i, i+1);
-					if (fieldparts.containsKey(c)) {
-						ordered.addAll(fieldparts.get(c));
-					}
+				if (ind.startsWith("0")) {
+					String displaystring = combine_subfields("iatbcdgkqrsw", fieldparts);
+					addField(fields,relation+"_display",displaystring + '|'+ clicktosearch );
 				}
-				StringBuilder sb = new StringBuilder();
-				if (ordered.size() > 0) {
-					sb.append(ordered.get(0));
-				}
-				for (int i = 1; i < ordered.size(); i++) {
-					sb.append(" ");
-					sb.append(ordered.get(i));
-				}
-				addField(fields,relation+"_display",sb.toString());
+			}
+			if (t.equals("780") 
+					|| t.equals("785")
+					|| t.equals("765")
+					|| t.equals("767")
+					|| t.equals("775")
+					|| t.equals("770")
+					|| t.equals("772")
+					|| t.equals("776")
+					|| t.equals("777")
+					) {
+				String subfields = "atbcdegkqrs";
+				addField(fields,"title_uniform_t",combine_subfields(subfields, fieldparts));
 			}
 		}
 		
 		return fields;
 	}	
 
+	
+	public String combine_subfields (String subfields, HashMap<String,ArrayList<String>> fieldparts) {
+		
+		List<String> ordered = new ArrayList<String>();
+		for (int i = 0; i < subfields.length(); i++) {
+			String c = subfields.substring(i, i+1);
+			if (fieldparts.containsKey(c)) {
+				ordered.addAll(fieldparts.get(c));
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		if (ordered.size() > 0) {
+			sb.append(ordered.get(0));
+		}
+		for (int i = 1; i < ordered.size(); i++) {
+			sb.append(" ");
+			sb.append(ordered.get(i));
+		}
+		return sb.toString();
+	}
 }

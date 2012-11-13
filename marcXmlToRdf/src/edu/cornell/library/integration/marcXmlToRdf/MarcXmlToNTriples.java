@@ -49,6 +49,7 @@ public class MarcXmlToNTriples {
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
+					rec.type = type;
 					mapNonRomanFieldsToRomanizedFields(rec);
 					String ntriples = generateNTriples( rec, type );
 					out.write( ntriples.getBytes() );
@@ -153,7 +154,7 @@ public class MarcXmlToNTriples {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
 		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
 		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
-		String bib_id = rec.control_fields.get(1).value;
+		String rec_id = rec.control_fields.get(1).value;
 		Pattern p = Pattern.compile("^[0-9]{3}.[0-9]{2}.*");
 		
 		if (logout == null) {
@@ -174,18 +175,18 @@ public class MarcXmlToNTriples {
 								unlinkedeighteighties.put(id, sf.value.substring(0, 3));
 							} else {
 								if (linkedeighteighties.containsKey(n)) {
-									logout.write("Error: (bib_id:" + bib_id + ") More than one 880 with the same link index.\n");
+									logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one 880 with the same link index.\n");
 								}
 								linkedeighteighties.put(n, id);
 							}
 						} else {
 							if (others.containsKey(n)) {
-								logout.write("Error: (bib_id:" + bib_id + ") More than one field linking to 880s with the same link index.\n");
+								logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one field linking to 880s with the same link index.\n");
 							}
 							others.put(n, id);
 						}
 					} else {
-						logout.write("Error: (bib_id:" + bib_id +") "+
+						logout.write("Error: ("+rec.type.toString()+":" + rec_id +") "+
 								f.tag+" field has ‡6 with unexpected format: \""+sf.value+"\".\n");
 					}
 				}
@@ -200,14 +201,14 @@ public class MarcXmlToNTriples {
 				// LINK FOUND
 				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
 			} else {
-				logout.write("Error: (bib_id:" + bib_id + ") "+
+				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") "+
 						rec.data_fields.get(others.get(link_id)).tag+
 						" field linking to non-existant 880.\n");
 			}
 		}
 		for ( int link_id: linkedeighteighties.keySet() )
 			if ( ! others.containsKey(link_id))
-				logout.write("Error: (bib_id:" + bib_id + ") 880 field linking to non-existant main field.\n");
+				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") 880 field linking to non-existant main field.\n");
 		logout.flush();
 	}
 		
@@ -312,6 +313,7 @@ public class MarcXmlToNTriples {
 									= new HashMap<Integer,ControlField>();
 		public Map<Integer,DataField> data_fields
 									= new HashMap<Integer,DataField>();
+		public RecordType type;
 		
 		public String toString( ) {
 			
