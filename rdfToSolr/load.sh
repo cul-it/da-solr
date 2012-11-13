@@ -13,6 +13,6 @@ echo "total number or bib records to load: $TOTALBIBS"
 echo $BASH_VERSION
 for (( OFFSET=0; OFFSET<$TOTALBIBS ;OFFSET=$OFFSET+$BATCHSIZE ))
 do
-    BIBURIQUERY="select ?uri { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> . } LIMIT $BATCHSIZE OFFSET $OFFSET"
-  echo $BIBURIQUERY
+  BIBURIQUERY="select ?uri { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> . } LIMIT $BATCHSIZE OFFSET $OFFSET"
+  curl -g --data-urlencode \""query=$BIBURIQUERY"\" $SPARQLURL | ./stdinRecordToDocument.sh
 done
