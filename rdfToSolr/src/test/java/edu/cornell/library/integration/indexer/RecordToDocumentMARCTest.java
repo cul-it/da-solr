@@ -127,23 +127,27 @@ public class RecordToDocumentMARCTest {
 
 	@Test
 	public void testRadioactiveIds() throws SolrServerException{
-		SolrQuery query = new SolrQuery();
-		query.setQuery("id:UNTRadMARC*");		
+	
+		String[] ids = new String[]{				
+				"UNTRadMARC001", 		
+				"UNTRadMARC002",
+				"UNTRadMARC003",
+				"UNTRadMARC004",
+				"UNTRadMARC005",
+				"UNTRadMARC006",
+				"UNTRadMARC007",
+				"UNTRadMARC008",
+				"UNTRadMARC009",
+				"UNTRadMARC010"};
 		
-		testQueryGetsDocs(
+		for(String radId : ids){
+			SolrQuery query = new SolrQuery();	
+			query.setQuery("id:" + radId);		
+			String[] id = { radId };
+			testQueryGetsDocs(
 				"Making sure all Radioactive MARC can be found by id",
-				query,
-				new String[]{				
-						"UNTRadMARC001", 		
-						"UNTRadMARC002",
-						"UNTRadMARC003",
-						"UNTRadMARC004",
-						"UNTRadMARC005",
-						"UNTRadMARC006",
-						"UNTRadMARC007",
-						"UNTRadMARC008",
-						"UNTRadMARC009",
-						"UNTRadMARC010"} );
+				query,  id);
+		}
 	}
 	
 	

@@ -1,19 +1,28 @@
 package edu.cornell.library.integration.hadoop;
 
 import java.io.File;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+/**
+ * This is a hadoop job that is intended to load the holdings
+ * RDF files from a list, map to bibId -> HoldingsRDF_NT_text,
+ * collate by bibId file block, (ex bibId243044 -> 200000 file block ),
+ * the reduce by getting the bib RDF data for that file block, loading to 
+ * a local triple store, then building a Solr Document from the RDF
+ * for that BibId and loading the Document to the Solr server.   
+ * 
+ * @author bdc34
+ *
+ */
 public class MarcToSolrDocs extends Configured implements Tool {
 
 	public static String MARC_N3_URL = "mapreduce.MarcToSolrDocs.marcN3Url";
@@ -51,24 +60,29 @@ public class MarcToSolrDocs extends Configured implements Tool {
 		Job marcJob = new Job(conf);		    
 
 		try {		      		     
-			marcJob.setJobName("marc-to-solr-docs");
+			marcJob.setJobName("marc-to-solr");
+			
+			//TODO: implement
 
-			//get the Bib record URLs and save them 
-			String bibUrlsFileName = tempDir.getName() + "/" + Integer.toString(randomId) + "bibUrls.txt";
-			MarcToSolrUtils.saveLinksToFile( urlOfMarcN3Index, bibUrlsFileName); 
-
-			FileInputFormat.setInputPaths(marcJob, new Path( bibUrlsFileName));		      
-
-			marcJob.setMapperClass(MarcToSolrDocsMapper.class);
-
-			//marcJob.setCombinerClass(LongSumReducer.class);
-
-			marcJob.setNumReduceTasks(0);		      
-
-			FileOutputFormat.setOutputPath(marcJob, outputDir);
-			//marcJob.setOutputFormatClass(SequenceFileOutputFormat.class);
-			marcJob.setOutputKeyClass(Text.class);
-			marcJob.setOutputValueClass(Text.class);
+			//get the list of holdings files
+			List<String> holdingFileURLs = null /* use JAF's code heregetHoldingFilesList() */;
+			
+			//Save list as one per line file
+			//String holdingUrlsFileName = tempDir.getName() + "/" + Integer.toString(randomId) + "holdinigUrls.txt";
+			//writeListToFile( holdingFileURLs, inputDir);		 
+ 
+//			FileInputFormat.setInputPaths(marcJob, new Path( holdingUrlsFileName ));
+			
+//			marcJob.setMapperClass(HoldingFileToBibIdAndData.class);
+			
+//			marcJob.setCombinerClass(???);
+//
+//			marcJob.setNumReduceTasks(0);		      
+//
+//			FileOutputFormat.setOutputPath(marcJob, outputDir);
+//			//marcJob.setOutputFormatClass(SequenceFileOutputFormat.class);
+//			marcJob.setOutputKeyClass(Text.class);
+//			marcJob.setOutputValueClass(Text.class);
 
 			marcJob.waitForCompletion(true);		      
 		}
