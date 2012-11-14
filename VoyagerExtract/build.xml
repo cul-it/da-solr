@@ -169,5 +169,24 @@
       </java>
    </target>
 
+   <target name="GetRecentBibData" depends="build" description="Run GetRecentBibData" >
+      <echo message="Running GetRecentBibData"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetRecentBibData" >
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetBibData" depends="build" description="Run GetBibData" >
+      <echo message="Running GetBibData"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibData" >
+         <arg value="5430046" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+
 
 </project>
