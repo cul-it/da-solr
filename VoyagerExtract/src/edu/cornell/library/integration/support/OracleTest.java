@@ -37,8 +37,7 @@ public class OracleTest {
         System.out.println("Got Connection");
 
         
-        describeTable(conn, "LOCATION");
-        describeTable(conn, "LIBRARY"); 
+        describeTable(conn, "BIBBLOB_VW");
         closeConnection(conn);
     }
 

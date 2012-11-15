@@ -1,9 +1,16 @@
 package edu.cornell.library.integration;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.List;
+
 import info.extensiblecatalog.OAIToolkit.api.Importer;
 import info.extensiblecatalog.OAIToolkit.importer.DirectoryNameGiver;
 import info.extensiblecatalog.OAIToolkit.importer.ImporterConfiguration;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
@@ -73,7 +80,7 @@ public class Marc2MarcXML {
       this.integrationDataProperties = integrationDataProperties;
    }
    
-   public void run() {
+   public void run(String srcDir, String destDir) {
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
       
       if (ctx.containsBean("importerConfiguration")) {
@@ -90,24 +97,89 @@ public class Marc2MarcXML {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("integrationDataProperties")) {
+      /*if (ctx.containsBean("integrationDataProperties")) {
          setIntegrationDataProperties((IntegrationDataProperties) ctx.getBean("integrationDataProperties"));
       } else {
          System.err.println("Could not get integrationDataProperties");
          System.exit(-1);
-      }    
+      }   */ 
+      
       
       Importer importer = new Importer();
       importer.configuration = this.importerConfiguration;
+      ObjectUtils.printBusinessObject(importer.configuration);
       DirectoryNameGiver dirNameGiver = new DirectoryNameGiver(this.importerConfiguration);
+      
       ObjectUtils.printBusinessObject(dirNameGiver);
       importer.setDirNameGiver(dirNameGiver);
-      importer.execute();
+     
+      
+      try {
+         copyFromDav(srcDir,  importerConfiguration.getSourceDir());
+         importer.execute();
+         saveToDav(importerConfiguration.getDestinationDir(), destDir);
+      } catch (Exception e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      
+      
    }
    
+   /**
+    * @param srcDir
+    * @param convertSrcDir
+    * @throws Exception
+    */
+   public void copyFromDav(String srcDir, String convertSrcDir) throws Exception {
+      List<String> fileList = getDavService().getFileList(srcDir);
+      System.out.println("Destination dir: "+ convertSrcDir);
+      for (String fname : fileList) {
+         System.out.println("copying file from : "+ srcDir +"/"+ fname );
+         String outputfile = convertSrcDir + "/" + fname;
+         System.out.println("copying file to: "+ outputfile);
+         InputStream inStream = getDavService().getFileAsInputStream(srcDir +"/"+ fname);
+         FileOutputStream outStream = new FileOutputStream(new File(outputfile));
+          
+
+         int DEFAULT_BUFFER_SIZE = 1024;
+         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+         long count = 0;
+         int n = 0;
+
+         n = inStream.read(buffer, 0, DEFAULT_BUFFER_SIZE);
+
+         while (n >= 0) {
+            outStream.write(buffer, 0, n);
+            n = inStream.read(buffer, 0, DEFAULT_BUFFER_SIZE);
+         }
+         
+         inStream.close();
+         outStream.close();
+      }
+   }
+   
+   /**
+    * @param convertDestDir
+    * @param destDir
+    * @throws Exception
+    */
+   public void saveToDav(String convertDestDir, String destDir) throws Exception {
+      
+   }
+   
+   /**
+    * @param args
+    */
    public static void main(String[] args) {       
-      Marc2MarcXML marc2xml = new Marc2MarcXML();       
-      marc2xml.run();      
+      Marc2MarcXML marc2xml = new Marc2MarcXML();
+      if (args.length != 2 ) {
+         System.err.println("You must provide a src Dir and dest Dir as  arguments");
+         System.exit(-1);
+      }
+      String srcDir = args[0];
+      String destDir = args[1];
+      marc2xml.run(srcDir, destDir);      
    }
    
    

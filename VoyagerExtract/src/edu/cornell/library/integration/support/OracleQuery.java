@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.support;
 
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -7,10 +9,17 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Clob;
+import oracle.sql.*;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 
 public class OracleQuery {
@@ -33,7 +42,12 @@ public class OracleQuery {
         // TODO Auto-generated method stub
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
         System.out.println("Got Connection");
-        String sql = getLocationsQuery();
+        String sql = getBibBlobQuery();
+        //String sql = getBibDataQuery();
+        //String sql = getOperatorQuery();
+        //String sql = getBibHistoryQuery();
+        //String sql = getActionTypeQuery();
+        System.out.println(sql);
         queryDatabase(conn, sql);
 
         closeConnection(conn);
@@ -78,17 +92,27 @@ public class OracleQuery {
            rs = stmt.executeQuery(sql);
            rsmd = rs.getMetaData();
            int mdcolumnCount = rsmd.getColumnCount();
-           //System.out.println("Equipment");
            while (rs.next()) {
+              System.out.println();
               for (int i=1; i <= mdcolumnCount ; i++) {
                  String colname = rsmd.getColumnName(i);
-                 System.out.println(colname+": "+rs.getString(i));
+                 int coltype = rsmd.getColumnType(i);
+                 if (coltype == java.sql.Types.CLOB) {
+                    Clob clob = rs.getClob(i);                     
+                    System.out.println(colname+": "+ convertClobToString(clob));
+                 } else {                 
+                    System.out.println(colname+": "+rs.getString(i));
+                 }
               }
            }
 
         } catch (SQLException ex) {
+           System.out.println(sql);
            System.out.println(ex.getMessage());
+        } catch (Exception ex) {
+           System.out.println(ex.getMessage());   
         } finally {
+       
            try {
               if (stmt != null) stmt.close();
               if (rs != null) rs.close();
@@ -109,6 +133,15 @@ public class OracleQuery {
         }
 
      }
+     
+     public static String convertClobToString(Clob clob) throws Exception {
+        InputStream inputStream = clob.getAsciiStream();
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(inputStream, writer, "utf-8");
+        return writer.toString();
+     }
+     
+     
 
      public static String getLocationsQuery() {
         String sql = ""
@@ -134,4 +167,47 @@ public class OracleQuery {
         +"SELECT *"
         +" FROM LIBRARY";
         return sql;
-     }}
+     }
+     
+     public static String getBibHistoryQuery() {
+        // ACTION_DATE: 2012-11-12 12:57:16.0
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar now = Calendar.getInstance();
+        Calendar earlier = now;
+        earlier.add(Calendar.HOUR, -3);
+        String ds = df.format(earlier.getTime());
+        
+        String sql = ""
+              +" SELECT * FROM BIB_HISTORY"
+              +"  WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              return sql;   
+      
+     }
+     
+   public static String getActionTypeQuery() {
+      String sql = ""
+         +"SELECT * FROM ACTION_TYPE";
+      return sql;
+   }
+
+   public static String getOperatorQuery() {
+      String sql = ""
+         +"SELECT OPERATOR_ID, FIRST_NAME, LAST_NAME FROM OPERATOR";
+      return sql;
+   }
+ 
+   public static String getBibDataQuery() {
+      int bibid = 5430043;
+      String sql = ""
+         +"SELECT BIB_ID,MARC_RECORD FROM CORNELLDB.BIBBLOB_VW WHERE BIB_ID = "+ bibid;
+      return sql;
+   }
+ 
+   public static String getBibBlobQuery() {
+      String sql = ""
+         +"SELECT BIB_ID,MARC_RECORD FROM CORNELLDB.BIBBLOB_VW "
+         +" WHERE ROWNUM < 20 ";
+      return sql;
+   }
+   
+}
