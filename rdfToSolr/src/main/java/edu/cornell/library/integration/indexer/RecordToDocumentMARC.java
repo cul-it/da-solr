@@ -248,8 +248,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"SELECT *\n" +
 			        	" WHERE {\n" +
 			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-			        	"  {?f marcrdf:tag \"780\".} UNION {?f marcrdf:tag \"785\".}\n" +
 			        	"  ?f marcrdf:tag ?t.\n" +
+			        	"  FILTER( regex( xsd:string(?t), \"^7\" ))\n" +
 			        	"  ?f marcrdf:ind2 ?i2.\n" +
 			        	"  ?f marcrdf:ind1 ?i1.\n" +
 			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
