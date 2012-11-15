@@ -90,10 +90,26 @@ public class GetLocations {
       this.integrationDataProperties = integrationDataProperties;
    } 
 
+   
+
+
+   /**
+    * @param args
+    */
+   public static void main(String[] args) {
+     GetLocations app = new GetLocations();
+     if (args.length != 1 ) {
+        System.err.println("You must provide destination dir as an argument");
+        System.exit(-1);
+     }
+     String destDir = args[0];
+     app.run(destDir);
+   }
+   
    /**
     * 
     */
-   public void run() {
+   public void run(String destDir) {
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
       if (ctx.containsBean("catalogService")) {
@@ -110,13 +126,13 @@ public class GetLocations {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("integrationDataProperties")) {
+     /* if (ctx.containsBean("integrationDataProperties")) {
          setIntegrationDataProperties((IntegrationDataProperties) ctx.getBean("integrationDataProperties"));
       } else {
          System.err.println("Could not get integrationDataProperties");
          System.exit(-1);
       }    
-
+*/
        
       List<Location> locationList = new ArrayList<Location>();
       try {
@@ -133,21 +149,12 @@ public class GetLocations {
       String xml = getXml(locationInfo);
       
       try {
-         saveXml(xml);
+         saveXml(xml, destDir);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }   
       
-   }
-
-
-   /**
-    * @param args
-    */
-   public static void main(String[] args) {
-     GetLocations app = new GetLocations();
-     app.run();
    }
    
    /**
@@ -170,12 +177,12 @@ public class GetLocations {
     * @param xml
     * @throws Exception
     */
-   public void saveXml(String xml) throws Exception {
+   public void saveXml(String xml, String destDir) throws Exception {
       try {
          byte[] bytes = xml.getBytes("UTF-8");
          InputStream isr = new  ByteArrayInputStream(bytes);
          
-         String url = getIntegrationDataProperties().getVoyagerLocationsXml() + "/locations.xml";      
+         String url = destDir + "/locations.xml";      
          getDavService().saveFile(url, isr);
       } catch (Exception ex) {
          throw ex;
