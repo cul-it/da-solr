@@ -22,7 +22,7 @@ public class DavServiceTest extends AbstractJUnit4SpringContextTests {
       System.out.println("\ntestGetFileList\n");
       DavService davService = (DavService) applicationContext.getBean("davService");
        
-      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.daily";
+      String url = "http://jaf30-dev.library.cornell.edu/data/test/test.txt";
       try {
          List<String> filelist = davService.getFileList(url);
          for (String s : filelist) {
@@ -34,11 +34,29 @@ public class DavServiceTest extends AbstractJUnit4SpringContextTests {
       }
    }
    
+   /*@Test
+   public void testGetDirectories() {
+      System.out.println("\ntestGetDirectories\n");
+      DavService davService = (DavService) applicationContext.getBean("davService");
+       
+      String url = "http://jaf30-dev.library.cornell.edu/data/voyager";
+      try {
+         List<String> dirlist = davService.getDirectories(url);
+         for (String s : dirlist) {
+            System.out.println(s);
+         }
+      } catch (Exception e) { 
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+   */
+   
    @Test
    public void testGetFile() {
       System.out.println("\ntestGetFile\n");
       DavService davService = (DavService) applicationContext.getBean("davService");
-      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.daily/bib.daily.mrc";
+      String url = "http://jaf30-dev.library.cornell.edu/data/test/test.txt";
       try {
          String str = davService.getFileAsString(url);
          System.out.println("Returned len: "+ str.length());
