@@ -2,8 +2,10 @@
 build/
 log/
 data/
+support/
 marc_dest/
 marc_error/
 dosync
+resources/local.integration.datastore.properties
 toolkit.log
 toolkit.log.*
