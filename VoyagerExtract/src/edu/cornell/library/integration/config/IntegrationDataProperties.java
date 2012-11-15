@@ -6,6 +6,8 @@ public class IntegrationDataProperties {
    private String voyagerBibMrcFull;
    private String voyagerBibXmlDaily;
    private String voyagerBibXmlFull;
+   private String voyagerBibMrcUpdates;
+   private String voyagerBibXmlUpdates;
    private String voyagerLocationsXml;
 
    public IntegrationDataProperties() {
@@ -80,6 +82,34 @@ public class IntegrationDataProperties {
     */
    public void setVoyagerLocationsXml(String voyagerLocationsXml) {
       this.voyagerLocationsXml = voyagerLocationsXml;
+   }
+
+   /**
+    * @return the voyagerBibMrcUpdates
+    */
+   public String getVoyagerBibMrcUpdates() {
+      return voyagerBibMrcUpdates;
+   }
+
+   /**
+    * @param voyagerBibMrcUpdates the voyagerBibMrcUpdates to set
+    */
+   public void setVoyagerBibMrcUpdates(String voyagerBibMrcUpdates) {
+      this.voyagerBibMrcUpdates = voyagerBibMrcUpdates;
+   }
+
+   /**
+    * @return the voyagerBibXmlUpdates
+    */
+   public String getVoyagerBibXmlUpdates() {
+      return voyagerBibXmlUpdates;
+   }
+
+   /**
+    * @param voyagerBibXmlUpdates the voyagerBibXmlUpdates to set
+    */
+   public void setVoyagerBibXmlUpdates(String voyagerBibXmlUpdates) {
+      this.voyagerBibXmlUpdates = voyagerBibXmlUpdates;
    }
 
 
