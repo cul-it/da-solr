@@ -36,6 +36,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		Collection<String> sf653as = new HashSet<String>();
 		Collection<String> sf245hs = new HashSet<String>();
 		Collection<String> sf948fs = new HashSet<String>();
+		Collection<String> loccodes = new HashSet<String>();
 		String format = null;
 		Boolean online = false;
 
@@ -60,6 +61,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 							sf653as.add(nodeToString( node ));
 						} else if (name.equals("sf948f")) {
 							sf948fs.add(nodeToString( node ));
+						} else if (name.equals("loccode")) {
+							loccodes.add(nodeToString( node ));
 						}
 					}
 				}
@@ -152,6 +155,17 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				format = "Video";
 			} else {
 				format = "Unknown";
+			}
+		}
+		
+		if (loccodes.contains("serv,remo")) {
+			if (!online) {
+				online = true;
+				System.out.println("ONLINE STATUS: Resource not online according to Cullr logic, but online according to mfhd 852‡b = \"serv,remo\".");
+			}
+		} else {
+			if (online) {
+				System.out.println("ONLINE STATUS: Resource online according to Cullr logic, but not online according to mfhd 852‡b != \"serv,remo\".");
 			}
 		}
 
