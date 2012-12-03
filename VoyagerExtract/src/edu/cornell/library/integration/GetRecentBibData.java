@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Clob;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
  
@@ -21,6 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
+import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.LocationInfo;
@@ -126,18 +129,12 @@ public class GetRecentBibData {
          System.exit(-1);
       }
 
-     /* if (ctx.containsBean("integrationDataProperties")) {
-         setIntegrationDataProperties((IntegrationDataProperties) ctx.getBean("integrationDataProperties"));
-      } else {
-         System.err.println("Could not get integrationDataProperties");
-         System.exit(-1);
-      }  */  
-
        
       List<String> bibIdList = new ArrayList<String>();
       try {
          System.out.println("Getting recent bibids");
-         bibIdList = getCatalogService().getRecentBibIds();
+         bibIdList = getCatalogService().getRecentBibIds(getDateString());
+         System.out.println("Found "+ bibIdList.size() +" bibids.");
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -146,8 +143,8 @@ public class GetRecentBibData {
       for (String bibid: bibIdList) {
          try {            
             System.out.println("Getting bibRecord for bibid: "+bibid);
-            BibData bibData = catalogService.getBibData(bibid);            
-            saveBibData(bibData, destDir);
+            BibBlob bibBlob = catalogService.getBibBlob(bibid);            
+            saveBibData(bibBlob, destDir);
          } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -162,17 +159,21 @@ public class GetRecentBibData {
     * @param xml
     * @throws Exception
     */
-   public void saveBibData(BibData bibData, String destDir) throws Exception {
+   public void saveBibData(BibBlob bibBlob, String destDir) throws Exception {
       try {
-         String bibid = bibData.getBibId();
-         String record = bibData.getRecord();     
+         String bibid = bibBlob.getBibId();
          
-         InputStream isr = new ByteArrayInputStream(record.getBytes("UTF-8"));
-         
-         String url = destDir + "/" + bibid +".mrc";      
-         getDavService().saveFile(url, isr);
       } catch (Exception ex) {
          throw ex;
       }
-   } 
+   }
+   
+   protected String getDateString() {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      Calendar now = Calendar.getInstance();
+      Calendar earlier = now;
+      earlier.add(Calendar.HOUR, -3);
+      String ds = df.format(earlier.getTime());
+      return ds;
+   }
 }
