@@ -252,10 +252,11 @@
         subject_unstem_search^750
         subject_topic_facet^625
         subject_t^500
+        lc_callnum_main^400
         author_unstem_search^250
         author_addl_unstem_search^250
         author_t^100
-        lc_callnum_s^100
+        lc_callnum_full^100
         publisher_t^100
         author_addl_t^50
         subject_addl_unstem_search^250
@@ -281,10 +282,11 @@
         subject_unstem_search^7500
         subject_topic_facet^6250
         subject_t^5000
+        lc_callnum_main^4000
         author_unstem_search^2500
         author_addl_unstem_search^2500
         author_t^1000
-        lc_callnum_s^1000
+        lc_callnum_full^1000
         publisher_t^1000
         author_addl_t^500
         subject_addl_unstem_search^2500
