@@ -1,10 +1,7 @@
 package edu.cornell.library.integration.dao;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.sql.ResultSet;
@@ -29,13 +26,16 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.support.lob.OracleLobHandler;
  
+import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.dao.CatalogDao; 
 
-public class CatalogDaoImpl implements CatalogDao {
+public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
    /**
     * logger
     */
@@ -43,59 +43,45 @@ public class CatalogDaoImpl implements CatalogDao {
    protected DataSource dataSource;
    private SimpleJdbcTemplate simpleJdbcTemplate;
    private JdbcTemplate jdbcTemplate;
-   // holders for fields passed as objects that need to be picked up by the RowMappers
-   protected int currentLocationId;
-   protected String currentHoldingsId;
-
+   private OracleLobHandler oracleLobHandler; 
    /**
     *
     */
    public CatalogDaoImpl() {
       super();
    }
+   
+   
+
+   /**
+    * @return the oracleLobHandler
+    */
+   public OracleLobHandler getOracleLobHandler() {
+           return oracleLobHandler;
+   }
+
+   public void setOracleLobHandler(OracleLobHandler oracleLobHandler) {
+           this.oracleLobHandler = oracleLobHandler;
+   }
+
 
    /**
     * @return
     */
-   public DataSource getDataSource() {
+   /*public DataSource getDataSource() {
       return dataSource;
-   }
+   }*/
 
    /**
     * @param dataSource
     */
-   public void setDataSource(DataSource dataSource) {
+  /* public void setDataSource(DataSource dataSource) {
       this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
       this.jdbcTemplate = new JdbcTemplate(dataSource);
-   }
+   }*/
 
-   /**
-    * @return the currentLocationId
-    */
-   public int getCurrentLocationId() {
-      return currentLocationId;
-   }
-
-   /**
-    * @param currentLocationId the currentLocationId to set
-    */
-   public void setCurrentLocationId(int currentLocationId) {
-      this.currentLocationId = currentLocationId;
-   }
-
-   /**
-    * @return the currentHoldingsId
-    */
-   public String getCurrentHoldingsId() {
-      return currentHoldingsId;
-   }
-
-   /**
-    * @param currentHoldingsId the currentHoldingsId to set
-    */
-   public void setCurrentHoldingsId(String currentHoldingsId) {
-      this.currentHoldingsId = currentHoldingsId;
-   }
+   
+ 
 
    /*
     * (non-Javadoc)
@@ -104,9 +90,12 @@ public class CatalogDaoImpl implements CatalogDao {
     */
    public int sanityCheck() {
       String sql = "SELECT 1";
-      return jdbcTemplate.queryForInt(sql);
+      return getSimpleJdbcTemplate().queryForInt(sql);
    }
    
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getAllLocation()
+    */
    public List<Location> getAllLocation() throws Exception{
       String sql = new String();
       //sql = "SELECT * FROM CORNELLDB.LOCATION";
@@ -125,7 +114,7 @@ public class CatalogDaoImpl implements CatalogDao {
        
       //System.out.println(sql);
       try {
-          List<Location> locationList =  this.jdbcTemplate.query(sql, new LocationMapper());
+          List<Location> locationList =  getSimpleJdbcTemplate().query(sql, new LocationMapper());
           return locationList;
        } catch (EmptyResultDataAccessException ex) {
           logger.warn("Empty result set");
@@ -140,20 +129,17 @@ public class CatalogDaoImpl implements CatalogDao {
       
    }
    
-   public List<String> getRecentBibIds() throws Exception {
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getRecentBibIds(java.lang.String)
+    */
+   public List<String> getRecentBibIds(String dateString) throws Exception {
        
-      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      Calendar now = Calendar.getInstance();
-      Calendar earlier = now;
-      earlier.add(Calendar.HOUR, -3);
-      String ds = df.format(earlier.getTime());
-      
       String sql = "" 
             +" SELECT BIB_ID FROM BIB_HISTORY"
-            +" WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'"   
+            +" WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
             +" AND SUPPRESS_IN_OPAC = 'N'";
       try {
-         List<String> bibIdList =  this.jdbcTemplate.query(sql, new StringMapper());
+         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
          return bibIdList;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
@@ -166,13 +152,58 @@ public class CatalogDaoImpl implements CatalogDao {
       } 
    }
    
-   public BibData getBibData(String bibid) throws Exception {
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getRecentBibIdCount(java.lang.String)
+    */
+   public int getRecentBibIdCount(String dateString) throws Exception {      
+           
+      String sql = "" 
+            +" SELECT COUNT(BIB_ID) FROM BIB_HISTORY"
+            +" WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
+            +" AND SUPPRESS_IN_OPAC = 'N'";
+      try {
+         int count =  getSimpleJdbcTemplate().queryForInt(sql);
+         return count;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return 0;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getBibBlob(java.lang.String)
+    */
+   public BibBlob getBibBlob(String bibid) throws Exception {
        
       String sql = ""
          +"SELECT BIB_ID, MARC_RECORD FROM CORNELLDB.BIBBLOB_VW WHERE BIB_ID = '"+ bibid +"'";
       try {
-         BibData bibData =  (BibData) this.jdbcTemplate.queryForObject(sql, new BibDataMapper());
-         return bibData;
+         BibBlob bibBlob =  (BibBlob) getSimpleJdbcTemplate().queryForObject(sql, new BibBlobMapper());
+         return bibBlob;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
+   public List<BibData> getBibData(String bibid) throws Exception {
+      
+      String sql = ""
+         +"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = "+ bibid +"  ORDER BY BIB_DATA.SEQNUM";
+      try {
+         List<BibData> bibDataList =  getSimpleJdbcTemplate().query(sql, new BibDataMapper());
+         return bibDataList;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
          logger.info("Query was: "+sql);
@@ -188,6 +219,9 @@ public class CatalogDaoImpl implements CatalogDao {
 
 
 
+   /**
+    * @param rs
+    */
    protected void displayMetaData(ResultSet rs) {
       ResultSetMetaData rsmeta = null;
       try {
@@ -212,14 +246,12 @@ public class CatalogDaoImpl implements CatalogDao {
    protected static String convertClobToString(Clob clob)  { 
         
       try {        
-         System.out.println("clob length: "+ clob.length());
-         char clobVal[] = new char[(int) clob.length()];         
+          
+         char[] clobVal = new char[(int) clob.length()];         
          Reader reader = clob.getCharacterStream();
          reader.read(clobVal);
-         StringWriter sw = new StringWriter();
-         sw.write(clobVal);
-         StringBuffer sb = sw.getBuffer();
-         return sb.toString();            
+         String str = new String(clobVal);
+         return str;            
          
       } catch(Exception e) { 
          e.printStackTrace();
@@ -227,6 +259,7 @@ public class CatalogDaoImpl implements CatalogDao {
       }   
       
    }
+   
    
    
    
@@ -255,11 +288,19 @@ public class CatalogDaoImpl implements CatalogDao {
    private static final class BibDataMapper implements RowMapper {
       public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException {
          BibData bibData = new BibData(); 
-         bibData.setBibId(rs.getString("BIB_ID")); 
-         Clob clob =   rs.getClob("MARC_RECORD");
-         bibData.setClob(clob);
-         bibData.setRecord(convertClobToString(clob));
+         bibData.setBibId(rs.getString("BIB_ID"));
+         bibData.setSeqnum(rs.getString("SEQNUM"));
+         bibData.setRecord(rs.getString("RECORD_SEGMENT"));
          return bibData;
+       }
+   }
+   
+   private static final class BibBlobMapper implements RowMapper {
+      public BibBlob mapRow(ResultSet rs, int rowNum) throws  SQLException {
+         BibBlob bibBlob = new BibBlob(); 
+         bibBlob.setBibId(rs.getString("BIB_ID"));
+         bibBlob.setClob((CLOB) rs.getClob("MARC_RECORD"));
+         return bibBlob;
        }
    }
    
