@@ -12,6 +12,12 @@
                            default-autowire="byName">
  
   
+  <bean id="nativeJdbcExtractor" 
+     class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor"/>
+
+  <bean id="oracleLobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
+    <property name="nativeJdbcExtractor"><ref local="nativeJdbcExtractor"/></property>
+  </bean>
   
   <bean id="importerConfiguration"
 	class="info.extensiblecatalog.OAIToolkit.importer.ImporterConfiguration"
@@ -48,8 +54,21 @@
       <property name="voyagerLocationsXml"><value>${voyager_locations_xml}</value></property>
    </bean>
    
+   <bean id="basicDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName"><value>${jdbc.catalog.driverClassName}</value></property>
+        <property name="url"><value>${jdbc.catalog.url}</value></property>
+        <property name="username"><value>${jdbc.catalog.username}</value></property>
+        <property name="password"><value>${jdbc.catalog.password}</value></property>
+    </bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<description>JDBC Template class provided by Spring Framework
+		</description>
+		<constructor-arg ref="basicDataSource" />
+	</bean>
+   
       
-   <bean id="catalogDataSource"
+   <!-- <bean id="catalogDataSource"
           class="com.mchange.v2.c3p0.ComboPooledDataSource"
           destroy-method="close">
 
@@ -61,17 +80,19 @@
         <property name="initialPoolSize"><value>10</value></property>
         <property name="minPoolSize"><value>10</value></property>
         <property name="maxPoolSize"><value>100</value></property>
-        <property name="checkoutTimeout"><value>5000</value></property>   <!-- 0 means: no checkoutTimeout -->
+        <property name="checkoutTimeout"><value>5000</value></property>   0 means: no checkoutTimeout
         <property name="idleConnectionTestPeriod"><value>200</value></property>
         <property name="acquireIncrement"><value>1</value></property>
-        <property name="maxStatements"><value>0</value></property>  <!-- 0 means: statement caching is turned off.  -->
-        <property name="numHelperThreads"><value>3</value></property>  <!-- 3 is default -->
+        <property name="maxStatements"><value>0</value></property>  0 means: statement caching is turned off. 
+        <property name="numHelperThreads"><value>3</value></property>  3 is default
 
-    </bean>
+    </bean> -->
  
 
    <bean id="catalogDao" class="edu.cornell.library.integration.dao.CatalogDaoImpl">
-      <property name="dataSource"><ref local="catalogDataSource"/></property>
+      <property name="dataSource"><ref local="basicDataSource"/></property>
+      <property name="jdbcTemplate"><ref bean="jdbcTemplate"/></property>
+      <property name="oracleLobHandler" ref="oracleLobHandler"/>
    </bean>
 
    <bean id="catalogService"
