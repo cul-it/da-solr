@@ -7,6 +7,8 @@ import java.util.List;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
+import edu.cornell.library.integration.bo.MfhdBlob;
+import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.dao.CatalogDao;
 import edu.cornell.library.integration.service.CatalogService;
 
@@ -71,6 +73,28 @@ public class CatalogServiceImpl implements CatalogService {
          throw e;
       } 
    }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getRecentMfhdIds()
+    */
+   public List<String> getRecentMfhdIds(String dateString) throws Exception {
+      List<String> mfhdIdList;
+      try {
+         mfhdIdList = catalogDao.getRecentMfhdIds(dateString);
+      } catch (Exception e) {
+         throw e;
+      }
+      return mfhdIdList;
+   }
+   
+   public int getRecentMfhdIdCount(String dateString) throws Exception {
+      
+      try {
+         return catalogDao.getRecentMfhdIdCount(dateString);
+      } catch (Exception e) {
+         throw e;
+      } 
+   }
 
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getBibData(java.lang.String)
@@ -87,6 +111,18 @@ public class CatalogServiceImpl implements CatalogService {
       }
    }
    
+   public MfhdBlob getMfhdBlob(String mfhdid) throws Exception {
+      MfhdBlob mfhdBlob = new MfhdBlob();
+      
+      try {
+         mfhdBlob = (MfhdBlob) catalogDao.getMfhdBlob(mfhdid);
+         return mfhdBlob;
+         
+      } catch (Exception e) {
+         throw e;
+      }
+   }
+   
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getBibData(java.lang.String)
     */
@@ -96,6 +132,18 @@ public class CatalogServiceImpl implements CatalogService {
       try {
          bibDataList = catalogDao.getBibData(bibid);
          return bibDataList;
+         
+      } catch (Exception e) {
+         throw e;
+      }
+   }
+   
+   public List<MfhdData> getMfhdData(String mfhdid) throws Exception {
+      List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
+      
+      try {
+         mfhdDataList = catalogDao.getMfhdData(mfhdid);
+         return mfhdDataList;
          
       } catch (Exception e) {
          throw e;
