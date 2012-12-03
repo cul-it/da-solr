@@ -1,14 +1,14 @@
 package edu.cornell.library.integration.bo;
 
-import java.sql.Clob;
-
-import edu.cornell.library.integration.util.ObjectUtils;
+ 
  
 public class BibData {
    
    private String bibId;
+   private String seqnum;
    private String record;
-   private Clob clob;
+   
+   
 
    public BibData() {
       // TODO Auto-generated constructor stub
@@ -45,17 +45,21 @@ public class BibData {
    }
 
    /**
-    * @return the clob
+    * @return the seqnum
     */
-   public Clob getClob() {
-      return clob;
+   public String getSeqnum() {
+      return seqnum;
    }
 
    /**
-    * @param clob the clob to set
+    * @param seqnum the seqnum to set
     */
-   public void setClob(Clob clob) {
-      this.clob = clob;
+   public void setSeqnum(String seqnum) {
+      this.seqnum = seqnum;
    }
+
+    
+
+    
 
 }
