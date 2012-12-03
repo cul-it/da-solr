@@ -6,6 +6,8 @@ import java.util.Map;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
+import edu.cornell.library.integration.bo.MfhdBlob;
+import edu.cornell.library.integration.bo.MfhdData;
 
 
 public interface CatalogDao {
@@ -28,10 +30,23 @@ public interface CatalogDao {
    public List<String> getRecentBibIds(String dateString) throws Exception;
    
    /**
+    * @param dateString
+    * @return
+    * @throws Exception
+    */
+   public List<String> getRecentMfhdIds(String dateString) throws Exception;
+   
+   /**
     * @return
     * @throws Exception
     */
    public int getRecentBibIdCount(String dateString) throws Exception;
+   
+   /**
+    * @return
+    * @throws Exception
+    */
+   public int getRecentMfhdIdCount(String dateString) throws Exception;
    
    /**
     * @param bibid
@@ -41,10 +56,24 @@ public interface CatalogDao {
    public BibBlob getBibBlob(String bibid) throws Exception;
    
    /**
+    * @param mfhdid
+    * @return
+    * @throws Exception
+    */
+   public MfhdBlob getMfhdBlob(String mfhdid) throws Exception;
+   
+   /**
     * @param bibid
     * @return
     * @throws Exception
     */
    public List<BibData> getBibData(String bibid) throws Exception;
+   
+   /**
+    * @param mfhdid
+    * @return
+    * @throws Exception
+    */
+   public List<MfhdData> getMfhdData(String mfhdid) throws Exception;
    
 }

@@ -33,6 +33,7 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
+import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.dao.CatalogDao; 
 
 public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
@@ -152,6 +153,8 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       } 
    }
    
+   
+   
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.dao.CatalogDao#getRecentBibIdCount(java.lang.String)
     */
@@ -204,6 +207,74 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       try {
          List<BibData> bibDataList =  getSimpleJdbcTemplate().query(sql, new BibDataMapper());
          return bibDataList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getRecentMfidIds(java.lang.String)
+    */
+   public List<String> getRecentMfhdIds(String dateString) throws Exception {
+       
+      String sql = "" 
+            +" SELECT MFHD_ID FROM MFHD_HISTORY"
+            +" WHERE to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
+            +" AND SUPPRESS_IN_OPAC = 'N'";
+      try {
+         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return mfhdIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getRecentMfhdIdCount(java.lang.String)
+    */
+   public int getRecentMfhdIdCount(String dateString) throws Exception {      
+           
+      String sql = "" 
+            +" SELECT COUNT(MFHD_ID) FROM MFHD_HISTORY"
+            +" WHERE to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
+            +" AND SUPPRESS_IN_OPAC = 'N'";
+      try {
+         int count =  getSimpleJdbcTemplate().queryForInt(sql);
+         return count;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return 0;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getMfhdData(java.lang.String)
+    */
+   public List<MfhdData> getMfhdData(String mfhdid) throws Exception {
+      
+      String sql = ""
+         +"SELECT * FROM MFHD_DATA WHERE MFHD_DATA.MFHD_ID = "+ mfhdid +"  ORDER BY MFHD_DATA.SEQNUM";
+      try {
+         List<MfhdData> mfhdDataList =  getSimpleJdbcTemplate().query(sql, new MfhdDataMapper());
+         return mfhdDataList;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
          logger.info("Query was: "+sql);
@@ -292,6 +363,20 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          bibData.setSeqnum(rs.getString("SEQNUM"));
          bibData.setRecord(rs.getString("RECORD_SEGMENT"));
          return bibData;
+       }
+   }
+   
+   /**
+    * @author jaf30
+    *
+    */
+   private static final class MfhdDataMapper implements RowMapper {
+      public MfhdData mapRow(ResultSet rs, int rowNum) throws  SQLException {
+         MfhdData mfhdData = new MfhdData(); 
+         mfhdData.setMfhdId(rs.getString("MFHD_ID"));
+         mfhdData.setSeqnum(rs.getString("SEQNUM"));
+         mfhdData.setRecord(rs.getString("RECORD_SEGMENT"));
+         return mfhdData;
        }
    }
    
