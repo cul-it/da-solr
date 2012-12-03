@@ -42,8 +42,9 @@ public class OracleQuery {
         // TODO Auto-generated method stub
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
         System.out.println("Got Connection");
-        String sql = getBibBlobQuery();
-        //String sql = getBibDataQuery();
+        //String sql = getBibCountQuery();
+        //String sql = getBibBlobQuery();
+        String sql = getBibDataQuery();
         //String sql = getOperatorQuery();
         //String sql = getBibHistoryQuery();
         //String sql = getActionTypeQuery();
@@ -184,6 +185,23 @@ public class OracleQuery {
       
      }
      
+     public static String getBibCountQuery() {
+        // ACTION_DATE: 2012-11-12 12:57:16.0
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar now = Calendar.getInstance();
+        Calendar earlier = now;
+        earlier.add(Calendar.HOUR, -3);
+        String ds = df.format(earlier.getTime());
+        
+        String sql = ""
+              +" SELECT COUNT(BIB_HISTORY.BIB_ID) FROM BIB_HISTORY"
+              +"  WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              return sql;   
+      
+     }
+     
+     
+     
    public static String getActionTypeQuery() {
       String sql = ""
          +"SELECT * FROM ACTION_TYPE";
@@ -197,9 +215,9 @@ public class OracleQuery {
    }
  
    public static String getBibDataQuery() {
-      int bibid = 5430043;
+      int bibid = 5430046;
       String sql = ""
-         +"SELECT BIB_ID,MARC_RECORD FROM CORNELLDB.BIBBLOB_VW WHERE BIB_ID = "+ bibid;
+         +"SELECT BIB_ID,SEQNUM,RECORD_SEGMENT FROM BIB_DATA WHERE BIB_ID = "+ bibid + " ORDER BY SEQNUM";
       return sql;
    }
  
