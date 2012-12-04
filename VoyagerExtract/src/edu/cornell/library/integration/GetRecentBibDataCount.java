@@ -88,10 +88,10 @@ public class GetRecentBibDataCount {
        
       
       try {
-         System.out.println("Getting recent bibids");
          String ds = getDateString();
+         System.out.println("Getting updates since: "+ ds);
          int count = getCatalogService().getRecentBibIdCount(ds);
-         System.out.println("Number of BibIds since "+ ds +" = "+ count);
+         System.out.println("Number of BibIds  = "+ count);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();

@@ -1,6 +1,7 @@
 package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +10,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
- 
-
+import java.io.Reader;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
+import oracle.sql.*;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContext;
@@ -129,21 +131,21 @@ public class GetRecentMfhdData {
       }
 
        
-      List<String> bibIdList = new ArrayList<String>();
+      List<String> mfhdIdList = new ArrayList<String>();
       try {
-         System.out.println("Getting recent bibids");
-         bibIdList = getCatalogService().getRecentMfhdIds(getDateString());
-         System.out.println("Found "+ bibIdList.size() +" bibids.");
+         System.out.println("Getting recent mfhdids");
+         mfhdIdList = getCatalogService().getRecentMfhdIds(getDateString());
+         System.out.println("Found "+ mfhdIdList.size() +" mfhdids.");
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
 
-      for (String bibid: bibIdList) {
+      for (String mfhdid: mfhdIdList) {
          try {            
-            System.out.println("Getting bibRecord for bibid: "+bibid);
-            MfhdBlob bibBlob = catalogService.getMfhdBlob(bibid);            
-            saveMfhdData(bibBlob, destDir);
+            System.out.println("Getting mfhdRecord for mfhdid: "+mfhdid);
+            MfhdBlob mfhdBlob = catalogService.getMfhdBlob(mfhdid);            
+            saveMfhdData(mfhdBlob, destDir);
          } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -158,10 +160,29 @@ public class GetRecentMfhdData {
     * @param xml
     * @throws Exception
     */
-   public void saveMfhdData(MfhdBlob bibBlob, String destDir) throws Exception {
+   public void saveMfhdData(MfhdBlob mfhdBlob, String destDir) throws Exception {
       try {
-         String bibid = bibBlob.getMfhdId();
+         String mfhdid = mfhdBlob.getMfhdId();
+         String url = destDir + "/" + mfhdid +".mrc";
          
+         Clob clob = mfhdBlob.getClob();
+          
+         char[] chars = new char[(int) clob.length()];         
+         Reader reader = clob.getCharacterStream();
+         
+         reader.read(chars);
+         CharArrayWriter caw = new CharArrayWriter();
+         caw.write(chars, 0, (int) clob.length());
+         String str = caw.toString();
+         //FileOutputStream ostream = new FileOutputStream(new File("/tmp/test.mrc"));
+         //ostream.write(str.getBytes()); 
+         //ostream.close();
+         
+         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), str, "UTF-8");
+         InputStream isr = IOUtils.toInputStream(str, "UTF-8");       
+         
+         getDavService().saveFile(url, isr);
+      
       } catch (Exception ex) {
          throw ex;
       }

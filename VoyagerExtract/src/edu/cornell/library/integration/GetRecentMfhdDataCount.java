@@ -81,10 +81,10 @@ public class GetRecentMfhdDataCount {
        
       
       try {
-         System.out.println("Getting recent mfhdids");
          String ds = getDateString();
+         System.out.println("Getting updates since: "+ ds);
          int count = getCatalogService().getRecentMfhdIdCount(ds);
-         System.out.println("Number of MfhdIds since "+ ds +" = "+ count);
+         System.out.println("Number of MfhdIds  = "+ count);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
