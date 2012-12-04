@@ -263,6 +263,34 @@
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
     </analyzer>
     </fieldType>
+
+    <!-- multiple terms per whitespace only, normalized -->
+    <fieldType name="whitespaceNormalized" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- LC: no space between class letters and digits; normalize to " ." before first cutter, no leading space -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([A-Z]{1,3}) ?(\d{1,4}(\.\d+)?) ?\.?([A-Z]\d+)" replacement="$1$2 .$4"/>  
+        <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))(\d+)" replacement="$1 $4"/>  
+        <!-- prepend yyyy to string so searches can be left anchored -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="yyyy$1"/>  
+        <tokenizer class="solr.WhitespaceTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <!-- Note that the query string could be a partial call number, so we can't combine all patterns -->
+        <!-- LC: no space between class letters and digits, no leading space -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([A-Z]{1,3}) *(\d{1,4})" replacement="$1$2" />  
+        <!-- LC: normalize to " ." before first cutter or first letter of cutter (could be preceded by " ." "." " " or nothing) -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)?) *\.?([A-Z](\d+)?)" replacement="$1 .$3" />  
+        <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))([^ ])" replacement="$1 $4"/>  
+        <!-- prepend yyyy to string so searches can be left anchored -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="yyyy$1"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+    </fieldType>
+
     
   </types>
 
@@ -295,6 +323,10 @@
     we use 'tint' for faster range-queries. -->
     <field name="pub_date_sort" type="tint" indexed="true" stored="true" multiValued="false"/>
   
+    <!-- call number uses custom type -->
+    <field name="lc_callno_full" type="whitespaceNormalized" indexed="true" stored="false" multiValued="true" />
+    <field name="lc_callno_main" type="whitespaceNormalized" indexed="true" stored="false" multiValued="true" />
+
     <!-- format is used for facet, display, and choosing which partial to use for the show view, so it must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true"/>
     <field name="online" type="string" indexed="true" stored="true"/>
@@ -324,7 +356,7 @@
 
   <!-- Copy Fields -->
 
-  <copyField source="lc_callnum_display" dest="lc_callnum_s"/>
+  <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>

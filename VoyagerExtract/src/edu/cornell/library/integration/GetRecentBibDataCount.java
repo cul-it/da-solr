@@ -23,7 +23,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.LocationInfo;
@@ -32,37 +31,22 @@ import edu.cornell.library.integration.service.CatalogService;
 import edu.cornell.library.integration.service.DavService;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
-public class GetRecentBibData {
+public class GetRecentBibDataCount {
    
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
 
-   private DavService davService;
-   private CatalogService catalogService;
-   private IntegrationDataProperties integrationDataProperties;
-   
+    
+   private CatalogService catalogService; 
 
    /**
     * default constructor
     */
-   public GetRecentBibData() { 
+   public GetRecentBibDataCount() { 
        
    }  
    
-      
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
+    
 
    /**
     * @return the catalogService
@@ -79,40 +63,20 @@ public class GetRecentBibData {
    }
 
    
-   /**
-    * @return the integrationDataProperties
-    */
-   public IntegrationDataProperties getIntegrationDataProperties() {
-      return this.integrationDataProperties;
-   }
-
-
-   /**
-    * @param integrationDataProperties the integrationDataProperties to set
-    */
-   public void setIntegrationDataProperties(
-         IntegrationDataProperties integrationDataProperties) {
-      this.integrationDataProperties = integrationDataProperties;
-   } 
    
    /**
     * @param args
     */
    public static void main(String[] args) {
-     GetRecentBibData app = new GetRecentBibData();
-     if (args.length != 1 ) {
-        System.err.println("You must provide a destination dir as an argument");
-        System.exit(-1);
-     }
-     String destDir = args[0];
-     app.run(destDir);
+     GetRecentBibDataCount app = new GetRecentBibDataCount();      
+     app.run();
    }
 
    /**
     * 
     */
-   public void run(String destDir) {
-      System.out.println("Get Recent BibData");
+   public void run() {
+      System.out.println("Get Recent BibDataCount");
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
       if (ctx.containsBean("catalogService")) {
@@ -120,53 +84,21 @@ public class GetRecentBibData {
       } else {
          System.err.println("Could not get catalogService");
          System.exit(-1);
-      }
-
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      }
-
+      } 
        
-      List<String> bibIdList = new ArrayList<String>();
+      
       try {
-         System.out.println("Getting recent bibids");
-         bibIdList = getCatalogService().getRecentBibIds(getDateString());
-         System.out.println("Found "+ bibIdList.size() +" bibids.");
+         String ds = getDateString();
+         System.out.println("Getting updates since: "+ ds);
+         int count = getCatalogService().getRecentBibIdCount(ds);
+         System.out.println("Number of BibIds  = "+ count);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
 
-      for (String bibid: bibIdList) {
-         try {            
-            System.out.println("Getting bibRecord for bibid: "+bibid);
-            BibBlob bibBlob = catalogService.getBibBlob(bibid);            
-            saveBibData(bibBlob, destDir);
-         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }   
-            
-      }
       
-   }
-
-
-   /**
-    * @param xml
-    * @throws Exception
-    */
-   public void saveBibData(BibBlob bibBlob, String destDir) throws Exception {
-      try {
-         String bibid = bibBlob.getBibId();
-         
-      } catch (Exception ex) {
-         throw ex;
-      }
-   }
+   } 
    
    protected String getDateString() {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

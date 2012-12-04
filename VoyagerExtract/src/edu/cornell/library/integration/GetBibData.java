@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
  
-import edu.cornell.library.integration.bo.BibData; 
+import edu.cornell.library.integration.bo.BibBlob; 
 import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
 import edu.cornell.library.integration.service.DavService;
@@ -35,7 +35,7 @@ public class GetBibData {
 
    private DavService davService;
    private CatalogService catalogService;
-   private IntegrationDataProperties integrationDataProperties;
+    
    
 
    /**
@@ -75,21 +75,7 @@ public class GetBibData {
    }
 
    
-   /**
-    * @return the integrationDataProperties
-    */
-   public IntegrationDataProperties getIntegrationDataProperties() {
-      return this.integrationDataProperties;
-   }
-
-
-   /**
-    * @param integrationDataProperties the integrationDataProperties to set
-    */
-   public void setIntegrationDataProperties(
-         IntegrationDataProperties integrationDataProperties) {
-      this.integrationDataProperties = integrationDataProperties;
-   } 
+   
    
    /**
     * @param args
@@ -125,20 +111,13 @@ public class GetBibData {
       } else {
          System.err.println("Could not get davService");
          System.exit(-1);
-      }
-
-      /*if (ctx.containsBean("integrationDataProperties")) {
-         setIntegrationDataProperties((IntegrationDataProperties) ctx.getBean("integrationDataProperties"));
-      } else {
-         System.err.println("Could not get integrationDataProperties");
-         System.exit(-1);
-      } */ 
+      } 
       
       try {            
          System.out.println("Getting bibRecord for bibid: "+bibid);
-         BibData bibData = catalogService.getBibData(bibid);        
-         // ObjectUtils.printBusinessObject(bibData);
-         saveBibData(bibData, destDir);
+         BibBlob bibBlob = catalogService.getBibBlob(bibid);        
+         // ObjectUtils.printBusinessObject(bibBlob);
+         saveBibBlob(bibBlob, destDir);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -150,11 +129,11 @@ public class GetBibData {
     * @param xml
     * @throws Exception
     */
-   public void saveBibData(BibData bibData, String destDir) throws Exception {
+   public void saveBibBlob(BibBlob bibBlob, String destDir) throws Exception {
       try {
-         String bibid = bibData.getBibId();
-         String record = bibData.getRecord();
-         Clob clob = bibData.getClob();
+         String bibid = bibBlob.getBibId();
+         
+         Clob clob = bibBlob.getClob();
           
          char[] chars = new char[(int) clob.length()];         
          Reader reader = clob.getCharacterStream();

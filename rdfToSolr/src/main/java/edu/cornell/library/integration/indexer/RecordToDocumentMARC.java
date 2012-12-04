@@ -90,6 +90,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"       ?f marcrdf:hasSubfield ?sf245.\n" +
 							"       ?sf245 marcrdf:code \"h\".\n" +
 							"       ?sf245 marcrdf:value ?sf245h. }").
+					addMainStoreQuery("format_loccode",
+				        	"SELECT ?loccode \n"+
+				        	"WHERE {\n"+
+				        	"  $recordURI$ rdfs:label ?bib_id.\n"+
+					    	"  ?hold marcrdf:hasField ?hold04.\n" +
+					    	"  ?hold04 marcrdf:tag \"004\".\n" +
+				        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+				        	"  ?hold marcrdf:hasField ?hold852.\n" +
+				        	"  ?hold852 marcrdf:tag \"852\".\n" +
+				        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
+				        	"  ?hold852b marcrdf:code \"b\".\n" +
+					    	"  ?hold852b marcrdf:value ?loccode.\n" +
+							"}").
 					addResultSetToFields( new FormatResultSetToFields() ),
 					
 				new SPARQLFieldMakerImpl().
@@ -105,16 +118,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?l rdfs:label ?language.\n" +
 				    		"	}").
 				    addMainStoreQuery("languages_041",
-				    		"SELECT DISTINCT ?language\n"+
+				    		"SELECT DISTINCT ?c ?language\n"+
 				            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
 				            "        ?f marcrdf:tag \"041\".\n" +
 				            "        ?f marcrdf:hasSubfield ?sf.\n" +
-				            "        {?sf marcrdf:code \"a\"} UNION {?sf marcrdf:code \"d\"}" +
+				            "        ?sf marcrdf:code ?c.\n" +
 				            "        ?sf marcrdf:value ?langcode.\n" +
 				            "        ?l intlayer:code ?langcode.\n" +
 				            "        ?l rdfs:label ?language.\n" +
 				            "}").
-				    addResultSetToFields( new AllResultsToField("language_facet")),
+				    addResultSetToFields( new LanguageResultSetToFields()),
+					new SubfieldCodeMaker("language_display","546","ab"),
 				    		
 				    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
@@ -344,7 +358,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("notes_display","537","a"),
 				new SubfieldCodeMaker("notes_display","538","a"),
 				new SubfieldCodeMaker("notes_display","544","a"),
-				new SubfieldCodeMaker("notes_display","546","ab"),
 				new SubfieldCodeMaker("notes_display","547","a"),
 				new SubfieldCodeMaker("notes_display","550","a"),
 				new SubfieldCodeMaker("notes_display","556","a"),

@@ -29,8 +29,12 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		
 		String vern_a = null;
 		String vern_b = "";
+		String vern_n = "";
+		String vern_p = "";
 		String title_a = null;
 		String title_b = "";
+		String title_n = "";
+		String title_p = "";
 		Integer ind2 = 0;
 		
 		for( String resultKey: results.keySet()){
@@ -63,13 +67,27 @@ public class TitleResultSetToFields implements ResultSetToFields {
 							} else {
 								vern_b = val;
 							}
+					
+						} else if (code.equals("n")) {
+							if (resultKey.equals("title_main")) {
+								title_n = val;
+							} else {
+								vern_n = val;
+							}
+					
+						} else if (code.equals("p")) {
+							if (resultKey.equals("title_main")) {
+								title_p = val;
+							} else {
+								vern_p = val;
+							}
 						}
 					}
 				}
 			}
 		}
-		addField(fields,"title_t",title_a);
-		addField(fields,"title_t",vern_a);
+		addField(fields,"title_t",title_a + " " + title_n + " " + title_p);
+		addField(fields,"title_t",vern_a + " " + vern_n + " " + vern_p);
 		addField(fields,"title_vern_display",vern_a);
 		addField(fields,"title_sort",RemoveTrailingPunctuation(title_a.substring(ind2).toLowerCase(),":/ ")+
 				" " + title_b.toLowerCase());
@@ -78,7 +96,10 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			addField(fields,"subtitle_t",vern_b);
 			addField(fields,"subtitle_vern_display",RemoveTrailingPunctuation(vern_b,":/ "));
 		}
-		addField(fields,"title_display",RemoveTrailingPunctuation(title_a,":/ "));
+		String title_display = title_a;
+		if (! title_n.equals("")) title_display += " " + title_n;
+		if (! title_p.equals("")) title_display += " " + title_p;
+		addField(fields,"title_display",RemoveTrailingPunctuation(title_display,":/ "));
 		addField(fields,"subtitle_display",RemoveTrailingPunctuation(title_b,":/ "));
 		
 		return fields;
