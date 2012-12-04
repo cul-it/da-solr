@@ -31,6 +31,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
  
 import edu.cornell.library.integration.bo.BibBlob;
+import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -200,6 +201,25 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       
    }
    
+   public MfhdBlob getMfhdBlob(String mfhdid) throws Exception {
+       
+      String sql = ""
+         +"SELECT MFHD_ID, MARC_RECORD FROM CORNELLDB.MFHDBLOB_VW WHERE MFHD_ID = '"+ mfhdid +"'";
+      try {
+         MfhdBlob mfhdBlob =  (MfhdBlob) getSimpleJdbcTemplate().queryForObject(sql, new MfhdBlobMapper());
+         return mfhdBlob;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
    public List<BibData> getBibData(String bibid) throws Exception {
       
       String sql = ""
@@ -224,10 +244,16 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
     */
    public List<String> getRecentMfhdIds(String dateString) throws Exception {
        
+      //String sql = "" 
+      //      +" SELECT MFHD_ID FROM MFHDHISTORY_VW"
+      //      +" WHERE to_char(MFHDHISTORY_VW.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
+      //      +" OR to_char(MFHDHISTORY_VW.CREATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
+
       String sql = "" 
             +" SELECT MFHD_ID FROM MFHD_HISTORY"
             +" WHERE to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
             +" AND SUPPRESS_IN_OPAC = 'N'";
+
       try {
          List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
          return mfhdIdList;
@@ -386,6 +412,15 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          bibBlob.setBibId(rs.getString("BIB_ID"));
          bibBlob.setClob((CLOB) rs.getClob("MARC_RECORD"));
          return bibBlob;
+       }
+   }
+   
+   private static final class MfhdBlobMapper implements RowMapper {
+      public MfhdBlob mapRow(ResultSet rs, int rowNum) throws  SQLException {
+         MfhdBlob mfhdBlob = new MfhdBlob(); 
+         mfhdBlob.setMfhdId(rs.getString("MFHD_ID"));
+         mfhdBlob.setClob((CLOB) rs.getClob("MARC_RECORD"));
+         return mfhdBlob;
        }
    }
    
