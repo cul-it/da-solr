@@ -45,7 +45,8 @@ public class Marc2MarcXml {
 
    private DavService davService;
    private CatalogService catalogService; 
-   
+   private String srcDir;
+   private String destDir;   
 
    /**
     * default constructor
@@ -69,6 +70,34 @@ public class Marc2MarcXml {
       this.davService = davService;
    }
 
+   /**
+    * @return the srcDir
+    */
+   public String getSrcDir() {
+      return this.srcDir;
+   }
+
+   /**
+    * @param srcDir the srcDir to set
+    */
+   public void setSrcDir(String srcDir) {
+      this.srcDir = srcDir;
+   }
+
+   /**
+    * @return the destDir
+    */
+   public String getDestDir() {
+      return this.destDir;
+   }
+
+   /**
+    * @param destDir the destDir to set
+    */
+   public void setDestDir(String destDir) {
+      this.destDir = destDir;
+   }
+
    
 
    
@@ -83,16 +112,16 @@ public class Marc2MarcXml {
         System.err.println("You must provide a src and destination Dir as arguments");
         System.exit(-1);
      }
-     String srcDir  = args[0];
-     String destDir  = args[1];
-     app.run(srcDir, destDir);
+     app.setSrcDir(args[0]);
+     app.setDestDir(args[1]);
+     app.run();
    }
    
 
    /**
     * 
     */
-   public void run(String srcDir, String destDir) {
+   public void run() {
       
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");    
       
@@ -106,9 +135,10 @@ public class Marc2MarcXml {
       
       try {            
          System.out.println("Getting src files...");
-         List<String> srcFiles = davService.getFileList(srcDir);
+         List<String> srcFiles = davService.getFileList(this.getSrcDir());
          for (String srcFile: srcFiles) {
-            String xml = convert(srcFile);
+            System.out.println("converting srcFile: "+ this.getSrcDir() + "/" + srcFile); 
+            String xml = convert(this.getSrcDir()+ "/" + srcFile);
             System.out.println(StringUtils.substring(xml, 0, 100));
          }
           
@@ -121,10 +151,10 @@ public class Marc2MarcXml {
    
    public String convert(String srcFile) throws Exception {
       String xml = new String();
-       
+        
       Record record = null;
       MarcXmlWriter writer = null;
-      InputStream is = stringToInputStream(xml);
+      InputStream is = davService.getFileAsInputStream(srcFile);
       OutputStream ostream = null;
       try {
          
@@ -140,7 +170,7 @@ public class Marc2MarcXml {
          while (reader.hasNext()) {
             try {
                record = reader.next();
-               System.out.println("record type: "+record.getType());
+               //System.out.println("record type: "+record.getType());
                writer.write(record);
                
             } catch (MarcException me) {
