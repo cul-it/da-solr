@@ -317,6 +317,7 @@
     <field name="subject_topic_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <field name="subject_era_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <field name="subject_geo_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="subject_content_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <!-- pub_date is used for facet and display so it must be indexed and stored -->
     <field name="pub_date" type="string" indexed="true" stored="true" multiValued="true"/>
     <!-- pub_date sort uses new trie-based int fields, which are recommended for any int and are displayable, sortable, and range-query-able. In addition,
