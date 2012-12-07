@@ -143,10 +143,10 @@ public class MarcXmlToNTriples {
 	}
 		
 	public static String escapeForNTriples( String s ) {
-		s.replaceAll("\\\\", "\\\\\\\\");
-		s.replaceAll("\"", "\\\\\\\"");
-		s.replaceAll("[\n\r]+", "\\\\n");
-		s.replaceAll("\t","\\\\t");
+		s = s.replaceAll("\\\\", "\\\\\\\\");
+		s = s.replaceAll("\"", "\\\\\\\"");
+		s = s.replaceAll("[\n\r]+", "\\\\n");
+		s = s.replaceAll("\t","\\\\t");
 		return s;
 	}
 	
