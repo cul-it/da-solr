@@ -1,0 +1,4 @@
+# ignore build,support directories
+build/
+bin/
+support/
