@@ -2,7 +2,9 @@ package edu.cornell.library.integration.app;
 
  
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -98,25 +100,41 @@ public class CreateBibMarcXmlIndex {
       StringBuffer sb = new StringBuffer();
       String outputUrl = this.getDataDir() + "/MANIFEST.txt";
       String fileUrl = new String();
+      FileOutputStream fos = null;
+      FileInputStream fis = null;
       try {            
-         System.out.println("Getting src files...");
+         
          List<String> srcFiles = davService.getFileList(this.getDataDir());
+         File tmpFile = createTempFile();
+         fos = new FileOutputStream(tmpFile);
+         
          for (String srcFile: srcFiles) {
             if (! srcFile.endsWith(".xml")) break;
             fileUrl = this.getDataDir() + "/" + srcFile;
             System.out.println("processing srcFile: "+ fileUrl);
-            
+            String line = new String();
             List<String> biblist = readFile(fileUrl) ;
             for (String bibid : biblist) {
-               sb.append(bibid + ":" + fileUrl + "\n");   
+               line = bibid + ":" + fileUrl + "\n";
+               fos.write(line.getBytes("UTF-8"));
             }
          }
-         davService.saveBytesToFile(outputUrl, sb.toString().getBytes("UTF-8"));
+         fos.close();
+         
+         fis = new FileInputStream(tmpFile);
+         davService.saveFile(outputUrl, fis);
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
-      } 
+      } finally {
+         try {
+            fis.close();
+         } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+      }
       
    }
    
@@ -136,7 +154,7 @@ public class CreateBibMarcXmlIndex {
             for (ControlField field: controlFields) {
                //System.out.println("   "+ field.getTag());
                if (field.getTag().equals("001")) {
-                  System.out.println(field.getData());
+                  //System.out.println(field.getData());
                   biblist.add(field.getData());
                }
             }
@@ -190,5 +208,9 @@ public class CreateBibMarcXmlIndex {
          }
       }
       return biblist;
-   } 
+   }
+   
+   protected File createTempFile() throws IOException {       
+      return File.createTempFile("MANIFEST", ".tmp");      
+   }
 }

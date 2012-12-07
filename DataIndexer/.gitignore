@@ -2,3 +2,5 @@
 build/
 bin/
 support/
+bibIndexFile.nt
+holdingsIndexFile.nt

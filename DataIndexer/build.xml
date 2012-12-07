@@ -183,6 +183,35 @@
         </classpath>
       </java>
    </target>
+   
+   <target name="CreateMfhdTriplesIndex" depends="build" description="Run CreateMfhdtripleslIndex" >
+      <echo message="Running CreateMfhdTriplesIndex"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateMfhdTriplesIndex" > 
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.nt.full" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="CreateBibTriplesIndex" depends="build" description="Run CreateBibtripleslIndex" >
+      <echo message="Running CreateBibTriplesIndex"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateBibTriplesIndex" > 
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.nt.full" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="LoadTriplesIndex" depends="build" description="Run LoadtripleslIndex" >
+      <echo message="Running LoadTriplesIndex"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LoadTriplesIndex" > 
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
  
 
 
