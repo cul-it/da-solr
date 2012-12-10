@@ -9,7 +9,7 @@
    <!--
    <Logger className="org.apache.catalina.logger.FileLogger"
       directory="logs/DataIndexer"
-      prefix="vivoharvester." suffix=".txt"
+      prefix="dataindexer." suffix=".txt"
       timestamp="true"/>
    -->
    <!-- Disables restart persistence of sessions -->

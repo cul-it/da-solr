@@ -30,8 +30,8 @@
   <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
      <property name="mappings">
          <props>
-            <prop key="showHome.do">dataIndexerController</prop>            
-            <prop key="/getTriplesLocation.do">dataIndexerController</prop>    
+            <prop key="showHomePage.do">dataIndexerController</prop>            
+            <prop key="/showTriplesLocation.do">dataIndexerController</prop>    
          </props>
       </property>
    </bean>
@@ -42,8 +42,8 @@
          <bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
             <property name="mappings">
                <props>
-               <prop key="/showHome.do">showHome</prop>
-                <prop key="/getTriplesLocation.do">getTriplesLocation</prop> 
+               <prop key="/showHomePage.do">showHomePage</prop>
+                <prop key="/showTriplesLocation.do">showTriplesLocation</prop> 
                </props>
             </property>
          </bean>

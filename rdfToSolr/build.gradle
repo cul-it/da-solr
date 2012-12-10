@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 task copyToLib(type: Copy) {
+    description = "Copy all dependencies to $buildDir/output/lib for use by IDEs like eclipse"  
     into "$buildDir/output/lib"
     from configurations.runtime
 }
@@ -20,16 +21,31 @@ dependencies {
    //gets a lot of sesame jars   
    compile 'org.openrdf.sesame:sesame-runtime:2.6.6'
 
-   compile "javax.servlet:servlet-api:2.5"   
+   compile 'javax.servlet:servlet-api:2.5'
    compile 'junit:junit:4.9'   
 }
 
-
-task list(dependsOn: configurations.compile) << {
+task list(dependsOn: configurations.compile) << { 
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }
 
+
+task libJar(type: Jar){
+    description = 'Create a jar of all the dependencies of this project, but no classes from this project'
+    from {
+        configurations.compile.collect{ it.isDirectory() ? it : zipTree(it) }
+    }
+    archiveName 'rdfToSolr.dependencies.jar'
+    // some how we are getting two slf4j implementations, 
+    // some project's pom.xml is messed up.
+    exclude "**/slf4j-jdk14*"
+}
+
 jar {
-    dependsOn configurations.runtime
-    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+    description = 'Create a jar of all the dependencies and classes of this project'
+    dependsOn configurations.compile
+    from { 
+       configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+    }
+    exclude "**/slf4j-jdk14*"
 }

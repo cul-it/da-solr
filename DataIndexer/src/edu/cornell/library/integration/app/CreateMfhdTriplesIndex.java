@@ -143,15 +143,15 @@ public class CreateMfhdTriplesIndex {
 
          String line;
          String holdingsSubj;
-         String inFileStatement;
+         String hasFileStatement;
          
          while ((line = in.readLine()) != null) {
             if (StringUtils.contains(line, bibPredicate)) {               
                FileUtils.writeStringToFile(file, line + "\n", true);
                String parts[] = StringUtils.split(line);
                holdingsSubj= parts[0];
-               inFileStatement = holdingsSubj +   "<"+ dataDevNs + "/inFile>"  + fileObjectUri +" .\n";
-               FileUtils.writeStringToFile(file, inFileStatement, true);
+               hasFileStatement = holdingsSubj +   " <"+ dataNs + "hasFile> "  + fileObjectUri +" .\n";
+               FileUtils.writeStringToFile(file, hasFileStatement, true);
             } 
          } 
          

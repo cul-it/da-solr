@@ -11,7 +11,20 @@
 <body >  
 
 <div class="content">
-   <h3>Home Page </h3> 
+   <h3>Home Page </h3>
+   <p>
+   <form name="searchForm" method="post" action="showTriplesLocation.do" >
+   <fieldset>
+   <legend>Search for Triples Location</legend>
+   <label for="bibid"><strong>BibId: </strong></label>
+   <input type="text" name="bibid" id="bibid" size="20" value="4255466"  /><br /><br />
+   <input type="hidden" name="redirect" value="false" />
+   <p class="submit">
+   <input type="Submit" value="Submit" />
+   </p>
+   </fieldset>
+   </form>
+    
 </div> <!- end content div> 
 </body>
 </html>
