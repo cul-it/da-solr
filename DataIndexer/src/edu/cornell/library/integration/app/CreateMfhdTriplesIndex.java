@@ -150,7 +150,7 @@ public class CreateMfhdTriplesIndex {
                FileUtils.writeStringToFile(file, line + "\n", true);
                String parts[] = StringUtils.split(line);
                holdingsSubj= parts[0];
-               hasFileStatement = holdingsSubj +   " <"+ dataDevNs + "hasFile> "  + fileObjectUri +" .\n";
+               hasFileStatement = holdingsSubj +   " <"+ dataNs + "hasFile> "  + fileObjectUri +" .\n";
                FileUtils.writeStringToFile(file, hasFileStatement, true);
             } 
          } 
