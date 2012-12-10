@@ -9,10 +9,10 @@ public class MarcXmlToNTriplesTest {
 	public void escapeForNTriplesTest() {
 		String s1 = "test \\ string";
 		String s2 = MarcXmlToNTriples.escapeForNTriples( s1 );
-		assert(s2.equals("test \\\\ string"));
+		assertTrue(s2.equals("test \\\\ string"));
 		s1 = "testing \"quotes\".";
 		s2 = MarcXmlToNTriples.escapeForNTriples( s1 );
-		assert(s2.equals("testing \\\"quotes\\\"."));
+		assertTrue(s2.equals("testing \\\"quotes\\\"."));
 	}
 
 }
