@@ -79,10 +79,8 @@ public class RecordToDocumentMARCTest {
 		"../"
 	};
 	
-	static final String fallbackSolrDir1 = new File("../solr").getAbsolutePath() ;
-	static final String fallbackSolrDir2 = new File("./solr").getAbsolutePath() ;
-	static final String fallbackMARC1 = new File("../rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
-	static final String fallbackMARC2 = new File("./rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
+	static final String fallbackSolrDir1 = new File("../solr/corex").getAbsolutePath() ;
+	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
 	
 	static final String[] rMarcURIS = {
 		"http://fbw4-dev.library.cornell.edu/individuals/b4696",
@@ -127,23 +125,28 @@ public class RecordToDocumentMARCTest {
 
 	@Test
 	public void testRadioactiveIds() throws SolrServerException{
-		SolrQuery query = new SolrQuery();
-		query.setQuery("id:UNTRadMARC*");		
+	
+		String[] ids = new String[]{				
+				"UNTRadMARC001", 		
+				"UNTRadMARC002",
+				"UNTRadMARC003",
+				"UNTRadMARC004",
+				"UNTRadMARC005",
+				"UNTRadMARC006",
+				"UNTRadMARC007",
+				"UNTRadMARC008",
+				"UNTRadMARC009",
+				"UNTRadMARC010"};
 		
-		testQueryGetsDocs(
+		for(String radId : ids){
+			SolrQuery query = new SolrQuery();	
+			query.setQuery("id:" + radId);
+			query.setParam("qt", "standard");
+			String[] id = { radId };
+			testQueryGetsDocs(
 				"Making sure all Radioactive MARC can be found by id",
-				query,
-				new String[]{				
-						"UNTRadMARC001", 		
-						"UNTRadMARC002",
-						"UNTRadMARC003",
-						"UNTRadMARC004",
-						"UNTRadMARC005",
-						"UNTRadMARC006",
-						"UNTRadMARC007",
-						"UNTRadMARC008",
-						"UNTRadMARC009",
-						"UNTRadMARC010"} );
+				query,  id);
+		}
 	}
 	
 	
