@@ -123,22 +123,36 @@ public class LookupBibId {
       
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");      
       
-      System.out.println("Getting model");
+      //System.out.println("Getting model");
       setDataset(TDBFactory.createDataset(TDBDIR));
       setJenaModel(dataset.getDefaultModel());
       
-      System.out.println("Model size: "+ jenaModel.size());
+      //System.out.println("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
       String subject = "<" +uriNs + "/b" + bibid + ">"; 
-      String predicate = "<" +dataDevNs + "hasFile>";      
-       
-      RDFNode object = null;
+      String hasFile = "<" +dataNs + "hasFile>";
+      String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";
+      String hasHoldings = "<" +dataNs + "hasFile>"; 
+      String object = "<" +uriNs + "/b" + bibid + ">";
       
-      String query = "" + "SELECT ?obj ?filename \n" 
+      //String query = "" + "SELECT ?obj ?filename \n" 
+      //      + "WHERE {\n" 
+      //      + " " + subject + " " + hasFile + " ?obj .\n"
+      //      + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+     //       + "}";
+      
+     // String query = "" + "SELECT ?filename \n" 
+     //       + "WHERE {\n" 
+     //       + " ?holding "  + hasBib + " "+ object + " .\n"
+     //       + " ?holding "  + hasFile + " ?fileUri .\n"
+     //       + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+     //       + "}";
+      String query = "" + "SELECT ?filename \n" 
             + "WHERE {\n" 
-            + " " + subject + " " + predicate + " ?obj .\n"
-            + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+            + " ?holding "  + hasBib + " "+ object + " .\n"
+            + " ?holding "  + hasFile + " ?fileUri .\n"
+            + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
             + "}";
       //System.out.println(query);
       ResultSet resultSet = null;
@@ -149,6 +163,7 @@ public class LookupBibId {
          e.printStackTrace();
       }
       for (QuerySolution solution : IterableAdaptor.adapt(resultSet)) {
+         //System.out.println(solution.getResource("fileUri").getURI());
          System.out.println(solution.getLiteral("filename"));
       }
       jenaModel.close();
