@@ -79,10 +79,8 @@ public class RecordToDocumentMARCTest {
 		"../"
 	};
 	
-	static final String fallbackSolrDir1 = new File("../solr").getAbsolutePath() ;
-	static final String fallbackSolrDir2 = new File("./solr").getAbsolutePath() ;
-	static final String fallbackMARC1 = new File("../rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
-	static final String fallbackMARC2 = new File("./rdf/output/RadMARCATS1.nt").getAbsolutePath() ;
+	static final String fallbackSolrDir1 = new File("../solr/corex").getAbsolutePath() ;
+	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
 	
 	static final String[] rMarcURIS = {
 		"http://fbw4-dev.library.cornell.edu/individuals/b4696",
