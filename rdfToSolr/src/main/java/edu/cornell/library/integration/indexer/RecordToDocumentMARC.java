@@ -392,7 +392,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("subject_topic_facet","650","a",",."),
 				new SubfieldCodeMaker("subject_topic_facet","653","a","."),
 				new SubfieldCodeMaker("subject_topic_facet","654","ab","."),
-				new SubfieldCodeMaker("subject_topic_facet","655","ab","."),
+				
+				new SubfieldCodeMaker("subject_content_facet","655","ab","."),
+				new SPARQLFieldMakerImpl().
+					setName("fact_or_fiction").
+					addMainStoreQuery("fact_or_fiction",
+			    		"SELECT (SUBSTR(?val,34,1) as ?char33) \n" +
+			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
+			    		"        ?f marcrdf:tag \"008\". \n" +
+			    		"        ?f marcrdf:value ?val } \n" ).
+			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
 				new SubfieldCodeMaker("subject_t","600","abcdefghijklmnopqrstu"),
 				new SubfieldCodeMaker("subject_t","610","abcdefghijklmnopqrstu"),

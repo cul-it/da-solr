@@ -1,0 +1,6 @@
+# ignore build,support directories
+build/
+bin/
+support/
+bibIndexFile.nt
+holdingsIndexFile.nt
