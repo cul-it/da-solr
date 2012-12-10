@@ -119,7 +119,7 @@ public class CreateBibTriplesIndex {
             InputStream is = getSrcInputStream(fileUrl);
             if (is != null) {
                System.out.println("processing srcFile: "+ fileUrl);
-               String fileObjectUri = "<"+ uriNs +"/bf" + count +">";
+               String fileObjectUri = "<"+ uriNs +"/bf" + count +"> ";
                addFileRefTriple(bibIndexFile, fileObjectUri, fileUrl);
                extractStatements(is, bibIndexFile, fileObjectUri) ;
                count++;
@@ -147,15 +147,15 @@ public class CreateBibTriplesIndex {
 
          String line;
          String bibSubj;
-         String inFileStatement;
+         String hasFileStatement;
          
          while ((line = in.readLine()) != null) {
             if (StringUtils.contains(line, bibObject)) {               
                FileUtils.writeStringToFile(file, line + "\n", true);
                String parts[] = StringUtils.split(line);
                bibSubj= parts[0];
-               inFileStatement = bibSubj +   "<"+ dataDevNs + "/inFile>" + fileObjectUri +" .\n";
-               FileUtils.writeStringToFile(file, inFileStatement, true);
+               hasFileStatement = bibSubj +   " <"+ dataDevNs + "hasFile> " + fileObjectUri +" .\n";
+               FileUtils.writeStringToFile(file, hasFileStatement, true);
             } 
          } 
          
