@@ -75,7 +75,7 @@
 
 	<target name="lib" description="dependency jar files">
 		<!-- copy libraries to build dir -->
-		<copy todir="${build.dir}/lib" preservelastmodified="true">
+		<copy todir="${build.dir}/WEB-INF/lib" preservelastmodified="true">
 			<flattenmapper />
 			<fileset dir="lib/">
 				<include name="**/*.jar" />
@@ -177,7 +177,7 @@
    <target name="CreateBibMarcXmlIndex" depends="build" description="Run CreateBibMarcXmlIndex" >
       <echo message="Running CreateBibMarcXmlIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateBibMarcXmlIndex" > 
-         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -187,7 +187,7 @@
    <target name="CreateMfhdTriplesIndex" depends="build" description="Run CreateMfhdtripleslIndex" >
       <echo message="Running CreateMfhdTriplesIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateMfhdTriplesIndex" > 
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.nt.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.nt.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -197,16 +197,26 @@
    <target name="CreateBibTriplesIndex" depends="build" description="Run CreateBibtripleslIndex" >
       <echo message="Running CreateBibTriplesIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateBibTriplesIndex" > 
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.nt.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.nt.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
       </java>
    </target>
    
-   <target name="LoadTriplesIndex" depends="build" description="Run LoadtripleslIndex" >
+   <target name="LoadTriplesIndex" depends="build" description="Run LoadTriplesIndex" >
       <echo message="Running LoadTriplesIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LoadTriplesIndex" > 
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="LookupBibId" depends="build" description="Run LookupBibId" >
+      <echo message="Running LookupBibId"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupBibId" >
+         <arg value="4255466" /> 
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
