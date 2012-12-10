@@ -7,6 +7,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -17,7 +18,7 @@ import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
 
 /**
  * This is a hadoop job that is intended to load all the bib and holdings and
- * writes out solr docs in a file.
+ * load them to the Solr index.
  * 
  * The files in the inputDir should have one URL per line and those URLs should 
  * be the locations of bib or holdings n-triple files.
@@ -26,8 +27,11 @@ import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
  *  map: for each URLs load the RDF and make <BIBURI -> RDF in N-TRIPLE String> mappings
  *  reduce: For each BIBURI key, make a local RDF triple store and run MarcToSolrDoc 
  * 
+ * @author bdc34
+ *
  */
-public class MarcToSolrDocs extends Configured implements Tool {
+
+public class MarcToSolrIndex extends Configured implements Tool {
 
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new MarcToSolrDocs(), args);
@@ -37,21 +41,22 @@ public class MarcToSolrDocs extends Configured implements Tool {
 	@Override
 	public int run(String[] args) throws Exception {				
 		if (args.length != 2 ) {			
-			System.out.println("\nMarcToSolrDocs <inputDir> <outputDir>");
+			System.out.println("\nMarcToSolrDocs <inputDir> <solrServerURL>");
 			System.out.println("The inputDir should have files with one URL per line, Each URL should be the location of a N-Triple file with bib or holding data");
-			System.out.println("The outputDir should not exist before running.\n");
+			System.out.println("The solrServerURL is the service to index the documents into.\n");
 			ToolRunner.printGenericCommandUsage(System.out);
 			System.out.println("");
 			return 2;
 		}
 		
 		Path inputDir= new Path( args[0] );
-		Path outputDir= new Path( args[1] );
+		String solrUrl = args[1];
 		
 		Configuration conf = getConf();
 		
-		//conf.set("mapred.compress.map.output", "true");		
-		//conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.SnappyCodec");
+		conf.set(RdfToSolrReducer.SOLR_SERVICE_URL, solrUrl);
+		conf.set("mapred.compress.map.output", "true");		
+		conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.SnappyCodec");
 		
 		Job job = new Job(conf);		    
 				      		    
@@ -62,14 +67,12 @@ public class MarcToSolrDocs extends Configured implements Tool {
 		
 		job.setMapperClass(URLToMarcRdfFetchMapper.class);
 		job.setReducerClass( RdfToSolrReducer.class );
+		
+		//output is side effect of writing to solr server in reducer
+		job.setOutputFormatClass( NullOutputFormat.class );
+		
+		job.waitForCompletion(true);
 
-		FileOutputFormat.setOutputPath(job, outputDir);		
-		job.setOutputFormatClass( TextOutputFormat.class );
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
-
-		job.waitForCompletion(true);		      
-			
 		return 0;
 	} 
 }

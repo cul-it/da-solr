@@ -1,19 +1,21 @@
 package edu.cornell.library.integration.hadoop.reduce;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
-import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.tdb.TDBFactory;
@@ -31,14 +33,30 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  */
 public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 	Log log = LogFactory.getLog(RdfToSolrReducer.class);
-	
+	public final static String SOLR_SERVICE_URL = "integration.RdfToSolrReducer.SolrServiceUrl";
+						
 	File tmpDir;
 	RecordToDocument r2d;
-
+	String solrURL;
+	SolrServer solr;
+	
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
 		super.setup(context);		
+		Configuration conf = context.getConfiguration();
+		
+		solrURL = conf.get( SOLR_SERVICE_URL );
+		if(solrURL == null )
+			throw new Error("RdfToSolrReducer requires URL of Solr server in config property " + SOLR_SERVICE_URL);
+		
+		solr = new CommonsHttpSolrServer(new URL(solrURL));
+		try {
+			solr.ping();
+		} catch (SolrServerException e) {
+			throw new Error("RdfToSolrReducer cannot connect to solr server at \""+solrURL+"\".",e);
+		}
+		
 		tmpDir = Files.createTempDir();
 		r2d = new RecordToDocumentMARC();
 	}
@@ -46,11 +64,10 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 
 	@Override	
 	public void reduce(Text key, Iterable<Text> values, Context context)
-			throws IOException, InterruptedException {		
-		Model model=null;
-		try{			
-			Files.deleteDirectoryContents( tmpDir );
-			model = TDBFactory.createModel(tmpDir.getAbsolutePath());   
+			throws IOException, InterruptedException {				
+		
+		try{						
+			Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());   
 			
 			for( Text value : values){			
 				try{
@@ -62,8 +79,12 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 				}
 			}			
 			
-			SolrInputDocument doc = r2d.buildDoc(key.toString(), new RDFServiceModel(model));
-			context.write(key, new Text( IndexingUtilities.toString(doc)));
+			try{
+				SolrInputDocument doc = r2d.buildDoc(key.toString(), new RDFServiceModel(model));
+				context.write(key, new Text( IndexingUtilities.toString(doc)));
+			}catch(Error er){
+				log.error("Could not create solr document for " + key.toString() , er);				
+			}
 			
 		} catch (RDFServiceException e) {
 			// TODO Auto-generated catch block
@@ -72,7 +93,7 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			//Files.deleteDirectoryContents( tmpDir );			
+			Files.deleteDirectoryContents( tmpDir );			
 		}
 	}
 
@@ -81,6 +102,11 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 	@Override
 	protected void cleanup(Context context) throws IOException, InterruptedException {
 		super.cleanup(context);
-		//Files.deleteRecursively(tmpDir);
+		try {
+			solr.commit();
+		} catch (SolrServerException e) {
+			throw new Error("Could not commit solr changes.",e);
+		}
+		Files.deleteRecursively(tmpDir);
 	}				
 }
