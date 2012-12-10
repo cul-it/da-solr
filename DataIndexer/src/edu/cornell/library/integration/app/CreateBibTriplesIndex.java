@@ -154,7 +154,7 @@ public class CreateBibTriplesIndex {
                FileUtils.writeStringToFile(file, line + "\n", true);
                String parts[] = StringUtils.split(line);
                bibSubj= parts[0];
-               hasFileStatement = bibSubj +   " <"+ dataDevNs + "hasFile> " + fileObjectUri +" .\n";
+               hasFileStatement = bibSubj +   " <"+ dataNs + "hasFile> " + fileObjectUri +" .\n";
                FileUtils.writeStringToFile(file, hasFileStatement, true);
             } 
          } 
