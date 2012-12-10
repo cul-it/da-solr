@@ -216,7 +216,7 @@
    <target name="LookupBibId" depends="build" description="Run LookupBibId" >
       <echo message="Running LookupBibId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupBibId" >
-         <arg value="4255466" /> 
+         <arg value="3577821" /> 
          <classpath>
           <path refid="run-classpath"/>
         </classpath>

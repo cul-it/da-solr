@@ -11,6 +11,7 @@ bin/
 
 #gradle
 .gradle
+build/
 
 rdf/output
 ## generic files to ignore
