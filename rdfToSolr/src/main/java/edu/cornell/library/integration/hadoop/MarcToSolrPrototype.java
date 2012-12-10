@@ -7,8 +7,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import edu.cornell.library.integration.hadoop.map.BibURIToRdfLocalMapper;
+import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
 
 /**
  * This is a hadoop job is a test that uses a remote triple store
@@ -40,46 +44,27 @@ public class MarcToSolrPrototype extends Configured implements Tool {
 		String sparqlEndpointURL = args[0];	
 		Path URIListFile = new Path(args[1]);
 		Path outputDir= new Path( args[2] );
-
-		//can we use side files for our temporary files? 
-		// http://hadoop.apache.org/docs/r1.0.4/mapred_tutorial.html#Task+Side-Effect+Files
-		// ??? FileOutputFormat.getWorkOutputPath() ???
-		
-//		int randomId = new Random().nextInt(Integer.MAX_VALUE);
-//		Path tempDir =
-//			new Path("marctosolrdocs-temp-"+Integer.toString(randomId));
-//		File f = new File( tempDir.getName() );
-//		f.mkdir();
 		
 		Configuration conf = getConf();
-		conf.set( REMOTE_SPARQL_ENDPOINT, sparqlEndpointURL);		
-		Job marcJob = new Job(conf);		    
+		conf.set( REMOTE_SPARQL_ENDPOINT, sparqlEndpointURL);
+		
+		Job job = new Job(conf);		    				      		    
+		job.setJobName("MarcToSolrPrototype");
+					
+		FileInputFormat.setInputPaths(job, URIListFile);
+		
+		//map that will build the RDF needed for Bib URL
+		job.setMapperClass( BibURIToRdfLocalMapper.class ); 		     
 
-		try {		      		     
-			marcJob.setJobName("MarcToSolrPrototype");
-						
-			//file with one bib URI per line
-			//This is where each of the original mappers get its starting point
-			FileInputFormat.setInputPaths(marcJob, URIListFile);
-			
-			//add a map stage that will build the local RDF for a URL
-			marcJob.setMapperClass( BibURIToRdfLocalMapper.class);
-
-			//I think that this can be null or left unset
-//			marcJob.setCombinerClass(???);
-
-			//TODO: set the reducer to RDF->Solr 
-//			marcJob.setNumReduceTasks(0);		      
-
-			FileOutputFormat.setOutputPath(marcJob, outputDir);
-//			//marcJob.setOutputFormatClass(SequenceFileOutputFormat.class);
-			marcJob.setOutputKeyClass(Text.class);
-			marcJob.setOutputValueClass(Text.class);
-			marcJob.waitForCompletion(true);		      
-		}
-		finally {
-			//FileSystem.get(conf).delete(tempDir, true);
-		}
+		//reduce each list of RDF to a local store then a solr docuemnt
+		job.setReducerClass( RdfToSolrReducer.class );
+		
+		FileOutputFormat.setOutputPath(job, outputDir);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+		
+		job.waitForCompletion(true);		      				
 		return 0;
 	} 
 

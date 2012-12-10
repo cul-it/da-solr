@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.hadoop;
+package edu.cornell.library.integration.hadoop.map;
 
 import java.io.IOException;
 
@@ -10,6 +10,8 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 import edu.cornell.library.integration.ILData.ILData;
 import edu.cornell.library.integration.ILData.ILDataRemoteImpl;
+import edu.cornell.library.integration.hadoop.MarcToSolrPrototype;
+import edu.cornell.library.integration.hadoop.MarcToSolrUtils;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 
 
@@ -22,7 +24,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlH
  */
 public class BibURIToRdfLocalMapper  <K> extends Mapper<K, Text, Text, Text>{ 
 	
-String sparqlUrl = null;
+	String sparqlUrl = null;
+	ILData data;
 	
 	public void setup(Context context) {
 		Configuration conf = context.getConfiguration();
@@ -30,18 +33,18 @@ String sparqlUrl = null;
 		if( sparqlUrl == null )			
 			throw new Error("BibURIToRdfLocalMapper must have a "+ 
 					MarcToSolrPrototype.REMOTE_SPARQL_ENDPOINT + " property in the job configuration");
-			
+		
+		try {
+			data = new ILDataRemoteImpl( new RDFServiceSparqlHttp(sparqlUrl) );
+		} catch (IOException e) {
+			throw new Error("could not setup remote data source" , e);
+		}					
 	}
 
-	public void map(K key, Text value, Context context) throws IOException, InterruptedException {
-				
+	public void map(K key, Text value, Context context) throws IOException, InterruptedException {			
 		String bibURI = value.toString();
-
-		ILData data = new ILDataRemoteImpl( new RDFServiceSparqlHttp(sparqlUrl) );
-		Model m = data.getBibData( bibURI );
-							
 		context.write(new Text( bibURI ), 
-				   	  new Text( MarcToSolrUtils.writeModelToNTString(m)));
+				   	  new Text( MarcToSolrUtils.writeModelToNTString( data.getBibData( bibURI ) )));
 	}
 	
 }

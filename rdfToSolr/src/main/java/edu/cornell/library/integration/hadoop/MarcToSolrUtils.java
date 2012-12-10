@@ -18,8 +18,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public class MarcToSolrUtils {
 	
-	public static void saveLinksToFile( String url, String fileName) throws IOException{		
-		List<String>links = getLinksFromPage(url);
+	public static void saveLinksToFile( String urlOfIndex, String fileName) throws IOException{		
+		List<String>links = getLinksFromPage(urlOfIndex);
 		FileOutputStream os = new FileOutputStream(fileName); 
 		OutputStreamWriter out = new OutputStreamWriter(os,"UTF-8");
 		for( String s : links){
@@ -28,9 +28,9 @@ public class MarcToSolrUtils {
 		}
 	}
 	
-	public static List<String> getLinksFromPage(String url) throws  IOException{
+	public static List<String> getLinksFromPage(String urlOfIndex) throws  IOException{
 		List<String> links = new LinkedList<String>();
-	    Document document = Jsoup.connect(url ).get();
+	    Document document = Jsoup.connect(urlOfIndex ).get();
 	    Elements linkTags = document.getElementsByTag("a");
 	    for (Element link : linkTags) {
 	      links.add(link.attr("href"));		      
