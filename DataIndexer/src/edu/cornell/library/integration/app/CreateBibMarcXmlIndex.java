@@ -97,7 +97,7 @@ public class CreateBibMarcXmlIndex {
          System.exit(-1);
       } 
       
-      StringBuffer sb = new StringBuffer();
+       
       String outputUrl = this.getDataDir() + "/MANIFEST.txt";
       String fileUrl = new String();
       FileOutputStream fos = null;

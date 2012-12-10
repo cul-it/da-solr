@@ -4,3 +4,5 @@ bin/
 support/
 bibIndexFile.nt
 holdingsIndexFile.nt
+DataIndexer.log
+DataIndexer.war

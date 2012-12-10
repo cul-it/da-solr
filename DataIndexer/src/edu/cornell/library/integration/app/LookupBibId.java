@@ -1,24 +1,23 @@
-package edu.cornell.library.integration.control;
+package edu.cornell.library.integration.app;
 
-
-
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
-import org.springframework.web.util.WebUtils;
-
+ 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import java.util.zip.GZIPInputStream;
+ 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.LogFactory;  
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -28,28 +27,24 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory; 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Selector;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
+ 
 
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.service.DavService; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
-
-
-/**
- * Vivo Controller
- */
-public class DataIndexerController extends MultiActionController { 
-   private String showTriplesLocation = "ShowTriplesLocation";
-   private String homePage = "HomePage"; 
-   private String fatalErrorView = "FatalError";
+public class LookupBibId {
+   
+   /** Logger for this class and subclasses */
+   protected final Log logger = LogFactory.getLog(getClass()); 
    private final String TDBDIR = "/usr/local/src/integrationlayer/tdbIndex";
    private final String uriNs = "http://fbw4-dev.library.cornell.edu/individuals";
    private final String dataNs = "http://culdata.library.cornell.edu/canonical/0.1/";
@@ -57,33 +52,26 @@ public class DataIndexerController extends MultiActionController {
    
    private Model jenaModel;
    private Dataset dataset;
-
-   /** Logger for this class and subclasses */
-   protected final Log logger = LogFactory.getLog(getClass());
    
-   private DavService davService; 
-    
-
    /**
-    * @return the davService
+    * default constructor
     */
-   public DavService getDavService() {
-      return davService;
-   }
-
-   /**
-    * @param userService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
+   public LookupBibId() { 
+       
+   } 
    
+   
+
+
    /**
     * @return the jenaModel
     */
    public Model getJenaModel() {
       return jenaModel;
    }
+
+
+
 
    /**
     * @param jenaModel the jenaModel to set
@@ -92,12 +80,18 @@ public class DataIndexerController extends MultiActionController {
       this.jenaModel = jenaModel;
    }
 
+
+
+
    /**
     * @return the dataset
     */
    public Dataset getDataset() {
       return dataset;
    }
+
+
+
 
    /**
     * @param dataset the dataset to set
@@ -106,59 +100,34 @@ public class DataIndexerController extends MultiActionController {
       this.dataset = dataset;
    }
 
-   
-   /**
-    * showHomePage
-    *
-    * @param request a httpservlet request
-    * @param response a httpservlet response
-    * @throws ServletException a servletException
-    * @throws IOException an IOException
-    * @return ModelAndView
-    */
-   public ModelAndView showHomePage(HttpServletRequest request,
-         HttpServletResponse response) throws ServletException, IOException {
-      Map<String, Object> model = new HashMap<String, Object>(); 
-       
-      String view = new String(homePage);
 
-      return new ModelAndView(view, model);
+
+
+   /**
+    * @param args
+    */
+   public static void main(String[] args) {
+     LookupBibId app = new LookupBibId();
+     if (args.length != 1 ) {
+        System.err.println("You must provide a bibid");
+        System.exit(-1);
+     }
+     app.run(args[0]);
    }
+   
 
    /**
-    * getTriplesLocation
-    *
-    * @param request a httpservlet request
-    * @param response a httpservlet response
-    * @throws ServletException a servletException
-    * @throws IOException an IOException
-    * @return ModelAndView
+    * 
     */
-   /**
-    * @param request
-    * @param response
-    * @return
-    * @throws ServletException
-    * @throws IOException
-    */
-   public ModelAndView showTriplesLocation(HttpServletRequest request,
-         HttpServletResponse response) throws ServletException, IOException {
-      Map<String, Object> model = new HashMap<String, Object>();
-      String view = new String();
+   public void run(String bibid) {
       
-      String bibid = request.getParameter("bibid");
-      String redirect = new String();
-      redirect = request.getParameter("redirect");
-      if (StringUtils.isEmpty(redirect)) {
-         redirect = "true";   
-      } else {
-         redirect = request.getParameter("redirect");   
-      }
-      //System.out.println("Getting model");
+      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");      
+      
+      System.out.println("Getting model");
       setDataset(TDBFactory.createDataset(TDBDIR));
       setJenaModel(dataset.getDefaultModel());
       
-      //System.out.println("Model size: "+ jenaModel.size());
+      System.out.println("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
       String subject = "<" +uriNs + "/b" + bibid + ">"; 
@@ -179,22 +148,12 @@ public class DataIndexerController extends MultiActionController {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      List<String> fileUriList = new ArrayList<String>();
       for (QuerySolution solution : IterableAdaptor.adapt(resultSet)) {
-         fileUriList.add( (String) solution.getLiteral("filename").toString());
+         System.out.println(solution.getLiteral("filename"));
       }
-      
       jenaModel.close();
-      model.put("bibid", bibid);
-      model.put("fileUriList", fileUriList);
       
-      if (redirect.equals("true")) {
-         view = new String(showTriplesLocation);
-      } else {
-         logger.info("redirecting to: "+ fileUriList.get(0));
-         view = "redirect:"+ fileUriList.get(0);
-      }
-      return new ModelAndView(view, model);
+      
    }
    
    public ResultSet executeSelectQuery(String queryString, boolean datasetMode) throws IOException {
@@ -212,7 +171,4 @@ public class DataIndexerController extends MultiActionController {
       }
       return qe;
    }
-   
-    
-    
 }
