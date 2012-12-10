@@ -140,7 +140,8 @@ public class RecordToDocumentMARCTest {
 		
 		for(String radId : ids){
 			SolrQuery query = new SolrQuery();	
-			query.setQuery("id:" + radId);		
+			query.setQuery("id:" + radId);
+			query.setParam("qt", "standard");
 			String[] id = { radId };
 			testQueryGetsDocs(
 				"Making sure all Radioactive MARC can be found by id",
