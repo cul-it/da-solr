@@ -11,7 +11,13 @@
 <body >  
 
 <div class="content">
-   <h3>Show Triples Location</h3> 
+   <h3>Show Triples Location for bibid: <c:out value="${bibid}" /></h3>
+   
+   <p> 
+   <c:forEach var="fileUri" items="${fileUriList}" >
+   <c:out value="${fileUri}" /><br />
+   </c:forEach>
+   </p> 
 </div> <!- end content div> 
 </body>
 </html>
