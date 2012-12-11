@@ -46,7 +46,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						QuerySolution sol = rs.nextSolution();
 						String callno = nodeToString( sol.get("part1") );
 						if (callno.startsWith("MLC")) continue;
-						letters.add( callno.substring(0,1) );
+						if (callno.length() >= 1)
+							letters.add( callno.substring(0,1) );
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
 							if (! part2.equals("")) {

@@ -60,7 +60,7 @@ public class RecordToDocumentMARCTest {
 	 * documents from. This is the list of directories to 
 	 * check in.
 	 */
-	static final String testRDFDir =  "rdf/output/";
+	static final String testRDFDir =  "rdf/testRecords/";
 	
 	/**
 	 * These are the path prefixes to try to use 
