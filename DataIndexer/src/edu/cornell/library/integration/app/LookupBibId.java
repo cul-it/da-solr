@@ -38,7 +38,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
  
 
-import edu.cornell.library.integration.control.Triple;
+import edu.cornell.library.integration.bo.Triple;
 import edu.cornell.library.integration.service.DavService; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
