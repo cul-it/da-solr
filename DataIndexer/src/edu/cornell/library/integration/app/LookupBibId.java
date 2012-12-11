@@ -38,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
  
 
+import edu.cornell.library.integration.control.Triple;
 import edu.cornell.library.integration.service.DavService; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
@@ -136,19 +137,8 @@ public class LookupBibId {
       String hasHoldings = "<" +dataNs + "hasFile>"; 
       String object = "<" +uriNs + "/b" + bibid + ">";
       
-      //String query = "" + "SELECT ?obj ?filename \n" 
-      //      + "WHERE {\n" 
-      //      + " " + subject + " " + hasFile + " ?obj .\n"
-      //      + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
-     //       + "}";
       
-     // String query = "" + "SELECT ?filename \n" 
-     //       + "WHERE {\n" 
-     //       + " ?holding "  + hasBib + " "+ object + " .\n"
-     //       + " ?holding "  + hasFile + " ?fileUri .\n"
-     //       + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
-     //       + "}";
-      String query = "" + "SELECT ?filename \n" 
+      String query = "" + "SELECT ?holding ?filename \n" 
             + "WHERE {\n" 
             + " ?holding "  + hasBib + " "+ object + " .\n"
             + " ?holding "  + hasFile + " ?fileUri .\n"
@@ -162,9 +152,17 @@ public class LookupBibId {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
+      List<Triple> triples = new ArrayList<Triple>();
       for (QuerySolution solution : IterableAdaptor.adapt(resultSet)) {
-         //System.out.println(solution.getResource("fileUri").getURI());
-         System.out.println(solution.getLiteral("filename"));
+         triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString()));
+       
+      }
+      
+      for (Triple triple : triples) {
+         System.out.println(triple.getSubject());
+         System.out.println(triple.getPredicate());
+         System.out.println(triple.getObject());
+         System.out.println();
       }
       jenaModel.close();
       
