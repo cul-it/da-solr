@@ -161,17 +161,31 @@ public class DataIndexerController extends MultiActionController {
       //System.out.println("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
-      String subject = "<" +uriNs + "/b" + bibid + ">"; 
-      String predicate = "<" +dataDevNs + "hasFile>";      
+      //String subject = "<" +uriNs + "/b" + bibid + ">"; 
        
-      RDFNode object = null;
+      String hasFile = "<" +dataNs + "hasFile>";
+      String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";
+      String hasHoldings = "<" +dataNs + "hasFile>"; 
+      String object = "<" +uriNs + "/b" + bibid + ">";
       
-      String query = "" + "SELECT ?obj ?filename \n" 
+      //String query = "" + "SELECT ?obj ?filename \n" 
+      //      + "WHERE {\n" 
+      //      + " " + subject + " " + hasFile + " ?obj .\n"
+      //      + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+     //       + "}";
+      
+     // String query = "" + "SELECT ?filename \n" 
+     //       + "WHERE {\n" 
+     //       + " ?holding "  + hasBib + " "+ object + " .\n"
+     //       + " ?holding "  + hasFile + " ?fileUri .\n"
+     //       + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+     //       + "}";
+      String query = "" + "SELECT ?filename \n" 
             + "WHERE {\n" 
-            + " " + subject + " " + predicate + " ?obj .\n"
-            + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
+            + " ?holding "  + hasBib + " "+ object + " .\n"
+            + " ?holding "  + hasFile + " ?fileUri .\n"
+            + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
             + "}";
-      //System.out.println(query);
       ResultSet resultSet = null;
       try {
          resultSet = executeSelectQuery(query, true);
@@ -188,7 +202,7 @@ public class DataIndexerController extends MultiActionController {
       model.put("bibid", bibid);
       model.put("fileUriList", fileUriList);
       
-      if (redirect.equals("true")) {
+      if (redirect.equals("false")) {
          view = new String(showTriplesLocation);
       } else {
          logger.info("redirecting to: "+ fileUriList.get(0));
