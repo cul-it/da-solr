@@ -56,6 +56,7 @@ public class TitleResultSetToFields implements ResultSetToFields {
 						QuerySolution sol = rs.nextSolution();
 						String code = nodeToString(sol.get("code"));
 						String val = nodeToString(sol.get("value"));
+						if (val == null) continue;
 						if (code.equals("a") ) {
 							if (resultKey.equals("title_main")) {
 								title_a = val;

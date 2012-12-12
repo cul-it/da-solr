@@ -38,7 +38,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.bo.Triple;
 import edu.cornell.library.integration.util.IterableAdaptor;
 
 
@@ -61,22 +61,7 @@ public class DataIndexerController extends MultiActionController {
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass());
    
-   private DavService davService; 
-    
-
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return davService;
-   }
-
-   /**
-    * @param userService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
+   
    
    /**
     * @return the jenaModel
@@ -166,20 +151,8 @@ public class DataIndexerController extends MultiActionController {
       String hasFile = "<" +dataNs + "hasFile>";
       String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";
       String hasHoldings = "<" +dataNs + "hasFile>"; 
-      String object = "<" +uriNs + "/b" + bibid + ">";
-      
-      //String query = "" + "SELECT ?obj ?filename \n" 
-      //      + "WHERE {\n" 
-      //      + " " + subject + " " + hasFile + " ?obj .\n"
-      //      + " ?obj <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
-     //       + "}";
-      
-     // String query = "" + "SELECT ?filename \n" 
-     //       + "WHERE {\n" 
-     //       + " ?holding "  + hasBib + " "+ object + " .\n"
-     //       + " ?holding "  + hasFile + " ?fileUri .\n"
-     //       + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
-     //       + "}";
+      String object = "<" +uriNs + "/b" + bibid + ">";      
+ 
       String query = "" + "SELECT ?filename \n" 
             + "WHERE {\n" 
             + " ?holding "  + hasBib + " "+ object + " .\n"
@@ -194,13 +167,17 @@ public class DataIndexerController extends MultiActionController {
          e.printStackTrace();
       }
       List<String> fileUriList = new ArrayList<String>();
+      //List<Triple> triples = new ArrayList<Triple>();
+      
       for (QuerySolution solution : IterableAdaptor.adapt(resultSet)) {
+         //triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString())); 
          fileUriList.add( (String) solution.getLiteral("filename").toString());
       }
       
       jenaModel.close();
       model.put("bibid", bibid);
       model.put("fileUriList", fileUriList);
+      //model.put("triples", triples);
       
       if (redirect.equals("false")) {
          view = new String(showTriplesLocation);
