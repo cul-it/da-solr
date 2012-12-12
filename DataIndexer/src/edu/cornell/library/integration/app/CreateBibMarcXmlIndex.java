@@ -1,13 +1,12 @@
 package edu.cornell.library.integration.app;
 
  
-import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -20,9 +19,10 @@ import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.marc.ControlField;
 import org.marc4j.marc.Record;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext; 
-import edu.cornell.library.integration.service.DavService; 
+ 
+
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class CreateBibMarcXmlIndex {
    
@@ -85,18 +85,9 @@ public class CreateBibMarcXmlIndex {
    /**
     * 
     */
-   public void run() {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml"); 
-      
-
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      } 
-      
+   public void run() {      
+        
+      setDavService(DavServiceFactory.getDavService());
        
       String outputUrl = this.getDataDir() + "/MANIFEST.txt";
       String fileUrl = new String();
@@ -104,7 +95,7 @@ public class CreateBibMarcXmlIndex {
       FileInputStream fis = null;
       try {            
          
-         List<String> srcFiles = davService.getFileList(this.getDataDir());
+         List<String> srcFiles = getDavService().getFileList(this.getDataDir());
          File tmpFile = createTempFile();
          fos = new FileOutputStream(tmpFile);
          
@@ -122,7 +113,7 @@ public class CreateBibMarcXmlIndex {
          fos.close();
          
          fis = new FileInputStream(tmpFile);
-         davService.saveFile(outputUrl, fis);
+         getDavService().saveFile(outputUrl, fis);
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
@@ -144,7 +135,7 @@ public class CreateBibMarcXmlIndex {
       InputStream zippedis = null;
       InputStream is = null;
       try {
-         zippedis = davService.getFileAsInputStream(srcFile);
+         zippedis = getDavService().getFileAsInputStream(srcFile);
          is = new GZIPInputStream(zippedis);       
          MarcReader reader = new MarcXmlReader(is);
          while (reader.hasNext()) {
@@ -180,7 +171,7 @@ public class CreateBibMarcXmlIndex {
       List<String> biblist = new ArrayList<String>();
       InputStream is = null;
       try {
-         is = davService.getFileAsInputStream(srcFile);               
+         is = getDavService().getFileAsInputStream(srcFile);               
          MarcReader reader = new MarcXmlReader(is);
          while (reader.hasNext()) {
             Record record = reader.next();
