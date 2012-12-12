@@ -53,7 +53,7 @@ public class RdfLoadingTestBase {
 	};
 	
 	
-	static final String[] standardFiles = { "language_code.nt", "library.nt" };
+	static final String[] standardFiles = { "language_code.nt", "library.nt", "callnumber_map.nt" };
 	
     public static TemporaryFolder folder = null;
 		
@@ -99,6 +99,12 @@ public class RdfLoadingTestBase {
 				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?a }"));			
 	}
 			
+	public void testCallnumberMappingsInRDF() throws RDFServiceException{
+		String englishURI = "<http://fbw4-dev.library.cornell.edu/individuals/lc_A>";
+		assertTrue("Expected to find statements about lc callnumber prefix \"A\" mappings in the RDF. " +
+				"The mappings RDF may not be getting loaded for this test.",
+				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " ?p ?a }"));			
+	}
 
 	
 	protected static File findTestDir() {

@@ -73,6 +73,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 		super.testSolrWasStarted();
 		super.testRadioactiveIds();
 		super.testLanguageMappingsInRDF();
+		super.testCallnumberMappingsInRDF();
 	}	
 	
 	@Test
@@ -136,6 +137,30 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 		assertTrue("doc 4696 should be English", englishGTEOne);
 	}
 	
+	@Test
+	public void testCallnumSearchFacet() throws SolrServerException{
+		
+		//"Expected "P - Language & Literature" for lc_1letter_facet on document 4696."
+		SolrQuery q = new SolrQuery().setQuery("bronte");
+		QueryResponse resp = solr.query(q);				
+		SolrDocumentList sdl = resp.getResults();
+		assertNotNull("expected to find doc 4696", sdl);		
+		assertEquals(1, sdl.size());		
+		
+		FacetField ff = resp.getFacetField("lc_1letter_facet");		
+		assertNotNull( ff );		
+		boolean pFound = false;
+		boolean pGTEOne = false;
+		for( Count ffc : ff.getValues()){
+			if( "P - Language & Literature".equals( ffc.getName() )){
+				pFound = true;
+				pGTEOne = ffc.getCount() >= 1;
+			}
+		}
+		assertTrue("P - Language & Literature should be a facet", pFound);
+		assertTrue("doc 4696 should be P - Language & Literature", pGTEOne);
+	}
+
 	public static String convertStreamToString(java.io.InputStream is) {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
