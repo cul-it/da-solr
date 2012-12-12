@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -21,9 +23,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.core.CoreContainer;
 import org.junit.AfterClass;
@@ -57,8 +62,7 @@ public class RecordToDocumentMARCTest {
 	
 	/**
 	 * This test needs to load a set of RDF to use to build
-	 * documents from. This is the list of directories to 
-	 * check in.
+	 * documents from. 
 	 */
 	static final String testRDFDir =  "rdf/testRecords/";
 	
@@ -95,6 +99,9 @@ public class RecordToDocumentMARCTest {
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC009",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC010"
 	};
+	
+	static final String[] standardFiles = { "language_code.nt", "library.nt" };
+	//static final String[] standardFiles = { "library.nt" };
 	
     public static TemporaryFolder folder = null;
 	
@@ -171,6 +178,41 @@ public class RecordToDocumentMARCTest {
 				new String[]{ "4696" } ) ;
 	}
 	
+	@Test
+	public void testLanguageMappingsInRDF() throws RDFServiceException{
+		String englishURI = "<http://fbw4-dev.library.cornell.edu/individuals/leng>";
+		assertTrue("Expected to find statements about English mappings in the RDF. " +
+				"The mapings RDF may not be getting loaded for this test.",
+				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " ?p ?a }"));
+		
+	}
+	
+	
+	@Test
+	public void testLanguageSearchFacet() throws SolrServerException{
+
+		//"Expected English for language_facet on document 4696, " +
+		//"it is likely the language mapping RDF is not loaded.",
+		SolrQuery q = new SolrQuery().setQuery("bronte");
+		QueryResponse resp = solr.query(q);				
+		SolrDocumentList sdl = resp.getResults();
+		assertNotNull("expected to find doc 4696", sdl);		
+		assertEquals(1, sdl.size());		
+		
+		FacetField ff = resp.getFacetField("language_facet");		
+		assertNotNull( ff );		
+		boolean englishFound = false;
+		boolean englishGTEOne = false;
+		for( Count ffc : ff.getValues()){
+			if( "English".equals( ffc.getName() )){
+				englishFound = true;
+				englishGTEOne = ffc.getCount() >= 1;
+			}
+		}
+		assertTrue("English should be a facet", englishFound);
+		assertTrue("doc 4696 should be English", englishGTEOne);
+	}
+	
 	/** 
 	 * Test that a document with the given IDs are in the results for the query. 
 	 * @throws SolrServerException */
@@ -210,26 +252,20 @@ public class RecordToDocumentMARCTest {
 	 * (didn't work out)
 	 * Second attempt: guess based on CWD
 	 * @return
+	 * @throws IOException 
 	 */
-	private static String getSolrTemplateDir() {
+	private static String getSolrTemplateDir() throws IOException {
 		String key = "solrTemplateDirectory";
 		System.out.println( new File(".").getAbsolutePath() );
 		//get the testSolr.properties file and load it
 		URL url = getResource("/testSolr.properties");
 		Properties props = new Properties();
-		if (null != url) {
-            try {
-                InputStream in = url.openStream();
-                props = new Properties();
-                props.load(in);
-            } catch (IOException e) {
-                //throw new Exception("cannot load testSolr.properties resource", e);
-            }
+		if (null != url) {            
+            InputStream in = url.openStream();
+            props = new Properties();
+            props.load(in);           
 		}
-//		else{
-//			throw new Exception("cannot load testSolr.properties resource, " +
-//					"make sure to run prepareForTesting task");
-//		}
+
 		String solrTemplateDir = props.getProperty(key);
 		if( solrTemplateDir == null){
 			//could not find properties, just guess.					
@@ -273,21 +309,30 @@ public class RecordToDocumentMARCTest {
 		//find test dir
 		File testRDFDir = findTestDir();
 		
-		//load all files in test dir.
-		File[] files = testRDFDir.listFiles();
+		//load all files in test dir
+		List<File> files = new LinkedList<File>(Arrays.asList(testRDFDir.listFiles()));		
 		assertNotNull("no test RDF files found",files);
-		assertTrue("no test RDF files found", files.length > 0 );
+		assertTrue("no test RDF files found", files.size() > 0 );
+		
+		//load the standard files
+		for(String fileName : standardFiles){
+			files.add( new File( testRDFDir.getParentFile().getAbsolutePath() + File.separator +fileName));
+		}
 		
 		Model model = ModelFactory.createDefaultModel();
 		for (File file : files ){
 			InputStream in = FileManager.get().open( file.getAbsolutePath() );	
-			assertNotNull("Could not load marc file " + file.getAbsolutePath(), in );
+			assertNotNull("Could not load file " + file.getAbsolutePath(), in );
 			try{
 				model.read(in,null,"N-TRIPLE");
 			}catch(Throwable th){
 				throw new Exception( "Could not load file " + file.getAbsolutePath() , th);
+			}finally{
+				in.close();
 			}
-		}				 
+		}				
+		
+		
 		return new RDFServiceModel( model );
 	}
 	
