@@ -37,7 +37,6 @@
    </bean>
    
    <bean  id="dataIndexerController" name="dataIndexerController" class="edu.cornell.library.integration.control.DataIndexerController">
-      <property name="davService"> <ref bean="davService"/> </property> 
       <property name="methodNameResolver">
          <bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
             <property name="mappings">
