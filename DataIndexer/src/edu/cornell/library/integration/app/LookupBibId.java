@@ -30,16 +30,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory; 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Selector;
-import com.hp.hpl.jena.rdf.model.SimpleSelector;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.Resource; 
 import com.hp.hpl.jena.tdb.TDBFactory;
  
 
-import edu.cornell.library.integration.bo.Triple;
-import edu.cornell.library.integration.service.DavService; 
+import edu.cornell.library.integration.bo.Triple; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
 public class LookupBibId {
@@ -120,31 +115,28 @@ public class LookupBibId {
    /**
     * 
     */
-   public void run(String bibid) {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");      
+   public void run(String bibid) {       
       
       //System.out.println("Getting model");
       setDataset(TDBFactory.createDataset(TDBDIR));
       setJenaModel(dataset.getDefaultModel());
       
-      //System.out.println("Model size: "+ jenaModel.size());
+      System.out.println("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
       String subject = "<" +uriNs + "/b" + bibid + ">"; 
       String hasFile = "<" +dataNs + "hasFile>";
-      String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";
-      String hasHoldings = "<" +dataNs + "hasFile>"; 
+      String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";       
       String object = "<" +uriNs + "/b" + bibid + ">";
       
       
-      String query = "" + "SELECT ?holding ?filename \n" 
+      String query = "" + "SELECT ?filename \n" 
             + "WHERE {\n" 
             + " ?holding "  + hasBib + " "+ object + " .\n"
             + " ?holding "  + hasFile + " ?fileUri .\n"
             + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
             + "}";
-      //System.out.println(query);
+      System.out.println(query);
       ResultSet resultSet = null;
       try {
          resultSet = executeSelectQuery(query, true);
@@ -152,18 +144,19 @@ public class LookupBibId {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      List<Triple> triples = new ArrayList<Triple>();
+      
+      //List<Triple> triples = new ArrayList<Triple>();
       for (QuerySolution solution : IterableAdaptor.adapt(resultSet)) {
-         triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString()));
-       
+         //triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString()));
+         System.out.println(solution.getLiteral("filename").toString());
       }
       
-      for (Triple triple : triples) {
-         System.out.println(triple.getSubject());
-         System.out.println(triple.getPredicate());
-         System.out.println(triple.getObject());
-         System.out.println();
-      }
+      //for (Triple triple : triples) {
+      //   System.out.println(triple.getSubject());
+      //   System.out.println(triple.getPredicate());
+      //   System.out.println(triple.getObject());
+      //   System.out.println();
+      //}
       jenaModel.close();
       
       

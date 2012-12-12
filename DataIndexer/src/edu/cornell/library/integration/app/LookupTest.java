@@ -1,23 +1,11 @@
 package edu.cornell.library.integration.app;
 
  
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
- 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;  
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext; 
+import org.apache.commons.logging.LogFactory;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -31,15 +19,9 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Selector;
-import com.hp.hpl.jena.rdf.model.SimpleSelector;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.tdb.TDBFactory;
- 
+import com.hp.hpl.jena.tdb.TDBFactory; 
 
-import edu.cornell.library.integration.bo.Triple;
-import edu.cornell.library.integration.service.DavService; 
+import edu.cornell.library.integration.bo.Triple; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
 public class LookupTest {
@@ -120,9 +102,7 @@ public class LookupTest {
    /**
     * 
     */
-   public void run(String bibid) {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");      
+   public void run(String bibid) {      
       
       //System.out.println("Getting model");
       setDataset(TDBFactory.createDataset(TDBDIR));
