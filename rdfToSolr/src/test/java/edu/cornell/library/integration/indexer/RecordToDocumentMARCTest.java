@@ -205,7 +205,6 @@ public class RecordToDocumentMARCTest {
 					"FILTER( SUBSTR( ?val,36,3) = ?langcode ) " +
 					"?l <http://www.w3.org/2000/01/rdf-schema#label> ?language.}",RDFService.ResultFormat.TEXT);
 			String language = convertStreamToString(is);
-			System.out.println(language);
 			assertTrue("Record was expected to be mappable to English language.",language.contains("English"));
 		} catch (RDFServiceException e) {
 			assertTrue("failed to query rdf service",false);
@@ -216,7 +215,6 @@ public class RecordToDocumentMARCTest {
 		//"it is likely the language mapping RDF is not loaded.",
 		SolrQuery q = new SolrQuery().setQuery("bronte");
 		QueryResponse resp = solr.query(q);				
-		System.out.println( resp.toString() );
 		SolrDocumentList sdl = resp.getResults();
 		assertNotNull("expected to find doc 4696", sdl);		
 		assertEquals(1, sdl.size());		
@@ -381,8 +379,6 @@ public class RecordToDocumentMARCTest {
 			SolrInputDocument doc;
 			try {
 				doc = r2d.buildDoc(uri, rdf);
-				System.out.println(uri);
-				System.out.println(doc.toString());
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;
