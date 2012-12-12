@@ -216,7 +216,17 @@
    <target name="LookupBibId" depends="build" description="Run LookupBibId" >
       <echo message="Running LookupBibId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupBibId" >
-         <arg value="3577821" /> 
+         <arg value="4255465" /> 
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="LookupTest" depends="build" description="Run LookupTest" >
+      <echo message="Running LookupTest"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupTest" >
+         <arg value="4255465" /> 
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
