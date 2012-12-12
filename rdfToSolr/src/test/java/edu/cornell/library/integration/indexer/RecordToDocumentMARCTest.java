@@ -182,11 +182,35 @@ public class RecordToDocumentMARCTest {
 	public void testLanguageMappingsInRDF() throws RDFServiceException{
 		String englishURI = "<http://fbw4-dev.library.cornell.edu/individuals/leng>";
 		assertTrue("Expected to find statements about English mappings in the RDF. " +
-				"The mapings RDF may not be getting loaded for this test.",
-				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " ?p ?a }"));
+				"The mappings RDF may not be getting loaded for this test.",
+				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?a }"));
+		
+		InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f }",RDFService.ResultFormat.TEXT);
+		String result = convertStreamToString( is );
+		System.out.println(result);
+		is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". }",RDFService.ResultFormat.TEXT);
+		System.out.println(convertStreamToString(is));
+		is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". " +
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
+				"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Language>.}",RDFService.ResultFormat.TEXT);
+		System.out.println(convertStreamToString(is));
+		is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". " +
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
+				"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Language>. " +
+				"?l <http://fbw4-dev.library.cornell.edu/integrationLayer/code> ?langcode.}",RDFService.ResultFormat.TEXT);
+		System.out.println(convertStreamToString(is));
+		is = rdf.sparqlSelectQuery("SELECT * WHERE { "+englishURI + " ?p ?o }",RDFService.ResultFormat.TEXT);
+		System.out.println(convertStreamToString(is));
 		
 	}
 	
+	public static String convertStreamToString(java.io.InputStream is) {
+	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
+	}
 	
 	@Test
 	public void testLanguageSearchFacet() throws SolrServerException{
@@ -195,6 +219,7 @@ public class RecordToDocumentMARCTest {
 		//"it is likely the language mapping RDF is not loaded.",
 		SolrQuery q = new SolrQuery().setQuery("bronte");
 		QueryResponse resp = solr.query(q);				
+		System.out.println( resp.toString() );
 		SolrDocumentList sdl = resp.getResults();
 		assertNotNull("expected to find doc 4696", sdl);		
 		assertEquals(1, sdl.size());		
@@ -359,6 +384,8 @@ public class RecordToDocumentMARCTest {
 			SolrInputDocument doc;
 			try {
 				doc = r2d.buildDoc(uri, rdf);
+				System.out.println(uri);
+				System.out.println(doc.toString());
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;
