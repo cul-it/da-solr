@@ -105,32 +105,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"}").
 					addResultSetToFields( new FormatResultSetToFields() ),
 					
-				new SPARQLFieldMakerImpl().
-				    setName("language").
-				    addMainStoreQuery("language_main",
-				    		"SELECT DISTINCT ?language\n" +
-				    		" WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
-				    		"        ?f marcrdf:tag \"008\".\n" +
-				    		"        ?f marcrdf:value ?val.\n" +
-				    		"        ?l rdf:type intlayer:Language.\n" +
-				    		"        ?l intlayer:code ?langcode.\n" +
-				    		"        FILTER( SUBSTR( xsd:string(?val),36,3) = xsd:string(?langcode) )\n" +
-				    		"        ?l rdfs:label ?language.\n" +
-				    		"	}").
-				    addMainStoreQuery("languages_041",
-				    		"SELECT DISTINCT ?c ?language\n"+
-				            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
-				            "        ?f marcrdf:tag \"041\".\n" +
-				            "        ?f marcrdf:hasSubfield ?sf.\n" +
-				            "        ?sf marcrdf:code ?c.\n" +
-				            "        ?sf marcrdf:value ?langcode.\n" +
-				            "        ?l intlayer:code ?langcode.\n" +
-				            "        ?l rdfs:label ?language.\n" +
-				            "}").
-				    addResultSetToFields( new LanguageResultSetToFields()),
-					new SubfieldCodeMaker("language_display","546","ab"),
+				getLanguageFieldMaker(),
+				new SubfieldCodeMaker("language_display","546","ab"),
 				    		
-				    new SPARQLFieldMakerStepped().
+			    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
 			        addMainStoreQuery("holdings_callno",
 			        	"SELECT ?part1 ?part2\n"+
@@ -465,6 +443,33 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 					
 		);
+	}
+	
+	public static SPARQLFieldMakerImpl getLanguageFieldMaker() {
+		
+	return	new SPARQLFieldMakerImpl().
+	    setName("language").
+	    addMainStoreQuery("language_main",
+	    		"SELECT DISTINCT ?language\n" +
+	    		" WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
+	    		"        ?f marcrdf:tag \"008\".\n" +
+	    		"        ?f marcrdf:value ?val.\n" +
+	    		"        ?l rdf:type intlayer:Language.\n" +
+	    		"        ?l intlayer:code ?langcode.\n" +
+	    		"        FILTER( SUBSTR( ?val,36,3) = ?langcode )\n" +
+	    		"        ?l rdfs:label ?language.\n" +
+	    		"	}").
+	    addMainStoreQuery("languages_041",
+	    		"SELECT DISTINCT ?c ?language\n"+
+	            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
+	            "        ?f marcrdf:tag \"041\".\n" +
+	            "        ?f marcrdf:hasSubfield ?sf.\n" +
+	            "        ?sf marcrdf:code ?c.\n" +
+	            "        ?sf marcrdf:value ?langcode.\n" +
+	            "        ?l intlayer:code ?langcode.\n" +
+	            "        ?l rdfs:label ?language.\n" +
+	            "}").
+	    addResultSetToFields( new LanguageResultSetToFields());
 	}
 
 }
