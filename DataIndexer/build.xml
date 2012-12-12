@@ -8,6 +8,7 @@
 
 	<!-- Create the build.properties file from localbuild.properties and set 
 		the necessary variables there, try to avoid altering this file -->
+   <property file="localbuild.properties" />		
 	<property file="build.properties" />
 
 	<!-- The directories containing source code, properties, and webapp files -->
@@ -177,7 +178,7 @@
    <target name="CreateBibMarcXmlIndex" depends="build" description="Run CreateBibMarcXmlIndex" >
       <echo message="Running CreateBibMarcXmlIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateBibMarcXmlIndex" > 
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full" />
+         <arg value="${davhost}/data/voyager/bib/bib.xml.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -187,7 +188,7 @@
    <target name="CreateMfhdTriplesIndex" depends="build" description="Run CreateMfhdtripleslIndex" >
       <echo message="Running CreateMfhdTriplesIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateMfhdTriplesIndex" > 
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.nt.full" />
+         <arg value="${davhost}/data/voyager/mfhd/mfhd.nt.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -197,7 +198,7 @@
    <target name="CreateBibTriplesIndex" depends="build" description="Run CreateBibtripleslIndex" >
       <echo message="Running CreateBibTriplesIndex"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.CreateBibTriplesIndex" > 
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.nt.full" />
+         <arg value="${davhost}/data/voyager/bib/bib.nt.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -216,7 +217,17 @@
    <target name="LookupBibId" depends="build" description="Run LookupBibId" >
       <echo message="Running LookupBibId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupBibId" >
-         <arg value="3577821" /> 
+         <arg value="3577866" /> 
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="LookupTest" depends="build" description="Run LookupTest" >
+      <echo message="Running LookupTest"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.app.LookupTest" >
+         <arg value="3577866" /> 
          <classpath>
           <path refid="run-classpath"/>
         </classpath>

@@ -4,20 +4,24 @@
 <head>
 <title>Show Triples Location </title>
 <meta name="Author" content="John Fereira">
-<meta name="Keywords" content="Fatal Error">
-<meta name="Description" content="Fatal Error "> 
+<meta name="Keywords" content="Show Triples Location">
+<meta name="Description" content="Show Triples File Location"> 
 
 </head>
 <body >  
 
 <div class="content">
    <h3>Show Triples Location for bibid: <c:out value="${bibid}" /></h3>
-   
+   <c:if test="${!empty fileUriList}" > 
    <p> 
    <c:forEach var="fileUri" items="${fileUriList}" >
    <c:out value="${fileUri}" /><br />
    </c:forEach>
-   </p> 
+   </p>
+   </c:if>
+   <c:if test="${empty fileUriList}" > 
+   <p><strong>No Results Found.</strong>
+   </c:if>
 </div> <!- end content div> 
 </body>
 </html>

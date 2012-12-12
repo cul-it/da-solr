@@ -11,10 +11,5 @@
                            http://www.springframework.org/schema/tx/spring-tx-2.0.xsd"
                            default-autowire="byName">
      
-   
-   <bean id="davService"
-      class="edu.cornell.library.integration.service.DavServiceImpl">
-      <property name="davUser"><value>${dav_user}</value></property>
-      <property name="davPass"><value>${dav_pass}</value></property>
-   </bean>                       
+                       
 </beans>

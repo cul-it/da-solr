@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.service;
+package edu.cornell.library.integration.ilcommons.service;
 
  
 import java.io.InputStream;

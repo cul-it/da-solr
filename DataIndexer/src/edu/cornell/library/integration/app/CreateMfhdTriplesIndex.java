@@ -3,29 +3,18 @@ package edu.cornell.library.integration.app;
  
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
  
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;  
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext; 
-
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory; 
-import com.hp.hpl.jena.tdb.TDBFactory;
- 
-
-import edu.cornell.library.integration.service.DavService; 
+import org.apache.commons.logging.LogFactory;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class CreateMfhdTriplesIndex {
    
@@ -97,21 +86,15 @@ public class CreateMfhdTriplesIndex {
     */
    public void run() {
       
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
-
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      }       
+      setDavService(DavServiceFactory.getDavService());
+        
       String fileUrl = new String(); 
       
       File holdingsIndexFile  = new File(holdingsIndexFileName);
       FileUtils.deleteQuietly(holdingsIndexFile);
       
       try { 
-         List<String> srcFiles = davService.getFileList(this.getDataDir()); 
+         List<String> srcFiles = getDavService().getFileList(this.getDataDir()); 
          int count = 1000;
          for (String srcFile: srcFiles) {
             
@@ -173,9 +156,9 @@ public class CreateMfhdTriplesIndex {
       System.out.println("Getting inputstream from: "+fileUrl);
       try {
          if (fileUrl.endsWith(".nt")) {
-            return davService.getFileAsInputStream(fileUrl);
+            return getDavService().getFileAsInputStream(fileUrl);
          } else if (fileUrl.endsWith(".gz")) {
-            InputStream zippedis = davService.getFileAsInputStream(fileUrl);
+            InputStream zippedis = getDavService().getFileAsInputStream(fileUrl);
             return new GZIPInputStream(zippedis);
          } else {
             System.out.println("Unrecognized file type");
