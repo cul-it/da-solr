@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/servlet/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.7.0.jar"/>
@@ -38,5 +39,7 @@
 	<classpathentry kind="lib" path="lib/batik-ext-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jena-iri-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/ILCommons.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
