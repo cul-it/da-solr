@@ -104,13 +104,14 @@ public class LoadTriplesIndex {
          ex.printStackTrace();
       } finally {
          try {
-            fis.close();
+            fis.close(); 
          } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
       }
       model.close();
+      
       
       
    } 
