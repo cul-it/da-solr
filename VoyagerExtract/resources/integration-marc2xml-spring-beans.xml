@@ -19,6 +19,7 @@
     <property name="nativeJdbcExtractor"><ref local="nativeJdbcExtractor"/></property>
   </bean>
   
+  <!-- 
   <bean id="importerConfiguration"
 	class="info.extensiblecatalog.OAIToolkit.importer.ImporterConfiguration"
   >
@@ -38,7 +39,8 @@
       <property name="needLoad"><value>${needLoad}</value></property>
       <property name="needModify"><value>${needModify}</value></property>
    </bean>
-   
+    -->
+    
    <bean id="integrationDataProperties" 
       class="edu.cornell.library.integration.config.IntegrationDataProperties"
    >
@@ -104,9 +106,5 @@
       class="edu.cornell.library.integration.service.HttpService"> 
    </bean>
    
-   <bean id="davService"
-      class="edu.cornell.library.integration.service.DavServiceImpl">
-      <property name="davUser"><value>${dav_user}</value></property>
-      <property name="davPass"><value>${dav_pass}</value></property>
-   </bean>                       
+                      
 </beans>
