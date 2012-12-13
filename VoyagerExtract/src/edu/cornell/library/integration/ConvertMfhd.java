@@ -1,5 +1,6 @@
 package edu.cornell.library.integration;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
@@ -9,14 +10,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.sql.Clob;
 import oracle.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 
  
 import org.apache.commons.io.FileUtils;
@@ -24,18 +32,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.marc4j.MarcException;
-import org.marc4j.MarcPermissiveStreamReader;
-import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.Record;
+import org.marc4j.marcxml.Converter;
+import org.marc4j.marcxml.MarcXmlReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.xml.sax.InputSource;
  
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData; 
 import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class ConvertMfhd {
@@ -115,12 +124,7 @@ public class ConvertMfhd {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      } 
+      setDavService(DavServiceFactory.getDavService());
       
       try {            
          System.out.println("Getting mfhdRecord for mfhdid: "+mfhdid);
@@ -151,42 +155,22 @@ public class ConvertMfhd {
       System.out.println("mfhdStrlen: "+ mfhdStr.length());
 
       Record record = null;
-      MarcXmlWriter writer = null;
+      Writer writer = null;
       InputStream is = stringToInputStream(mfhdStr);
       OutputStream ostream = null;
       try {
          
-         boolean permissive      = true;
-         boolean convertToUtf8   = true;
-
-         MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8, "UTF-8");
-         ostream = new ByteArrayOutputStream();
-         writer = new MarcXmlWriter(ostream, "UTF-8");
-         
-         int errorCount = 0;
-         
-         while (reader.hasNext()) {
-            try {
-               record = reader.next();
-               System.out.println("record type: "+record.getType());
-               writer.write(record);
-               
-            } catch (MarcException me) {
-               System.out.println(me.getMessage());
-               System.out.println("cause: "+ me.getCause());
-               errorCount++;
-               continue;
-            } catch (Exception e) {
-               e.printStackTrace();
-               errorCount++;
-               continue;
-            }
-         }
+         MarcXmlReader producer = new MarcXmlReader();
+         org.marc4j.MarcReader reader = new org.marc4j.MarcReader(); 
+         InputSource in = new InputSource(is);
+         in.setEncoding("UTF-8");
+         Source source = new SAXSource(producer, in);
+          
+         writer = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
+         Result result = new StreamResult(writer);
+         Converter converter = new Converter();
+         converter.convert(source, result);
          xml = new String(ostream.toString());
-         
-         if (errorCount > 0 ) {
-            throw new Exception("marc reader exception encountered - errors found:"+errorCount);
-         }
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
@@ -204,7 +188,7 @@ public class ConvertMfhd {
       CLOB clob =(CLOB) mfhdBlob.getClob();
       
       Record record = null;
-      MarcXmlWriter writer = null;
+      Writer writer = null;
       InputStream is = null;
       OutputStream ostream = null;
       
@@ -213,40 +197,19 @@ public class ConvertMfhd {
          String mfhdStr = convertClobToString(clob);
          
          is = stringToInputStream(mfhdStr);
-         MarcPermissiveStreamReader reader = null;
-         boolean permissive      = true;
-         boolean convertToUtf8   = true;
-         reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
-         ostream = new ByteArrayOutputStream();
-         writer = new MarcXmlWriter(ostream, "UTF-8");
-         
-         int errorCount = 0;
-         
-         while (reader.hasNext()) {
-            try {
-               System.out.println("Reading record...");
-               record = reader.next();
-               writer.write(record);
-               
-            } catch (MarcException me) {
-               System.out.println(me.getMessage());
-               System.out.println("cause: "+ me.getCause());
-               errorCount++;
-               continue;
-            } catch (Exception e) {
-               e.printStackTrace();
-               errorCount++;
-               continue;
-            }
-         }
-         
-         writer.close();
-
+         MarcXmlReader producer = new MarcXmlReader();
+         org.marc4j.MarcReader reader = new org.marc4j.MarcReader(); 
+         InputSource in = new InputSource(is);
+         in.setEncoding("UTF-8");
+         Source source = new SAXSource(producer, in);
+          
+         writer = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
+         Result result = new StreamResult(writer);
+         Converter converter = new Converter();
+         converter.convert(source, result);
          xml = new String(ostream.toString());
          saveMfhdData(xml, mfhdBlob.getMfhdId(), destDir);
-         if (errorCount > 0 ) {
-            throw new Exception("marc reader exception encountered - errors found:"+errorCount);
-         }
+          
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
