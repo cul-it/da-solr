@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.util.ObjectUtils;
 
-@ContextConfiguration(locations={"classpath:spring.xml"})
+@ContextConfiguration(locations={"classpath:test-spring.xml"})
 public class VoyagerServiceTest extends AbstractJUnit4SpringContextTests {
    
    @Test
