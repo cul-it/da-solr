@@ -6,5 +6,4 @@ support/
 lib/save
 dosync
 resources/local.integration.datastore.properties
-toolkit.log
-toolkit.log.*
+localbuild.properties
