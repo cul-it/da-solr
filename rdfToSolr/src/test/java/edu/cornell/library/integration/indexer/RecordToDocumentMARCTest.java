@@ -107,15 +107,15 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 		QueryResponse sqr = solr.query(q);		
 		String v = (String) sqr.getResults().get(0).getFirstValue("pub_info_display");		
 		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("Xuân Thu"));						
-/*
+
 		testQueryGetsDocs("Expect to find document by doc:id 1322952",
 				new SolrQuery().setQuery("id:1322952").setParam("qt", "standard"),
 				new String[]{ "1322952" } ) ;
 		
 		q = new SolrQuery().setQuery("id:1322952").setParam("qt", "standard");
 		sqr = solr.query(q);		
-		v = (String) sqr.getResults().get(0).getFirstValue("pub_info_display");		
-		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("Xuân Thu"));			*/			
+		v = (String) sqr.getResults().get(0).getFieldValue("title_vern_display");
+		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("台湾経済叢書"));		
 	}
 
 	@Test

@@ -220,8 +220,6 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 			SolrInputDocument doc;
 			try {
 				doc = r2d.buildDoc(uri, rdfService);
-				System.out.println(uri);
-				System.out.println(doc.toString());
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;
