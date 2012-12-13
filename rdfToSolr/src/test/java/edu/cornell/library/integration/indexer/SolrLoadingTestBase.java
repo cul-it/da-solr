@@ -58,6 +58,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	static final String[] rMarcURIS = {
 			"http://fbw4-dev.library.cornell.edu/individuals/b3309",
 			"http://fbw4-dev.library.cornell.edu/individuals/b4696",
+			"http://fbw4-dev.library.cornell.edu/individuals/b1322952",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
