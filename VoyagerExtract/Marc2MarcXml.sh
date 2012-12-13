@@ -11,9 +11,7 @@ CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
 
 # Need to specify src and dest dir on dav
-SRCDIR=http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.full
-DESTDIR=http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full
+SRCDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.daily
+DESTDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.daily
 
-java -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR
-
-# java -classpath $CLASSPATH $CLASS $@
+java -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR 
