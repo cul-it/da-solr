@@ -94,13 +94,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 				
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
 				new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ,
-				new String[]{ "4696" } ) ;
-		
-		SolrQuery q = new SolrQuery().setQuery("id:4696").setParam("qt", "standard");
-		QueryResponse sqr = solr.query(q);
-		SolrDocument doc = sqr.getResults().get(0);
-		String v = (String) doc.getFirstValue("title_display");
-		assertTrue("Expected string to contain utf8 but it was " + v,v.contains("Bronte/u0308"));
+				new String[]{ "4696" } ) ;		
 	}		
 	
 	@Test
