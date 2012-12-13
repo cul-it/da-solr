@@ -91,7 +91,8 @@ public class RdfToSolrIndexReducer extends Reducer<Text, Text, Text, Text> {
 				return;
 			}
 		}catch(Throwable er){
-			log.error("Could not create solr document for " + key.toString() , er);
+			log.error("Could not create solr document for " + key.toString() 
+					+ " " + er.getMessage());
 			return;
 		}
 					
