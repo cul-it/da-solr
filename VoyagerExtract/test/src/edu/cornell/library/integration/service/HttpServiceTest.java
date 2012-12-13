@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-@ContextConfiguration(locations={"classpath:spring.xml"})
+@ContextConfiguration(locations={"classpath:test-spring.xml"})
 public class HttpServiceTest extends AbstractJUnit4SpringContextTests {
    
    @Test

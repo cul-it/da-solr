@@ -50,7 +50,7 @@ public class MarcToSolrUtils {
 		if( str == null ) 
 			return m;
 		StringReader reader = new StringReader(str);
-		m.read(reader, null, str);
+		m.read(reader, null, "N-TRIPLES");
 		return m;
 	}
 }

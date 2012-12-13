@@ -1,34 +1,19 @@
 package edu.cornell.library.integration;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Clob;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+ 
+import java.text.SimpleDateFormat; 
 import java.util.Calendar;
-import java.util.List;
 
  
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.cornell.library.integration.bo.BibData;
-import edu.cornell.library.integration.bo.Location;
-import edu.cornell.library.integration.bo.LocationInfo;
-import edu.cornell.library.integration.config.IntegrationDataProperties;
-import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+ 
+import edu.cornell.library.integration.service.CatalogService; 
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetRecentBibDataCount {

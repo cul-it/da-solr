@@ -15,9 +15,9 @@
   
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
-       <list>
-         <value>classpath:voyager.full.converter.properties</value> 
-         <value>classpath:jdbc.properties</value> 
+       <list>           
+         <value>classpath:test-jdbc.properties</value>
+         <value>classpath:dav.properties</value> 
          <value>classpath:integration.datastore.properties</value> 
        </list>
     </property>

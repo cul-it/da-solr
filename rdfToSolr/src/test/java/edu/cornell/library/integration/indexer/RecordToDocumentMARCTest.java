@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -21,9 +23,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.core.CoreContainer;
 import org.junit.AfterClass;
@@ -51,104 +56,25 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  * 
  * @author bdc34 
  */
-public class RecordToDocumentMARCTest {
-	static SolrServer solr = null;	
-	static RDFService rdf  = null;
-	
-	/**
-	 * This test needs to load a set of RDF to use to build
-	 * documents from. This is the list of directories to 
-	 * check in.
-	 */
-	static final String testRDFDir =  "rdf/testRecords/";
-	
-	/**
-	 * These are the path prefixes to try to use 
-	 * when looking for RDF directories. The intent
-	 * is to allow the test to be run from different 
-	 * directories.  It would be better to load these
-	 * from resources but you cannot access directories
-	 * from resources.  
-	 * 
-	 * A better system for this would be welcome. The
-	 * test need to be run from the build script
-	 * and from eclipse. 
-	 */
-	static final String[] testRDFDirBases = {
-		"./",
-		"../"
-	};
-	
-	static final String fallbackSolrDir1 = new File("../solr/corex").getAbsolutePath() ;
-	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
-	
-	static final String[] rMarcURIS = {
-		"http://fbw4-dev.library.cornell.edu/individuals/b4696",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC004",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC005",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC006",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC007",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC008",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC009",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC010"
-	};
-	
-    public static TemporaryFolder folder = null;
+public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@BeforeClass
 	public static void setup() throws Exception{
-		folder = new TemporaryFolder();
-		folder.create();
-		
-		String solrTemplateDir = getSolrTemplateDir();
-		if( solrTemplateDir == null)
-			throw new Exception("could not find solr template directory");					
-		
-		File solrBase = prepareTmpSolrDir( solrTemplateDir, folder );
-		solr = setupSolrIndex( solrBase );		
-		indexStandardTestRecords( solr );		
+		setupSolr();		
 	}
 
 	@AfterClass
 	public static void down() throws Exception{
-		folder.delete();
+		takeDownSolr();
 	}
 	
-	@Test
-	public void testSolrWasStarted() throws SolrServerException, IOException {
-		assertNotNull( solr );
-		solr.ping();
-	}
-
-	@Test
-	public void testRadioactiveIds() throws SolrServerException{
-	
-		String[] ids = new String[]{				
-				"UNTRadMARC001", 		
-				"UNTRadMARC002",
-				"UNTRadMARC003",
-				"UNTRadMARC004",
-				"UNTRadMARC005",
-				"UNTRadMARC006",
-				"UNTRadMARC007",
-				"UNTRadMARC008",
-				"UNTRadMARC009",
-				"UNTRadMARC010"};
-		
-		for(String radId : ids){
-			SolrQuery query = new SolrQuery();	
-			query.setQuery("id:" + radId);
-			query.setParam("qt", "standard");
-			String[] id = { radId };
-			testQueryGetsDocs(
-				"Making sure all Radioactive MARC can be found by id",
-				query,  id);
-		}
-	}
-	
+	@Test 
+	public void testForGoodStartup() throws Exception{
+		super.testSolrWasStarted();
+		super.testRadioactiveIds();
+		super.testLanguageMappingsInRDF();
+		super.testCallnumberMappingsInRDF();
+	}	
 	
 	@Test
 	public void testBronte() throws SolrServerException{
@@ -169,202 +95,74 @@ public class RecordToDocumentMARCTest {
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
 				new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ,
 				new String[]{ "4696" } ) ;
-	}
+	}		
 	
-	/** 
-	 * Test that a document with the given IDs are in the results for the query. 
-	 * @throws SolrServerException */
-	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException{
-		assertNotNull(errmsg + " but query was null", query);
-		assertNotNull(errmsg + " but docIds was null", docIds );
-									
-		QueryResponse resp = solr.query(query);
-		if( resp == null )
-			fail( errmsg + " but Could not get a solr response");
-		
-		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
-		for( SolrDocument doc : resp.getResults()){
-			assertNotNull(errmsg + ": solr doc was null", doc);
-			String id = (String) doc.getFirstValue("id");
-			assertNotNull(errmsg+": no id field in solr doc" , id);
-			expecteIds.remove( id );			
-		}
-		if( expecteIds.size() > 0){
-			String errorMsg = 
-					"\nThe query '"+ query + "' was expected " +
-					"to return the following ids but did not:";
-			for( String id : expecteIds){
-				errorMsg= errorMsg+"\n" + id;
-			}					
-			
-			fail( errmsg + errorMsg);
-		}
-	}
-	
-	/**
-	 * I was hoping to do this in a better way but right
-	 * now the solr template directory is just guessed based
-	 * on the CWD.
-	 * 
-	 * First attempt: get the value from a resource file.
-	 * (didn't work out)
-	 * Second attempt: guess based on CWD
-	 * @return
-	 */
-	private static String getSolrTemplateDir() {
-		String key = "solrTemplateDirectory";
-		System.out.println( new File(".").getAbsolutePath() );
-		//get the testSolr.properties file and load it
-		URL url = getResource("/testSolr.properties");
-		Properties props = new Properties();
-		if (null != url) {
-            try {
-                InputStream in = url.openStream();
-                props = new Properties();
-                props.load(in);
-            } catch (IOException e) {
-                //throw new Exception("cannot load testSolr.properties resource", e);
-            }
-		}
-//		else{
-//			throw new Exception("cannot load testSolr.properties resource, " +
-//					"make sure to run prepareForTesting task");
-//		}
-		String solrTemplateDir = props.getProperty(key);
-		if( solrTemplateDir == null){
-			//could not find properties, just guess.					
-			solrTemplateDir = fallbackSolrDir1;			
-		}
-		if( !(new File( solrTemplateDir).exists() )){
-			solrTemplateDir = fallbackSolrDir2;
-		}
-		return solrTemplateDir;		
-	}
+	@Test
+	public void testLanguageSearchFacet() throws SolrServerException{
 
-	public static File prepareTmpSolrDir(String solrTemplateDir, TemporaryFolder folder) throws IOException{
-		File base = folder.newFolder("recordToDocumentMARCTest_solr");
-		System.out.println( solrTemplateDir );
-		FileUtils.copyDirectory(new File(solrTemplateDir), base );				
-		return base;
-	}
-	
-	public static SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
-		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
-		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-		CoreContainer coreContainer = initializer.initialize();
-		return new EmbeddedSolrServer(coreContainer, "");
-		
-		//for a core use something like:
-//	    File f = new File( solrBase, "solr.xml" );
-//	    CoreContainer container = new CoreContainer();
-//	    container.load( solrBase.getAbsolutePath(), f );
-//	    return new EmbeddedSolrServer( container, "core1" );
-	}
-		
-	private static void indexStandardTestRecords(SolrServer solr2) throws RDFServiceException, Exception {
-		//load an RDF file of the radioactive MARC into a triple store 
-		rdf = loadRMARC();
-		
-		//and index solr documents for them.  
-		indexRdf();
-	}
+		try {
+			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
+					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". " +
+					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
+					"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Language>. " +
+					"?l <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?langcode. " +
+					"FILTER( SUBSTR( ?val,36,3) = ?langcode ) " +
+					"?l <http://www.w3.org/2000/01/rdf-schema#label> ?language.}",RDFService.ResultFormat.TEXT);
+			String language = convertStreamToString(is);
+			assertTrue("Record was expected to be mappable to English language.",language.contains("English"));
+		} catch (RDFServiceException e) {
+			assertTrue("failed to query rdf service",false);
+		}
 
-	private static RDFService loadRMARC() throws Exception {		
-		//find test dir
-		File testRDFDir = findTestDir();
 		
-		//load all files in test dir.
-		File[] files = testRDFDir.listFiles();
-		assertNotNull("no test RDF files found",files);
-		assertTrue("no test RDF files found", files.length > 0 );
+		//"Expected English for language_facet on document 4696, " +
+		//"it is likely the language mapping RDF is not loaded.",
+		SolrQuery q = new SolrQuery().setQuery("bronte");
+		QueryResponse resp = solr.query(q);				
+		SolrDocumentList sdl = resp.getResults();
+		assertNotNull("expected to find doc 4696", sdl);		
+		assertEquals(1, sdl.size());		
 		
-		Model model = ModelFactory.createDefaultModel();
-		for (File file : files ){
-			InputStream in = FileManager.get().open( file.getAbsolutePath() );	
-			assertNotNull("Could not load marc file " + file.getAbsolutePath(), in );
-			try{
-				model.read(in,null,"N-TRIPLE");
-			}catch(Throwable th){
-				throw new Exception( "Could not load file " + file.getAbsolutePath() , th);
-			}
-		}				 
-		return new RDFServiceModel( model );
-	}
-	
-	private static File findTestDir() {
-		List<String> attempted = new ArrayList<String>();		
-		File f = null;
-		for( String base: testRDFDirBases){
-			String attemptedDir =base + testRDFDir ;
-			attempted.add( attemptedDir);
-			f = new File( attemptedDir );
-			if( f != null && f.exists() && f.isDirectory() )
-				break;
-		}				
-		assertNotNull("Could not find directory " +
-				"of test RDF, check in these locations:\n" +
-				StringUtils.join(attempted,"\n  "), f);
-		return f;
-	}
-
-	private static void indexRdf() throws Exception {
-		RecordToDocument r2d = new RecordToDocumentMARC();
-		
-		for( String uri: rMarcURIS){
-			SolrInputDocument doc;
-			try {
-				doc = r2d.buildDoc(uri, rdf);
-			} catch (Exception e) {
-				System.out.println("failed on uri:" + uri);
-				throw e;
-			}
-			try {
-				solr.add( doc );
-			} catch (Exception e) {
-				System.out.println("Failed adding doc to solr for uri:" + uri);				
-				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
-				System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
-				throw e;
+		FacetField ff = resp.getFacetField("language_facet");		
+		assertNotNull( ff );		
+		boolean englishFound = false;
+		boolean englishGTEOne = false;
+		for( Count ffc : ff.getValues()){
+			if( "English".equals( ffc.getName() )){
+				englishFound = true;
+				englishGTEOne = ffc.getCount() >= 1;
 			}
 		}
-		solr.commit();
+		assertTrue("English should be a facet", englishFound);
+		assertTrue("doc 4696 should be English", englishGTEOne);
 	}
 	
-	
-	
-	//from http://stackoverflow.com/questions/3861989/preferred-way-of-loading-resources-in-java
-	public static URL getResource(String resource){
-	    URL url ;
-
-	    //Try with the Thread Context Loader. 
-	    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-	    if(classLoader != null){
-	        url = classLoader.getResource(resource);
-	        if(url != null){
-	            return url;
-	        }
-	    }
-
-	    //Let's now try with the classloader that loaded this class.
-//	    classLoader = getClass().getClassLoader();
-//	    if(classLoader != null){
-//	        url = classLoader.getResource(resource);
-//	        if(url != null){
-//	            return url;
-//	        }
-//	    }
-
-	    classLoader = ClassLoader.getSystemClassLoader();
-	    if(classLoader != null){
-	        url = classLoader.getResource(resource);
-	        if(url != null){
-	            return url;
-	        }
-	    }	    
-	    
-	    //Last ditch attempt. Get the resource from the classpath.
-	    return ClassLoader.getSystemResource(resource);
+	@Test
+	public void testCallnumSearchFacet() throws SolrServerException{
+		
+		//"Expected "P - Language & Literature" for lc_1letter_facet on document 4696."
+		SolrQuery q = new SolrQuery().setQuery("bronte");
+		QueryResponse resp = solr.query(q);				
+		SolrDocumentList sdl = resp.getResults();
+		assertNotNull("expected to find doc 4696", sdl);		
+		assertEquals(1, sdl.size());		
+		
+		FacetField ff = resp.getFacetField("lc_1letter_facet");		
+		assertNotNull( ff );		
+		boolean pFound = false;
+		boolean pGTEOne = false;
+		for( Count ffc : ff.getValues()){
+			if( "P - Language & Literature".equals( ffc.getName() )){
+				pFound = true;
+				pGTEOne = ffc.getCount() >= 1;
+			}
+		}
+		assertTrue("P - Language & Literature should be a facet", pFound);
+		assertTrue("doc 4696 should be P - Language & Literature", pGTEOne);
 	}
 
-
+	public static String convertStreamToString(java.io.InputStream is) {
+	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
+	}
 }

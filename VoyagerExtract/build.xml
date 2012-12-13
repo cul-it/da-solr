@@ -8,6 +8,7 @@
 
 	<!-- Create the build.properties file from localbuild.properties and set 
 		the necessary variables there, try to avoid altering this file -->
+	<property file="localbuild.properties" />
 	<property file="build.properties" />
 
 	<!-- The directories containing source code, properties, and webapp files -->
@@ -151,9 +152,22 @@
       </java>
    </target>
    
-   <target name="Marc2MarcXML" depends="build" description="Run Marc2MarcXML" >
+   <target name="Marc2MarcXml" depends="build" description="Run Marc2MarcXml" >
       <echo message="Running Marc2MarcXML"/>
-      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXML" >
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXml" >
+         <arg value="${davHost}/data/voyager/bib/bib.mrc.daily" />
+         <arg value="${davHost}/data/voyager/bib/bib.xml.daily" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertBibUpdates" depends="build" description="Run ConvertBibUpdates" >
+      <echo message="Running Marc2MarcXML to ConvertBibUpdates"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXml" >
+         <arg value="${davHost}/data/voyager/bib/bib.mrc.updates" />
+         <arg value="${davHost}/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>

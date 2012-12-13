@@ -14,6 +14,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import edu.cornell.library.integration.hadoop.map.URLToMarcRdfFetchMapper;
+import edu.cornell.library.integration.hadoop.reduce.RdfToSolrIndexReducer;
 import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
 
 /**
@@ -34,14 +35,14 @@ import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
 public class MarcToSolrIndex extends Configured implements Tool {
 
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new MarcToSolrDocs(), args);
+		int res = ToolRunner.run(new Configuration(), new MarcToSolrIndex(), args);
 		System.exit(res);
 	}
 	
 	@Override
 	public int run(String[] args) throws Exception {				
 		if (args.length != 2 ) {			
-			System.out.println("\nMarcToSolrDocs <inputDir> <solrServerURL>");
+			System.out.println("MarcToSolrIndex <inputDir> <solrServerURL>");
 			System.out.println("The inputDir should have files with one URL per line, Each URL should be the location of a N-Triple file with bib or holding data");
 			System.out.println("The solrServerURL is the service to index the documents into.\n");
 			ToolRunner.printGenericCommandUsage(System.out);
@@ -55,21 +56,25 @@ public class MarcToSolrIndex extends Configured implements Tool {
 		Configuration conf = getConf();
 		
 		conf.set(RdfToSolrReducer.SOLR_SERVICE_URL, solrUrl);
-		conf.set("mapred.compress.map.output", "true");		
-		conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.SnappyCodec");
 		
 		Job job = new Job(conf);		    
 				      		    
-		job.setJobName("MarcToSolrDocs");			
+		job.setJobName("MarcToSolrIndex");			
 		job.setJarByClass( MarcToSolrDocs.class );
 					
 		TextInputFormat.setInputPaths(job, inputDir );			
 		
 		job.setMapperClass(URLToMarcRdfFetchMapper.class);
-		job.setReducerClass( RdfToSolrReducer.class );
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
 		
-		//output is side effect of writing to solr server in reducer
-		job.setOutputFormatClass( NullOutputFormat.class );
+		job.setReducerClass( RdfToSolrIndexReducer.class );
+						
+		//we don't really have output but it seems that this is needed.
+		FileOutputFormat.setOutputPath(job, new Path("./output"));		
+		job.setOutputFormatClass( TextOutputFormat.class );
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
 		
 		job.waitForCompletion(true);
 

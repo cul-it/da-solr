@@ -23,7 +23,7 @@ import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
  * be the locations of bib or holdings n-triple files.
  * 
  * The map and reduce are:
- *  map: for each URLs load the RDF and make <BIBURI -> RDF in N-TRIPLE String> mappings
+ *  map: for each URLs load the RDF and make <BIBURI -> N-TRIPLE String> mappings
  *  reduce: For each BIBURI key, make a local RDF triple store and run MarcToSolrDoc 
  * 
  */

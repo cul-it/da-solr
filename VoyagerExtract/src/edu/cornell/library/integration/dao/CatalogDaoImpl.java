@@ -18,6 +18,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -368,7 +369,11 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          location.setSuppressInOpac(rs.getString("SUPPRESS_IN_OPAC"));
          location.setMfhdCount(rs.getInt("MFHD_COUNT"));
          location.setLibraryId(rs.getString("LIBRARY_ID"));
-         location.setLocationOpac(rs.getString("LOCATION_OPAC"));
+         if (StringUtils.isEmpty(rs.getString("LOCATION_OPAC"))) {
+            location.setLocationOpac("N");
+         } else {
+            location.setLocationOpac(rs.getString("LOCATION_OPAC"));
+         }
          location.setLocationSpineLabel(rs.getString("LOCATION_SPINE_LABEL"));
          location.setLocationDisplayName(rs.getString("LOCATION_DISPLAY_NAME"));   
          location.setLocationName(rs.getString("LOCATION_NAME"));   

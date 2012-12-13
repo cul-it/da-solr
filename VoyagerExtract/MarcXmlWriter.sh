@@ -2,7 +2,7 @@
 #
 # Run Marc2MarcXML
 #
-CLASS=edu.cornell.library.integration.Marc2MarcXml
+CLASS=org.marc4j.util.MarcXmlWriter 
 CLASSES=./build/classes
 LIB=./build/lib
 
@@ -11,7 +11,7 @@ CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
 
 # Need to specify src and dest dir on dav
-SRCDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates
-DESTDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates
+INPUT=bib.mrc.daily
+OUTPUT=bib.xml.daily
 
 java -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR 

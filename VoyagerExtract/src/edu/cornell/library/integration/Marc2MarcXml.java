@@ -1,41 +1,42 @@
 package edu.cornell.library.integration;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream; 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.OutputStream; 
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.sql.Clob;
-import oracle.sql.*;
-import java.util.ArrayList;
+import java.io.UnsupportedEncodingException; 
+import java.io.Writer;
 import java.util.List;
 
  
-import org.apache.commons.io.FileUtils;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source; 
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+ 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.marc4j.MarcException;
-import org.marc4j.MarcPermissiveStreamReader;
-import org.marc4j.MarcXmlWriter;
-import org.marc4j.marc.Record;
+import org.marc4j.ErrorHandler;
+import org.marc4j.MarcReader;
+import org.marc4j.marcxml.Converter;
+import org.marc4j.marcxml.MarcResult;
+import org.marc4j.marcxml.MarcSource;
+import org.marc4j.marcxml.MarcXmlReader; 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.w3c.dom.Document; 
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer; 
+import org.xml.sax.InputSource;
  
-import edu.cornell.library.integration.bo.MfhdBlob;
-import edu.cornell.library.integration.bo.MfhdData; 
-import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class Marc2MarcXml {
@@ -96,12 +97,7 @@ public class Marc2MarcXml {
     */
    public void setDestDir(String destDir) {
       this.destDir = destDir;
-   }
-
-   
-
-   
-   
+   } 
    
    /**
     * @param args
@@ -124,22 +120,16 @@ public class Marc2MarcXml {
    public void run() {
       
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");    
-      
-
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      } 
+      setDavService(DavServiceFactory.getDavService());
       
       try {            
          System.out.println("Getting src files...");
-         List<String> srcFiles = davService.getFileList(this.getSrcDir());
+         List<String> srcFiles = getDavService().getFileList(this.getSrcDir());
          for (String srcFile: srcFiles) {
             System.out.println("converting srcFile: "+ this.getSrcDir() + "/" + srcFile); 
             String xml = convert(this.getSrcDir()+ "/" + srcFile);
-            System.out.println(StringUtils.substring(xml, 0, 100));
+            //System.out.println(StringUtils.substring(xml, 0, 100));
+            saveAsXml(xml, srcFile, this.getDestDir());
          }
           
       } catch (Exception e) {
@@ -150,45 +140,31 @@ public class Marc2MarcXml {
    }
    
    public String convert(String srcFile) throws Exception {
-      String xml = new String();
-        
-      Record record = null;
-      MarcXmlWriter writer = null;
-      InputStream is = davService.getFileAsInputStream(srcFile);
+      String xml = new String();        
+      TaggedWriter handler = new TaggedWriter();
+      ErrorHandler errorHandler = new MarcErrorHandler();
+      Writer writer = null;      
+      InputStream is = getDavService().getFileAsInputStream(srcFile);
+      
       OutputStream ostream = null;
       try {
          
-         boolean permissive      = true;
-         boolean convertToUtf8   = true;
-
-         MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8, "UTF-8");
+         
          ostream = new ByteArrayOutputStream();
-         writer = new MarcXmlWriter(ostream, "UTF-8");
          
-         int errorCount = 0;
+         MarcXmlReader producer = new MarcXmlReader(); 
+         InputSource in = new InputSource(is);
+         in.setEncoding("UTF-8");
+         Source source = new SAXSource(producer, in);
+         OutputStreamWriter osw = new OutputStreamWriter(ostream, "UTF-8");         
+         writer = new BufferedWriter(osw);
+          
+         Result result = new StreamResult(writer);
+         MarcResult marcResult = new MarcResult(handler);
          
-         while (reader.hasNext()) {
-            try {
-               record = reader.next();
-               //System.out.println("record type: "+record.getType());
-               writer.write(record);
-               
-            } catch (MarcException me) {
-               System.out.println(me.getMessage());
-               System.out.println("cause: "+ me.getCause());
-               errorCount++;
-               continue;
-            } catch (Exception e) {
-               e.printStackTrace();
-               errorCount++;
-               continue;
-            }
-         }
+         Converter converter = new Converter();
+         converter.convert(source, marcResult);
          xml = new String(ostream.toString());
-         
-         if (errorCount > 0 ) {
-            throw new Exception("marc reader exception encountered - errors found:"+errorCount);
-         }
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
@@ -196,6 +172,7 @@ public class Marc2MarcXml {
          throw e;
       } finally {
          ostream.close();
+         writer.close();
       } 
       return xml;
 
@@ -230,6 +207,12 @@ public class Marc2MarcXml {
       byte[] bytes = str.getBytes("UTF-8");
       return new ByteArrayInputStream(bytes);	
    }
+   
+   public String serialize(Document doc)    {
+      DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
+      LSSerializer lsSerializer = domImplementation.createLSSerializer();
+      return lsSerializer.writeToString(doc);   
+  }
    
    
     
