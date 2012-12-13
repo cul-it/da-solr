@@ -1,18 +1,16 @@
 package edu.cornell.library.integration;
 
-import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.IOException;
+ 
+import java.io.CharArrayWriter; 
 import java.io.InputStream;
 import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.io.Reader;
+import java.io.Reader; 
+
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import oracle.sql.*;
@@ -30,7 +28,8 @@ import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.LocationInfo;
 import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetRecentMfhdData {
@@ -123,12 +122,7 @@ public class GetRecentMfhdData {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      }
+      setDavService(DavServiceFactory.getDavService());
 
        
       List<String> mfhdIdList = new ArrayList<String>();

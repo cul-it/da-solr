@@ -25,7 +25,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.bo.BibBlob; 
 import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetBibData {
@@ -106,12 +107,7 @@ public class GetBibData {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      } 
+      setDavService(DavServiceFactory.getDavService());
       
       try {            
          System.out.println("Getting bibRecord for bibid: "+bibid);

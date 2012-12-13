@@ -29,7 +29,8 @@ import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.LocationInfo;
 import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetRecentBibData {
@@ -122,12 +123,7 @@ public class GetRecentBibData {
          System.exit(-1);
       }
 
-      if (ctx.containsBean("davService")) {
-         setDavService((DavService) ctx.getBean("davService"));
-      } else {
-         System.err.println("Could not get davService");
-         System.exit(-1);
-      }
+      setDavService(DavServiceFactory.getDavService());
 
        
       List<String> bibIdList = new ArrayList<String>();
