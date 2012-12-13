@@ -1,5 +1,8 @@
 #!/bin/bash
-CLASS=edu.cornell.library.integration.ConvertBibUpdates
+#
+# Run Marc2MarcXML
+#
+CLASS=edu.cornell.library.integration.Marc2MarcXml
 CLASSES=./build/classes
 LIB=./build/lib
 
@@ -7,6 +10,8 @@ LIB=./build/lib
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
 
-# need to specifiy bibid and destination Dir for bib data
-# java -classpath $CLASSPATH $CLASS $@
-java -classpath $CLASSPATH $CLASS 5430043 http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates 
+# Need to specify src and dest dir on dav
+SRCDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates
+DESTDIR=http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates
+
+java -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR 
