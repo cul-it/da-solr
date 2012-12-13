@@ -43,8 +43,7 @@ public class MARCResultSetToFields implements ResultSetToFields {
 			}
 		} 		
 		if( leader == null || leader.trim().isEmpty()){
-			System.out.println("Error: leader should NEVER be missing from a MARC record.");
-			return null;
+			throw new Error("Leader should NEVER be missing from a MARC record.");			
 		}
 		
 		if (results.containsKey("marc_control_fields")) {

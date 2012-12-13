@@ -51,7 +51,7 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-
+		
 		Iterator<String> i = facet_langs.iterator();
 		while (i.hasNext()) addField(fields,"language_facet",i.next());
 		StringBuilder sb = new StringBuilder();

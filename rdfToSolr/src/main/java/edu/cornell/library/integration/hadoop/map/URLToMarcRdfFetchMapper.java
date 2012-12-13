@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.hadoop.map;
 
-import static org.openjena.riot.Lang.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,11 +12,10 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.openjena.riot.RiotReader;
 
 import com.google.common.io.Files;
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -30,8 +27,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.TDBLoader;
 import com.hp.hpl.jena.tdb.store.GraphTDB;
-import com.hp.hpl.jena.tdb.store.bulkloader.BulkLoader;
-import com.hp.hpl.jena.tdb.store.bulkloader.Destination;
 
 import edu.cornell.library.integration.hadoop.MarcToSolrUtils;
 import edu.cornell.library.integration.indexer.IndexingUtilities;
@@ -49,25 +44,42 @@ import edu.cornell.library.integration.service.DavServiceImpl;
 public class URLToMarcRdfFetchMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(URLToMarcRdfFetchMapper.class);
 	
-	File tmpDir;
+	
 	DavService davService;	
 	
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
-		InputStream is = getUrl( urlText.toString() , context );
-												
-		//load the RDF to a triple store
-		Files.deleteDirectoryContents(tmpDir);		
-		Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
-		TDBLoader loader = new TDBLoader() ;
-		loader.loadGraph((GraphTDB)model.getGraph(), is);				
-		
-		//BulkLoader.loadDefaultGraph(((GraphTDB)model.getGraph()).getDataset(), is, false);
-		
-	        
-		//find all records in triple store
-		for( String uri: getURIsInModel(context, model)){							
-			runPerURIQueries( uri, context, model );
-		}					
+        String url = urlText.toString();
+        if( url == null || url.trim().length() == 0 ) 
+            return; //skip blank lines
+
+		File tmpDir = Files.createTempDir();
+		log.info("Using tmpDir " + tmpDir.getAbsolutePath());
+		try{			
+			InputStream is = getUrl( urlText.toString() , context );
+			context.progress();
+			
+			log.info("Starting to build model");			
+			//load the RDF to a triple store			
+			Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
+			TDBLoader loader = new TDBLoader() ;
+			loader.loadGraph((GraphTDB)model.getGraph(), is);
+			
+			is.close();
+			is = null; //attempt do deallocate			
+			context.progress();
+			
+			log.info("Model load completed. Starting query for all records in model. ");									
+			Set<String> ids = getURIsInModel(context, model);
+			context.progress();
+			
+			log.info("Query complete. Starting per record construct");
+			for( String uri: ids){							
+				runPerURIQueries( uri, context, model );
+				context.progress();
+			}
+		}finally{
+			Files.deleteRecursively(tmpDir);
+		}
 	}
 	
 	private InputStream getUrl(String url, Context context) throws IOException {
@@ -123,15 +135,8 @@ public class URLToMarcRdfFetchMapper <K> extends Mapper<K, Text, Text, Text>{
 
 	@Override
 	public void setup(Context context) throws IOException, InterruptedException{
-		davService = new DavServiceImpl("admin","password");
-		tmpDir = Files.createTempDir();
-		log.debug("Using tmpDir " + tmpDir.getAbsolutePath());
-	}
-	
-	@Override
-	public void cleanup(Context context)throws IOException, InterruptedException{
-		Files.deleteRecursively( tmpDir );
-	}
+		davService = new DavServiceImpl("admin","password");		
+	}		
 	
 	//queries to get URIs from model, expected to variable named URI in result set
 	protected static final List<String> idQueries = Arrays.asList(

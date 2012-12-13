@@ -30,6 +30,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  * This reducer will take a key that is a URI of a bib and a list of
  * values that are strings of n-triple RDF and run a RDF to solr document
  * conversion on the RDF.  
+ * 
+ * THIS REDUCER DOES NOT WRITE THE DOCUMENT TO THE SOLR INDEX.
  */
 public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 	Log log = LogFactory.getLog(RdfToSolrReducer.class);
@@ -37,25 +39,12 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 						
 	File tmpDir;
 	RecordToDocument r2d;
-	String solrURL;
-	SolrServer solr;
-	
+
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
 		super.setup(context);		
-		Configuration conf = context.getConfiguration();
-		
-		solrURL = conf.get( SOLR_SERVICE_URL );
-		if(solrURL == null )
-			throw new Error("RdfToSolrReducer requires URL of Solr server in config property " + SOLR_SERVICE_URL);
-		
-		solr = new CommonsHttpSolrServer(new URL(solrURL));
-		try {
-			solr.ping();
-		} catch (SolrServerException e) {
-			throw new Error("RdfToSolrReducer cannot connect to solr server at \""+solrURL+"\".",e);
-		}
+		Configuration conf = context.getConfiguration();						
 		
 		tmpDir = Files.createTempDir();
 		r2d = new RecordToDocumentMARC();
@@ -78,20 +67,17 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 					log.error( "Problem with RDF:\n" + value.toString() );
 				}
 			}			
+			context.progress();
 			
 			try{
 				SolrInputDocument doc = r2d.buildDoc(key.toString(), new RDFServiceModel(model));
 				context.write(key, new Text( IndexingUtilities.toString(doc)));
+				context.progress();
 			}catch(Error er){
 				log.error("Could not create solr document for " + key.toString() , er);				
 			}
-			
-		} catch (RDFServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Could not reduce " + key.toString(), e);
 		}finally{
 			Files.deleteDirectoryContents( tmpDir );			
 		}
@@ -102,11 +88,6 @@ public class RdfToSolrReducer extends Reducer<Text, Text, Text, Text> {
 	@Override
 	protected void cleanup(Context context) throws IOException, InterruptedException {
 		super.cleanup(context);
-		try {
-			solr.commit();
-		} catch (SolrServerException e) {
-			throw new Error("Could not commit solr changes.",e);
-		}
 		Files.deleteRecursively(tmpDir);
 	}				
 }

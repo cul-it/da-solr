@@ -98,9 +98,12 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			
 			try {
 				//this needs to merge the values from fields with the same key
-				combineFields( doc, maker.buildFields(recordURI,mainStorQueryService, localStore));				
+				combineFields( doc, maker.buildFields(recordURI,mainStorQueryService, localStore));
+				
+				//that might throw an error, let the error pass up the stack.
+				//but log exceptions.
 			} catch (Exception e) {
-				log.error(e,e);
+				log.info("Exception while processing " + recordURI ,e);
 			}
 		}
 		
