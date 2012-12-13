@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.hadoop.reduce;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 
@@ -15,26 +15,32 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
-import com.google.common.io.Files;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
 /**
  * This reducer will take a key that is a URI of a bib and a list of
  * values that are strings of n-triple RDF and run a RDF to solr document
- * conversion on the RDF. Then the document is writteng to a solr service.
+ * conversion on the RDF. Then the document is written to a solr service.
  */
 public class RdfToSolrIndexReducer extends Reducer<Text, Text, Text, Text> {
 	Log log = LogFactory.getLog(RdfToSolrIndexReducer.class);
 	public final static String SOLR_SERVICE_URL = "integration.RdfToSolrReducer.SolrServiceUrl";
 	public final static String SOLR_DOC_BATCH_SIZE = "integration.RdfToSolrReducer.SolrDocBatchSize";
-    
+    	
 	String solrURL;
 	SolrServer solr;
+	
+	//model for data that gets reused each reduce
+	Model baseModel;
 	
 	@Override
 	protected void setup(Context context) throws IOException,
@@ -51,49 +57,50 @@ public class RdfToSolrIndexReducer extends Reducer<Text, Text, Text, Text> {
 			solr.ping();
 		} catch (SolrServerException e) {
 			throw new Error("RdfToSolrReducer cannot connect to solr server at \""+solrURL+"\".",e);
-		}			
+		}
+		
+		baseModel = loadBaseModel( context );
 	}
-
 
 	@Override	
 	public void reduce(Text key, Iterable<Text> values, Context context)
-			throws IOException, InterruptedException {				
+			throws IOException, InterruptedException {						
 		
-		File tmpDir = Files.createTempDir();
-		Model model = null;
-		try{				
-			model = TDBFactory.createModel(tmpDir.getAbsolutePath());   			
-			for( Text value : values){			
-				try{
-					Text.validateUTF8( value.getBytes() );
-					model.read(new StringReader(value.toString()),null,"N-TRIPLE");
-				}catch(Throwable ex){
-					log.error( "could not load RDF for " + key.toString(),ex);
-					log.error( "Problem with RDF:\n" + value.toString() );
-					return;
-				}
-			}			
-			
-			SolrInputDocument doc=null;
+		//read RDF from values into model
+		Model perReduceModel = ModelFactory.createDefaultModel();			
+		for( Text value : values){			
 			try{
-				RecordToDocument r2d = new RecordToDocumentMARC();
-				doc = r2d.buildDoc(key.toString(), new RDFServiceModel(model));
-				if( doc == null )
-					throw new Exception("No document created for " + key.toString());
-			}catch(Throwable er){
-				log.error("Could not create solr document for " + key.toString() , er);
+				Text.validateUTF8( value.getBytes() );
+				perReduceModel.read(new StringReader(value.toString()),null,"N-TRIPLE");
+			}catch(Throwable ex){
+				log.error( "could not load RDF for " + key.toString(),ex);
+				log.error( "Problem with RDF:\n" + value.toString() );
 				return;
 			}
-						
-			try{				
-				solr.add(doc);				
-			}catch (Throwable e) {			
-				log.error("Could not add document to index for " + key.toString() +
-						" Check logs of solr server for details.");
+		}			
+				
+		//make union model with base and per reducer models
+		Model model = ModelFactory.createUnion(perReduceModel, baseModel);						
+		
+		SolrInputDocument doc=null;
+		try{
+			RecordToDocument r2d = new RecordToDocumentMARC();
+			doc = r2d.buildDoc(key.toString(), new RDFServiceModel(model));
+			if( doc == null ){
+				log.error("No document created for " + key.toString());
+				return;
 			}
-		}finally{
-			trashModel( model, tmpDir );					
+		}catch(Throwable er){
+			log.error("Could not create solr document for " + key.toString() , er);
+			return;
 		}
+					
+		try{				
+			solr.add(doc);				
+		}catch (Throwable e) {			
+			log.error("Could not add document to index for " + key.toString() +
+					" Check logs of solr server for details.");
+		}	
 	}
 
 	@Override
@@ -104,25 +111,17 @@ public class RdfToSolrIndexReducer extends Reducer<Text, Text, Text, Text> {
 		} catch (SolrServerException e) {
 			throw new Error("Could not commit solr changes.",e);
 		}
-	}
+	}	
 	
-	private void trashModel(Model model, File tmpDir) {		
-		try{
-			//need to reset TDB factory since it keeps static hidden 
-			//state about datasets. (boo)
-			TDBFactory.reset();			
-		}catch(Throwable e){ 
-			log.error( "could not reset TDBFactory: " + e.getMessage());
-		}										
-		try{ 
-			Files.deleteDirectoryContents(tmpDir);			
-		}catch(Throwable e){
-			log.error("could not delete temp directory: " + e.getMessage());
-		}
-		try{ 
-			Files.deleteRecursively(tmpDir);						
-		}catch(Throwable e){
-			log.error("could not delete temp directory: " + e.getMessage());
-		}				
-	}
+	private Model loadBaseModel(org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException {		
+		Model baseModel = ModelFactory.createDefaultModel();		
+		String[] baseNtFiles = { "/library.nt","/language_code.nt"};
+		for( String fileName : baseNtFiles ){				
+			InputStream in = getClass().getResourceAsStream(fileName);
+			baseModel.read(in, null, "N-TRIPLE");
+			in.close();
+			log.info("loaded base model " + fileName);
+		}		
+		return baseModel;
+	}		
 }
