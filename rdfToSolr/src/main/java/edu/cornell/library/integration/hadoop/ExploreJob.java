@@ -11,7 +11,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import edu.cornell.library.integration.hadoop.map.ExploreMapper;
-import edu.cornell.library.integration.hadoop.map.URLToMarcRdfFetchMapper;
+import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
 
 
 public class ExploreJob extends Configured implements Tool {
