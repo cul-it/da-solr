@@ -15,10 +15,11 @@
    // New location to be redirected
    
    response.setStatus(response.SC_MULTIPLE_CHOICES);
-   <c:forEach var="fileUri" items="${fileUriList}">
-      response.setHeader("Location", ${fileUri} );
-   </c:forEach>
 %>
+   <c:forEach var="fileUri" items="${fileUriList}" >
+   <%   response.setHeader("Location", ${fileUri} ); %>
+   </c:forEach>
+ 
 </body>
 </html>
 

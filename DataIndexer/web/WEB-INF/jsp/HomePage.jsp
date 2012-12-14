@@ -16,8 +16,14 @@
    <form name="searchForm" method="post" action="showTriplesLocation.do" >
    <fieldset>
    <legend>Search for Triples Location</legend>
+   <p>Or, you may enter the full Bib URI</p>
+   <label for="biburi"><strong>BibUri: </strong></label>
+   <input type="text" name="biburi" id="biburi" size="80" value="<http://fbw4-dev.library.cornell.edu/individuals/b3577819>"  /><br /><br />
+   
+   <p><strong>Or, you may just enter the bibid</p>
    <label for="bibid"><strong>BibId: </strong></label>
-   <input type="text" name="bibid" id="bibid" size="20" value="4255466"  /><br /><br />
+   <input type="text" name="bibid" id="bibid" size="20" value="3577819"  /><br /><br /> 
+   
    <input type="hidden" name="redirect" value="false" />
    <p class="submit">
    <input type="Submit" value="Submit" />
