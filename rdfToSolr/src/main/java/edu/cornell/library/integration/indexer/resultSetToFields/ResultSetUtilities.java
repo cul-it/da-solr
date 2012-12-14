@@ -35,13 +35,19 @@ public class ResultSetUtilities {
 	/**
 	 * not sure what the hell is going on here.
 	 * Results from vitruoso are in iso-8859-1?
+	 * Some how this worked in Sept 2012 and even
+	 * got Chinese characters. 
 	 */
 	private static String heyItsUtf8(String s){
-		try {
-			return new String(s.getBytes("iso-8859-1"), "utf-8") ;
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("all java implementations are required to implement utf-8");
-		}		 		
+		return s;
+		
+		//do something like this if using virtuoso?
+		//Maybe next time try to set some HTTP header to request utf8?
+//		try {
+//			return new String(s.getBytes("iso-8859-1"), "utf-8") ;
+//		} catch (UnsupportedEncodingException e) {
+//			throw new Error("all java implementations are required to implement utf-8");
+//		}		 		
 	}
 	
 	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {

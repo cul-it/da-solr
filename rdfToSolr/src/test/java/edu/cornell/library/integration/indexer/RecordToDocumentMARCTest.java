@@ -94,9 +94,30 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 				
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
 				new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ,
-				new String[]{ "4696" } ) ;
+				new String[]{ "4696" } ) ;		
 	}		
 	
+	@Test
+	public void testUnicode() throws SolrServerException{
+		testQueryGetsDocs("Expect to find document by doc:id 3309",
+				new SolrQuery().setQuery("id:3309").setParam("qt", "standard"),
+				new String[]{ "3309" } ) ;
+		
+		SolrQuery q = new SolrQuery().setQuery("id:3309").setParam("qt", "standard");
+		QueryResponse sqr = solr.query(q);		
+		String v = (String) sqr.getResults().get(0).getFirstValue("pub_info_display");		
+		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("Xuân Thu"));						
+
+		testQueryGetsDocs("Expect to find document by doc:id 1322952",
+				new SolrQuery().setQuery("id:1322952").setParam("qt", "standard"),
+				new String[]{ "1322952" } ) ;
+		
+		q = new SolrQuery().setQuery("id:1322952").setParam("qt", "standard");
+		sqr = solr.query(q);		
+		v = (String) sqr.getResults().get(0).getFieldValue("title_vern_display");
+		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("台湾経済叢書"));		
+	}
+
 	@Test
 	public void testLanguageSearchFacet() throws SolrServerException{
 

@@ -56,7 +56,9 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
 	
 	static final String[] rMarcURIS = {
-		"http://fbw4-dev.library.cornell.edu/individuals/b4696",
+			"http://fbw4-dev.library.cornell.edu/individuals/b3309",
+			"http://fbw4-dev.library.cornell.edu/individuals/b4696",
+			"http://fbw4-dev.library.cornell.edu/individuals/b1322952",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
@@ -218,8 +220,6 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 			SolrInputDocument doc;
 			try {
 				doc = r2d.buildDoc(uri, rdfService);
-				System.out.println(uri);
-				System.out.println(doc.toString());
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;
