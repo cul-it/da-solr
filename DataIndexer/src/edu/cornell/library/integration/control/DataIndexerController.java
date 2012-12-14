@@ -48,6 +48,8 @@ import edu.cornell.library.integration.util.IterableAdaptor;
  */
 public class DataIndexerController extends MultiActionController { 
    private String showTriplesLocation = "ShowTriplesLocation";
+   private String redirect300 = "Redirect300";
+   private String redirect302 = "Redirect302";
    private String homePage = "HomePage"; 
    private String fatalErrorView = "FatalError";
    private final String TDBDIR = "/usr/local/src/integrationlayer/tdbIndex";
@@ -132,6 +134,7 @@ public class DataIndexerController extends MultiActionController {
       String view = new String();
       
       String bibid = request.getParameter("bibid");
+      String biburi = request.getParameter("biburi");
       String redirect = new String();
       redirect = request.getParameter("redirect");
       if (StringUtils.isEmpty(redirect)) {
@@ -150,8 +153,15 @@ public class DataIndexerController extends MultiActionController {
        
       String hasFile = "<" +dataNs + "hasFile>";
       String hasBib = "<http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord>";
-      String hasHoldings = "<" +dataNs + "hasFile>"; 
-      String object = "<" +uriNs + "/b" + bibid + ">";      
+      String hasHoldings = "<" +dataNs + "hasFile>";
+      
+      // use full biburi if provided, otherwise generate object from the namespace and bibid
+      String object = new String();
+      if (! StringUtils.isEmpty(biburi)) {
+         object = biburi;
+      } else {
+         object = "<" +uriNs + "/b" + bibid + ">";
+      }
  
       String query = "" + "SELECT ?filename \n" 
             + "WHERE {\n" 
@@ -176,24 +186,45 @@ public class DataIndexerController extends MultiActionController {
       
       jenaModel.close();
       model.put("bibid", bibid);
-      model.put("fileUriList", fileUriList);
+      
       //model.put("triples", triples);
       
       if (redirect.equals("false")) {
+         model.put("fileUriList", fileUriList);
          view = new String(showTriplesLocation);
       } else {
-         logger.info("redirecting to: "+ fileUriList.get(0));
-         view = "redirect:"+ fileUriList.get(0);
+         logger.info("fileUriList size "+ fileUriList.size());
+         if (fileUriList.size() == 1) {
+            model.put("url", fileUriList.get(0));
+            view = redirect302;
+         } else {
+            
+            model.put("fileUriList", fileUriList);
+            view = redirect300;
+            //view = "redirect:"+ fileUriList.get(0);
+         }
       }
       return new ModelAndView(view, model);
    }
    
+   /**
+    * @param queryString
+    * @param datasetMode
+    * @return
+    * @throws IOException
+    */
    public ResultSet executeSelectQuery(String queryString, boolean datasetMode) throws IOException {
       QueryExecution qexec = buildQueryExec(queryString, datasetMode);
       ResultSet rs = qexec.execSelect();       
       return rs;
    }
    
+   /**
+    * @param queryString
+    * @param datasetMode
+    * @return
+    * @throws IOException
+    */
    private QueryExecution buildQueryExec(String queryString, boolean datasetMode) throws IOException {
       QueryExecution qe;
       if(datasetMode) {
