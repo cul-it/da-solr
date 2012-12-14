@@ -364,6 +364,15 @@
         publisher_t
       </str>
       
+      <str name="lc_callnum_qf">
+        lc_callnum_main^10
+        lc_callnum_full
+      </str>
+      <str name="lc_callnum_pf">
+        lc_callnum_main^4
+        lc_callnum_full
+      </str>
+      
       
       <int name="ps">3</int>
       <float name="tie">0.01</float>
