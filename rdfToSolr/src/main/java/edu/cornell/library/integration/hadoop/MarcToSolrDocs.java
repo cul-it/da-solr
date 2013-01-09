@@ -12,7 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.cornell.library.integration.hadoop.map.URLToMarcRdfFetchMapper;
+import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
 import edu.cornell.library.integration.hadoop.reduce.RdfToSolrReducer;
 
 /**
@@ -60,7 +60,7 @@ public class MarcToSolrDocs extends Configured implements Tool {
 					
 		TextInputFormat.setInputPaths(job, inputDir );			
 		
-		job.setMapperClass(URLToMarcRdfFetchMapper.class);
+		job.setMapperClass(BibFileIndexingMapper.class);
 		job.setReducerClass( RdfToSolrReducer.class );
 
 		FileOutputFormat.setOutputPath(job, outputDir);		

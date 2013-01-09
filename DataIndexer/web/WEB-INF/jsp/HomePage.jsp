@@ -15,8 +15,7 @@
    <p>
    <form name="searchForm" method="post" action="showTriplesLocation.do" >
    <fieldset>
-   <legend>Search for Triples Location</legend>
-   <p>Or, you may enter the full Bib URI</p>
+   <legend>Search for Triples Location</legend> 
    <label for="biburi"><strong>BibUri: </strong></label>
    <input type="text" name="biburi" id="biburi" size="80" value="<http://fbw4-dev.library.cornell.edu/individuals/b3577819>"  /><br /><br />
    

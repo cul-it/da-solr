@@ -116,7 +116,7 @@ public class RdfToSolrIndexReducer extends Reducer<Text, Text, Text, Text> {
 	
 	private Model loadBaseModel(org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
-		String[] baseNtFiles = { "/library.nt","/language_code.nt"};
+		String[] baseNtFiles = { "/library.nt","/language_code.nt", "/callnumber_map.nt"};
 		for( String fileName : baseNtFiles ){				
 			InputStream in = getClass().getResourceAsStream(fileName);
 			baseModel.read(in, null, "N-TRIPLE");

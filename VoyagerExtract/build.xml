@@ -152,6 +152,160 @@
       </java>
    </target>
    
+      <target name="GetBibMrc" depends="build" description="Run GetBibMrc" >
+      <echo message="Running GetBibMrc"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibMrc" >
+         <arg value="4494533" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetBibUpdatesMrc" depends="build" description="Run GetBibUpdatesMrc" >
+      <echo message="Running GetBibUpdatesMrc"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibUpdatesMrc" >          
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetMfhdMrc" depends="build" description="Run GetMfhdMrc" >
+      <echo message="Running GetMfhdMrc"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdMrc" >
+         <arg value="8318301" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetMfhdUpdatesMrc" depends="build" description="Run GetMfhdUpdatesMrc" >
+      <echo message="Running GetMfhdUpdatesMrc"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdUpdatesMrc" >          
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   
+   <target name="GetBibXml" depends="build" description="Run GetBibXml" >
+      <echo message="Running GetBibXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibXml" >
+         <arg value="7937421" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetBibUpdatesXml" depends="build" description="Run GetBibUpdatesXml" >
+      <echo message="Running GetBibUpdatesXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibUpdatesXml" >          
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetMfhdXml" depends="build" description="Run GetMfhdXml" >
+      <echo message="Running GetMfhdXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdXml" >
+         <arg value="371302" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetMfhdUpdatesXml" depends="build" description="Run GetMfhdUpdatesXml" >
+      <echo message="Running GetMfhdUpdatesXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdUpdatesXml" >          
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/bib.mfhd.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertBibToXml" depends="build" description="Run ConvertBibToXml" >
+      <echo message="Running ConvertBibtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibToXml" >
+         <arg value="7527693" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertMfhdToXml" depends="build" description="Run ConvertMfhdToXml" >
+      <echo message="Running ConvertMfhdtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdToXml" >
+         <arg value="1148503" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertBibUpdatesToXml" depends="build" description="Run ConvertBibUpdatesToXml" >
+      <echo message="Running ConvertUpdatesBibtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibUpdatesToXml" >         
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertMfhdUpdatesToXml" depends="build" description="Run ConvertMfhdUpdatesToXml" >
+      <echo message="Running ConvertUpdatesMfhdtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdUpdatesToXml" >         
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertBibDailyToXml" depends="build" description="Run ConvertBibDailyToXml" >
+      <echo message="Running ConvertDailyBibtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibDailyToXml" >         
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.daily" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.daily" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertMfhdDailyToXml" depends="build" description="Run ConvertMfhdDailyToXml" >
+      <echo message="Running ConvertDailyMfhdtoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdDailyToXml" >         
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <!--  
    <target name="Marc2MarcXml" depends="build" description="Run Marc2MarcXml" >
       <echo message="Running Marc2MarcXML"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.Marc2MarcXml" >
@@ -186,6 +340,7 @@
    <target name="GetRecentBibData" depends="build" description="Run GetRecentBibData" >
       <echo message="Running GetRecentBibData"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetRecentBibData" >
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -195,12 +350,14 @@
    <target name="GetBibData" depends="build" description="Run GetBibData" >
       <echo message="Running GetBibData"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibData" >
-         <arg value="5430046" />
+         <arg value="7937424" />
+         <arg value="http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
       </java>
    </target>
-
+  --> 
+   
 
 </project>

@@ -1,9 +1,13 @@
 package edu.cornell.library.integration.dao;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -388,11 +392,40 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
     *
     */
    private static final class BibDataMapper implements RowMapper {
-      public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException {
+      public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
          BibData bibData = new BibData(); 
          bibData.setBibId(rs.getString("BIB_ID"));
-         bibData.setSeqnum(rs.getString("SEQNUM"));
-         bibData.setRecord(rs.getString("RECORD_SEGMENT"));
+         bibData.setSeqnum(rs.getString("SEQNUM")); 
+         String record = "";
+         InputStream is = rs.getBinaryStream("RECORD_SEGMENT");
+         try {
+            if ( is != null )  {
+               BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+               if (br != null ) {
+                  record = br.readLine();
+               }
+            }
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         } catch (IOException e) {
+         // TODO Auto-generated catch block
+            e.printStackTrace();   
+         }
+         
+         /*try {
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         } */
+         
+          
+        
+          
+          
+         bibData.setRecord(record);
+         //bibData.setRecord(rs.getString("RECORD_SEGMENT"));
          return bibData;
        }
    }
@@ -406,7 +439,16 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          MfhdData mfhdData = new MfhdData(); 
          mfhdData.setMfhdId(rs.getString("MFHD_ID"));
          mfhdData.setSeqnum(rs.getString("SEQNUM"));
-         mfhdData.setRecord(rs.getString("RECORD_SEGMENT"));
+         
+         String record = "";
+         try {
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+          
+         mfhdData.setRecord(record);
          return mfhdData;
        }
    }
