@@ -193,7 +193,7 @@ public class DataIndexerController extends MultiActionController {
          model.put("fileUriList", fileUriList);
          view = new String(showTriplesLocation);
       } else {
-         logger.info("fileUriList size "+ fileUriList.size());
+         //logger.info("fileUriList size "+ fileUriList.size());
          if (fileUriList.size() == 1) {
             model.put("url", fileUriList.get(0));
             view = redirect302;

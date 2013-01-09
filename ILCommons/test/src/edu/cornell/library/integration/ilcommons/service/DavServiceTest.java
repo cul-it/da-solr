@@ -25,7 +25,7 @@ public class DavServiceTest {
       System.out.println("\ntestGetFileList\n");
       DavService davService = DavServiceFactory.getDavService();
        
-      String url = "http://jaf30-dev.library.cornell.edu/data/test/test.txt";
+      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
       try {
          List<String> filelist = davService.getFileList(url);
          for (String s : filelist) {
@@ -42,7 +42,7 @@ public class DavServiceTest {
       System.out.println("\ntestGetFileUrlList\n");
       DavService davService = DavServiceFactory.getDavService();
        
-      String url = "http://jaf30-dev.library.cornell.edu/data/test/bib/bib.xml.full";
+      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
       try {
          List<String> filelist = davService.getFileUrlList(url);
          for (String s : filelist) {
