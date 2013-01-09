@@ -2,9 +2,9 @@
 build/
 bin/
 support/
-bibIndexFile.nt
-holdingsIndexFile.nt
+*.nt
 DataIndexer.log
+DataIndexer.log.*
 DataIndexer.war
 localbuild.properties
 testme.bat
