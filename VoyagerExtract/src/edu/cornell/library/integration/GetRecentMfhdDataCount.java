@@ -62,13 +62,18 @@ public class GetRecentMfhdDataCount {
     */
    public static void main(String[] args) {
      GetRecentMfhdDataCount app = new GetRecentMfhdDataCount();      
-     app.run();
+     if (args.length != 1 ) {
+        System.err.println("You must provide an number of hours offset");
+        System.exit(-1);
+     }
+     String offset  = args[0];
+     app.run(offset);
    }
 
    /**
     * 
     */
-   public void run() {
+   public void run(String offset) {
       System.out.println("Get Recent MfhdDataCount");
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
@@ -81,7 +86,7 @@ public class GetRecentMfhdDataCount {
        
       
       try {
-         String ds = getDateString();
+         String ds = getDateString(offset);
          System.out.println("Getting updates since: "+ ds);
          int count = getCatalogService().getRecentMfhdIdCount(ds);
          System.out.println("Number of MfhdIds  = "+ count);
@@ -93,11 +98,12 @@ public class GetRecentMfhdDataCount {
       
    } 
    
-   protected String getDateString() {
+   protected String getDateString(String offset) {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       Calendar now = Calendar.getInstance();
       Calendar earlier = now;
-      earlier.add(Calendar.HOUR, -3);
+      int minus = Integer.parseInt(offset) * -1;
+      earlier.add(Calendar.HOUR, minus);
       String ds = df.format(earlier.getTime());
       return ds;
    }

@@ -1,36 +1,23 @@
 package edu.cornell.library.integration.dao;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
+ 
+import java.io.Reader; 
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Clob;
-
-import oracle.jdbc.OracleResultSet;
-import oracle.sql.CLOB;
-import java.text.SimpleDateFormat; 
-import java.util.Calendar; 
+import java.sql.Clob; 
+import oracle.sql.CLOB; 
 import java.util.List; 
 
-import javax.sql.DataSource;
-
-import org.apache.commons.io.IOUtils;
+import javax.sql.DataSource; 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.apache.commons.logging.LogFactory; 
+import org.springframework.dao.EmptyResultDataAccessException; 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper; 
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
@@ -50,7 +37,11 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
    protected DataSource dataSource;
    private SimpleJdbcTemplate simpleJdbcTemplate;
    private JdbcTemplate jdbcTemplate;
-   private OracleLobHandler oracleLobHandler; 
+   private OracleLobHandler oracleLobHandler;
+   
+   /** The range of non allowable characters in XML 1.0 (ASCII Control Characters) */
+   private static final String WEIRD_CHARACTERS =
+      "[\u0001-\u0008\u000b-\u000c\u000e-\u001f]";
    /**
     *
     */
@@ -395,34 +386,20 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
          BibData bibData = new BibData(); 
          bibData.setBibId(rs.getString("BIB_ID"));
-         bibData.setSeqnum(rs.getString("SEQNUM")); 
+         bibData.setSeqnum(rs.getString("SEQNUM"));
+         
          String record = "";
-         InputStream is = rs.getBinaryStream("RECORD_SEGMENT");
          try {
-            if ( is != null )  {
-               BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-               if (br != null ) {
-                  record = br.readLine();
-               }
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
+            if (record.startsWith("LEADER")) {
+               record = record.replaceAll(WEIRD_CHARACTERS, "0");
+            } else if (record.startsWith("00")) {
+               record = record.replaceAll(WEIRD_CHARACTERS, " ");   
             }
          } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-         } catch (IOException e) {
-         // TODO Auto-generated catch block
-            e.printStackTrace();   
-         }
-         
-         /*try {
-            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
-         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         } */
-         
-          
-        
-          
+         } 
           
          bibData.setRecord(record);
          //bibData.setRecord(rs.getString("RECORD_SEGMENT"));
@@ -443,6 +420,11 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          String record = "";
          try {
             record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
+            if (record.startsWith("LEADER")) {
+               record = record.replaceAll(WEIRD_CHARACTERS, "0");
+            } else if (record.startsWith("00")) {
+               record = record.replaceAll(WEIRD_CHARACTERS, " ");   
+            }
          } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
