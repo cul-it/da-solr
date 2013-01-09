@@ -305,6 +305,26 @@
       </java>
    </target>
    
+   <target name="GetRecentBibDataCount" depends="build" description="Run GetRecentBibDataCount" >
+      <echo message="Running GetRecentBibDataCount"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetRecentBibDataCount" >
+         <arg value="3"  /> 
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="GetRecentMfhdDataCount" depends="build" description="Run GetRecentMfhdDataCount" >
+      <echo message="Running GetRecentMfhdDataCount"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetRecentMfhdDataCount" >
+         <arg value="3"  />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
    <!--  
    <target name="Marc2MarcXml" depends="build" description="Run Marc2MarcXml" >
       <echo message="Running Marc2MarcXML"/>
