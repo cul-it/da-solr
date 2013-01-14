@@ -46,25 +46,20 @@ public class ConvertUtils {
       OutputStream ostream = null;
       try {
          ostream = new ByteArrayOutputStream();
-         MarcXmlReader producer = new MarcXmlReader();
-          
-         org.marc4j.MarcReader reader = new org.marc4j.MarcReader();
-          
+         MarcXmlReader producer = new MarcXmlReader();          
+         //org.marc4j.MarcReader reader = new org.marc4j.MarcReader();          
          InputSource in = new InputSource(is);
          
          in.setEncoding("UTF-8");
          Source source = new SAXSource(producer, in);          
-          
+           
          writer = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
          Result result = new StreamResult(writer);
          Converter converter = new Converter();        
          converter.convert(source, result);
-         xml = new String(ostream.toString());
+         xml = new String(ostream.toString());          
           
-          
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+      } catch (Exception e) {         
          throw e;
       } finally {
          ostream.close();

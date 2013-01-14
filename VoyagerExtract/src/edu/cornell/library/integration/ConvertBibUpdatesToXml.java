@@ -150,7 +150,8 @@ public class ConvertBibUpdatesToXml {
 			} catch (Exception e) {
 			   String badDir = srcDir +".bad";
 			   try {
-			      e.printStackTrace();
+			      System.out.println("Could not convert file: "+ srcFile);
+			      //e.printStackTrace();
                davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
             } catch (Exception e1) {
                // TODO Auto-generated catch block
