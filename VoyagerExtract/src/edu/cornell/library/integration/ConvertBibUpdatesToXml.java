@@ -148,8 +148,14 @@ public class ConvertBibUpdatesToXml {
 				//System.out.println("xml: " + xml);
 				saveBibXml(xml, bibid, destDir);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			   String badDir = srcDir +".bad";
+			   try {
+			      e.printStackTrace();
+               davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+            } catch (Exception e1) {
+               // TODO Auto-generated catch block
+               e1.printStackTrace();
+            } 
 			}
 		}
       
