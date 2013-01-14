@@ -10,5 +10,5 @@ CLASSPATH=$CLASSPATH:$CLASSES
 # need to specifiy bibid and destination Dir for bib data
 # java -classpath $CLASSPATH $CLASS $@
 MFHDID=371302 
-DESTDIR= http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates
+DESTDIR= http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates
 java -classpath $CLASSPATH $CLASS $MFHDID $DESTDIR

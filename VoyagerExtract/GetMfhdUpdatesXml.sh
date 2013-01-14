@@ -9,5 +9,5 @@ CLASSPATH=$CLASSPATH:$CLASSES
 
 # need to specifiy  destination Dir for mfhd data
 # java -classpath $CLASSPATH $CLASS $@
-DESTDIR=http://jaf30-dev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates
+DESTDIR=http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates
 java -classpath $CLASSPATH $CLASS $DESTDIR
