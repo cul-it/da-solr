@@ -37,11 +37,8 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
    protected DataSource dataSource;
    private SimpleJdbcTemplate simpleJdbcTemplate;
    private JdbcTemplate jdbcTemplate;
-   private OracleLobHandler oracleLobHandler;
+   private OracleLobHandler oracleLobHandler; 
    
-   /** The range of non allowable characters in XML 1.0 (ASCII Control Characters) */
-   private static final String WEIRD_CHARACTERS =
-      "[\u0001-\u0008\u000b-\u000c\u000e-\u001f]";
    /**
     *
     */
@@ -391,18 +388,12 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          String record = "";
          try {
             record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
-            if (record.startsWith("LEADER")) {
-               record = record.replaceAll(WEIRD_CHARACTERS, "0");
-            } else if (record.startsWith("00")) {
-               record = record.replaceAll(WEIRD_CHARACTERS, " ");   
-            }
          } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          } 
           
-         bibData.setRecord(record);
-         //bibData.setRecord(rs.getString("RECORD_SEGMENT"));
+         bibData.setRecord(record); 
          return bibData;
        }
    }
@@ -419,12 +410,7 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          
          String record = "";
          try {
-            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
-            if (record.startsWith("LEADER")) {
-               record = record.replaceAll(WEIRD_CHARACTERS, "0");
-            } else if (record.startsWith("00")) {
-               record = record.replaceAll(WEIRD_CHARACTERS, " ");   
-            }
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
          } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
