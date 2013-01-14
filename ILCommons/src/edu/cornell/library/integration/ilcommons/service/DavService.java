@@ -60,6 +60,19 @@ public interface DavService {
     * @throws Exception
     */
    public void saveBytesToFile(String url, byte[] bytes ) throws Exception;
+   
+   /**
+    * @param url
+    * @throws Exception
+    */
+   public void deleteFile(String url) throws Exception;
+   
+   /**
+    * @param srcUrl
+    * @param destUrl
+    * @throws Exception
+    */
+   public void moveFile(String srcUrl, String destUrl) throws Exception;
 
    
 }

@@ -162,6 +162,22 @@ public class DavServiceImpl implements DavService {
       sardine.put(url, bytes);   
    }
    
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.ilcommons.service.DavService#deleteFile(java.lang.String)
+    */
+   public void deleteFile(String url) throws IOException {
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      sardine.delete(url);       
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.ilcommons.service.DavService#moveFile(java.lang.String, java.lang.String)
+    */
+   public void moveFile(String srcUrl, String destUrl) throws IOException {
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      sardine.move(srcUrl, destUrl);    
+   }
+   
    protected String convertStreamToString(InputStream is)
          throws IOException {
      //
