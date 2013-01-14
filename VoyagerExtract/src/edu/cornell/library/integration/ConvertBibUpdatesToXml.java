@@ -126,6 +126,7 @@ public class ConvertBibUpdatesToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
+      String badDir = srcDir +".bad";
        
       // get list of bibids updates using recent date String
       List<String> srcList = new ArrayList<String>();
@@ -145,10 +146,13 @@ public class ConvertBibUpdatesToXml {
 			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
 				//System.out.println("mrc: " + mrc);
 				String xml = ConvertUtils.convertMrcToXml(mrc);
-				//System.out.println("xml: " + xml);
-				saveBibXml(xml, bibid, destDir);
-			} catch (Exception e) {
-			   String badDir = srcDir +".bad";
+				if (StringUtils.isEmpty(xml)) {
+				   System.out.println("Could not convert file: "+ srcFile);
+               davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+				} else { 
+				   saveBibXml(xml, bibid, destDir);
+				}
+			} catch (Exception e) { 
 			   try {
 			      System.out.println("Could not convert file: "+ srcFile);
 			      //e.printStackTrace();

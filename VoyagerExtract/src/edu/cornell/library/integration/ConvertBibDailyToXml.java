@@ -126,6 +126,7 @@ public class ConvertBibDailyToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
+      String badDir = srcDir +".bad";
        
       // get list of bibids updates using recent date String
       List<String> srcList = new ArrayList<String>();
@@ -145,11 +146,21 @@ public class ConvertBibDailyToXml {
 			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
 				//System.out.println("mrc: " + mrc);
 				String xml = ConvertUtils.convertMrcToXml(mrc);
-				//System.out.println("xml: " + xml);
-				saveBibXml(xml, destDir);
+				if (StringUtils.isEmpty(xml)) {
+               System.out.println("Could not convert file: "+ srcFile);
+               davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+            } else { 
+               saveBibXml(xml, destDir);
+            }
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			   try {
+               System.out.println("Could not convert file: "+ srcFile);
+               //e.printStackTrace();
+               davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+            } catch (Exception e1) {
+               // TODO Auto-generated catch block
+               e1.printStackTrace();
+            } 
 			}
 		}
       
