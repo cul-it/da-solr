@@ -9,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -20,6 +22,12 @@ import org.marc4j.marcxml.MarcXmlReader;
 import org.xml.sax.InputSource;
 
 public class ConvertUtils {
+   
+   /** The range of non allowable characters in XML 1.0 (ASCII Control Characters) */
+   private static final String WEIRD_CHARACTERS =
+      "[\u0001-\u0008\u000b-\u000c\u000e-\u001f]";
+   private static final Pattern WEIRD_CHARACTERS_PATTERN =
+         Pattern.compile(WEIRD_CHARACTERS);
 
    public ConvertUtils() {
       // TODO Auto-generated constructor stub
@@ -39,15 +47,17 @@ public class ConvertUtils {
       try {
          ostream = new ByteArrayOutputStream();
          MarcXmlReader producer = new MarcXmlReader();
-         org.marc4j.MarcReader reader = new org.marc4j.MarcReader(); 
+          
+         org.marc4j.MarcReader reader = new org.marc4j.MarcReader();
+          
          InputSource in = new InputSource(is);
          
          in.setEncoding("UTF-8");
-         Source source = new SAXSource(producer, in);
+         Source source = new SAXSource(producer, in);          
           
          writer = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
          Result result = new StreamResult(writer);
-         Converter converter = new Converter();
+         Converter converter = new Converter();        
          converter.convert(source, result);
          xml = new String(ostream.toString());
           
@@ -160,6 +170,21 @@ public class ConvertUtils {
           }
        }
        return true;
+    }
+    
+    protected static void findInvalidCharacters(String record) {
+       Matcher matcher = WEIRD_CHARACTERS_PATTERN.matcher(record);
+       
+       if (matcher.find()) {
+          System.out.println("record has wierd characters for bibid");
+          if (record.startsWith("LEADER")) {
+             System.out.println("replacing chars in LEADER");
+             //record = record.replaceAll(WEIRD_CHARACTERS, "0");
+          } else if (record.startsWith("00")) {
+             System.out.println("replacing chars in Control field");
+             //record = record.replaceAll(WEIRD_CHARACTERS, " ");   
+          }       
+       }
     }
    
    
