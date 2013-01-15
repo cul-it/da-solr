@@ -6,7 +6,6 @@ import java.util.Calendar;
 
  
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
@@ -14,7 +13,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
  
 import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetRecentBibDataCount {
    

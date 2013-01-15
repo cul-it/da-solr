@@ -1,55 +1,23 @@
 package edu.cornell.library.integration;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.sql.Clob;
 import java.text.SimpleDateFormat;
 
-import oracle.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
-
- 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.marc4j.marc.Record;
-import org.marc4j.marcxml.Converter;
-import org.marc4j.marcxml.MarcXmlReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.xml.sax.InputSource;
- 
-  
 import edu.cornell.library.integration.bo.MfhdData;
-import edu.cornell.library.integration.config.IntegrationDataProperties;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ConvertUtils;
-import edu.cornell.library.integration.util.ObjectUtils; 
+import edu.cornell.library.integration.util.ConvertUtils; 
 
 public class GetMfhdUpdatesXml {
    
@@ -136,7 +104,7 @@ public class GetMfhdUpdatesXml {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      
+      ConvertUtils converter = new ConvertUtils();
       // iterate over mfhdids, concatenate mfhd data to create mrc
       for (String mfhdid : mfhdIdList) {
 			try {
@@ -148,9 +116,7 @@ public class GetMfhdUpdatesXml {
 				}
 
 				String mrc = sb.toString();
-				//System.out.println("mrc: " + mrc);
-				String xml = ConvertUtils.convertMrcToXml(mrc);
-				//System.out.println("xml: " + xml);
+				String xml = converter.convertMrcToXml(mrc);
 				saveMfhdXml(xml, mfhdid, destDir);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

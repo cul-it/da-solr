@@ -1,35 +1,19 @@
 package edu.cornell.library.integration;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream; 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter; 
 import java.io.UnsupportedEncodingException;
-import java.io.Writer; 
 import java.util.List;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
- 
 import org.apache.commons.io.IOUtils; 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.marc4j.marcxml.Converter;
-import org.marc4j.marcxml.MarcXmlReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.xml.sax.InputSource;
- 
-  
 import edu.cornell.library.integration.bo.MfhdData; 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetMfhdMrc {
    
