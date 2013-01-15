@@ -9,5 +9,5 @@ CLASSPATH=$CLASSPATH:$CLASSES
 
 # need to specifiy bibid and destination Dir for bib data
 # java -classpath $CLASSPATH $CLASS $@
-DESTDIR= http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates
+DESTDIR=http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates
 java -classpath $CLASSPATH $CLASS $BIBID $DESTDIR
