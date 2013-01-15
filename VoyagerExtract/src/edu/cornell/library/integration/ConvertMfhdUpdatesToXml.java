@@ -24,9 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
-import org.marc4j.marc.Record;
-import org.marc4j.marcxml.Converter;
-import org.marc4j.marcxml.MarcXmlReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.xml.sax.InputSource;
@@ -122,7 +119,7 @@ public class ConvertMfhdUpdatesToXml {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      
+      ConvertUtils converter = new ConvertUtils();
       // iterate over mrc files
       for (String srcFile  : srcList) {
          System.out.println("Converting mfhd mrc file: "+ srcFile);
@@ -130,7 +127,7 @@ public class ConvertMfhdUpdatesToXml {
 			   String mfhdid = StringUtils.replace(srcFile, ".mrc", "");
 			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
 				//System.out.println("mrc: " + mrc);
-				String xml = ConvertUtils.convertMrcToXml(mrc);
+				String xml = converter.convertMrcToXml(mrc);
 				//System.out.println("xml: " + xml);
 				saveMfhdXml(xml, mfhdid, destDir);
 			} catch (Exception e) {
@@ -141,42 +138,7 @@ public class ConvertMfhdUpdatesToXml {
       
    }
    
-   public String convertMfhdMrcToXml(String mfhdStr) throws Exception {
-      String xml = new String();
-      char chr = mfhdStr.charAt(mfhdStr.length() - 1);
-      //System.out.println("terminator: "+ (int) chr); 
-      String reclenstr = mfhdStr.substring(0,5); 
-      //System.out.println("reclen: "+ reclenstr);
-      //System.out.println("mfhdStrlen: "+ mfhdStr.length());
-
-      Record record = null;
-      Writer writer = null;
-      InputStream is = stringToInputStream(mfhdStr);
-      OutputStream ostream = null;
-      try {
-         
-         MarcXmlReader producer = new MarcXmlReader();
-         org.marc4j.MarcReader reader = new org.marc4j.MarcReader(); 
-         InputSource in = new InputSource(is);
-         in.setEncoding("UTF-8");
-         Source source = new SAXSource(producer, in);
-          
-         writer = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
-         Result result = new StreamResult(writer);
-         Converter converter = new Converter();
-         converter.convert(source, result);
-         xml = new String(ostream.toString());
-         ostream.close(); 
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-         throw e;
-      } finally {
-         // ostream.close();
-      } 
-      return xml;
-
-   } 
+   
    /**
     * @param xml
     * @throws Exception
