@@ -21,3 +21,5 @@ rdf/output
 *.swp
 *.out
 
+## tdbIndex created by DataIndexer app
+tdbIndex/
