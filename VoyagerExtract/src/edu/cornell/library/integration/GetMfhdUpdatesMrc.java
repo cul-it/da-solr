@@ -135,7 +135,9 @@ public class GetMfhdUpdatesMrc {
     * @throws Exception
     */
    public void saveMfhdMrc(String mrc, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".mrc";
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/" + mfhdid +"."+ ts +".mrc";
       System.out.println("Saving mrc to: "+ url);
       try {
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
