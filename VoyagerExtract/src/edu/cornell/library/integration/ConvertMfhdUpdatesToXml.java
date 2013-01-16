@@ -120,16 +120,16 @@ public class ConvertMfhdUpdatesToXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      String destXmlFile = new String();
       // iterate over mrc files
       for (String srcFile  : srcList) {
          System.out.println("Converting mfhd mrc file: "+ srcFile);
 			try {
-			   String mfhdid = StringUtils.replace(srcFile, ".mrc", "");
-			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-				//System.out.println("mrc: " + mrc);
+			    
+			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
 				String xml = converter.convertMrcToXml(mrc);
-				//System.out.println("xml: " + xml);
-				saveMfhdXml(xml, mfhdid, destDir);
+				destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
+				saveMfhdXml(xml, destDir, destXmlFile);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -143,8 +143,8 @@ public class ConvertMfhdUpdatesToXml {
     * @param xml
     * @throws Exception
     */
-   public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".xml";
+   public void saveMfhdXml(String xml, String destDir, String destXmlFile) throws Exception {
+      String url = destDir + "/" + destXmlFile;
       System.out.println("Saving xml to: "+ url);
       try {         
          

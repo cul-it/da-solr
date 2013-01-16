@@ -107,7 +107,7 @@ public class ConvertBibUpdatesToXml {
       }
       
       ConvertUtils converter = new ConvertUtils();
-      
+      String destXmlFile = new String();
       // iterate over mrc files
       if (srcList.size() == 0) {
          System.out.println("No Update Marc files available to process");
@@ -115,15 +115,16 @@ public class ConvertBibUpdatesToXml {
          for (String srcFile  : srcList) {
             System.out.println("Converting mrc file: "+ srcFile);
    			try {
-   			   String bibid = StringUtils.replace(srcFile, ".mrc", "");
+   			   //String bibid = StringUtils.replace(srcFile, ".mrc", "");
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
    				//System.out.println("mrc: " + mrc);
    				String xml = converter.convertMrcToXml(mrc);
    				if (StringUtils.isEmpty(xml)) {
    				   System.out.println("ERROR: Could not convert file: "+ srcFile);
                   davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-   				} else { 
-   				   saveBibXml(xml, bibid, destDir);
+   				} else {
+   				   destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
+   				   saveBibXml(xml, destDir, destXmlFile);
    				}
    			} catch (Exception e) { 
    			   try {
@@ -145,8 +146,9 @@ public class ConvertBibUpdatesToXml {
     * @param xml
     * @throws Exception
     */
-   public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
-      String url = destDir + "/" + bibid +".xml";
+   public void saveBibXml(String xml, String destDir, String destXmlFile) throws Exception {
+      
+      String url = destDir + "/" + destXmlFile;
       System.out.println("Saving xml to: "+ url);
       try {         
          

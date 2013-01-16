@@ -95,7 +95,8 @@ public class ConvertBibDailyToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-       
+      String destXmlFile = new String();
+      
       // get list of daily mrc files
       List<String> srcList = new ArrayList<String>();
       try {
@@ -118,8 +119,9 @@ public class ConvertBibDailyToXml {
    				if (StringUtils.isEmpty(xml)) {
                   System.out.println("Empty XML. Could not convert file: "+ srcFile);
                   davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-               } else { 
-                  saveBibXml(xml, destDir);
+               } else {
+                  destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
+                  saveBibXml(xml, destDir, destXmlFile);
                }
    			} catch (Exception e) {
    			   try {
@@ -140,8 +142,8 @@ public class ConvertBibDailyToXml {
     * @param xml
     * @throws Exception
     */
-   public void saveBibXml(String xml, String destDir) throws Exception {
-      String url = destDir + "/bib.daily.xml";
+   public void saveBibXml(String xml, String destDir, String destXmlFile) throws Exception {
+      String url = destDir +"/"+ destXmlFile;
       System.out.println("Saving xml to: "+ url);
       try {         
          

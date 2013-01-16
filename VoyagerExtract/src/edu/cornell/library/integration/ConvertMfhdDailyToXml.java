@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
@@ -91,6 +92,7 @@ public class ConvertMfhdDailyToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
+      String destXmlFile = new String();
        
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
@@ -109,7 +111,8 @@ public class ConvertMfhdDailyToXml {
 			    
 			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
 				String xml = converter.convertMrcToXml(mrc); 
-				saveMfhdXml(xml,destDir);
+				destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
+				saveMfhdXml(xml,destDir, destXmlFile);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -123,8 +126,8 @@ public class ConvertMfhdDailyToXml {
     * @param xml
     * @throws Exception
     */
-   public void saveMfhdXml(String xml,String destDir) throws Exception {
-      String url = destDir + "/mfhd.daily.xml";
+   public void saveMfhdXml(String xml,String destDir, String destXmlFile) throws Exception {
+      String url = destDir + "/" + destXmlFile;
       System.out.println("Saving xml to: "+ url);
       try {         
          
