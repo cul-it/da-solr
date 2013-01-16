@@ -22,7 +22,10 @@ dependencies {
    compile 'org.openrdf.sesame:sesame-runtime:2.6.6'
 
    compile 'javax.servlet:servlet-api:2.5'
-   compile 'junit:junit:4.9'   
+   compile 'junit:junit:4.9'  
+
+   compile 'org.apache.httpcomponents:httpmime:4.2.2'
+             
 }
 
 task list(dependsOn: configurations.compile) << { 
