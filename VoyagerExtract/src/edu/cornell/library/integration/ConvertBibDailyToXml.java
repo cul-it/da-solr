@@ -1,6 +1,7 @@
 package edu.cornell.library.integration;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream; 
 import java.io.UnsupportedEncodingException; 
 import java.text.SimpleDateFormat; 
@@ -18,7 +19,6 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
 import edu.cornell.library.integration.util.ConvertUtils;
 import edu.cornell.library.integration.util.ObjectUtils; 
-
 public class ConvertBibDailyToXml {
    
    /** Logger for this class and subclasses */
@@ -121,6 +121,7 @@ public class ConvertBibDailyToXml {
                   davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
                } else {
                   destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
+                  System.gc();
                   saveBibXml(xml, destDir, destXmlFile);
                }
    			} catch (Exception e) {
@@ -149,6 +150,7 @@ public class ConvertBibDailyToXml {
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
          InputStream isr = IOUtils.toInputStream(xml, "UTF-8");            
+         //InputStream isr = stringToInputStream(xml);
          getDavService().saveFile(url, isr);
       
       } catch (UnsupportedEncodingException ex) {
@@ -158,7 +160,10 @@ public class ConvertBibDailyToXml {
       }  
    }
        
-    
+   protected  InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
+      byte[] bytes = str.getBytes("UTF-8");
+      return new ByteArrayInputStream(bytes);   
+   }  
    
    /**
     * @return

@@ -161,7 +161,7 @@ public class ConvertUtils {
                      e.printStackTrace();
                   }
                }
-               // System.gc();
+               System.gc();
             }
          }
          
