@@ -132,7 +132,9 @@ public class GetMfhdUpdatesXml {
     * @throws Exception
     */
    public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".xml";
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/" + mfhdid +"."+ ts +".xml";
       System.out.println("Saving xml to: "+ url);
       try {         
          
