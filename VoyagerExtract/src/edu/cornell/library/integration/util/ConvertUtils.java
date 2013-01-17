@@ -109,7 +109,7 @@ public class ConvertUtils {
       boolean convertToUtf8   = true;
       reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);     
        
-      OutputFormat format = new OutputFormat("xml", "UTF-8", true);
+      OutputFormat format = new OutputFormat("xml", "UTF-8", false);
       StringWriter sw = new StringWriter();
       XMLSerializer serializer = new XMLSerializer(sw, format);
       Result result = new SAXResult(serializer.asContentHandler());
