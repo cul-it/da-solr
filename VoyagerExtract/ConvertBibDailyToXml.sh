@@ -2,7 +2,8 @@
 CLASS=edu.cornell.library.integration.ConvertBibDailyToXml
 CLASSES=./build/classes
 LIB=./build/lib
-OPTS=-Xmx1536m
+# set heap size as necessary
+OPTS=-Xmx2560m
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
 # need to specifiy src and destination Dir for bib data
