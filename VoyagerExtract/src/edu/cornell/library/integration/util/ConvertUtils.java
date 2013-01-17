@@ -178,6 +178,7 @@ public class ConvertUtils {
             e.printStackTrace();
          } 
       }
+      System.out.println("record count: "+ counter);
       xml = sw.toString(); 
       return xml;
    }
