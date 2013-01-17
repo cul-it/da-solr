@@ -118,7 +118,7 @@ public class GetBibMrc {
     */
    public void saveBibMrc(String mrc, String bibid, String destDir) throws Exception {
       String url = destDir + "/" + bibid +".mrc";
-      System.out.println("Saving mrc to: "+ url);
+      //System.out.println("Saving mrc to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

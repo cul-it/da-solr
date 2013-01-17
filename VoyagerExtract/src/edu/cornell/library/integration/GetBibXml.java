@@ -122,7 +122,7 @@ public class GetBibXml {
     */
    public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
       String url = destDir + "/" + bibid +".xml";
-      System.out.println("Saving xml to: "+ url);
+      //System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

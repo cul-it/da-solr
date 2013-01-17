@@ -121,7 +121,7 @@ public class GetMfhdXml {
     */
    public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
       String url = destDir + "/" + mfhdid +".xml";
-      System.out.println("Saving xml to: "+ url);
+      //System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

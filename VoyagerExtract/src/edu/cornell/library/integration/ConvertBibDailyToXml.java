@@ -112,7 +112,7 @@ public class ConvertBibDailyToXml {
          System.out.println("No Daily Marc files available to process");
       } else {
          for (String srcFile  : srcList) {
-            System.out.println("Converting mrc file: "+ srcFile);
+            //System.out.println("Converting mrc file: "+ srcFile);
    			try {			    
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
    				String xml = converter.convertMrcToXml(mrc);
@@ -145,7 +145,7 @@ public class ConvertBibDailyToXml {
     */
    public void saveBibXml(String xml, String destDir, String destXmlFile) throws Exception {
       String url = destDir +"/"+ destXmlFile;
-      System.out.println("Saving xml to: "+ url);
+      //System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

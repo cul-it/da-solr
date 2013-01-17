@@ -138,7 +138,7 @@ public class GetMfhdUpdatesMrc {
       Calendar now = Calendar.getInstance();
       long ts = now.getTimeInMillis();
       String url = destDir + "/" + mfhdid +"."+ ts +".mrc";
-      System.out.println("Saving mrc to: "+ url);
+      //System.out.println("Saving mrc to: "+ url);
       try {
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
          InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");            

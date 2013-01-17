@@ -113,7 +113,7 @@ public class ConvertBibUpdatesToXml {
          System.out.println("No Update Marc files available to process");
       } else {
          for (String srcFile  : srcList) {
-            System.out.println("Converting mrc file: "+ srcFile);
+            //System.out.println("Converting mrc file: "+ srcFile);
    			try {
    			   //String bibid = StringUtils.replace(srcFile, ".mrc", "");
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
@@ -149,7 +149,7 @@ public class ConvertBibUpdatesToXml {
    public void saveBibXml(String xml, String destDir, String destXmlFile) throws Exception {
       
       String url = destDir + "/" + destXmlFile;
-      System.out.println("Saving xml to: "+ url);
+      //System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

@@ -119,7 +119,7 @@ public class GetMfhdMrc {
     */
    public void saveMfhdMrc(String mrc, String mfhdid, String destDir) throws Exception {
       String url = destDir + "/" + mfhdid +".mrc";
-      System.out.println("Saving mrc to: "+ url);
+      //System.out.println("Saving mrc to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc, "UTF-8");

@@ -133,7 +133,7 @@ public class GetBibUpdatesMrc {
       Calendar now = Calendar.getInstance();
       long ts = now.getTimeInMillis();
       String url = destDir + "/" + bibid +"."+ ts +".mrc";
-      System.out.println("Saving mrc to: "+ url);
+      //System.out.println("Saving mrc to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc, "UTF-8");
