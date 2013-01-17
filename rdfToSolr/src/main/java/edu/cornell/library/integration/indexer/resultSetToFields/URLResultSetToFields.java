@@ -79,11 +79,11 @@ public class URLResultSetToFields implements ResultSetToFields {
 			ArrayList<String> zs = new ArrayList<String>();
 			if (fieldparts.containsKey("3")) threes = fieldparts.get("3");
 			if (fieldparts.containsKey("z")) zs = fieldparts.get("z");
-			if (! relation.equals("other")) {
-				for (String u: us) {
-					addField(fields,"url_"+relation+"_display",u);
-				}
-			} else {
+//			if (! relation.equals("other")) {
+//				for (String u: us) {
+//					addField(fields,"url_"+relation+"_display",u);
+//				}
+//			} else {
 				StringBuilder sb = new StringBuilder();
 				for (String three: threes) {
 					sb.append(" ");
@@ -96,11 +96,11 @@ public class URLResultSetToFields implements ResultSetToFields {
 				String comment = sb.toString().trim();
 				for (String u: us)
 					if (comment.equals("")) {
-						addField(fields,"url_other_display",u);						
+						addField(fields,"url_"+relation+"_display",u);						
 					} else {
-						addField(fields,"url_other_display",u + "|" + comment);
+						addField(fields,"url_"+relation+"_display",u + "|" + comment);
 					}
-			}
+//			}
 			
 
 		}

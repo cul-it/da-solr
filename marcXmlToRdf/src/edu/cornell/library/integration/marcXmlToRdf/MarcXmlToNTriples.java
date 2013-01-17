@@ -25,7 +25,7 @@ public class MarcXmlToNTriples {
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
-	public static Integer recordCount = 0;
+	public static Long recordCount = new Long(0);
 	
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
@@ -243,7 +243,7 @@ public class MarcXmlToNTriples {
 		}
 		while( rec.data_fields.containsKey(fid+1) ) {
 			DataField f = rec.data_fields.get(++fid);
-			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
+			String field_uri = "<"+uri_host+id_pref+id+"_"+fid+">";
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+".\n");
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+".\n");
 			if (f.alttag != null)
@@ -256,7 +256,7 @@ public class MarcXmlToNTriples {
 			int sfid = 0;
 			while( f.subfields.containsKey(sfid+1) ) {
 				Subfield sf = f.subfields.get(++sfid);
-				String subfield_uri = "<"+uri_host+"b"+id+"_"+fid+"_"+sfid+">";
+				String subfield_uri = "<"+uri_host+id_pref+id+"_"+fid+"_"+sfid+">";
 				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> "+subfield_uri+".\n");
 				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield"+Character.toUpperCase( sf.code )+"> "+subfield_uri+".\n");
 				sb.append(subfield_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .\n");
@@ -590,8 +590,8 @@ public class MarcXmlToNTriples {
 	
 	static class FieldStats {
 		public String tag;
-		public Integer recordCount = 0;
-		public Integer instanceCount = 0;
+		public Long recordCount = new Long(0);
+		public Long instanceCount = new Long(0);
 
 		// tabulating how many of a particular field appear in a record
 		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();
@@ -684,8 +684,8 @@ public class MarcXmlToNTriples {
 	static class SubfieldStats {
 		public Character code;
 		public Integer fieldCount = 0;
-		public Integer recordCount = 0;
-		public Integer instanceCount = 0;
+		public Long recordCount = new Long(0);
+		public Long instanceCount = new Long(0);
 		
 		// tabulating how many of a particular subfield appear in a field
 		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();

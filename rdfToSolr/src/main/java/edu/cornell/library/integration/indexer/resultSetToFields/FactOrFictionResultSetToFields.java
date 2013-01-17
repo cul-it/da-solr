@@ -41,12 +41,12 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 						String char33 = nodeToString( node );
 						if (char33.equals("0") ||
 								char33.equalsIgnoreCase("i")) {
-							addField(fields,"subject_content_facet","Non-Fiction");
+							addField(fields,"subject_content_facet","Non-Fiction (books)");
 						} else if (char33.equals("1") ||
 								char33.equalsIgnoreCase("d") ||
 								char33.equalsIgnoreCase("f") ||
 								char33.equalsIgnoreCase("j")) {
-							addField(fields,"subject_content_facet","Fiction");
+							addField(fields,"subject_content_facet","Fiction (books)");
 						}
 					}
 				}

@@ -199,9 +199,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
 				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
-				new SubfieldCodeMaker("title_uniform_display","700","gklmnoprst"),
-				new SubfieldCodeMaker("title_uniform_display","710","fgklmnopqrst"),
-				new SubfieldCodeMaker("title_uniform_display","711","fgklnpst"),
+				new SubfieldCodeMaker("title_uniform_display","700","tgklmnoprs"),
+				new SubfieldCodeMaker("title_uniform_display","710","tfgklmnopqrs"),
+				new SubfieldCodeMaker("title_uniform_display","711","tfgklnps"),
 				new SubfieldCodeMaker("title_uniform_display","730","iaplskfmnordgh",":/ "),
 				
 				new SPARQLFieldMakerImpl().
@@ -370,8 +370,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("subject_topic_facet","650","a",",."),
 				new SubfieldCodeMaker("subject_topic_facet","653","a","."),
 				new SubfieldCodeMaker("subject_topic_facet","654","ab","."),
-				
-				new SubfieldCodeMaker("subject_content_facet","655","ab","."),
+				new SubfieldCodeMaker("subject_topic_facet","655","ab","."),
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
 					addMainStoreQuery("fact_or_fiction",
@@ -425,6 +424,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	addResultSetToFields( new SubjectResultSetToFields()),
 				
 				new SubfieldCodeMaker("donor_s","902","b"),
+				
+				new SubfieldCodeMaker("frequency_display","310","a"),
+				new SubfieldCodeMaker("isbn_display","020","a"),				
+				new SubfieldCodeMaker("issn_display","022","a"),				
 
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
 				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
@@ -434,6 +437,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),
 				new SubfieldCodeMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz"),
 				
+				new SubfieldCodeMaker("author_facet","100","abcdq",".,"),
+				new SubfieldCodeMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",".,"),
+				new SubfieldCodeMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",".,"),
+				new SubfieldCodeMaker("author_facet","700","abcdq",".,"),
+				new SubfieldCodeMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",".,"),
+				new SubfieldCodeMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",".,"),
+
 				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
 				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
 				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),

@@ -125,7 +125,8 @@
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
           <str name="facet.field">subject_topic_facet</str>
@@ -148,7 +149,8 @@
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
           <str name="facet.field">subject_topic_facet</str>
@@ -177,7 +179,8 @@
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
           <str name="facet.field">subject_topic_facet</str>
@@ -200,7 +203,8 @@
           <str name="facet.field">lc_b4cutter_facet</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
           <str name="facet.field">subject_era_facet</str>
           <str name="facet.field">subject_geo_facet</str>
           <str name="facet.field">subject_topic_facet</str>
@@ -392,7 +396,8 @@
         material_type_display, 
         published_display,
         published_vern_display,
-        pub_date,
+        pub_date_facet,
+        author_facet,
         title_display,
         title_vern_display,
         subject_content_facet,
@@ -415,7 +420,8 @@
       <str name="facet.field">lc_b4cutter_facet</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
-      <str name="facet.field">pub_date</str>
+      <str name="facet.field">pub_date_facet</str>
+      <str name="facet.field">author_facet</str>
       <str name="facet.field">subject_era_facet</str>
       <str name="facet.field">subject_geo_facet</str>
       <str name="facet.field">subject_topic_facet</str>
@@ -543,8 +549,9 @@
         lc_callnum_display,
         material_type_display, 
         published_display,
-        published_vern_display,
-        pub_date,
+        published_vern_display, 
+        pub_date_facet, 
+        author_facet,
         title_display,
         title_vern_display,
         subject_topic_facet,
@@ -567,7 +574,8 @@
       <str name="facet.field">lc_b4cutter_facet</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
-      <str name="facet.field">pub_date</str>
+      <str name="facet.field">pub_date_facet</str>
+      <str name="facet.field">author_facet</str>
       <str name="facet.field">subject_era_facet</str>
       <str name="facet.field">subject_geo_facet</str>
       <str name="facet.field">subject_topic_facet</str>
