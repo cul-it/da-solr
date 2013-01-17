@@ -132,7 +132,9 @@ public class GetBibUpdatesXml {
     * @throws Exception
     */
    public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
-      String url = destDir + "/" + bibid +".xml";
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/" + bibid +"."+ ts +".xml";
       System.out.println("Saving xml to: "+ url);
       try {         
          
