@@ -194,7 +194,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
 				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
-				new SubfieldCodeMaker("title_other_display","247","abfgnpx",":/ "),
+				new SubfieldCodeMaker("continues_display","247","abfgnpx",":/ "),
 				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
@@ -450,7 +450,22 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
 				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
 				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
+				/*
+			    new SPARQLFieldMakerImpl().
+		    	setName("author_addl").
+		    	addMainStoreQuery("author_addl_700", 
+	        	"SELECT *\n" +
+	        	" WHERE {\n" +
+	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+	        	"  ?f marcrdf:tag \"700\".\n" +
+	        	"  ?f marcrdf:ind2 ?i2.\n" +
+	        	"  ?f marcrdf:ind1 ?i1.\n" +
+	        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+	        	"  ?sf marcrdf:code ?c.\n" +
+	        	"  ?sf marcrdf:value ?v. }").
+	        	addResultSetToFields( new SubjectResultSetToFields())
 				
+				*/
 					
 		);
 	}
