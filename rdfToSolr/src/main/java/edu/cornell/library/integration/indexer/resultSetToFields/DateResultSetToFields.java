@@ -33,6 +33,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 				
 		Pattern p = Pattern.compile("^[0-9]{4}$");
 		int current_year = Calendar.getInstance().get(Calendar.YEAR);
+		Boolean found_single_date = false;
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
@@ -51,15 +52,20 @@ public class DateResultSetToFields implements ResultSetToFields {
 								Matcher m = p.matcher(value);
 								if (m.matches()) {
 									if (name.equals("date1")) {
-										addField(fields,"pub_date_sort",value);
-//										addField(fields,"pub_date",value);
 										int year = Integer.valueOf(value);
-										if (year < 9999)
-											addField(fields,"pub_date_facet",value);
-									} else {
-										if (! value.equals("9999")) {
-											addField(fields,"pub_date_facet",value);
+										if ((year < 9999) && ! found_single_date) {
+											addField(fields,"pub_date_sort",value);
 //											addField(fields,"pub_date",value);
+											addField(fields,"pub_date_facet",value);
+											found_single_date = true;
+										}
+									} else {
+										int year = Integer.valueOf(value);
+										if ((year < 9999) && ! found_single_date) {
+											addField(fields,"pub_date_sort",value);
+//											addField(fields,"pub_date",value);
+											addField(fields,"pub_date_facet",value);
+											found_single_date = true;
 										}
 									}
 								} else {
