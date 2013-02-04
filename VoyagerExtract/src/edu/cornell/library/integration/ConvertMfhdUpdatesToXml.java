@@ -120,14 +120,21 @@ public class ConvertMfhdUpdatesToXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("mfhd");
+      converter.setExtractType("updates");
+      converter.setSplitSize(0);
+      converter.setDestDir(destDir);
       String destXmlFile = new String();
       // iterate over mrc files
       for (String srcFile  : srcList) {
          //System.out.println("Converting mfhd mrc file: "+ srcFile);
 			try {
-			    
+			   String mfhdid = getMfhdIdFromFileName(srcFile);			   
+			   converter.setSequence_prefix(Integer.parseInt(mfhdid));
+			   String ts = getTimestampFromFileName(srcFile);
+			   converter.setTs(ts);
 			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
-				String xml = converter.convertMrcToXml(mrc);
+				String xml = converter.convertMrcToXml(mrc, davService);
 				destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
 				saveMfhdXml(xml, destDir, destXmlFile);
 			} catch (Exception e) {
@@ -157,6 +164,16 @@ public class ConvertMfhdUpdatesToXml {
       } catch (Exception ex) {
          throw ex;
       }  
+   }
+   
+   public String getTimestampFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[2];
+   }
+   
+   public String getMfhdIdFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[1];
    }
        
    

@@ -107,6 +107,9 @@ public class ConvertBibUpdatesToXml {
       }
       
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("bib");
+      converter.setExtractType("updates");
+      converter.setSplitSize(0);
       String destXmlFile = new String();
       // iterate over mrc files
       if (srcList.size() == 0) {
@@ -118,7 +121,7 @@ public class ConvertBibUpdatesToXml {
    			   //String bibid = StringUtils.replace(srcFile, ".mrc", "");
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
    				//System.out.println("mrc: " + mrc);
-   				String xml = converter.convertMrcToXml(mrc);
+   				String xml = converter.convertMrcToXml(mrc, davService);
    				if (StringUtils.isEmpty(xml)) {
    				   System.out.println("ERROR: Could not convert file: "+ srcFile);
                   davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
