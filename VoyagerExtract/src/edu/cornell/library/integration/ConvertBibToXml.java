@@ -95,13 +95,17 @@ public class ConvertBibToXml {
 
       setDavService(DavServiceFactory.getDavService());
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("bib");
+      converter.setExtractType("single");
+      converter.setSplitSize(0);
+      converter.setSequence_prefix(Integer.parseInt(bibid));
       try {            
          System.out.println("Getting bib mrc for bibid: "+bibid);
          String mrc = davService.getFileAsString(srcDir + "/" + bibid + ".mrc");
        
-         String xml = converter.convertMrcToXml(mrc);
+         String xml = converter.convertMrcToXml(mrc, davService);
          //System.out.println("xml: "+ xml);
-         saveBibXml(xml, bibid, destDir); 
+         //saveBibXml(xml, bibid, destDir); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -117,7 +121,7 @@ public class ConvertBibToXml {
     */
    public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
       String url = destDir + "/" + bibid +".xml";
-      System.out.println("Saving xml to: "+ url);
+      //System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
