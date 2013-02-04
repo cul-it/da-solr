@@ -3,6 +3,7 @@ package edu.cornell.library.integration;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -103,7 +104,7 @@ public class GetBibMrc {
          }
          
          String mrc = sb.toString(); 
-         System.out.println("mrc: "+mrc); 
+         //System.out.println("mrc: "+mrc); 
          saveBibMrc(mrc, bibid, destDir); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
@@ -117,8 +118,10 @@ public class GetBibMrc {
     * @throws Exception
     */
    public void saveBibMrc(String mrc, String bibid, String destDir) throws Exception {
-      String url = destDir + "/" + bibid +".mrc";
-      //System.out.println("Saving mrc to: "+ url);
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/bib." + bibid +"."+ ts +".mrc";
+      System.out.println("Saving mrc to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
