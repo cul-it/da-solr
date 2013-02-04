@@ -3,6 +3,7 @@ package edu.cornell.library.integration;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils; 
@@ -95,7 +96,7 @@ public class GetMfhdMrc {
       setDavService(DavServiceFactory.getDavService());
       
       try {            
-         System.out.println("Getting mfhdRecord for mfhdid: "+mfhdid);
+         System.out.println("Getting mfhd Record for mfhd id: "+mfhdid);
          List<MfhdData>  mfhdDataList = catalogService.getMfhdData(mfhdid);
          StringBuffer sb = new StringBuffer();
          for (MfhdData mfhdData : mfhdDataList) {
@@ -118,8 +119,10 @@ public class GetMfhdMrc {
     * @throws Exception
     */
    public void saveMfhdMrc(String mrc, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".mrc";
-      //System.out.println("Saving mrc to: "+ url);
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/mfhd." + mfhdid +"."+ ts +".mrc"; 
+      System.out.println("Saving mrc to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc, "UTF-8");
