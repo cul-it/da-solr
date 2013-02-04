@@ -105,6 +105,9 @@ public class GetMfhdUpdatesXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("mfhd");
+      converter.setExtractType("updates");
+      converter.setSplitSize(0);
       // iterate over mfhdids, concatenate mfhd data to create mrc
       for (String mfhdid : mfhdIdList) {
 			try {
@@ -116,7 +119,7 @@ public class GetMfhdUpdatesXml {
 				}
 
 				String mrc = sb.toString();
-				String xml = converter.convertMrcToXml(mrc);
+				String xml = converter.convertMrcToXml(mrc, davService);
 				saveMfhdXml(xml, mfhdid, destDir);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -134,7 +137,7 @@ public class GetMfhdUpdatesXml {
    public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
       Calendar now = Calendar.getInstance();
       long ts = now.getTimeInMillis();
-      String url = destDir + "/" + mfhdid +"."+ ts +".xml";
+      String url = destDir + "/mfhd." + mfhdid +"."+ ts +".xml";
       System.out.println("Saving xml to: "+ url);
       try {         
          
