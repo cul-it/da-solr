@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +25,6 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.core.CoreContainer;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
 
@@ -59,6 +59,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 			"http://fbw4-dev.library.cornell.edu/individuals/b3309",
 			"http://fbw4-dev.library.cornell.edu/individuals/b4696",
 			"http://fbw4-dev.library.cornell.edu/individuals/b1322952",
+			"http://fbw4-dev.library.cornell.edu/individuals/b7683714",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
 			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
