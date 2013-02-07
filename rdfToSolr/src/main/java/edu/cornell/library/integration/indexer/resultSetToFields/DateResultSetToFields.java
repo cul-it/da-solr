@@ -51,23 +51,14 @@ public class DateResultSetToFields implements ResultSetToFields {
 							} else if (resultKey.equals("machine_dates")) {
 								Matcher m = p.matcher(value);
 								if (m.matches()) {
-//									if (name.equals("date1")) {
+									if (name.equals("date1")) { //date2 being ignored at present
 										int year = Integer.valueOf(value);
 										if ((year > 0) && (year < 9999) && ! found_single_date) {
 											addField(fields,"pub_date_sort",value);
-//											addField(fields,"pub_date",value);
 											addField(fields,"pub_date_facet",value);
 											found_single_date = true;
 										}
-/*									} else {
-										int year = Integer.valueOf(value);
-										if ((year > 0) && (year < 9999) && ! found_single_date) {
-											addField(fields,"pub_date_sort",value);
-//											addField(fields,"pub_date",value);
-											addField(fields,"pub_date_facet",value);
-											found_single_date = true;
-										}
-									}*/
+									}
 								} else {
 								// debug stmt should be added. Node is not a date in \d\d\d\d format.
 								}
