@@ -95,7 +95,6 @@ public class ConvertBibDailyToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-      String destXmlFile = new String();
       
       // get list of daily mrc files
       List<String> srcList = new ArrayList<String>();
@@ -107,23 +106,25 @@ public class ConvertBibDailyToXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("bib");
+      converter.setExtractType("daily");
+      converter.setSplitSize(10000);
+      converter.setDestDir(destDir);
       // iterate over mrc files
       if (srcList.size() == 0) {
          System.out.println("No Daily Marc files available to process");
       } else {
+         int seqno = 1;
          for (String srcFile  : srcList) {
             //System.out.println("Converting mrc file: "+ srcFile);
-   			try {			    
+   			try {
+   			              
+               converter.setSequence_prefix(seqno);
+               seqno++;
+               String ts = getTimestampFromFileName(srcFile);
+               converter.setTs(ts);
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-   				String xml = converter.convertMrcToXml(mrc);
-   				if (StringUtils.isEmpty(xml)) {
-                  System.out.println("Empty XML. Could not convert file: "+ srcFile);
-                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-               } else {
-                  destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
-                  System.gc();
-                  saveBibXml(xml, destDir, destXmlFile);
-               }
+   				converter.convertMrcToXml(mrc, davService); 
    			} catch (Exception e) {
    			   try {
                   System.out.println("Exception thrown. Could not convert file: "+ srcFile);
@@ -139,31 +140,35 @@ public class ConvertBibDailyToXml {
    }
    
     
+   
    /**
-    * @param xml
-    * @throws Exception
+    * @param str
+    * @return
+    * @throws UnsupportedEncodingException
     */
-   public void saveBibXml(String xml, String destDir, String destXmlFile) throws Exception {
-      String url = destDir +"/"+ destXmlFile;
-      //System.out.println("Saving xml to: "+ url);
-      try {         
-         
-         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(xml, "UTF-8");            
-         //InputStream isr = stringToInputStream(xml);
-         getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
-      } catch (Exception ex) {
-         throw ex;
-      }  
-   }
-       
    protected  InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
       byte[] bytes = str.getBytes("UTF-8");
       return new ByteArrayInputStream(bytes);   
-   }  
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getTimestampFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[2];
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getBibIdFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[1];
+   }
+       
    
    /**
     * @return

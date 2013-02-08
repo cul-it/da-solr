@@ -1,38 +1,27 @@
 package edu.cornell.library.integration;
 
-import java.io.BufferedWriter;
+ 
 import java.io.ByteArrayInputStream;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter; 
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
- 
+import java.io.InputStream; 
+import java.io.UnsupportedEncodingException; 
 import java.text.SimpleDateFormat;
  
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
+ 
  
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.xml.sax.InputSource;
- 
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ConvertUtils;
-import edu.cornell.library.integration.util.ObjectUtils; 
+import edu.cornell.library.integration.util.ConvertUtils; 
 
 public class ConvertMfhdUpdatesToXml {
    
@@ -109,7 +98,8 @@ public class ConvertMfhdUpdatesToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
-       
+      String badDir = srcDir +".bad";
+      
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
@@ -123,54 +113,49 @@ public class ConvertMfhdUpdatesToXml {
       converter.setSrcType("mfhd");
       converter.setExtractType("updates");
       converter.setSplitSize(0);
-      converter.setDestDir(destDir);
-      String destXmlFile = new String();
+      converter.setDestDir(destDir); 
       // iterate over mrc files
-      for (String srcFile  : srcList) {
-         //System.out.println("Converting mfhd mrc file: "+ srcFile);
-			try {
-			   String mfhdid = getMfhdIdFromFileName(srcFile);			   
-			   converter.setSequence_prefix(Integer.parseInt(mfhdid));
-			   String ts = getTimestampFromFileName(srcFile);
-			   converter.setTs(ts);
-			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
-				String xml = converter.convertMrcToXml(mrc, davService);
-				destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
-				saveMfhdXml(xml, destDir, destXmlFile);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+      if (srcList.size() == 0) {
+         System.out.println("No update Marc files available to process");
+      } else {
+         for (String srcFile  : srcList) {
+            try {
+               String ts = getTimestampFromFileName(srcFile);
+               converter.setTs(ts);
+               String mfhd = getMfhdIdFromFileName(srcFile);
+               converter.setItemId(mfhd);
+               
+               String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
+               converter.convertMrcToXml(mrc, davService); 
+            } catch (Exception e) { 
+               try {
+                  System.out.println("Exception caught: could not convert file: "+ srcFile);
+                  e.printStackTrace();
+                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+               } catch (Exception e1) {
+                  // TODO Auto-generated catch block
+                  e1.printStackTrace();
+               } 
+            }
+   		}
+      }
       
-   }
-   
+   } 
    
    /**
-    * @param xml
-    * @throws Exception
+    * @param srcFile
+    * @return
     */
-   public void saveMfhdXml(String xml, String destDir, String destXmlFile) throws Exception {
-      String url = destDir + "/" + destXmlFile;
-      //System.out.println("Saving xml to: "+ url);
-      try {         
-         
-         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(xml, "UTF-8");            
-         getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
-      } catch (Exception ex) {
-         throw ex;
-      }  
-   }
-   
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
+      String ts = tokens[2];
+      return ts;
    }
    
+   /**
+    * @param srcFile
+    * @return
+    */
    public String getMfhdIdFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
       return tokens[1];

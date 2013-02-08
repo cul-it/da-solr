@@ -103,9 +103,7 @@ public class ConvertBibToXml {
          System.out.println("Getting bib mrc for bibid: "+bibid);
          String mrc = davService.getFileAsString(srcDir + "/" + bibid + ".mrc");
        
-         String xml = converter.convertMrcToXml(mrc, davService);
-         //System.out.println("xml: "+ xml);
-         //saveBibXml(xml, bibid, destDir); 
+         converter.convertMrcToXml(mrc, davService); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
