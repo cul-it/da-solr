@@ -299,12 +299,36 @@
       </java>
    </target>
    
+   <target name="ConvertBibFullToXml" depends="build" description="Run ConvertBibFullToXml" >
+      <echo message="Running ConvertBibFullToXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibFullToXml" >         
+         <jvmarg value="-Xmx1280m"/>
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
    <target name="ConvertMfhdDailyToXml" depends="build" description="Run ConvertMfhdDailyToXml" >
       <echo message="Running ConvertMfhdDailyToXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdDailyToXml" >         
          <jvmarg value="-Xmx1024m"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily" />
          <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertMfhdFullToXml" depends="build" description="Run ConvertMfhdFullToXml" >
+      <echo message="Running ConvertMfhdFullToXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdFullToXml" >         
+         <jvmarg value="-Xmx1280m"/>
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
