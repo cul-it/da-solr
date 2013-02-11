@@ -1,21 +1,22 @@
 package edu.cornell.library.integration.util; 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.OutputStream; 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.Pattern; 
 
-import javax.xml.transform.Result;
-import javax.xml.transform.sax.SAXResult;
+import org.apache.commons.io.FileUtils; 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
+import org.apache.commons.logging.LogFactory; 
 import org.marc4j.MarcException;
 import org.marc4j.MarcPermissiveStreamReader;
 import org.marc4j.MarcXmlWriter;
@@ -30,6 +31,8 @@ import org.marc4j.marc.Subfield;
 import org.marc4j.marc.impl.LeaderImpl;
 import org.marc4j.marc.impl.SubfieldImpl;
 
+import edu.cornell.library.integration.ilcommons.service.DavService;
+
 public class ConvertUtils {
    
    protected final Log logger = LogFactory.getLog(getClass());
@@ -40,6 +43,8 @@ public class ConvertUtils {
    private static final Pattern WEIRD_CHARACTERS_PATTERN =
          Pattern.compile(WEIRD_CHARACTERS);
    public static final String LN = System.getProperty("line.separator");
+   
+   public static final String TMPDIR = "/tmp";
    
    /** the weird character matcher */
    private Matcher matcher;
@@ -60,37 +65,161 @@ public class ConvertUtils {
    /** perform Unicode normalization */
    private  boolean normalize = true;
    
-   private  int splitSize = 10000;
+   /** split output file into this many records */
+   private int splitSize = 10000;
+   
+   /** prefix to use in sequence string in output file name */
+   private int sequence_prefix = 0;
+   
+   /** holds a bibid, mfid, or other unique id for single or updates conversions */
+   private String itemId = "";
+   
+   /** timestamp string from the original source file */
+   private String ts;
+   
+   /** the type of marc21 records, typically bib or mfhd */
+   private String srcType;
+   
+   /** the type of extract: full, daily, or updates*/
+   private String extractType;
+   
+   /** destination DAV directory to save XML */
+   private String destDir;
 
    public ConvertUtils() {
       // TODO Auto-generated constructor stub
    }
    
+   /**
+    * @param normalize
+    */
    public void setNormalize(boolean normalize) {
       this.normalize = normalize;
    }
 
+   /**
+    * @return
+    */
    public int getSplitSize() {
       return splitSize;
    }
 
+   /**
+    * @param splitSize
+    */
    public void setSplitSize(int splitSize) {
       this.splitSize = splitSize;
    } 
    
+   /**
+    * @return the convertEncoding
+    */
+   public String getConvertEncoding() {
+      return convertEncoding;
+   }
+
+   /**
+    * @param convertEncoding the convertEncoding to set
+    */
+   public void setConvertEncoding(String convertEncoding) {
+      this.convertEncoding = convertEncoding;
+   }
+
+   /**
+    * @return the sequence_prefix
+    */
+   public int getSequence_prefix() {
+      return sequence_prefix;
+   }
+
+   /**
+    * @param sequence_prefix the sequence_prefix to set
+    */
+   public void setSequence_prefix(int sequence_prefix) {
+      this.sequence_prefix = sequence_prefix;
+   }
+   
+   /**
+    * @return the itemId
+    */
+   public String getItemId() {
+      return itemId;
+   }
+
+   /**
+    * @param itemId the itemId to set
+    */
+   public void setItemId(String itemId) {
+      this.itemId = itemId;
+   }
+
+   /**
+    * @return the srcType
+    */
+   public String getSrcType() {
+      return srcType;
+   }
+
+   /**
+    * @param srcType the srcType to set
+    */
+   public void setSrcType(String srcType) {
+      this.srcType = srcType;
+   }
+
+   /**
+    * @return the extractType
+    */
+   public String getExtractType() {
+      return extractType;
+   }
+
+   /**
+    * @param extractType the extractType to set
+    */
+   public void setExtractType(String extractType) {
+      this.extractType = extractType;
+   }
+
+   /**
+    * @return the ts
+    */
+   public String getTs() {
+      return ts;
+   }
+
+   /**
+    * @param ts the ts to set
+    */
+   public void setTs(String ts) {
+      this.ts = ts;
+   }
+
+   /**
+    * @return the destDir
+    */
+   public String getDestDir() {
+      return destDir;
+   }
+
+   /**
+    * @param destDir the destDir to set
+    */
+   public void setDestDir(String destDir) {
+      this.destDir = destDir;
+   }
+
    public String getControlNumberOfLastReadRecord() {
       return controlNumberOfLastReadRecord;
    }
-
-    
-
-  
-   public String convertMrcToXml(String mrc) throws Exception {
+   
+   public String convertMrcToXml(String mrc, DavService davService) throws Exception {
       String xml = new String();
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
       /** record counter */
       int counter = 0;
+      int total = 0;
 
       /** the previous percent value */
       int prevPercent = 0;
@@ -98,23 +227,24 @@ public class ConvertUtils {
       /** the percent of imported records in the size of file */
       int percent;
       
+      int batch = 0;
+      
       Record record = null;
 
       long fileSize = mrc.length();
 
       InputStream is = stringToInputStream(mrc);
-      //MarcReader reader = new MarcStreamReader(is);
+      
+      String destXmlFile = new String(); 
+       
       MarcPermissiveStreamReader reader = null;
       boolean permissive      = true;
       boolean convertToUtf8   = true;
-      reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);     
+      reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
        
-      OutputFormat format = new OutputFormat("xml", "UTF-8", false);
-      StringWriter sw = new StringWriter();
-      XMLSerializer serializer = new XMLSerializer(sw, format);
-      Result result = new SAXResult(serializer.asContentHandler());
-      writer = new MarcXmlWriter(result);
-      setConverter(writer);
+      destXmlFile = getOutputFileName(0);
+      writer = getWriter(destXmlFile);       
+      
       if (normalize == true) {
          writer.setUnicodeNormalization(true);
       }
@@ -130,7 +260,8 @@ public class ConvertUtils {
                e.printStackTrace();
                continue;
             }
-            counter++;
+            counter++; 
+            total++;
             controlNumberOfLastReadRecord = record.getControlNumber();
             if (MARC_8_ENCODING.equals(convertEncoding)) {
                record.getLeader().setCharCodingScheme('a');
@@ -145,8 +276,26 @@ public class ConvertUtils {
             if (!hasInvalidChars) {
                writer.write(record);
             }
+            
+            // check to see if we need to write out a batch of records
+            if (splitSize > 0 && counter == splitSize) {
+               int seqno = counter * batch;
+               batch++;
+               System.out.println("\nsaving xml batch "+ destXmlFile);
+               try {
+                  if (writer != null) writer.close();                   
+               } catch (Exception ex) {
+                  logger.error("Could not close writer", ex);   
+               }
+               // move the XML to the DAV store and open a new writer
+               moveXmlToDav(davService, destDir, destXmlFile); 
+               destXmlFile = getOutputFileName(seqno);
+               writer = getWriter(destXmlFile); 
+               counter = 0;
+            } // end writing batch
    
-            if ((0 == counter % 100)) {
+            // display progress
+            /*if ((0 == counter % 100)) {
                System.out.print('.');
                if (reader.hasNext()) {
                   try {
@@ -160,26 +309,34 @@ public class ConvertUtils {
                   } catch (IOException e) {
                      e.printStackTrace();
                   }
-               }
-               System.gc();
-            }
+               } 
+            }*/ // end display progress
          }
+         // Write final (or only) batch
+         //int seqno = splitSize * batch;
+         //System.out.println("batch: "+batch);
+         //destXmlFile = getOutputFileName(seqno);
+         System.out.println("\nsaving final xml batch "+ destXmlFile);
+         try { 
+            if (writer != null) writer.close();             
+         } catch (Exception ex) {
+            logger.error("could not close writer or stringwriter", ex);
+         }
+         moveXmlToDav(davService, destDir, destXmlFile);
+         
          
       } finally {
-         if (writer != null) {
-            try {
-               writer.close();
-            } catch (Exception ex) {}
-            
-         }
+          
          try { 
             is.close();
          } catch (IOException e) {
             e.printStackTrace();
          } 
       }
-      System.out.println("record count: "+ counter);
-      xml = sw.toString(); 
+      System.out.println("\ntotal record count: "+ total);
+          
+      //
+      //xml = sw.toString(); 
       return xml;
    }
    
@@ -295,13 +452,72 @@ public class ConvertUtils {
        
    }
    
-   private  MarcXmlWriter getWriter() throws Exception {
+   // this method figures out what the output file name should be
+   private String getOutputFileName(int batch) {
+      StringBuffer sb = new StringBuffer();
+      String sequence = new String();
+      
+      if (StringUtils.equals(getExtractType(), "single") ) {
+         sb.append(getSrcType() +"."+ getItemId() +"."+ getTs() +".xml");
+      } else if (StringUtils.equals(getExtractType(), "updates")) {
+         sb.append(getSrcType() +"."+ getItemId() +"."+ getTs() +".xml");   
+      } else if (StringUtils.equals(getExtractType(), "daily")) {
+         if (batch == 0) {
+            sequence = String.valueOf(getSequence_prefix()) +"_1";   
+         } else {
+            sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
+         }
+         sb.append(getSrcType() +"."+ sequence +"."+ getTs() +".xml");
+      } else if (StringUtils.equals(getExtractType(), "full")) {
+         if (batch == 0) {
+            sequence = String.valueOf(getSequence_prefix()) +"_1";   
+         } else {
+            sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
+         }
+         sb.append(getSrcType() +"."+ sequence +"."+ getTs() +".xml");
+      }
+      
+      return sb.toString();
+   } 
+   
+   /**
+    * @param davService
+    * @param destDir
+    * @param destXmlFile
+    * @throws Exception
+    */
+   private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
+      File srcFile = new File(TMPDIR +"/"+ destXmlFile);
+      String destFile = destDir +"/"+ destXmlFile;
+      //System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
+       
+      InputStream isr = new FileInputStream(srcFile);
+      try { 
+         davService.saveFile(destFile, isr);
+         FileUtils.deleteQuietly(srcFile);
+      } catch (UnsupportedEncodingException ex) {
+         throw ex;
+      } catch (Exception ex) {
+         throw ex;
+      } finally {
+         isr.close();
+      }
+   }
+   
+
+   /**
+    * @param destXml
+    * @return
+    * @throws Exception
+    */
+   private  MarcXmlWriter getWriter(String destXml) throws Exception {
+      //System.out.println("Creating writer at: "+ TMPDIR +"/"+ destXml);
+      OutputStream out = new FileOutputStream(new File(TMPDIR + "/" + destXml));
+
       MarcXmlWriter writer = null;
-      OutputFormat format = new OutputFormat("xml", "UTF-8", true);
-      StringWriter sw = new StringWriter();
-      XMLSerializer serializer = new XMLSerializer(sw, format);
-      Result result = new SAXResult(serializer.asContentHandler());
-      writer = new MarcXmlWriter(result);
+      writer = new MarcXmlWriter(out, "UTF8", true); //, createXml11);
+      //writer.setIndent(doIndentXml);
+      //writer.setCreateXml11(createXml11);
       setConverter(writer);
       if (normalize == true) {
          writer.setUnicodeNormalization(true);
@@ -310,6 +526,10 @@ public class ConvertUtils {
       return writer;
    }
    
+   /**
+    * @param writer
+    * @throws Exception
+    */
    private  void setConverter(MarcXmlWriter writer) throws Exception {
 
       if (null != convertEncoding) {

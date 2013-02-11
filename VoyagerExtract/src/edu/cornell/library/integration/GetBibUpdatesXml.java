@@ -105,6 +105,9 @@ public class GetBibUpdatesXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("bib");
+      converter.setExtractType("updates");
+      converter.setSplitSize(0);
       // iterate over bibids, concatenate bib data to create mrc
       for (String bibid : bibIdList) {
 			try {
@@ -116,7 +119,7 @@ public class GetBibUpdatesXml {
 				}
 
 				String mrc = sb.toString();
-				String xml = converter.convertMrcToXml(mrc);
+				String xml = converter.convertMrcToXml(mrc, davService);
 				saveBibXml(xml, bibid, destDir);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -134,7 +137,7 @@ public class GetBibUpdatesXml {
    public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
       Calendar now = Calendar.getInstance();
       long ts = now.getTimeInMillis();
-      String url = destDir + "/" + bibid +"."+ ts +".xml";
+      String url = destDir + "/bib." + bibid +"."+ ts +".xml";
       System.out.println("Saving xml to: "+ url);
       try {         
          

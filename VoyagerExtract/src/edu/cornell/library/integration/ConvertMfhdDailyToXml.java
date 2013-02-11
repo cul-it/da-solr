@@ -92,7 +92,7 @@ public class ConvertMfhdDailyToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
-      String destXmlFile = new String();
+      String badDir = srcDir +".bad";
        
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
@@ -104,42 +104,38 @@ public class ConvertMfhdDailyToXml {
          e.printStackTrace();
       }
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("mfhd");
+      converter.setExtractType("daily");
+      converter.setSplitSize(10000);
+      converter.setDestDir(destDir);
       // iterate over mrc files
-      for (String srcFile  : srcList) {
-         //System.out.println("Converting mfhd mrc file: "+ srcFile);
-			try {
-			    
-			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-				String xml = converter.convertMrcToXml(mrc); 
-				destXmlFile = StringUtils.replace(srcFile, ".mrc", ".xml");
-				saveMfhdXml(xml,destDir, destXmlFile);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+      int srcCounter = 1;
+      if (srcList.size() == 0) {
+         System.out.println("No Daily Marc files available to process");
+      } else {
+         int seqno = 1;
+         for (String srcFile  : srcList) {
+            System.out.println("Converting mfhd mrc file: "+ srcFile);
+            try {
+               
+               converter.setSequence_prefix(seqno);
+               seqno++;
+               String ts = getTimestampFromFileName(srcFile);
+               converter.setTs(ts);
+               String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
+               converter.convertMrcToXml(mrc, davService); 
+            } catch (Exception e) {
+               try {
+                  System.out.println("Exception thrown. Could not convert file: "+ srcFile);
+                  e.printStackTrace();
+                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+               } catch (Exception e1) { 
+                  e1.printStackTrace();
+               } 
+            }
+   		}
+      }
       
-   }
-   
-    
-   /**
-    * @param xml
-    * @throws Exception
-    */
-   public void saveMfhdXml(String xml,String destDir, String destXmlFile) throws Exception {
-      String url = destDir + "/" + destXmlFile;
-      //System.out.println("Saving xml to: "+ url);
-      try {         
-         
-         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(xml, "UTF-8");            
-         getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
-      } catch (Exception ex) {
-         throw ex;
-      }  
    } 
    
    /**
@@ -152,6 +148,25 @@ public class ConvertMfhdDailyToXml {
 	   earlier.add(Calendar.HOUR, -3);
 	   String ds = df.format(earlier.getTime());
 	   return ds;
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getTimestampFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      String ts = tokens[2]+tokens[3];
+      return ts;
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getMfhdIdFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[1];
    }
    
    

@@ -92,11 +92,15 @@ public class ConvertMfhdToXml {
 
       setDavService(DavServiceFactory.getDavService());
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("mfhd");
+      converter.setExtractType("single");
+      converter.setSplitSize(0);
+      converter.setSequence_prefix(Integer.parseInt(mfhdid));
       try {            
-         System.out.println("Getting mfhd mrc for bibid: "+mfhdid);
+         System.out.println("Getting mfhd mrc for mfhd id: "+mfhdid);
          String mrc = davService.getFileAsString(srcDir + "/" + mfhdid + ".mrc"); 
          //System.out.println("mrc: "+mrc);
-         String xml = converter.convertMrcToXml(mrc);
+         String xml = converter.convertMrcToXml(mrc, davService);
          //System.out.println("xml: "+ xml);
          saveMfhdXml(xml, mfhdid, destDir); 
       } catch (Exception e) {

@@ -1,22 +1,26 @@
 package edu.cornell.library.integration;
 
 
-
-import java.text.SimpleDateFormat;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream; 
+import java.io.UnsupportedEncodingException; 
+import java.text.SimpleDateFormat; 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.List; 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
 import edu.cornell.library.integration.util.ConvertUtils;
+import edu.cornell.library.integration.util.ObjectUtils; 
 
-public class ConvertBibUpdatesToXml {
+public class ConvertMfhdFullToXml {
    
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
@@ -28,7 +32,7 @@ public class ConvertBibUpdatesToXml {
    /**
     * default constructor
     */
-   public ConvertBibUpdatesToXml() { 
+   public ConvertMfhdFullToXml() { 
        
    }  
    
@@ -65,7 +69,7 @@ public class ConvertBibUpdatesToXml {
     * @param args
     */
    public static void main(String[] args) {
-     ConvertBibUpdatesToXml app = new ConvertBibUpdatesToXml();
+     ConvertMfhdFullToXml app = new ConvertMfhdFullToXml();
      if (args.length != 2 ) {
         System.err.println("You must provide a src and destination Dir as arguments");
         System.exit(-1);
@@ -92,52 +96,81 @@ public class ConvertBibUpdatesToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-       
-      // get list of bibids updates using recent date String
+      
+      // get list of Full mrc files
       List<String> srcList = new ArrayList<String>();
       try {
-         System.out.println("Getting list of bib marc files");
+         //System.out.println("Getting list of Mfhd marc files");
          srcList = davService.getFileList(srcDir);
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      
       ConvertUtils converter = new ConvertUtils();
-      converter.setSrcType("bib");
-      converter.setExtractType("updates");
-      converter.setSplitSize(0);
-      converter.setDestDir(destDir); 
+      converter.setSrcType("mfhd");
+      converter.setExtractType("full");
+      converter.setSplitSize(10000);
+      converter.setDestDir(destDir);
       // iterate over mrc files
       if (srcList.size() == 0) {
-         System.out.println("No update Marc files available to process");
+         System.out.println("No Full Marc files available to process");
       } else {
+         int seqno = 1;
          for (String srcFile  : srcList) {
             //System.out.println("Converting mrc file: "+ srcFile);
    			try {
-   			   String ts = getTimestampFromFileName(srcFile);
+   			              
+               converter.setSequence_prefix(seqno);
+               seqno++;
+               String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
-               String bibid = getBibIdFromFileName(srcFile);
-               converter.setItemId(bibid);
-               
    			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
    				converter.convertMrcToXml(mrc, davService); 
-   			} catch (Exception e) { 
+   			} catch (Exception e) {
    			   try {
-   			      System.out.println("Exception caught: could not convert file: "+ srcFile);
-   			      e.printStackTrace();
+                  System.out.println("Exception thrown. Could not convert file: "+ srcFile);
+                  e.printStackTrace();
                   davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-               } catch (Exception e1) {
-                  // TODO Auto-generated catch block
+               } catch (Exception e1) { 
                   e1.printStackTrace();
                } 
    			}
    		}
       }
       
-   } 
-       
+   }
+   
     
+   
+   /**
+    * @param str
+    * @return
+    * @throws UnsupportedEncodingException
+    */
+   protected  InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
+      byte[] bytes = str.getBytes("UTF-8");
+      return new ByteArrayInputStream(bytes);   
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getTimestampFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      String ts =  tokens[2]+tokens[3];
+      return ts;
+   }
+   
+   /**
+    * @param srcFile
+    * @return
+    */
+   public String getMfhdIdFromFileName(String srcFile) {
+      String[] tokens = StringUtils.split(srcFile, ".");
+      return tokens[1];
+   }
+       
    
    /**
     * @return
@@ -149,24 +182,6 @@ public class ConvertBibUpdatesToXml {
 	   earlier.add(Calendar.HOUR, -3);
 	   String ds = df.format(earlier.getTime());
 	   return ds;
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getBibIdFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
    }
    
    

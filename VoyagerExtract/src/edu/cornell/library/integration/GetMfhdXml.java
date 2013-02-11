@@ -2,6 +2,7 @@ package edu.cornell.library.integration;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils; 
@@ -94,7 +95,9 @@ public class GetMfhdXml {
 
       setDavService(DavServiceFactory.getDavService());
       ConvertUtils converter = new ConvertUtils();
-      
+      converter.setSrcType("mfhd");
+      converter.setExtractType("single");
+      converter.setSplitSize(0);
       try {            
          System.out.println("Getting mfhdRecord for mfhdid: "+mfhdid);
          List<MfhdData>  mfhdDataList = catalogService.getMfhdData(mfhdid);
@@ -104,7 +107,7 @@ public class GetMfhdXml {
          }
          
          String mrc = sb.toString();
-         String xml = converter.convertMrcToXml(mrc);
+         String xml = converter.convertMrcToXml(mrc, davService);
          saveMfhdXml(xml, mfhdid, destDir); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
@@ -120,8 +123,10 @@ public class GetMfhdXml {
     * @throws Exception
     */
    public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".xml";
-      //System.out.println("Saving xml to: "+ url);
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/mfhd." + mfhdid +"."+ ts +".xml";
+      System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");

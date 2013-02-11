@@ -132,7 +132,7 @@ public class GetBibUpdatesMrc {
    public void saveBibMrc(String mrc, String bibid, String destDir) throws Exception {
       Calendar now = Calendar.getInstance();
       long ts = now.getTimeInMillis();
-      String url = destDir + "/" + bibid +"."+ ts +".mrc";
+      String url = destDir + "/bib." + bibid +"."+ ts +".mrc";
       //System.out.println("Saving mrc to: "+ url);
       try {         
          

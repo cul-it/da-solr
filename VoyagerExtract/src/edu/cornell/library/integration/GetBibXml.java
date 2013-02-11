@@ -2,6 +2,7 @@ package edu.cornell.library.integration;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -94,8 +95,11 @@ public class GetBibXml {
 
       setDavService(DavServiceFactory.getDavService());
       ConvertUtils converter = new ConvertUtils();
+      converter.setSrcType("bib");
+      converter.setExtractType("single");
+      converter.setSplitSize(0);
       try {            
-         System.out.println("Getting bibRecord for bibid: "+bibid);
+         System.out.println("Getting bib record for bibid: "+bibid);
          List<BibData>  bibDataList = catalogService.getBibData(bibid);
          StringBuffer sb = new StringBuffer();
          for (BibData bibData : bibDataList) {
@@ -104,7 +108,7 @@ public class GetBibXml {
          
          String mrc = sb.toString(); 
          //System.out.println("mrc: "+mrc);
-         String xml = converter.convertMrcToXml(mrc);
+         String xml = converter.convertMrcToXml(mrc, davService);
          //System.out.println("xml: "+ xml);
          saveBibXml(xml, bibid, destDir); 
       } catch (Exception e) {
@@ -121,8 +125,10 @@ public class GetBibXml {
     * @throws Exception
     */
    public void saveBibXml(String xml, String bibid, String destDir) throws Exception {
-      String url = destDir + "/" + bibid +".xml";
-      //System.out.println("Saving xml to: "+ url);
+      Calendar now = Calendar.getInstance();
+      long ts = now.getTimeInMillis();
+      String url = destDir + "/bib." + bibid +"."+ ts +".xml";       
+      System.out.println("Saving xml to: "+ url);
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
