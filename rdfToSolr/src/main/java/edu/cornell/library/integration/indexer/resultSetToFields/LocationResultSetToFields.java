@@ -44,7 +44,7 @@ public class LocationResultSetToFields implements ResultSetToFields {
 						facets.add(libname);
 						addField(fields,"online","At the Library");
 					}
-					facets.add(nodeToString(sol.get("group_name")));
+//					facets.add(nodeToString(sol.get("group_name")));
 				}
 			}
 		}
