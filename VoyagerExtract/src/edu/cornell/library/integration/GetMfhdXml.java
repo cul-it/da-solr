@@ -107,36 +107,11 @@ public class GetMfhdXml {
          }
          
          String mrc = sb.toString();
-         String xml = converter.convertMrcToXml(mrc, davService);
-         saveMfhdXml(xml, mfhdid, destDir); 
+         converter.convertMrcToXml(mrc, davService); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       } 
       
-   }
-   
- 
-   
-   /**
-    * @param xml
-    * @throws Exception
-    */
-   public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
-      Calendar now = Calendar.getInstance();
-      long ts = now.getTimeInMillis();
-      String url = destDir + "/mfhd." + mfhdid +"."+ ts +".xml";
-      System.out.println("Saving xml to: "+ url);
-      try {         
-         
-         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(xml, "UTF-8"); 
-         getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
-      } catch (Exception ex) {
-         throw ex;
-      }  
    } 
 }

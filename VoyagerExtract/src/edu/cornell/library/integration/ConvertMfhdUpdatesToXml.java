@@ -148,8 +148,11 @@ public class ConvertMfhdUpdatesToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      String ts = tokens[2];
-      return ts;
+      if (tokens.length > 3) {
+         return tokens[2] +"."+ tokens[3];   
+      } else {
+         return tokens[2];
+      }
    }
    
    /**

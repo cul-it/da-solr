@@ -157,7 +157,11 @@ public class ConvertBibUpdatesToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
+      if (tokens.length > 3) {
+         return tokens[2] +"."+ tokens[3];   
+      } else {
+         return tokens[2];
+      }
    }
    
    /**

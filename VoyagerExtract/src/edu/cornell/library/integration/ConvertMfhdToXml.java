@@ -99,39 +99,14 @@ public class ConvertMfhdToXml {
       try {            
          System.out.println("Getting mfhd mrc for mfhd id: "+mfhdid);
          String mrc = davService.getFileAsString(srcDir + "/" + mfhdid + ".mrc"); 
-         //System.out.println("mrc: "+mrc);
-         String xml = converter.convertMrcToXml(mrc, davService);
-         //System.out.println("xml: "+ xml);
-         saveMfhdXml(xml, mfhdid, destDir); 
+         InputStream is = davService.getFileAsInputStream(srcDir + "/" + mfhdid + ".mrc");
+         converter.convertMrcToXml(is, davService); 
+          
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       } 
       
-   }
-   
-    
-   
-   /**
-    * @param xml
-    * @throws Exception
-    */
-   public void saveMfhdXml(String xml, String mfhdid, String destDir) throws Exception {
-      String url = destDir + "/" + mfhdid +".xml";
-      //System.out.println("Saving xml to: "+ url);
-      try {         
-         
-         //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), xml, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(xml, "UTF-8"); 
-         getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
-      } catch (Exception ex) {
-         throw ex;
-      }  
    } 
-   
-    
     
 }
