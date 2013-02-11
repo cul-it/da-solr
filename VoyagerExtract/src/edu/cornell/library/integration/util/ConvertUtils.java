@@ -213,8 +213,19 @@ public class ConvertUtils {
       return controlNumberOfLastReadRecord;
    }
    
-   public String convertMrcToXml(String mrc, DavService davService) throws Exception {
-      String xml = new String();
+   public void convertMrcToXml(String mrc, DavService davService) throws Exception {
+      InputStream is = stringToInputStream(mrc);
+      convertMrcToXml(is, davService);
+   }
+   
+   /**
+    * @param mrc
+    * @param davService
+    * @return
+    * @throws Exception
+    */
+   public void convertMrcToXml(InputStream is, DavService davService) throws Exception {
+      //String xml = new String();
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
       /** record counter */
@@ -231,9 +242,9 @@ public class ConvertUtils {
       
       Record record = null;
 
-      long fileSize = mrc.length();
+      //long fileSize = mrc.length();
 
-      InputStream is = stringToInputStream(mrc);
+      //InputStream is = stringToInputStream(mrc);
       
       String destXmlFile = new String(); 
        
@@ -311,19 +322,18 @@ public class ConvertUtils {
                   }
                } 
             }*/ // end display progress
+         } 
+         if (total > 0) {
+            System.out.println("\nsaving final xml batch "+ destXmlFile);
          }
-         // Write final (or only) batch
-         //int seqno = splitSize * batch;
-         //System.out.println("batch: "+batch);
-         //destXmlFile = getOutputFileName(seqno);
-         System.out.println("\nsaving final xml batch "+ destXmlFile);
          try { 
             if (writer != null) writer.close();             
          } catch (Exception ex) {
-            logger.error("could not close writer or stringwriter", ex);
+            logger.error("could not close writer", ex);
          }
-         moveXmlToDav(davService, destDir, destXmlFile);
-         
+         if (total > 0) {
+            moveXmlToDav(davService, destDir, destXmlFile);
+         }
          
       } finally {
           
@@ -333,11 +343,9 @@ public class ConvertUtils {
             e.printStackTrace();
          } 
       }
-      System.out.println("\ntotal record count: "+ total);
-          
-      //
-      //xml = sw.toString(); 
-      return xml;
+      System.out.println("\ntotal record count: "+ total);          
+      
+      //return xml;
    }
    
    /**
