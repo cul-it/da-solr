@@ -156,7 +156,7 @@
       <echo message="Running GetBibMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibMrc" >
          <arg value="7937421" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -166,7 +166,7 @@
    <target name="GetBibUpdatesMrc" depends="build" description="Run GetBibUpdatesMrc" >
       <echo message="Running GetBibUpdatesMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibUpdatesMrc" >          
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -177,7 +177,7 @@
       <echo message="Running GetMfhdMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdMrc" >
          <arg value="8318301" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -187,7 +187,7 @@
    <target name="GetMfhdUpdatesMrc" depends="build" description="Run GetMfhdUpdatesMrc" >
       <echo message="Running GetMfhdUpdatesMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdUpdatesMrc" >          
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -195,55 +195,15 @@
    </target>
    
    
-   <target name="GetBibXml" depends="build" description="Run GetBibXml" >
-      <echo message="Running GetBibXml"/>
-      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibXml" >
-         <arg value="7937421" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
-         <classpath>
-          <path refid="run-classpath"/>
-        </classpath>
-      </java>
-   </target>
-   
-   <target name="GetBibUpdatesXml" depends="build" description="Run GetBibUpdatesXml" >
-      <echo message="Running GetBibUpdatesXml"/>
-      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibUpdatesXml" >          
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
-         <classpath>
-          <path refid="run-classpath"/>
-        </classpath>
-      </java>
-   </target>
-   
-   <target name="GetMfhdXml" depends="build" description="Run GetMfhdXml" >
-      <echo message="Running GetMfhdXml"/>
-      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdXml" >
-         <arg value="371302" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
-         <classpath>
-          <path refid="run-classpath"/>
-        </classpath>
-      </java>
-   </target>
-   
-   <target name="GetMfhdUpdatesXml" depends="build" description="Run GetMfhdUpdatesXml" >
-      <echo message="Running GetMfhdUpdatesXml"/>
-      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdUpdatesXml" >          
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/bib.mfhd.updates" />
-         <classpath>
-          <path refid="run-classpath"/>
-        </classpath>
-      </java>
-   </target>
+    
    
    <target name="ConvertBibToXml" depends="build" description="Run ConvertBibToXml" >
       <echo message="Running ConvertBibtoXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibToXml" >
          <jvmarg value="-Xmx1024m"/>
          <arg value="7937421" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -255,8 +215,8 @@
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdToXml" >
          <jvmarg value="-Xmx1024m"/>
          <arg value="8318301" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -267,8 +227,8 @@
       <echo message="Running ConvertUpdatesBibtoXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibUpdatesToXml" >         
          <jvmarg value="-Xmx1024m"/>
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -279,8 +239,8 @@
       <echo message="Running ConvertUpdatesMfhdtoXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdUpdatesToXml" >         
          <jvmarg value="-Xmx1024m"/>
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
-         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
