@@ -360,6 +360,7 @@
   <!-- Copy Fields -->
 
   <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
+  <copyField source="donor_s" dest="donor_display"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>
