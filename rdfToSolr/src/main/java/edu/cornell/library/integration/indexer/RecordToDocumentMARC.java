@@ -453,10 +453,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
 				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
-				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,")
+//				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
+//				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
+//				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
 				/*
 			    new SPARQLFieldMakerImpl().
 		    	setName("author_addl").
