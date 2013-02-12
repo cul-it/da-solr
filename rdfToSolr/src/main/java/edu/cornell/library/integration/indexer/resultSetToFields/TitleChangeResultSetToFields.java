@@ -121,6 +121,23 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					addField(fields,relation+"_display",displaystring + '|'+ clicktosearch );
 				}
 			}
+			relation = "";
+			if (t.equals("700") || t.equals("710") || t.equals("711")) {
+				if (ind.endsWith("2")) {
+					relation = "included_work";
+				} else {
+					relation = "related_work";
+				}
+			}
+			String author_cts = combine_subfields("a",fieldparts);
+			if (! relation.equals("")) {
+				String workField = combine_subfields("tfgklmnopqrsabcdefh",fieldparts);
+				workField += '|' + clicktosearch;
+				if (author_cts.length() > 1) {
+					workField += '|' + author_cts;
+				}
+				addField(fields,relation+"_display",workField);
+			}
 			if (t.equals("780") 
 					|| t.equals("785")
 					|| t.equals("765")
