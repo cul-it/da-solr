@@ -16,6 +16,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.fs.Path;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
@@ -35,6 +41,7 @@ import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.TDBLoader;
 import com.hp.hpl.jena.tdb.store.GraphTDB;
 
+import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.HoldingForBib;
 import edu.cornell.library.integration.hadoop.reduce.RdfToSolrIndexReducer;
 import edu.cornell.library.integration.indexer.RecordToDocument;
@@ -64,14 +71,17 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	HoldingForBib holdingsIndex;
 	DavService davService;	
-	
+
+    Path todoDir;
+    Path doneDir;
+
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
         String url = urlText.toString();
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
 
 		File tmpDir = Files.createTempDir();
-		log.info("Using tmpDir " + tmpDir.getAbsolutePath());
+		log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
 		try{			
 			InputStream is = getUrl( urlText.toString() , context );
 			context.progress();
@@ -99,12 +109,27 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				indexToSolr(bibUri, rdf);	
 				context.progress();
 				context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
-			}					
+			}		
+			
+			moveToDone( context );
+		}catch(Throwable th){
+			FileSplit fileSplit = (FileSplit)context.getInputSplit();
+			String filename = fileSplit.getPath().getName();
+			String errorMsg = "could not process file URL " + urlText.toString() + " due to " + th.toString() ;
+			context.write( new Text( filename), new Text( errorMsg ));
 		}finally{
 			Files.deleteRecursively(tmpDir);
 		}
 	}
 	
+	private void moveToDone( Context context ) throws java.io.IOException{
+		FileSplit fileSplit = (FileSplit)context.getInputSplit();
+		String filename = fileSplit.getPath().getName();
+		FileSystem fs = FileSystem.get( context.getConfiguration() );
+		FileUtil.copy(fs, new Path(filename),fs, doneDir,
+			true, false, fs.getConf()); 
+	}
+
 	private void indexToSolr(String bibUri, RDFService rdf){
 		SolrInputDocument doc=null;
 		try{
@@ -190,11 +215,20 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		return bibUris;
 	}
 
+    private String getSplitFileName(Context context){
+        FileSplit fileSplit = (FileSplit)context.getInputSplit();
+        String filename = fileSplit.getPath().getName();
+        return fileSplit.getPath().toString();
+    }
+
 	@Override
 	public void setup(Context context) throws IOException, InterruptedException{
 		super.setup(context);		
 		Configuration conf = context.getConfiguration();
 		
+		todoDir = new Path( conf.get(BibFileToSolr.TODO_DIR) );
+		doneDir = new Path( conf.get(BibFileToSolr.DONE_DIR) );
+	
 		solrURL = conf.get( RdfToSolrIndexReducer.SOLR_SERVICE_URL );
 		if(solrURL == null )
 			throw new Error("BibFileIndexingMapper requires URL of Solr server in config property " + RdfToSolrIndexReducer.SOLR_SERVICE_URL);
