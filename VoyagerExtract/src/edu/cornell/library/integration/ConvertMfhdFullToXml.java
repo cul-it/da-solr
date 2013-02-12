@@ -96,7 +96,7 @@ public class ConvertMfhdFullToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-      
+      String doneDir = srcDir +".done";
       // get list of Full mrc files
       List<String> srcList = new ArrayList<String>();
       try {
@@ -125,7 +125,8 @@ public class ConvertMfhdFullToXml {
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
                InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(is, davService); 
+               converter.convertMrcToXml(is, davService);
+               davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) {
    			   try {
                   System.out.println("Exception thrown. Could not convert file: "+ srcFile);
