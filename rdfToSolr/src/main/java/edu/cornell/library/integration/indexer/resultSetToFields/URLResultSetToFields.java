@@ -106,7 +106,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
 					relation = "bookplate";
 					if (! comment.equals(""))
-						addField(fields,"donor_s",comment);
+						addField(fields,"donor_t",comment);
 				}
 				if (comment.equals("")) {
 					addField(fields,"url_"+relation+"_display",u);						

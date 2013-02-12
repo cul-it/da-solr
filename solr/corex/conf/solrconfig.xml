@@ -379,9 +379,11 @@
 
       <str name="donor_pf">
         donor_s
+        donor_t
       </str>
       <str name="donor_qf">
         donor_s
+        donor_t
       </str>
       
       
@@ -536,8 +538,8 @@
       </str>
       
       <!-- for user query terms in donor text box -->
-      <str name="donor_pf"> donor_s </str>
-      <str name="donor_qf"> donor_s </str>
+      <str name="donor_pf"> donor_s donor_t </str>
+      <str name="donor_qf"> donor_s donor_t </str>
 
       <!-- for user query terms in number text box -->
       <str name="qf_number">isbn_t</str>
