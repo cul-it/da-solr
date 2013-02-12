@@ -6,7 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +24,8 @@ public class MarcXmlToNTriples {
 	
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
+	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
+	public static Long recordCount = new Long(0);
 	
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
@@ -50,7 +56,10 @@ public class MarcXmlToNTriples {
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
+					tabulateFieldData(rec);
 					mapNonRomanFieldsToRomanizedFields(rec);
+					if (rec.type == RecordType.BIBLIOGRAPHIC) 
+						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
 					out.write( ntriples.getBytes() );
 				}
@@ -78,8 +87,126 @@ public class MarcXmlToNTriples {
 				e.printStackTrace();
 			}
 		}
+		String[] tags = fieldStatsByTag.keySet().toArray(new String[ fieldStatsByTag.keySet().size() ]);
+		Arrays.sort( tags );
+		for( String tag: tags) {
+			System.out.println("--------------------------------");
+			System.out.println(fieldStatsByTag.get(tag).toString());
+		}
 	}
 	
+	public static void tabulateFieldData( MarcRecord rec ) {
+		
+		Map<String,Integer> fieldtagcounts = new HashMap<String,Integer>();
+		Map<String,HashMap<Character,Integer>> codeCounts = 
+				new HashMap<String,HashMap<Character,Integer>>();
+		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
+		for (Integer fid: rec.control_fields.keySet()) {
+			ControlField f = rec.control_fields.get(fid);
+			if (fieldtagcounts.containsKey(f.tag)) {
+				fieldtagcounts.put(f.tag, fieldtagcounts.get(f.tag)+1);
+			} else {
+				fieldtagcounts.put(f.tag, 1);
+			}
+		}
+		for (Integer fid: rec.data_fields.keySet()) {
+			DataField f = rec.data_fields.get(fid);
+			if (fieldtagcounts.containsKey(f.tag)) {
+				fieldtagcounts.put(f.tag, fieldtagcounts.get(f.tag)+1);
+			} else {
+				fieldtagcounts.put(f.tag, 1);
+			}			
+			if (! fieldStatsByTag.containsKey(f.tag)) {
+				FieldStats fs = new FieldStats();
+				fs.tag = f.tag;
+				fieldStatsByTag.put(f.tag, fs);
+			}
+			FieldStats fs = fieldStatsByTag.get(f.tag);
+			if (fs.countBy1st.containsKey(f.ind1)) {
+				fs.countBy1st.put(f.ind1, fs.countBy1st.get(f.ind1)+ 1);
+			} else {
+				fs.countBy1st.put(f.ind1, 1);
+				fs.exampleBy1st.put(f.ind1,rec_id);
+			}
+			if (fs.countBy2nd.containsKey(f.ind2)) {
+				fs.countBy2nd.put(f.ind2, fs.countBy2nd.get(f.ind2)+ 1);
+			} else {
+				fs.countBy2nd.put(f.ind2, 1);
+				fs.exampleBy2nd.put(f.ind2,rec_id);
+			}
+			String indpair = f.ind1.toString() + f.ind2.toString();
+			if (fs.countByBoth.containsKey(indpair)) {
+				fs.countByBoth.put(indpair, fs.countByBoth.get(indpair)+ 1);
+			} else {
+				fs.countByBoth.put(indpair, 1);
+				fs.exampleByBoth.put(indpair,rec_id);
+			}
+			Integer[] subfields = f.subfields.keySet().toArray(new Integer[ f.subfields.keySet().size() ]);
+			Arrays.sort( subfields );
+			StringBuilder sb = new StringBuilder();
+			for (Integer sfid: subfields) {
+				Subfield sf = f.subfields.get(sfid);
+				sb.append(sf.code);
+				if (codeCounts.containsKey(f.tag)) {
+					HashMap<Character,Integer> tagCounts = codeCounts.get(f.tag);
+					if (tagCounts.containsKey(sf.code)) {
+						tagCounts.put(sf.code, tagCounts.get(sf.code)+1);
+					} else {
+						tagCounts.put(sf.code,1);
+					}
+					codeCounts.put(f.tag, tagCounts);
+				} else {
+					HashMap<Character,Integer> tagCounts = new HashMap<Character,Integer>();
+					tagCounts.put(sf.code, 1);
+					codeCounts.put(f.tag, tagCounts);
+				}
+			}
+			String sfpattern = sb.toString();
+			if (fs.countBySubfieldPattern.containsKey(sfpattern)) {
+				fs.countBySubfieldPattern.put(sfpattern, fs.countBySubfieldPattern.get(sfpattern)+ 1);
+			} else {
+				fs.countBySubfieldPattern.put(sfpattern, 1);
+				fs.exampleBySubfieldPattern.put(sfpattern,rec_id);
+			}
+			
+			fieldStatsByTag.put(f.tag, fs);
+		}
+		for( String tag: fieldtagcounts.keySet()) {
+			Integer count = fieldtagcounts.get(tag);
+			if (! fieldStatsByTag.containsKey(tag)) {
+				FieldStats fs = new FieldStats();
+				fs.tag = tag;
+				fieldStatsByTag.put(tag, fs);
+			}
+			FieldStats fs = fieldStatsByTag.get(tag);
+			if (fs.countByCount.containsKey(count)) {
+				fs.countByCount.put(count, fs.countByCount.get(count)+1);
+			} else {
+				fs.countByCount.put(count, 1);
+				fs.exampleByCount.put(count, rec_id);
+			}
+			fs.recordCount++;
+			fs.instanceCount += count;
+			fieldStatsByTag.put(tag, fs);
+		}
+		for (String tag: codeCounts.keySet()) {
+			HashMap<Character,Integer> tagCounts = codeCounts.get(tag);
+			FieldStats fs = fieldStatsByTag.get(tag);
+			for (Character code: tagCounts.keySet()) {
+				if (! fs.subfieldStatsByCode.containsKey(code)) {
+					SubfieldStats sfs = new SubfieldStats();
+					sfs.code = code;
+					fs.subfieldStatsByCode.put(code, sfs);
+				}
+				SubfieldStats sfs = fs.subfieldStatsByCode.get(code);
+				sfs.recordCount++;
+				sfs.instanceCount += tagCounts.get(code);
+				fs.subfieldStatsByCode.put(code, sfs);
+			}
+			fieldStatsByTag.put(tag, fs);
+		}
+		recordCount++;
+	}
 
 	public static String generateNTriples ( MarcRecord rec, RecordType type ) {
 		StringBuilder sb = new StringBuilder();
@@ -116,7 +243,7 @@ public class MarcXmlToNTriples {
 		}
 		while( rec.data_fields.containsKey(fid+1) ) {
 			DataField f = rec.data_fields.get(++fid);
-			String field_uri = "<"+uri_host+"b"+id+"_"+fid+">";
+			String field_uri = "<"+uri_host+id_pref+id+"_"+fid+">";
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+".\n");
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+".\n");
 			if (f.alttag != null)
@@ -129,7 +256,7 @@ public class MarcXmlToNTriples {
 			int sfid = 0;
 			while( f.subfields.containsKey(sfid+1) ) {
 				Subfield sf = f.subfields.get(++sfid);
-				String subfield_uri = "<"+uri_host+"b"+id+"_"+fid+"_"+sfid+">";
+				String subfield_uri = "<"+uri_host+id_pref+id+"_"+fid+"_"+sfid+">";
 				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> "+subfield_uri+".\n");
 				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield"+Character.toUpperCase( sf.code )+"> "+subfield_uri+".\n");
 				sb.append(subfield_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .\n");
@@ -148,6 +275,85 @@ public class MarcXmlToNTriples {
 		s = s.replaceAll("[\n\r]+", "\\\\n");
 		s = s.replaceAll("\t","\\\\t");
 		return s;
+	}
+	
+	public static void attemptToConfirmDateValues( MarcRecord rec ) throws Exception {
+		
+		Collection<String> humanDates = new HashSet<String>();
+		Collection<String> machineDates = new HashSet<String>();
+		Pattern p = Pattern.compile("^[0-9]{4}$");
+		Boolean found008 = false;
+		String rec_id = rec.control_fields.get(1).value;
+		int current_year = Calendar.getInstance().get(Calendar.YEAR);
+
+		if (logout == null) {
+			FileWriter logstream = new FileWriter(logfile);
+			logout = new BufferedWriter( logstream );
+		}
+		
+//		logout.write("------------------------------\n");
+		
+		for (int id: rec.control_fields.keySet()) {
+			ControlField f = rec.control_fields.get(id);
+			if (f.tag.equals("008")) {
+				if (found008) {
+					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") More than one 008 found in record.\n");
+				}
+				found008 = true;
+//				logout.write("008: "+f.value);
+				String date1 = f.value.substring(7, 11);
+				String date2 = f.value.substring(11, 15);
+				Matcher m = p.matcher(date1);
+				if (m.matches() && ! date1.equals("9999"))
+					machineDates.add(date1);
+				m = p.matcher(date2);
+				if (m.matches() && ! date2.equals("9999"))
+					machineDates.add(date2);
+			}
+		}
+		if (!found008) {
+			logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+					") No 008 found in record.\n");
+		}
+		
+		for (int id: rec.data_fields.keySet()) {
+			DataField f = rec.data_fields.get(id);
+			if (f.tag.equals("260") || f.tag.equals("264")) {
+//				logout.write(f.toString());
+				for ( int sf_id: f.subfields.keySet() ) {
+					Subfield sf = f.subfields.get(sf_id);
+					if (sf.code.equals('c')) {
+						humanDates.add(sf.value);
+					}
+				}
+			}
+			
+		}
+		if (humanDates.isEmpty()) {
+//			logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+//					") Record has no 260 or 264 subfield c.\n");			
+		}
+		if (machineDates.isEmpty()) return;
+		for ( String date: machineDates) {
+			if (Integer.valueOf(date) > current_year + 1) {
+				logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+						") Date of "+date+"in 008 field is in the future.\n");			
+			} else {
+				Boolean found = false;
+				for (String hDate: humanDates) {
+					if (hDate.contains(date)) {
+						found = true;
+						break;
+					}
+				}
+				if (! found) {
+					// This appears to be an extremely weak indicator of error.
+//					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+//							") Date in 008, "+date+", cannot be found in 260 or 264.\n");			
+				}
+			}
+		}
 	}
 	
 	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
@@ -274,7 +480,7 @@ public class MarcXmlToNTriples {
 		return fields; // We should never reach this line.
 	}
 	
-	public final static  String getEventTypeString(int  eventType)
+	public final static String getEventTypeString(int  eventType)
 	{
 	  switch  (eventType)
 	    {
@@ -327,20 +533,7 @@ public class MarcXmlToNTriples {
 
 			while( this.data_fields.containsKey(id+1) ) {
 				DataField f = this.data_fields.get(++id);
-				sb.append(f.tag);
-				sb.append(" ");
-				sb.append(f.ind1);
-				sb.append(f.ind2);
-				sb.append(" ");
-				int sf_id = 0;
-				while( f.subfields.containsKey(sf_id+1) ) {
-					Subfield sf = f.subfields.get(++sf_id);
-					sb.append("|");
-					sb.append(sf.code);
-					sb.append(" ");
-					sb.append(sf.value);
-				}
-				sb.append("\n");
+				sb.append(f.toString());
 			}
 			return sb.toString();
 		}
@@ -364,6 +557,24 @@ public class MarcXmlToNTriples {
 
 		// Linked field number if field is 880
 		public String alttag;
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.tag);
+			sb.append(" ");
+			sb.append(this.ind1);
+			sb.append(this.ind2);
+			sb.append(" ");
+			int sf_id = 0;
+			while( this.subfields.containsKey(sf_id+1) ) {
+				Subfield sf = this.subfields.get(++sf_id);
+				sb.append("|");
+				sb.append(sf.code);
+				sb.append(" ");
+				sb.append(sf.value);
+			}
+			sb.append("\n");
+			return sb.toString();
+		}
 	}
 	
 	static class Subfield {
@@ -376,4 +587,124 @@ public class MarcXmlToNTriples {
 	static enum RecordType {
 		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
 	}
+	
+	static class FieldStats {
+		public String tag;
+		public Long recordCount = new Long(0);
+		public Long instanceCount = new Long(0);
+
+		// tabulating how many of a particular field appear in a record
+		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();
+		public Map<Integer,Integer> exampleByCount = new HashMap<Integer,Integer>();
+
+		// tabulating frequency of particular indicator values
+		public Map<Character,Integer> countBy1st = new HashMap<Character,Integer>();
+		public Map<Character,Integer> exampleBy1st = new HashMap<Character,Integer>();
+		public Map<Character,Integer> countBy2nd = new HashMap<Character,Integer>();
+		public Map<Character,Integer> exampleBy2nd = new HashMap<Character,Integer>();
+		public Map<String,Integer> countByBoth = new HashMap<String,Integer>();
+		public Map<String,Integer> exampleByBoth = new HashMap<String,Integer>();
+		
+		// tabulating frequency of subfields
+		public Map<Character,SubfieldStats> subfieldStatsByCode = new HashMap<Character,SubfieldStats>();
+		
+		// tabulating frequency of subfield pattern
+		public Map<String,Integer> countBySubfieldPattern = new HashMap<String,Integer>();
+		public Map<String,Integer> exampleBySubfieldPattern = new HashMap<String,Integer>();
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Tag: "+this.tag+ " ("+ this.instanceCount+ " instances in "  +this.recordCount + " ("+
+					(double)Math.round(1000 * this.recordCount / (double) MarcXmlToNTriples.recordCount)/10 +"%) records)\nField Frequencies: ");
+			Integer[] fcounts = this.countByCount.keySet().toArray(
+					                                   new Integer[ this.countByCount.keySet().size() ]);
+			Arrays.sort( fcounts );
+			for (Integer count: fcounts ) {
+				sb.append("\n   "+count + " instance(s) of the field occurred in " + 
+						this.countByCount.get(count) + " record(s). (Example record id: " +
+						this.exampleByCount.get(count) + ")");
+			}
+			
+			if (! this.countBy1st.isEmpty()) {
+				sb.append("\n First Indicators: ");
+				Character[] inds = this.countBy1st.keySet().toArray(
+						                                     new Character[ this.countBy1st.keySet().size() ]);
+				Arrays.sort( inds );
+				for (Character ind: inds ) {
+					sb.append("\n   \""+ ind + "\" occurred in " + this.countBy1st.get(ind) + 
+							" field(s). (Example record id: " +  this.exampleBy1st.get(ind) + ")");
+				}
+			}
+			
+			if (! this.countBy2nd.isEmpty()) {
+				sb.append("\n Second Indicators: ");
+				Character[] inds = this.countBy2nd.keySet().toArray(
+	                    new Character[ this.countBy2nd.keySet().size() ]);
+				Arrays.sort( inds );
+				for (Character ind: inds) {
+					sb.append("\n   \""+ind + "\" occurred in " + this.countBy2nd.get(ind) + 
+							" field(s). (Example record id: " +  this.exampleBy2nd.get(ind) + ")");
+				}
+			}
+			
+			if (! this.countByBoth.isEmpty()) {
+				sb.append("\n Pairs of Indicators: ");
+				String[] indpairs = this.countByBoth.keySet().toArray(
+	                    new String[ this.countByBoth.keySet().size() ]);
+				Arrays.sort( indpairs );
+				for (String indpair: indpairs) {
+					sb.append("\n   \""+indpair + "\" occurred in " + this.countByBoth.get(indpair) + 
+							" field(s). (Example record id: " +  this.exampleByBoth.get(indpair) + ")");
+				}
+			}
+				
+			if (! this.countBySubfieldPattern.isEmpty()) {
+				sb.append("\n Subfield Patterns: ");
+				String[] s = this.countBySubfieldPattern.keySet().toArray(
+	                    new String[ this.countBySubfieldPattern.keySet().size() ]);
+				Arrays.sort( s );
+				for (String subs: s) {
+					sb.append("\n   \""+subs + "\" occurred in " + this.countBySubfieldPattern.get(subs) +
+							" field(s). (Example record id: " + this.exampleBySubfieldPattern.get(subs) + ")");
+				}
+			}
+				
+/*			sb.append("\n Specific Subfields: \n");
+			Character[] codes = this.subfieldStatsByCode.keySet().toArray(
+                    new Character[ this.subfieldStatsByCode.keySet().size() ]);
+			Arrays.sort( codes );
+			for (Character code: codes) {
+				sb.append(this.subfieldStatsByCode.get(code).toString());
+			} */
+			
+			return sb.toString();
+		}
+		
+	}
+	static class SubfieldStats {
+		public Character code;
+		public Integer fieldCount = 0;
+		public Long recordCount = new Long(0);
+		public Long instanceCount = new Long(0);
+		
+		// tabulating how many of a particular subfield appear in a field
+		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();
+		public Map<Integer,Integer> exampleByCount = new HashMap<Integer,Integer>();
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(" Code: "+this.code+ " ("+this.instanceCount + " instances in " + this.fieldCount + 
+					" fields in " + this.recordCount + " records)\n  Subfield Frequencies: ");
+			Integer[] sfcounts = this.countByCount.keySet().toArray(
+                    new Integer[ this.countByCount.keySet().size() ]);
+			Arrays.sort( sfcounts );
+
+			for (Integer count: sfcounts) {
+				sb.append(count + "(" + this.countByCount.get(count) + "/" + this.exampleByCount.get(count)
+						+ ") ");
+			}
+			sb.append("\n");
+			return sb.toString();
+		}
+	}
+
 }

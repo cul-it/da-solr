@@ -9,29 +9,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.core.CoreContainer;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.xml.sax.SAXException;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
-public class SolrLoadingTestBase extends RdfLoadingTestBase {
+public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 			
 	static SolrServer solr = null;		
 		
@@ -55,38 +55,29 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	static final String fallbackSolrDir1 = new File("../solr/corex").getAbsolutePath() ;
 	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
 	
-	static final String[] rMarcURIS = {
-			"http://fbw4-dev.library.cornell.edu/individuals/b3309",
-			"http://fbw4-dev.library.cornell.edu/individuals/b4696",
-			"http://fbw4-dev.library.cornell.edu/individuals/b1322952",
-			"http://fbw4-dev.library.cornell.edu/individuals/b7683714",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC004",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC005",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC006",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC007",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC008",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC009",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC010"
-	};
 	
+	
+	@BeforeClass
+	public static void setup() throws Exception{
+		setupSolr();		
+	}
+
+/*	@AfterClass
+	public static void down() throws Exception{
+		takeDownSolr();
+	} */
+	
+	@Test 
+	public void testForGoodStartup() throws Exception{
+		super.testLanguageMappingsInRDF();
+		super.testCallnumberMappingsInRDF();
+	}	
 	
     public static TemporaryFolder solrTmpFolder = null;
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		
-		solrTmpFolder = new TemporaryFolder();
-		solrTmpFolder.create();
-		
-		String solrTemplateDir = getSolrTemplateDir();
-		if( solrTemplateDir == null)
-			throw new Exception("could not find solr template directory");					
-		
-		File solrBase = prepareTmpSolrDir( solrTemplateDir, solrTmpFolder );
-		solr = setupSolrIndex( solrBase );		
+		solr = new 	HttpSolrServer( "http://bdc34-dev.library.cornell.edu:8080/solr/core1" );
 		indexStandardTestRecords( solr, rdf );		
 	}
 	
@@ -165,59 +156,23 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		}
 	}
 	
-	/**
-	 * I was hoping to do this in a better way but right
-	 * now the solr template directory is just guessed based
-	 * on the CWD.
-	 * 
-	 * First attempt: get the value from a resource file.
-	 * (didn't work out)
-	 * Second attempt: guess based on CWD
-	 * @return
-	 * @throws IOException 
-	 */
-	private static String getSolrTemplateDir() throws IOException {
-		String key = "solrTemplateDirectory";
-		System.out.println( new File(".").getAbsolutePath() );
-		//get the testSolr.properties file and load it
-		URL url = getResource("/testSolr.properties");
-		Properties props = new Properties();
-		if (null != url) {            
-            InputStream in = url.openStream();
-            props = new Properties();
-            props.load(in);           
-		}
-
-		String solrTemplateDir = props.getProperty(key);
-		if( solrTemplateDir == null){
-			//could not find properties, just guess.					
-			solrTemplateDir = fallbackSolrDir1;			
-		}
-		if( !(new File( solrTemplateDir).exists() )){
-			solrTemplateDir = fallbackSolrDir2;
-		}
-		return solrTemplateDir;		
+	public static String convertStreamToString(java.io.InputStream is) {
+	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
 	}
-
-	private static File prepareTmpSolrDir(String solrTemplateDir, TemporaryFolder folder) throws IOException{
-		File base = folder.newFolder("recordToDocumentMARCTest_solr");
-		System.out.println( solrTemplateDir );
-		FileUtils.copyDirectory(new File(solrTemplateDir), base );				
-		return base;
-	}
-	
-	private static SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
-		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
-		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-		CoreContainer coreContainer = initializer.initialize();
-		return new EmbeddedSolrServer(coreContainer, "");		
-	}
-		
 
 	private static void indexStandardTestRecords( SolrServer solr , RDFService rdfService) throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
-		
-		for( String uri: rMarcURIS){
+		InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { ?bib  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" +
+				"             <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .}",
+				 RDFService.ResultFormat.TEXT);
+		String bib_xml = convertStreamToString(is);
+		System.out.println(bib_xml);
+		Pattern p = Pattern.compile("<([^>]*)>");
+		Matcher m = p.matcher(bib_xml);
+		while (m.find()) {
+			String uri = m.group(1);
+			System.out.println("*** " + uri + " ***");
 			SolrInputDocument doc;
 			try {
 				doc = r2d.buildDoc(uri, rdfService);
@@ -231,7 +186,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 				System.out.println("Failed adding doc to solr for uri:" + uri);				
 				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
 				System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
-				throw e;
+//				throw e;
 			}
 		}
 		solr.commit();

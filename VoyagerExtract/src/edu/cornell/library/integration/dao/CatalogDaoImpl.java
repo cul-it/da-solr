@@ -1,32 +1,23 @@
 package edu.cornell.library.integration.dao;
 
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringWriter;
+ 
+import java.io.Reader; 
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Clob;
-
-import oracle.jdbc.OracleResultSet;
-import oracle.sql.CLOB;
-import java.text.SimpleDateFormat; 
-import java.util.Calendar; 
+import java.sql.Clob; 
+import oracle.sql.CLOB; 
 import java.util.List; 
 
-import javax.sql.DataSource;
-
-import org.apache.commons.io.IOUtils;
+import javax.sql.DataSource; 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.apache.commons.logging.LogFactory; 
+import org.springframework.dao.EmptyResultDataAccessException; 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper; 
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
@@ -47,6 +38,7 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
    private SimpleJdbcTemplate simpleJdbcTemplate;
    private JdbcTemplate jdbcTemplate;
    private OracleLobHandler oracleLobHandler; 
+   
    /**
     *
     */
@@ -388,11 +380,20 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
     *
     */
    private static final class BibDataMapper implements RowMapper {
-      public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException {
+      public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
          BibData bibData = new BibData(); 
          bibData.setBibId(rs.getString("BIB_ID"));
          bibData.setSeqnum(rs.getString("SEQNUM"));
-         bibData.setRecord(rs.getString("RECORD_SEGMENT"));
+         
+         String record = "";
+         try {
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         } 
+          
+         bibData.setRecord(record); 
          return bibData;
        }
    }
@@ -406,7 +407,16 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          MfhdData mfhdData = new MfhdData(); 
          mfhdData.setMfhdId(rs.getString("MFHD_ID"));
          mfhdData.setSeqnum(rs.getString("SEQNUM"));
-         mfhdData.setRecord(rs.getString("RECORD_SEGMENT"));
+         
+         String record = "";
+         try {
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+          
+         mfhdData.setRecord(record);
          return mfhdData;
        }
    }

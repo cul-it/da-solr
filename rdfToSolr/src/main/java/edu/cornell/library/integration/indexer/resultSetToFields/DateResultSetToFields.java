@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,6 +32,8 @@ public class DateResultSetToFields implements ResultSetToFields {
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();		
 				
 		Pattern p = Pattern.compile("^[0-9]{4}$");
+		int current_year = Calendar.getInstance().get(Calendar.YEAR);
+		Boolean found_single_date = false;
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
@@ -48,12 +51,13 @@ public class DateResultSetToFields implements ResultSetToFields {
 							} else if (resultKey.equals("machine_dates")) {
 								Matcher m = p.matcher(value);
 								if (m.matches()) {
-									if (name.equals("date1")) {
-										addField(fields,"pub_date_sort",value);									
-										addField(fields,"pub_date",value);
-									} else {
-										if (! value.equals("9999"))
-											addField(fields,"pub_date",value);
+									if (name.equals("date1")) { //date2 being ignored at present
+										int year = Integer.valueOf(value);
+										if ((year > 0) && (year < 9999) && ! found_single_date) {
+											addField(fields,"pub_date_sort",value);
+											addField(fields,"pub_date_facet",value);
+											found_single_date = true;
+										}
 									}
 								} else {
 								// debug stmt should be added. Node is not a date in \d\d\d\d format.

@@ -6,7 +6,6 @@ import java.util.Calendar;
 
  
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
@@ -14,7 +13,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
  
 import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ObjectUtils; 
 
 public class GetRecentBibDataCount {
    
@@ -53,14 +51,19 @@ public class GetRecentBibDataCount {
     * @param args
     */
    public static void main(String[] args) {
-     GetRecentBibDataCount app = new GetRecentBibDataCount();      
-     app.run();
+     GetRecentBibDataCount app = new GetRecentBibDataCount();
+     if (args.length != 1 ) {
+        System.err.println("You must provide an number of hours offset");
+        System.exit(-1);
+     }
+     String offset  = args[0];
+     app.run(offset);
    }
 
    /**
     * 
     */
-   public void run() {
+   public void run(String offset) {
       System.out.println("Get Recent BibDataCount");
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
@@ -73,7 +76,7 @@ public class GetRecentBibDataCount {
        
       
       try {
-         String ds = getDateString();
+         String ds = getDateString(offset);
          System.out.println("Getting updates since: "+ ds);
          int count = getCatalogService().getRecentBibIdCount(ds);
          System.out.println("Number of BibIds  = "+ count);
@@ -85,11 +88,12 @@ public class GetRecentBibDataCount {
       
    } 
    
-   protected String getDateString() {
+   protected String getDateString(String offset) {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       Calendar now = Calendar.getInstance();
       Calendar earlier = now;
-      earlier.add(Calendar.HOUR, -3);
+      int minus = Integer.parseInt(offset) * -1;
+      earlier.add(Calendar.HOUR, minus);
       String ds = df.format(earlier.getTime());
       return ds;
    }
