@@ -225,27 +225,14 @@ public class ConvertUtils {
     * @throws Exception
     */
    public void convertMrcToXml(InputStream is, DavService davService) throws Exception {
-      //String xml = new String();
+       
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
       /** record counter */
       int counter = 0;
       int total = 0;
-
-      /** the previous percent value */
-      int prevPercent = 0;
-
-      /** the percent of imported records in the size of file */
-      int percent;
-      
-      int batch = 0;
-      
+      int batch = 0;      
       Record record = null;
-
-      //long fileSize = mrc.length();
-
-      //InputStream is = stringToInputStream(mrc);
-      
       String destXmlFile = new String(); 
        
       MarcPermissiveStreamReader reader = null;
@@ -303,26 +290,10 @@ public class ConvertUtils {
                destXmlFile = getOutputFileName(seqno);
                writer = getWriter(destXmlFile); 
                counter = 0;
-            } // end writing batch
-   
-            // display progress
-            /*if ((0 == counter % 100)) {
-               System.out.print('.');
-               if (reader.hasNext()) {
-                  try {
-                     if (is != null && is.available() != 0) {
-                        percent = (int) ((fileSize - is.available()) * 100 / fileSize);
-                        if ((0 == percent % 10) && percent != prevPercent) {
-                           System.out.println(" (" + percent + "%)");
-                           prevPercent = percent;
-                        }
-                     }
-                  } catch (IOException e) {
-                     e.printStackTrace();
-                  }
-               } 
-            }*/ // end display progress
-         } 
+            } // end writing batch   
+             
+         } // end while loop
+         
          if (total > 0) {
             System.out.println("\nsaving final xml batch "+ destXmlFile);
          }
