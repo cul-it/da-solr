@@ -93,7 +93,7 @@ public class ConvertMfhdDailyToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-       
+      String doneDir = srcDir +".done"; 
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
@@ -124,7 +124,9 @@ public class ConvertMfhdDailyToXml {
                converter.setTs(ts);
                //String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
                InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(is, davService); 
+               converter.convertMrcToXml(is, davService);
+               //System.out.println("moving "+srcFile+ " to "+doneDir);
+               davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) {
                try {
                   System.out.println("Exception thrown. Could not convert file: "+ srcFile);
