@@ -99,7 +99,7 @@ public class ConvertMfhdUpdatesToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
-      
+      String doneDir = srcDir +".done";
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
@@ -126,7 +126,8 @@ public class ConvertMfhdUpdatesToXml {
                converter.setItemId(mfhd);
                
                String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-               converter.convertMrcToXml(mrc, davService); 
+               converter.convertMrcToXml(mrc, davService);
+               davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) { 
                try {
                   System.out.println("Exception caught: could not convert file: "+ srcFile);
@@ -148,8 +149,11 @@ public class ConvertMfhdUpdatesToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      String ts = tokens[2];
-      return ts;
+      if (tokens.length > 3) {
+         return tokens[2] +"."+ tokens[3];   
+      } else {
+         return tokens[2];
+      }
    }
    
    /**

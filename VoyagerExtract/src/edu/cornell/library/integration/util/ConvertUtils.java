@@ -213,28 +213,26 @@ public class ConvertUtils {
       return controlNumberOfLastReadRecord;
    }
    
-   public String convertMrcToXml(String mrc, DavService davService) throws Exception {
-      String xml = new String();
+   public void convertMrcToXml(String mrc, DavService davService) throws Exception {
+      InputStream is = stringToInputStream(mrc);
+      convertMrcToXml(is, davService);
+   }
+   
+   /**
+    * @param mrc
+    * @param davService
+    * @return
+    * @throws Exception
+    */
+   public void convertMrcToXml(InputStream is, DavService davService) throws Exception {
+       
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
       /** record counter */
       int counter = 0;
       int total = 0;
-
-      /** the previous percent value */
-      int prevPercent = 0;
-
-      /** the percent of imported records in the size of file */
-      int percent;
-      
-      int batch = 0;
-      
+      int batch = 0;      
       Record record = null;
-
-      long fileSize = mrc.length();
-
-      InputStream is = stringToInputStream(mrc);
-      
       String destXmlFile = new String(); 
        
       MarcPermissiveStreamReader reader = null;
@@ -292,38 +290,21 @@ public class ConvertUtils {
                destXmlFile = getOutputFileName(seqno);
                writer = getWriter(destXmlFile); 
                counter = 0;
-            } // end writing batch
-   
-            // display progress
-            /*if ((0 == counter % 100)) {
-               System.out.print('.');
-               if (reader.hasNext()) {
-                  try {
-                     if (is != null && is.available() != 0) {
-                        percent = (int) ((fileSize - is.available()) * 100 / fileSize);
-                        if ((0 == percent % 10) && percent != prevPercent) {
-                           System.out.println(" (" + percent + "%)");
-                           prevPercent = percent;
-                        }
-                     }
-                  } catch (IOException e) {
-                     e.printStackTrace();
-                  }
-               } 
-            }*/ // end display progress
+            } // end writing batch   
+             
+         } // end while loop
+         
+         if (total > 0) {
+            System.out.println("\nsaving final xml batch "+ destXmlFile);
          }
-         // Write final (or only) batch
-         //int seqno = splitSize * batch;
-         //System.out.println("batch: "+batch);
-         //destXmlFile = getOutputFileName(seqno);
-         System.out.println("\nsaving final xml batch "+ destXmlFile);
          try { 
             if (writer != null) writer.close();             
          } catch (Exception ex) {
-            logger.error("could not close writer or stringwriter", ex);
+            logger.error("could not close writer", ex);
          }
-         moveXmlToDav(davService, destDir, destXmlFile);
-         
+         if (total > 0) {
+            moveXmlToDav(davService, destDir, destXmlFile);
+         }
          
       } finally {
           
@@ -333,11 +314,9 @@ public class ConvertUtils {
             e.printStackTrace();
          } 
       }
-      System.out.println("\ntotal record count: "+ total);
-          
-      //
-      //xml = sw.toString(); 
-      return xml;
+      System.out.println("\ntotal record count: "+ total);          
+      
+      //return xml;
    }
    
    /**

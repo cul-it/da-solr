@@ -95,6 +95,7 @@ public class ConvertBibDailyToXml {
 
       setDavService(DavServiceFactory.getDavService());
       String badDir = srcDir +".bad";
+      String doneDir = srcDir +".done";
       
       // get list of daily mrc files
       List<String> srcList = new ArrayList<String>();
@@ -116,15 +117,16 @@ public class ConvertBibDailyToXml {
       } else {
          int seqno = 1;
          for (String srcFile  : srcList) {
-            //System.out.println("Converting mrc file: "+ srcFile);
+            System.out.println("Converting mrc file: "+ srcFile);
    			try {
    			              
                converter.setSequence_prefix(seqno);
                seqno++;
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
-   			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-   				converter.convertMrcToXml(mrc, davService); 
+   			   InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
+   				converter.convertMrcToXml(is, davService);
+   				davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) {
    			   try {
                   System.out.println("Exception thrown. Could not convert file: "+ srcFile);
@@ -157,7 +159,11 @@ public class ConvertBibDailyToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
+      if (tokens.length > 3) {
+         return tokens[2] +"."+ tokens[3];   
+      } else {
+         return tokens[2];
+      }
    }
    
    /**
