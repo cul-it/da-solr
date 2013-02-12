@@ -376,6 +376,13 @@
         lc_callnum_main^4
         lc_callnum_full
       </str>
+
+      <str name="donor_pf">
+        donor_s
+      </str>
+      <str name="donor_qf">
+        donor_s
+      </str>
       
       
       <int name="ps">3</int>
@@ -528,6 +535,10 @@
         subject_addl_t^10
       </str>
       
+      <!-- for user query terms in donor text box -->
+      <str name="donor_pf"> donor_s </str>
+      <str name="donor_qf"> donor_s </str>
+
       <!-- for user query terms in number text box -->
       <str name="qf_number">isbn_t</str>
       
