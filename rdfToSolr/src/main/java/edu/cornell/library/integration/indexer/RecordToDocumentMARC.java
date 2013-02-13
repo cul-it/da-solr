@@ -199,7 +199,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
 				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),
-				new SubfieldCodeMaker("title_uniform_display","730","iaplskfmnordgh",":/ "),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").

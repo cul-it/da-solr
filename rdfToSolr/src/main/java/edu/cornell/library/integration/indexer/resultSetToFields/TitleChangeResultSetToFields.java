@@ -68,20 +68,28 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 
 			String relation ="";
 			if (t.equals("700") || t.equals("710") || t.equals("711")) {
-				if (t.length() < 2) {
+				if (title_cts.length() < 2) {
 					relation = "author_addl";
-				}
-				if (ind.endsWith("2")) {
+				} else if (ind.endsWith("2")) {
 					relation = "included_work";
 				} else {
 					relation = "related_work";
 				}
+			} else if (t.equals("730")) {
+				title_cts = author_cts;
+				author_cts = "";
+				if (ind.endsWith("2"))
+					relation = "included_work";
+				else
+					relation = "related_work";
 			}
 			if (relation.equals("author_addl")) {
 				String author_disp = combine_subfields("abcdefghijklmnopqrstuvwxyz",fieldparts);
 				addField(fields,"author_addl_display",author_disp);
 			} else if (! relation.equals("")) {
-				String workField = combine_subfields("tfgklmnopqrsabcdefh",fieldparts);
+				String workField = combine_subfields("iabchqdeklxftgjmnoprsuvwyz",fieldparts);
+//				if (t.equals("730")) 
+//					workField = combine_subfields("iaplskfmnordgh",fieldparts);
 				workField += '|' + title_cts;
 				if (author_cts.length() > 1) {
 					workField += '|' + author_cts;
