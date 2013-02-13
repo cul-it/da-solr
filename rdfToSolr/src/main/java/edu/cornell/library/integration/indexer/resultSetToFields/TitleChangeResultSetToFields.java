@@ -75,7 +75,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				} else {
 					relation = "related_work";
 				}
-			} else if (t.equals("730")) {
+			} else if (t.equals("730") || t.equals("740")) {
 				title_cts = author_cts;
 				author_cts = "";
 				if (ind.endsWith("2"))
