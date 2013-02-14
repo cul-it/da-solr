@@ -195,14 +195,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
 				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
 				new SubfieldCodeMaker("continues_display","247","abfgnpx",":/ "),
-				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
+//				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
-				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
-				new SubfieldCodeMaker("title_uniform_display","700","tgklmnoprs"),
-				new SubfieldCodeMaker("title_uniform_display","710","tfgklmnopqrs"),
-				new SubfieldCodeMaker("title_uniform_display","711","tfgklnps"),
-				new SubfieldCodeMaker("title_uniform_display","730","iaplskfmnordgh",":/ "),
+				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
@@ -456,10 +452,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
 				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
-				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,")
+//				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
+//				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
+//				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
 				/*
 			    new SPARQLFieldMakerImpl().
 		    	setName("author_addl").
