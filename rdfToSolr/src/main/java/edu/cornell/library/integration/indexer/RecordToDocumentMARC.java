@@ -198,7 +198,40 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 //				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
 				
 				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
-				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),
+
+				new SPARQLFieldMakerImpl().
+					setName("title130").
+					addMainStoreQuery("title_130",
+							"SELECT ?code ?value\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"        ?f marcrdf:tag \"130\". \n" +
+							"        ?f marcrdf:hasSubfield ?sf .\n" +
+							"        ?sf marcrdf:code ?code.\n" +
+							"        ?sf marcrdf:value ?value.\n" +
+							" }").
+					addResultSetToFields( new Title130ResultSetToFields()),
+
+				
+				new SPARQLFieldMakerStepped().
+				    setName("title240").
+					addMainStoreQuery("title_240",
+							"SELECT ?code ?value\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f240.\n" +
+				    		"        ?f240 marcrdf:tag \"240\". \n" +
+				    		"        ?f240 marcrdf:hasSubfield ?f240sf .\n" +
+				    		"        ?f240sf marcrdf:code ?code.\n" +
+				    		"        ?f240sf marcrdf:value ?value.\n" +
+				    		" }").
+				    addMainStoreQuery("main_entry_a", 
+				        	"SELECT *\n" +
+				        	" WHERE {\n" +
+					       	"  $recordURI$ marcrdf:hasField ?f.\n" +
+					       	"  ?f marcrdf:tag ?t.\n" +
+					       	"  FILTER( regex( xsd:string(?t), \"^1\" ))\n" +
+				        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+				        	"  ?sf marcrdf:code \"a\".\n" +
+				        	"  ?sf marcrdf:value ?v. }").
+			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
