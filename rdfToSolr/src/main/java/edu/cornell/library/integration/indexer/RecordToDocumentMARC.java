@@ -159,7 +159,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
 				new SubfieldCodeMaker("pub_info_display","260","abc"),
-				new SubfieldCodeMaker("pub_info_display","264","abc"),
+			    new SPARQLFieldMakerImpl().
+			    	setName("pub_info_264").
+			    	addMainStoreQuery("pub_info", 
+			    			"SELECT *\n" +
+			    			" WHERE {\n" +
+			    			"  $recordURI$ marcrdf:hasField ?f.\n" +
+			    			"  ?f marcrdf:tag \"264\".\n" +
+			    			"  ?f marcrdf:ind2 ?i2.\n" +
+			    			"  ?f marcrdf:hasSubfield ?sf.\n" +
+			    			"  ?sf marcrdf:code ?c.\n" +
+			    			"  ?sf marcrdf:value ?v. }").
+			    	addResultSetToFields( new PubInfoResultSetToFields()),
+//				new SubfieldCodeMaker("pub_info_display","264","abc"),
 				
 				new SubfieldCodeMaker("publisher_t","260","b"),
 				new SubfieldCodeMaker("publisher_t","264","b"),
@@ -195,9 +207,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
 				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
 				new SubfieldCodeMaker("continues_display","247","abfgnpx",":/ "),
-//				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
-				
-				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
 
 				new SPARQLFieldMakerImpl().
 					setName("title130").
