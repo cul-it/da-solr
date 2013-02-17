@@ -2,9 +2,12 @@ package edu.cornell.library.integration.ilcommons.service;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -17,6 +20,8 @@ import java.util.List;
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.SardineFactory; 
+
+
 
 public class DavServiceImpl implements DavService {
    
@@ -143,7 +148,22 @@ public class DavServiceImpl implements DavService {
       Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
       InputStream istream = (InputStream) sardine.get(url);
       return istream; 
-   } 
+   }
+   
+   public File getFile(String url, String outFile) throws IOException {
+      Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+      InputStream is  = (InputStream) sardine.get(url);   
+      File file = new File(outFile); 
+      OutputStream os = new FileOutputStream(file); 
+      int len; 
+      byte buf[] = new byte[1024];
+      while ((len=is.read(buf))>0) {
+         os.write(buf,0,len);   
+      }
+      os.close(); 
+      is.close();
+      return file;
+   }
 
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.DavService#saveFile(java.lang.String, java.io.InputStream)

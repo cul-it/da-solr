@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.ilcommons.service;
 
  
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.List;
@@ -46,6 +47,14 @@ public interface DavService {
     * @throws Exception
     */
    public InputStream getFileAsInputStream(String url) throws Exception;
+   
+   /**
+    * @param url
+    * @param outFile
+    * @return
+    * @throws Exception
+    */
+   public File getFile(String url, String outFile) throws Exception;
    
    /**
     * @param url
