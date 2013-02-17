@@ -98,12 +98,9 @@ public class ConvertMfhdToXml {
       converter.setSequence_prefix(Integer.parseInt(mfhdid));
       try {            
          System.out.println("Getting mfhd mrc for mfhd id: "+mfhdid);
-         String mrc = davService.getFileAsString(srcDir + "/" + mfhdid + ".mrc"); 
-         InputStream is = davService.getFileAsInputStream(srcDir + "/" + mfhdid + ".mrc");
-         converter.convertMrcToXml(is, davService); 
-          
+         String srcFile = mfhdid + ".mrc";          
+         converter.convertMrcToXml(davService, srcDir, srcFile);          
       } catch (Exception e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       } 
       

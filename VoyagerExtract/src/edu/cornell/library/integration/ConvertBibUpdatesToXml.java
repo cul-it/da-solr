@@ -118,10 +118,8 @@ public class ConvertBibUpdatesToXml {
    			   String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
                String bibid = getBibIdFromFileName(srcFile);
-               converter.setItemId(bibid);
-               
-   			   String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-   				converter.convertMrcToXml(mrc, davService);
+               converter.setItemId(bibid); 
+   				converter.convertMrcToXml(davService, srcDir, srcFile);
    				davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) { 
    			   try {

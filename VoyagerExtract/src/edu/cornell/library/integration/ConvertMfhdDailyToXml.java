@@ -117,14 +117,11 @@ public class ConvertMfhdDailyToXml {
          for (String srcFile  : srcList) {
             System.out.println("Converting mfhd mrc file: "+ srcFile);
             try {
-               
+               seqno = Integer.parseInt(getSequenceFromFileName(srcFile));           
                converter.setSequence_prefix(seqno);
-               seqno++;
                String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
-               //String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
-               InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(is, davService);
+               converter.setTs(ts); 
+               converter.convertMrcToXml(davService, srcDir, srcFile);
                //System.out.println("moving "+srcFile+ " to "+doneDir);
                davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) {
@@ -159,20 +156,17 @@ public class ConvertMfhdDailyToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      if (tokens.length > 3) {
-         return tokens[2] +"."+ tokens[3];   
-      } else {
-         return tokens[2];
-      }
+      return tokens[1];
+
    }
    
    /**
     * @param srcFile
     * @return
     */
-   public String getMfhdIdFromFileName(String srcFile) {
+   public String getSequenceFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
+      return tokens[2];
    }
    
    

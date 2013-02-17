@@ -100,10 +100,9 @@ public class ConvertBibToXml {
       converter.setSplitSize(0);
       converter.setSequence_prefix(Integer.parseInt(bibid));
       try {            
-         System.out.println("Getting bib mrc for bibid: "+bibid);
-         String mrc = davService.getFileAsString(srcDir + "/" + bibid + ".mrc");
-       
-         converter.convertMrcToXml(mrc, davService); 
+          
+         String srcFile = bibid + ".mrc";       
+         converter.convertMrcToXml(davService, srcDir, srcFile); 
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();

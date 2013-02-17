@@ -119,13 +119,12 @@ public class ConvertMfhdFullToXml {
          for (String srcFile  : srcList) {
             //System.out.println("Converting mrc file: "+ srcFile);
    			try {
-   			              
+   			   seqno = Integer.parseInt(getSequenceFromFileName(srcFile));           
                converter.setSequence_prefix(seqno);
-               seqno++;
+                
                String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
-               InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(is, davService);
+               converter.setTs(ts);               
+               converter.convertMrcToXml(davService, srcDir, srcFile);
                davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) {
    			   try {
@@ -159,20 +158,16 @@ public class ConvertMfhdFullToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      if (tokens.length > 3) {
-         return tokens[2] +"."+ tokens[3];   
-      } else {
-         return tokens[2];
-      }
+      return tokens[1];
    }
    
    /**
     * @param srcFile
     * @return
     */
-   public String getMfhdIdFromFileName(String srcFile) {
+   public String getSequenceFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
+      return tokens[2];
    }
        
    
