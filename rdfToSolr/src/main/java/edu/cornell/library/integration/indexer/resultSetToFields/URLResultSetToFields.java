@@ -59,8 +59,8 @@ public class URLResultSetToFields implements ResultSetToFields {
 		
 		for (String fti: marcfields.keySet()) {
 			String ind = fti.substring(fti.length()-2);
-			String relation ="";
-			if ((ind.equals("40")) || (ind.equals("41"))) {
+			String relation ="access"; //this is a default and may change later
+/*			if ((ind.equals("40")) || (ind.equals("41"))) {
 				relation = "access";
 			} else if (ind.equals("42"))  {
 				if (marcfields.get(fti).containsKey("3")) {
@@ -70,7 +70,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 							relation = "toc";
 					}
 				}
-			}
+			} */ 
 			if (relation.equals("")) relation = "other";
 			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
 			if ( ! fieldparts.containsKey("u")) continue;
@@ -79,30 +79,41 @@ public class URLResultSetToFields implements ResultSetToFields {
 			ArrayList<String> zs = new ArrayList<String>();
 			if (fieldparts.containsKey("3")) threes = fieldparts.get("3");
 			if (fieldparts.containsKey("z")) zs = fieldparts.get("z");
-//			if (! relation.equals("other")) {
-//				for (String u: us) {
-//					addField(fields,"url_"+relation+"_display",u);
-//				}
-//			} else {
-				StringBuilder sb = new StringBuilder();
-				for (String three: threes) {
-					sb.append(" ");
-					sb.append(three);
+			StringBuilder sb = new StringBuilder();
+			for (String three: threes) {
+				sb.append(" ");
+				sb.append(three);
+			}
+			for (String z: zs) {
+				sb.append(" ");
+				sb.append(z);
+			}
+			String comment = sb.toString().trim();
+			String lc_comment = comment.toLowerCase();
+			if (lc_comment.contains("table of contents")
+					|| lc_comment.contains("tables of contents")
+					|| lc_comment.endsWith(" toc")
+					|| lc_comment.contains(" toc ")
+					|| lc_comment.startsWith("toc ")
+					|| lc_comment.equals("toc")
+					|| lc_comment.contains("cover image")
+					|| lc_comment.contains("publisher description")
+					|| lc_comment.contains("contributor biographical information")
+					|| lc_comment.contains("sample text")) {
+				relation = "other";
+			}
+			for (String u: us) {
+				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
+					relation = "bookplate";
+					if (! comment.equals(""))
+						addField(fields,"donor_t",comment);
 				}
-				for (String z: zs) {
-					sb.append(" ");
-					sb.append(z);
+				if (comment.equals("")) {
+					addField(fields,"url_"+relation+"_display",u);						
+				} else {
+					addField(fields,"url_"+relation+"_display",u + "|" + comment);
 				}
-				String comment = sb.toString().trim();
-				for (String u: us)
-					if (comment.equals("")) {
-						addField(fields,"url_"+relation+"_display",u);						
-					} else {
-						addField(fields,"url_"+relation+"_display",u + "|" + comment);
-					}
-//			}
-			
-
+			}
 		}
 		
 		return fields;

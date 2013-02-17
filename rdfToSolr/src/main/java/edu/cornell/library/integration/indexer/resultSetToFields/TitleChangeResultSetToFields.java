@@ -62,7 +62,41 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		for (String fti: marcfields.keySet()) {
 			String ind = fti.substring(fti.length()-2);
 			String t = fti.substring(fti.length()-5, fti.length()-2);
+			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
+			String title_cts = combine_subfields("t",fieldparts);
+			String author_cts = combine_subfields("a",fieldparts);
+
 			String relation ="";
+			if (t.equals("700") || t.equals("710") || t.equals("711")) {
+				if (title_cts.length() < 2) {
+					relation = "author_addl";
+				} else if (ind.endsWith("2")) {
+					relation = "included_work";
+				} else {
+					relation = "related_work";
+				}
+			} else if (t.equals("730") || t.equals("740")) {
+				title_cts = author_cts;
+				author_cts = "";
+				if (ind.endsWith("2"))
+					relation = "included_work";
+				else
+					relation = "related_work";
+			}
+			if (relation.equals("author_addl")) {
+				String author_disp = combine_subfields("abcdefghijklmnopqrstuvwxyz",fieldparts);
+				addField(fields,"author_addl_display",author_disp);
+			} else if (! relation.equals("")) {
+				String workField = combine_subfields("iabchqdeklxftgjmnoprsuvwyz",fieldparts);
+//				if (t.equals("730")) 
+//					workField = combine_subfields("iaplskfmnordgh",fieldparts);
+				workField += '|' + title_cts;
+				if (author_cts.length() > 1) {
+					workField += '|' + author_cts;
+				}
+				addField(fields,relation+"_display",workField);
+			}
+			relation = "";
 			if (t.equals("780")) {
 				if (ind.endsWith("0"))/**/ {
 					relation = "continues";
@@ -110,15 +144,13 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			} else if (t.equals("777")) {
 				relation = "issued_with";
 			}
-			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-			String clicktosearch = combine_subfields("t",fieldparts);
-			if (clicktosearch.length() < 2) {
+			if (title_cts.length() < 2) {
 				continue;				
 			}
 			if (! relation.equals("")) {
 				if (ind.startsWith("0")) {
 					String displaystring = combine_subfields("iatbcdgkqrsw", fieldparts);
-					addField(fields,relation+"_display",displaystring + '|'+ clicktosearch );
+					addField(fields,relation+"_display",displaystring + '|'+ title_cts );
 				}
 			}
 			if (t.equals("780") 
