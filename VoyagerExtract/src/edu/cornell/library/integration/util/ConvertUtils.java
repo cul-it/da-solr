@@ -211,12 +211,7 @@ public class ConvertUtils {
 
    public String getControlNumberOfLastReadRecord() {
       return controlNumberOfLastReadRecord;
-   }
-   
-   public void convertMrcToXml(String mrc, DavService davService) throws Exception {
-      InputStream is = stringToInputStream(mrc);
-      convertMrcToXml(is, davService);
-   }
+   } 
    
    /**
     * @param mrc
@@ -224,7 +219,7 @@ public class ConvertUtils {
     * @return
     * @throws Exception
     */
-   public void convertMrcToXml(InputStream is, DavService davService) throws Exception {
+   public void convertMrcToXml(DavService davService, String srcDir, String srcFile) throws Exception {
        
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
@@ -233,7 +228,10 @@ public class ConvertUtils {
       int total = 0;
       int batch = 0;      
       Record record = null;
-      String destXmlFile = new String(); 
+      String destXmlFile = new String();
+      String tmpFilePath = TMPDIR +"/"+ srcFile;
+      File f = davService.getFile(srcDir +"/"+ srcFile, tmpFilePath);
+      FileInputStream is = new FileInputStream(f);
        
       MarcPermissiveStreamReader reader = null;
       boolean permissive      = true;
@@ -277,8 +275,8 @@ public class ConvertUtils {
             
             // check to see if we need to write out a batch of records
             if (splitSize > 0 && counter == splitSize) {
-               int seqno = counter * batch;
-               batch++;
+               
+               
                System.out.println("\nsaving xml batch "+ destXmlFile);
                try {
                   if (writer != null) writer.close();                   
@@ -286,8 +284,10 @@ public class ConvertUtils {
                   logger.error("Could not close writer", ex);   
                }
                // move the XML to the DAV store and open a new writer
-               moveXmlToDav(davService, destDir, destXmlFile); 
-               destXmlFile = getOutputFileName(seqno);
+               moveXmlToDav(davService, destDir, destXmlFile);
+               batch++; 
+                
+               destXmlFile = getOutputFileName(counter * batch);
                writer = getWriter(destXmlFile); 
                counter = 0;
             } // end writing batch   
@@ -314,9 +314,12 @@ public class ConvertUtils {
             e.printStackTrace();
          } 
       }
+      
+      FileUtils.deleteQuietly(f);
+      
       System.out.println("\ntotal record count: "+ total);          
       
-      //return xml;
+       
    }
    
    /**
@@ -437,23 +440,23 @@ public class ConvertUtils {
       String sequence = new String();
       
       if (StringUtils.equals(getExtractType(), "single") ) {
-         sb.append(getSrcType() +"."+ getItemId() +"."+ getTs() +".xml");
+         sb.append(getSrcType() +"."+ getTs() +"."+ getItemId() +".xml");
       } else if (StringUtils.equals(getExtractType(), "updates")) {
-         sb.append(getSrcType() +"."+ getItemId() +"."+ getTs() +".xml");   
+         sb.append(getSrcType() +"."+ getTs() +"."+ getItemId() +".xml");   
       } else if (StringUtils.equals(getExtractType(), "daily")) {
          if (batch == 0) {
             sequence = String.valueOf(getSequence_prefix()) +"_1";   
          } else {
             sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
          }
-         sb.append(getSrcType() +"."+ sequence +"."+ getTs() +".xml");
+         sb.append(getSrcType() +"."+ getTs() +"."+ sequence +".xml");
       } else if (StringUtils.equals(getExtractType(), "full")) {
          if (batch == 0) {
             sequence = String.valueOf(getSequence_prefix()) +"_1";   
          } else {
             sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
          }
-         sb.append(getSrcType() +"."+ sequence +"."+ getTs() +".xml");
+         sb.append(getSrcType() +"."+ getTs() +"."+ sequence +".xml");
       }
       
       return sb.toString();
@@ -468,7 +471,7 @@ public class ConvertUtils {
    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
       File srcFile = new File(TMPDIR +"/"+ destXmlFile);
       String destFile = destDir +"/"+ destXmlFile;
-      //System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
+      System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
        
       InputStream isr = new FileInputStream(srcFile);
       try { 
