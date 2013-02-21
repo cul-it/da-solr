@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
@@ -53,7 +54,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
 
 /**
  * This Mapper expects each item to have a URL of a bib or holdings N-Triples file.
- * For each <K,URL> this will generate zero or more <BIB_ID, StringOfNTriples> mappings.
+ * For each <K,URL> this will load the RDF from the URL and index a Solr document 
+ * each bib record found in the RDF.
  *   
  * @author bdc34
  *
@@ -62,6 +64,10 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
+	//hadoop directory for the input splits that need to be done
+    Path todoDir;
+    //hadoop directory for the input splits that are completed 
+    Path doneDir;
 	
 	String solrURL;
 	SolrServer solr;
@@ -72,8 +78,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	HoldingForBib holdingsIndex;
 	DavService davService;	
 
-    Path todoDir;
-    Path doneDir;
 
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
         String url = urlText.toString();
@@ -93,7 +97,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			loader.loadGraph((GraphTDB)model.getGraph(), is);			
 			model.add(baseModel);
 			
-			is.close(); is = null; //attempt do deallocate			
+			is.close();			
 			context.progress();
 			
 			log.info("Model load completed. Starting query for all bib records in model. ");									
@@ -110,21 +114,21 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				context.progress();
 				context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
 			}		
-			
+						
 			moveToDone( context );
-		}catch(Throwable th){
-			FileSplit fileSplit = (FileSplit)context.getInputSplit();
-			String filename = fileSplit.getPath().getName();
-			String errorMsg = "could not process file URL " + urlText.toString() + " due to " + th.toString() ;
+		}catch(Throwable th){			
+			String filename = getSplitFileName(context);
+			String errorMsg = "could not process file URL " + urlText.toString() +
+					" due to " + th.toString() ;
 			context.write( new Text( filename), new Text( errorMsg ));
 		}finally{
 			Files.deleteRecursively(tmpDir);
 		}
 	}
 	
-	private void moveToDone( Context context ) throws java.io.IOException{
-		FileSplit fileSplit = (FileSplit)context.getInputSplit();
-		String filename = fileSplit.getPath().getName();
+	/** Move the split from the todo directory to the done directory. */ 
+	private void moveToDone( Context context ) throws java.io.IOException{		
+		String filename = getSplitFileName(context);
 		FileSystem fs = FileSystem.get( context.getConfiguration() );
 		FileUtil.copy(fs, new Path(filename),fs, doneDir,
 			true, false, fs.getConf()); 
@@ -153,6 +157,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}
 	}
 	
+	/** Get the holding RDF for all the bib records inn bibUris and add them to model. */
 	private void getHoldingRdf(Context context, Set<String> bibUris , TDBLoader loader , Model model){
 		log.info("Getting additional holding data");
 		Set<String> holdingUrls = new HashSet<String>();
@@ -188,11 +193,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			else
 				return is;
 		} catch (Exception e) {
-			throw new IOException("Could not get " + url , e);			
+			throw new IOException("Could not get " + url , e);
 		}		
 	}
 
-	
+	/** Attempt to get all the bib record URIs from model. */
 	private Set<String> getURIsInModel( Context context, Model model) {
 		Set<String>bibUris = new HashSet<String>();
 		for( String queryStr : idQueries){
@@ -203,7 +208,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					ResultSet results = qexec.execSelect() ;
 					for ( ; results.hasNext() ; ) {
 				      QuerySolution soln = results.nextSolution() ;
-				      Resource r = soln.getResource("URI") ; // Get a result variable - must be a resource
+				      Resource r = soln.getResource("URI") ; //result variable must be a resource
 				      bibUris.add( r.getURI() );
 				    }
 				  } finally { qexec.close() ; }
@@ -215,10 +220,10 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		return bibUris;
 	}
 
+	/** get the filename for the current file that is being worked on. */
     private String getSplitFileName(Context context){
-        FileSplit fileSplit = (FileSplit)context.getInputSplit();
-        String filename = fileSplit.getPath().getName();
-        return fileSplit.getPath().toString();
+    	FileSplit fileSplit = (FileSplit)context.getInputSplit();
+		return fileSplit.getPath().getName();			
     }
 
 	@Override
@@ -231,13 +236,13 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 		solrURL = conf.get( RdfToSolrIndexReducer.SOLR_SERVICE_URL );
 		if(solrURL == null )
-			throw new Error("BibFileIndexingMapper requires URL of Solr server in config property " + RdfToSolrIndexReducer.SOLR_SERVICE_URL);
+			throw new Error("Requires URL of Solr server in config property " 
+					+ RdfToSolrIndexReducer.SOLR_SERVICE_URL);
+				
+		solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
 		
-		solr = new CommonsHttpSolrServer(new URL(solrURL));
-		try {
-			solr.ping();
-		} catch (SolrServerException e) {
-			throw new Error("BibFileIndexingMapper cannot connect to solr server at \""+solrURL+"\".",e);
+		try { solr.ping(); } catch (SolrServerException e) {
+			throw new Error("Cannot connect to solr server at \""+solrURL+"\".",e);
 		}
 		
 		baseModel = loadBaseModel( context );
@@ -272,43 +277,5 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 //			"  <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> ?URI" +
 //			" }" 						
 	);				
-		
-//	private void runPerURIQueries(String uri, Context context, Model model) throws IOException, InterruptedException {
-//		for(String constructTmp: perIdConstructs){
-//			String constructStr = IndexingUtilities.substitueInRecordURI(uri, constructTmp);
-//			try{							
-//				QueryExecution qexec = QueryExecutionFactory.create(QueryFactory.create(constructStr), model) ;
-//				try {
-//					Model result = qexec.execConstruct();	
-//				    context.write( new Text( uri ), new Text(MarcToSolrUtils.writeModelToNTString(result) ));
-//				  } 
-//				finally { qexec.close() ; }
-//			}catch(com.hp.hpl.jena.query.QueryParseException ex){
-//				log.error("Could not parse query for CONSTRUCT, " + ex.getMessage() + " \n" + constructStr);
-//			}
-//		}		
-//	}
-
-	//CONSTRUCT queries to run per URI from the idQueries. 
-	//$recordURI$ will be replaced with a URI
-//	protected static final List<String> perIdConstructs = Arrays.asList(			
-//			//Get everything three levels deep from bib MARC
-//			"CONSTRUCT { \n" +
-//		    "  $recordURI$ ?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . \n" + 				
-//			"} WHERE { \n"+ 
-//			"  $recordURI$ ?p ?o . \n" + 
-//			"  optional{  ?o ?p2 ?o2 \n" +  //these OPTIONALS are nested 
-//			"    optional { ?o2 ?p3 ?o4 } \n" +
-//			"}}" ,
-//			//Get everything three levels deep for holdings MARC
-//			"CONSTRUCT { \n" +
-//		    "  ?holdingURI ?p ?o .  ?o ?p2 ?o2 .  ?o2 ?p3 ?o4 . \n" +
-//			"  ?holdingURI <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> $recordURI$ .\n" +
-//			"} WHERE { \n"+
-//		    "  ?holdingURI <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> $recordURI$ .\n" +
-//			"  ?holdingURI ?p ?o . \n" + 
-//			"  optional{  ?o ?p2 ?o2 \n" +  //these OPTIONALS are nested 
-//			"    optional { ?o2 ?p3 ?o4 } \n" +
-//			"}}"			
-//			);	
+	
 }
