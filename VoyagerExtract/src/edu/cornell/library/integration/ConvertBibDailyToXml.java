@@ -168,8 +168,11 @@ public class ConvertBibDailyToXml {
     * @return
     */
    public String getSequenceFromFileName(String srcFile) {
+      // src file for daily extract follows this pattern
+      // bib.daily.{year}.{day}.mrc
+      // concatenate year and day to create sequence
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
+      return tokens[2]+"_"+tokens[3];
    }
        
    
