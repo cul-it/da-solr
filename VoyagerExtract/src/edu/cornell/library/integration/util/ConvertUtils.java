@@ -69,7 +69,7 @@ public class ConvertUtils {
    private int splitSize = 10000;
    
    /** prefix to use in sequence string in output file name */
-   private int sequence_prefix = 0;
+   private String sequence_prefix = "0";
    
    /** holds a bibid, mfid, or other unique id for single or updates conversions */
    private String itemId = "";
@@ -128,14 +128,14 @@ public class ConvertUtils {
    /**
     * @return the sequence_prefix
     */
-   public int getSequence_prefix() {
+   public String getSequence_prefix() {
       return sequence_prefix;
    }
 
    /**
     * @param sequence_prefix the sequence_prefix to set
     */
-   public void setSequence_prefix(int sequence_prefix) {
+   public void setSequence_prefix(String sequence_prefix) {
       this.sequence_prefix = sequence_prefix;
    }
    
