@@ -95,7 +95,7 @@ public class ConvertMfhdToXml {
       converter.setSrcType("mfhd");
       converter.setExtractType("single");
       converter.setSplitSize(0);
-      converter.setSequence_prefix(Integer.parseInt(mfhdid));
+      converter.setSequence_prefix(mfhdid);
       try {            
          System.out.println("Getting mfhd mrc for mfhd id: "+mfhdid);
          String srcFile = mfhdid + ".mrc";          

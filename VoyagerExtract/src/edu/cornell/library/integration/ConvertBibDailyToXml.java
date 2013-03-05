@@ -115,12 +115,12 @@ public class ConvertBibDailyToXml {
       if (srcList.size() == 0) {
          System.out.println("No Daily Marc files available to process");
       } else {
-         int seqno = 1;
+         String seqno = "";
          for (String srcFile  : srcList) {
             System.out.println("Converting mrc file: "+ srcFile);
    			try {
    			              
-   			   seqno = Integer.parseInt(getSequenceFromFileName(srcFile));           
+   			   seqno = getSequenceFromFileName(srcFile);           
                converter.setSequence_prefix(seqno);
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
