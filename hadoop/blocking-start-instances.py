@@ -7,6 +7,7 @@
 
 import sys    
 from subprocess import call,check_output
+from types import *
 
 #if you need to change the key change it here. 
 #Consider making this configurable 
@@ -24,6 +25,7 @@ def main():
     
 def blockinigStartOfVMs( cmdStr ):    
     vmsToStart = eval( cmdStr )
+    assert isinstance( vmsToStart, tuple), " vmsToStart is not a tuple: %r" % vmsToStart
     
     # if the first thing is an int, then we have one tuple
     if isinstance(vmsToStart[0] , int)  :        
@@ -40,6 +42,8 @@ def blockinigStartOfVMs( cmdStr ):
     sys.exit(0)
     
 def startVMs( number, size ):    
+    assert type(number) is IntType , "number of VMs to start should be an int: %s" % number
+    assert type( size) is StringType, "size should be a string such as m1.small: %s" % size
     print(["euca-run-instances", "-n", number, "-k", privateKeyFile, "-t", size, diskImageEMI])
     #call([])
     
@@ -49,7 +53,7 @@ def waitForStartup():
     while( not done ):
         output = check_output(["euca-describe-instances"])
         if len( output ) == 0 :
-            print(" output of euca-describe-instances was too short, cannot wait" )
+            print(" output of euca-describe-instances was too short, not waiting." )
             sys.exit(1)
         done = -1 == output.find("pending")
         if done : 
