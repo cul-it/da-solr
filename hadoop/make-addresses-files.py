@@ -13,8 +13,7 @@
 #
 # The master node will be the smallest VM.  If there is no single smallest VM, the an error be thrown.
 
-import sys, os    
-from subprocess import call,check_output
+import sys, os, subprocess
 from types import *
 from optparse import OptionParser
 
@@ -35,7 +34,7 @@ def main():
   
 def getVMInfo( testfile=None ) :
     if testfile == None:
-        desc = check_output( "euca-describe-instances " )
+        desc = runEucaDesc()
     else:
         with open(testfile,'r') as f:
             desc = f.read()
@@ -49,6 +48,20 @@ def getVMInfo( testfile=None ) :
     keys = ['type','id','emi','ip','ip2nd','state','key','unknown','size','date','zone','kernel','ramdisk']
     return map( lambda values: dict(zip(keys,values)) , vmValues)  
 
+def runEucaDesc():
+        # run euca-describe-instances and get output
+        process = subprocess.Popen(["euca-describe-instances"],
+                stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        process.wait()
+        (output,stderr) = process.communicate()
+
+        if process.returncode > 0 :
+           print("could not run euca-describe-instances")
+           print( "stdout: " + output )
+           print( "stderr: " + stderr)
+           sys.exit(1)
+
+    	return output
 
 def checkForMaster(vms):
     """check for single smallest VM, exit if there isn't one"""
