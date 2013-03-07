@@ -30,6 +30,7 @@ def main():
     checkForMaster( vms )
     makeAddressesTxt( vms )    
     makeHosts( vms )
+    makeHostnameScript( vms )
     makeHadoopConfs( vms )      
   
 def getVMInfo( testfile=None ) :
@@ -146,6 +147,13 @@ def makeHadoopConfs(vms):
                 
 additional_hosts = """127.0.0.1        localhost.localdomain localhost
 ::1        localhost6.localdomain6 localhost6"""
+
+def makeHostnameScript(vms):
+    sshopts = " -i $EUCA_KEY_FILE -o StrictHostKeychecking=no -o UserKnownHostsFile=/dev/null "
+    with open("hostnames.sh",'w') as f:
+        for vm in vms:
+            ip = vm['ip']
+            f.write( "ssh %s root@%s hostname %s \n " % (sshopts, ip, ipToHostname(ip)) )
 
 def makeHosts(vms):       
     with open("hosts",'w') as f:    
