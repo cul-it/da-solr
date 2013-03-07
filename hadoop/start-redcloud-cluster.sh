@@ -24,7 +24,7 @@ source $EUCA_DIR/eucarc
 
 # Start a small VM for the master and  medium ones for the slaves
 echo "starting vm nodes, this may take a while"
-#$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')"
+$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')"
 
 # Create a files with addresses of vm nodes.  
 # These files are addresses.txt, hosts, salves.txt, 
