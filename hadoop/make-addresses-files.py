@@ -151,7 +151,7 @@ def makeHosts(vms):
     with open("hosts",'w') as f:    
         for vm in vms :
             f.write( ipToHostname( vm['ip'] ) + '\n' )
-	f.write( additional_hosts )
+	f.write( additional_hosts + '\n')
 
 
 if __name__ == "__main__":
