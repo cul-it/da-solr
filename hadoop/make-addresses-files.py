@@ -144,11 +144,15 @@ def makeHadoopConfs(vms):
     with open(os.path.join(dir,"masters"),'w') as f:
         f.write(ipToHostname(vms[master]['ip']) + '\n')
                 
-                
+additional_hosts = """127.0.0.1        localhost.localdomain localhost
+::1        localhost6.localdomain6 localhost6"""
+
 def makeHosts(vms):       
     with open("hosts",'w') as f:    
         for vm in vms :
-            f.write( ipToHostname( vm['ip'] ) + '\n' )    
+            f.write( ipToHostname( vm['ip'] ) + '\n' )
+	f.write( additional_hosts )
+
 
 if __name__ == "__main__":
     main( )
