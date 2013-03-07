@@ -24,7 +24,7 @@ source $EUCA_DIR/eucarc
 
 # Start a small VM for the master and  medium ones for the slaves
 echo "starting vm nodes, this may take a while"
-$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')"
+#$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')"
 
 # Create a files with addresses of vm nodes.  
 # These files are addresses.txt, hosts, salves.txt, 
@@ -33,8 +33,8 @@ $HADOOP_HOME/make-addresses-files.py
 
 # Setup SSH args to use for pdsh.
 # We need to specify the private key to connect to the VMs.
-export PDSH_SSH_ARGS_APPEND=" -i $EUCA_KEY_FILE \
--o StrictHostKeychecking=no -o UserKnownHostsFile=/dev/null "
+export QUIET_SSH_OPTIONS=" -o StrictHostKeychecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR " 
+export PDSH_SSH_ARGS_APPEND=" -i $EUCA_KEY_FILE $QUIET_SSH_OPTIONS "
 
 #install pdcp nodes if needed
 pdsh -l root -w^addresses.txt "which pdsh || apt-get -y install pdsh"
@@ -57,10 +57,11 @@ if [ -e ./hadoop_dsa ]
 then
     mv ./hadoop_dsa ./hadoop_dsa$(date "+%s")
 fi
-ssh-keygen -t dsa -P '' -f ./hadoop_dsa
-pdsh -l root -w^addresses.txt mkdir  /home/hadoop/.ssh
+ssh-keygen -q -t dsa -P '' -f ./hadoop_dsa
+pdsh -l root -w^addresses.txt mkdir -p /home/hadoop/.ssh
 pdcp -l root -w^./addresses.txt hadoop_dsa.pub /home/hadoop/.ssh/authorized_keys
 pdcp -l root -w^./addresses.txt hadoop_dsa  /home/hadoop/.ssh/id_dsa
+pdcp -l root -w^./addresses.txt $HADOOP_HOME/sshconf /home/hadoop/.ssh/config
 
 # Copy the hadoop dir to all servers
 pdcp -r -l root -w^./addresses.txt $HADOOP_HOME/* /home/hadoop/
@@ -69,24 +70,22 @@ pdsh -l root -w^./addresses.txt chown -R hadoop:hadoop /home/hadoop
 # Create the directories mentioned in the hadoop/conf files
 pdsh -l root -w^./addresses.txt mkdir -p /mnt/hadoop/tmp
 pdsh -l root -w^./addresses.txt mkdir -p /mnt/hadoop/mapred/system
-pdsh -l root -w^addresses.txt mkdir /mnt/mapredLocal
-pdsh -l root -w^addresses.txt mkdir /home/hadoop/mapredLocal
+pdsh -l root -w^addresses.txt mkdir -p /mnt/mapredLocal
+pdsh -l root -w^addresses.txt mkdir -p /home/hadoop/mapredLocal
 
 #set ownership on these hadoop files 
 pdsh -l root -w^./addresses.txt chown hadoop:hadoop -R \
  /home/hadoop /mnt/hadoop /mnt/mapredLocal
 
-# Format hadoop fs
-ssh -o StrictHostKeychecking=no -o UserKnownHostsFile=/dev/null \
- -i ./hadoop_dsa hadoop@$(cat master.txt) "bash -i " <<EOF
-pwd
+# Format hadoop dfs and start hadoop cluster
+ssh $QUIET_SSH_OPTIONS -i ./hadoop_dsa \
+ hadoop@$(cat master.txt) "bash -i " <<EOF
 cd
-pwd
+echo working dir is \$PWD
 yes Y | bin/hadoop namenode -format
-sleep 3
-bin/hadooop namenode &
-sleep 3 
-bin/start-dfs.sh
-sleep 3
-bin/start-mapred.sh
+sleep 5
+bin/start-all.sh
 EOF
+
+echo 
+echo "See job tracker at http://$(cat master.txt):50030 "

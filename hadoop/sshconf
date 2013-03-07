@@ -1,0 +1,6 @@
+# automatically adds rsa host key to list of known hosts
+StrictHostKeyChecking no
+# sets know_hosts file to the data sink so it will never be written
+UserKnownHostsFile /dev/null
+
+LogLevel ERROR

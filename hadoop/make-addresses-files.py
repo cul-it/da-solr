@@ -156,11 +156,16 @@ def makeHostnameScript(vms):
             f.write( "ssh %s root@%s hostname %s \n " % (sshopts, ip, ipToHostname(ip)) )
 
 def makeHosts(vms):       
-    with open("hosts",'w') as f:    
-        for vm in vms :
-            f.write( ipToHostname( vm['ip'] ) + '\n' )
-	f.write( additional_hosts + '\n')
+    master = getSmallestVM( vms )
 
+    with open("hosts",'w') as f:           
+        f.write( additional_hosts + '\n')
+        for i in range (0,len(vms)):
+            ip = vms[i]['ip']
+            if i != master :
+                f.write( "%s %s\n" %( ip ,ipToHostname( ip )) )
+            else:
+                f.write( "%s %s master \n" %( ip ,ipToHostname( ip )) )
 
 if __name__ == "__main__":
     main( )
