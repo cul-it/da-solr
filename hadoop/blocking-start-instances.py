@@ -77,7 +77,7 @@ def waitForStartup():
         done = -1 == output.find("pending")
         if done : 
             return        
-        time.sleep( 30 )#sec         
+        time.sleep( 60 )#sec         
     
 def printHelpAndExit():    
     print("")
