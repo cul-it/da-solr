@@ -113,18 +113,15 @@ public class ConvertMfhdDailyToXml {
       if (srcList.size() == 0) {
          System.out.println("No Daily Marc files available to process");
       } else {
-         int seqno = 1;
+         String seqno = "";
          for (String srcFile  : srcList) {
             System.out.println("Converting mfhd mrc file: "+ srcFile);
             try {
-               
+               seqno = getSequenceFromFileName(srcFile);           
                converter.setSequence_prefix(seqno);
-               seqno++;
                String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
-               //String mrc = davService.getFileAsString(srcDir + "/" +srcFile);
-               InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(is, davService);
+               converter.setTs(ts); 
+               converter.convertMrcToXml(davService, srcDir, srcFile);
                //System.out.println("moving "+srcFile+ " to "+doneDir);
                davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) {
@@ -159,20 +156,20 @@ public class ConvertMfhdDailyToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      if (tokens.length > 3) {
-         return tokens[2] +"."+ tokens[3];   
-      } else {
-         return tokens[2];
-      }
+      return tokens[1];
+
    }
    
    /**
     * @param srcFile
     * @return
     */
-   public String getMfhdIdFromFileName(String srcFile) {
+   public String getSequenceFromFileName(String srcFile) {
+      // src file for daily extract follows this pattern
+      // mfhd.daily.{year}.{day}.mrc
+      // concatenate year and day to create sequence
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
+      return tokens[2]+"_"+tokens[3];
    }
    
    

@@ -123,10 +123,8 @@ public class ConvertMfhdUpdatesToXml {
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
                String mfhd = getMfhdIdFromFileName(srcFile);
-               converter.setItemId(mfhd);
-               
-               String mrc = davService.getFileAsString(srcDir + "/" +srcFile); 
-               converter.convertMrcToXml(mrc, davService);
+               converter.setItemId(mfhd); 
+               converter.convertMrcToXml(davService, srcDir, srcFile);
                davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) { 
                try {

@@ -159,7 +159,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
 				new SubfieldCodeMaker("pub_info_display","260","abc"),
-				new SubfieldCodeMaker("pub_info_display","264","abc"),
+			    new SPARQLFieldMakerImpl().
+			    	setName("pub_info_264").
+			    	addMainStoreQuery("pub_info", 
+			    			"SELECT *\n" +
+			    			" WHERE {\n" +
+			    			"  $recordURI$ marcrdf:hasField ?f.\n" +
+			    			"  ?f marcrdf:tag \"264\".\n" +
+			    			"  ?f marcrdf:ind2 ?i2.\n" +
+			    			"  ?f marcrdf:hasSubfield ?sf.\n" +
+			    			"  ?sf marcrdf:code ?c.\n" +
+			    			"  ?sf marcrdf:value ?v. }").
+			    	addResultSetToFields( new PubInfoResultSetToFields()),
+//				new SubfieldCodeMaker("pub_info_display","264","abc"),
 				
 				new SubfieldCodeMaker("publisher_t","260","b"),
 				new SubfieldCodeMaker("publisher_t","264","b"),
@@ -195,14 +207,40 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
 				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
 				new SubfieldCodeMaker("continues_display","247","abfgnpx",":/ "),
-				new SubfieldCodeMaker("title_other_display","740","iahnp",":/ "),
+
+				new SPARQLFieldMakerImpl().
+					setName("title130").
+					addMainStoreQuery("title_130",
+							"SELECT ?code ?value\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
+							"        ?f marcrdf:tag \"130\". \n" +
+							"        ?f marcrdf:hasSubfield ?sf .\n" +
+							"        ?sf marcrdf:code ?code.\n" +
+							"        ?sf marcrdf:value ?value.\n" +
+							" }").
+					addResultSetToFields( new Title130ResultSetToFields()),
+
 				
-				new SubfieldCodeMaker("title_uniform_display","130","aplskfmnordgt"),
-				new SubfieldCodeMaker("title_uniform_display","240","adghplskfmnor"),				
-				new SubfieldCodeMaker("title_uniform_display","700","tgklmnoprs"),
-				new SubfieldCodeMaker("title_uniform_display","710","tfgklmnopqrs"),
-				new SubfieldCodeMaker("title_uniform_display","711","tfgklnps"),
-				new SubfieldCodeMaker("title_uniform_display","730","iaplskfmnordgh",":/ "),
+				new SPARQLFieldMakerStepped().
+				    setName("title240").
+					addMainStoreQuery("title_240",
+							"SELECT ?code ?value\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f240.\n" +
+				    		"        ?f240 marcrdf:tag \"240\". \n" +
+				    		"        ?f240 marcrdf:hasSubfield ?f240sf .\n" +
+				    		"        ?f240sf marcrdf:code ?code.\n" +
+				    		"        ?f240sf marcrdf:value ?value.\n" +
+				    		" }").
+				    addMainStoreQuery("main_entry_a", 
+				        	"SELECT *\n" +
+				        	" WHERE {\n" +
+					       	"  $recordURI$ marcrdf:hasField ?f.\n" +
+					       	"  ?f marcrdf:tag ?t.\n" +
+					       	"  FILTER( regex( xsd:string(?t), \"^1\" ))\n" +
+				        	"  ?f marcrdf:hasSubfield ?sf.\n" +
+				        	"  ?sf marcrdf:code \"a\".\n" +
+				        	"  ?sf marcrdf:value ?v. }").
+			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
 				
 				new SPARQLFieldMakerImpl().
 					setName("titles").
@@ -456,10 +494,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
 				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
-				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,")
+//				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
+//				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
+//				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
 				/*
 			    new SPARQLFieldMakerImpl().
 		    	setName("author_addl").
