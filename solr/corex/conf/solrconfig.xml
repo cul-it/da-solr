@@ -840,7 +840,7 @@
   </searchComponent>
 
   <requestHandler name="/update" class="solr.UpdateRequestHandler" />
-  <requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" />
+  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 
 <!-- this caused a problem with solr 4.1 -->
 <!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
