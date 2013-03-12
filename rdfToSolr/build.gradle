@@ -23,7 +23,9 @@ dependencies {
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
              
-   compile 'org.apache.solr:solr-solrj:4.1.0'            
+   compile 'org.apache.solr:solr-solrj:4.1.0'
+   
+   compile 'com.google.guava:guava:14.0'            
 }
 
 task list(dependsOn: configurations.compile) << { 

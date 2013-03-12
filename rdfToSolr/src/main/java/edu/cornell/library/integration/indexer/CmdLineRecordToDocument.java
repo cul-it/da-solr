@@ -6,8 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -93,9 +92,8 @@ public class CmdLineRecordToDocument extends CommandBase{
 		if( doc.getField( idFieldKey ) == null )
 			throw new Exception("a identifier field of '" +idFieldKey+"' is required");				    
 		
-        //It would be nice to use the default binary handler but there seem to be library problems
-        CommonsHttpSolrServer server = 
-        		new CommonsHttpSolrServer(new URL(solrIndexURL));
+        //It would be nice to use the default binary handler but there seem to be library problems		
+        HttpSolrServer server = new HttpSolrServer(solrIndexURL);
         		
 		//SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
 		//server.setRequestWriter(new BinaryRequestWriter());

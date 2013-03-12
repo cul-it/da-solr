@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -112,8 +113,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			String errorMsg = "could not process file URL " + urlText.toString() +
 					" due to " + th.toString() ;
 			context.write( new Text( filename), new Text( errorMsg ));
-		}finally{
-			Files.deleteRecursively(tmpDir);
+		}finally{			
+			FileUtils.deleteDirectory( tmpDir );			
 		}
 	}
 	
