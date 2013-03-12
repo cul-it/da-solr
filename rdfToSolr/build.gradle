@@ -8,9 +8,6 @@ task copyToLib(type: Copy) {
 }
 
 dependencies {
-   //use the jars from the solr download
-   compile project(':solr')
-
    compile 'org.apache.hadoop:hadoop-core:1.0.3'
 
    compile fileTree(dir: 'libs', include: '*.jar')   
@@ -26,6 +23,7 @@ dependencies {
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
              
+   compile 'org.apache.solr:solr-solrj:4.1.0'            
 }
 
 task list(dependsOn: configurations.compile) << { 
