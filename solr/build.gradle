@@ -13,10 +13,10 @@ This will:
 apply plugin: "java"
 
 ext {
-    solrVersion = "4.1"
+    solrVersion = "4.1.0"
     apacheArchive = "http://archive.apache.org/dist/lucene/solr"
 
-    solrName = "apache-solr-$solrVersion"
+    solrName = "solr-$solrVersion"
     solrDownloadedFile = solrName + '.tgz'
     solrURL = "$apacheArchive/$solrVersion/$solrDownloadedFile"
 

@@ -6,6 +6,8 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
+import edu.cornell.library.integration.hadoop.helper.HoldingForBib;
+
 
 public class HoldingForBibTest {
 
