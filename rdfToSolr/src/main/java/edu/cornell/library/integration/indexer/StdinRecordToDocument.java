@@ -4,13 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
@@ -92,7 +89,7 @@ public class StdinRecordToDocument extends CommandBase {
 	}
 
 	static SolrServer setupSolrServer( String endPointURI ) throws MalformedURLException{
-        return  new CommonsHttpSolrServer(new URL(endPointURI));        		
+        return new HttpSolrServer(endPointURI);        		
 	}
 	
 	private static String help = "\nexpected: endPointURI recToDocImplClassName solrIndexURL\n";
