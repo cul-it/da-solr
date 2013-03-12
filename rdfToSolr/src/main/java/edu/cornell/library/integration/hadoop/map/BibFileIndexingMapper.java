@@ -3,8 +3,6 @@ package edu.cornell.library.integration.hadoop.map;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -14,17 +12,14 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
-
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
-import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.fs.Path;
-
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
@@ -43,8 +38,7 @@ import com.hp.hpl.jena.tdb.TDBLoader;
 import com.hp.hpl.jena.tdb.store.GraphTDB;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
-import edu.cornell.library.integration.hadoop.HoldingForBib;
-import edu.cornell.library.integration.hadoop.reduce.RdfToSolrIndexReducer;
+import edu.cornell.library.integration.hadoop.helper.HoldingForBib;
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.service.DavService;
@@ -64,8 +58,6 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
-	//hadoop directory for the input splits that need to be done
-    Path todoDir;
     //hadoop directory for the input splits that are completed 
     Path doneDir;
 	
@@ -76,8 +68,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Model baseModel;
 	
 	HoldingForBib holdingsIndex;
-	DavService davService;	
-
+	DavService davService;		
 
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
         String url = urlText.toString();
@@ -220,7 +211,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		return bibUris;
 	}
 
-	/** get the filename for the current file that is being worked on. */
+	/** get the filename for the current file (aka input split) that is being worked on. */
     private String getSplitFileName(Context context){
     	FileSplit fileSplit = (FileSplit)context.getInputSplit();
 		return fileSplit.getPath().getName();			
@@ -230,14 +221,17 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	public void setup(Context context) throws IOException, InterruptedException{
 		super.setup(context);		
 		Configuration conf = context.getConfiguration();
-		
-		todoDir = new Path( conf.get(BibFileToSolr.TODO_DIR) );
+				
 		doneDir = new Path( conf.get(BibFileToSolr.DONE_DIR) );
-	
-		solrURL = conf.get( RdfToSolrIndexReducer.SOLR_SERVICE_URL );
+		if(doneDir == null )
+			throw new Error("Requires directory of HDFS for the done directory in configuration, " +
+					"this should have been set by BibFileToSolr or the parent hadoop job. " 
+					+ BibFileToSolr.DONE_DIR);
+		
+		solrURL = conf.get( BibFileToSolr.SOLR_SERVICE_URL );
 		if(solrURL == null )
 			throw new Error("Requires URL of Solr server in config property " 
-					+ RdfToSolrIndexReducer.SOLR_SERVICE_URL);
+					+ BibFileToSolr.SOLR_SERVICE_URL);
 				
 		solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
 		
@@ -246,9 +240,13 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}
 		
 		baseModel = loadBaseModel( context );
+				
+		holdingsIndex = new HoldingForBib(
+				conf.get(BibFileToSolr.HOLDING_SERVICE_URL));
 		
-		holdingsIndex = new HoldingForBib("http://jaf30-dev.library.cornell.edu:8080/DataIndexer/showTriplesLocation.do");
-		davService = new DavServiceImpl("admin","password");		
+		davService = new DavServiceImpl(
+				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
+				conf.get(BibFileToSolr.BIB_WEBDAV_PASSWORD));		
 	}		
 	
 	private Model loadBaseModel(Context context) throws IOException {		

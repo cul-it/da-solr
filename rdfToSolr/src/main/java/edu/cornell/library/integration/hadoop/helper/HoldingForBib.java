@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.hadoop;
+package edu.cornell.library.integration.hadoop.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
