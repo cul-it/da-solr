@@ -5,6 +5,8 @@ import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
+import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
+import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
@@ -21,7 +23,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
-				new SinglePubDateSort()
+				new SinglePubDateSort(),
+				new SingleValueField("author_display",Correction.firstValue)
 		);
 	}
 
