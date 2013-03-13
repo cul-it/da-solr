@@ -476,6 +476,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("frequency_display","310","a"),
 				new SubfieldCodeMaker("isbn_display","020","a"),				
 				new SubfieldCodeMaker("issn_display","022","a"),
+
+				new SubfieldCodeMaker("isbnissn_s","020","a"),				
+				new SubfieldCodeMaker("isbnissn_s","022","a"),
 				
 			    new SPARQLFieldMakerImpl().
 		    	setName("bibid").
