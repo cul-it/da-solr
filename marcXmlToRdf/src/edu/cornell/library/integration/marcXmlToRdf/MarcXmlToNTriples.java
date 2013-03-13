@@ -23,9 +23,13 @@ import javax.xml.stream.events.XMLEvent;
 public class MarcXmlToNTriples {
 	
 	private static String logfile = "xmltordf.log";
+	private static String extractfile = "extract.tdf";
 	private static BufferedWriter logout;
+	private static BufferedWriter extractout;
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	public static Long recordCount = new Long(0);
+	public static Collection<Integer> no245a = new HashSet<Integer>();
+	private static Integer groupsize = 10000;
 	
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
@@ -42,14 +46,18 @@ public class MarcXmlToNTriples {
 		marcXmlToNTriples( xmlfile, targetfile, type );
 	}
 
-	public static void marcXmlToNTriples(File xmlfile, File targetfile, RecordType type) throws Exception {
+	public static void marcXmlToNTriples(File xmlfile, File target, RecordType type) throws Exception {
 		FileInputStream xmlstream = new FileInputStream( xmlfile );
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
 		XMLStreamReader r  = 
 				input_factory.createXMLStreamReader(xmlfile.getPath(), xmlstream);
-		BufferedOutputStream out = 
-				new BufferedOutputStream(new GZIPOutputStream(
-						new FileOutputStream(targetfile)));
+		BufferedOutputStream out = null;
+		if (! target.isDirectory()) {
+			out =  new BufferedOutputStream(new GZIPOutputStream(
+						new FileOutputStream(target, true)));
+		}
+				
+		String curfile = "";
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
@@ -57,10 +65,28 @@ public class MarcXmlToNTriples {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
 					tabulateFieldData(rec);
+					extractData(rec);
 					mapNonRomanFieldsToRomanizedFields(rec);
 					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
+					String file = type.toString().toLowerCase() + '.' +
+							(Integer.valueOf(rec.id) / groupsize) + 
+							".nt.gz";
+					if (rec.type == RecordType.HOLDINGS) {
+						file = type.toString().toLowerCase() + '.' +
+								(Integer.valueOf(rec.bib_id) / groupsize) + 
+								".nt.gz";
+					}
+					if (target.isDirectory()) {
+						if (! file.equals(curfile)) {
+							if (! curfile.equals(""))
+								out.close();
+							out =  new BufferedOutputStream(new GZIPOutputStream(
+									new FileOutputStream(target + "/" + file, true)));
+							curfile = file;
+						}
+					}
 					out.write( ntriples.getBytes() );
 				}
 		}
@@ -68,6 +94,7 @@ public class MarcXmlToNTriples {
 		out.close();
 	}
 
+	
 	/**
 	 * @param args
 	 */
@@ -81,7 +108,7 @@ public class MarcXmlToNTriples {
 			File destfile = new File(destdir+File.separator+xmlfilename.replaceAll(".xml$", ".nt.gz"));
 			System.out.println(f+" => "+destfile.getPath());
 			try {
-				marcXmlToNTriples( f, destfile );
+				marcXmlToNTriples( f, new File(destdir) );
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -95,12 +122,45 @@ public class MarcXmlToNTriples {
 		}
 	}
 	
-	public static void tabulateFieldData( MarcRecord rec ) {
+	public static void extractData( MarcRecord rec ) throws Exception {
+
+		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
+
+		if ((extractout == null))  {
+			FileWriter logstream = new FileWriter(extractfile,true);
+			extractout = new BufferedWriter( logstream );
+		}
+		
+		for (Integer fid: rec.data_fields.keySet()) {
+			DataField f = rec.data_fields.get(fid);
+			if (f.tag.equals("856")) {
+				extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + f.toString() + "\n");
+			}
+		}
+	
+		if (0 == (rec_id % 100)) {
+			extractout.flush();
+			extractout.close();
+			extractout = null;
+		}
+	}
+	
+	public static void tabulateFieldData( MarcRecord rec ) throws Exception {
 		
 		Map<String,Integer> fieldtagcounts = new HashMap<String,Integer>();
 		Map<String,HashMap<Character,Integer>> codeCounts = 
 				new HashMap<String,HashMap<Character,Integer>>();
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
+		
+		if (logout == null) {
+			FileWriter logstream = new FileWriter(logfile);
+			logout = new BufferedWriter( logstream );
+		}
+		
+		
 		for (Integer fid: rec.control_fields.keySet()) {
 			ControlField f = rec.control_fields.get(fid);
 			if (fieldtagcounts.containsKey(f.tag)) {
@@ -160,6 +220,16 @@ public class MarcXmlToNTriples {
 					tagCounts.put(sf.code, 1);
 					codeCounts.put(f.tag, tagCounts);
 				}
+				if (f.tag.equals("245") && sf.code.equals("a")) {
+					if (sf.value.length() <= 1)
+					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") 245 subfield a has length of 0 or 1: "+ f.toString() + "\n");
+					
+				}
+				if (! (Character.isLowerCase(sf.code) || Character.isDigit(sf.code))) {
+					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") Field has subfield code \""+sf.code+"\" which is neither lower case nor a digit: "+ f.toString() +  "\n");
+				}
 			}
 			String sfpattern = sb.toString();
 			if (fs.countBySubfieldPattern.containsKey(sfpattern)) {
@@ -167,6 +237,11 @@ public class MarcXmlToNTriples {
 			} else {
 				fs.countBySubfieldPattern.put(sfpattern, 1);
 				fs.exampleBySubfieldPattern.put(sfpattern,rec_id);
+			}
+			if (f.tag.equals("245") && ! sfpattern.contains("a")) {
+				no245a.add(rec_id);
+				logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+						") 245 field has no subfield a: "+ f.toString() +  "\n");
 			}
 			
 			fieldStatsByTag.put(f.tag, fs);
@@ -211,6 +286,7 @@ public class MarcXmlToNTriples {
 	public static String generateNTriples ( MarcRecord rec, RecordType type ) {
 		StringBuilder sb = new StringBuilder();
 		String id = rec.control_fields.get(1).value;
+		rec.id = id;
 		String uri_host = "http://fbw4-dev.library.cornell.edu/individuals/";
 		String id_pref;
 		String record_type_uri;
@@ -238,6 +314,7 @@ public class MarcXmlToNTriples {
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples(f.value)+"\".\n");
 			if ((f.tag.contentEquals("004")) && (type == RecordType.HOLDINGS)) {
+				rec.bib_id = f.value;
 				sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> <"+uri_host+"b"+escapeForNTriples(f.value)+">.\n");
 			}
 		}
@@ -520,6 +597,8 @@ public class MarcXmlToNTriples {
 		public Map<Integer,DataField> data_fields
 									= new HashMap<Integer,DataField>();
 		public RecordType type;
+		public String id;
+		public String bib_id;
 		
 		public String toString( ) {
 			
@@ -534,6 +613,7 @@ public class MarcXmlToNTriples {
 			while( this.data_fields.containsKey(id+1) ) {
 				DataField f = this.data_fields.get(++id);
 				sb.append(f.toString());
+				sb.append("\n");
 			}
 			return sb.toString();
 		}
@@ -567,12 +647,12 @@ public class MarcXmlToNTriples {
 			int sf_id = 0;
 			while( this.subfields.containsKey(sf_id+1) ) {
 				Subfield sf = this.subfields.get(++sf_id);
-				sb.append("|");
+				sb.append("‡");
 				sb.append(sf.code);
 				sb.append(" ");
 				sb.append(sf.value);
+				sb.append(" ");
 			}
-			sb.append("\n");
 			return sb.toString();
 		}
 	}

@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
+import edu.cornell.library.integration.indexer.documentPostProcess.ShadowRecordBoost;
 import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
+import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
+import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
@@ -21,7 +24,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
-				new SinglePubDateSort()
+				new SinglePubDateSort(),
+				new SingleValueField("author_display",Correction.firstValue),
+				new ShadowRecordBoost()
 		);
 	}
 
@@ -176,6 +181,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("publisher_t","260","b"),
 				new SubfieldCodeMaker("publisher_t","264","b"),
 					
+				new SubfieldCodeMaker("pubplace_t","260","a"),
+				new SubfieldCodeMaker("pubplace_t","264","a"),
+
 				new SubfieldCodeMaker("edition_display","250","ab"),
 									
 				new SubfieldCodeMaker("title_addl_t","210","ab"),
@@ -365,38 +373,38 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"}}}}").
 			        addResultSetToFields( new LocationResultSetToFields() ),
 			    	
-				new SubfieldCodeMaker("notes_display","500","a"),
-				new SubfieldCodeMaker("notes_display","501","a"),
-				new SubfieldCodeMaker("notes_display","502","a"),
-				new SubfieldCodeMaker("notes_display","503","a"),
-				new SubfieldCodeMaker("notes_display","504","ab"),
-				new SubfieldCodeMaker("notes_display","508","a"),
-				new SubfieldCodeMaker("notes_display","513","ab"),
-				new SubfieldCodeMaker("notes_display","518","adop"),
-				new SubfieldCodeMaker("notes_display","521","a"),
-				new SubfieldCodeMaker("notes_display","522","a"),
-				new SubfieldCodeMaker("notes_display","523","a"),
-				new SubfieldCodeMaker("notes_display","525","a"),
-				new SubfieldCodeMaker("notes_display","527","a"),				
-				new SubfieldCodeMaker("notes_display","530","abc3"),
-				new SubfieldCodeMaker("notes_display","533","aebcdfn3"),
-				new SubfieldCodeMaker("notes_display","534","abcefmpt"),
-				new SubfieldCodeMaker("notes_display","535","abcd3"),
-				new SubfieldCodeMaker("notes_display","537","a"),
-				new SubfieldCodeMaker("notes_display","538","a"),
-				new SubfieldCodeMaker("notes_display","544","a"),
-				new SubfieldCodeMaker("notes_display","547","a"),
-				new SubfieldCodeMaker("notes_display","550","a"),
-				new SubfieldCodeMaker("notes_display","556","a"),
-				new SubfieldCodeMaker("notes_display","561","ab3"),
-				new SubfieldCodeMaker("notes_display","565","a"),
-				new SubfieldCodeMaker("notes_display","567","a"),
-				new SubfieldCodeMaker("notes_display","570","a"),
-				new SubfieldCodeMaker("notes_display","580","a"),
-				new SubfieldCodeMaker("notes_display","582","a"),
-				new SubfieldCodeMaker("notes_display","588","a"),
-				new SubfieldCodeMaker("notes_display","940","a"),
-				new SubfieldCodeMaker("notes_display","856","m"),
+				new SubfieldCodeMaker("notes","500","a"),
+				new SubfieldCodeMaker("notes","501","a"),
+				new SubfieldCodeMaker("notes","502","a"),
+				new SubfieldCodeMaker("notes","503","a"),
+				new SubfieldCodeMaker("notes","504","ab"),
+				new SubfieldCodeMaker("notes","508","a"),
+				new SubfieldCodeMaker("notes","513","ab"),
+				new SubfieldCodeMaker("notes","518","adop"),
+				new SubfieldCodeMaker("notes","521","a"),
+				new SubfieldCodeMaker("notes","522","a"),
+				new SubfieldCodeMaker("notes","523","a"),
+				new SubfieldCodeMaker("notes","525","a"),
+				new SubfieldCodeMaker("notes","527","a"),				
+				new SubfieldCodeMaker("notes","530","abc3"),
+				new SubfieldCodeMaker("notes","533","aebcdfn3"),
+				new SubfieldCodeMaker("notes","534","abcefmpt"),
+				new SubfieldCodeMaker("notes","535","abcd3"),
+				new SubfieldCodeMaker("notes","537","a"),
+				new SubfieldCodeMaker("notes","538","a"),
+				new SubfieldCodeMaker("notes","544","a"),
+				new SubfieldCodeMaker("notes","547","a"),
+				new SubfieldCodeMaker("notes","550","a"),
+				new SubfieldCodeMaker("notes","556","a"),
+				new SubfieldCodeMaker("notes","561","ab3"),
+				new SubfieldCodeMaker("notes","565","a"),
+				new SubfieldCodeMaker("notes","567","a"),
+				new SubfieldCodeMaker("notes","570","a"),
+				new SubfieldCodeMaker("notes","580","a"),
+				new SubfieldCodeMaker("notes","582","a"),
+				new SubfieldCodeMaker("notes","588","a"),
+				new SubfieldCodeMaker("notes","940","a"),
+				new SubfieldCodeMaker("notes","856","m"),
 
 				new SubfieldCodeMaker("summary_display","520","ab"),
 				
@@ -475,7 +483,24 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new SubfieldCodeMaker("frequency_display","310","a"),
 				new SubfieldCodeMaker("isbn_display","020","a"),				
-				new SubfieldCodeMaker("issn_display","022","a"),				
+				new SubfieldCodeMaker("issn_display","022","a"),
+
+				new SubfieldCodeMaker("isbnissn_s","020","a"),				
+				new SubfieldCodeMaker("isbnissn_s","022","a"),
+				
+				new SubfieldCodeMaker("eightninenine_s","899","a"),
+				
+			    new SPARQLFieldMakerImpl().
+		    	setName("bibid").
+		    	addMainStoreQuery("bibid", 
+	        	"SELECT ?v\n" +
+	        	" WHERE {\n" +
+	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+	        	"  ?f marcrdf:tag \"001\".\n" +
+	        	"  ?f marcrdf:value ?v. }").
+	        	addResultSetToFields( new AllResultsToField("id_s")),
+				new SubfieldCodeMaker("id_s","024","a"),
+				new SubfieldCodeMaker("id_s","028","a"),
 
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
 				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),

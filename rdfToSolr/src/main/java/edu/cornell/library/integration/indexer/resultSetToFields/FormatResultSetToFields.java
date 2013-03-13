@@ -161,11 +161,13 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		if (loccodes.contains("serv,remo")) {
 			if (!online) {
 				online = true;
-				System.out.println("ONLINE STATUS: Resource not online according to Cullr logic, but online according to mfhd 852‡b = \"serv,remo\".");
+				// Suppress warning until this can be logged properly and tabulated.
+//				System.out.println("ONLINE STATUS: Resource not online according to Cullr logic, but online according to mfhd 852‡b = \"serv,remo\".");
 			}
 		} else {
 			if (online) {
-				System.out.println("ONLINE STATUS: Resource online according to Cullr logic, but not online according to mfhd 852‡b != \"serv,remo\".");
+				// Suppress warning until this can be logged properly and tabulated.
+//				System.out.println("ONLINE STATUS: Resource online according to Cullr logic, but not online according to mfhd 852‡b != \"serv,remo\".");
 			}
 		}
 

@@ -33,6 +33,9 @@ public class SingleValueField implements DocumentPostProcess {
 	public void p(String recordURI, RDFService mainStore,
 			RDFService localStore, SolrInputDocument document) throws Exception {
 		
+		if (! document.containsKey(fieldName)) {
+			return;
+		}
 		SolrInputField field = document.getField( fieldName );
 		
 		if( fieldName != null && field.getValueCount() > 1 ){		
