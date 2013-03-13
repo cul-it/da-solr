@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
+import edu.cornell.library.integration.indexer.documentPostProcess.ShadowRecordBoost;
 import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
@@ -24,7 +25,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
 				new SinglePubDateSort(),
-				new SingleValueField("author_display",Correction.firstValue)
+				new SingleValueField("author_display",Correction.firstValue),
+				new ShadowRecordBoost()
 		);
 	}
 
@@ -486,15 +488,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SubfieldCodeMaker("isbnissn_s","020","a"),				
 				new SubfieldCodeMaker("isbnissn_s","022","a"),
 				
+				new SubfieldCodeMaker("eightninenine_s","899","a"),
+				
 			    new SPARQLFieldMakerImpl().
 		    	setName("bibid").
 		    	addMainStoreQuery("bibid", 
-	        	"SELECT *\n" +
+	        	"SELECT ?v\n" +
 	        	" WHERE {\n" +
 	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
 	        	"  ?f marcrdf:tag \"001\".\n" +
 	        	"  ?f marcrdf:value ?v. }").
-	        	addResultSetToFields( new IDResultSetToFields()),
+	        	addResultSetToFields( new AllResultsToField("id_s")),
 				new SubfieldCodeMaker("id_s","024","a"),
 				new SubfieldCodeMaker("id_s","028","a"),
 
