@@ -11,6 +11,7 @@ import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueFi
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
+import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
@@ -111,7 +112,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addResultSetToFields( new FormatResultSetToFields() ),
 					
 				getLanguageFieldMaker(),
-				new SubfieldCodeMaker("language_display","546","ab"),
+				new StandardMARCFieldMaker("language_display","546","ab"),
 				    		
 			    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
@@ -163,7 +164,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?s marcrdf:value ?date } ").
 				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
-				new SubfieldCodeMaker("pub_info_display","260","abc"),
+				new StandardMARCFieldMaker("pub_info_display","260","abc"),
 			    new SPARQLFieldMakerImpl().
 			    	setName("pub_info_264").
 			    	addMainStoreQuery("pub_info", 
@@ -176,45 +177,45 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?sf marcrdf:code ?c.\n" +
 			    			"  ?sf marcrdf:value ?v. }").
 			    	addResultSetToFields( new PubInfoResultSetToFields()),
-//				new SubfieldCodeMaker("pub_info_display","264","abc"),
+//				new StandardMARCFieldMaker("pub_info_display","264","abc"),
 				
-				new SubfieldCodeMaker("publisher_t","260","b"),
-				new SubfieldCodeMaker("publisher_t","264","b"),
+				new StandardMARCFieldMaker("publisher_t","260","b"),
+				new StandardMARCFieldMaker("publisher_t","264","b"),
 					
-				new SubfieldCodeMaker("pubplace_t","260","a"),
-				new SubfieldCodeMaker("pubplace_t","264","a"),
+				new StandardMARCFieldMaker("pubplace_t","260","a"),
+				new StandardMARCFieldMaker("pubplace_t","264","a"),
 
-				new SubfieldCodeMaker("edition_display","250","ab"),
+				new StandardMARCFieldMaker("edition_display","250","ab"),
 									
-				new SubfieldCodeMaker("title_addl_t","210","ab"),
-				new SubfieldCodeMaker("title_addl_t","222","ab"),
-				new SubfieldCodeMaker("title_addl_t","242","abnp"),
-				new SubfieldCodeMaker("title_addl_t","243","abcdefgklmnopqrs"),
-				new SubfieldCodeMaker("title_addl_t","245","abnps"),
-				new SubfieldCodeMaker("title_addl_t","246","abcdefgklmnopqrs"),
-				new SubfieldCodeMaker("title_addl_t","247","abcdefgnp"),
-				new SubfieldCodeMaker("title_addl_t","740","anp"),
+				new StandardMARCFieldMaker("title_addl_t","210","ab"),
+				new StandardMARCFieldMaker("title_addl_t","222","ab"),
+				new StandardMARCFieldMaker("title_addl_t","242","abnp"),
+				new StandardMARCFieldMaker("title_addl_t","243","abcdefgklmnopqrs"),
+				new StandardMARCFieldMaker("title_addl_t","245","abnps"),
+				new StandardMARCFieldMaker("title_addl_t","246","abcdefgklmnopqrs"),
+				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp"),
+				new StandardMARCFieldMaker("title_addl_t","740","anp"),
 
-				new SubfieldCodeMaker("title_uniform_t","130","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("title_uniform_t","240","abcdefgklmnopqrs"),
-				new SubfieldCodeMaker("title_uniform_t","730","abcdefgklmnopqrst"),
-				new SubfieldCodeMaker("title_uniform_t","700","gklmnoprst"),
-				new SubfieldCodeMaker("title_uniform_t","710","fgklmnopqrst"),
-				new SubfieldCodeMaker("title_uniform_t","711","fgklnpst"),
+				new StandardMARCFieldMaker("title_uniform_t","130","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("title_uniform_t","240","abcdefgklmnopqrs"),
+				new StandardMARCFieldMaker("title_uniform_t","730","abcdefgklmnopqrst"),
+				new StandardMARCFieldMaker("title_uniform_t","700","gklmnoprst"),
+				new StandardMARCFieldMaker("title_uniform_t","710","fgklmnopqrst"),
+				new StandardMARCFieldMaker("title_uniform_t","711","fgklnpst"),
 
-				new SubfieldCodeMaker("title_series_t","400","abdfklnptvcegu"),				
-				new SubfieldCodeMaker("title_series_t","410","abdfklnptvcegu"),				
-				new SubfieldCodeMaker("title_series_t","411","acdefklnptgquv"),
-				new SubfieldCodeMaker("title_series_t","440","anpv"),
-				new SubfieldCodeMaker("title_series_t","800","abcdefghklmnopqrstuv"),
-				new SubfieldCodeMaker("title_series_t","810","abcdefghklmnopqrstuv"),
-				new SubfieldCodeMaker("title_series_t","811","acdefghklnpqstuv"),
-				new SubfieldCodeMaker("title_series_t","830","adfghklmnoprstv"),
-				new SubfieldCodeMaker("title_series_t","490","anpv"),
+				new StandardMARCFieldMaker("title_series_t","400","abdfklnptvcegu"),				
+				new StandardMARCFieldMaker("title_series_t","410","abdfklnptvcegu"),				
+				new StandardMARCFieldMaker("title_series_t","411","acdefklnptgquv"),
+				new StandardMARCFieldMaker("title_series_t","440","anpv"),
+				new StandardMARCFieldMaker("title_series_t","800","abcdefghklmnopqrstuv"),
+				new StandardMARCFieldMaker("title_series_t","810","abcdefghklmnopqrstuv"),
+				new StandardMARCFieldMaker("title_series_t","811","acdefghklnpqstuv"),
+				new StandardMARCFieldMaker("title_series_t","830","adfghklmnoprstv"),
+				new StandardMARCFieldMaker("title_series_t","490","anpv"),
 
-				new SubfieldCodeMaker("title_other_display","243","adfgklmnoprs",":/ "),
-				new SubfieldCodeMaker("title_other_display","246","iabfnpg",":/ "),
-				new SubfieldCodeMaker("continues_display","247","abfgnpx",":/ "),
+				new StandardMARCFieldMaker("title_other_display","243","adfgklmnoprs",":/ "),
+				new StandardMARCFieldMaker("title_other_display","246","iabfnpg",":/ "),
+				new StandardMARCFieldMaker("continues_display","247","abfgnpx",":/ "),
 
 				new SPARQLFieldMakerImpl().
 					setName("title130").
@@ -262,15 +263,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		" }").
 			    	addMainStoreQuery("title_vern",
 			    		"SELECT ?code ?value\n" +
-						" WHERE { $recordURI$ marcrdf:hasField ?f880.\n" +
+						" WHERE { $recordURI$ marcrdf:hasField245 ?f880.\n" +
 				   		"        ?f880 marcrdf:tag \"880\". \n" +
 						"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
 						"        ?f880sf marcrdf:code ?code.\n" +
 						"        ?f880sf marcrdf:value ?value.\n" +
-						"        ?f880 marcrdf:hasSubfield ?f880sf6.\n" +
-						"        ?f880sf6 marcrdf:code \"6\".\n" +
-						"        ?f880sf6 marcrdf:value ?value6.\n" +
-						"        FILTER( regex( xsd:string(?value6), \"^245\" ))\n" +
 			    		" }"	).
 			    	addMainStoreQuery("title_sort_offset",
 					    "SELECT ?ind2 \n" +
@@ -373,60 +370,60 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"}}}}").
 			        addResultSetToFields( new LocationResultSetToFields() ),
 			    	
-				new SubfieldCodeMaker("notes","500","a"),
-				new SubfieldCodeMaker("notes","501","a"),
-				new SubfieldCodeMaker("notes","502","a"),
-				new SubfieldCodeMaker("notes","503","a"),
-				new SubfieldCodeMaker("notes","504","ab"),
-				new SubfieldCodeMaker("notes","508","a"),
-				new SubfieldCodeMaker("notes","513","ab"),
-				new SubfieldCodeMaker("notes","518","adop"),
-				new SubfieldCodeMaker("notes","521","a"),
-				new SubfieldCodeMaker("notes","522","a"),
-				new SubfieldCodeMaker("notes","523","a"),
-				new SubfieldCodeMaker("notes","525","a"),
-				new SubfieldCodeMaker("notes","527","a"),				
-				new SubfieldCodeMaker("notes","530","abc3"),
-				new SubfieldCodeMaker("notes","533","aebcdfn3"),
-				new SubfieldCodeMaker("notes","534","abcefmpt"),
-				new SubfieldCodeMaker("notes","535","abcd3"),
-				new SubfieldCodeMaker("notes","537","a"),
-				new SubfieldCodeMaker("notes","538","a"),
-				new SubfieldCodeMaker("notes","544","a"),
-				new SubfieldCodeMaker("notes","547","a"),
-				new SubfieldCodeMaker("notes","550","a"),
-				new SubfieldCodeMaker("notes","556","a"),
-				new SubfieldCodeMaker("notes","561","ab3"),
-				new SubfieldCodeMaker("notes","565","a"),
-				new SubfieldCodeMaker("notes","567","a"),
-				new SubfieldCodeMaker("notes","570","a"),
-				new SubfieldCodeMaker("notes","580","a"),
-				new SubfieldCodeMaker("notes","582","a"),
-				new SubfieldCodeMaker("notes","588","a"),
-				new SubfieldCodeMaker("notes","940","a"),
-				new SubfieldCodeMaker("notes","856","m"),
+				new StandardMARCFieldMaker("notes","500","a"),
+				new StandardMARCFieldMaker("notes","501","a"),
+				new StandardMARCFieldMaker("notes","502","a"),
+				new StandardMARCFieldMaker("notes","503","a"),
+				new StandardMARCFieldMaker("notes","504","ab"),
+				new StandardMARCFieldMaker("notes","508","a"),
+				new StandardMARCFieldMaker("notes","513","ab"),
+				new StandardMARCFieldMaker("notes","518","adop"),
+				new StandardMARCFieldMaker("notes","521","a"),
+				new StandardMARCFieldMaker("notes","522","a"),
+				new StandardMARCFieldMaker("notes","523","a"),
+				new StandardMARCFieldMaker("notes","525","a"),
+				new StandardMARCFieldMaker("notes","527","a"),				
+				new StandardMARCFieldMaker("notes","530","abc3"),
+				new StandardMARCFieldMaker("notes","533","aebcdfn3"),
+				new StandardMARCFieldMaker("notes","534","abcefmpt"),
+				new StandardMARCFieldMaker("notes","535","abcd3"),
+				new StandardMARCFieldMaker("notes","537","a"),
+				new StandardMARCFieldMaker("notes","538","a"),
+				new StandardMARCFieldMaker("notes","544","a"),
+				new StandardMARCFieldMaker("notes","547","a"),
+				new StandardMARCFieldMaker("notes","550","a"),
+				new StandardMARCFieldMaker("notes","556","a"),
+				new StandardMARCFieldMaker("notes","561","ab3"),
+				new StandardMARCFieldMaker("notes","565","a"),
+				new StandardMARCFieldMaker("notes","567","a"),
+				new StandardMARCFieldMaker("notes","570","a"),
+				new StandardMARCFieldMaker("notes","580","a"),
+				new StandardMARCFieldMaker("notes","582","a"),
+				new StandardMARCFieldMaker("notes","588","a"),
+				new StandardMARCFieldMaker("notes","940","a"),
+				new StandardMARCFieldMaker("notes","856","m"),
 
-				new SubfieldCodeMaker("summary_display","520","ab"),
+				new StandardMARCFieldMaker("summary_display","520","ab"),
 				
-				new SubfieldCodeMaker("description_display","300","abcefg"),
+				new StandardMARCFieldMaker("description_display","300","abcefg"),
 				
-				new SubfieldCodeMaker("subject_era_facet","650","y","."),
-				new SubfieldCodeMaker("subject_era_facet","651","y","."),
-				new SubfieldCodeMaker("subject_era_facet","654","y","."),
-				new SubfieldCodeMaker("subject_era_facet","655","y","."),
+				new StandardMARCFieldMaker("subject_era_facet","650","y","."),
+				new StandardMARCFieldMaker("subject_era_facet","651","y","."),
+				new StandardMARCFieldMaker("subject_era_facet","654","y","."),
+				new StandardMARCFieldMaker("subject_era_facet","655","y","."),
 
-				new SubfieldCodeMaker("subject_geo_facet","651","a","."),
-				new SubfieldCodeMaker("subject_geo_facet","650","z","."),
+				new StandardMARCFieldMaker("subject_geo_facet","651","a","."),
+				new StandardMARCFieldMaker("subject_geo_facet","650","z","."),
 
-				new SubfieldCodeMaker("subject_topic_facet","600","abcdq",",."),
-				new SubfieldCodeMaker("subject_topic_facet","610","ab",",."),
-				new SubfieldCodeMaker("subject_topic_facet","611","ab",",."),
-				new SubfieldCodeMaker("subject_topic_facet","630","a",",."),
-				new SubfieldCodeMaker("subject_topic_facet","630","ap",",."),
-				new SubfieldCodeMaker("subject_topic_facet","650","a",",."),
-				new SubfieldCodeMaker("subject_topic_facet","653","a","."),
-				new SubfieldCodeMaker("subject_topic_facet","654","ab","."),
-				new SubfieldCodeMaker("subject_topic_facet","655","ab","."),
+				new StandardMARCFieldMaker("subject_topic_facet","600","abcdq",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","610","ab",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","611","ab",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","630","a",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","630","ap",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","650","a",",."),
+				new StandardMARCFieldMaker("subject_topic_facet","653","a","."),
+				new StandardMARCFieldMaker("subject_topic_facet","654","ab","."),
+				new StandardMARCFieldMaker("subject_topic_facet","655","ab","."),
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
 					addMainStoreQuery("fact_or_fiction",
@@ -436,33 +433,33 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"        ?f marcrdf:value ?val } \n" ).
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
-				new SubfieldCodeMaker("subject_t","600","abcdefghijklmnopqrstu"),
-				new SubfieldCodeMaker("subject_t","610","abcdefghijklmnopqrstu"),
-				new SubfieldCodeMaker("subject_t","611","abcdefghijklmnopqrstu"),
-				new SubfieldCodeMaker("subject_t","630","abcdefghijklmnopqrst"),
-				new SubfieldCodeMaker("subject_t","650","abcde"),
-				new SubfieldCodeMaker("subject_t","651","ae"),
-				new SubfieldCodeMaker("subject_t","653","a"),
-				new SubfieldCodeMaker("subject_t","654","abcde"),
-				new SubfieldCodeMaker("subject_t","655","abc"),
+				new StandardMARCFieldMaker("subject_t","600","abcdefghijklmnopqrstu"),
+				new StandardMARCFieldMaker("subject_t","610","abcdefghijklmnopqrstu"),
+				new StandardMARCFieldMaker("subject_t","611","abcdefghijklmnopqrstu"),
+				new StandardMARCFieldMaker("subject_t","630","abcdefghijklmnopqrst"),
+				new StandardMARCFieldMaker("subject_t","650","abcde"),
+				new StandardMARCFieldMaker("subject_t","651","ae"),
+				new StandardMARCFieldMaker("subject_t","653","a"),
+				new StandardMARCFieldMaker("subject_t","654","abcde"),
+				new StandardMARCFieldMaker("subject_t","655","abc"),
 				
-				new SubfieldCodeMaker("subject_addl_t","600","abcdefghkjlmnopqrstuvwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","610","abcdefghklmnoprstuvwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","611","acdefghklnpqstuvwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","630","adfghklmnoprstvwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","650","abcdvwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","651","avwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","653","vwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","654","vwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","655","avwxyz","."),
-				new SubfieldCodeMaker("subject_addl_t","692","a","."),
-				new SubfieldCodeMaker("subject_addl_t","693","a","."),
-				new SubfieldCodeMaker("subject_addl_t","694","a","."),
-				new SubfieldCodeMaker("subject_addl_t","695","a","."),
-				new SubfieldCodeMaker("subject_addl_t","696","a","."),
-				new SubfieldCodeMaker("subject_addl_t","697","a","."),
-				new SubfieldCodeMaker("subject_addl_t","698","a","."),
-				new SubfieldCodeMaker("subject_addl_t","699","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","600","abcdefghkjlmnopqrstuvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","610","abcdefghklmnoprstuvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","611","acdefghklnpqstuvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","630","adfghklmnoprstvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","650","abcdvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","651","avwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","653","vwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","654","vwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","655","avwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","692","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","693","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","694","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","695","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","696","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","697","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","698","a","."),
+				new StandardMARCFieldMaker("subject_addl_t","699","a","."),
 				
 			    new SPARQLFieldMakerImpl().
 			    	setName("subject display").
@@ -479,16 +476,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	"  ?sf marcrdf:value ?v. }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
 				
-				new SubfieldCodeMaker("donor_display","902","b"),
+				new StandardMARCFieldMaker("donor_display","902","b"),
 				
-				new SubfieldCodeMaker("frequency_display","310","a"),
-				new SubfieldCodeMaker("isbn_display","020","a"),				
-				new SubfieldCodeMaker("issn_display","022","a"),
+				new StandardMARCFieldMaker("frequency_display","310","a"),
+				new StandardMARCFieldMaker("isbn_display","020","a"),				
+				new StandardMARCFieldMaker("issn_display","022","a"),
 
-				new SubfieldCodeMaker("isbnissn_s","020","a"),				
-				new SubfieldCodeMaker("isbnissn_s","022","a"),
+				new StandardMARCFieldMaker("isbnissn_s","020","a"),				
+				new StandardMARCFieldMaker("isbnissn_s","022","a"),
 				
-				new SubfieldCodeMaker("eightninenine_s","899","a"),
+				new StandardMARCFieldMaker("eightninenine_s","899","a"),
 				
 			    new SPARQLFieldMakerImpl().
 		    	setName("bibid").
@@ -499,30 +496,59 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	        	"  ?f marcrdf:tag \"001\".\n" +
 	        	"  ?f marcrdf:value ?v. }").
 	        	addResultSetToFields( new AllResultsToField("id_s")),
-				new SubfieldCodeMaker("id_s","024","a"),
-				new SubfieldCodeMaker("id_s","028","a"),
+				new StandardMARCFieldMaker("id_s","024","a"),
+				new StandardMARCFieldMaker("id_s","028","a"),
 
-				new SubfieldCodeMaker("author_t","100","abcdqegu"),
-				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_t","111","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("author_t","100","abcdqegu"),
+				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz"),
 
-				new SubfieldCodeMaker("author_addl_t","700","abcdqegu"),
-				new SubfieldCodeMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),
-				new SubfieldCodeMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu"),
+				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz"),
 				
-				new SubfieldCodeMaker("author_facet","100","abcdq",".,"),
-				new SubfieldCodeMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_facet","700","abcdq",".,"),
-				new SubfieldCodeMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",".,"),
+				new StandardMARCFieldMaker("author_facet","100","abcdq",".,"),
+				new StandardMARCFieldMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",".,"),
+				new StandardMARCFieldMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",".,"),
+				new StandardMARCFieldMaker("author_facet","700","abcdq",".,"),
+				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",".,"),
+				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",".,"),
 
 				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
 				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,")
-//				new SubfieldCodeMaker("author_addl_display","700","abcdq",".,"),
-//				new SubfieldCodeMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
-//				new SubfieldCodeMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
+				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),
+				
+				new SPARQLFieldMakerImpl().
+				setName("vern_author").
+		    	addMainStoreQuery("author_100",
+		    		"SELECT ?f880 ?code ?value\n" +
+					" WHERE { $recordURI$ marcrdf:hasField100 ?f880.\n" +
+			   		"        ?f880 marcrdf:tag \"880\". \n" +
+					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
+					"        ?f880sf marcrdf:code ?code.\n" +
+					"        ?f880sf marcrdf:value ?value.\n" +
+		    		" }"	).
+			    addMainStoreQuery("author_110",
+			   		"SELECT ?f880 ?code ?value\n" +
+					" WHERE { $recordURI$ marcrdf:hasField110 ?f880.\n" +
+			   		"        ?f880 marcrdf:tag \"880\". \n" +
+					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
+					"        ?f880sf marcrdf:code ?code.\n" +
+					"        ?f880sf marcrdf:value ?value.\n" +
+				   	" }"	).
+				addMainStoreQuery("author_111",
+			   		"SELECT ?f880 ?code ?value\n" +
+			   		" WHERE { $recordURI$ marcrdf:hasField111 ?f880.\n" +
+			   		"        ?f880 marcrdf:tag \"880\". \n" +
+					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
+					"        ?f880sf marcrdf:code ?code.\n" +
+					"        ?f880sf marcrdf:value ?value.\n" +
+			   		" }"	).
+		    	addResultSetToFields( new AuthorVernResultSetToFields())
+
+//				new StandardMARCFieldMaker("author_addl_display","700","abcdq",".,"),
+//				new StandardMARCFieldMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
+//				new StandardMARCFieldMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
 				/*
 			    new SPARQLFieldMakerImpl().
 		    	setName("author_addl").
