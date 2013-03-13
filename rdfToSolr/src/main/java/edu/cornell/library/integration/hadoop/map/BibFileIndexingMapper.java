@@ -17,7 +17,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -71,7 +71,12 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	HoldingForBib holdingsIndex;
 	DavService davService;		
 
+	//true of an error happened during a single call to map()
+	boolean errors_encountered = false;
+	
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
+		errors_encountered = false;
+		
         String url = urlText.toString();
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
@@ -101,10 +106,16 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			
 			log.info("Starting to index documents");
 			RDFService rdf = new RDFServiceModel(model);
-			for( String bibUri: bibUris){							
-				indexToSolr(bibUri, rdf);	
-				context.progress();
-				context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
+			for( String bibUri: bibUris){	
+				try{
+					indexToSolr(bibUri, rdf);	
+					context.progress();
+					context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
+					context.write(new Text(bibUri), new Text("URI\tSuccess"));
+				}catch(Exception ex ){
+					String filename = getSplitFileName(context);
+					context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
+				}
 			}		
 						
 			moveToDone( context );
@@ -112,10 +123,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			String filename = getSplitFileName(context);
 			String errorMsg = "could not process file URL " + urlText.toString() +
 					" due to " + th.toString() ;
-			context.write( new Text( filename), new Text( errorMsg ));
+			log.error( errorMsg );
+			context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
 		}finally{			
 			FileUtils.deleteDirectory( tmpDir );			
-		}
+		}		
 	}
 	
 	/** Move the split from the todo directory to the done directory. */ 
@@ -126,26 +138,23 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			true, false, fs.getConf()); 
 	}
 
-	private void indexToSolr(String bibUri, RDFService rdf){
+	private void indexToSolr(String bibUri, RDFService rdf) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
 			doc = r2d.buildDoc(bibUri, rdf);
 			if( doc == null ){
-				log.error("No document created for " + bibUri);
-				return;
+				throw new Exception("No document created for " + bibUri);				
 			}
-		}catch(Throwable er){
-			log.error("Could not create solr document for " +bibUri 
-					+ " " + er.getMessage());
-			return;
+		}catch(Throwable er){			
+			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
 					
 		try{
 			solr.add(doc);				
-		}catch (Throwable e) {			
-			log.error("Could not add document to index for " + bibUri +
-					" Check logs of solr server for details.");
+		}catch (Throwable er) {			
+			throw new Exception("Could not add document to index for " + bibUri +
+					" Check logs of solr server for details.", er );
 		}
 	}
 	
@@ -214,6 +223,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 	/** get the filename for the current file (aka input split) that is being worked on. */
     private String getSplitFileName(Context context){
+    	
     	FileSplit fileSplit = (FileSplit)context.getInputSplit();
 		return fileSplit.getPath().getName();			
     }

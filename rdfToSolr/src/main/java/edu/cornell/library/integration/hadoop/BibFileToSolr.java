@@ -185,13 +185,20 @@ public class BibFileToSolr extends Configured implements Tool {
 			if( ! davUrl.endsWith("/")){
 				davUrl = davUrl + "/";
 			}
-			for( String file : files ){	
+			
+			for( String file : files ){
+				
+				String randPrefix =  Integer.toString(r.nextInt(10000)) + '_' ;
+				String inputSplitName = "";
+				
+				//gz at the end of an input split will make hadoop try to decompress the contents.
 				if( file.endsWith(".gz") ){
-					file = file.substring(0,file.indexOf(".gz"));
-					System.out.println( file );
-				}
-				String name = Integer.toString(r.nextInt(10000)) + file;		
-				Path newf = new Path( inputDir, name);
+					inputSplitName = randPrefix  + file.substring(0,file.indexOf(".gz"));					
+				}else{
+					inputSplitName = randPrefix + file;
+				}								
+				
+				Path newf = new Path( inputDir, inputSplitName);
 				BufferedWriter br=new BufferedWriter(new OutputStreamWriter(fs.create(newf,true)));
 				br.write(  davUrl + file );
 				br.close();							
