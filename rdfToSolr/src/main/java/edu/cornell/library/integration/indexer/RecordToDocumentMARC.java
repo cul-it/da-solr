@@ -475,7 +475,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new SubfieldCodeMaker("frequency_display","310","a"),
 				new SubfieldCodeMaker("isbn_display","020","a"),				
-				new SubfieldCodeMaker("issn_display","022","a"),				
+				new SubfieldCodeMaker("issn_display","022","a"),
+				
+			    new SPARQLFieldMakerImpl().
+		    	setName("bibid").
+		    	addMainStoreQuery("bibid", 
+	        	"SELECT *\n" +
+	        	" WHERE {\n" +
+	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
+	        	"  ?f marcrdf:tag \"001\".\n" +
+	        	"  ?f marcrdf:value ?v. }").
+	        	addResultSetToFields( new IDResultSetToFields()),
+				new SubfieldCodeMaker("id_s","024","acd"),
+				new SubfieldCodeMaker("id_s","028","a"),
 
 				new SubfieldCodeMaker("author_t","100","abcdqegu"),
 				new SubfieldCodeMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
