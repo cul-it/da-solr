@@ -25,7 +25,9 @@ public class ShadowRecordBoost implements DocumentPostProcess{
 		SubfieldCodeMaker scm = new SubfieldCodeMaker("shadow_flag","948","h");
 		Map<? extends String, ? extends SolrInputField> tempfields = 
 				scm.buildFields(recordURI, mainStore, localStore);
+		if (! tempfields.containsKey("shadow_flag")) return;
 		SolrInputField shadowflagfield = tempfields.get("shadow_flag");
+		if (shadowflagfield.getValueCount() == 0) return;
 		Iterator<Object> i = shadowflagfield.getValues().iterator();
 		while (i.hasNext()) {
 			String val = i.next().toString();
