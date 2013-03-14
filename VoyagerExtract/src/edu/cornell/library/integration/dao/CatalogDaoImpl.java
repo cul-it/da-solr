@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
  
+import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.BibData;
@@ -131,8 +132,9 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
        
       String sql = "" 
             +" SELECT BIB_ID FROM BIB_HISTORY"
-            +" WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
-            +" AND SUPPRESS_IN_OPAC = 'N'";
+            +" WHERE SUPPRESS_IN_OPEN = 'N"
+            +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
+            
       try {
          List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
          return bibIdList;
@@ -156,8 +158,9 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
            
       String sql = "" 
             +" SELECT COUNT(BIB_ID) FROM BIB_HISTORY"
-            +" WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
-            +" AND SUPPRESS_IN_OPAC = 'N'";
+            +" WHERE SUPPRESS_IN_OPEN = 'N"
+            +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
+             
       try {
          int count =  getSimpleJdbcTemplate().queryForInt(sql);
          return count;
@@ -232,6 +235,48 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       
    }
    
+   public List<AuthData> getAuthData(String authid) throws Exception {
+      
+      String sql = ""
+         +"SELECT * FROM AUTH_DATA WHERE AUTH_DATA.AUTH_ID = "+ authid +"  ORDER BY AUTH_DATA.SEQNUM";
+      try {
+         List<AuthData> authDataList =  getSimpleJdbcTemplate().query(sql, new AuthDataMapper());
+         return authDataList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.dao.CatalogDao#getRecentBibIds(java.lang.String)
+    */
+   public List<String> getRecentAuthIds(String dateString) throws Exception {
+       
+      String sql = "" 
+            +" SELECT AUTH_ID FROM AUTH_HISTORY"
+            +" WHERE to_char(AUTH_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
+            
+      try {
+         List<String> authIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return authIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.dao.CatalogDao#getRecentMfidIds(java.lang.String)
     */
@@ -244,8 +289,9 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
 
       String sql = "" 
             +" SELECT MFHD_ID FROM MFHD_HISTORY"
-            +" WHERE to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
-            +" AND SUPPRESS_IN_OPAC = 'N'";
+            +" WHERE SUPPRESS_IN_OPAC = 'N'"
+            +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
+            
 
       try {
          List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
@@ -418,6 +464,29 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
           
          mfhdData.setRecord(record);
          return mfhdData;
+       }
+   }
+   
+   /**
+    * @author jaf30
+    *
+    */
+   private static final class AuthDataMapper implements RowMapper {
+      public AuthData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
+         AuthData authData = new AuthData(); 
+         authData.setAuthId(rs.getString("AUTH_ID"));
+         authData.setSeqnum(rs.getString("SEQNUM"));
+         
+         String record = "";
+         try {
+            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
+         } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         } 
+          
+         authData.setRecord(record); 
+         return authData;
        }
    }
    
