@@ -161,11 +161,21 @@
         </classpath>
       </java>
    </target>
+   
+   <target name="GetDeletedRecords" depends="build" description="Run GetDeletedRecords" >
+      <echo message="Running GetDeletedRecords"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetDeletedRecords" >
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.deleted" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
 
    <target name="GetBibMrc" depends="build" description="Run GetBibMrc" >
       <echo message="Running GetBibMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibMrc" >
-         <arg value="7937421" />
+         <arg value="6794039" />
          <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
@@ -204,7 +214,43 @@
       </java>
    </target>
    
+   <target name="GetAuthUpdatesMrc" depends="build" description="Run GetAuthUpdatesMrc" >
+      <echo message="Running GetAuthUpdatesMrc"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetAuthUpdatesMrc" >          
+         <arg value="http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
    
+   <target name="ConvertMarcToXml" depends="build" description="Run ConvertMarcToXml" >
+      <echo message="Running ConvertMarctoXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMarcToXml" >
+         <jvmarg value="-Xmx1024m"/>
+         <arg value="auth" />
+         <arg value="updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.updates" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
+   <target name="ConvertAuthFullToXml" depends="build" description="Run ConvertAuthFullToXml" >
+      <echo message="Running ConvertAuthFullToXml"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMarcToXml" >
+         <jvmarg value="-Xmx1024m"/>
+         <arg value="auth" />
+         <arg value="full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.full" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.full" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
     
    
    <target name="ConvertBibToXml" depends="build" description="Run ConvertBibToXml" >
