@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- copy this file to indexBuildConf.xml  and make your chanes -->
+<!-- Put BibFileToSolr specific property overrides in this file. -->
+
+<configuration>
+
+ <property>
+	<name>BibFileToSolr.inputDir</name>
+	<value>inputDirX</value>
+ </property>
+
+<property>
+	<name>BibFileToSolr.solrServiceUrl</name>
+	<value>http://da-dev-solr.library.cornell.edu/solr/develop</value>
+</property>
+
+<property>
+	<name>BibFileToSolr.bibWebdavUrl</name>
+	<value>http://culdatadev.library.cornell.edu/data/voyager/bib/bib.nt.full</value>
+</property>
+
+<property>
+	<name>BibFileToSolr.bibWebdavUser</name>
+	<value>admin</value>
+</property>
+
+<property>
+	<name>BibFileToSolr.bibWebdavPassword</name>
+	<value>YOURPASSWORDHERE</value>
+</property>
+
+<property>
+	<name>BibFileToSolr.holdingServiceUrl</name>
+	<value>http://jaf30-dev.library.cornell.edu:8080/DataIndexer/showTriplesLocation.do</value>
+</property>
+
+
+</configuration>

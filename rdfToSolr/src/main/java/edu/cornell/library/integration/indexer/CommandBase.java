@@ -4,9 +4,10 @@ import java.lang.reflect.Constructor;
 
 public class CommandBase {
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected static RecordToDocument getRecordToDocumentImpl(String recToDocImplClassName) {
 		try{
-			Class recToDocImplClass = Class.forName(recToDocImplClassName);
+			Class recToDocImplClass = Class.forName(recToDocImplClassName);		
 			Constructor zeroArgCons = recToDocImplClass.getConstructor(null);
 			return (RecordToDocument) zeroArgCons.newInstance(null);			
 		}catch(Exception ex){

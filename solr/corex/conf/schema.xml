@@ -299,6 +299,8 @@
     <!-- NOTE: this is not a full list of fields in the index; dynamic fields are also used -->
     <field name="id" type="string" indexed="true" stored="true" required="true" />
     <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+    <!-- required for updateLog and NRT indexing -->
+    <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
     <!-- default, catch all search field -->
     <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
@@ -312,6 +314,8 @@
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
 
     <!-- these fields are also used for display, so they must be stored -->
+    <!-- these display fields are now being used for search -->
+    <field name="notes" type="text" indexed="true" stored="true" multiValued="true"/>
     <field name="isbn_t" type="text" indexed="true" stored="true" multiValued="true"/>
     <field name="language_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <field name="subject_topic_facet" type="string" indexed="true" stored="true" multiValued="true" />

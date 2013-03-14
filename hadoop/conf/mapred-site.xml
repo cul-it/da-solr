@@ -27,13 +27,13 @@
 
 <property>
   <name>mapred.tasktracker.map.tasks.maximum</name>
-  <value>2</value>
+  <value>3</value>
 </property>
 
 
 <property>
   <name>mapred.task.timeout</name>
-  <value>12000000</value>
+  <value>120000000</value>
 </property>
 
 </configuration>

@@ -46,6 +46,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						QuerySolution sol = rs.nextSolution();
 						String callno = nodeToString( sol.get("part1") );
 						if (callno.startsWith("MLC")) continue;
+						if (callno.equalsIgnoreCase("No Call Number")) continue;
 						if (callno.length() >= 1)
 							letters.add( callno.substring(0,1) );
 						if (sol.contains("part2")) {
@@ -67,6 +68,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
+			if (! Character.isAlphabetic(l.charAt(0)))
+				continue;
 			String query = 
 		    		"SELECT ?code ?subject\n" +
 		    		"WHERE {\n" +
