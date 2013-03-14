@@ -507,14 +507,14 @@
       </str>
       <str name="author_qf">
         author_unstem_search^200
-        author_addl_unstem_search^50
-        author_t^20
+        author_t^50
+        author_addl_unstem_search^20
         author_addl_t
       </str>
       <str name="author_pf">
         author_unstem_search^2000
-        author_addl_unstem_search^500
-        author_t^200
+        author_t^500
+        author_addl_unstem_search^200
         author_addl_t^10
       </str>
       <str name="title_qf">
@@ -569,6 +569,12 @@
       <str name="publisher_pf">
         publisher_t
       </str>
+      <str name="pubplace_qf">
+        pubplace_t
+      </str>
+      <str name="pubplace_pf">
+        pubplace_t
+      </str>
       
       <str name="lc_callnum_qf">
         lc_callnum_main^10
@@ -587,8 +593,32 @@
         donor_s
         donor_t
       </str>
-      
-      
+
+      <str name="isbnissn_qf"> isbnissn_s </str>
+      <str name="isbnissn_pf"> isbnissn_s </str>
+
+      <str name="number_qf">
+        id_s
+        eightninenine_s
+      </str>
+      <str name="number_pf">
+        id_s
+        eightninenine_s
+      </str>
+
+      <str name="notes_qf"> notes_t </str>
+      <str name="notes_pf"> notes_t </str>
+
+      <str name="series_qf">
+        title_series_unstem_search^25
+        title_series_t
+      </str>
+      <str name="series_pf">
+        title_series_unstem_search^25
+        title_series_t
+      </str>
+
+            
       <int name="ps">3</int>
       <float name="tie">0.01</float>
 
