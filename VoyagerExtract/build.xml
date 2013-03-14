@@ -176,7 +176,7 @@
       <echo message="Running GetBibMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibMrc" >
          <arg value="6794039" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -186,7 +186,7 @@
    <target name="GetBibUpdatesMrc" depends="build" description="Run GetBibUpdatesMrc" >
       <echo message="Running GetBibUpdatesMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibUpdatesMrc" >          
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -197,7 +197,7 @@
       <echo message="Running GetMfhdMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdMrc" >
          <arg value="8318301" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -207,7 +207,7 @@
    <target name="GetMfhdUpdatesMrc" depends="build" description="Run GetMfhdUpdatesMrc" >
       <echo message="Running GetMfhdUpdatesMrc"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetMfhdUpdatesMrc" >          
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -258,8 +258,8 @@
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibToXml" >
          <jvmarg value="-Xmx1024m"/>
          <arg value="7937421" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -271,8 +271,8 @@
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdToXml" >
          <jvmarg value="-Xmx1024m"/>
          <arg value="8318301" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -283,8 +283,8 @@
       <echo message="Running ConvertUpdatesBibtoXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibUpdatesToXml" >         
          <jvmarg value="-Xmx1024m"/>
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -295,8 +295,8 @@
       <echo message="Running ConvertUpdatesMfhdtoXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdUpdatesToXml" >         
          <jvmarg value="-Xmx1024m"/>
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -307,8 +307,8 @@
       <echo message="Running ConvertBibDailyToXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibDailyToXml" >         
          <jvmarg value="-Xmx1280m"/>
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.daily" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/bib/bib.xml.daily" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.daily" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.daily" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
@@ -331,8 +331,8 @@
       <echo message="Running ConvertMfhdDailyToXml"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdDailyToXml" >         
          <jvmarg value="-Xmx1280m"/>
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily" />
-         <arg value="http://culdatadev.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily" />
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily" />
          <classpath>
           <path refid="run-classpath"/>
         </classpath>
