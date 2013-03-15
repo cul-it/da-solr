@@ -28,6 +28,8 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		String char6 = "";
+		String char33 = "";
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
@@ -38,20 +40,27 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 					while(names.hasNext() ){						
 						String name = names.next();
 						RDFNode node = sol.get(name);
-						String char33 = nodeToString( node );
-						if (char33.equals("0") ||
-								char33.equalsIgnoreCase("i")) {
-							addField(fields,"subject_content_facet","Non-Fiction (books)");
-						} else if (char33.equals("1") ||
-								char33.equalsIgnoreCase("d") ||
-								char33.equalsIgnoreCase("f") ||
-								char33.equalsIgnoreCase("j")) {
-							addField(fields,"subject_content_facet","Fiction (books)");
-						}
+						if (name.equals("char33")) 
+							char33 = nodeToString( node );
+						else
+							char6 = nodeToString( node );
 					}
 				}
 			}
 		}
+
+		if (char6.equalsIgnoreCase("a")) {
+			if (char33.equals("0") ||
+					char33.equalsIgnoreCase("i")) {
+				addField(fields,"subject_content_facet","Non-Fiction (books)");
+			} else if (char33.equals("1") ||
+					char33.equalsIgnoreCase("d") ||
+					char33.equalsIgnoreCase("f") ||
+					char33.equalsIgnoreCase("j")) {
+				addField(fields,"subject_content_facet","Fiction (books)");
+			}
+		}
+		
 		return fields;
 
 	}

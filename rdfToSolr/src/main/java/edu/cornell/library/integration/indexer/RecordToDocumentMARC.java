@@ -431,6 +431,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
 			    		"        ?f marcrdf:tag \"008\". \n" +
 			    		"        ?f marcrdf:value ?val } \n" ).
+					addMainStoreQuery("record_type",
+				    	"SELECT (SUBSTR(?l,7,1) as ?char6) \n" +
+				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
 				new StandardMARCFieldMaker("subject_t","600","abcdefghijklmnopqrstu"),
