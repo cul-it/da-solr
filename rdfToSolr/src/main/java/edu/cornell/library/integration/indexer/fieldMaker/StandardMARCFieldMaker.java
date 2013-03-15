@@ -99,6 +99,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						}
 					}
 				}
+				sortedVals = sortedVals.trim();
 				if( sortedVals.length() != 0){
 					if (unwantedChars != null) {
 						solrField.addValue(RemoveTrailingPunctuation(sortedVals,unwantedChars), 1.0f);
