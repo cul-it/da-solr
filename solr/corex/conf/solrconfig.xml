@@ -473,7 +473,13 @@
         subject_addl_t^50
         title_series_unstem_search^25
         title_series_t^10
-        isbn_t
+        isbnissn_t
+        donor_s
+        donor_t
+        pubplace_t
+        id_s
+        eightninenine_s
+        notes_t
         text
       </str>
       <str name="pf">
@@ -503,7 +509,14 @@
         subject_addl_t^500
         title_series_unstem_search^250
         title_series_t^100
-        text^10
+        isbnissn_t
+        donor_s
+        donor_t
+        pubplace_t
+        id_s
+        eightninenine_s
+        notes_t
+        text
       </str>
       <str name="author_qf">
         author_unstem_search^200
