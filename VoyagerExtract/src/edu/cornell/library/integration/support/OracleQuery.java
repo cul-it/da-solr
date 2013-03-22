@@ -44,9 +44,10 @@ public class OracleQuery {
         System.out.println("Got Connection");
         //String sql = getBibCountQuery();
         //String sql = getBibBlobQuery();
-        String sql = getBibDataQuery();
+        //String sql = getBibDataQuery();
         //String sql = getOperatorQuery();
-        //String sql = getBibHistoryQuery();
+        String sql = getBibHistoryQuery();
+        //String sql = getMfhdHistoryQuery();
         //String sql = getActionTypeQuery();
         System.out.println(sql);
         queryDatabase(conn, sql);
@@ -175,12 +176,29 @@ public class OracleQuery {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar now = Calendar.getInstance();
         Calendar earlier = now;
-        earlier.add(Calendar.HOUR, -3);
+        earlier.add(Calendar.HOUR, -24);
         String ds = df.format(earlier.getTime());
         
         String sql = ""
-              +" SELECT * FROM BIB_HISTORY"
-              +"  WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              +" SELECT * FROM CORNELLDB.BIB_HISTORY"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              return sql;   
+      
+     }
+     
+     public static String getMfhdHistoryQuery() {
+        // ACTION_DATE: 2012-11-12 12:57:16.0
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar now = Calendar.getInstance();
+        Calendar earlier = now;
+        earlier.add(Calendar.HOUR, -24);
+        String ds = df.format(earlier.getTime());
+        
+        String sql = ""
+              +" SELECT * FROM CORNELLDB.MFHD_HISTORY"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
               return sql;   
       
      }
@@ -204,20 +222,20 @@ public class OracleQuery {
      
    public static String getActionTypeQuery() {
       String sql = ""
-         +"SELECT * FROM ACTION_TYPE";
+         +"SELECT * FROM CORNELLDB.ACTION_TYPE";
       return sql;
    }
 
    public static String getOperatorQuery() {
       String sql = ""
-         +"SELECT OPERATOR_ID, FIRST_NAME, LAST_NAME FROM OPERATOR";
+         +"SELECT OPERATOR_ID, FIRST_NAME, LAST_NAME FROM CORNELLDB.OPERATOR";
       return sql;
    }
  
    public static String getBibDataQuery() {
       int bibid = 5430046;
       String sql = ""
-         +"SELECT BIB_ID,SEQNUM,RECORD_SEGMENT FROM BIB_DATA WHERE BIB_ID = "+ bibid + " ORDER BY SEQNUM";
+         +"SELECT BIB_ID,SEQNUM,RECORD_SEGMENT FROM CORNELLDB.BIB_DATA WHERE BIB_ID = "+ bibid + " ORDER BY SEQNUM";
       return sql;
    }
  

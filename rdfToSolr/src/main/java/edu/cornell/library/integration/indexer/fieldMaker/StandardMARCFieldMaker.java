@@ -99,7 +99,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						}
 					}
 				}
-				if( sortedVals.trim().length() != 0){
+				sortedVals = sortedVals.trim();
+				if( sortedVals.length() != 0){
 					if (unwantedChars != null) {
 						solrField.addValue(RemoveTrailingPunctuation(sortedVals,unwantedChars), 1.0f);
 					} else {
@@ -123,7 +124,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			if( codeLit != null || valueLit != null ){
 				String field = nodeToString( fieldLit );
 				String code = nodeToString( codeLit );
-				String value = nodeToString( valueLit );
+				String value = nodeToString( valueLit ).trim();
 				Map<String,String> fieldMap ;
 				if (codeMap.containsKey(field)) {
 					fieldMap = codeMap.get(field);

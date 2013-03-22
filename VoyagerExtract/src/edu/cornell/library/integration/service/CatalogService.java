@@ -2,6 +2,7 @@ package edu.cornell.library.integration.service;
 
 import java.util.List;
 
+import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
@@ -36,6 +37,12 @@ public interface CatalogService {
     * @return
     * @throws Exception
     */
+   public List<String> getRecentAuthIds(String dateString) throws Exception;
+   
+   /**
+    * @return
+    * @throws Exception
+    */
    public int getRecentBibIdCount(String dateString) throws Exception;
    
    /**
@@ -57,6 +64,13 @@ public interface CatalogService {
     * @throws Exception
     */
    public List<MfhdData> getMfhdData(String mfhdid) throws Exception;
+   
+   /**
+    * @param authid
+    * @return
+    * @throws Exception
+    */
+   public List<AuthData> getAuthData(String authid) throws Exception;
    
    /**
     * @param bibid

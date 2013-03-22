@@ -3,9 +3,11 @@ package edu.cornell.library.integration.dao;
 import java.util.List;
 import java.util.Map;
 
+import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
+import edu.cornell.library.integration.bo.MarcData;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
 
@@ -35,6 +37,13 @@ public interface CatalogDao {
     * @throws Exception
     */
    public List<String> getRecentMfhdIds(String dateString) throws Exception;
+   
+   /**
+    * @param dateString
+    * @return
+    * @throws Exception
+    */
+   public List<String> getRecentAuthIds(String dateString) throws Exception;
    
    /**
     * @return
@@ -75,5 +84,12 @@ public interface CatalogDao {
     * @throws Exception
     */
    public List<MfhdData> getMfhdData(String mfhdid) throws Exception;
+   
+   /**
+    * @param authid
+    * @return
+    * @throws Exception
+    */
+   public List<AuthData> getAuthData(String authid) throws Exception;
    
 }
