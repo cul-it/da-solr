@@ -907,4 +907,6 @@
     </lst>
   </requestHandler>
 
+  <!-- used for admin analysis tool -->
+  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
 </config>
