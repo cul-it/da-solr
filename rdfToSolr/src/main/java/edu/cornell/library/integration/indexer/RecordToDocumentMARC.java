@@ -403,6 +403,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes","940","a"),
 				new StandardMARCFieldMaker("notes","856","m"),
 
+				new StandardMARCFieldMaker("restrictions_display","506","3abce"),
+				new StandardMARCFieldMaker("restrictions_display","540","3abcu"),
+				
 				new StandardMARCFieldMaker("summary_display","520","ab"),
 				
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
