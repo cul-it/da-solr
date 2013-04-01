@@ -77,7 +77,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		solr = new 	HttpSolrServer( "http://bdc34-dev.library.cornell.edu:8080/solr/core1" );
+		solr = new 	HttpSolrServer( "http://da-dev-solr.library.cornell.edu/solr/March13" );
 		indexStandardTestRecords( solr, rdf );		
 	}
 	
@@ -180,12 +180,12 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 				System.out.println("failed on uri:" + uri);
 				throw e;
 			}
+			System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 			try {
 				solr.add( doc );
 			} catch (Exception e) {
 				System.out.println("Failed adding doc to solr for uri:" + uri);				
 				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
-				System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 //				throw e;
 			}
 		}
