@@ -3,10 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
-import edu.cornell.library.integration.indexer.documentPostProcess.ShadowRecordBoost;
-import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
-import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
+import edu.cornell.library.integration.indexer.documentPostProcess.*;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
@@ -27,7 +24,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
 				new SinglePubDateSort(),
 				new SingleValueField("author_display",Correction.firstValue),
-				new ShadowRecordBoost()
+				new ShadowRecordBoost(),
+				new SuppressUnwantedValues()
 		);
 	}
 
