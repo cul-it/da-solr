@@ -44,9 +44,12 @@ public class TitleResultSetToFields implements ResultSetToFields {
 				if (resultKey.equals("title_sort_offset")) {
 					if( rs.hasNext() ){
 						QuerySolution sol = rs.nextSolution();
-						Integer offset = Integer.valueOf(nodeToString(sol.get("ind2")));
-						if (offset > 0) 
-							ind2 = offset;
+						String ind2string = nodeToString(sol.get("ind2"));
+						if (Character.isDigit(ind2string.charAt(0))) {
+							Integer offset = Integer.valueOf(ind2string);
+							if (offset > 0) 
+								ind2 = offset;
+						}
 					}/*TODO: should problems here be ignored or are they errors?
 					  else{
 						throw new Exception("Expected title_sort_offset in ind2 but there were no results");
