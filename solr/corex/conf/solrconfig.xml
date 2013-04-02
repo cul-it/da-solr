@@ -479,6 +479,7 @@
         pubplace_t
         id_s
         eightninenine_s
+        notes
         notes_t
         text
       </str>
@@ -515,6 +516,7 @@
         pubplace_t
         id_s
         eightninenine_s
+        notes
         notes_t
         text
       </str>
@@ -621,8 +623,8 @@
         eightninenine_s
       </str>
 
-      <str name="notes_qf"> notes_t </str>
-      <str name="notes_pf"> notes_t </str>
+      <str name="notes_qf"> notes notes_t </str>
+      <str name="notes_pf"> notes notes_t </str>
 
       <str name="series_qf">
         title_series_unstem_search^25
