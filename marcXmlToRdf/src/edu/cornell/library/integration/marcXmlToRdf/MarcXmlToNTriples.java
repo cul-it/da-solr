@@ -160,7 +160,12 @@ public class MarcXmlToNTriples {
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
 			                     + "245" + sf.toString() + "\n");
-					}					
+					} else if (sf.code.equals('k')) {
+						extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + f.toString() + "\n");						
+					}
 				}
 			}
 		}
