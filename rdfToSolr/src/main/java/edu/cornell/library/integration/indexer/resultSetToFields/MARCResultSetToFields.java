@@ -3,17 +3,17 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.indexer.MarcRecord;
+import static edu.cornell.library.integration.indexer.IndexingUtilities.prettyFormat;
+import edu.cornell.library.integration.indexer.MarcRecord.*;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -30,19 +30,17 @@ public class MARCResultSetToFields implements ResultSetToFields {
 		
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();		
+
+		MarcRecord rec = new MarcRecord();
 				
-		String leader = "";
-		String[] control_fields = new String[25];
-		String[][] data_fields = new String[130][];
-		
 		if (results.containsKey("marc_leader")) {
 			ResultSet marc_leader = results.get("marc_leader");
 			if( marc_leader != null && marc_leader.hasNext() ){
 				QuerySolution sol = marc_leader.nextSolution();
-				leader = nodeToString( sol.get("l"));
+				rec.leader = nodeToString( sol.get("l"));
 			}
 		} 		
-		if( leader == null || leader.trim().isEmpty()){
+		if( rec.leader == null || rec.leader.trim().isEmpty()){
 			throw new Error("Leader should NEVER be missing from a MARC record.");			
 		}
 		
@@ -50,75 +48,46 @@ public class MARCResultSetToFields implements ResultSetToFields {
 			ResultSet marc_control_fields = results.get("marc_control_fields");
 			while (marc_control_fields.hasNext()) {
 				QuerySolution sol = marc_control_fields.nextSolution();
-				String f = nodeToString( sol.get("f") );
-				Integer field_no = Integer.valueOf( f.substring( f.lastIndexOf('_') + 1 ) );
-				control_fields[field_no] = nodeToString(sol.get("t")) + nodeToString(sol.get("v"));
+				String f_uri = nodeToString( sol.get("f") );
+				Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
+				ControlField f = new ControlField();
+				f.tag = nodeToString(sol.get("t"));
+				f.value = nodeToString(sol.get("v"));
+				f.id = field_no;
+				rec.control_fields.put(field_no, f);
 			}
 		}
 		
 		if (results.containsKey("marc_data_fields")) {
-			ResultSet marc_control_fields = results.get("marc_data_fields");
-			while (marc_control_fields.hasNext()) {
-				QuerySolution sol = marc_control_fields.nextSolution();
-				String f = nodeToString( sol.get("f") );
-				Integer field_no = Integer.valueOf( f.substring( f.lastIndexOf('_') + 1 ) );
-
-				if (data_fields[field_no] == null) {
-					data_fields[field_no] = new String[100];
-					data_fields[field_no][0] = nodeToString(sol.get("t")) +
-												nodeToString(sol.get("i1")) +
-												nodeToString(sol.get("i2"));
+			ResultSet marc_data_fields = results.get("marc_data_fields");
+			DataField f = new DataField();
+			f.id = 0;
+			while (marc_data_fields.hasNext()) {
+				QuerySolution sol = marc_data_fields.nextSolution();
+				String f_uri = nodeToString( sol.get("f") );
+				Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
+				if (f.id != field_no) {
+					if (f.id > 0) {
+						rec.data_fields.put(f.id, f);
+					}
+					f = new DataField();
+					f.id = field_no;
+					f.tag = nodeToString(sol.get("t"));
+					f.ind1 = nodeToString(sol.get("i1")).charAt(0);
+					f.ind2 = nodeToString(sol.get("i2")).charAt(0);
 				}
-				String sf = nodeToString( sol.get("sf"));
-				Integer subfield_no = Integer.valueOf( sf.substring( sf.lastIndexOf('_') + 1 ) );
-				data_fields[field_no][subfield_no] = nodeToString(sol.get("c")) +
-						                             nodeToString(sol.get("v"));
+
+				Subfield sf = new Subfield();
+				String sf_uri = nodeToString( sol.get("sf"));
+				Integer subfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
+				sf.id = subfield_no;
+				sf.code = nodeToString(sol.get("c")).charAt(0);
+				sf.value = nodeToString(sol.get("v"));
+				f.subfields.put(sf.id, sf);
 			}
-		}
-		
-		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-		ByteArrayOutputStream xmlstream = new ByteArrayOutputStream();
-		XMLStreamWriter w = outputFactory.createXMLStreamWriter(xmlstream);
-		w.writeStartDocument("UTF-8", "1.0");
-		w.writeStartElement("record");
-		w.writeAttribute("xmlns", "http://www.loc.gov/MARC21/slim");
-		w.writeStartElement("leader");
-		w.writeCharacters(leader);
-		w.writeEndElement(); // leader
-		for (int i = 1; i < control_fields.length; i++) {
-			if (control_fields[i] == null) continue;
-			w.writeStartElement("controlfield");
-			String tag = control_fields[i].substring(0,3);
-			String value = control_fields[i].substring(3);
-			w.writeAttribute("tag", tag);
-			w.writeCharacters(value);
-			w.writeEndElement(); //controlfield
-		}
-		for (int i = 1; i < data_fields.length; i++) {
-			if (data_fields[i] == null) continue;
-			w.writeStartElement("datafield");
-			String tag = data_fields[i][0].substring(0, 3);
-			String ind1 = data_fields[i][0].substring(3, 4);
-			String ind2 = data_fields[i][0].substring(4);
-			w.writeAttribute("tag", tag);
-			w.writeAttribute("ind1", ind1);
-			w.writeAttribute("ind2", ind2);
-			for (int j = 1; j < data_fields[i].length; j++) {
-				if (data_fields[i][j] == null) continue;
-				w.writeStartElement("subfield");
-				String code = data_fields[i][j].substring(0,1);
-				String value = data_fields[i][j].substring(1);
-				w.writeAttribute("code", code);
-				w.writeCharacters(value);
-				w.writeEndElement(); //subfield
-			}
-			w.writeEndElement(); //datafield
-		}
-		w.writeEndElement(); // record
-		w.writeEndDocument();
-		
-		String xml = xmlstream.toString("UTF-8");
-		addField(fields, "marc_display", xml);
+			rec.data_fields.put(f.id, f);
+		}		
+		addField(fields, "marc_display", rec.toString("xml"));
 		
 		return fields;
 	}	

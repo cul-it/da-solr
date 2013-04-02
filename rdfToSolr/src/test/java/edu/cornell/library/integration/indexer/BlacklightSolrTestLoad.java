@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -23,7 +22,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -157,7 +155,8 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	}
 	
 	public static String convertStreamToString(java.io.InputStream is) {
-	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    @SuppressWarnings("resource")
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
 	}
 
