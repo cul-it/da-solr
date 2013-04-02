@@ -83,7 +83,7 @@ public class MarcXmlToNTriples {
 						if (! file.equals(curfile)) {
 							if (! curfile.equals(""))
 								out.close();
-							System.out.println("     =>  "+target + "/" +file);
+							System.out.println("    =>  "+target + "/" +file);
 							out =  new BufferedOutputStream(new GZIPOutputStream(
 									new FileOutputStream(target + "/" + file, true)));
 							curfile = file;
@@ -147,7 +147,7 @@ public class MarcXmlToNTriples {
 						extractout.write(rec_id + "\t" 
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
+			                     + "948" + sf.toString() + "\n");
 					}					
 				}
 			}
@@ -159,7 +159,7 @@ public class MarcXmlToNTriples {
 						extractout.write(rec_id + "\t" 
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
+			                     + "245" + sf.toString() + "\n");
 					}					
 				}
 			}
@@ -246,8 +246,11 @@ public class MarcXmlToNTriples {
 				}
 				if (f.tag.equals("245") && sf.code.equals('a')) {
 					if (sf.value.length() <= 1)
-					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
-							") 245 subfield a has length of 0 or 1: "+ f.toString() + "\n");
+						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") 245 subfield a has length of "+ sf.value.length()+ ": "+ f.toString() + "\n");
+					else if (sf.value.trim().length() < 1)
+						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") 245 subfield a contains only whitespace: "+ f.toString() + "\n");
 					
 				}
 				if (! (Character.isLowerCase(sf.code) || Character.isDigit(sf.code))) {
