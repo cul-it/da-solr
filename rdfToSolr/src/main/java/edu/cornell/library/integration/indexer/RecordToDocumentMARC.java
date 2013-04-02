@@ -74,6 +74,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"          $recordURI$ marcrdf:hasField ?f.\n" +
 							"          ?f marcrdf:tag \"007\".\n" +
 							"          ?f marcrdf:value ?seven. }}").
+					addMainStoreQuery("format_502",
+							"SELECT ?f502\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f502.\n" +
+							"       ?f502 marcrdf:tag \"502\". }").
 					addMainStoreQuery("format_653",
 							"SELECT ?sf653a\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
@@ -98,10 +102,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("format_loccode",
 				        	"SELECT ?loccode \n"+
 				        	"WHERE {\n"+
-				        	"  $recordURI$ rdfs:label ?bib_id.\n"+
-					    	"  ?hold marcrdf:hasField ?hold04.\n" +
-					    	"  ?hold04 marcrdf:tag \"004\".\n" +
-				        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 				        	"  ?hold marcrdf:hasField ?hold852.\n" +
 				        	"  ?hold852 marcrdf:tag \"852\".\n" +
 				        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
