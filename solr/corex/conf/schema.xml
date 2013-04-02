@@ -314,7 +314,7 @@
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
 
     <!-- these search fields are NOT multi-valued -->
-    <field name="author_t" type="text" indexed="true" stored="true" multiValued="false"/>
+    <field name="author_t" type="text" indexed="true" stored="false" multiValued="false"/>
 
     <!-- these fields are also used for display, so they must be stored -->
     <!-- these display fields are now being used for search -->
@@ -368,6 +368,7 @@
 
   <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
   <copyField source="donor_display" dest="donor_s"/>
+  <copyField source="author_t" dest="author_sort"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>
