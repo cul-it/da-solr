@@ -58,7 +58,7 @@
      indexed per value, slightly larger index size, and faster range queries.
      A precisionStep of 0 disables indexing at different precision levels.
     -->
-    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0" sortMissingLast="true"/>
     <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
@@ -312,6 +312,9 @@
     <field name="subtitle_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="author_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
+
+    <!-- these search fields are NOT multi-valued -->
+    <field name="author_t" type="text" indexed="true" stored="true" multiValued="false"/>
 
     <!-- these fields are also used for display, so they must be stored -->
     <!-- these display fields are now being used for search -->

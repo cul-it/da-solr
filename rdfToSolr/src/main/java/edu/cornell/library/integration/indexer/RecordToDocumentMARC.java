@@ -24,6 +24,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
 				new SinglePubDateSort(),
 				new SingleValueField("author_display",Correction.firstValue),
+				new SingleValueField("author_t",Correction.firstValue),
 				new ShadowRecordBoost(),
 				new SuppressUnwantedValues()
 		);
