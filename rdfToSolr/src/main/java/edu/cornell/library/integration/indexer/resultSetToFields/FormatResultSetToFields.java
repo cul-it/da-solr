@@ -205,10 +205,10 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		}
 		
 
-		addField(fields,"format",format);
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
 			addField(fields,"format","Thesis");
 		}
+		addField(fields,"format",format);
 		if (online) {
 			addField(fields,"online","Online");
 		}
