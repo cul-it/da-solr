@@ -611,11 +611,13 @@
       <str name="isbnissn_pf"> isbnissn_s </str>
 
       <str name="number_qf">
-        id_s
+        id_t
+        id
         eightninenine_s
       </str>
       <str name="number_pf">
-        id_s
+        id_t
+        id
         eightninenine_s
       </str>
 

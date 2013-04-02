@@ -496,17 +496,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new StandardMARCFieldMaker("eightninenine_s","899","a"),
 				
-			    new SPARQLFieldMakerImpl().
-		    	setName("bibid").
-		    	addMainStoreQuery("bibid", 
-	        	"SELECT ?v\n" +
-	        	" WHERE {\n" +
-	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-	        	"  ?f marcrdf:tag \"001\".\n" +
-	        	"  ?f marcrdf:value ?v. }").
-	        	addResultSetToFields( new AllResultsToField("id_s")),
-				new StandardMARCFieldMaker("id_s","024","a"),
-				new StandardMARCFieldMaker("id_s","028","a"),
+				new StandardMARCFieldMaker("id_t","024","a"),
+				new StandardMARCFieldMaker("id_t","028","a"),
 
 				new StandardMARCFieldMaker("author_t","100","abcdqegu"),
 				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
