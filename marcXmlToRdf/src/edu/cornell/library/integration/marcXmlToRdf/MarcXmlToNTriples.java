@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -82,6 +83,7 @@ public class MarcXmlToNTriples {
 						if (! file.equals(curfile)) {
 							if (! curfile.equals(""))
 								out.close();
+							System.out.println("    =>  "+target + "/" +file);
 							out =  new BufferedOutputStream(new GZIPOutputStream(
 									new FileOutputStream(target + "/" + file, true)));
 							curfile = file;
@@ -104,9 +106,7 @@ public class MarcXmlToNTriples {
 		File file = new File( "/users/fbw4/voyager-harvest/data/fulldump" );
 		File[] files = file.listFiles();
 		for (File f: files) {
-			String xmlfilename = f.getName();
-			File destfile = new File(destdir+File.separator+xmlfilename.replaceAll(".xml$", ".nt.gz"));
-			System.out.println(f+" => "+destfile.getPath());
+			System.out.println(f);
 			try {
 				marcXmlToNTriples( f, new File(destdir) );
 			} catch (Exception e) {
@@ -138,6 +138,35 @@ public class MarcXmlToNTriples {
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
 			                     + f.toString() + "\n");
+			}
+			if (f.tag.equals("948")) {
+				Iterator<Subfield> i = f.subfields.values().iterator();
+				while (i.hasNext()) {
+					Subfield sf = i.next();
+					if (sf.code.equals('f') && ! sf.value.equals("?")) {
+						extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + "948" + sf.toString() + "\n");
+					}					
+				}
+			}
+			if (f.tag.equals("245")) {
+				Iterator<Subfield> i = f.subfields.values().iterator();
+				while (i.hasNext()) {
+					Subfield sf = i.next();
+					if (sf.code.equals('h')) {
+						extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + "245" + sf.toString() + "\n");
+					} else if (sf.code.equals('k')) {
+						extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + f.toString() + "\n");						
+					}
+				}
 			}
 		}
 	
@@ -220,10 +249,13 @@ public class MarcXmlToNTriples {
 					tagCounts.put(sf.code, 1);
 					codeCounts.put(f.tag, tagCounts);
 				}
-				if (f.tag.equals("245") && sf.code.equals("a")) {
+				if (f.tag.equals("245") && sf.code.equals('a')) {
 					if (sf.value.length() <= 1)
-					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
-							") 245 subfield a has length of 0 or 1: "+ f.toString() + "\n");
+						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") 245 subfield a has length of "+ sf.value.length()+ ": "+ f.toString() + "\n");
+					else if (sf.value.trim().length() < 1)
+						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+							") 245 subfield a contains only whitespace: "+ f.toString() + "\n");
 					
 				}
 				if (! (Character.isLowerCase(sf.code) || Character.isDigit(sf.code))) {
@@ -327,8 +359,8 @@ public class MarcXmlToNTriples {
 				sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.alttag+"> "+field_uri+".\n");
 			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
-			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \""+f.ind1+"\".\n");
-			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> \""+f.ind2+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \""+escapeForNTriples(f.ind1.toString())+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> \""+escapeForNTriples(f.ind2.toString())+"\".\n");
 
 			int sfid = 0;
 			while( f.subfields.containsKey(sfid+1) ) {
@@ -647,10 +679,7 @@ public class MarcXmlToNTriples {
 			int sf_id = 0;
 			while( this.subfields.containsKey(sf_id+1) ) {
 				Subfield sf = this.subfields.get(++sf_id);
-				sb.append("‡");
-				sb.append(sf.code);
-				sb.append(" ");
-				sb.append(sf.value);
+				sb.append(sf.toString());
 				sb.append(" ");
 			}
 			return sb.toString();
@@ -662,6 +691,15 @@ public class MarcXmlToNTriples {
 		public int id;
 		public Character code;
 		public String value;
+
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("\u2021");
+			sb.append(this.code);
+			sb.append(" ");
+			sb.append(this.value);
+			return sb.toString();
+		}
 	}
 	
 	static enum RecordType {

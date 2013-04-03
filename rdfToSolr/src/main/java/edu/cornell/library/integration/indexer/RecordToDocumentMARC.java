@@ -3,10 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
-import edu.cornell.library.integration.indexer.documentPostProcess.ShadowRecordBoost;
-import edu.cornell.library.integration.indexer.documentPostProcess.SinglePubDateSort;
-import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
+import edu.cornell.library.integration.indexer.documentPostProcess.*;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
@@ -27,7 +24,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
 				new SinglePubDateSort(),
 				new SingleValueField("author_display",Correction.firstValue),
-				new ShadowRecordBoost()
+				new SingleValueField("author_t",Correction.firstValue),
+				new ShadowRecordBoost(),
+				new SuppressUnwantedValues()
 		);
 	}
 
@@ -75,6 +74,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"          $recordURI$ marcrdf:hasField ?f.\n" +
 							"          ?f marcrdf:tag \"007\".\n" +
 							"          ?f marcrdf:value ?seven. }}").
+					addMainStoreQuery("format_502",
+							"SELECT ?f502\n" +
+							" WHERE { $recordURI$ marcrdf:hasField ?f502.\n" +
+							"       ?f502 marcrdf:tag \"502\". }").
 					addMainStoreQuery("format_653",
 							"SELECT ?sf653a\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
@@ -99,10 +102,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("format_loccode",
 				        	"SELECT ?loccode \n"+
 				        	"WHERE {\n"+
-				        	"  $recordURI$ rdfs:label ?bib_id.\n"+
-					    	"  ?hold marcrdf:hasField ?hold04.\n" +
-					    	"  ?hold04 marcrdf:tag \"004\".\n" +
-				        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 				        	"  ?hold marcrdf:hasField ?hold852.\n" +
 				        	"  ?hold852 marcrdf:tag \"852\".\n" +
 				        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
@@ -403,6 +403,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes","940","a"),
 				new StandardMARCFieldMaker("notes","856","m"),
 
+				new StandardMARCFieldMaker("restrictions_display","506","3abce"),
+				new StandardMARCFieldMaker("restrictions_display","540","3abcu"),
+				new StandardMARCFieldMaker("cite_as_display","524","a3"),
+				new StandardMARCFieldMaker("finding_aids_display","555","3abcdu"),
+				new StandardMARCFieldMaker("historical_note_display","545","3abcu"),
+				
 				new StandardMARCFieldMaker("summary_display","520","ab"),
 				
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
@@ -431,6 +437,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
 			    		"        ?f marcrdf:tag \"008\". \n" +
 			    		"        ?f marcrdf:value ?val } \n" ).
+					addMainStoreQuery("record_type",
+				    	"SELECT (SUBSTR(?l,7,1) as ?char6) \n" +
+				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
 				new StandardMARCFieldMaker("subject_t","600","abcdefghijklmnopqrstu"),
@@ -487,17 +496,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new StandardMARCFieldMaker("eightninenine_s","899","a"),
 				
-			    new SPARQLFieldMakerImpl().
-		    	setName("bibid").
-		    	addMainStoreQuery("bibid", 
-	        	"SELECT ?v\n" +
-	        	" WHERE {\n" +
-	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-	        	"  ?f marcrdf:tag \"001\".\n" +
-	        	"  ?f marcrdf:value ?v. }").
-	        	addResultSetToFields( new AllResultsToField("id_s")),
-				new StandardMARCFieldMaker("id_s","024","a"),
-				new StandardMARCFieldMaker("id_s","028","a"),
+				new StandardMARCFieldMaker("id_t","024","a"),
+				new StandardMARCFieldMaker("id_t","028","a"),
 
 				new StandardMARCFieldMaker("author_t","100","abcdqegu"),
 				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
@@ -87,10 +88,25 @@ public class CatalogServiceImpl implements CatalogService {
       return mfhdIdList;
    }
    
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getRecentMfhdIdCount(java.lang.String)
+    */
    public int getRecentMfhdIdCount(String dateString) throws Exception {
       
       try {
          return catalogDao.getRecentMfhdIdCount(dateString);
+      } catch (Exception e) {
+         throw e;
+      } 
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getRecentAuthIds(java.lang.String)
+    */
+   public List<String> getRecentAuthIds(String dateString) throws Exception {
+      
+      try {
+         return catalogDao.getRecentAuthIds(dateString);
       } catch (Exception e) {
          throw e;
       } 
@@ -111,6 +127,9 @@ public class CatalogServiceImpl implements CatalogService {
       }
    }
    
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getMfhdBlob(java.lang.String)
+    */
    public MfhdBlob getMfhdBlob(String mfhdid) throws Exception {
       MfhdBlob mfhdBlob = new MfhdBlob();
       
@@ -138,12 +157,30 @@ public class CatalogServiceImpl implements CatalogService {
       }
    }
    
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getMfhdData(java.lang.String)
+    */
    public List<MfhdData> getMfhdData(String mfhdid) throws Exception {
       List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
       
       try {
          mfhdDataList = catalogDao.getMfhdData(mfhdid);
          return mfhdDataList;
+         
+      } catch (Exception e) {
+         throw e;
+      }
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getAuthData(java.lang.String)
+    */
+   public List<AuthData> getAuthData(String authid) throws Exception {
+      List<AuthData> authDataList = new ArrayList<AuthData>();
+      
+      try {
+         authDataList = catalogDao.getAuthData(authid);
+         return authDataList;
          
       } catch (Exception e) {
          throw e;

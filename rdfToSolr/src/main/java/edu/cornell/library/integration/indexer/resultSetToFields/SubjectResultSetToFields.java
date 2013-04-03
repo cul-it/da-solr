@@ -106,10 +106,10 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				}
 				StringBuilder sb = new StringBuilder();
 				if (ordered.size() > 0)
-					sb.append(ordered.get(0));
+					sb.append(ordered.get(0).trim());
 				for (int i = 1; i < ordered.size(); i++) {
 					sb.append(" ");
-					sb.append(ordered.get(i));
+					sb.append(ordered.get(i).trim());
 				}
 				List<String> ordered_dashed = new ArrayList<String>();
 				ordered_dashed.add(sb.toString());
@@ -123,7 +123,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					sb.append(ordered_dashed.get(0));
 				for (int i = 1; i < ordered_dashed.size(); i++) {
 					sb.append("|");
-					sb.append(ordered_dashed.get(i));
+					sb.append(ordered_dashed.get(i).trim());
 				}
 				addField(fields,"subject_display",RemoveTrailingPunctuation(sb.toString(),"."));
 			}
