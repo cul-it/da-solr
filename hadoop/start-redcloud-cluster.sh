@@ -1,11 +1,26 @@
 #!/bin/bash
 
 EUCA_DIR=/lib-dev/eucalyptus
+
+#number of slaves to run
 SLAVES=1
-#SLAVE_SIZE=m1.large
+
+#Size of the VM to run as slaves 
+# valid options c1.medium m1.large  m1.xlarge c1.xlarge
+# slaves must be larger than m1.small
 SLAVE_SIZE=c1.medium
-EUCA_KEY_FILE=$EUCA_DIR/mykey.private
-EUCA_KEY_NAME=mykey
+
+#file with the private key for $EUCA_KEY_NAME
+EUCA_KEY_FILE=$EUCA_DIR/bdc34-euca3-key.pem
+
+#name of the private key to put on the VMs for root ssh access
+EUCA_KEY_NAME=bdc34-euca3-key
+
+# Disk image to use for all the VMs
+DISK_EMI=emi-CC163D50
+
+# security group to run all the VMs in
+EUCA_SECURITY_GROUP=da-hadoop
 
 HADOOP_HOME=$EUCA_DIR/hadoop
 
@@ -23,8 +38,9 @@ source $EUCA_DIR/eucarc
 # fi
 
 # Start a small VM for the master and  medium ones for the slaves
-echo "starting vm nodes, this may take a while"
-$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')"
+#echo "starting vm nodes, this may take a while"
+$HADOOP_HOME/blocking-start-instances.py "(1,'m1.small'),($SLAVES,'$SLAVE_SIZE')" \
+ $DISK_EMI $EUCA_KEY_NAME $EUCA_SECURITY_GROUP
 
 # Create a files with addresses of vm nodes.  
 # These files are addresses.txt, hosts, salves.txt, 
@@ -40,7 +56,7 @@ export PDSH_SSH_ARGS_APPEND=" -i $EUCA_KEY_FILE $QUIET_SSH_OPTIONS "
 pdsh -l root -w^addresses.txt "which pdsh || apt-get -y install pdsh"
 
 # copy host file to all nodes
-pdcp -l root -w^addresses.txt hosts /etc/hosts
+pdcp -l root -w^addresses.txt privateHosts /etc/hosts
 
 # set hostname on all hosts by sourceing file created by make-addresses-files.py
 source hostnames.sh
@@ -49,7 +65,7 @@ source hostnames.sh
 # There is a script that Brian Caruso wrote on the disk image that will 
 # format the device and mount it at /mnt.
 # Only run prepareStorage.sh if there is no mnt in mount's output.
-pdsh -l root -w^addresses.txt "mount | grep mnt || ./prepareStorage.sh"
+pdsh -l root -w^addresses.txt "mount | grep mnt || source ./prepareStorage.sh"
 
 # Make a new DSA key for hadoop to communicate across the 
 # nodes of the cluster. 
@@ -58,6 +74,7 @@ then
     mv ./hadoop_dsa ./hadoop_dsa$(date "+%s")
 fi
 ssh-keygen -q -t dsa -P '' -f ./hadoop_dsa
+
 pdsh -l root -w^addresses.txt mkdir -p /home/hadoop/.ssh
 pdcp -l root -w^./addresses.txt hadoop_dsa.pub /home/hadoop/.ssh/authorized_keys
 pdcp -l root -w^./addresses.txt hadoop_dsa  /home/hadoop/.ssh/id_dsa

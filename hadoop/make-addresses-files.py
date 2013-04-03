@@ -26,10 +26,17 @@ def main():
 
     (options,args) = parser.parse_args()
         
-    vms = getVMInfo( options.testfile )        
+    vms = getVMInfo( options.testfile )
+
+    #keep only instances
+    vms = filter ( lambda x: x['type'].find("INSTANCE") > -1 , vms )
+    #keep only running instances
+    vms = filter ( lambda x: x['state'].find("running") > -1 , vms )
+    
     checkForMaster( vms )
     makeAddressesTxt( vms )    
-    makeHosts( vms )
+    makeHosts( vms, 'privateHosts', 'ip2nd')
+    makeHosts( vms, 'publicHosts', 'ip' )
     makeHostnameScript( vms )
     makeHadoopConfs( vms )      
   
@@ -40,34 +47,30 @@ def getVMInfo( testfile=None ) :
         with open(testfile,'r') as f:
             desc = f.read()
               
-    vmValues = map( str.split , desc.splitlines() )
-    
-    #keep only instances
-    vmValues = filter ( lambda x: len(x) > 0 and x[0].find("INSTANCE") > -1 , vmValues )
-    
+    vmValues = map( str.split , desc.splitlines() )    
     #make a list, one item per vm, where the item is a map of vm values
     keys = ['type','id','emi','ip','ip2nd','state','key','unknown','size','date','zone','kernel','ramdisk']
     return map( lambda values: dict(zip(keys,values)) , vmValues)  
 
 def runEucaDesc():
-        # run euca-describe-instances and get output
-        process = subprocess.Popen(["euca-describe-instances"],
-                stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        process.wait()
-        (output,stderr) = process.communicate()
+    # run euca-describe-instances and get output
+    process = subprocess.Popen(["euca-describe-instances"],
+                               stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    process.wait()
+    (output,stderr) = process.communicate()
+    
+    if process.returncode > 0 :
+        print("could not run euca-describe-instances")
+        print( "stdout: " + output )
+        print( "stderr: " + stderr)
+        sys.exit(1)
+        
+    return output
 
-        if process.returncode > 0 :
-           print("could not run euca-describe-instances")
-           print( "stdout: " + output )
-           print( "stderr: " + stderr)
-           sys.exit(1)
-
-    	return output
-
-def checkForMaster(vms):
+def checkForMaster(vms):    
     """check for single smallest VM, exit if there isn't one"""
     indexOfSmallest = getSmallestVM( vms )
-    
+
     if indexOfSmallest < 0 :
         print(" Could not find smallest VM to use as master" )
         sys.exit(1)            
@@ -75,6 +78,7 @@ def checkForMaster(vms):
 def getSmallestVM( vms):
     """ return the index of the smallest VM or -1 if there isn't one or -2 if there are multiple """
     sizeOfSmallest = getSizeOfSmallestVM(vms)
+
     if sizeOfSmallest < 0 :
         return sizeOfSmallest
     else:
@@ -112,6 +116,7 @@ def ipToHostname( ip ):
     return "node" + ip[ip.rfind( '.' )+1:]
                  
 def makeAddressesTxt( vms ):            
+    """make the address files used by the startup scripts, uses public IP addresses"""
     with open("addresses.txt",'w') as f:
         for vm in vms :
             f.write(  vm['ip'] + '\n' )
@@ -130,20 +135,21 @@ def makeAddressesTxt( vms ):
                 
              
 def makeHadoopConfs(vms):
+    """ make the files used by hadoop, uses private IP addresses"""
     if os.path.isdir( os.path.join('hadoop','conf') ) :
         dir = os.path.join('hadoop','conf')
     else:
         dir = ''
 
     master = getSmallestVM( vms )
-            
-    with open(os.path.join(dir,"slaves"),'w') as f:            
-        [f.write(ipToHostname(vms[i]['ip']) + '\n') 
-         for i in range(0,len(vms)) 
-         if i != master ]
+
+    with open(os.path.join(dir,"slaves"),'w') as f:
+        for i in range(0,len(vms)) :
+            if i != master :
+                f.write(ipToHostname(vms[i]['ip']) + '\n') 
     
     with open(os.path.join(dir,"masters"),'w') as f:
-        #f.write(ipToHostname(vms[master]['ip']) + '\n')
+        #f.write(vms[master]['ip2nd'] + '\n')
         f.write( "master\n" )
                 
 additional_hosts = """127.0.0.1        localhost.localdomain localhost
@@ -156,17 +162,19 @@ def makeHostnameScript(vms):
             ip = vm['ip']
             f.write( "ssh %s root@%s hostname %s \n " % (sshopts, ip, ipToHostname(ip)) )
 
-def makeHosts(vms):       
+def makeHosts(vms, filename, iptype):
     master = getSmallestVM( vms )
 
-    with open("hosts",'w') as f:           
+    with open(filename,'w') as f:           
         f.write( additional_hosts + '\n')
         for i in range (0,len(vms)):
-            ip = vms[i]['ip']
+            nodeName = ipToHostname(vms[i]['ip'])
+            ip = vms[i][iptype]
             if i != master :
-                f.write( "%s %s\n" %( ip ,ipToHostname( ip )) )
+                f.write( "%s %s\n" %( ip , nodeName) )
             else:
-                f.write( "%s %s master \n" %( ip ,ipToHostname( ip )) )
+                f.write( "%s %s master \n" %( ip ,nodeName) )
+    
 
 if __name__ == "__main__":
     main( )
