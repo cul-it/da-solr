@@ -23,3 +23,6 @@ rdf/output
 
 ## tdbIndex created by DataIndexer app
 tdbIndex/
+
+#emacs backups
+\#*#
