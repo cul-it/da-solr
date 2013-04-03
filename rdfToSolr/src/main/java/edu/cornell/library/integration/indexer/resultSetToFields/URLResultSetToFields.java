@@ -97,6 +97,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc_comment.startsWith("toc ")
 					|| lc_comment.equals("toc")
 					|| lc_comment.contains("cover image")
+					|| lc_comment.contains("finding aid")
 					|| lc_comment.contains("publisher description")
 					|| lc_comment.contains("contributor biographical information")
 					|| lc_comment.contains("sample text")) {
