@@ -173,13 +173,13 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				while (iter.hasNext()) {
 					String loccode = iter.next();
 					if (rareLocCodes.contains(loccode)) {
-						format = "Manuscript/Archive";
+						format = "Manuscript/Archive"; //ARCHIVAL
 						break;
 					}
 				}
 			} else if (record_type.equals("t")) {
 				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
-											   //captured above.
+											   //captured above. MANUSCRIPT
 			} else if (category.equals("h")) {
 				format = "Microform";
 			} else if (category.equals("q")) {

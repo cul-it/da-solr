@@ -12,7 +12,6 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
-import static edu.cornell.library.integration.indexer.IndexingUtilities.prettyFormat;
 import edu.cornell.library.integration.indexer.MarcRecord.*;
 
 /**

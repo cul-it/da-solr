@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class MarcRecord {
 
 
 		
-		public String leader;
+		public String leader = " ";
 		public Map<Integer,ControlField> control_fields 
 									= new HashMap<Integer,ControlField>();
 		public Map<Integer,DataField> data_fields
@@ -29,15 +30,19 @@ public class MarcRecord {
 		public String toString( ) {
 			
 			StringBuilder sb = new StringBuilder();
-			sb.append("000    "+this.leader+"\n");
-			int id = 0;
-			while( this.control_fields.containsKey(id+1) ) {
-				ControlField f = this.control_fields.get(++id);
+			if ((this.leader != null ) && ! this.leader.equals(""))
+				sb.append("000    "+this.leader+"\n");
+			Integer[] ids = this.control_fields.keySet().toArray(new Integer[ this.control_fields.keySet().size() ]);
+			Arrays.sort( ids );
+			for( Integer id: ids) {
+				ControlField f = this.control_fields.get(id);
 				sb.append(f.tag + "    " + f.value+"\n");
 			}
 
-			while( this.data_fields.containsKey(id+1) ) {
-				DataField f = this.data_fields.get(++id);
+			ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
+			Arrays.sort( ids );
+			for( Integer id: ids) {
+				DataField f = this.data_fields.get(id);
 				sb.append(f.toString());
 				sb.append("\n");
 			}
@@ -65,16 +70,19 @@ public class MarcRecord {
 				w.writeCharacters(this.leader);
 				w.writeEndElement(); // leader
 									
-				int id = 0;
-				while( this.control_fields.containsKey(id+1) ) {
-					ControlField f = this.control_fields.get(++id);
+				Integer[] ids = this.control_fields.keySet().toArray(new Integer[ this.control_fields.keySet().size() ]);
+				Arrays.sort( ids );
+				for( Integer id: ids) {
+					ControlField f = this.control_fields.get(id);
 					w.writeStartElement("controlfield");
 					w.writeAttribute("tag", f.tag);
 					w.writeCharacters(f.value);
 					w.writeEndElement(); //controlfield
 				}
-				while( this.data_fields.containsKey(id+1) ) {
-					DataField f = this.data_fields.get(++id);
+				ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
+				Arrays.sort( ids );
+				for( Integer id: ids) {
+					DataField f = this.data_fields.get(id);
 					w.writeStartElement("datafield");
 					w.writeAttribute("tag", f.tag);
 					w.writeAttribute("ind1", f.ind1.toString());
@@ -112,12 +120,12 @@ public class MarcRecord {
 			
 			public int id;
 			public String tag;
-			public Character ind1;
-			public Character ind2;
+			public Character ind1 = ' ';
+			public Character ind2 = ' ';
 			public Map<Integer,Subfield> subfields = new HashMap<Integer,Subfield>();
+			
+			public Integer linkOccurrenceNumber; //from MARC subfield 6
 
-			// Linked field number if field is 880
-			public String alttag;
 			public String toString() {
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.tag);

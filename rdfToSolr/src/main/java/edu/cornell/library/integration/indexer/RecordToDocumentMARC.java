@@ -9,6 +9,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
+import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
@@ -261,14 +262,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"        ?f245sf marcrdf:code ?code.\n" +
 			    		"        ?f245sf marcrdf:value ?value.\n" +
 			    		" }").
-			    	addMainStoreQuery("title_vern",
-			    		"SELECT ?code ?value\n" +
-						" WHERE { $recordURI$ marcrdf:hasField245 ?f880.\n" +
-				   		"        ?f880 marcrdf:tag \"880\". \n" +
-						"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
-						"        ?f880sf marcrdf:code ?code.\n" +
-						"        ?f880sf marcrdf:value ?value.\n" +
-			    		" }"	).
 			    	addMainStoreQuery("title_sort_offset",
 					    "SELECT ?ind2 \n" +
 						"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
@@ -276,6 +269,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
+			    new StandardMARCFieldMaker("title_display","245","a",VernMode.VERNACULAR,",;:/ "),
+			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.VERNACULAR,",;:/ "),
+			    new StandardMARCFieldMaker("title_responsibility_display","245","c",",;:/ "),
+			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.COMBINED,",;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
@@ -514,58 +511,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",".,"),
 				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",".,"),
 
-				new SubfieldCodeMaker("author_display","100","abcdq",".,"),
-				new SubfieldCodeMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new SubfieldCodeMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				
-				new SPARQLFieldMakerImpl().
-				setName("vern_author").
-		    	addMainStoreQuery("author_100",
-		    		"SELECT ?f880 ?code ?value\n" +
-					" WHERE { $recordURI$ marcrdf:hasField100 ?f880.\n" +
-			   		"        ?f880 marcrdf:tag \"880\". \n" +
-					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
-					"        ?f880sf marcrdf:code ?code.\n" +
-					"        ?f880sf marcrdf:value ?value.\n" +
-		    		" }"	).
-			    addMainStoreQuery("author_110",
-			   		"SELECT ?f880 ?code ?value\n" +
-					" WHERE { $recordURI$ marcrdf:hasField110 ?f880.\n" +
-			   		"        ?f880 marcrdf:tag \"880\". \n" +
-					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
-					"        ?f880sf marcrdf:code ?code.\n" +
-					"        ?f880sf marcrdf:value ?value.\n" +
-				   	" }"	).
-				addMainStoreQuery("author_111",
-			   		"SELECT ?f880 ?code ?value\n" +
-			   		" WHERE { $recordURI$ marcrdf:hasField111 ?f880.\n" +
-			   		"        ?f880 marcrdf:tag \"880\". \n" +
-					"        ?f880 marcrdf:hasSubfield ?f880sf .\n" +
-					"        ?f880sf marcrdf:code ?code.\n" +
-					"        ?f880sf marcrdf:value ?value.\n" +
-			   		" }"	).
-		    	addResultSetToFields( new AuthorVernResultSetToFields())
-
-//				new StandardMARCFieldMaker("author_addl_display","700","abcdq",".,"),
-//				new StandardMARCFieldMaker("author_addl_display","710","abcdefghijklmnopqrstuvwxyz",".,"),
-//				new StandardMARCFieldMaker("author_addl_display","711","abcdefghijklmnopqrstuvwxyz",".,")
-				/*
-			    new SPARQLFieldMakerImpl().
-		    	setName("author_addl").
-		    	addMainStoreQuery("author_addl_700", 
-	        	"SELECT *\n" +
-	        	" WHERE {\n" +
-	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-	        	"  ?f marcrdf:tag \"700\".\n" +
-	        	"  ?f marcrdf:ind2 ?i2.\n" +
-	        	"  ?f marcrdf:ind1 ?i1.\n" +
-	        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-	        	"  ?sf marcrdf:code ?c.\n" +
-	        	"  ?sf marcrdf:value ?v. }").
-	        	addResultSetToFields( new SubjectResultSetToFields())
-				
-				*/
-					
+				new StandardMARCFieldMaker("author_display","100","abcdq",VernMode.VERNACULAR,".,"),
+				new StandardMARCFieldMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",VernMode.VERNACULAR,".,"),
+				new StandardMARCFieldMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",VernMode.VERNACULAR,".,")
+									
 		);
 	}
 	
