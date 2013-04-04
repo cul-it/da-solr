@@ -6,29 +6,31 @@
 
 <configuration>
 
+<!-- Edit following value line. Set solr core name -->
+<property>
+	<name>BibFileToSolr.solrServiceUrl</name>
+	<value>http://da-dev-solr.library.cornell.edu/solr/develop</value>
+</property>
+
+<!-- Edit following value line. Set the webdav password -->
+<property>
+	<name>BibFileToSolr.bibWebdavPassword</name>
+	<value>YOURPASSWORDHERE</value>
+</property>
+
  <property>
 	<name>BibFileToSolr.inputDir</name>
 	<value>inputDirX</value>
  </property>
 
 <property>
-	<name>BibFileToSolr.solrServiceUrl</name>
-	<value>http://da-dev-solr.library.cornell.edu/solr/develop</value>
-</property>
-
-<property>
 	<name>BibFileToSolr.bibWebdavUrl</name>
-	<value>http://culdatadev.library.cornell.edu/data/voyager/bib/bib.nt.full</value>
+	<value>http://culdata.library.cornell.edu/data/voyager/bib/bib.nt.full</value>
 </property>
 
 <property>
 	<name>BibFileToSolr.bibWebdavUser</name>
 	<value>admin</value>
-</property>
-
-<property>
-	<name>BibFileToSolr.bibWebdavPassword</name>
-	<value>YOURPASSWORDHERE</value>
 </property>
 
 <property>
