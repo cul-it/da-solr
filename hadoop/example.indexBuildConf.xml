@@ -35,7 +35,7 @@
 
 <property>
 	<name>BibFileToSolr.holdingServiceUrl</name>
-	<value>http://jaf30-dev.library.cornell.edu:8080/DataIndexer/showTriplesLocation.do</value>
+	<value>http://da-ilayer.library.cornell.edu/DataIndexer/showTriplesLocation.do</value>
 </property>
 
 
