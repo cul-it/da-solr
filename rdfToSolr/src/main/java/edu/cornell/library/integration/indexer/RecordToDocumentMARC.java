@@ -10,7 +10,6 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
-import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
@@ -46,21 +45,21 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"SELECT ?l\n" +
 				    		" WHERE {  $recordURI$ marcrdf:leader ?l. }").
 				    addMainStoreQuery("marc_control_fields",
-				    		"SELECT ?f ?t ?v\n" +
+				    		"SELECT *\n" +
 				    		" WHERE {\n" +
-				    		"   $recordURI$ marcrdf:hasField ?f.\n" +
-				    		"   ?f marcrdf:tag ?t.\n" +
-				    		"   ?f marcrdf:value ?v. }").
+				    		"   $recordURI$ marcrdf:hasField ?field.\n" +
+				    		"   ?field marcrdf:tag ?tag.\n" +
+				    		"   ?field marcrdf:value ?value. }").
 				    addMainStoreQuery("marc_data_fields",
-				    		"SELECT ?f ?t ?i1 ?i2 ?sf ?c ?v\n" +
+				    		"SELECT *\n" +
 				    		" WHERE {\n" +
-				    		"   $recordURI$ marcrdf:hasField ?f.\n" +
-				    		"   ?f marcrdf:tag ?t.\n" +
-				    		"   ?f marcrdf:ind1 ?i1.\n" +
-				    		"   ?f marcrdf:ind2 ?i2.\n" +
-				    		"   ?f marcrdf:hasSubfield ?sf.\n" +
-				    		"   ?sf marcrdf:code ?c.\n" +
-				    		"   ?sf marcrdf:value ?v. }").
+				    		"   $recordURI$ marcrdf:hasField ?field.\n" +
+				    		"   ?field marcrdf:tag ?tag.\n" +
+				    		"   ?field marcrdf:ind1 ?ind1.\n" +
+				    		"   ?field marcrdf:ind2 ?ind2.\n" +
+				    		"   ?field marcrdf:hasSubfield ?sfield.\n" +
+				    		"   ?sfield marcrdf:code ?code.\n" +
+				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
 
 				    		
@@ -171,12 +170,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    	addMainStoreQuery("pub_info", 
 			    			"SELECT *\n" +
 			    			" WHERE {\n" +
-			    			"  $recordURI$ marcrdf:hasField ?f.\n" +
-			    			"  ?f marcrdf:tag \"264\".\n" +
-			    			"  ?f marcrdf:ind2 ?i2.\n" +
-			    			"  ?f marcrdf:hasSubfield ?sf.\n" +
-			    			"  ?sf marcrdf:code ?c.\n" +
-			    			"  ?sf marcrdf:value ?v. }").
+			    			"  $recordURI$ marcrdf:hasField264 ?field.\n" +
+			    			"  ?field marcrdf:tag ?tag.\n" +
+			    			"  ?field marcrdf:ind1 ?ind1.\n" +
+			    			"  ?field marcrdf:ind2 ?ind2.\n" +
+			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			    			"  ?sfield marcrdf:code ?code.\n" +
+			    			"  ?sfield marcrdf:value ?value. }").
 			    	addResultSetToFields( new PubInfoResultSetToFields()),
 //				new StandardMARCFieldMaker("pub_info_display","264","abc"),
 				
@@ -306,14 +306,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("table of contents", 
 			        	"SELECT *\n" +
 			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-			        	"  ?f marcrdf:tag \"505\".\n" +
-			        	"  ?f marcrdf:tag ?t.\n" +
-			        	"  ?f marcrdf:ind2 ?i2.\n" +
-			        	"  ?f marcrdf:ind1 ?i1.\n" +
-			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-			        	"  ?sf marcrdf:code ?c.\n" +
-			        	"  ?sf marcrdf:value ?v. }").
+			        	"  $recordURI$ marcrdf:hasField505 ?field.\n" +
+			        	"  ?field marcrdf:tag ?tag.\n" +
+			        	"  ?field marcrdf:ind2 ?ind2.\n" +
+			        	"  ?field marcrdf:ind1 ?ind1.\n" +
+			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			        	"  ?sfield marcrdf:code ?code.\n" +
+			        	"  ?sfield marcrdf:value ?value. }").
 			        addResultSetToFields( new TOCResultSetToFields()),
 
 			   new SPARQLFieldMakerImpl().

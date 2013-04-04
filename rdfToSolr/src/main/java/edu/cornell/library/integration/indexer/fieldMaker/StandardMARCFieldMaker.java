@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RemoveTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,12 +12,10 @@ import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.MarcRecord.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
@@ -97,10 +94,12 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
 		String query = 
-				"SELECT (str(?f) as ?field) (str(?sf) as ?sfield) ?tag ?code ?value WHERE { \n"+
+				"SELECT (str(?f) as ?field) (str(?sf) as ?sfield) ?tag ?code ?value ?ind1 ?ind2 WHERE { \n"+
 				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField" + marcFieldTag + "> ?f . \n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sf .\n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> ?tag .\n"+
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> ?ind1 .\n"+
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> ?ind2 .\n"+
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n"+
 				"FILTER( CONTAINS( \"6" + marcSubfieldCodes + "\" , ?code) )\n"+
@@ -121,72 +120,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			if( results == null || results.get(queryKey) == null )
 				throw new Exception( getName() + " did not get any result sets");
 				
-			ResultSet rs = results.get(queryKey);
 			MarcRecord rec = new MarcRecord();
-			while( rs.hasNext() ){
-				QuerySolution sol = rs.nextSolution();
-				String f_uri = nodeToString( sol.get("field") );
-				Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-				String sf_uri = nodeToString( sol.get("sfield") );
-				Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
-				DataField f;
-				if (rec.data_fields.containsKey(field_no)) {
-					f = rec.data_fields.get(field_no);
-				} else {
-					f = new DataField();
-					f.id = field_no;
-					f.tag = nodeToString( sol.get("tag"));
-				}
-				Subfield sf = new Subfield();
-				sf.id = sfield_no;
-				sf.code = nodeToString( sol.get("code")).charAt(0);
-				sf.value = nodeToString( sol.get("value"));
-				if (sf.code.equals('6')) {
-					if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
-							&& Character.isDigit(sf.value.charAt(5))) {
-						f.linkOccurrenceNumber = Integer.valueOf(sf.value.substring(4, 6));
-					}
-				}
-				f.subfields.put(sfield_no, sf);
-				rec.data_fields.put(field_no, f);
-				
-			}
+			rec.addDataFieldResultSet(results.get(queryKey));
 			
-			// Put all fields with link occurrence numbers into matchedFields to be grouped by
-			// their occurrence numbers. Everything else goes in sorted fields keyed by field id
-			// to be displayed in field id order.
-			Map<Integer,FieldSet> matchedFields  = new HashMap<Integer,FieldSet>();
-			Map<Integer,FieldSet> sortedFields = new HashMap<Integer,FieldSet>();
-			Integer[] ids = rec.data_fields.keySet().toArray(new Integer[ rec.data_fields.keySet().size() ]);
-			Arrays.sort( ids );
-			for( Integer id: ids) {
-				DataField f = rec.data_fields.get(id);
-				if ((f.linkOccurrenceNumber != null) && (f.linkOccurrenceNumber != 0)) {
-					FieldSet fs;
-					if (matchedFields.containsKey(f.linkOccurrenceNumber)) {
-						fs = matchedFields.get(f.linkOccurrenceNumber);
-						if (fs.minFieldNo > f.id) fs.minFieldNo = f.id;
-					} else {
-						fs = new FieldSet();
-						fs.linkOccurrenceNumber = f.linkOccurrenceNumber;
-						fs.minFieldNo = f.id;
-					}
-					fs.fields.add(f);
-					matchedFields.put(fs.linkOccurrenceNumber, fs);
-				} else {
-					FieldSet fs = new FieldSet();
-					fs.minFieldNo = f.id;
-					fs.fields.add(f);
-					sortedFields.put(f.id, fs);
-				}
-			}
-			// Take groups linked by occurrence number, and add them as groups to the sorted fields
-			// keyed by the smallest field id of the group. Groups will be added together, but with
-			// that highest precendence of the lowest field id.
-			for( Integer linkOccurrenceNumber : matchedFields.keySet() ) {
-				FieldSet fs = matchedFields.get(linkOccurrenceNumber);
-				sortedFields.put(fs.minFieldNo, fs);
-			}
+			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 			
 			if (sortedFields.keySet().size() == 0)
 				return Collections.emptyMap();
@@ -200,9 +137,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				fieldmap.put(solrVernFieldName,solrField);
 			}
 
+			
 			// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 			// but with organization determined by vernMode.
-			ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+			Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
 			Arrays.sort( ids );
 			for( Integer id: ids) {
 				FieldSet fs = sortedFields.get(id);
@@ -267,53 +205,29 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
 					}
 				}
-			}			
+			}
+			
+			Map<String,SolrInputField> populatedFields = new HashMap<String,SolrInputField>();
 			for(String fieldName: fieldmap.keySet()) {
-				if (fieldmap.get(fieldName).getValueCount() == 0)
-					fieldmap.remove(fieldName);
+				if (fieldmap.get(fieldName).getValueCount() > 0)
+					populatedFields.put(fieldName, fieldmap.get(fieldName));
 			}
 			return fieldmap;
 			
 		}		
 
 		private String concatenateSubfields( DataField f ) {
-			StringBuilder sb = new StringBuilder();
-			Integer[] sf_ids = f.subfields.keySet().toArray( new Integer[ f.subfields.keySet().size() ]);
-			Arrays.sort(sf_ids);
-			Boolean first = true;
-			for(Integer sf_id: sf_ids) {
-				Subfield sf = f.subfields.get(sf_id);
-				if (sf.code.equals('6')) continue;
-				
-				if (first) first = false;
-				else sb.append(" ");
-				sb.append(sf.value.trim());
-			}
+			String value = f.concateSubfieldsOtherThan6();
 			if (unwantedChars != null) {
-				return RemoveTrailingPunctuation(sb.toString(),unwantedChars);
+				return RemoveTrailingPunctuation(value,unwantedChars);
 			} else {
-				return sb.toString();
+				return value;
 			}
 		}
 	};
 
 	private final String queryKey = "query";
 	
-	private static class FieldSet {
-		Integer minFieldNo;
-		Integer linkOccurrenceNumber;
-		Set<DataField> fields = new HashSet<DataField>();
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.fields.size() + "fields / link occurrence number: " + 
-			          this.linkOccurrenceNumber +"/ min field no: " + this.minFieldNo);
-			Iterator<DataField> i = this.fields.iterator();
-			while (i.hasNext()) {
-				sb.append(i.next().toString() + "\n");
-			}
-			return sb.toString();
-		}
-	}
 	
 	public static enum VernMode {
 		VERNACULAR, // non-Roman values go in vern field

@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
