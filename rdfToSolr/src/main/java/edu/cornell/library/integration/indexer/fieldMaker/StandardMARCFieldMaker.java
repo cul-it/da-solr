@@ -268,7 +268,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					}
 				}
 			}			
-
+			for(String fieldName: fieldmap.keySet()) {
+				if (fieldmap.get(fieldName).getValueCount() == 0)
+					fieldmap.remove(fieldName);
+			}
 			return fieldmap;
 			
 		}		
