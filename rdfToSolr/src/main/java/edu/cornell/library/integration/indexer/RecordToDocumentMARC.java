@@ -221,12 +221,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SPARQLFieldMakerImpl().
 					setName("title130").
 					addMainStoreQuery("title_130",
-							"SELECT ?code ?value\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
-							"        ?f marcrdf:tag \"130\". \n" +
-							"        ?f marcrdf:hasSubfield ?sf .\n" +
-							"        ?sf marcrdf:code ?code.\n" +
-							"        ?sf marcrdf:value ?value.\n" +
+							"SELECT *\n" +
+							" WHERE { $recordURI$ marcrdf:hasField130 ?field.\n" +
+						    "        ?field marcrdf:tag ?tag.\n" +
+						    "        ?field marcrdf:ind1 ?ind1.\n" +
+						    "        ?field marcrdf:ind2 ?ind2.\n" +
+							"        ?field marcrdf:hasSubfield ?sfield .\n" +
+							"        ?sfield marcrdf:code ?code.\n" +
+							"        ?sfield marcrdf:value ?value.\n" +
 							" }").
 					addResultSetToFields( new Title130ResultSetToFields()),
 
@@ -234,22 +236,27 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SPARQLFieldMakerStepped().
 				    setName("title240").
 					addMainStoreQuery("title_240",
-							"SELECT ?code ?value\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f240.\n" +
-				    		"        ?f240 marcrdf:tag \"240\". \n" +
-				    		"        ?f240 marcrdf:hasSubfield ?f240sf .\n" +
-				    		"        ?f240sf marcrdf:code ?code.\n" +
-				    		"        ?f240sf marcrdf:value ?value.\n" +
+							"SELECT *\n" +
+							" WHERE { $recordURI$ marcrdf:hasField240 ?field.\n" +
+				    		"        ?field marcrdf:tag ?tag. \n" +
+				    		"        ?field marcrdf:ind1 ?ind1. \n" +
+				    		"        ?field marcrdf:ind2 ?ind2. \n" +
+				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    		"        ?sfield marcrdf:code ?code.\n" +
+				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
 				    addMainStoreQuery("main_entry_a", 
-				        	"SELECT *\n" +
-				        	" WHERE {\n" +
-					       	"  $recordURI$ marcrdf:hasField ?f.\n" +
-					       	"  ?f marcrdf:tag ?t.\n" +
-					       	"  FILTER( regex( xsd:string(?t), \"^1\" ))\n" +
-				        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-				        	"  ?sf marcrdf:code \"a\".\n" +
-				        	"  ?sf marcrdf:value ?v. }").
+							"SELECT *\n" +
+							" WHERE { $recordURI$ ?p ?field.\n" +
+							"        ?p rdfs:subPropertyOf marcrdf:MainEntry.\n"+
+				    		"        ?field marcrdf:tag ?tag. \n" +
+				    		"        ?field marcrdf:ind1 ?ind1. \n" +
+				    		"        ?field marcrdf:ind2 ?ind2. \n" +
+				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    		"        ?sfield marcrdf:code ?code.\n" +
+				    		"        ?sfield marcrdf:code \"a\".\n" +
+				    		"        ?sfield marcrdf:value ?value.\n" +
+				    		" }").
 			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
 				
 				new SPARQLFieldMakerImpl().
