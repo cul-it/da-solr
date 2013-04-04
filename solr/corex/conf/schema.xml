@@ -338,7 +338,7 @@
     <field name="lc_callnum_main" type="whitespaceNormalized" indexed="true" stored="false" multiValued="true" />
 
     <!-- format is used for facet, display, and choosing which partial to use for the show view, so it must be stored and indexed -->
-    <field name="format" type="string" indexed="true" stored="true" multiValues="true"/>
+    <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
