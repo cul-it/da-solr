@@ -73,8 +73,10 @@ def waitForStartup():
 
         done = -1 == output.find("pending")
         if done : 
+            print('The VMs have started.')
             return        
-        time.sleep( 60 )#sec         
+        print('.')
+        time.sleep( 30 )#sec
     
 def printHelpAndExit():    
     print("")
