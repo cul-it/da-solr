@@ -300,18 +300,20 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerStepped().
 			        setName("title_series_display").
 			        addMainStoreQuery("title_series_830", 
-				        	"SELECT *\n" +
-				        	" WHERE {\n" +
-				        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-				        	"  ?f marcrdf:tag \"830\".\n" +
-				        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-				        	"  ?sf marcrdf:code ?c.\n" +
-				        	"  ?sf marcrdf:value ?v. }").
+				    "SELECT *\n" +
+		        	" WHERE {\n" +
+		        	"  $recordURI$ marcrdf:hasField830 ?field.\n" +
+		        	"  ?field marcrdf:tag ?tag.\n" +
+		        	"  ?field marcrdf:ind2 ?ind2.\n" +
+		        	"  ?field marcrdf:ind1 ?ind1.\n" +
+					"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			     	"  ?sfield marcrdf:code ?code.\n" +
+				 	"  ?sfield marcrdf:value ?value. }").
 			        addResultSetToFieldsStepped( new TitleSeriesResultSetToFields()),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("table of contents").
-			        addMainStoreQuery("table of contents", 
+			        addMainStoreQuery("table of contents",
 			        	"SELECT *\n" +
 			        	" WHERE {\n" +
 			        	"  $recordURI$ marcrdf:hasField505 ?field.\n" +
