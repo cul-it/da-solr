@@ -72,8 +72,8 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			for (DataField f: dataFields) {
-				String field = RemoveTrailingPunctuation(f.concateSpecificSubfields("adghplskfmnor"),".,");
-				String cts = RemoveTrailingPunctuation(f.concateSpecificSubfields("a"),".,");
+				String field = RemoveTrailingPunctuation(f.concatenateSpecificSubfields("adghplskfmnor"),".,");
+				String cts = RemoveTrailingPunctuation(f.concatenateSpecificSubfields("a"),".,");
 				if (cts.length() > 0) {
 					field += "|"+cts;
 				}

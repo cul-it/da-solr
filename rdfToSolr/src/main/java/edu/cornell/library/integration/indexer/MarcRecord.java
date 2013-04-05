@@ -260,9 +260,12 @@ public class MarcRecord {
 					sb.append(sf.value.trim());
 				}
 				
-				return sb.toString();
+				return sb.toString().trim();
 			}
-			public String concateSpecificSubfields(String subfields) {
+			public String concatenateSpecificSubfields(String subfields) {
+				return concatenateSpecificSubfields(" ",subfields);
+			}
+			public String concatenateSpecificSubfields(String separator,String subfields) {
 				StringBuilder sb = new StringBuilder();
 				
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
@@ -274,11 +277,11 @@ public class MarcRecord {
 						continue;
 					
 					if (first) first = false;
-					else sb.append(" ");
+					else sb.append(separator);
 					sb.append(sf.value.trim());
 				}
 				
-				return sb.toString();
+				return sb.toString().trim();
 			}
 		
 		

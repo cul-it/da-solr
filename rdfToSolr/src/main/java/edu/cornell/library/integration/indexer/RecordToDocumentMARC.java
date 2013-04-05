@@ -417,23 +417,23 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
 				
-				new StandardMARCFieldMaker("subject_era_facet","650","y","."),
-				new StandardMARCFieldMaker("subject_era_facet","651","y","."),
-				new StandardMARCFieldMaker("subject_era_facet","654","y","."),
-				new StandardMARCFieldMaker("subject_era_facet","655","y","."),
+				new StandardMARCFieldMaker("subject_era_facet","650","y",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_era_facet","651","y",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_era_facet","654","y",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_era_facet","655","y",VernMode.SEPARATE,"."),
 
-				new StandardMARCFieldMaker("subject_geo_facet","651","a","."),
-				new StandardMARCFieldMaker("subject_geo_facet","650","z","."),
+				new StandardMARCFieldMaker("subject_geo_facet","651","a",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_geo_facet","650","z",VernMode.SEPARATE,"."),
 
-				new StandardMARCFieldMaker("subject_topic_facet","600","abcdq",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","610","ab",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","611","ab",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","630","a",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","630","ap",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","650","a",",."),
-				new StandardMARCFieldMaker("subject_topic_facet","653","a","."),
-				new StandardMARCFieldMaker("subject_topic_facet","654","ab","."),
-				new StandardMARCFieldMaker("subject_topic_facet","655","ab","."),
+				new StandardMARCFieldMaker("subject_topic_facet","600","abcdq",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","610","ab",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","611","ab",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","630","a",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","630","ap",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","650","a",VernMode.SEPARATE,",."),
+				new StandardMARCFieldMaker("subject_topic_facet","653","a",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_topic_facet","654","ab",VernMode.SEPARATE,"."),
+				new StandardMARCFieldMaker("subject_topic_facet","655","ab",VernMode.SEPARATE,"."),
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
 					addMainStoreQuery("fact_or_fiction",
@@ -476,17 +476,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 			    new SPARQLFieldMakerImpl().
 			    	setName("subject display").
-			    	addMainStoreQuery("subject display", 
-		        	"SELECT *\n" +
-		        	" WHERE {\n" +
-		        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-		        	"  ?f marcrdf:tag ?t.\n" +
-		        	"  FILTER( REGEX( ?t, \"^6\" ))\n" +
-		        	"  ?f marcrdf:ind2 ?i2.\n" +
-		        	"  ?f marcrdf:ind1 ?i1.\n" +
-		        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-		        	"  ?sf marcrdf:code ?c.\n" +
-		        	"  ?sf marcrdf:value ?v. }").
+			    	addMainStoreQuery("subject display",
+					"SELECT *\n" +
+					" WHERE { $recordURI$ ?p ?field.\n" +
+					"        ?p rdfs:subPropertyOf marcrdf:SubjectTermEntry.\n"+
+				    "        ?field marcrdf:tag ?tag. \n" +
+				    "        ?field marcrdf:ind1 ?ind1. \n" +
+				    "        ?field marcrdf:ind2 ?ind2. \n" +
+				    "        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    "        ?sfield marcrdf:code ?code.\n" +
+				    "        ?sfield marcrdf:value ?value.\n" +
+				    " }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
 				
 				new StandardMARCFieldMaker("donor_display","902","b"),
@@ -511,12 +511,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),
 				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz"),
 				
-				new StandardMARCFieldMaker("author_facet","100","abcdq",".,"),
-				new StandardMARCFieldMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",".,"),
-				new StandardMARCFieldMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",".,"),
-				new StandardMARCFieldMaker("author_facet","700","abcdq",".,"),
-				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",".,"),
-				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",".,"),
+				new StandardMARCFieldMaker("author_facet","100","abcdq",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","700","abcdq",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
 
 				new StandardMARCFieldMaker("author_display","100","abcdq",VernMode.VERNACULAR,".,"),
 				new StandardMARCFieldMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",VernMode.VERNACULAR,".,"),

@@ -2,11 +2,9 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,8 +49,8 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			Set<String> valuesMain = new HashSet<String>();
 			String relation = null;
 			for (DataField f: dataFields) {
-				String title_cts = f.concateSpecificSubfields("t");
-				String author_cts = f.concateSpecificSubfields("a");
+				String title_cts = f.concatenateSpecificSubfields("t");
+				String author_cts = f.concatenateSpecificSubfields("a");
 				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
 						|| f.mainTag.equals("711")) {
 					if (title_cts.length() < 2) {
@@ -71,7 +69,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "related_work";
 				}
 				if ((relation != null) && relation.equals("author_addl")) {
-					String author_disp = f.concateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
+					String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
 					if (f.tag.equals("880"))
 						values880.add("author_addl_displayZ"+author_disp);
 					else 
@@ -79,9 +77,9 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				} else if (relation != null) {
 					String workField;
 					if (f.mainTag.equals("730"))
-						workField = f.concateSpecificSubfields("iaplskfmnordgh");
+						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
 					else
-						workField = f.concateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
 					workField += "|"+title_cts;
 					if (author_cts.length() > 0)
 						workField += "|"+author_cts;
@@ -143,7 +141,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				}
 				if (! relation.equals("")) {
 					if (f.ind1.equals('0')) {
-						String displaystring = f.concateSpecificSubfields("iatbcdgkqrsw")+'|'+ title_cts;
+						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw")+'|'+ title_cts;
 						if (f.tag.equals("880"))
 							values880.add(relation+"_displayZ"+displaystring);
 						else
@@ -162,7 +160,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						|| f.mainTag.equals("777")
 						) {
 					String subfields = "atbcdegkqrs";
-					addField(solrFields,"title_uniform_t",f.concateSpecificSubfields(subfields));
+					addField(solrFields,"title_uniform_t",f.concatenateSpecificSubfields(subfields));
 				}
 
 

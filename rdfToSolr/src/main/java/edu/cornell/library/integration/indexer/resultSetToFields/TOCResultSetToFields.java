@@ -61,9 +61,9 @@ public class TOCResultSetToFields implements ResultSetToFields {
 					}
 				}
 				if (f.tag.equals("880"))
-					values880.add(f.concateSpecificSubfields(subfields));
+					values880.add(f.concatenateSpecificSubfields(subfields));
 				else
-					valuesMain.add(f.concateSpecificSubfields(subfields));
+					valuesMain.add(f.concatenateSpecificSubfields(subfields));
 			}
 			if (relation != null) {
 				for (String s: values880)
