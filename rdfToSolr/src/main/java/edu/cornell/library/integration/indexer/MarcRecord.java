@@ -85,6 +85,10 @@ public class MarcRecord {
 					f.tag = nodeToString( sol.get("tag"));
 					f.ind1 = nodeToString(sol.get("ind1")).charAt(0);
 					f.ind2 = nodeToString(sol.get("ind2")).charAt(0);
+					if (sol.contains("p")) {
+						String p = nodeToString(sol.get("p"));
+						f.mainTag = p.substring(p.length() - 3);
+					}
 				}
 				Subfield sf = new Subfield();
 				sf.id = sfield_no;
@@ -218,7 +222,8 @@ public class MarcRecord {
 			public Map<Integer,Subfield> subfields = new HashMap<Integer,Subfield>();
 			
 			public Integer linkOccurrenceNumber; //from MARC subfield 6
-
+			public String mainTag = null;
+			
 			public String toString() {
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.tag);

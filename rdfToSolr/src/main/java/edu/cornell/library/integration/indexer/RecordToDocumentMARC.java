@@ -284,16 +284,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
 			        addMainStoreQuery("title_changes", 
-			        	"SELECT *\n" +
-			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-			        	"  ?f marcrdf:tag ?t.\n" +
-			        	"  FILTER( regex( xsd:string(?t), \"^7\" ))\n" +
-			        	"  ?f marcrdf:ind2 ?i2.\n" +
-			        	"  ?f marcrdf:ind1 ?i1.\n" +
-			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-			        	"  ?sf marcrdf:code ?c.\n" +
-			        	"  ?sf marcrdf:value ?v. }").
+							"SELECT *\n" +
+							" WHERE { $recordURI$ ?p ?field.\n" +
+							"        {?p rdfs:subPropertyOf marcrdf:AddedEntry} " +
+							"                 UNION {?p rdfs:subPropertyOf marcrdf:LinkingEntry} \n"+
+				    		"        ?field marcrdf:tag ?tag. \n" +
+				    		"        ?field marcrdf:ind1 ?ind1. \n" +
+				    		"        ?field marcrdf:ind2 ?ind2. \n" +
+				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    		"        ?sfield marcrdf:code ?code.\n" +
+				    		"        ?sfield marcrdf:value ?value.\n" +
+				    		" }").
 			        addResultSetToFields( new TitleChangeResultSetToFields()),
 			        
 			    new SPARQLFieldMakerStepped().
