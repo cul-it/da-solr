@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RemoveTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -219,7 +219,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		private String concatenateSubfields( DataField f ) {
 			String value = f.concateSubfieldsOtherThan6();
 			if (unwantedChars != null) {
-				return RemoveTrailingPunctuation(value,unwantedChars);
+				return removeTrailingPunctuation(value,unwantedChars);
 			} else {
 				return value;
 			}

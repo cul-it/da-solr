@@ -103,7 +103,7 @@ public class SubfieldCodeMaker implements FieldMaker {
 				sortedVals = sortedVals.trim();
 				if( sortedVals.trim().length() != 0){
 					if (unwantedChars != null) {
-						solrField.addValue(RemoveTrailingPunctuation(sortedVals,unwantedChars), 1.0f);
+						solrField.addValue(removeTrailingPunctuation(sortedVals,unwantedChars), 1.0f);
 					} else {
 						solrField.addValue(sortedVals, 1.0f);						
 					}

@@ -61,7 +61,7 @@ public class ResultSetUtilities {
 		field.addValue(value,1.0f);				
 	}
 	
-	public static String RemoveTrailingPunctuation ( String s, String unwantedChars ) {
+	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
 		if (s == null) return null;
 		if (unwantedChars == null) return s;
 		if (s.equals("")) return s;

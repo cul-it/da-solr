@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RemoveTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
@@ -55,9 +55,9 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			for (DataField f: dataFields) {
 				if (f.tag.equals("880"))
-					mainEntryVern = RemoveTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
+					mainEntryVern = removeTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
 				else
-					mainEntry = RemoveTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
+					mainEntry = removeTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
 			}
 		}
 
@@ -72,8 +72,8 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			for (DataField f: dataFields) {
-				String field = RemoveTrailingPunctuation(f.concatenateSpecificSubfields("adghplskfmnor"),".,");
-				String cts = RemoveTrailingPunctuation(f.concatenateSpecificSubfields("a"),".,");
+				String field = removeTrailingPunctuation(f.concatenateSpecificSubfields("adghplskfmnor"),".,");
+				String cts = removeTrailingPunctuation(f.concatenateSpecificSubfields("a"),".,");
 				if (cts.length() > 0) {
 					field += "|"+cts;
 				}

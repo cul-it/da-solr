@@ -94,9 +94,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						}
 					}
 					if (f.tag.equals("880")) {
-						values880.add(RemoveTrailingPunctuation(sb.toString(),"."));
+						values880.add(removeTrailingPunctuation(sb.toString(),"."));
 					} else {
-						valuesMain.add(RemoveTrailingPunctuation(sb.toString(),"."));
+						valuesMain.add(removeTrailingPunctuation(sb.toString(),"."));
 					}
 				}
 			}
