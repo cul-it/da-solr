@@ -46,8 +46,14 @@ public class OracleQuery {
         //String sql = getBibBlobQuery();
         //String sql = getBibDataQuery();
         //String sql = getOperatorQuery();
-        String sql = getBibHistoryQuery();
+        //String sql = getBibHistoryQuery();
         //String sql = getMfhdHistoryQuery();
+        //String sql = getSuppressedBibQuery();
+        //String sql = getSuppressedBibCountQuery();
+        //String sql = getUnSuppressedBibCountQuery();
+        //String sql = getSuppressedMfhdQuery();
+        //String sql = getSuppressedMfhdCountQuery();
+        String sql = getUnSuppressedMfhdCountQuery();
         //String sql = getActionTypeQuery();
         System.out.println(sql);
         queryDatabase(conn, sql);
@@ -181,9 +187,43 @@ public class OracleQuery {
         
         String sql = ""
               +" SELECT * FROM CORNELLDB.BIB_HISTORY"
-              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" WHERE SUPPRESS_IN_OPAC = 'N'"
               +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
               return sql;   
+      
+     }
+     
+     public static String getSuppressedBibQuery() {
+        // ACTION_DATE: 2012-11-12 12:57:16.0
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar now = Calendar.getInstance();
+        Calendar earlier = now;
+        earlier.add(Calendar.HOUR, -24);
+        String ds = df.format(earlier.getTime());
+        System.out.println("ds: "+ds);
+        String sql = ""
+              +" SELECT * FROM CORNELLDB.BIB_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" AND to_char(BIB_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+        return sql;   
+      
+     }
+     
+     public static String getSuppressedBibCountQuery() {
+   
+        String sql = ""
+              +" SELECT COUNT(BIB_ID) FROM CORNELLDB.BIB_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'"; 
+        return sql;   
+      
+     }
+     
+     public static String getUnSuppressedBibCountQuery() {
+        
+        String sql = ""
+              +" SELECT COUNT(BIB_ID) FROM CORNELLDB.BIB_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'N'"; 
+        return sql;   
       
      }
      
@@ -197,9 +237,45 @@ public class OracleQuery {
         
         String sql = ""
               +" SELECT * FROM CORNELLDB.MFHD_HISTORY"
-              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" WHERE SUPPRESS_IN_OPAC = 'N'"
               +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
               return sql;   
+      
+     }
+     
+      
+     
+     public static String getSuppressedMfhdQuery() {
+        // ACTION_DATE: 2012-11-12 12:57:16.0
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar now = Calendar.getInstance();
+        Calendar earlier = now;
+        earlier.add(Calendar.HOUR, -24);
+        String ds = df.format(earlier.getTime());
+        System.out.println("ds: "+ds);
+        String sql = ""
+              +" SELECT * FROM CORNELLDB.MFHD_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+              +" AND to_char(MFHD_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              return sql;   
+      
+     }
+     
+     public static String getSuppressedMfhdCountQuery() {
+         
+        String sql = ""
+              +" SELECT COUNT(MFHD_ID) FROM CORNELLDB.MFHD_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'Y'";  
+        return sql;   
+      
+     }
+     
+     public static String getUnSuppressedMfhdCountQuery() {
+        
+        String sql = ""
+              +" SELECT COUNT(MFHD_ID) FROM CORNELLDB.MFHD_MASTER"
+              +" WHERE SUPPRESS_IN_OPAC = 'N'";  
+        return sql;   
       
      }
      
@@ -212,8 +288,8 @@ public class OracleQuery {
         String ds = df.format(earlier.getTime());
         
         String sql = ""
-              +" SELECT COUNT(BIB_HISTORY.BIB_ID) FROM BIB_HISTORY"
-              +"  WHERE to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
+              +" SELECT COUNT(BIB_MASTER.BIB_ID) FROM BIB_MASTER"
+              +"  WHERE to_char(BIB_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + ds + "'";  
               return sql;   
       
      }
