@@ -92,4 +92,45 @@ public interface CatalogDao {
     */
    public List<AuthData> getAuthData(String authid) throws Exception;
    
+   /**
+    * @return
+    * @throws Exception
+    */
+   public List<String> getAllSuppressedBibId() throws Exception;
+   
+   /**
+    * @return
+    * @throws Exception
+    */
+   public List<String> getAllUnSuppressedBibId() throws Exception;
+   
+   /**
+    * @return
+    * @throws Exception
+    */
+   public List<String> getAllSuppressedMfhdId() throws Exception;
+   
+   /**
+    * @return
+    * @throws Exception
+    */
+   public List<String> getAllUnSuppressedMfhdId() throws Exception;
+   
+   
+   /**
+    * @param fromDateString
+    * @param toDateString
+    * @return
+    * @throws Exception
+    */
+   public List<String> getSuppressedBibId(String fromDateString, String toDateString) throws Exception;
+   
+   /**
+    * @param fromDateString
+    * @param toDateString
+    * @return
+    * @throws Exception
+    */
+   public List<String> getSuppressedMfhdId(String fromDateString, String toDateString) throws Exception;
+   
 }

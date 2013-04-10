@@ -351,6 +351,131 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       }  
       
    }
+   
+   public List<String> getAllSuppressedBibId() throws Exception {
+      String sql = "" 
+            +" SELECT BIB_ID FROM BIB_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'Y'";
+
+      try {
+         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return bibIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   public List<String> getAllUnSuppressedBibId() throws Exception {
+      String sql = "" 
+            +" SELECT BIB_ID FROM BIB_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'N'";
+
+      try {
+         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return bibIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   public List<String> getSuppressedBibId(String fromDateString,
+         String toDateString) throws Exception {
+      String sql = "" 
+            +" SELECT BIB_ID FROM BIB_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+            +" AND to_char(BIB_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') BETWEEN '" + fromDateString + "'"   
+            +" AND '" + toDateString + "'";
+      try {
+         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return bibIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   public List<String> getAllSuppressedMfhdId() throws Exception {
+      String sql = "" 
+            +" SELECT MFHD_ID FROM MFHD_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'Y'";
+
+      try {
+         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return mfhdIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   public List<String> getAllUnSuppressedMfhdId() throws Exception {
+      String sql = "" 
+            +" SELECT MFHD_ID FROM MFHD_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'N'";
+
+      try {
+         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         return mfhdIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+
+
+
+
+
+   public List<String> getSuppressedMfhdId(String fromDateString,
+         String toDateString) throws Exception {
+      String sql = "" 
+            +" SELECT to_char(MFHD_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss'), MFHD_ID FROM MFHD_MASTER"
+            +" WHERE SUPPRESS_IN_OPAC = 'Y'"
+            +" AND to_char(MFHD_MASTER.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') BETWEEN '" + fromDateString + "'"   
+            +" AND '" + toDateString + "'";
+
+      try {
+         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new TabbedStringMapper());
+         return mfhdIdList;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      } 
+   }
+   
+   
 
 
 
@@ -519,5 +644,22 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          return s;
       }
    }
+   
+   private static final class TabbedStringMapper implements RowMapper {
+      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+         ResultSetMetaData rsmd = rs.getMetaData();
+         StringBuilder sb = new StringBuilder();
+         int colnum = rsmd.getColumnCount();
+         for (int i=1; i <= colnum; i++) {
+            sb.append(rs.getString(i));
+            if (i < colnum) {
+               sb.append("\t");
+            }
+         }
+         return sb.toString();
+      }
+   }
+
+   
 
 }
