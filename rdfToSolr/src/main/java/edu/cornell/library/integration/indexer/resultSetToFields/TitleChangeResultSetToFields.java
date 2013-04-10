@@ -69,11 +69,13 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "related_work";
 				}
 				if ((relation != null) && relation.equals("author_addl")) {
-					String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-					if (f.tag.equals("880"))
+					if (f.tag.equals("880")) {
+						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
 						values880.add("author_addl_displayZ"+author_disp);
-					else 
+					} else {
+						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
 						valuesMain.add("author_addl_displayZ"+author_disp);
+					}
 				} else if (relation != null) {
 					String workField;
 					if (f.mainTag.equals("730"))
@@ -164,6 +166,23 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				}
 
 
+			}
+			if ((values880.size() == 1) && (valuesMain.size() == 1)) {
+				for (String s:values880) {
+					if (s.startsWith("author_")) {
+						StringBuilder sb = new StringBuilder();
+						String[] temp = s.split("Z",2);
+						sb.append(removeTrailingPunctuation(temp[1],","));
+						for (String t:valuesMain) {
+							String[] temp2 = t.split("Z",2);
+							sb.append(" / ");
+							sb.append(temp2[1]);
+						}
+						addField(solrFields,temp[0],sb.toString());
+						values880.clear();
+						valuesMain.clear();
+					}
+				}
 			}
 			for (String s: values880) {
 				String[] temp = s.split("Z",2);
