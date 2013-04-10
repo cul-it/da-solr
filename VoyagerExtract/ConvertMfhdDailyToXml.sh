@@ -3,7 +3,7 @@ CLASS=edu.cornell.library.integration.ConvertMfhdDailyToXml
 CLASSES=./build/classes
 LIB=./build/lib
 
-
+OPTS=-Xmx1280m
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
 
@@ -11,4 +11,4 @@ CLASSPATH=$CLASSPATH:$CLASSES
 # java -classpath $CLASSPATH $CLASS $@
 SRCDIR=http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily
 DESTDIR=http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily
-java -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR
+java $OPTS -classpath $CLASSPATH $CLASS $SRCDIR $DESTDIR

@@ -5,7 +5,8 @@ OPTS=-Xmx1280m
 LIB=./build/lib
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
-echo $CLASSPATH
+
+# echo $CLASSPATH
 # need to specifiy bibid and destination Dir for bib data
 # java -classpath $CLASSPATH $CLASS $@
 SRCDIR=http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates

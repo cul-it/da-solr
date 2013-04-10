@@ -2,7 +2,7 @@
 CLASS=edu.cornell.library.integration.GetBibXml
 CLASSES=./build/classes
 LIB=./build/lib
-
+OPTS=-Xmx1280m
 
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
 CLASSPATH=$CLASSPATH:$CLASSES
@@ -11,4 +11,4 @@ CLASSPATH=$CLASSPATH:$CLASSES
 # java -classpath $CLASSPATH $CLASS $@
 BIBID=5430043 
 DESTDIR=http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates
-java -classpath $CLASSPATH $CLASS $BIBID $DESTDIR
+java $OPTS -classpath $CLASSPATH $CLASS $BIBID $DESTDIR

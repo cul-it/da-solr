@@ -2,6 +2,7 @@
 CLASS=edu.cornell.library.integration.GetMfhdMrc
 CLASSES=./build/classes
 LIB=./build/lib
+OPTS=-Xmx1280m
 
 
 CLASSPATH=$(JARS=("$LIB"/*.jar); IFS=:; echo "${JARS[*]}")
@@ -11,4 +12,4 @@ CLASSPATH=$CLASSPATH:$CLASSES
 # java -classpath $CLASSPATH $CLASS $@
 MFHDID=8318301 
 DESTDIR=http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates
-java -classpath $CLASSPATH $CLASS $MFHDID $DESTDIR
+java $OPTS -classpath $CLASSPATH $CLASS $MFHDID $DESTDIR
