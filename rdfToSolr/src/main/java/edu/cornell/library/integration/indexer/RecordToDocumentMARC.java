@@ -24,6 +24,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		return (List<? extends DocumentPostProcess>) Arrays.asList(
 				new SinglePubDateSort(),
 				new SingleValueField("author_display",Correction.firstValue),
+				new SingleValueField("author_sort",Correction.firstValue),
 				new SingleValueField("author_t",Correction.firstValue),
 				new ShadowRecordBoost(),
 				new SuppressUnwantedValues()
@@ -502,8 +503,25 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				
 				new StandardMARCFieldMaker("eightninenine_s","899","a"),
 				
+				new StandardMARCFieldMaker("other_identifier_display","024","a"),
 				new StandardMARCFieldMaker("id_t","024","a"),
+				new StandardMARCFieldMaker("publisher_number_display","028","a"),
 				new StandardMARCFieldMaker("id_t","028","a"),
+				
+			    new SPARQLFieldMakerImpl().
+		    	setName("author display").
+			    addMainStoreQuery("main_entry", 
+						"SELECT *\n" +
+						" WHERE { $recordURI$ ?p ?field.\n" +
+						"        ?p rdfs:subPropertyOf marcrdf:MainEntry.\n"+
+			    		"        ?field marcrdf:tag ?tag. \n" +
+			    		"        ?field marcrdf:ind1 ?ind1. \n" +
+			    		"        ?field marcrdf:ind2 ?ind2. \n" +
+			    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+			    		"        ?sfield marcrdf:code ?code.\n" +
+			    		"        ?sfield marcrdf:value ?value.\n" +
+			    		" }").
+		        addResultSetToFields( new AuthorResultSetToFields()),
 
 				new StandardMARCFieldMaker("author_t","100","abcdqegu"),
 				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
@@ -518,11 +536,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
 				new StandardMARCFieldMaker("author_facet","700","abcdq",VernMode.SEPARATE,".,"),
 				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
-				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
+				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,")
 
-				new StandardMARCFieldMaker("author_display","100","abcdq",VernMode.VERNACULAR,".,"),
-				new StandardMARCFieldMaker("author_display","110","abcdefghijklmnopqrstuvwxyz",VernMode.VERNACULAR,".,"),
-				new StandardMARCFieldMaker("author_display","111","abcdefghijklmnopqrstuvwxyz",VernMode.VERNACULAR,".,")
 									
 		);
 	}
