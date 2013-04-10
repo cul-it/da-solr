@@ -1,17 +1,17 @@
 package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 /**
@@ -24,44 +24,41 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 	public FieldMakerStep toFields(
 			Map<String, ResultSet> results) throws Exception {
 		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
 		FieldMakerStep step = new FieldMakerStep();
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-						
-		Set<String> resultKeys = results.keySet();
-		Iterator<String> i = resultKeys.iterator();
+		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		
+		MarcRecord rec = new MarcRecord();
 		String tag = "";
 		
-		while (i.hasNext()) {
-			String resultKey = i.next();
-			tag = resultKey.substring(resultKey.length()-3);
-			ResultSet rs = results.get(resultKey);
-			HashMap<String,ArrayList<String>> fieldparts = new HashMap<String,ArrayList<String>>();
-			
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					String c = nodeToString(sol.get("c"));
-					ArrayList<String> vals;
-					if (fieldparts.containsKey(c)) {
-						vals = fieldparts.get(c);
-					} else {
-						vals = new ArrayList<String>();
-					}
-					vals.add(nodeToString(sol.get("v")));
-					fieldparts.put(c, vals);
-				}
-			}
-			if (fieldparts.size() > 0) {
-				String field = processFieldpartsIntoField(fieldparts,"adfghklmnoprstv");
-				addField(fields,"title_series_display", field);
-				step.setFields(fields);
+		for( String resultKey: results.keySet()){
+			tag = resultKey.substring(resultKey.length() - 3);
+			rec.addDataFieldResultSet(results.get(resultKey));
+		}
+		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
+		// but with organization determined by vernMode.
+		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		Arrays.sort( ids );
+		for( Integer id: ids) {
+			FieldSet fs = sortedFields.get(id);
+			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+			Set<String> values880 = new HashSet<String>();
+			Set<String> valuesMain = new HashSet<String>();
+			for (DataField f: dataFields)
+				if (f.tag.equals("880"))
+					values880.add(f.concateSubfieldsOtherThan6());
+				else
+					valuesMain.add(f.concateSubfieldsOtherThan6());
+			if ((values880.size() > 0) || (valuesMain.size() > 0)) {
+				for (String s: values880)
+					addField(solrFields,"title_series_display",s);
+				for (String s: valuesMain)
+					addField(solrFields,"title_series_display",s);
+				step.setFields(solrFields);
 				return step;
 			}
 		}
-
+			
 		String nexttag = "";
 		if      (tag.equals("830")) { nexttag = "490"; } 
 		else if (tag.equals("490")) { nexttag = "440"; }
@@ -76,37 +73,16 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			return step;
 		} else {
 			step.addMainStoreQuery("title_series_"+nexttag, 
-	        	"SELECT *\n" +
-	        	" WHERE {\n" +
-	        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-	        	"  ?f marcrdf:tag \""+ nexttag + "\".\n" +
-	        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-	        	"  ?sf marcrdf:code ?c.\n" +
-	        	"  ?sf marcrdf:value ?v. }");
+					"SELECT *\n" +
+				    " WHERE {\n" +
+			        "  $recordURI$ marcrdf:hasField"+nexttag+" ?field.\n" +
+				    "  ?field marcrdf:tag ?tag.\n" +
+				    "  ?field marcrdf:ind2 ?ind2.\n" +
+				   	"  ?field marcrdf:ind1 ?ind1.\n" +
+					"  ?field marcrdf:hasSubfield ?sfield.\n" +
+					"  ?sfield marcrdf:code ?code.\n" +
+					"  ?sfield marcrdf:value ?value. }");
 			return step;
 		}
 	}
-		
-	
-	public String processFieldpartsIntoField ( HashMap<String,ArrayList<String>> parts, String subfields ) {
-		List<String> ordered = new ArrayList<String>();
-		for (int i = 0; i < subfields.length(); i++) {
-			String c = subfields.substring(i, i+1);
-			if (parts.containsKey(c)) {
-				ordered.addAll(parts.get(c));
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		if (ordered.size() > 0) {
-			sb.append(ordered.get(0));
-		}
-		for (int i = 1; i < ordered.size(); i++) {
-			sb.append(" ");
-			sb.append(ordered.get(i));
-		}
-		return sb.toString();
-		
-	}
-
-
 }

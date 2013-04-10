@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -23,7 +22,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -77,7 +75,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		solr = new 	HttpSolrServer( "http://bdc34-dev.library.cornell.edu:8080/solr/core1" );
+		solr = new 	HttpSolrServer( "http://da-dev-solr.library.cornell.edu/solr/April3" );
 		indexStandardTestRecords( solr, rdf );		
 	}
 	
@@ -157,7 +155,8 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	}
 	
 	public static String convertStreamToString(java.io.InputStream is) {
-	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    @SuppressWarnings("resource")
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
 	}
 
@@ -180,12 +179,12 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 				System.out.println("failed on uri:" + uri);
 				throw e;
 			}
+			System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 			try {
 				solr.add( doc );
 			} catch (Exception e) {
 				System.out.println("Failed adding doc to solr for uri:" + uri);				
 				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
-				System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 //				throw e;
 			}
 		}

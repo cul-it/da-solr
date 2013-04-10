@@ -8,7 +8,7 @@
 #export HADOOP_HOME=~/hadoop
 
 # The java implementation to use.  Required.
-export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+export JAVA_HOME=$( dirname $(dirname $( readlink -e /usr/bin/javac ) ) )
 
 # Extra Java CLASSPATH elements.  Optional.
 # export HADOOP_CLASSPATH=

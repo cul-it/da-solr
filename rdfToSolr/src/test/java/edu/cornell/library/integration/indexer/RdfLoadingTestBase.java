@@ -53,7 +53,7 @@ public class RdfLoadingTestBase {
 	};
 	
 	
-	static final String[] standardFiles = { "language_code.nt", "library.nt", "callnumber_map.nt" };
+	static final String[] standardFiles = { "language_code.nt", "library.nt", "callnumber_map.nt", "fieldGroups.nt" };
 	
     public static TemporaryFolder folder = null;
 		

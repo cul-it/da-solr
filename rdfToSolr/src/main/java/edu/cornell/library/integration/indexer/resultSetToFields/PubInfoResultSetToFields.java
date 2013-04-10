@@ -2,15 +2,19 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -26,76 +30,48 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-	  	Map<String,HashMap<String,ArrayList<String>>> marcfields = 
-	  			new HashMap<String,HashMap<String,ArrayList<String>>>();
-						
+		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+
+		MarcRecord rec = new MarcRecord();
+
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					String fti = nodeToString(sol.get("f")) +
-							nodeToString(sol.get("t")) + 
-							" " + //placeholder because we're not getting first indicator 
-							nodeToString(sol.get("i2"));
-					HashMap<String,ArrayList<String>> fieldparts;
-					if (marcfields.containsKey(fti)) {
-						fieldparts = marcfields.get(fti);
-					} else {
-						fieldparts = new HashMap<String,ArrayList<String>>();
-					}
-					String c = nodeToString(sol.get("c"));
-					ArrayList<String> vals;
-					if (fieldparts.containsKey(c)) {
-						vals = fieldparts.get(c);
-					} else {
-						vals = new ArrayList<String>();
-					}
-					vals.add(nodeToString(sol.get("v")));
-					fieldparts.put(c, vals);
-					marcfields.put(fti, fieldparts);
-				}
-			}
+			rec.addDataFieldResultSet(rs);
 		}
 		
-		for (String fti: marcfields.keySet()) {
-			String ind = fti.substring(fti.length()-2);
-//			String t = fti.substring(fti.length()-5, fti.length()-2);
-			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-			String relation = "";
-			if (ind.endsWith("0")) relation = "pub_prod";
-			else if (ind.endsWith("1")) relation = "pub_info";
-			else if (ind.endsWith("2")) relation = "pub_dist";
-			else if (ind.endsWith("3")) relation = "pub_manu";
-			else if (ind.endsWith("4")) relation = "pub_copy";
-			String val = combine_subfields("abc",fieldparts);
-			if (! relation.equals("")) {
-				addField(fields,relation+"_display",val);
-			}
-		}
-		
-		return fields;
-	}	
+		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-	
-	public String combine_subfields (String subfields, HashMap<String,ArrayList<String>> fieldparts) {
-		
-		List<String> ordered = new ArrayList<String>();
-		for (int i = 0; i < subfields.length(); i++) {
-			String c = subfields.substring(i, i+1);
-			if (fieldparts.containsKey(c)) {
-				ordered.addAll(fieldparts.get(c));
+		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
+		// but with organization determined by vernMode.
+		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		Arrays.sort( ids );
+		for( Integer id: ids) {
+			FieldSet fs = sortedFields.get(id);
+			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+			Set<String> values880 = new HashSet<String>();
+			Set<String> valuesMain = new HashSet<String>();
+			String relation = null;
+			for (DataField f: dataFields) {
+				if (relation == null) {
+					if (f.ind2.equals('0')) relation = "pub_prod";
+					else if (f.ind2.equals('1')) relation = "pub_info";
+					else if (f.ind2.equals('2')) relation = "pub_dist";
+					else if (f.ind2.equals('3')) relation = "pub_manu";
+					else if (f.ind2.equals('4')) relation = "pub_copy";
+				}
+				if (f.tag.equals("880"))
+					values880.add(f.concateSubfieldsOtherThan6());
+				else
+					valuesMain.add(f.concateSubfieldsOtherThan6());
+			}
+			if (relation != null) {
+				for (String s: values880)
+					addField(solrFields,relation+"_display",s);	
+				for (String s: valuesMain)
+					addField(solrFields,relation+"_display",s);	
 			}
 		}
-		StringBuilder sb = new StringBuilder();
-		if (ordered.size() > 0) {
-			sb.append(ordered.get(0));
-		}
-		for (int i = 1; i < ordered.size(); i++) {
-			sb.append(" ");
-			sb.append(ordered.get(i));
-		}
-		return sb.toString();
-	}
+				
+		return solrFields;
+	}	
 }

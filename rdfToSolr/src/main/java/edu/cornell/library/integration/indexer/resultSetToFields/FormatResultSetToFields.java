@@ -33,10 +33,34 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		String category ="";
 		String record_type ="";
 		String bibliographic_level ="";
+		Boolean isThesis = false;
 		Collection<String> sf653as = new HashSet<String>();
 		Collection<String> sf245hs = new HashSet<String>();
 		Collection<String> sf948fs = new HashSet<String>();
 		Collection<String> loccodes = new HashSet<String>();
+		
+		Collection<String> rareLocCodes = new HashSet<String>();
+		rareLocCodes.add("asia,ranx");
+		rareLocCodes.add("asia,rare");
+		rareLocCodes.add("ech,rare");
+		rareLocCodes.add("ech,ranx");
+		rareLocCodes.add("ent,rare");
+		rareLocCodes.add("ent,rar2");
+		rareLocCodes.add("gnva,rare");
+		rareLocCodes.add("hote,rare");
+		rareLocCodes.add("ilr,rare");
+		rareLocCodes.add("lawr");
+		rareLocCodes.add("lawr,anx");
+		rareLocCodes.add("mann,spec");
+		rareLocCodes.add("rmc");
+		rareLocCodes.add("rmc,anx");
+		rareLocCodes.add("rmc,hsci");
+		rareLocCodes.add("rmc,icer");
+		rareLocCodes.add("sasa,ranx");
+		rareLocCodes.add("sasa,rare");
+		rareLocCodes.add("vet,rare");
+		rareLocCodes.add("was,rare");
+		rareLocCodes.add("was,ranx");
 		String format = null;
 		Boolean online = false;
 
@@ -63,6 +87,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 							sf948fs.add(nodeToString( node ));
 						} else if (name.equals("loccode")) {
 							loccodes.add(nodeToString( node ));
+						} else if (name.equals("f502")) {
+							isThesis = true;
 						}
 					}
 				}
@@ -121,8 +147,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					format = "Journal";
 				}
 			} else if (record_type.equals("t")) {
-				if ((bibliographic_level.equals("a"))
-						|| (bibliographic_level.equals("m"))) {
+				if (bibliographic_level.equals("a")) {
 					format = "Book";
 				}
 			} else if ((record_type.equals("c"))
@@ -143,10 +168,18 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				format = "Computer File";
 			} else if (record_type.equals("o")) {
 				format = "Kit";
-				//			} else if (record_type.equals("p")) { // p is either mixed-materials
-				//				format = "Manuscript";            // or manuscript depending on source
+			} else if (record_type.equals("p")) { // p means "mixed materials", classifying as 
+				Iterator<String> iter = loccodes.iterator();   // archival if in rare location
+				while (iter.hasNext()) {
+					String loccode = iter.next();
+					if (rareLocCodes.contains(loccode)) {
+						format = "Manuscript/Archive"; //ARCHIVAL
+						break;
+					}
+				}
 			} else if (record_type.equals("t")) {
-				format = "Manuscript";
+				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
+											   //captured above. MANUSCRIPT
 			} else if (category.equals("h")) {
 				format = "Microform";
 			} else if (category.equals("q")) {
@@ -170,7 +203,11 @@ public class FormatResultSetToFields implements ResultSetToFields {
 //				System.out.println("ONLINE STATUS: Resource online according to Cullr logic, but not online according to mfhd 852‡b != \"serv,remo\".");
 			}
 		}
+		
 
+		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
+			addField(fields,"format","Thesis");
+		}
 		addField(fields,"format",format);
 		if (online) {
 			addField(fields,"online","Online");

@@ -2,18 +2,21 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.*;
+
 /**
- * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
+ * process the whole 7xx range into a wide variety of fields
  * 
  */
 public class TitleChangeResultSetToFields implements ResultSetToFields {
@@ -25,170 +28,152 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-	  	Map<String,HashMap<String,ArrayList<String>>> marcfields = 
-	  			new HashMap<String,HashMap<String,ArrayList<String>>>();
-						
+		//This method needs to return a map of fields:	  	
+		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		
+		MarcRecord rec = new MarcRecord();
+
 		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					String fti = nodeToString(sol.get("f")) +
-							nodeToString(sol.get("t")) + 
-							nodeToString(sol.get("i1")) + 
-							nodeToString(sol.get("i2"));
-					HashMap<String,ArrayList<String>> fieldparts;
-					if (marcfields.containsKey(fti)) {
-						fieldparts = marcfields.get(fti);
-					} else {
-						fieldparts = new HashMap<String,ArrayList<String>>();
-					}
-					String c = nodeToString(sol.get("c"));
-					ArrayList<String> vals;
-					if (fieldparts.containsKey(c)) {
-						vals = fieldparts.get(c);
-					} else {
-						vals = new ArrayList<String>();
-					}
-					vals.add(nodeToString(sol.get("v")));
-					fieldparts.put(c, vals);
-					marcfields.put(fti, fieldparts);
-				}
-			}
+			rec.addDataFieldResultSet(results.get(resultKey));
 		}
-		
-		for (String fti: marcfields.keySet()) {
-			String ind = fti.substring(fti.length()-2);
-			String t = fti.substring(fti.length()-5, fti.length()-2);
-			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-			String title_cts = combine_subfields("t",fieldparts);
-			String author_cts = combine_subfields("a",fieldparts);
+		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-			String relation ="";
-			if (t.equals("700") || t.equals("710") || t.equals("711")) {
-				if (title_cts.length() < 2) {
-					relation = "author_addl";
-				} else if (ind.endsWith("2")) {
-					relation = "included_work";
-				} else {
-					relation = "related_work";
+		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
+		// but with organization determined by vernMode.
+		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		Arrays.sort( ids );
+		for( Integer id: ids) {
+			FieldSet fs = sortedFields.get(id);
+			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+			Set<String> values880 = new HashSet<String>();
+			Set<String> valuesMain = new HashSet<String>();
+			String relation = null;
+			for (DataField f: dataFields) {
+				String title_cts = f.concatenateSpecificSubfields("t");
+				String author_cts = f.concatenateSpecificSubfields("a");
+				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
+						|| f.mainTag.equals("711")) {
+					if (title_cts.length() < 2) {
+						relation = "author_addl";
+					} else if (f.ind2.equals('2')) {
+						relation = "included_work";
+					} else {
+						relation = "related_work";
+					}
+				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
+					title_cts = author_cts;
+					author_cts = "";
+					if (f.ind2.equals('2'))
+						relation = "included_work";
+					else 
+						relation = "related_work";
 				}
-			} else if (t.equals("730") || t.equals("740")) {
-				title_cts = author_cts;
-				author_cts = "";
-				if (ind.endsWith("2"))
-					relation = "included_work";
-				else
-					relation = "related_work";
-			}
-			if (relation.equals("author_addl")) {
-				String author_disp = combine_subfields("abcdefghijklmnopqrstuvwxyz",fieldparts);
-				addField(fields,"author_addl_display",author_disp);
-			} else if (! relation.equals("")) {
-				String workField = combine_subfields("iabchqdeklxftgjmnoprsuvwyz",fieldparts);
-//				if (t.equals("730")) 
-//					workField = combine_subfields("iaplskfmnordgh",fieldparts);
-				workField += '|' + title_cts;
-				if (author_cts.length() > 1) {
-					workField += '|' + author_cts;
+				if ((relation != null) && relation.equals("author_addl")) {
+					String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
+					if (f.tag.equals("880"))
+						values880.add("author_addl_displayZ"+author_disp);
+					else 
+						valuesMain.add("author_addl_displayZ"+author_disp);
+				} else if (relation != null) {
+					String workField;
+					if (f.mainTag.equals("730"))
+						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
+					else
+						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+					workField += "|"+title_cts;
+					if (author_cts.length() > 0)
+						workField += "|"+author_cts;
+					if (f.tag.equals("880"))
+						values880.add(relation+"_displayZ"+workField);
+					else 
+						valuesMain.add(relation+"_displayZ"+workField);
 				}
-				addField(fields,relation+"_display",workField);
-			}
-			relation = "";
-			if (t.equals("780")) {
-				if (ind.endsWith("0"))/**/ {
-					relation = "continues";
-				} else if (ind.endsWith("1"))/**/ {
-					relation = "continues_in_part";
-				} else if (ind.endsWith("2") || ind.endsWith("3")) {
-					relation = "supersedes";
-				} else if (ind.endsWith("4"))/**/ {
-					relation = "merger_of";
-				} else if (ind.endsWith("5"))/**/ {
-					relation = "absorbed";
-				} else if (ind.endsWith("6"))/**/ {
-					relation = "absorbed_in_part";
-				} else if (ind.endsWith("7"))/**/ {
-					relation = "separated_from";
+				relation = "";
+				if (title_cts.equals("")) {
+					continue;				
 				}
-			} else if (t.equals("785")) {
-				if (ind.endsWith("0"))/**/ {
-					relation = "continued_by";
-				} else if (ind.endsWith("1"))/**/ {
-					relation = "continued_in_part_by";
-				} else if (ind.endsWith("2") || ind.endsWith("3")) {
-					relation = "superseded_by";
-				} else if (ind.endsWith("4"))/**/  {
-					relation = "absorbed_by";
-				} else if (ind.endsWith("5"))/**/ {
-					relation = "absorbed_in_part_by";
-				} else if (ind.endsWith("6"))/**/ {
-					relation = "split_into";
-				} else if (ind.endsWith("7"))/**/ {
-					relation = "merger"; //Should never display from 785
+				if (f.mainTag.equals("780")) {
+					if (f.ind2.equals('0')) {
+						relation = "continues";
+					} else if (f.ind2.equals('1')) {
+						relation = "continues_in_part";
+					} else if (f.ind2.equals('2') || f.ind2.equals('3')) {
+						relation = "supersedes";
+					} else if (f.ind2.equals('4')){
+						relation = "merger_of";
+					} else if (f.ind2.equals('5')) {
+						relation = "absorbed";
+					} else if (f.ind2.equals('6')) {
+						relation = "absorbed_in_part";
+					} else if (f.ind2.equals('7')) {
+						relation = "separated_from";
+					}
+				} else if (f.mainTag.equals("785")) {
+					if (f.ind2.equals('0')) {
+						relation = "continued_by";
+					} else if (f.ind2.equals('1')) {
+						relation = "continued_in_part_by";
+					} else if (f.ind2.equals('2') || f.ind2.equals('0')) {
+						relation = "superseded_by";
+					} else if (f.ind2.equals('4'))  {
+						relation = "absorbed_by";
+					} else if (f.ind2.equals('5')) {
+						relation = "absorbed_in_part_by";
+					} else if (f.ind2.equals('6')) {
+						relation = "split_into";
+					} else if (f.ind2.equals('7')) {
+						relation = "merger"; //Should never display from 785
+					}
+				} else if (f.mainTag.equals("765")) {
+					relation = "translation_of";
+				} else if (f.mainTag.equals("767")) {
+					relation = "has_translation";
+				} else if (f.mainTag.equals("775")) {
+					relation = "other_edition";
+				} else if (f.mainTag.equals("770")) {
+					relation = "has_supplement";
+				} else if (f.mainTag.equals("772")) {
+					relation = "supplement_to";
+				} else if (f.mainTag.equals("776")) {
+					relation = "other_form";
+				} else if (f.mainTag.equals("777")) {
+					relation = "issued_with";
 				}
-			} else if (t.equals("765")) {
-				relation = "translation_of";
-			} else if (t.equals("767")) {
-				relation = "has_translation";
-			} else if (t.equals("775")) {
-				relation = "other_edition";
-			} else if (t.equals("770")) {
-				relation = "has_supplement";
-			} else if (t.equals("772")) {
-				relation = "supplement_to";
-			} else if (t.equals("776")) {
-				relation = "other_form";
-			} else if (t.equals("777")) {
-				relation = "issued_with";
-			}
-			if (title_cts.length() < 2) {
-				continue;				
-			}
-			if (! relation.equals("")) {
-				if (ind.startsWith("0")) {
-					String displaystring = combine_subfields("iatbcdgkqrsw", fieldparts);
-					addField(fields,relation+"_display",displaystring + '|'+ title_cts );
+				if (! relation.equals("")) {
+					if (f.ind1.equals('0')) {
+						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw")+'|'+ title_cts;
+						if (f.tag.equals("880"))
+							values880.add(relation+"_displayZ"+displaystring);
+						else
+							valuesMain.add(relation+"_displayZ"+displaystring);
+					}
 				}
+
+				if (f.mainTag.equals("780") 
+						|| f.mainTag.equals("785")
+						|| f.mainTag.equals("765")
+						|| f.mainTag.equals("767")
+						|| f.mainTag.equals("775")
+						|| f.mainTag.equals("770")
+						|| f.mainTag.equals("772")
+						|| f.mainTag.equals("776")
+						|| f.mainTag.equals("777")
+						) {
+					String subfields = "atbcdegkqrs";
+					addField(solrFields,"title_uniform_t",f.concatenateSpecificSubfields(subfields));
+				}
+
+
 			}
-			if (t.equals("780") 
-					|| t.equals("785")
-					|| t.equals("765")
-					|| t.equals("767")
-					|| t.equals("775")
-					|| t.equals("770")
-					|| t.equals("772")
-					|| t.equals("776")
-					|| t.equals("777")
-					) {
-				String subfields = "atbcdegkqrs";
-				addField(fields,"title_uniform_t",combine_subfields(subfields, fieldparts));
+			for (String s: values880) {
+				String[] temp = s.split("Z",2);
+				addField(solrFields,temp[0],temp[1]);	
+			}
+			for (String s: valuesMain) {
+				String[] temp = s.split("Z",2);
+				addField(solrFields,temp[0],temp[1]);
 			}
 		}
-		
-		return fields;
+		return solrFields;	
 	}	
-
-	
-	public String combine_subfields (String subfields, HashMap<String,ArrayList<String>> fieldparts) {
-		
-		List<String> ordered = new ArrayList<String>();
-		for (int i = 0; i < subfields.length(); i++) {
-			String c = subfields.substring(i, i+1);
-			if (fieldparts.containsKey(c)) {
-				ordered.addAll(fieldparts.get(c));
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		if (ordered.size() > 0) {
-			sb.append(ordered.get(0));
-		}
-		for (int i = 1; i < ordered.size(); i++) {
-			sb.append(" ");
-			sb.append(ordered.get(i));
-		}
-		return sb.toString();
-	}
 }

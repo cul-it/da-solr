@@ -1,15 +1,17 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 /**
@@ -26,110 +28,85 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-	  	Map<String,HashMap<String,ArrayList<String>>> marcfields = 
-	  			new HashMap<String,HashMap<String,ArrayList<String>>>();
-						
+		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+
+		MarcRecord rec = new MarcRecord();
+
 		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					String fti = nodeToString(sol.get("f")) +
-							nodeToString(sol.get("t")) + 
-							nodeToString(sol.get("i1")) + 
-							nodeToString(sol.get("i2"));
-					HashMap<String,ArrayList<String>> fieldparts;
-					if (marcfields.containsKey(fti)) {
-						fieldparts = marcfields.get(fti);
-					} else {
-						fieldparts = new HashMap<String,ArrayList<String>>();
-					}
-					String c = nodeToString(sol.get("c"));
-					ArrayList<String> vals;
-					if (fieldparts.containsKey(c)) {
-						vals = fieldparts.get(c);
-					} else {
-						vals = new ArrayList<String>();
-					}
-					vals.add(nodeToString(sol.get("v")));
-					fieldparts.put(c, vals);
-					marcfields.put(fti, fieldparts);
-				}
-			}
+			rec.addDataFieldResultSet(results.get(resultKey));
 		}
+		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 		
-		for (String fti: marcfields.keySet()) {
-			String ind = fti.substring(fti.length()-2);
-			String t = fti.substring(fti.length()-5, fti.length()-2);
+		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
+		// but with organization determined by vernMode.
+		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		Arrays.sort( ids );
+		for( Integer id: ids) {
+			FieldSet fs = sortedFields.get(id);
+			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+			Set<String> values880 = new HashSet<String>();
+			Set<String> valuesMain = new HashSet<String>();
+		
 			String main_fields = "", dashed_fields = "";
-			if (t.equals("600")) {
-				main_fields = "abcdefghkjlmnopqrstu";
-				dashed_fields = "vxyz";
-			} else if (t.equals("610")) {
-				main_fields = "abcdefghklmnoprstu";
-				dashed_fields = "vxyz";
-			} else if (t.equals("611")) {
-				main_fields = "acdefghklnpqstu";
-				dashed_fields = "vxyz";
-			} else if (t.equals("630")) {
-				main_fields = "adfghklmnoprst";
-				dashed_fields = "vxyz";
-			} else if (t.equals("650")) {
-				main_fields = "abcd";
-				dashed_fields = "vxyz";
-			} else if (t.equals("651")) {
-				main_fields = "a";
-				dashed_fields = "vxyz";
-			} else if (t.equals("655")) {
-				if (ind.endsWith("7")) {
+			for (DataField f: dataFields) {
+				
+				if (f.mainTag.equals("600")) {
+					main_fields = "abcdefghkjlmnopqrstu";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("610")) {
+					main_fields = "abcdefghklmnoprstu";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("611")) {
+					main_fields = "acdefghklnpqstu";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("630")) {
+					main_fields = "adfghklmnoprst";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("650")) {
+					main_fields = "abcd";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("651")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("655")) {
+					if (f.ind2.equals('7')) {
+						main_fields = "a";
+						dashed_fields = "vxyz";
+					}
+				} else if (f.mainTag.equals("690")) {
+					main_fields = "abvxyz";
+				} else if (f.mainTag.equals("691")) {
+					main_fields = "abvxyz";
+				} else if ((f.mainTag.equals("692")) || (f.mainTag.equals("693")) ||
+						(f.mainTag.equals("694")) || (f.mainTag.equals("695")) ||
+						(f.mainTag.equals("696")) || (f.mainTag.equals("697")) ||
+						(f.mainTag.equals("698")) || (f.mainTag.equals("699"))) {
+					main_fields = "a";
 				}
-			} else if (t.equals("690")) {
-				main_fields = "abvxyz";
-			} else if (t.equals("691")) {
-				main_fields = "abvxyz";
-			} else if ((t.equals("692")) || (t.equals("693")) ||
-					(t.equals("694")) || (t.equals("695")) ||
-					(t.equals("696")) || (t.equals("697")) ||
-					(t.equals("698")) || (t.equals("699"))) {
-				main_fields = "a";
+				if (! main_fields.equals("")) {
+					StringBuilder sb = new StringBuilder();
+					sb.append(f.concatenateSpecificSubfields(main_fields));
+					for (int i = 0; i < dashed_fields.length(); i++ ) {
+						String c = dashed_fields.substring(i, i+1);
+						String c_terms = f.concatenateSpecificSubfields("|",c);
+						if ((c_terms != null) && ! c_terms.equals("")) {
+							sb.append("|"+c_terms);
+						}
+					}
+					if (f.tag.equals("880")) {
+						values880.add(removeTrailingPunctuation(sb.toString(),"."));
+					} else {
+						valuesMain.add(removeTrailingPunctuation(sb.toString(),"."));
+					}
+				}
 			}
-			if (! main_fields.equals("")) {
-				HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-				List<String> ordered = new ArrayList<String>();
-				for (int i = 0; i < main_fields.length(); i++) {
-					String c = main_fields.substring(i, i+1);
-					if (fieldparts.containsKey(c))
-						ordered.addAll(fieldparts.get(c));
-				}
-				StringBuilder sb = new StringBuilder();
-				if (ordered.size() > 0)
-					sb.append(ordered.get(0));
-				for (int i = 1; i < ordered.size(); i++) {
-					sb.append(" ");
-					sb.append(ordered.get(i));
-				}
-				List<String> ordered_dashed = new ArrayList<String>();
-				ordered_dashed.add(sb.toString());
-				for (int i = 0; i < dashed_fields.length(); i++ ) {
-					String c = dashed_fields.substring(i, i+1);
-					if (fieldparts.containsKey(c))
-						ordered_dashed.addAll(fieldparts.get(c));
-				}
-				sb = new StringBuilder();
-				if (ordered_dashed.size() > 0) 
-					sb.append(ordered_dashed.get(0));
-				for (int i = 1; i < ordered_dashed.size(); i++) {
-					sb.append("|");
-					sb.append(ordered_dashed.get(i));
-				}
-				addField(fields,"subject_display",RemoveTrailingPunctuation(sb.toString(),"."));
-			}
+			for (String s: values880)
+				addField(solrFields,"subject_display",s);
+			for (String s: valuesMain)
+				addField(solrFields,"subject_display",s);
 		}
 		
-		return fields;
+		return solrFields;
 	}	
 
 }

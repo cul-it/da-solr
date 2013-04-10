@@ -112,7 +112,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					context.progress();
 					context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
 					context.write(new Text(bibUri), new Text("URI\tSuccess"));
-				}catch(Exception ex ){
+				}catch(Throwable ex ){
 					String filename = getSplitFileName(context);
 					context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
 				}
@@ -262,7 +262,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	private Model loadBaseModel(Context context) throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
-		String[] baseNtFiles = { "/library.nt","/language_code.nt", "/callnumber_map.nt"};
+		String[] baseNtFiles = { "/library.nt","/language_code.nt", "/callnumber_map.nt","/fieldGroups.nt"};
 		for( String fileName : baseNtFiles ){				
 			InputStream in = getClass().getResourceAsStream(fileName);
 			baseModel.read(in, null, "N-TRIPLE");

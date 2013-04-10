@@ -58,7 +58,7 @@
      indexed per value, slightly larger index size, and faster range queries.
      A precisionStep of 0 disables indexing at different precision levels.
     -->
-    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0" sortMissingLast="true"/>
     <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
@@ -313,6 +313,9 @@
     <field name="author_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
 
+    <!-- these search fields are NOT multi-valued -->
+    <field name="author_t" type="text" indexed="true" stored="false" multiValued="false"/>
+
     <!-- these fields are also used for display, so they must be stored -->
     <!-- these display fields are now being used for search -->
     <field name="notes" type="text" indexed="true" stored="true" multiValued="true"/>
@@ -335,7 +338,7 @@
     <field name="lc_callnum_main" type="whitespaceNormalized" indexed="true" stored="false" multiValued="true" />
 
     <!-- format is used for facet, display, and choosing which partial to use for the show view, so it must be stored and indexed -->
-    <field name="format" type="string" indexed="true" stored="true"/>
+    <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
@@ -359,12 +362,17 @@
 
   <uniqueKey>id</uniqueKey>
   <defaultSearchField>text</defaultSearchField>
-  <solrQueryParser defaultOperator="OR"/>
+  <solrQueryParser defaultOperator="AND"/>
 
   <!-- Copy Fields -->
 
   <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
   <copyField source="donor_display" dest="donor_s"/>
+  <copyField source="author_t" dest="author_sort"/>
+  <copyField source="cite_as_display" dest="notes_t"/>
+  <copyField source="restrictions_display" dest="notes_t"/>
+  <copyField source="finding_aids_display" dest="notes_t"/>
+  <copyField source="historical_note_display" dest="notes_t"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>

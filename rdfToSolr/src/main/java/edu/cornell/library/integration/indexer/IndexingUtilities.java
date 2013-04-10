@@ -40,8 +40,10 @@ public class IndexingUtilities {
 			Map<? extends String, ? extends SolrInputField> newFields) {		
 		for( String newFieldKey : newFields.keySet() ){
 			SolrInputField newField = newFields.get(newFieldKey);
+
+			if (newField.getValueCount() == 0) continue;
 			
-			if( doc.containsKey( newFieldKey )){				
+			if( doc.containsKey( newFieldKey )){
 				SolrInputField existingField=doc.get(newFieldKey);
 				mergeValuesForField(existingField, newField);
 			}else{
@@ -71,7 +73,7 @@ public class IndexingUtilities {
 	        StringWriter stringWriter = new StringWriter();
 	        StreamResult xmlOutput = new StreamResult(stringWriter);
 	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	        transformerFactory.setAttribute("indent-number", indent);
+//        transformerFactory.setAttribute("indent-number", indent); //removed this line due to runtime exception
 		    Transformer transformer = transformerFactory.newTransformer(); 
 		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		    transformer.transform(xmlInput, xmlOutput);

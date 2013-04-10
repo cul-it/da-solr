@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -51,7 +50,9 @@ public class ResultSetUtilities {
 	}
 	
 	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {
-		if ((value == null) || (value.equals(""))) {  return; }
+		if ((value == null) || (value.equals(""))) return;
+		value = value.trim();
+		if (value.equals("")) return;
 		SolrInputField field = fields.get(fieldName);
 		if( field == null ){
 			field = new SolrInputField(fieldName);
@@ -60,7 +61,7 @@ public class ResultSetUtilities {
 		field.addValue(value,1.0f);				
 	}
 	
-	public static String RemoveTrailingPunctuation ( String s, String unwantedChars ) {
+	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
 		if (s == null) return null;
 		if (unwantedChars == null) return s;
 		if (s.equals("")) return s;
