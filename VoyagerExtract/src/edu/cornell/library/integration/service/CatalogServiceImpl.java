@@ -186,6 +186,84 @@ public class CatalogServiceImpl implements CatalogService {
          throw e;
       }
    }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedBibId()
+    */
+   public List<String> getAllSuppressedBibId() throws Exception {
+      List<String> bibIdList;
+      try {
+         bibIdList = catalogDao.getAllSuppressedBibId();
+      } catch (Exception e) {
+         throw e;
+      }
+      return bibIdList;
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedBibId()
+    */
+   public List<String> getAllUnSuppressedBibId() throws Exception {
+      List<String> bibIdList;
+      try {
+         bibIdList = catalogDao.getAllUnSuppressedBibId();
+      } catch (Exception e) {
+         throw e;
+      }
+      return bibIdList;
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getSuppressedBibId(java.lang.String, java.lang.String)
+    */
+   public List<String> getSuppressedBibId(String fromDateString, String toDateString) throws Exception {
+      List<String> bibIdList;
+      try {
+         bibIdList = catalogDao.getSuppressedBibId(fromDateString, toDateString);
+      } catch (Exception e) {
+         throw e;
+      }
+      return bibIdList;
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedMfhdId()
+    */
+   public List<String> getAllSuppressedMfhdId() throws Exception {
+      List<String> mfhdIdList;
+      try {
+         mfhdIdList = catalogDao.getAllSuppressedMfhdId();
+      } catch (Exception e) {
+         throw e;
+      }
+      return mfhdIdList;
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedMfhdId()
+    */
+   public List<String> getAllUnSuppressedMfhdId() throws Exception {
+      List<String> mfhdIdList;
+      try {
+         mfhdIdList = catalogDao.getAllUnSuppressedMfhdId();
+      } catch (Exception e) {
+         throw e;
+      }
+      return mfhdIdList;
+   }
+   
+   /* (non-Javadoc)
+    * @see edu.cornell.library.integration.service.CatalogService#getSuppressedMfhdId(java.lang.String, java.lang.String)
+    */
+   public List<String> getSuppressedMfhdId(String fromDateString, String toDateString) throws Exception {
+      List<String> mfhdIdList;
+      try {
+         mfhdIdList = catalogDao.getSuppressedMfhdId(fromDateString, toDateString);
+      } catch (Exception e) {
+         throw e;
+      }
+      return mfhdIdList;
+   }
     
 
 }
