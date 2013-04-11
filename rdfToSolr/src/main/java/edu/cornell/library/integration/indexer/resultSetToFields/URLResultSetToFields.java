@@ -103,7 +103,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 				relation = "other";
 			}
 			if (lc_comment.contains("finding aid"))
-				relation = "findaid";
+				relation = "findingaid";
 			for (String u: us) {
 				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
 					relation = "bookplate";
