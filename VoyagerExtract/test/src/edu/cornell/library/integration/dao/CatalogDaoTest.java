@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.util.ObjectUtils;
 
@@ -40,7 +41,8 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
       }
    }
    
-   @Test 
+   @Test
+   @Ignore
    public void testGetSuppressedMfhdId() {
       CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
       String fromDateString = "2013-01-01 00:00:00";
@@ -53,6 +55,21 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
             cnt++;
          }
          System.out.println("Number of records found: "+cnt);
+      } catch (Exception e) { 
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+   
+   @Test
+   public void testGetBibMasterData() {
+      System.out.println("testGetBibMasterData");
+      CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
+      String bibid = "6100933"; 
+      
+      try {
+         BibMasterData bibMasterData = catalogDao.getBibMasterData(bibid);        
+         ObjectUtils.printBusinessObject(bibMasterData);
       } catch (Exception e) { 
          // TODO Auto-generated catch block
          e.printStackTrace();
