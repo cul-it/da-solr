@@ -24,10 +24,12 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
  
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdData;
+import edu.cornell.library.integration.bo.MfhdMasterData;
 import edu.cornell.library.integration.dao.CatalogDao; 
 
 public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
@@ -204,6 +206,44 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
       try {
          MfhdBlob mfhdBlob =  (MfhdBlob) getSimpleJdbcTemplate().queryForObject(sql, new MfhdBlobMapper());
          return mfhdBlob;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
+   public BibMasterData getBibMasterData(String bibid) throws Exception {
+      
+      String sql = ""
+         +"SELECT BIB_ID, SUPPRESS_IN_OPAC, CREATE_DATE, UPDATE_DATE FROM CORNELLDB.BIB_MASTER WHERE BIB_ID = '"+ bibid +"'";
+      try {
+         BibMasterData bibMasterData =  (BibMasterData) getSimpleJdbcTemplate().queryForObject(sql, new BibMasterMapper());
+         return bibMasterData;
+      } catch (EmptyResultDataAccessException ex) {
+         logger.warn("Empty result set");
+         logger.info("Query was: "+sql);
+         return null;
+      } catch (Exception ex) {
+         logger.error("Exception: ", ex);
+         logger.info("Query was: "+sql);
+         throw ex;
+      }  
+      
+   }
+   
+public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
+      
+      String sql = ""
+         +"SELECT BIB_ID, SUPPRESS_IN_OPAC, CREATE_DATE, UPDATE_DATE FROM CORNELLDB.MFHD_MASTER WHERE BIB_ID = '"+ mfhdid +"'";
+      try {
+         MfhdMasterData mfhdMasterData =  (MfhdMasterData) getSimpleJdbcTemplate().queryForObject(sql, new BibMasterMapper());
+         return mfhdMasterData;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
          logger.info("Query was: "+sql);
@@ -630,6 +670,28 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          mfhdBlob.setMfhdId(rs.getString("MFHD_ID"));
          mfhdBlob.setClob((CLOB) rs.getClob("MARC_RECORD"));
          return mfhdBlob;
+       }
+   }
+   
+   private static final class BibMasterMapper implements RowMapper {
+      public BibMasterData mapRow(ResultSet rs, int rowNum) throws  SQLException {
+         BibMasterData bibMasterData = new BibMasterData(); 
+         bibMasterData.setBibId(rs.getString("BIB_ID"));
+         bibMasterData.setSuppressed(rs.getString("SUPPRESS_IN_OPAC"));
+         bibMasterData.setCreateDate(rs.getString("CREATE_DATE"));
+         bibMasterData.setUpdateDate(rs.getString("UPDATE_DATE"));
+         return bibMasterData;
+       }
+   }
+   
+   private static final class MfhdMasterMapper implements RowMapper {
+      public MfhdMasterData mapRow(ResultSet rs, int rowNum) throws  SQLException {
+         MfhdMasterData mfhdMasterData = new MfhdMasterData(); 
+         mfhdMasterData.setMfhdId(rs.getString("MFHD_ID"));
+         mfhdMasterData.setSuppressed(rs.getString("SUPPRESS_IN_OPAC"));
+         mfhdMasterData.setCreateDate(rs.getString("CREATE_DATE"));
+         mfhdMasterData.setUpdateDate(rs.getString("UPDATE_DATE"));
+         return mfhdMasterData;
        }
    }
    

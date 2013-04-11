@@ -7,9 +7,11 @@ import java.util.List;
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
+import edu.cornell.library.integration.bo.MfhdMasterData;
 import edu.cornell.library.integration.dao.CatalogDao;
 import edu.cornell.library.integration.service.CatalogService;
 
@@ -264,6 +266,26 @@ public class CatalogServiceImpl implements CatalogService {
       }
       return mfhdIdList;
    }
-    
 
+   public BibMasterData getBibMasterData(String bibid) throws Exception {
+      BibMasterData bibMasterData;
+      try {
+         bibMasterData = catalogDao.getBibMasterData(bibid);
+      } catch (Exception e) {
+         throw e;
+      }
+      return bibMasterData;
+   }
+
+   public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
+      MfhdMasterData mfhdMasterData;
+      try {
+         mfhdMasterData = catalogDao.getMfhdMasterData(mfhdid);
+      } catch (Exception e) {
+         throw e;
+      }
+      return mfhdMasterData;
+   }
+    
+   
 }

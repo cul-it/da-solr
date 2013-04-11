@@ -5,9 +5,11 @@ import java.util.List;
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
+import edu.cornell.library.integration.bo.MfhdMasterData;
 
 /**
  * @author jaf30
@@ -126,6 +128,18 @@ public interface CatalogService {
     */
    public List<String> getSuppressedMfhdId(String fromDateString, String toDateString) throws Exception;
    
-    
+   /**
+    * @param bibid
+    * @return
+    * @throws Exception
+    */
+   public BibMasterData getBibMasterData(String bibid) throws Exception;
+   
+   /**
+    * @param mfhdid
+    * @return
+    * @throws Exception
+    */
+   public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception;
    
 }
