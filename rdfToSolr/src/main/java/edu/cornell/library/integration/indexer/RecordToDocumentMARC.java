@@ -279,7 +279,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    	addResultSetToFields( new TitleResultSetToFields()),
 			    new StandardMARCFieldMaker("title_display","245","a",VernMode.VERNACULAR,".,;:/ "),
 			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.VERNACULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("title_responsibility_display","245","c",".,;:/ "),
+			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.COMBINED,".,;:/ "),
 			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.COMBINED,".,;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
