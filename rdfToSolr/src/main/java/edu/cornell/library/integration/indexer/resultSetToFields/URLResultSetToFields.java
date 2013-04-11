@@ -58,7 +58,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 		}
 		
 		for (String fti: marcfields.keySet()) {
-			String ind = fti.substring(fti.length()-2);
+//			String ind = fti.substring(fti.length()-2);
 			String relation ="access"; //this is a default and may change later
 /*			if ((ind.equals("40")) || (ind.equals("41"))) {
 				relation = "access";
@@ -102,6 +102,8 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc_comment.contains("sample text")) {
 				relation = "other";
 			}
+			if (lc_comment.contains("finding aid"))
+				relation = "findaid";
 			for (String u: us) {
 				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
 					relation = "bookplate";
