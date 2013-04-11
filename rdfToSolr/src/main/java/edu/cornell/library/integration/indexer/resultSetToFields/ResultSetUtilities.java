@@ -70,7 +70,7 @@ public class ResultSetUtilities {
 		Matcher m = p.matcher(s);
 		return m.replaceAll("");
 	}
-	
+		
 	/** 
 	 * This method will take a key and a ResultSet and will return
 	 * the QuerySolution where the column value named 'key' matches the 

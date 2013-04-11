@@ -368,7 +368,6 @@
 
   <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
   <copyField source="donor_display" dest="donor_s"/>
-  <copyField source="author_t" dest="author_sort"/>
   <copyField source="cite_as_display" dest="notes_t"/>
   <copyField source="restrictions_display" dest="notes_t"/>
   <copyField source="finding_aids_display" dest="notes_t"/>
