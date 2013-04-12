@@ -177,19 +177,24 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						break;
 					}
 				}
-			} else if (record_type.equals("t")) {
-				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
-											   //captured above. MANUSCRIPT
-			} else if (category.equals("h")) {
-				format = "Microform";
-			} else if (category.equals("q")) {
-				format = "Musical Score";
-			} else if (category.equals("v")) {
-				format = "Video";
-			} else {
-				format = "Unknown";
+			}
+			if (format == null) {
+				if (record_type.equals("t")) {
+					format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
+												   //captured above. MANUSCRIPT
+				} else if (category.equals("h")) {
+					format = "Microform";
+				} else if (category.equals("q")) {
+					format = "Musical Score";
+				} else if (category.equals("v")) {
+					format = "Video";
+				} else {
+					format = "Unknown";
+				}
 			}
 		}
+		
+		System.out.println("format: "+format);
 		
 		if (loccodes.contains("serv,remo")) {
 			if (!online) {
