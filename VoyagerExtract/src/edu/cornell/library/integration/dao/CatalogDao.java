@@ -6,10 +6,12 @@ import java.util.Map;
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MarcData;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
+import edu.cornell.library.integration.bo.MfhdMasterData;
 
 
 public interface CatalogDao {
@@ -132,5 +134,19 @@ public interface CatalogDao {
     * @throws Exception
     */
    public List<String> getSuppressedMfhdId(String fromDateString, String toDateString) throws Exception;
+   
+   /**
+    * @param bibid
+    * @return
+    * @throws Exception
+    */
+   public BibMasterData getBibMasterData(String bibid) throws Exception;
+   
+   /**
+    * @param bibid
+    * @return
+    * @throws Exception
+    */
+   public MfhdMasterData getMfhdMasterData(String bibid) throws Exception;
    
 }

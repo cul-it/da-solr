@@ -41,7 +41,7 @@ public class OracleQuery {
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
-        System.out.println("Got Connection");
+        //System.out.println("Got Connection");
         //String sql = getBibCountQuery();
         //String sql = getBibBlobQuery();
         //String sql = getBibDataQuery();
@@ -53,8 +53,12 @@ public class OracleQuery {
         //String sql = getUnSuppressedBibCountQuery();
         //String sql = getSuppressedMfhdQuery();
         //String sql = getSuppressedMfhdCountQuery();
-        String sql = getUnSuppressedMfhdCountQuery();
+        //String sql = getUnSuppressedMfhdCountQuery();
         //String sql = getActionTypeQuery();
+        //String sql = getBibMasterById("8002147"); // 8002147this is suppressed
+        String sql = getBibMasterById("5738315"); // 8016993 this one is unsuppressed
+        //String sql = getMfhdMasterById("8394936"); //  this one is unsuppressed
+        //String sql = getMfhdMasterById("8408371"); // this one is suppressed
         System.out.println(sql);
         queryDatabase(conn, sql);
 
@@ -224,6 +228,22 @@ public class OracleQuery {
               +" SELECT COUNT(BIB_ID) FROM CORNELLDB.BIB_MASTER"
               +" WHERE SUPPRESS_IN_OPAC = 'N'"; 
         return sql;   
+      
+     }
+     
+     public static String getBibMasterById(String bibid) {        
+        String sql = ""
+              +" SELECT * FROM CORNELLDB.BIB_MASTER"
+              +" WHERE BIB_ID ='"+ bibid +"'"; 
+        return sql;  
+      
+     }
+     
+     public static String getMfhdMasterById(String mfhdid) {        
+        String sql = ""
+              +" SELECT * FROM CORNELLDB.MFHD_MASTER"
+              +" WHERE MFHD_ID ='"+ mfhdid +"'"; 
+        return sql;  
       
      }
      

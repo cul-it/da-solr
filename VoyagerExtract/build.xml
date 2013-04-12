@@ -420,6 +420,16 @@
       </java>
    </target>
    
+   <target name="GetBibMasterData" depends="build" description="Run GetBibMasterData" >
+      <echo message="Running GetBibMasterData"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetBibMasterData" >
+         <arg value="6100933" />
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
    
 
 </project>
