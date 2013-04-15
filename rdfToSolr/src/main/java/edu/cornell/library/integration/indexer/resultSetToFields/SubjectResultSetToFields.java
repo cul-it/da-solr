@@ -86,12 +86,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if (! main_fields.equals("")) {
 					StringBuilder sb = new StringBuilder();
 					sb.append(f.concatenateSpecificSubfields(main_fields));
-					for (int i = 0; i < dashed_fields.length(); i++ ) {
-						String c = dashed_fields.substring(i, i+1);
-						String c_terms = f.concatenateSpecificSubfields("|",c);
-						if ((c_terms != null) && ! c_terms.equals("")) {
-							sb.append("|"+c_terms);
-						}
+					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
+					if ((dashed_terms != null) && ! dashed_terms.equals("")) {
+						sb.append("|"+dashed_terms);
 					}
 					if (f.tag.equals("880")) {
 						values880.add(removeTrailingPunctuation(sb.toString(),"."));
