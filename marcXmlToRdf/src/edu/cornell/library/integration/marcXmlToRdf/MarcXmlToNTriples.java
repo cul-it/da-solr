@@ -27,6 +27,7 @@ public class MarcXmlToNTriples {
 	private static String extractfile = "extract.tdf";
 	private static BufferedWriter logout;
 	private static BufferedWriter extractout;
+	public static Collection<Integer> foundRecs = new HashSet<Integer>();
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	public static Long recordCount = new Long(0);
 	public static Collection<Integer> no245a = new HashSet<Integer>();
@@ -65,6 +66,13 @@ public class MarcXmlToNTriples {
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
+					
+					// Protecting against duplicate records in a single batch.
+					// Note: This will be a bug if processing multiple record types
+					// in a single instance of MarcXmlToNTriples.
+					if (foundRecs.contains(Integer.valueOf(rec.id))) continue;
+					else foundRecs.add(Integer.valueOf(rec.id));
+
 					tabulateFieldData(rec);
 					extractData(rec);
 					mapNonRomanFieldsToRomanizedFields(rec);
@@ -125,7 +133,8 @@ public class MarcXmlToNTriples {
 	public static void extractData( MarcRecord rec ) throws Exception {
 
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
-
+		Pattern entity_p = Pattern.compile(".*&#?\\w+;.*");
+		
 		if ((extractout == null))  {
 			FileWriter logstream = new FileWriter(extractfile,true);
 			extractout = new BufferedWriter( logstream );
@@ -133,7 +142,7 @@ public class MarcXmlToNTriples {
 		
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
-			if (f.tag.equals("856")) {
+	/*		if (f.tag.equals("856")) {
 				extractout.write(rec_id + "\t" 
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
@@ -166,6 +175,17 @@ public class MarcXmlToNTriples {
 			                     + f.ind2 + "\t"
 			                     + f.toString() + "\n");						
 					}
+				}
+			} */
+			// entity in any datafield value
+			Iterator<Subfield> i = f.subfields.values().iterator();
+			while (i.hasNext()) {
+				Subfield sf = i.next();
+				Matcher m = entity_p.matcher(sf.value);
+				if (m.matches()) {
+					extractout.write(rec_id + "\t" 
+		                     + f.toString() + "\n");
+					break;
 				}
 			}
 		}

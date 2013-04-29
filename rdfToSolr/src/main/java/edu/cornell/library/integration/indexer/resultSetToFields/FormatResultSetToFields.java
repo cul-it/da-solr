@@ -193,9 +193,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-		
-		System.out.println("format: "+format);
-		
+				
 		if (loccodes.contains("serv,remo")) {
 			if (!online) {
 				online = true;

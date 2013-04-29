@@ -172,12 +172,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					}
 					Iterator<String> i880 = values880.iterator();
 					Iterator<String> iMain = valuesMain.iterator();
-					if (vernMode == VernMode.VERNACULAR) {
-						while (i880.hasNext())
-							fieldmap.get(solrVernFieldName).addValue(i880.next(), 1.0f);
-						while (iMain.hasNext())
-							fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
-					} else if ((values880.size() == 1) && (valuesMain.size() == 1)) {
+					if ((values880.size() == 1) && (valuesMain.size() == 1)) {
 						String s880 = i880.next();
 						String sMain = iMain.next();
 						if (s880.equals(sMain)) {
@@ -192,6 +187,9 @@ public class StandardMARCFieldMaker implements FieldMaker {
 									fieldmap.get(solrFieldName).addValue(s880, 1.0f);
 									fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 								}
+							} else if (vernMode == VernMode.VERNACULAR) {
+								fieldmap.get(solrVernFieldName).addValue(s880, 1.0f);
+								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 							} else { //VernMode.SEPARATE
 								fieldmap.get(solrFieldName).addValue(s880, 1.0f);
 								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
@@ -200,7 +198,11 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					} else { // COMBINED and ADAPTIVE vernModes default to SEPARATE if
 						     // there aren't exactly one each of 880 and "other" in fieldset
 						while (i880.hasNext())
-							fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
+							if (vernMode == VernMode.VERNACULAR) {
+								fieldmap.get(solrVernFieldName).addValue(i880.next(), 1.0f);
+							} else {
+								fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
+							}
 						while (iMain.hasNext())
 							fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
 					}
