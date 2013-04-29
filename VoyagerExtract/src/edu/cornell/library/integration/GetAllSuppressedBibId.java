@@ -6,7 +6,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
  
@@ -140,7 +142,8 @@ public class GetAllSuppressedBibId {
    }
    
    public void saveListToFile(List<String> bibIdList) throws Exception {
-      String fname = "/usr/local/src/integrationlayer/VoyagerExtract/suppressedBibid.txt";
+      
+      String fname = "/usr/local/src/integrationlayer/VoyagerExtract/suppressedBibid-"+ getDateString() +".txt";
       File file = new File(fname);
        
       StringBuilder sb = new StringBuilder();
@@ -154,6 +157,13 @@ public class GetAllSuppressedBibId {
          throw ex;
       }
 
+   }
+   
+   protected String getDateString() {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+      Calendar now = Calendar.getInstance();      
+      String ds = df.format(now.getTime());
+      return ds;
    }
    
    
