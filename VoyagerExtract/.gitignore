@@ -2,7 +2,7 @@
 build/
 log/
 data/
-support/
+tmp/
 lib/save
 dosync
 resources/local.integration.datastore.properties
