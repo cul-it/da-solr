@@ -6,7 +6,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
  
@@ -140,7 +142,7 @@ public class GetAllUnSuppressedMfhdId {
    }
    
    public void saveListToFile(List<String> mfhdIdList) throws Exception {
-      String fname = "/usr/local/src/integrationlayer/VoyagerExtract/unsuppressedMfhdid.txt";
+      String fname = "/usr/local/src/integrationlayer/VoyagerExtract/unsuppressedMfhdid-"+ getDateString() +".txt";
       File file = new File(fname);
        
       StringBuilder sb = new StringBuilder();
@@ -154,6 +156,13 @@ public class GetAllUnSuppressedMfhdId {
          throw ex;
       }
 
+   }
+   
+   protected String getDateString() {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+      Calendar now = Calendar.getInstance();      
+      String ds = df.format(now.getTime());
+      return ds;
    }
    
    
