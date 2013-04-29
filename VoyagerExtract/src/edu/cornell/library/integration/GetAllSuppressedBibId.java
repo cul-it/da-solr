@@ -134,7 +134,7 @@ public class GetAllSuppressedBibId {
          byte[] bytes = sb.toString().getBytes("UTF-8");
          InputStream isr = new  ByteArrayInputStream(bytes);
          
-         String url = destDir + "/suppressedBibId.txt";      
+         String url = destDir + "/suppressedBibId-"+ getDateString() +".txt";      
          getDavService().saveFile(url, isr);
       } catch (Exception ex) {
          throw ex;
