@@ -62,7 +62,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?sfield marcrdf:code ?code.\n" +
 				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
+				    
+				new SPARQLFieldMakerImpl().
+				    setName("multival").
+				    addMainStoreQuery("holdings_descr",
+				    		"SELECT ?f\n"+
+				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
+				    				" ?h ?p ?f.\n"+
+				                    " ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }").
+				    addResultSetToFields( new MultivolResultSetToFields() ),
 
+				                    
 				    		
 				new SPARQLFieldMakerImpl().
 					setName("format").
