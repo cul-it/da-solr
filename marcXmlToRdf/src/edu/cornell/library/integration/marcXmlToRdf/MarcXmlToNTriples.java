@@ -177,7 +177,7 @@ public class MarcXmlToNTriples {
 					}
 				}
 			} */
-			// entity in any datafield value
+/*			// entity in any datafield value
 			Iterator<Subfield> i = f.subfields.values().iterator();
 			while (i.hasNext()) {
 				Subfield sf = i.next();
@@ -186,6 +186,21 @@ public class MarcXmlToNTriples {
 					extractout.write(rec_id + "\t" 
 		                     + f.toString() + "\n");
 					break;
+				}
+			} */
+			
+			// Genre subfields
+			if (f.tag.startsWith("6")) {
+				Iterator<Subfield> i = f.subfields.values().iterator();
+				while (i.hasNext()) {
+					Subfield sf = i.next();
+					if (sf.code.equals('v') || 
+							(f.tag.equals("655") && sf.code.equals('a'))) {
+						extractout.write(rec_id + "\t" 
+			                     + f.ind1 + "\t"
+			                     + f.ind2 + "\t"
+			                     + f.tag + sf.toString() + "\n");						
+					}
 				}
 			}
 		}
@@ -567,6 +582,8 @@ public class MarcXmlToNTriples {
 						if (r.getAttributeLocalName(i).equals("tag"))
 							f.tag = r.getAttributeValue(i);
 					f.value = r.getElementText();
+					if (f.tag.equals("001"))
+						rec.id = f.value;
 					rec.control_fields.put(f.id, f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
