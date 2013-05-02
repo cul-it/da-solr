@@ -266,7 +266,7 @@ public class MarcRecord {
 				}
 				String val = sb.toString().trim();
 				if (rtl && (val.length() > 0)) {
-					return RTE+val+PDF;
+					return RTE_openRTL+val+PDF_closeRTL;
 				} else {
 //					return "Roman";
 					return val;
@@ -297,7 +297,7 @@ public class MarcRecord {
 				
 				String val = sb.toString().trim();
 				if (rtl && (val.length() > 0)) {
-					return RTE+val+PDF;
+					return RTE_openRTL+val+PDF_closeRTL;
 				} else {
 //					return "Roman";
 					return val;
