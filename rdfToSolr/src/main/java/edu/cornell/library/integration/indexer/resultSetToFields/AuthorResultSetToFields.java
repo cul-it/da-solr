@@ -61,10 +61,10 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 				if (! subfields.equals("")) {
 					String value = f.concatenateSpecificSubfields(subfields);
 					if (value.isEmpty()) continue;
-					dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
 					if (f.tag.equals("880")) {
 						values880.add(value);
 					} else {
+						dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
 						valuesMain.add(value);
 					}
 				}
@@ -89,7 +89,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 					else addField(solrFields,"author_display",s+" "+dates);
 				for (String s: valuesMain)
 					if (dates.isEmpty())
-						addField(solrFields,"author_display",s);
+					addField(solrFields,"author_display",s);
 					else addField(solrFields,"author_display",s+" "+dates);
 			}
 			if (valuesMain.size() > 0) {

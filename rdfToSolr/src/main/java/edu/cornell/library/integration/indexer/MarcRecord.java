@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -251,16 +251,26 @@ public class MarcRecord {
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
 				Arrays.sort(sf_ids);
 				Boolean first = true;
+				Boolean rtl = false;
 				for(Integer sf_id: sf_ids) {
 					Subfield sf = this.subfields.get(sf_id);
-					if (sf.code.equals('6')) continue;
+					if (sf.code.equals('6')) {
+						if (sf.value.endsWith("/r"))
+							rtl = true;
+						continue;
+					}
 					
 					if (first) first = false;
 					else sb.append(" ");
 					sb.append(sf.value.trim());
 				}
-				
-				return sb.toString().trim();
+				String val = sb.toString().trim();
+				if (rtl && (val.length() > 0)) {
+					return RTE+val+PDF;
+				} else {
+//					return "Roman";
+					return val;
+				}
 			}
 			public String concatenateSpecificSubfields(String subfields) {
 				return concatenateSpecificSubfields(" ",subfields);
@@ -271,8 +281,12 @@ public class MarcRecord {
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
 				Arrays.sort(sf_ids);
 				Boolean first = true;
+				Boolean rtl = false;
 				for(Integer sf_id: sf_ids) {
 					Subfield sf = this.subfields.get(sf_id);
+					if (sf.code.equals('6'))
+						if (sf.value.endsWith("/r"))
+							rtl = true;
 					if (! subfields.contains(sf.code.toString()))
 						continue;
 					
@@ -281,7 +295,13 @@ public class MarcRecord {
 					sb.append(sf.value.trim());
 				}
 				
-				return sb.toString().trim();
+				String val = sb.toString().trim();
+				if (rtl && (val.length() > 0)) {
+					return RTE+val+PDF;
+				} else {
+//					return "Roman";
+					return val;
+				}
 			}
 		
 		
