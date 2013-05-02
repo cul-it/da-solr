@@ -130,11 +130,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("holdings_callno",
 			        	"SELECT ?part1 ?part2\n"+
 			        	"WHERE {\n"+
-                        "  $recordURI$ rdfs:label ?bib_id.\n"+
-			        	"  ?hold marcrdf:hasField ?hold04.\n" +
-			        	"  ?hold04 marcrdf:tag \"004\".\n" +
-			        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+			        	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 			        	"  ?hold marcrdf:hasField ?hold852.\n" +
+			        	"  ?hold marcrdf:ind1 \"0\"." +
 			        	"  ?hold852 marcrdf:tag \"852\".\n" +
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\".\n" +
