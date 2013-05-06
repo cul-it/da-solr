@@ -372,6 +372,9 @@
   <copyField source="restrictions_display" dest="notes_t"/>
   <copyField source="finding_aids_display" dest="notes_t"/>
   <copyField source="historical_note_display" dest="notes_t"/>
+  <copyField source="summary_display" dest="summary_t"/>
+  <copyField source="contents" dest="toc_t"/>
+  <copyField source="partial_contents" dest="toc_t"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>

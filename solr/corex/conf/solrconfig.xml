@@ -481,6 +481,8 @@
         eightninenine_s
         notes
         notes_t
+        summary_t
+        toc_t
         text
       </str>
       <str name="pf">
