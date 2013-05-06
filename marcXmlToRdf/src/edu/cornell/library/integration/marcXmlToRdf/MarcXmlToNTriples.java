@@ -502,7 +502,7 @@ public class MarcXmlToNTriples {
 	
 	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
-		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
+//		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
 		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
 		String rec_id = rec.control_fields.get(1).value;
 		Pattern p = Pattern.compile("^[0-9]{3}.[0-9]{2}.*");
@@ -521,8 +521,9 @@ public class MarcXmlToNTriples {
 					if (m.matches()) {
 						int n = Integer.valueOf(sf.value.substring(4, 6));
 						if (f.tag.equals("880")) {
+							f.alttag = sf.value.substring(0, 3);
 							if (n == 0) {
-								unlinkedeighteighties.put(id, sf.value.substring(0, 3));
+//								unlinkedeighteighties.put(id, sf.value.substring(0, 3));
 							} else {
 								if (linkedeighteighties.containsKey(n)) {
 									logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one 880 with the same link index.\n");
@@ -543,13 +544,13 @@ public class MarcXmlToNTriples {
 			}
 		}
 
-		for( int fid: unlinkedeighteighties.keySet() ) {
-			rec.data_fields.get(fid).alttag = unlinkedeighteighties.get(fid);
-		}
+//		for( int fid: unlinkedeighteighties.keySet() ) {
+//			rec.data_fields.get(fid).alttag = unlinkedeighteighties.get(fid);
+//		}
 		for( int link_id: others.keySet() ) {
 			if (linkedeighteighties.containsKey(link_id)) {
 				// LINK FOUND
-				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
+//				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
 			} else {
 				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") "+
 						rec.data_fields.get(others.get(link_id)).tag+
@@ -559,7 +560,7 @@ public class MarcXmlToNTriples {
 		for ( int link_id: linkedeighteighties.keySet() )
 			if ( ! others.containsKey(link_id))
 				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") 880 field linking to non-existant main field.\n");
-		logout.flush();
+			logout.flush();
 	}
 		
 	public static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
