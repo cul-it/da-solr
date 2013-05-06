@@ -51,3 +51,6 @@
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField110> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/MainEntry>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField111> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/MainEntry>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField130> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/MainEntry>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField866> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/TextualHoldingsStatementField>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField867> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/TextualHoldingsStatementField>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField868> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/TextualHoldingsStatementField>.

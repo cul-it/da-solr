@@ -20,6 +20,13 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * These are intended as publicly usable code.
  */
 public class ResultSetUtilities {
+	
+//	public static String RTE = "RTE";
+//	public static String PDF = "PDF";
+	public static String RTE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
+
+	
 	public static String nodeToString(RDFNode node){
 		if( node == null )
 			return "";
@@ -66,9 +73,15 @@ public class ResultSetUtilities {
 		if (unwantedChars == null) return s;
 		if (s.equals("")) return s;
 		if (unwantedChars.equals("")) return s;
-		Pattern p = Pattern.compile ("[" + unwantedChars + "]*$");
+		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
 		Matcher m = p.matcher(s);
-		return m.replaceAll("");
+		return m.replaceAll("$1");
+	}
+	
+	public static String removeAllPunctuation( String s ) {
+		if (s == null) return null;
+		if (s.equals("")) return s;
+		return s.replaceAll("[\\p{Punct}¿¡「」]","");
 	}
 		
 	/** 

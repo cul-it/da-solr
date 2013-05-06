@@ -62,17 +62,33 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				} else if (f.mainTag.equals("630")) {
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("648")) {
+					main_fields = "a";
+					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("650")) {
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("651")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("653")) {
+					main_fields = "a";
+				} else if (f.mainTag.equals("654")) {
+					main_fields = "abe";
+					dashed_fields = "vyz";
 				} else if (f.mainTag.equals("655")) {
-					if (f.ind2.equals('7')) {
-						main_fields = "a";
-						dashed_fields = "vxyz";
-					}
+					main_fields = "ab";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("656")) {
+					main_fields = "ak";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("657")) {
+					main_fields = "a";
+					dashed_fields = "vxyz";
+				} else if (f.mainTag.equals("658")) {
+					main_fields = "abcd";
+				} else if (f.mainTag.equals("662")) {
+					main_fields = "abcdfgh";
 				} else if (f.mainTag.equals("690")) {
 					main_fields = "abvxyz";
 				} else if (f.mainTag.equals("691")) {

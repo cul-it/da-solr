@@ -12,10 +12,12 @@ import java.util.Set;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 
 /*
  *  MarcRecord Handler Class
@@ -107,15 +109,22 @@ public class MarcRecord {
 		}
 		
 		public Map<Integer,FieldSet> matchAndSortDataFields() {
+			return matchAndSortDataFields(VernMode.ADAPTIVE);
+		}
+		
+		public Map<Integer,FieldSet> matchAndSortDataFields(VernMode vernMode) {
 			// Put all fields with link occurrence numbers into matchedFields to be grouped by
 			// their occurrence numbers. Everything else goes in sorted fields keyed by field id
-			// to be displayed in field id order.
+			// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
+			// occurrence numbers are ignored and treated as "01".
 			Map<Integer,FieldSet> matchedFields  = new HashMap<Integer,FieldSet>();
 			Map<Integer,FieldSet> sortedFields = new HashMap<Integer,FieldSet>();
 			Integer[] ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
 			Arrays.sort( ids );
 			for( Integer id: ids) {
 				DataField f = this.data_fields.get(id);
+				if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
+					f.linkOccurrenceNumber = 1;
 				if ((f.linkOccurrenceNumber != null) && (f.linkOccurrenceNumber != 0)) {
 					FieldSet fs;
 					if (matchedFields.containsKey(f.linkOccurrenceNumber)) {
@@ -251,16 +260,26 @@ public class MarcRecord {
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
 				Arrays.sort(sf_ids);
 				Boolean first = true;
+				Boolean rtl = false;
 				for(Integer sf_id: sf_ids) {
 					Subfield sf = this.subfields.get(sf_id);
-					if (sf.code.equals('6')) continue;
+					if (sf.code.equals('6')) {
+						if (sf.value.endsWith("/r"))
+							rtl = true;
+						continue;
+					}
 					
 					if (first) first = false;
 					else sb.append(" ");
 					sb.append(sf.value.trim());
 				}
-				
-				return sb.toString().trim();
+				String val = sb.toString().trim();
+				if (rtl && (val.length() > 0)) {
+					return RTE_openRTL+val+PDF_closeRTL;
+				} else {
+//					return "Roman";
+					return val;
+				}
 			}
 			public String concatenateSpecificSubfields(String subfields) {
 				return concatenateSpecificSubfields(" ",subfields);
@@ -271,8 +290,12 @@ public class MarcRecord {
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
 				Arrays.sort(sf_ids);
 				Boolean first = true;
+				Boolean rtl = false;
 				for(Integer sf_id: sf_ids) {
 					Subfield sf = this.subfields.get(sf_id);
+					if (sf.code.equals('6'))
+						if (sf.value.endsWith("/r"))
+							rtl = true;
 					if (! subfields.contains(sf.code.toString()))
 						continue;
 					
@@ -281,7 +304,13 @@ public class MarcRecord {
 					sb.append(sf.value.trim());
 				}
 				
-				return sb.toString().trim();
+				String val = sb.toString().trim();
+				if (rtl && (val.length() > 0)) {
+					return RTE_openRTL+val+PDF_closeRTL;
+				} else {
+//					return "Roman";
+					return val;
+				}
 			}
 		
 		

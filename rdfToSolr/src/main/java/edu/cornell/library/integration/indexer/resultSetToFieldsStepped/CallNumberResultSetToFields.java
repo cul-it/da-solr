@@ -61,11 +61,17 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 			}
 		}
 
-		Iterator<String> i = callnos.iterator();
+/*		// It has been decided not to display call numbers in the item view,
+ *      // only in the holdings data. This field is unnecessary. Note that the
+ *      // query for holdings 852 only retrieves LCCN values (1st ind = "0"). 
+ *      // If reinstating this display field it would be preferable to remove
+ *      // this restriction from the query but alter this class to ensure the
+ *      // non LCCN values don't get included in the call number facet.
+ * 		Iterator<String> i = callnos.iterator();
 		while (i.hasNext())
 			addField(fields,"lc_callnum_display",i.next());
-		
-		i = letters.iterator();
+*/		
+		Iterator<String> i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
 			if (! Character.isAlphabetic(l.charAt(0)))

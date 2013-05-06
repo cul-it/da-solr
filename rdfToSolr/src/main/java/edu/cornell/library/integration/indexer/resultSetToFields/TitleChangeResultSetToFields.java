@@ -71,10 +71,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if ((relation != null) && relation.equals("author_addl")) {
 					if (f.tag.equals("880")) {
 						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
-						values880.add("author_addl_displayZ"+author_disp);
+						values880.add("author_addl_displayZ"+author_disp + "|" + author_cts);
 					} else {
 						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-						valuesMain.add("author_addl_displayZ"+author_disp);
+						valuesMain.add("author_addl_displayZ"+author_disp + "|" + author_cts);
 					}
 				} else if (relation != null) {
 					String workField;
@@ -175,7 +175,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						sb.append(removeTrailingPunctuation(temp[1],","));
 						for (String t:valuesMain) {
 							String[] temp2 = t.split("Z",2);
-							sb.append(" / ");
+							sb.append("|");
 							sb.append(temp2[1]);
 						}
 						addField(solrFields,temp[0],sb.toString());

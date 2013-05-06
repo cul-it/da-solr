@@ -27,7 +27,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SingleValueField("author_sort",Correction.firstValue),
 				new SingleValueField("author_t",Correction.firstValue),
 				new ShadowRecordBoost(),
-				new SuppressUnwantedValues()
+				new SuppressUnwantedValues(),
+				new MissingTitleReport()
 		);
 	}
 
@@ -62,7 +63,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?sfield marcrdf:code ?code.\n" +
 				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
+				    
+				new SPARQLFieldMakerImpl().
+				    setName("multival").
+				    addMainStoreQuery("holdings_descr",
+				    		"SELECT ?f\n"+
+				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
+				    				" ?h ?p ?f.\n"+
+				                    " ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }").
+				    addResultSetToFields( new MultivolResultSetToFields() ),
 
+				                    
 				    		
 				new SPARQLFieldMakerImpl().
 					setName("format").
@@ -120,11 +131,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("holdings_callno",
 			        	"SELECT ?part1 ?part2\n"+
 			        	"WHERE {\n"+
-                        "  $recordURI$ rdfs:label ?bib_id.\n"+
-			        	"  ?hold marcrdf:hasField ?hold04.\n" +
-			        	"  ?hold04 marcrdf:tag \"004\".\n" +
-			        	"  ?hold04 marcrdf:value ?bib_id.\n" +
+			        	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 			        	"  ?hold marcrdf:hasField ?hold852.\n" +
+			        	"  ?hold marcrdf:ind1 \"0\"." +
 			        	"  ?hold852 marcrdf:tag \"852\".\n" +
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\".\n" +
@@ -277,10 +286,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
-			    new StandardMARCFieldMaker("title_display","245","a",VernMode.VERNACULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.VERNACULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.COMBINED,".,;:/ "),
-			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.COMBINED,".,;:/ "),
+			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:/ "),
+			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
+			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:/ "),
+			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.SINGULAR,".,;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
@@ -463,11 +472,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("subject_addl_t","610","abcdefghklmnoprstuvwxyz","."),
 				new StandardMARCFieldMaker("subject_addl_t","611","acdefghklnpqstuvwxyz","."),
 				new StandardMARCFieldMaker("subject_addl_t","630","adfghklmnoprstvwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","648","avxyz","."),
 				new StandardMARCFieldMaker("subject_addl_t","650","abcdvwxyz","."),
 				new StandardMARCFieldMaker("subject_addl_t","651","avwxyz","."),
-				new StandardMARCFieldMaker("subject_addl_t","653","vwxyz","."),
-				new StandardMARCFieldMaker("subject_addl_t","654","vwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","653","avwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","654","abevwxyz","."),
 				new StandardMARCFieldMaker("subject_addl_t","655","avwxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","656","akvxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","657","avxyz","."),
+				new StandardMARCFieldMaker("subject_addl_t","658","abcd","."),
+				new StandardMARCFieldMaker("subject_addl_t","662","abcdfgh","."),
 				new StandardMARCFieldMaker("subject_addl_t","692","a","."),
 				new StandardMARCFieldMaker("subject_addl_t","693","a","."),
 				new StandardMARCFieldMaker("subject_addl_t","694","a","."),

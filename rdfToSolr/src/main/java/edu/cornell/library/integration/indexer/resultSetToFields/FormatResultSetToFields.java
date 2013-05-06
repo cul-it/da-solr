@@ -48,6 +48,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("ent,rar2");
 		rareLocCodes.add("gnva,rare");
 		rareLocCodes.add("hote,rare");
+		rareLocCodes.add("ilr,lmdc");
 		rareLocCodes.add("ilr,rare");
 		rareLocCodes.add("lawr");
 		rareLocCodes.add("lawr,anx");
@@ -193,9 +194,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-		
-		System.out.println("format: "+format);
-		
+				
 		if (loccodes.contains("serv,remo")) {
 			if (!online) {
 				online = true;
@@ -212,8 +211,11 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
 			addField(fields,"format","Thesis");
+			if (format.equals("Manuscript/Archive"))
+				format = null;
 		}
-		addField(fields,"format",format);
+		if (format != null)
+			addField(fields,"format",format);
 		if (online) {
 			addField(fields,"online","Online");
 		}

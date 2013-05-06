@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,8 +68,15 @@ public class TOCResultSetToFields implements ResultSetToFields {
 			if (relation != null) {
 				for (String s: values880)
 					if (values880.size() == 1) {
-						for(String item: s.split(" *-- *"))
+						for(String item: s.split(" *-- *")) {
+							if (s.endsWith(PDF_closeRTL)) {
+								if (! item.startsWith(RTE_openRTL))
+									item = RTE_openRTL + item;
+								if (! item.endsWith(PDF_closeRTL))
+									item += PDF_closeRTL;
+							}
 							addField(solrFields,relation+"_display",item);
+						}
 					} else {
 						addField(solrFields,relation+"_display",s);
 					}
