@@ -31,7 +31,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 							String name = names.next();
 							RDFNode node = sol.get(name);
 							if( node != null ) {
-								System.out.println(nodeToString(node));
 								found = true;
 								break ALL;
 							}
