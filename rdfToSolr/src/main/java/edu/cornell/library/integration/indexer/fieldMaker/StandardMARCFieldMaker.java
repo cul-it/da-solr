@@ -43,7 +43,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		this.solrFieldName = solrFieldName;
 		this.unwantedChars = unwantedChars;
 		this.vernMode = vernMode;
-		if (this.vernMode.equals(VernMode.VERNACULAR))
+		if (this.vernMode.equals(VernMode.VERNACULAR) 
+				|| this.vernMode.equals(VernMode.SING_VERN))
 			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
 	}
 
@@ -54,7 +55,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		this.marcFieldTag = marcFieldTag;
 		this.solrFieldName = solrFieldName;
 		this.vernMode = vernMode;
-		if (this.vernMode.equals(VernMode.VERNACULAR))
+		if (this.vernMode.equals(VernMode.VERNACULAR)
+				|| this.vernMode.equals(VernMode.SING_VERN))
 			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
 	}
 
@@ -123,7 +125,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			MarcRecord rec = new MarcRecord();
 			rec.addDataFieldResultSet(results.get(queryKey));
 			
-			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
 			
 			if (sortedFields.keySet().size() == 0)
 				return Collections.emptyMap();
@@ -132,7 +134,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			
 			SolrInputField solrField = new SolrInputField(solrFieldName);
 			fieldmap.put(solrFieldName, solrField);
-			if (vernMode.equals(VernMode.VERNACULAR)) {
+			if (vernMode.equals(VernMode.VERNACULAR)
+					|| vernMode.equals(VernMode.SING_VERN)) {
 				solrField = new SolrInputField(solrVernFieldName);
 				fieldmap.put(solrVernFieldName,solrField);
 			}
@@ -148,10 +151,14 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				// If a "group" contains only one field, the organization is straightforward.
 				if (fs.fields.size() == 1) {
 					DataField f = fields[0];
-					if (vernMode.equals(VernMode.VERNACULAR) && f.tag.equals("880")) {
-						fieldmap.get(solrVernFieldName).addValue(concatenateSubfields(f).trim(), 1.0f);
+					String val = concatenateSubfields(f).trim();
+					if (val.length() == 0) continue;
+					if ((vernMode.equals(VernMode.VERNACULAR)
+							|| vernMode.equals(VernMode.SING_VERN))
+						&& f.tag.equals("880")) {
+						fieldmap.get(solrVernFieldName).addValue(val, 1.0f);
 					} else {
-						fieldmap.get(solrFieldName).addValue(concatenateSubfields(f).trim(), 1.0f);
+						fieldmap.get(solrFieldName).addValue(val, 1.0f);
 					}
 			    // If more than one field in a group, there are several options.
 				} else {
@@ -176,9 +183,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						String s880 = i880.next();
 						String sMain = iMain.next();
 						if (s880.equals(sMain)) {
-							fieldmap.get(solrFieldName).addValue(sMain,1.0f);
+							if (sMain.length() > 0)
+								fieldmap.get(solrFieldName).addValue(sMain,1.0f);
 						} else {
-							if (vernMode == VernMode.COMBINED) {
+							if ((vernMode == VernMode.COMBINED) || (vernMode == VernMode.SINGULAR)) {
 								fieldmap.get(solrFieldName).addValue(s880+" / " + sMain, 1.0f);
 							} else if (vernMode == VernMode.ADAPTIVE) {
 								if (s880.length() <= 10) {
@@ -187,7 +195,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 									fieldmap.get(solrFieldName).addValue(s880, 1.0f);
 									fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 								}
-							} else if (vernMode == VernMode.VERNACULAR) {
+							} else if ((vernMode == VernMode.VERNACULAR) 
+									|| (vernMode == VernMode.SING_VERN)){
 								fieldmap.get(solrVernFieldName).addValue(s880, 1.0f);
 								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 							} else { //VernMode.SEPARATE
@@ -197,14 +206,29 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						}
 					} else { // COMBINED and ADAPTIVE vernModes default to SEPARATE if
 						     // there aren't exactly one each of 880 and "other" in fieldset
-						while (i880.hasNext())
-							if (vernMode == VernMode.VERNACULAR) {
-								fieldmap.get(solrVernFieldName).addValue(i880.next(), 1.0f);
-							} else {
-								fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
+						if (vernMode != VernMode.SINGULAR) {
+							while (i880.hasNext())
+								if ((vernMode == VernMode.VERNACULAR) || (vernMode == VernMode.SING_VERN)) {
+									fieldmap.get(solrVernFieldName).addValue(i880.next(), 1.0f);
+								} else {
+									fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
+								}
+							while (iMain.hasNext())
+								fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
+						} else {
+							StringBuilder sb = new StringBuilder();
+							while (i880.hasNext()) {
+								sb.append(" ");
+								sb.append(i880.next());
 							}
-						while (iMain.hasNext())
-							fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
+							while (iMain.hasNext()) {
+								sb.append(" ");
+								sb.append(iMain.next());
+							}
+							String val = sb.toString().trim();
+							if (val.length() > 0)
+								fieldmap.get(solrFieldName).addValue(val, 1.0f);
+						}
 					}
 				}
 			}
@@ -235,6 +259,11 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		VERNACULAR, // non-Roman values go in vern field
 		SEPARATE,   // non-Roman values go in separate entries in same field
 		COMBINED,   // non-Roman values go into combined entry with Romanized values
-		ADAPTIVE    // COMBINED for short values, SEPARATE for long
+		ADAPTIVE,   // COMBINED for short values, SEPARATE for long
+		
+		SINGULAR,  // same as COMBINED, but combines all values, without regard to link_id.
+		
+		SING_VERN  // same as VERNACULAR, ‡6 occurrence numbers are disregarded and all
+		           // values are treated as matching
 	}
 }

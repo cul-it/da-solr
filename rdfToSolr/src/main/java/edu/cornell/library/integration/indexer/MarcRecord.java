@@ -17,6 +17,8 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
+
 /*
  *  MarcRecord Handler Class
  */
@@ -107,15 +109,22 @@ public class MarcRecord {
 		}
 		
 		public Map<Integer,FieldSet> matchAndSortDataFields() {
+			return matchAndSortDataFields(VernMode.ADAPTIVE);
+		}
+		
+		public Map<Integer,FieldSet> matchAndSortDataFields(VernMode vernMode) {
 			// Put all fields with link occurrence numbers into matchedFields to be grouped by
 			// their occurrence numbers. Everything else goes in sorted fields keyed by field id
-			// to be displayed in field id order.
+			// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
+			// occurrence numbers are ignored and treated as "01".
 			Map<Integer,FieldSet> matchedFields  = new HashMap<Integer,FieldSet>();
 			Map<Integer,FieldSet> sortedFields = new HashMap<Integer,FieldSet>();
 			Integer[] ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
 			Arrays.sort( ids );
 			for( Integer id: ids) {
 				DataField f = this.data_fields.get(id);
+				if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
+					f.linkOccurrenceNumber = 1;
 				if ((f.linkOccurrenceNumber != null) && (f.linkOccurrenceNumber != 0)) {
 					FieldSet fs;
 					if (matchedFields.containsKey(f.linkOccurrenceNumber)) {

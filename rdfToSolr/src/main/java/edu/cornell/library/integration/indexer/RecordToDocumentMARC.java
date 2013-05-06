@@ -285,10 +285,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
-			    new StandardMARCFieldMaker("title_display","245","a",VernMode.VERNACULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.VERNACULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.COMBINED,".,;:/ "),
-			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.COMBINED,".,;:/ "),
+			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:/ "),
+			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
+			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:/ "),
+			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.SINGULAR,".,;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
