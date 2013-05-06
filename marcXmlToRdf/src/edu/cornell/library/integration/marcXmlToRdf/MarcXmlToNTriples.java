@@ -133,7 +133,7 @@ public class MarcXmlToNTriples {
 	public static void extractData( MarcRecord rec ) throws Exception {
 
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
-		Pattern entity_p = Pattern.compile(".*&#?\\w+;.*");
+	//	Pattern entity_p = Pattern.compile(".*&#?\\w+;.*");
 		
 		if ((extractout == null))  {
 			FileWriter logstream = new FileWriter(extractfile,true);

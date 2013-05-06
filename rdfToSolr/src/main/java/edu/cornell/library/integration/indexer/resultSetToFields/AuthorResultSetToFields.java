@@ -50,6 +50,8 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			String dates = "";
+			String cts = "";
+			String cts880 = "";
 		
 			for (DataField f: dataFields) {
 				String subfields;
@@ -63,9 +65,11 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 					if (value.isEmpty()) continue;
 					if (f.tag.equals("880")) {
 						values880.add(value);
+						cts880 = f.concatenateSpecificSubfields("a");
 					} else {
 						dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
 						valuesMain.add(value);
+						cts = f.concatenateSpecificSubfields("a");
 					}
 				}
 			}
@@ -74,26 +78,30 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 					for (String t: valuesMain) {
 						StringBuilder sb = new StringBuilder();
 						sb.append(removeTrailingPunctuation(s,".,"));
-						sb.append(" / ");
+						sb.append("|");
+						sb.append(cts880);
+						sb.append("|");
 						sb.append(t);
 						if (! dates.isEmpty()) {
 							sb.append(" ");
 							sb.append(dates);
 						}
+						sb.append("|");
+						sb.append(cts);
 						addField(solrFields,"author_display",sb.toString());
 					}
 			} else {
 				for (String s: values880)
 					if (dates.isEmpty())
-						addField(solrFields,"author_display",s);
-					else addField(solrFields,"author_display",s+" "+dates);
+						addField(solrFields,"author_display",s+"|"+cts880);
+					else addField(solrFields,"author_display",s+" "+dates+"|"+cts880);
 				for (String s: valuesMain)
 					if (dates.isEmpty())
-					addField(solrFields,"author_display",s);
-					else addField(solrFields,"author_display",s+" "+dates);
+					addField(solrFields,"author_display",s+"|"+cts);
+					else addField(solrFields,"author_display",s+" "+dates+"|"+cts);
 			}
 			if (valuesMain.size() > 0) {
-				String sort_author = valuesMain.iterator().next();
+				String sort_author = removeAllPunctuation(valuesMain.iterator().next());
 				if (! dates.isEmpty())
 					sort_author += " " + dates;
 				addField(solrFields,"author_sort",sort_author);

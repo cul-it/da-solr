@@ -73,9 +73,15 @@ public class ResultSetUtilities {
 		if (unwantedChars == null) return s;
 		if (s.equals("")) return s;
 		if (unwantedChars.equals("")) return s;
-		Pattern p = Pattern.compile ("[" + unwantedChars + "]("+PDF_closeRTL+"?)*$");
+		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
 		Matcher m = p.matcher(s);
 		return m.replaceAll("$1");
+	}
+	
+	public static String removeAllPunctuation( String s ) {
+		if (s == null) return null;
+		if (s.equals("")) return s;
+		return s.replaceAll("[\\p{Punct}¿¡「」]","");
 	}
 		
 	/** 

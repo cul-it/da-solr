@@ -64,7 +64,7 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		}
 		
 		if( title_a != null && title_b != null && title_a.substring(ind2) != null ){
-			addField(fields,"title_sort",removeTrailingPunctuation(title_a.substring(ind2).toLowerCase(),":/ ")+
+			addField(fields,"title_sort",removeAllPunctuation(title_a.substring(ind2).toLowerCase())+
 					" " + title_b.toLowerCase());
 		}
 		
