@@ -166,7 +166,15 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			} else if (record_type.equals("k")) {
 				format = "Image";
 			} else if (record_type.equals("m")) {
-				format = "Computer File";
+				if (sf948fs.contains("evideo")) {
+					format = "Video";
+				} else if (sf948fs.contains("eaudio")) {
+					format = "Musical Recording";
+				} else if (sf948fs.contains("escore")) {
+					format = "Musical Score";
+				} else {
+					format = "Computer File";
+				}
 			} else if (record_type.equals("o")) {
 				format = "Kit";
 			} else if (record_type.equals("p")) { // p means "mixed materials", classifying as 
