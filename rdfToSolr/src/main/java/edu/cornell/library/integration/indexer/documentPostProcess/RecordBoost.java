@@ -15,7 +15,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  *  We're currently boosting the whole record, but we may want to put a special boost
  *  on the title in the future to promote title searches.
  *  */
-public class ShadowRecordBoost implements DocumentPostProcess{
+public class RecordBoost implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
