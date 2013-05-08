@@ -135,8 +135,10 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/suppressedBibId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);
 		try {
 			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
@@ -201,7 +203,7 @@ public class MarcXmlToNTriples {
 				String target = "shadowLink";
 				for (String id: shadowLinkedRecs) {
 					String bib = "<http://fbw4-dev.library.cornell.edu/individuals/b"+id+">";
-					String triple = bib + " " + relation + " \"" + target + "\".";
+					String triple = bib + " " + relation + " \"" + target + "\".\n";
 					shadowOut.write(triple.getBytes());
 				}
 				shadowOut.close();

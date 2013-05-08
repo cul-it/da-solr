@@ -232,6 +232,16 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					}
 				}
 			}
+			if (vernMode.equals(VernMode.SINGULAR) || vernMode.equals(VernMode.SING_VERN)) {
+				SolrInputField field = fieldmap.get(solrFieldName);
+				if (field.getValueCount() > 1)
+					fieldmap.put(solrFieldName, concatenateValues( field ));
+				if (vernMode.equals(VernMode.SING_VERN)) {
+					field = fieldmap.get(solrVernFieldName);
+					if (field.getValueCount() > 1)
+						fieldmap.put(solrVernFieldName, concatenateValues( field ));
+				}
+			}
 			
 			Map<String,SolrInputField> populatedFields = new HashMap<String,SolrInputField>();
 			for(String fieldName: fieldmap.keySet()) {
@@ -240,7 +250,21 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			}
 			return fieldmap;
 			
-		}		
+		}
+		
+		private SolrInputField concatenateValues( SolrInputField field ) {
+			Iterator<Object> i = field.getValues().iterator();
+			StringBuilder sb = new StringBuilder();
+			boolean first = true;
+			while (i.hasNext()) {
+				if (first) first = false;
+				else sb.append(' ');
+				sb.append(i.next().toString());
+			}
+			SolrInputField newField = new SolrInputField(field.getName());
+			newField.setValue(sb.toString(), 1.0f);			
+			return newField;
+		}
 
 		private String concatenateSubfields( DataField f ) {
 			String value = f.concateSubfieldsOtherThan6();
