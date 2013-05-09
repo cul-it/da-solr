@@ -312,6 +312,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
 			        addResultSetToFields( new TitleChangeResultSetToFields()),
+			    new StandardMARCFieldMaker("map_format_display","255","abcdefg"),
+			    new StandardMARCFieldMaker("in_display","773","abdghikmnopqrstuw"),
+
 			        
 			    new SPARQLFieldMakerStepped().
 			        setName("title_series_display").
