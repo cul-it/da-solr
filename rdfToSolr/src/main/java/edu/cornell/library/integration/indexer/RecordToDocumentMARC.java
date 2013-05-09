@@ -391,7 +391,22 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"        ?libgroup rdfs:label ?group_name.\n" +
 			        	"}}}}").
 			        addResultSetToFields( new LocationResultSetToFields() ),
-			    	
+
+			    new SPARQLFieldMakerImpl().
+			    	setName("citation_reference_note").
+			    	addMainStoreQuery("field510", 
+			    			"SELECT *\n" +
+			    			" WHERE {\n" +
+			    			"  $recordURI$ marcrdf:hasField510 ?field.\n" +
+			    			"  ?field marcrdf:tag ?tag.\n" +
+			    			"  ?field marcrdf:ind1 ?ind1.\n" +
+			    			"  ?field marcrdf:ind2 ?ind2.\n" +
+			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			    			"  ?sfield marcrdf:code ?code.\n" +
+			    			"  ?sfield marcrdf:value ?value. }").
+			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()),
+				new StandardMARCFieldMaker("notes","510","abcux3"),
+			    
 				new StandardMARCFieldMaker("notes","500","a"),
 				new StandardMARCFieldMaker("notes","501","a"),
 				new StandardMARCFieldMaker("notes","502","a"),
