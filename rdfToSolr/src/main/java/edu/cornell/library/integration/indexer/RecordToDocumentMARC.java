@@ -28,7 +28,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SingleValueField("author_t",Correction.firstValue),
 				new RecordBoost(),
 				new SuppressUnwantedValues(),
-				new MissingTitleReport()
+				new MissingTitleReport(),
+				new SuppressShadowRecords()
 		);
 	}
 
@@ -40,6 +41,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("id").
 					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 					addResultSetToFields( new AllResultsToField("id") ),
+
+				new SPARQLFieldMakerImpl().
+					setName("boost").
+					addMainStoreQuery("boostType","SELECT ?boostType WHERE { $recordURI$ intlayer:boost ?boostType}").
+					addResultSetToFields( new AllResultsToField("boost") ),
 					
 				new SPARQLFieldMakerImpl().
 				    setName("marc").
