@@ -26,9 +26,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SingleValueField("author_display",Correction.firstValue),
 				new SingleValueField("author_sort",Correction.firstValue),
 				new SingleValueField("author_t",Correction.firstValue),
-				new ShadowRecordBoost(),
+				new RecordBoost(),
 				new SuppressUnwantedValues(),
-				new MissingTitleReport()
+				new MissingTitleReport(),
+				new SuppressShadowRecords()
 		);
 	}
 
@@ -40,6 +41,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("id").
 					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 					addResultSetToFields( new AllResultsToField("id") ),
+
+				new SPARQLFieldMakerImpl().
+					setName("boost").
+					addMainStoreQuery("boostType","SELECT ?boostType WHERE { $recordURI$ intlayer:boost ?boostType}").
+					addResultSetToFields( new AllResultsToField("boost") ),
 					
 				new SPARQLFieldMakerImpl().
 				    setName("marc").
@@ -537,9 +543,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		" }").
 		        addResultSetToFields( new AuthorResultSetToFields()),
 
-				new StandardMARCFieldMaker("author_t","100","abcdqegu"),
-				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz"),
-				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz"),
+				new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.COMBINED),
+				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz",VernMode.COMBINED),
+				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz",VernMode.COMBINED),
 
 				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu"),
 				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz"),

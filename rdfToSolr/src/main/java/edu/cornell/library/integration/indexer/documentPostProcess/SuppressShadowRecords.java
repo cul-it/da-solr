@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-
 import java.util.Iterator;
 import java.util.Map;
 
@@ -15,7 +13,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  *  We're currently boosting the whole record, but we may want to put a special boost
  *  on the title in the future to promote title searches.
  *  */
-public class ShadowRecordBoost implements DocumentPostProcess{
+public class SuppressShadowRecords implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
@@ -37,8 +35,7 @@ public class ShadowRecordBoost implements DocumentPostProcess{
 		}
 
 		if (isShadow) {
-	//		System.out.println("It's a shadow.");
-			document.setDocumentBoost(50 * document.getDocumentBoost());
+			document.removeField("id");
 
 		}
 	}

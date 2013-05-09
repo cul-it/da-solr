@@ -4,8 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -28,10 +34,15 @@ public class MarcXmlToNTriples {
 	private static BufferedWriter logout;
 	private static BufferedWriter extractout;
 	public static Collection<Integer> foundRecs = new HashSet<Integer>();
+	public static Collection<Integer> suppressedRecs = new HashSet<Integer>();
+	public static Collection<Integer> unsuppressedRecs = new HashSet<Integer>();
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	public static Long recordCount = new Long(0);
 	public static Collection<Integer> no245a = new HashSet<Integer>();
 	private static Integer groupsize = 10000;
+	private static Pattern shadowLinkPattern 
+	   = Pattern.compile("https?://catalog.library.cornell.edu/cgi-bin/Pwebrecon.cgi\\?BBID=([0-9]+)&DB=local");
+	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
 	
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
@@ -67,6 +78,20 @@ public class MarcXmlToNTriples {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
 					
+					Integer id = Integer.valueOf(rec.id);
+					if (suppressedRecs.contains(id)) {
+						suppressedRecs.remove(id);
+//						System.out.println("Suppressed record in dump, "+id+" - skipping.");
+						continue;
+					}
+					if (unsuppressedRecs.contains(id)) {
+						unsuppressedRecs.remove(id);
+					} else {
+//						System.out.println("Record not on suppressed or unsuppressed lists, "
+//								+ id + " - skipping.");
+						continue;
+					}
+					
 					// Protecting against duplicate records in a single batch.
 					// Note: This will be a bug if processing multiple record types
 					// in a single instance of MarcXmlToNTriples.
@@ -74,6 +99,7 @@ public class MarcXmlToNTriples {
 					else foundRecs.add(Integer.valueOf(rec.id));
 
 					tabulateFieldData(rec);
+					identifyShadowRecordTargets(rec);
 					extractData(rec);
 					mapNonRomanFieldsToRomanizedFields(rec);
 					if (rec.type == RecordType.BIBLIOGRAPHIC) 
@@ -104,12 +130,39 @@ public class MarcXmlToNTriples {
 		out.close();
 	}
 
-	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/suppressedBibId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/unsuppressedBibId.txt";
+		Path path = Paths.get(suppressedFile);
+		try {
+			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
+			while (scanner.hasNextLine()) {
+				String id = scanner.nextLine();
+				suppressedRecs.add(Integer.valueOf(id));
+			}
+			scanner.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		path = Paths.get(unsuppressedFile);
+		try {
+			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
+			while (scanner.hasNextLine()) {
+				String id = scanner.nextLine();
+				unsuppressedRecs.add(Integer.valueOf(id));
+			}
+			scanner.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		System.out.println("Expecting " + suppressedRecs.size() + " suppressed records, "
+				+ unsuppressedRecs.size() + " unsuppressed records.");
 		String destdir = "/users/fbw4/voyager-harvest/data/clean";
 		File file = new File( "/users/fbw4/voyager-harvest/data/fulldump" );
 		File[] files = file.listFiles();
@@ -128,9 +181,62 @@ public class MarcXmlToNTriples {
 			System.out.println("--------------------------------");
 			System.out.println(fieldStatsByTag.get(tag).toString());
 		}
+		if (unsuppressedRecs.size() > 0) {
+			System.out.println("Unsuppressed records expected but not found:");
+			for (Integer id: unsuppressedRecs) {
+				System.out.print(id+", ");
+			}
+			System.out.println();
+		}
+		if (suppressedRecs.size() > 0) {
+			System.out.println("Suppressed records expected but not found:");
+			for (Integer id: suppressedRecs) {
+				System.out.print(id+", ");
+			}
+			System.out.println();
+		}
+		try {
+			if (shadowLinkedRecs.size() > 0) {
+				BufferedOutputStream shadowOut =  new BufferedOutputStream(new GZIPOutputStream(
+							new FileOutputStream(destdir+"/shadows.nt.gz", true)));
+				String relation = "<http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/boost>";
+				String target = "shadowLink";
+				for (String id: shadowLinkedRecs) {
+					String bib = "<http://fbw4-dev.library.cornell.edu/individuals/b"+id+">";
+					String triple = bib + " " + relation + " \"" + target + "\".\n";
+					shadowOut.write(triple.getBytes());
+				}
+				shadowOut.close();
+			}
+		} catch (IOException e) {
+					// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	public static void extractData( MarcRecord rec ) throws Exception {
+	
+	private static void identifyShadowRecordTargets(MarcRecord rec) {
+		for (Integer fid: rec.data_fields.keySet()) {
+			DataField f = rec.data_fields.get(fid);
+			if (f.tag.equals("856")) {
+				for (Integer sfid: f.subfields.keySet()) {
+					Subfield sf = f.subfields.get(sfid);
+					if (sf.code.equals('u')) {
+						Matcher m = shadowLinkPattern.matcher(sf.value);
+						if (m.matches()) {
+							String linked_rec = m.group(1);
+							System.out.println("Shadow Record links to "+linked_rec+
+									" ("+sf.value+")");
+							shadowLinkedRecs.add(linked_rec);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private static void extractData( MarcRecord rec ) throws Exception {
 
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
 	//	Pattern entity_p = Pattern.compile(".*&#?\\w+;.*");
@@ -212,7 +318,7 @@ public class MarcXmlToNTriples {
 		}
 	}
 	
-	public static void tabulateFieldData( MarcRecord rec ) throws Exception {
+	private static void tabulateFieldData( MarcRecord rec ) throws Exception {
 		
 		Map<String,Integer> fieldtagcounts = new HashMap<String,Integer>();
 		Map<String,HashMap<Character,Integer>> codeCounts = 
@@ -350,7 +456,7 @@ public class MarcXmlToNTriples {
 		recordCount++;
 	}
 
-	public static String generateNTriples ( MarcRecord rec, RecordType type ) {
+	private static String generateNTriples ( MarcRecord rec, RecordType type ) {
 		StringBuilder sb = new StringBuilder();
 		String id = rec.control_fields.get(1).value;
 		rec.id = id;
@@ -413,7 +519,7 @@ public class MarcXmlToNTriples {
 		return sb.toString();
 	}
 		
-	public static String escapeForNTriples( String s ) {
+	private static String escapeForNTriples( String s ) {
 		s = s.replaceAll("\\\\", "\\\\\\\\");
 		s = s.replaceAll("\"", "\\\\\\\"");
 		s = s.replaceAll("[\n\r]+", "\\\\n");
@@ -421,7 +527,7 @@ public class MarcXmlToNTriples {
 		return s;
 	}
 	
-	public static void attemptToConfirmDateValues( MarcRecord rec ) throws Exception {
+	private static void attemptToConfirmDateValues( MarcRecord rec ) throws Exception {
 		
 		Collection<String> humanDates = new HashSet<String>();
 		Collection<String> machineDates = new HashSet<String>();
@@ -500,7 +606,7 @@ public class MarcXmlToNTriples {
 		}
 	}
 	
-	public static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
+	private static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
 //		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
 		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
@@ -563,7 +669,7 @@ public class MarcXmlToNTriples {
 			logout.flush();
 	}
 		
-	public static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
+	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
@@ -605,7 +711,7 @@ public class MarcXmlToNTriples {
 		return rec;
 	}
 	
-	public static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
@@ -627,7 +733,7 @@ public class MarcXmlToNTriples {
 		return fields; // We should never reach this line.
 	}
 	
-	public final static String getEventTypeString(int  eventType)
+	private final static String getEventTypeString(int  eventType)
 	{
 	  switch  (eventType)
 	    {
