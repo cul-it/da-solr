@@ -82,7 +82,7 @@ public class HoldingForBib {
 	}
 	
 	/** Don't use this, we should be using opaque URIs */ 
-	protected static  String bibIdForURI(String uri){
+	public static  String bibIdForURI(String uri){
 		if( uri == null )
 			return null;
 		int lastB = uri.lastIndexOf("b");
