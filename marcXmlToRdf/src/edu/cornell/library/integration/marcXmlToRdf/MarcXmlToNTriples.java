@@ -519,7 +519,7 @@ public class MarcXmlToNTriples {
 		return sb.toString();
 	}
 		
-	private static String escapeForNTriples( String s ) {
+	public static String escapeForNTriples( String s ) {
 		s = s.replaceAll("\\\\", "\\\\\\\\");
 		s = s.replaceAll("\"", "\\\\\\\"");
 		s = s.replaceAll("[\n\r]+", "\\\\n");

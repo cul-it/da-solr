@@ -74,7 +74,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		Iterator<String> i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
-			if (! Character.isAlphabetic(l.charAt(0)))
+			if (! Character.isLetter(l.charAt(0)))
 				continue;
 			String query = 
 		    		"SELECT ?code ?subject\n" +
