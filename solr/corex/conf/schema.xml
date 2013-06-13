@@ -366,7 +366,6 @@
 
   <!-- Copy Fields -->
 
-  <copyField source="lc_callnum_display" dest="lc_callnum_full"/>
   <copyField source="donor_display" dest="donor_s"/>
   <copyField source="cite_as_display" dest="notes_t"/>
   <copyField source="restrictions_display" dest="notes_t"/>
