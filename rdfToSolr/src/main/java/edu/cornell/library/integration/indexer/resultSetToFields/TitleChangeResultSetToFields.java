@@ -64,7 +64,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
 					
 					if (f.mainTag.equals("730")) {
-						title_cts = f.concatenateSpecificSubfields("tklfnpmoqrs");
+						title_cts = f.concateSubfieldsOtherThan6();
 					} else {
 						title_cts = author_cts;
 					}

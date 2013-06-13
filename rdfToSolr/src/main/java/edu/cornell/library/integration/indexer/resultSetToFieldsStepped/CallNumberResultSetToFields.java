@@ -29,6 +29,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		Collection<String> callnos = new HashSet<String>();
+		Collection<String> callno_1stblocks = new HashSet<String>();
 		Collection<String> letters = new HashSet<String>();
 		
 		/*
@@ -47,8 +48,13 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						String callno = nodeToString( sol.get("part1") );
 						if (callno.startsWith("MLC")) continue;
 						if (callno.equalsIgnoreCase("No Call Number")) continue;
-						if (callno.length() >= 1)
-							letters.add( callno.substring(0,1) );
+						if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
+							// Not an LOC call number (probably)
+						} else {
+							if (callno.length() >= 1)
+								letters.add( callno.substring(0,1) );
+						}
+						callno_1stblocks.add(callno);
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
 							if (! part2.equals("")) {
@@ -61,17 +67,16 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 			}
 		}
 
-/*		// It has been decided not to display call numbers in the item view,
- *      // only in the holdings data. This field is unnecessary. Note that the
- *      // query for holdings 852 only retrieves LCCN values (1st ind = "0"). 
- *      // If reinstating this display field it would be preferable to remove
- *      // this restriction from the query but alter this class to ensure the
- *      // non LCCN values don't get included in the call number facet.
- * 		Iterator<String> i = callnos.iterator();
+		// It has been decided not to display call numbers in the item view,
+        // only in the holdings data, but all call numbers are still populated in the call number search.
+ 		Iterator<String> i = callnos.iterator();
 		while (i.hasNext())
-			addField(fields,"lc_callnum_display",i.next());
-*/		
-		Iterator<String> i = letters.iterator();
+			addField(fields,"lc_callnum_full",i.next());
+		i = callno_1stblocks.iterator();
+		while (i.hasNext())
+			addField(fields,"lc_callnum_main",i.next());
+		
+		i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
 			if (! Character.isLetter(l.charAt(0)))
