@@ -34,7 +34,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	Map<String,String> defaultPrefixes;
 
-	protected boolean debug;
+	protected boolean debug = true;
 	
 	public SPARQLFieldMakerBase() {
 		this.defaultPrefixes = new HashMap<String,String>();
@@ -110,6 +110,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					String query = querybuild.toString();
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
+					if (debug) System.out.println(rs.toString());
 					results.put(queryName, rs);			
 				}
 			}
