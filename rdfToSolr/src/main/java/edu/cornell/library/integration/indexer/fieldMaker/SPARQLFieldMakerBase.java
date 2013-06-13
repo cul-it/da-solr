@@ -110,7 +110,11 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					String query = querybuild.toString();
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
-					if (debug) System.out.println(rs.toString());
+					if (debug) {
+						InputStream is = mainStore.sparqlSelectQuery(query,	 RDFService.ResultFormat.TEXT);
+						String bib_xml = convertStreamToString(is);
+						System.out.println(bib_xml);		
+					}
 					results.put(queryName, rs);			
 				}
 			}
@@ -118,6 +122,12 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		return results;
 	}
 	
+	public static String convertStreamToString(java.io.InputStream is) {
+	    @SuppressWarnings("resource")
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
+	}
+
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
 			String recordURI, 
