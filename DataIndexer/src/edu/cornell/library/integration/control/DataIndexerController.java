@@ -172,9 +172,9 @@ public class DataIndexerController extends MultiActionController {
       ResultSet resultSet = null;
       try {
          resultSet = executeSelectQuery(query, true);
+          
       } catch (IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         logger.error("IOEXception while executing query.", e);
       }
       List<String> fileUriList = new ArrayList<String>();
       //List<Triple> triples = new ArrayList<Triple>();
@@ -183,7 +183,7 @@ public class DataIndexerController extends MultiActionController {
          //triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString())); 
          fileUriList.add( (String) solution.getLiteral("filename").toString());
       }
-      
+      logger.info("fileUriList size: "+ fileUriList.size());
       jenaModel.close();
       model.put("bibid", bibid);
       
