@@ -1,19 +1,8 @@
 package edu.cornell.library.integration.app;
 
  
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
- 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;  
 import org.springframework.context.ApplicationContext;
@@ -27,10 +16,6 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory; 
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource; 
 import com.hp.hpl.jena.tdb.TDBFactory;
  
 
@@ -140,9 +125,9 @@ public class LookupBibId {
       ResultSet resultSet = null;
       try {
          resultSet = executeSelectQuery(query, true);
+          
       } catch (IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         logger.error("IOException when executing query.", e);
       }
       
       //List<Triple> triples = new ArrayList<Triple>();
