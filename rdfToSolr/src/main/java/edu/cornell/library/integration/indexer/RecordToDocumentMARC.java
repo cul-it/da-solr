@@ -42,6 +42,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 					addResultSetToFields( new AllResultsToField("id") ),
 
+				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
+				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
+				new StandardMARCFieldMaker("other_id_display","035","a"),
+				new StandardMARCFieldMaker("other_id_s","035","a"),
+				
+
 				new SPARQLFieldMakerImpl().
 					setName("boost").
 					addMainStoreQuery("boostType","SELECT ?boostType WHERE { $recordURI$ intlayer:boost ?boostType}").
