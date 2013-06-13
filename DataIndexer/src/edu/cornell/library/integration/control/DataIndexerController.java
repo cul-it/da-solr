@@ -146,7 +146,7 @@ public class DataIndexerController extends MultiActionController {
       setDataset(TDBFactory.createDataset(TDBDIR));
       setJenaModel(dataset.getDefaultModel());
       
-      //System.out.println("Model size: "+ jenaModel.size());
+      logger.info("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
       //String subject = "<" +uriNs + "/b" + bibid + ">"; 
