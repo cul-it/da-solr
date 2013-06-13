@@ -168,13 +168,14 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		log.info("Getting additional holding data");
 		Set<String> holdingUrls = new HashSet<String>();
 		for( String bibUri : bibUris){
-			try {
+/*		Temporarily blocking loading of external MFHD files.	
+ *          try {
 				holdingUrls.addAll( holdingsIndex.getHoldingUrlsForBibURI( bibUri ) );
 			} catch (Exception e) {
 				log.error("could not get holdings RDF for BibUri " + bibUri + 
 						" " + e.getMessage());
 			}
-			
+*/			
 			context.progress();
 		}			
 		
