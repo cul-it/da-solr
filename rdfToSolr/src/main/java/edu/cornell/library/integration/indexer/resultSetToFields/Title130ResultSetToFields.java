@@ -50,8 +50,8 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			for (DataField f: dataFields) {
-				String field = f.concatenateSpecificSubfields("adghplskfmnor");
-				String cts = f.concatenateSpecificSubfields("a");
+				String field = f.concatenateSpecificSubfields("adfgklmnoprst");
+				String cts = f.concatenateSpecificSubfields("adfgklmnoprst");
 				if (cts.length() > 0) {
 					field += "|"+cts;
 				}

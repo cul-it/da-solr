@@ -22,6 +22,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
@@ -40,6 +41,7 @@ import com.hp.hpl.jena.tdb.store.GraphTDB;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.helper.HoldingForBib;
+import edu.cornell.library.integration.indexer.IndexingUtilities;
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.service.DavService;
@@ -58,6 +60,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  */
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
+	
+	protected boolean debug = true;
 	
     //hadoop directory for the input splits that are completed 
     Path doneDir;
@@ -146,6 +150,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			if( doc == null ){
 				throw new Exception("No document created for " + bibUri);				
 			}
+			if (debug) System.out.println(IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ));
 		}catch(Throwable er){			
 			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
