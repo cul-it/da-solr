@@ -144,8 +144,10 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	
 	private void debugRemoteQuery(String query) {
-		if( debug )
-			System.out.println("Remote query for " + getName() + ":'" + query + "'");
+		if( debug ) {
+			if (query.contains("loccode"))
+				System.out.println("Remote query for " + getName() + ":'" + query + "'");
+		}
 	}
 
 	private void debugLocalQuery(String query) {
