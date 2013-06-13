@@ -111,9 +111,11 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
 					if (debug) {
-						InputStream is = mainStore.sparqlSelectQuery(query,	 RDFService.ResultFormat.TEXT);
-						String bib_xml = convertStreamToString(is);
-						System.out.println(bib_xml);		
+						if (query.contains("loccode")) {
+							InputStream is = mainStore.sparqlSelectQuery(query,	 RDFService.ResultFormat.TEXT);
+							String bib_xml = convertStreamToString(is);
+							System.out.println(bib_xml);
+						}
 					}
 					results.put(queryName, rs);			
 				}
