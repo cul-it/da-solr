@@ -170,6 +170,7 @@ public class DataIndexerController extends MultiActionController {
             + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
             + "}";
       ResultSet resultSet = null;
+      logger.info("query: "+query);
       try {
          resultSet = executeSelectQuery(query, true);
           
