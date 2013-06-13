@@ -53,6 +53,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				String author_cts = f.concatenateSpecificSubfields("a");
 				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
 						|| f.mainTag.equals("711")) {
+					title_cts = f.concatenateSpecificSubfields("tklfnpmoqrs");
 					if (title_cts.length() < 2) {
 						relation = "author_addl";
 					} else if (f.ind2.equals('2')) {
@@ -61,7 +62,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "related_work";
 					}
 				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
-					title_cts = author_cts;
+					
+					if (f.mainTag.equals("730")) {
+						title_cts = f.concatenateSpecificSubfields("tklfnpmoqrs");
+					} else {
+						title_cts = author_cts;
+					}
 					author_cts = "";
 					if (f.ind2.equals('2'))
 						relation = "included_work";
