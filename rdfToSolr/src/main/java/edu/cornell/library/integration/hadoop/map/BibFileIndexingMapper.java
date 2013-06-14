@@ -61,7 +61,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
     //hadoop directory for the input splits that are completed 
     Path doneDir;
@@ -167,18 +167,18 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	private void getHoldingRdf(Context context, Set<String> bibUris , TDBLoader loader , Model model){
 		log.info("Getting additional holding data");
 		Set<String> holdingUrls = new HashSet<String>();
-		for( String bibUri : bibUris){
-/*		Temporarily blocking loading of external MFHD files.	
- *          try {
+/*  *Temporarily blocking loading of external MFHD files.	
+ 		for( String bibUri : bibUris){
+           try {
 				holdingUrls.addAll( holdingsIndex.getHoldingUrlsForBibURI( bibUri ) );
 			} catch (Exception e) {
 				log.error("could not get holdings RDF for BibUri " + bibUri + 
 						" " + e.getMessage());
 			}
-*/			
+			
 			context.progress();
 		}			
-		
+*/		
 		for( String holdingUrl : holdingUrls ){
 			try {										
 				loader.loadGraph((GraphTDB)model.getGraph(), getUrl(holdingUrl,context) );
