@@ -63,8 +63,14 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			}
 		}
 		
-		if( title_a != null && title_b != null && title_a.substring(ind2) != null ){
-			addField(fields,"title_sort",removeAllPunctuation(title_a.substring(ind2).toLowerCase())+
+		if( title_a != null && title_b != null && title_a != null ){
+			String sort_title;
+			if (ind2 > title_a.length()) {
+				sort_title = title_a;
+			} else {
+				sort_title = title_a.substring(ind2);
+			}
+			addField(fields,"title_sort",removeAllPunctuation(sort_title.toLowerCase())+
 					" " + title_b.toLowerCase());
 		}
 		
