@@ -108,7 +108,8 @@ public class MarcXmlToNTriples {
 							(Integer.valueOf(rec.id) / groupsize) + 
 							".nt.gz";
 					if (rec.type == RecordType.HOLDINGS) {
-						file = type.toString().toLowerCase() + '.' +
+//						file = type.toString().toLowerCase() + '.' +
+						file = "bibliographic" + '.' +
 								(Integer.valueOf(rec.bib_id) / groupsize) + 
 								".nt.gz";
 					}
