@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -127,7 +126,11 @@ public class MarcXmlToNTriples {
 				}
 		}
 		xmlstream.close();
-		out.close();
+		if (curfile.isEmpty()) {
+			System.out.println("    =>  FILE CONTAINS NO UNSUPPRESSED RECORDS.");
+		} else {
+			out.close();
+		}
 	}
 
 	/**
