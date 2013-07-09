@@ -138,10 +138,10 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-//		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
-//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/suppressedBibId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/unsuppressedBibId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/suppressedBibId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);
 		try {
 			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
