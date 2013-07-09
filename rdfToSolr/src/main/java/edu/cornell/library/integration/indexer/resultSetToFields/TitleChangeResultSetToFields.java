@@ -53,7 +53,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				String author_cts = f.concatenateSpecificSubfields("a");
 				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
 						|| f.mainTag.equals("711")) {
-					title_cts = f.concatenateSpecificSubfields("tklfnpmoqrs");
+					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
 					if (title_cts.length() < 2) {
 						relation = "author_addl";
 					} else if (f.ind2.equals('2')) {

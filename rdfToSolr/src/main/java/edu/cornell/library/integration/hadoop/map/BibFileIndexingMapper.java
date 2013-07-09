@@ -85,53 +85,63 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
 
-		File tmpDir = Files.createTempDir();
-		log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
-		try{			
-			InputStream is = getUrl( urlText.toString() , context );
-			context.progress();
+        for (int i = 0; i < 4; i++) { // In case of trouble, retry up to four times.
+
+        	File tmpDir = Files.createTempDir();
+			log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
+
+			try{			
+				
+				InputStream is = getUrl( urlText.toString() , context );
+				context.progress();
+				
+				log.info("Starting to build model");			
+				//load the RDF to a triple store			
+				Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
+				TDBLoader loader = new TDBLoader() ;
+				loader.loadGraph((GraphTDB)model.getGraph(), is);			
+				model.add(baseModel);
+				
+				is.close();			
+				context.progress();
+				
+				log.info("Model load completed. Starting query for all bib records in model. ");									
+				Set<String> bibUris = getURIsInModel(context, model);
+				context.progress();
+				
+				log.info("Getting holding rdf.");
+				getHoldingRdf(context, bibUris, loader, model);		 
+				
+				log.info("Starting to index documents");
+				RDFService rdf = new RDFServiceModel(model);
+				for( String bibUri: bibUris){	
+					try{
+						indexToSolr(bibUri, rdf);	
+						context.progress();
+						context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
+						context.write(new Text(bibUri), new Text("URI\tSuccess"));
+					}catch(Throwable ex ){
+						String filename = getSplitFileName(context);
+						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
+					}
+				}		
+							
+				moveToDone( context );
+
+			}catch(Throwable th){			
+				String filename = getSplitFileName(context);
+				String errorMsg = "could not process file URL " + urlText.toString() +
+						" due to " + th.toString() ;
+				log.error( errorMsg );
+				context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+				continue; //failed... retry
+
+			}finally{			
+				FileUtils.deleteDirectory( tmpDir );			
+			}
 			
-			log.info("Starting to build model");			
-			//load the RDF to a triple store			
-			Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
-			TDBLoader loader = new TDBLoader() ;
-			loader.loadGraph((GraphTDB)model.getGraph(), is);			
-			model.add(baseModel);
-			
-			is.close();			
-			context.progress();
-			
-			log.info("Model load completed. Starting query for all bib records in model. ");									
-			Set<String> bibUris = getURIsInModel(context, model);
-			context.progress();
-			
-			log.info("Getting holding rdf.");
-			getHoldingRdf(context, bibUris, loader, model);		 
-			
-			log.info("Starting to index documents");
-			RDFService rdf = new RDFServiceModel(model);
-			for( String bibUri: bibUris){	
-				try{
-					indexToSolr(bibUri, rdf);	
-					context.progress();
-					context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
-					context.write(new Text(bibUri), new Text("URI\tSuccess"));
-				}catch(Throwable ex ){
-					String filename = getSplitFileName(context);
-					context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
-				}
-			}		
-						
-			moveToDone( context );
-		}catch(Throwable th){			
-			String filename = getSplitFileName(context);
-			String errorMsg = "could not process file URL " + urlText.toString() +
-					" due to " + th.toString() ;
-			log.error( errorMsg );
-			context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
-		}finally{			
-			FileUtils.deleteDirectory( tmpDir );			
-		}		
+			return; // success
+        }
 	}
 	
 	/** Move the split from the todo directory to the done directory. */ 
@@ -167,18 +177,18 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	private void getHoldingRdf(Context context, Set<String> bibUris , TDBLoader loader , Model model){
 		log.info("Getting additional holding data");
 		Set<String> holdingUrls = new HashSet<String>();
-		for( String bibUri : bibUris){
-/*		Temporarily blocking loading of external MFHD files.	
- *          try {
+/*  *Temporarily blocking loading of external MFHD files.	
+ 		for( String bibUri : bibUris){
+           try {
 				holdingUrls.addAll( holdingsIndex.getHoldingUrlsForBibURI( bibUri ) );
 			} catch (Exception e) {
 				log.error("could not get holdings RDF for BibUri " + bibUri + 
 						" " + e.getMessage());
 			}
-*/			
+			
 			context.progress();
 		}			
-		
+*/		
 		for( String holdingUrl : holdingUrls ){
 			try {										
 				loader.loadGraph((GraphTDB)model.getGraph(), getUrl(holdingUrl,context) );
@@ -217,6 +227,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				      QuerySolution soln = results.nextSolution() ;
 				      Resource r = soln.getResource("URI") ; //result variable must be a resource
 				      bibUris.add( r.getURI() );
+				      if (debug)
+				    	  log.info("URI in file: "+r.getURI() );
 				    }
 				  } finally { qexec.close() ; }
 			}catch(com.hp.hpl.jena.query.QueryParseException ex){

@@ -75,7 +75,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		solr = new 	HttpSolrServer( "http://da-dev-solr.library.cornell.edu/solr/May6Test" );
+		solr = new 	HttpSolrServer( "http://fbw4-dev.library.cornell.edu:8080/solr/June13" );
 		indexStandardTestRecords( solr, rdf );		
 	}
 	

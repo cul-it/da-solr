@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -109,7 +108,8 @@ public class MarcXmlToNTriples {
 							(Integer.valueOf(rec.id) / groupsize) + 
 							".nt.gz";
 					if (rec.type == RecordType.HOLDINGS) {
-						file = type.toString().toLowerCase() + '.' +
+//						file = type.toString().toLowerCase() + '.' +
+						file = "bibliographic" + '.' +
 								(Integer.valueOf(rec.bib_id) / groupsize) + 
 								".nt.gz";
 					}
@@ -127,7 +127,11 @@ public class MarcXmlToNTriples {
 				}
 		}
 		xmlstream.close();
-		out.close();
+		if (curfile.isEmpty()) {
+			System.out.println("    =>  FILE CONTAINS NO UNSUPPRESSED RECORDS.");
+		} else {
+			out.close();
+		}
 	}
 
 	/**
@@ -135,10 +139,10 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-//		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/suppressedMfhdId.txt";
-//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/mfhds/unsuppressedMfhdId.txt";
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/suppressedBibId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/clean/bibs/unsuppressedBibId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);
 		try {
 			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());

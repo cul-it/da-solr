@@ -1,11 +1,9 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.IndexingUtilities.substitueInRecordURI;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -13,7 +11,6 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public abstract class SPARQLFieldMakerBase implements FieldMaker{
@@ -34,7 +31,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	Map<String,String> defaultPrefixes;
 
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
 	public SPARQLFieldMakerBase() {
 		this.defaultPrefixes = new HashMap<String,String>();

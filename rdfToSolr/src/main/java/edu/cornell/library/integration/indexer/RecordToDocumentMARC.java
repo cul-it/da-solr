@@ -222,9 +222,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("title_uniform_t","130","adfgklmnoprst"),
 				new StandardMARCFieldMaker("title_uniform_t","240","adfgklmnoprs"),
 				new StandardMARCFieldMaker("title_uniform_t","730","tklfnpmoqrs"),
-				new StandardMARCFieldMaker("title_uniform_t","700","tklfnpmoqrs"),
-				new StandardMARCFieldMaker("title_uniform_t","710","tklfnpmoqrs"),
-				new StandardMARCFieldMaker("title_uniform_t","711","tklfnpmoqrs"),
+				new StandardMARCFieldMaker("title_uniform_t","700","tklfnpmors"),
+				new StandardMARCFieldMaker("title_uniform_t","710","tklfnpmors"),
+				new StandardMARCFieldMaker("title_uniform_t","711","tklfnpmors"),
 
 				new StandardMARCFieldMaker("title_series_t","400","abdfklnptvcegu"),				
 				new StandardMARCFieldMaker("title_series_t","410","abdfklnptvcegu"),				
