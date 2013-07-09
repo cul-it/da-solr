@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.hadoop.map;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -125,8 +126,17 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
 					}
 				}		
-							
-				moveToDone( context );
+
+				try {
+					moveToDone( context );
+				} catch (FileNotFoundException e) {
+					//TODO This error is expected. Why? It should be dealt with. In the meantime, let's not restart the indexing process in response.
+					String filename = getSplitFileName(context);
+					String errorMsg = "could not process file URL " + urlText.toString() +
+							" due to " + e.toString() ;
+					log.warn( errorMsg );
+					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+				}
 
 			}catch(Throwable th){			
 				String filename = getSplitFileName(context);
