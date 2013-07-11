@@ -11,4 +11,4 @@ java_import 'edu.cornell.library.integration.support.ShowBibMrc'
 print "ShowBibMrc...\n" 
 bibid = ARGV[0]
 args = [bibid].to_java(:string)
-GetBibMrc.main(args)
+ShowBibMrc.main(args)
