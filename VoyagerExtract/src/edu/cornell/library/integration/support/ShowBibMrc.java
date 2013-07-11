@@ -85,7 +85,7 @@ public class ShowBibMrc {
          }
          
          String mrc = sb.toString(); 
-         //System.out.println("mrc: "+mrc); 
+         System.out.println("mrc: "+mrc); 
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
