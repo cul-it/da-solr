@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.bo.BibData; 
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
@@ -85,7 +86,6 @@ public class ShowBibMrc {
          }
          
          String mrc = sb.toString(); 
-         System.out.println("mrc: "+mrc); 
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
