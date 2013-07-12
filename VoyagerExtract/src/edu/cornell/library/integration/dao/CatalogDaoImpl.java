@@ -259,7 +259,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
    public List<BibData> getBibData(String bibid) throws Exception {
       
       String sql = ""
-         +"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = "+ bibid +"  ORDER BY BIB_DATA.SEQNUM";
+         +"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = '"+ bibid +"'  ORDER BY BIB_DATA.SEQNUM";
       try {
          List<BibData> bibDataList =  getSimpleJdbcTemplate().query(sql, new BibDataMapper());
          return bibDataList;
