@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.util.ObjectUtils;
@@ -70,6 +71,25 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
       try {
          BibMasterData bibMasterData = catalogDao.getBibMasterData(bibid);        
          ObjectUtils.printBusinessObject(bibMasterData);
+      } catch (Exception e) { 
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+   
+   @Test
+   public void testGetBibData() {
+      System.out.println("testGetBibData");
+      CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
+      String bibid = "6100933"; 
+      
+      try {
+    	  List<BibData>  bibDataList = catalogDao.getBibData(bibid);
+          StringBuffer sb = new StringBuffer();
+          for (BibData bibData : bibDataList) {
+             sb.append(bibData.getRecord());
+          }
+          System.out.println(sb.toString());
       } catch (Exception e) { 
          // TODO Auto-generated catch block
          e.printStackTrace();
