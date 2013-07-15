@@ -146,7 +146,7 @@ public class DataIndexerController extends MultiActionController {
       setDataset(TDBFactory.createDataset(TDBDIR));
       setJenaModel(dataset.getDefaultModel());
       
-      logger.info("Model size: "+ jenaModel.size());
+      //logger.info("Model size: "+ jenaModel.size());
       
       // get Resources with bibId
       //String subject = "<" +uriNs + "/b" + bibid + ">"; 
@@ -170,7 +170,7 @@ public class DataIndexerController extends MultiActionController {
             + " ?fileUri <http://www.w3.org/2000/01/rdf-schema#label> ?filename "
             + "}";
       ResultSet resultSet = null;
-      logger.info("query: "+query);
+      //logger.info("query: "+query);
       try {
          resultSet = executeSelectQuery(query, true);
           
@@ -184,7 +184,7 @@ public class DataIndexerController extends MultiActionController {
          //triples.add(new Triple(solution.getResource("holding").getURI(), hasFile, solution.getLiteral("filename").toString())); 
          fileUriList.add( (String) solution.getLiteral("filename").toString());
       }
-      logger.info("fileUriList size: "+ fileUriList.size());
+      //logger.info("fileUriList size: "+ fileUriList.size());
       jenaModel.close();
       model.put("bibid", bibid);
       
