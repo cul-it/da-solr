@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
+import org.marc4j.marc.Record;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.bo.BibData; 
@@ -16,6 +17,7 @@ import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
+import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ShowBibMrc {
    
@@ -84,8 +86,9 @@ public class ShowBibMrc {
          for (BibData bibData : bibDataList) {
             sb.append(bibData.getRecord());
          }
-         
-         String mrc = sb.toString(); 
+         ConvertUtils convert = new ConvertUtils();
+         Record record = convert.getMarcRecord(sb.toString());
+         System.out.println(record.toString()); 
           
       } catch (Exception e) {
          // TODO Auto-generated catch block
