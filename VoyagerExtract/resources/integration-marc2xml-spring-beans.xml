@@ -19,27 +19,7 @@
     <property name="nativeJdbcExtractor"><ref local="nativeJdbcExtractor"/></property>
   </bean>
   
-  <!-- 
-  <bean id="importerConfiguration"
-	class="info.extensiblecatalog.OAIToolkit.importer.ImporterConfiguration"
-  >
-		<property name="sourceDir"><value>${sourceDir}</value></property> 
-		<property name="destinationXmlDir"><value>${destinationXmlDir}</value></property> 
-		<property name="destinationDir"><value>${destinationDir}</value></property> 
-		<property name="errorDir"><value>${errorDir}</value></property> 
-		<property name="errorXmlDir"><value>${errorXmlDir}</value></property> 
-		<property name="logDir"><value>${logDir}</value></property> 
-		<property name="needLogDetail"><value>${needLogDetail}</value></property>
-		<property name="marcSchema"><value>${marcSchema}</value></property>
-		<property name="marcEncoding"><value>${marcEncoding}</value></property> 
-		<property name="splitSize"><value>${splitSize}</value></property> 
-		<property name="translateLeaderBadCharsToZero"><value>${translateLeaderBadCharsToZero}</value></property> 
-		<property name="translateNonleaderBadCharsToSpaces"><value>${translateNonleaderBadCharsToSpaces}</value></property>
-      <property name="needConvert"><value>${needConvert}</value></property>
-      <property name="needLoad"><value>${needLoad}</value></property>
-      <property name="needModify"><value>${needModify}</value></property>
-   </bean>
-    -->
+ 
     
    <bean id="integrationDataProperties" 
       class="edu.cornell.library.integration.config.IntegrationDataProperties"
