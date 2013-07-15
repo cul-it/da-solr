@@ -11,4 +11,4 @@ java_import 'edu.cornell.library.integration.support.ShowMfhdMrc'
 print "ShowMfhdMrc...\n" 
 mfhdid = ARGV[0]
 args = [mfhdid].to_java(:string)
-ShowBibMrc.main(args)
+ShowMfhdMrc.main(args)
