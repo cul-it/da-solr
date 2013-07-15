@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData; 
+import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.util.ConvertUtils;
 import edu.cornell.library.integration.util.ObjectUtils;
 
@@ -89,6 +90,27 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
           StringBuffer sb = new StringBuffer();
           for (BibData bibData : bibDataList) {
              sb.append(bibData.getRecord());
+          }
+          ConvertUtils convert = new ConvertUtils();
+          Record record = convert.getMarcRecord(sb.toString());
+          System.out.println(record.toString());
+      } catch (Exception e) { 
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+   
+   @Test
+   public void testGetMfhdData() {
+      System.out.println("testGetMfhdData");
+      CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
+      String bibid = "164008"; 
+      
+      try {
+    	  List<MfhdData>  mfhdDataList = catalogDao.getMfhdData(bibid);
+          StringBuffer sb = new StringBuffer();
+          for (MfhdData mfhdData : mfhdDataList) {
+             sb.append(mfhdData.getRecord());
           }
           ConvertUtils convert = new ConvertUtils();
           Record record = convert.getMarcRecord(sb.toString());
