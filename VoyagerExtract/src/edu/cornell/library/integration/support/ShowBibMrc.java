@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.bo.BibData; 
 import edu.cornell.library.integration.bo.BibMasterData;
+import edu.cornell.library.integration.dao.CatalogDao;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService; 
@@ -25,7 +26,7 @@ public class ShowBibMrc {
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
  
-   private CatalogService catalogService; 
+   private CatalogDao catalogDao; 
    
 
    /**
@@ -36,17 +37,17 @@ public class ShowBibMrc {
    } 
 
    /**
-    * @return the catalogService
+    * @return the catalogDao
     */
-   public CatalogService getCatalogService() {
-      return this.catalogService;
+   public CatalogDao getCatalogDao() {
+      return this.catalogDao;
    }
 
    /**
     * @param catalogService the catalogService to set
     */
-   public void setCatalogService(CatalogService catalogService) {
-      this.catalogService = catalogService;
+   public void setCatalogDao(CatalogDao catalogDao) {
+      this.catalogDao = catalogDao;
    }
 
    
@@ -73,8 +74,8 @@ public class ShowBibMrc {
       
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
-      if (ctx.containsBean("catalogService")) {
-         setCatalogService((CatalogService) ctx.getBean("catalogService"));
+      if (ctx.containsBean("catalogDao")) {
+         setCatalogDao((CatalogDao) ctx.getBean("catalogDao"));
       } else {
          System.err.println("Could not get catalogService");
          System.exit(-1);
@@ -82,12 +83,13 @@ public class ShowBibMrc {
       
       try {            
          System.out.println("Getting bib mrc for bibid: "+bibid);
-         List<BibData>  bibDataList = catalogService.getBibData(bibid);
+         List<BibData>  bibDataList = this.catalogDao.getBibData(bibid);
          StringBuffer sb = new StringBuffer();
          for (BibData bibData : bibDataList) {
             sb.append(bibData.getRecord());
          }
          ConvertUtils convert = new ConvertUtils();
+         System.out.println(sb.toString());
          Record record = convert.getMarcRecord(sb.toString());
          if (record != null) {
             System.out.println(record.toString()); 
