@@ -31,7 +31,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	Map<String,String> defaultPrefixes;
 
-	protected boolean debug = false;
+	protected boolean debug = true;
 	
 	public SPARQLFieldMakerBase() {
 		this.defaultPrefixes = new HashMap<String,String>();
@@ -108,11 +108,11 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
 					if (debug) {
-						if (query.contains("loccode")) {
+//						if (query.contains("loccode")) {
 							InputStream is = mainStore.sparqlSelectQuery(query,	 RDFService.ResultFormat.TEXT);
 							String bib_xml = convertStreamToString(is);
 							System.out.println(bib_xml);
-						}
+//						}
 					}
 					results.put(queryName, rs);			
 				}
@@ -142,7 +142,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	private void debugRemoteQuery(String query) {
 		if( debug ) {
-			if (query.contains("loccode"))
+//			if (query.contains("loccode"))
 				System.out.println("Remote query for " + getName() + ":'" + query + "'");
 		}
 	}
