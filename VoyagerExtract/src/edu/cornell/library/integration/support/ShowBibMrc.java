@@ -83,7 +83,7 @@ public class ShowBibMrc {
       
       try {            
          System.out.println("Getting bib mrc for bibid: "+bibid);
-         List<BibData>  bibDataList = this.catalogDao.getBibData(bibid);
+         List<BibData>  bibDataList = getCatalogDao().getBibData(bibid);
          StringBuffer sb = new StringBuffer();
          for (BibData bibData : bibDataList) {
             sb.append(bibData.getRecord());
