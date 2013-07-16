@@ -134,7 +134,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    	"  ?hold852b marcrdf:value ?loccode.\n" +
 							"}").
 					addResultSetToFields( new FormatResultSetToFields() ),
-					
+										
 				getLanguageFieldMaker(),
 				new StandardMARCFieldMaker("language_display","546","ab"),
 				    		
