@@ -4,9 +4,10 @@
 #
 require "java"
 $CLASSPATH << 'build/classes/'
+$CLASSPATH << 'resources'
 Dir["./lib/\*.jar"].each { |jar| require jar }
 
-# print $CLASSPATH
+#print $CLASSPATH
 java_import 'edu.cornell.library.integration.support.ShowBibMrc'
 print "ShowBibMrc...\n" 
 bibid = ARGV[0]
