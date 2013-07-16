@@ -6,15 +6,15 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.util.StringUtils;
-
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
 import edu.cornell.library.integration.bo.BibData; 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -104,11 +104,12 @@ public class GetBibBatchMrc {
 
       setDavService(DavServiceFactory.getDavService());
       String biblist = FileUtils.readFileToString(new File(filename));
-      String[] bibArray = StringUtils.split(biblist, ",");
+      //String[] bibArray = StringUtils.split(biblist, ",");
       String bibid = new String();
-      for (int i=0 ; i < bibArray.length ; i++) {
-      	 if (bibArray[i] != null) {
-      		bibid = bibArray[i];
+      StringTokenizer st = new StringTokenizer(biblist, ",");
+      while (st.hasMoreElements()) {
+    	 bibid = (String) st.nextToken().trim();
+      	 if (StringUtils.isNotEmpty(bibid)) { 
             try {            
                System.out.println("Getting bib mrc for bibid: "+bibid);
                List<BibData>  bibDataList = catalogService.getBibData(bibid);
@@ -126,6 +127,7 @@ public class GetBibBatchMrc {
             }
       	 }
       }
+      System.out.println("Done.");
       
    } 
    
