@@ -113,14 +113,14 @@ public class ConvertBibUpdatesToXml {
          System.out.println("No update Marc files available to process");
       } else {
          for (String srcFile  : srcList) {
-            //System.out.println("Converting mrc file: "+ srcFile);
+            System.out.println("Converting mrc file: "+ srcFile);
    			try {
    			   String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
                String bibid = getBibIdFromFileName(srcFile);
                converter.setItemId(bibid); 
-   				converter.convertMrcToXml(davService, srcDir, srcFile);
-   				davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
+   			   converter.convertMrcToXml(davService, srcDir, srcFile);
+   			   davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) { 
    			   try {
    			      System.out.println("Exception caught: could not convert file: "+ srcFile);
