@@ -111,7 +111,7 @@ public class GetBibBatchMrc {
     	 bibid = (String) st.nextToken().trim();
       	 if (StringUtils.isNotEmpty(bibid)) { 
             try {            
-               System.out.println("Getting bib mrc for bibid: "+bibid);
+               //System.out.println("Getting bib mrc for bibid: "+bibid);
                List<BibData>  bibDataList = catalogService.getBibData(bibid);
                StringBuffer sb = new StringBuffer();
                for (BibData bibData : bibDataList) {
@@ -119,8 +119,10 @@ public class GetBibBatchMrc {
                }
          
                String mrc = sb.toString(); 
-               //System.out.println("mrc: "+mrc); 
-               saveBibMrc(mrc, bibid, destDir); 
+               //System.out.println("mrc: "+mrc);
+               if (StringUtils.isNotEmpty(mrc)) {
+                  saveBibMrc(mrc, bibid, destDir);
+               }
             } catch (Exception e) {
                // TODO Auto-generated catch block
                e.printStackTrace();
