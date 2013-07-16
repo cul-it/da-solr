@@ -4,6 +4,7 @@
 #
 require "java"
 $CLASSPATH << 'build/classes/'
+$CLASSPATH << 'resources/'
 Dir["./lib/\*.jar"].each { |jar| require jar }
 
 # print $CLASSPATH
