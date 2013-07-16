@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.marc4j.marc.Record;
@@ -88,8 +89,11 @@ public class ShowBibMrc {
          }
          ConvertUtils convert = new ConvertUtils();
          Record record = convert.getMarcRecord(sb.toString());
-         System.out.println(record.toString()); 
-          
+         if (record != null) {
+            System.out.println(record.toString()); 
+         } else {
+        	System.out.println("Record is empty");
+         }
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
