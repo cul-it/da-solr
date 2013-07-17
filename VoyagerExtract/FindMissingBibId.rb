@@ -8,6 +8,7 @@ $CLASSPATH << 'resources/'
 Dir["./lib/\*.jar"].each { |jar| require jar }
 
 # print $CLASSPATH
-java_import 'edu.cornell.library.integration.FindMissingBibId'
+java_import 'edu.cornell.library.integration.support.FindMissingBibId'
 print "FindMissingBibId...\n" 
-FindMissingBibId.main()
+args = [""].to_java(:string)
+FindMissingBibId.main(args)
