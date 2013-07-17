@@ -28,7 +28,7 @@ import edu.cornell.library.integration.util.ConvertUtils;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
-public class FindMissingBibId {
+public class GetBibIdFromMarc {
 
 	/** Logger for this class and subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -39,7 +39,7 @@ public class FindMissingBibId {
 	/**
 	 * default constructor
 	 */
-	public FindMissingBibId() {
+	public GetBibIdFromMarc() {
 
 	}
 
@@ -77,7 +77,7 @@ public class FindMissingBibId {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		FindMissingBibId app = new FindMissingBibId();
+		GetBibIdFromMarc app = new GetBibIdFromMarc();
 		app.run();
 	}
 
@@ -97,15 +97,10 @@ public class FindMissingBibId {
 
 		setDavService(DavServiceFactory.getDavService());
 
-		List<String> unsuppressedBibIdList = new ArrayList<String>();
-		try {
-			unsuppressedBibIdList = getCatalogService()
-					.getAllUnSuppressedBibId();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+ 
 		// Get list of BibIds from full extract
+		//String mrcFile = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full/bib.1373292506.1.mrc";
+
 		String srcDir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done";
 
 		List<String> srcList = new ArrayList<String>();
@@ -115,35 +110,35 @@ public class FindMissingBibId {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 		//
-		List<String> fullBibIdList = new ArrayList<String>();
+		
+		
 		List<String> extractBibIdList = new ArrayList<String>();
 		String mrc = new String();
 		ConvertUtils converter = new ConvertUtils();
 		for (String srcFile : srcList) {
-			try {
-				mrc = davService.getFileAsString(srcDir + "/" + srcFile);
-				extractBibIdList = converter.getBibIdFromMarc(mrc);
-				fullBibIdList.addAll(extractBibIdList);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		   System.out.println("Reading bibids from mrc file: "+ srcFile);
+	 
+		   try {
+			  mrc = davService.getFileAsString(srcDir +"/"+ srcFile);
+			  for (String s: converter.getBibIdFromMarc(mrc)) {
+			     System.out.println(s);
+			  }
+			   
+			  
+		   } catch (Exception e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		   }
+		}
+		
+		for (String s: extractBibIdList) {
+			System.out.println(s);
+		}
+		System.out.println("Done.");
 
-		}
-		try {
-			saveListToFile(fullBibIdList);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		for (String bibid : unsuppressedBibIdList) {
-			if (!fullBibIdList.contains(bibid)) {
-				System.out.println("BibId: " + bibid + " not found in extract");
-			}
-		}
 	}
 
 	public void saveListToFile(List<String> bibIdList) throws Exception {
