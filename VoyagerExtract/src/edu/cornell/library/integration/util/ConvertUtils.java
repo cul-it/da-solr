@@ -355,9 +355,47 @@ public class ConvertUtils {
 	      } 
 	   }
 	   return record;
-	   
-	   
-	   
+   }
+   
+   public List<String> getBibIdFromMarc(String mrc) {
+	   List<String> biblist = new ArrayList<String>();
+	   Record record = null;
+	   MarcPermissiveStreamReader reader = null;
+	   boolean permissive      = true;
+	   boolean convertToUtf8   = true;
+	   InputStream is = null;
+	   String bibid = new String();
+	   try {
+		  is = stringToInputStream(mrc);
+		  reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
+	      while (reader.hasNext()) {
+	         try {
+	            record = reader.next();
+	            ControlField f001 = (ControlField) record.getVariableField("001");
+	            if (f001 != null) {
+	               biblist.add(f001.getData().toString());
+	            }  
+	         } catch (MarcException me) {
+	            logger.error("MarcException reading record", me);
+	            continue;
+	         } catch (Exception e) {
+	            e.printStackTrace();
+	            continue;
+	         }
+	         //System.out.println(record.toString());
+	      } 
+	   } catch (UnsupportedEncodingException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+	   } finally {
+	          
+	      try { 
+	         is.close();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      } 
+	   }
+       return biblist;
    }
    
    /**
