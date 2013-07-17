@@ -106,7 +106,7 @@ public class FindMissingBibId {
 			e.printStackTrace();
 		}
 		// Get list of BibIds from full extract
-		String srcDir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full";
+		String srcDir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done";
 
 		List<String> srcList = new ArrayList<String>();
 		try {
@@ -117,13 +117,15 @@ public class FindMissingBibId {
 			e.printStackTrace();
 		}
 		//
+		List<String> fullBibIdList = new ArrayList<String>();
 		List<String> extractBibIdList = new ArrayList<String>();
 		String mrc = new String();
 		ConvertUtils converter = new ConvertUtils();
 		for (String srcFile : srcList) {
 			try {
 				mrc = davService.getFileAsString(srcDir + "/" + srcFile);
-				extractBibIdList.addAll(converter.getBibIdFromMarc(mrc));
+				extractBibIdList = converter.getBibIdFromMarc(mrc);
+				fullBibIdList.addAll(extractBibIdList);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -131,14 +133,14 @@ public class FindMissingBibId {
 
 		}
 		try {
-			saveListToFile(extractBibIdList);
+			saveListToFile(fullBibIdList);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		for (String bibid : unsuppressedBibIdList) {
-			if (!extractBibIdList.contains(bibid)) {
+			if (!fullBibIdList.contains(bibid)) {
 				System.out.println("BibId: " + bibid + " not found in extract");
 			}
 		}
