@@ -437,6 +437,16 @@
       </java>
    </target>
    
+   <target name="FindMissingBibId" depends="build" description="Run FindMissingBibId" >
+      <echo message="Running FindMissingBibId"/>
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.support.FindMissingBibId" >
+         <jvmarg value="-Xmx2048m"/>
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+   
    
 
 </project>
