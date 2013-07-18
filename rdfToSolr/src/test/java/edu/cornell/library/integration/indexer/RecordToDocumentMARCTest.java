@@ -96,11 +96,11 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	public void testLanguageSearchFacet() throws SolrServerException{
 
 		try {
-			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
+			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
 					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". " +
 					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
-					"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Language>. " +
-					"?l <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?langcode. " +
+					"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Language>. " +
+					"?l <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?langcode. " +
 					"FILTER( SUBSTR( ?val,36,3) = ?langcode ) " +
 					"?l <http://www.w3.org/2000/01/rdf-schema#label> ?language.}",RDFService.ResultFormat.TEXT);
 			String language = convertStreamToString(is);

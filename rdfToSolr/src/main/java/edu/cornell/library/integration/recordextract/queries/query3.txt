@@ -39,7 +39,7 @@ WHERE {
 
    {
      SELECT STR(?v) as ?brecId WHERE {
-       <http://fbw4-dev.library.cornell.edu/individuals/b2> marc:hasField ?f .
+       <http://da-rdf.library.cornell.edu/individual/b2> marc:hasField ?f .
        ?f marc:tag "001" .
        ?f marc:value ?v
      }

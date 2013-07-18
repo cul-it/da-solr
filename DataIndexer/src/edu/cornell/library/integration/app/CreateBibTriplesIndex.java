@@ -29,8 +29,8 @@ public class CreateBibTriplesIndex {
    private final String dataNs = "http://culdata.library.cornell.edu/canonical/0.1/";
    private final String dataDevNs = "http://culdatadev.library.cornell.edu/canonical/0.1/";
    private final String bibIndexFileName = "/usr/local/src/integrationlayer/DataIndexer/bibIndexfile.nt";
-   private final String uriNs = "http://fbw4-dev.library.cornell.edu/individuals";
-   private final String uriDevNs = "http://fbw4-dev.library.cornell.edu/individuals";
+   private final String uriNs = "http://da-rdf.library.cornell.edu/individual";
+   private final String uriDevNs = "http://da-rdf.library.cornell.edu/individual";
    
    /**
     * default constructor
@@ -123,7 +123,7 @@ public class CreateBibTriplesIndex {
    protected void extractStatements(InputStream is, File file, String fileObjectUri) {      
        
       // we are looking for something like this
-      // <http://fbw4-dev.library.cornell.edu/individuals/b4040001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .
+      // <http://da-rdf.library.cornell.edu/individual/b4040001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .
 
       final String bibObject = "<http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord>"; 
       

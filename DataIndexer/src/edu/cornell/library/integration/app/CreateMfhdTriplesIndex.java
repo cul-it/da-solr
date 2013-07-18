@@ -26,8 +26,8 @@ public class CreateMfhdTriplesIndex {
    private final String dataNs = "http://culdata.library.cornell.edu/canonical/0.1/";
    private final String dataDevNs = "http://culdatadev.library.cornell.edu/canonical/0.1/";
    private final String holdingsIndexFileName = "/usr/local/src/integrationlayer/DataIndexer/holdingsIndexfile.nt";
-   private final String uriNs = "http://fbw4-dev.library.cornell.edu/individuals";
-   private final String uriDevNs = "http://fbw4-dev.library.cornell.edu/individuals";
+   private final String uriNs = "http://da-rdf.library.cornell.edu/individual";
+   private final String uriDevNs = "http://da-rdf.library.cornell.edu/individual";
    
    /**
     * default constructor
