@@ -23,8 +23,8 @@
 <http://fbw4-dev.library.cornell.edu/individuals/lib_ent> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Library> .
 <http://fbw4-dev.library.cornell.edu/individuals/lib_ent> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library".
 
-<http://fbw4-dev.library.cornell.edu/individuals/lib_fineart> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Library> .
-<http://fbw4-dev.library.cornell.edu/individuals/lib_fineart> <http://www.w3.org/2000/01/rdf-schema#label> "Fine Arts Library".
+<http://fbw4-dev.library.cornell.edu/individuals/lib_fine> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Library> .
+<http://fbw4-dev.library.cornell.edu/individuals/lib_fine> <http://www.w3.org/2000/01/rdf-schema#label> "Fine Arts Library".
 
 <http://fbw4-dev.library.cornell.edu/individuals/lib_hotel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/Library> .
 <http://fbw4-dev.library.cornell.edu/individuals/lib_hotel> <http://www.w3.org/2000/01/rdf-schema#label> "Hotel Library".
