@@ -56,20 +56,20 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	static final String fallbackSolrDir2 = new File("./solr/corex").getAbsolutePath() ;
 	
 	static final String[] rMarcURIS = {
-			"http://fbw4-dev.library.cornell.edu/individuals/b3309",
-			"http://fbw4-dev.library.cornell.edu/individuals/b4696",
-			"http://fbw4-dev.library.cornell.edu/individuals/b1322952",
-			"http://fbw4-dev.library.cornell.edu/individuals/b7683714",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC001",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC002",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC003",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC004",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC005",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC006",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC007",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC008",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC009",
-			"http://fbw4-dev.library.cornell.edu/individuals/bUNTRadMARC010"
+			"http://da-rdf.library.cornell.edu/individual/b3309",
+			"http://da-rdf.library.cornell.edu/individual/b4696",
+			"http://da-rdf.library.cornell.edu/individual/b1322952",
+			"http://da-rdf.library.cornell.edu/individual/b7683714",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC001",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC002",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC003",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC004",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC005",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC006",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC007",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC008",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC009",
+			"http://da-rdf.library.cornell.edu/individual/bUNTRadMARC010"
 	};
 	
 	
@@ -126,12 +126,12 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	
 			
 	public void testLanguageMappingsInRDF() throws RDFServiceException{
-		String englishURI = "<http://fbw4-dev.library.cornell.edu/individuals/leng>";
+		String englishURI = "<http://da-rdf.library.cornell.edu/individual/leng>";
 		assertTrue("Expected to find statements about English mappings in the RDF. " +
 				"The mappings RDF may not be getting loaded for this test.",
 				rdf.sparqlAskQuery(
 						"ASK WHERE { " 
-						+ englishURI + " <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?a }"));				
+						+ englishURI + " <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?a }"));				
 	}
 	
 	

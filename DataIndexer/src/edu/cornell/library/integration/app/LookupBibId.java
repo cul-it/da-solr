@@ -27,7 +27,7 @@ public class LookupBibId {
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
    private final String TDBDIR = "/usr/local/src/integrationlayer/tdbIndex";
-   private final String uriNs = "http://fbw4-dev.library.cornell.edu/individuals";
+   private final String uriNs = "http://da-rdf.library.cornell.edu/individual";
    private final String dataNs = "http://culdata.library.cornell.edu/canonical/0.1/";
    private final String dataDevNs = "http://culdatadev.library.cornell.edu/canonical/0.1/";
    

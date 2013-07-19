@@ -4,7 +4,7 @@
 <!ENTITY marcrdf 'http://marcrdf.library.cornell.edu/canonical/0.1/' >
 <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#' >
-<!ENTITY ind 'http://fbw4-dev.library.cornell.edu/individuals' >
+<!ENTITY ind 'http://da-rdf.library.cornell.edu/individual' >
 ]>
 
 <xsl:stylesheet version="2.0"

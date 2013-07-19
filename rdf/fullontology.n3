@@ -1,7 +1,7 @@
 @prefix dc:      <http://purl.org/dc/elements/1.1/> .
 @prefix afn:     <http://jena.hpl.hp.com/ARQ/function#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix intlayer:  <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/> .
+@prefix intlayer:  <http://da-rdf.library.cornell.edu/integrationLayer/0.1/> .
 @prefix vitro:   <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#> .
 @prefix owl:     <http://www.w3.org/2002/07/owl#> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
@@ -496,7 +496,7 @@ marcrdf:Record
       vitro:exampleAnnot "http://www.loc.gov/marc/bibliographic/examples.html"^^xsd:string ;
       vitro:hiddenFromDisplayBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#public> ;
-      vitro:inClassGroup <http://fbw4-dev.library.cornell.edu/individual/vitroClassGroupRecords> ;
+      vitro:inClassGroup <http://da-rdf.library.cornell.edu/individual/vitroClassGroupRecords> ;
       vitro:prohibitedFromUpdateBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#editor> ;
       vitro:shortDef "MARC Library Catalog Record"^^xsd:string .
@@ -561,7 +561,7 @@ marcrdf:HoldingsRecord
               "2"^^xsd:int ;
       vitro:hiddenFromDisplayBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#public> ;
-      vitro:inClassGroup <http://fbw4-dev.library.cornell.edu/individual/vitroClassGroupHoldingsRecords> ;
+      vitro:inClassGroup <http://da-rdf.library.cornell.edu/individual/vitroClassGroupHoldingsRecords> ;
       vitro:prohibitedFromUpdateBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#editor> ;
       vitro:shortDef "Holdings MARC Record"^^xsd:string .
@@ -576,7 +576,7 @@ marcrdf:BibliographicRecord
               "1"^^xsd:int ;
       vitro:hiddenFromDisplayBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#public> ;
-      vitro:inClassGroup <http://fbw4-dev.library.cornell.edu/individual/vitroClassGroupBibliographicRecs> ;
+      vitro:inClassGroup <http://da-rdf.library.cornell.edu/individual/vitroClassGroupBibliographicRecs> ;
       vitro:prohibitedFromUpdateBelowRoleLevelAnnot
               <http://vitro.mannlib.cornell.edu/ns/vitro/role#editor> ;
       vitro:shortDef "Bibliographic MARC Record"^^xsd:string .
