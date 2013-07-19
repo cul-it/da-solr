@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream; 
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException; 
@@ -86,75 +87,92 @@ public class ConvertBibFullToXml {
    /**
     * 
     */
-   public void run(String srcDir, String destDir) {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
-     
-      if (ctx.containsBean("catalogService")) {
-         setCatalogService((CatalogService) ctx.getBean("catalogService"));
-      } else {
-         System.err.println("Could not get catalogService");
-         System.exit(-1);
-      }
+	public void run(String srcDir, String destDir) {
 
-      setDavService(DavServiceFactory.getDavService());
-      String badDir = srcDir +".bad";
-      String doneDir = srcDir +".done";
-      
-      // get list of Full mrc files
-      List<String> srcList = new ArrayList<String>();
-      try {
-         //System.out.println("Getting list of bib marc files");
-         srcList = davService.getFileList(srcDir);
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-      // Get File handle for saving bib id list
-      File fh = new File("/usr/local/src/integrationlayer/VoyagerExtract/bibs-full-"+getTodayString()+".txt");
-      FileOutputStream fout = null;
-      try {
-		 fout = new FileOutputStream(fh);
-	  } catch (FileNotFoundException e2) {
-		 // TODO Auto-generated catch block
-		 e2.printStackTrace();
-	  }
-      List<String> biblist = new ArrayList<String>();
-      
-      ConvertUtils converter = new ConvertUtils();
-      converter.setSrcType("bib");
-      converter.setExtractType("full");
-      converter.setSplitSize(10000);
-      converter.setDestDir(destDir);
-      // iterate over mrc files
-      if (srcList.size() == 0) {
-         System.out.println("No Full Marc files available to process");
-      } else {
-         String seqno = "";
-         for (String srcFile  : srcList) {
-            //System.out.println("Converting mrc file: "+ srcFile);
-   			try {
-   			   seqno = getSequenceFromFileName(srcFile);           
-               converter.setSequence_prefix(seqno);                
-               String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
-               InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               biblist = converter.convertMrcToXml(davService, srcDir, srcFile);
-               saveBibList(fout, biblist);
-               davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
-   			} catch (Exception e) {
-   			   try {
-                  System.out.println("Exception thrown. Could not convert file: "+ srcFile);
-                  e.printStackTrace();
-                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-               } catch (Exception e1) { 
-                  e1.printStackTrace();
-               } 
-   			}
-   		}
-      }
-      
-   }
+		ApplicationContext ctx = new ClassPathXmlApplicationContext(
+				"spring.xml");
+
+		if (ctx.containsBean("catalogService")) {
+			setCatalogService((CatalogService) ctx.getBean("catalogService"));
+		} else {
+			System.err.println("Could not get catalogService");
+			System.exit(-1);
+		}
+
+		setDavService(DavServiceFactory.getDavService());
+		String badDir = srcDir + ".bad";
+		String doneDir = srcDir + ".done";
+
+		// get list of Full mrc files
+		List<String> srcList = new ArrayList<String>();
+		try {
+			// System.out.println("Getting list of bib marc files");
+			srcList = davService.getFileList(srcDir);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// Get File handle for saving bib id list
+		File fh = new File(
+				"/usr/local/src/integrationlayer/VoyagerExtract/bibs-full-"
+						+ getTodayString() + ".txt");
+		FileOutputStream fout = null;
+		try {
+			fout = new FileOutputStream(fh);
+		} catch (FileNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		List<String> biblist = new ArrayList<String>();
+
+		ConvertUtils converter = new ConvertUtils();
+		converter.setSrcType("bib");
+		converter.setExtractType("full");
+		converter.setSplitSize(10000);
+		converter.setDestDir(destDir);
+		// iterate over mrc files
+		if (srcList.size() == 0) {
+			System.out.println("No Full Marc files available to process");
+		} else {
+			String seqno = "";
+			for (String srcFile : srcList) {
+				// System.out.println("Converting mrc file: "+ srcFile);
+				try {
+					seqno = getSequenceFromFileName(srcFile);
+					converter.setSequence_prefix(seqno);
+					String ts = getTimestampFromFileName(srcFile);
+					converter.setTs(ts);
+					InputStream is = davService.getFileAsInputStream(srcDir
+							+ "/" + srcFile);
+					biblist = converter.convertMrcToXml(davService, srcDir,
+							srcFile);
+					saveBibList(fout, biblist);
+					davService.moveFile(srcDir + "/" + srcFile, doneDir + "/"
+							+ srcFile);
+				} catch (Exception e) {
+					try {
+						System.out
+								.println("Exception thrown. Could not convert file: "
+										+ srcFile);
+						e.printStackTrace();
+						davService.moveFile(srcDir + "/" + srcFile, badDir
+								+ "/" + srcFile);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		if (fout != null) {
+			try {
+				fout.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
    
     
    
