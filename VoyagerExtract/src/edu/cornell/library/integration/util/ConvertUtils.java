@@ -240,7 +240,7 @@ public class ConvertUtils {
       MarcPermissiveStreamReader reader = null;
       boolean permissive      = true;
       boolean convertToUtf8   = true;
-      List<String> biblist = new ArrayList<String>();
+      List<String> f001list = new ArrayList<String>();
       reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
        
       destXmlFile = getOutputFileName(0);
@@ -270,7 +270,7 @@ public class ConvertUtils {
             
             ControlField f001 = (ControlField) record.getVariableField("001");
 	        if (f001 != null) {
-	           biblist.add(f001.getData().toString());
+	           f001list.add(f001.getData().toString());
 	        }  
             hasInvalidChars = false;
             matcher = WEIRD_CHARACTERS_PATTERN.matcher(record.toString());
@@ -327,7 +327,7 @@ public class ConvertUtils {
       FileUtils.deleteQuietly(f);
       
       System.out.println("\nTotal record count: "+ total);          
-      return biblist;
+      return f001list;
        
    }
    
@@ -381,7 +381,7 @@ public class ConvertUtils {
 	   
 	   boolean hasInvalidChars;
 	   
-	   List<String> biblist = new ArrayList<String>();
+	   List<String> f001list = new ArrayList<String>();
 	   Record record = null;
 	   MarcPermissiveStreamReader reader = null;
 	   boolean permissive      = true;
@@ -415,7 +415,7 @@ public class ConvertUtils {
 	         
 	         ControlField f001 = (ControlField) record.getVariableField("001");
 	         if (f001 != null) {
-	            biblist.add(f001.getData().toString());
+	            f001list.add(f001.getData().toString());
 	         } 
 	         //System.out.println(record.toString());
 	      } 
@@ -430,7 +430,7 @@ public class ConvertUtils {
 	         e.printStackTrace();
 	      } 
 	   }
-       return biblist;
+       return f001list;
    }
    
    /**
