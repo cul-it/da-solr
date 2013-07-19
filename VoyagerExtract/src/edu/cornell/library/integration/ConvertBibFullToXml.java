@@ -2,7 +2,11 @@ package edu.cornell.library.integration;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream; 
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException; 
 import java.text.SimpleDateFormat; 
 import java.util.ArrayList;
@@ -106,6 +110,17 @@ public class ConvertBibFullToXml {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
+      // Get File handle for saving bib id list
+      File fh = new File("/usr/local/src/integrationlayer/VoyagerExtract/bibs-full-"+getTodayString()+".txt");
+      FileOutputStream fout = null;
+      try {
+		 fout = new FileOutputStream(fh);
+	  } catch (FileNotFoundException e2) {
+		 // TODO Auto-generated catch block
+		 e2.printStackTrace();
+	  }
+      List<String> biblist = new ArrayList<String>();
+      
       ConvertUtils converter = new ConvertUtils();
       converter.setSrcType("bib");
       converter.setExtractType("full");
@@ -124,7 +139,8 @@ public class ConvertBibFullToXml {
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
                InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
-               converter.convertMrcToXml(davService, srcDir, srcFile);
+               biblist = converter.convertMrcToXml(davService, srcDir, srcFile);
+               saveBibList(fout, biblist);
                davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) {
    			   try {
@@ -182,6 +198,21 @@ public class ConvertBibFullToXml {
 	   earlier.add(Calendar.HOUR, -3);
 	   String ds = df.format(earlier.getTime());
 	   return ds;
+   }
+   
+   protected String getTodayString() {
+	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	   Calendar today = Calendar.getInstance(); 
+	   String ds = df.format(today.getTime());
+	   return ds;
+   }
+   
+   protected void saveBibList(OutputStream out, List<String> biblist) throws Exception {
+	   StringBuffer sb = new StringBuffer();
+	   for (String s: biblist) {
+		   sb.append(s +"\n");
+	   }
+	   out.write(sb.toString().getBytes());
    }
    
    
