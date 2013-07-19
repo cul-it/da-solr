@@ -39,6 +39,7 @@ public class LibraryXmlToNTriples {
 		
 		libraries.put("Adelson", "Adelson Library");
 		libraries.put("Africana", "Africana Library");
+		libraries.put("Biochem", "Biochem Reading Room (Biotech)");
 		libraries.put("CISER", "CISER Data Archive");
 		libraries.put("Engineering", "Ag Engineering Library");
 		libraries.put("Entomology", "Entomology Library");
@@ -60,8 +61,6 @@ public class LibraryXmlToNTriples {
 		libraries.put("Uris","Uris Library");
 		libraries.put("Veterinary", "Veterinary Library");
 		
-		System.out.println(generateNTriples(priority_libraries));
-		System.out.println(generateNTriples(libraries));
 		
 		try {
 			FileInputStream xmlstream = new FileInputStream( xmlfile );
@@ -69,15 +68,18 @@ public class LibraryXmlToNTriples {
 			XMLStreamReader r  = 
 					input_factory.createXMLStreamReader(xmlfile.getPath(), xmlstream);
 			BufferedOutputStream out = null;
-			out =  new BufferedOutputStream(new FileOutputStream(target, true));
-					
+			out =  new BufferedOutputStream(new FileOutputStream(target));
+
+			out.write(generateNTriples(priority_libraries).getBytes());
+			out.write(generateNTriples(libraries).getBytes());
+			
 			while (r.hasNext()) {
 				String event = getEventTypeString(r.next());
 				if (event.equals("START_ELEMENT"))
 					if (r.getLocalName().equals("location")) {
 						Location l = processLocation(r);
 						if (l.locationOpac.equals("Y"))
-							System.out.println(generateNTriples(l));
+							out.write(generateNTriples(l).getBytes());
 						else 
 							System.out.println("Location "+l.locationCode+" / " + 
 										l.locationName + " is suppressed ("+l.mfhdCount+").");
@@ -108,8 +110,9 @@ public class LibraryXmlToNTriples {
 		while (i.hasNext()) {
 			String val = i.next();
 			String library_uri = "<" + uri_host + "lib_" + val.toLowerCase() + ">";
-			sb.append(library_uri + " " + type_p + "<" + integration_prefix + "Library>.\n");
-			sb.append(library_uri + " " + label_p + " " + libraries.get(val) + ".\n");
+			sb.append(library_uri + " " + type_p + " <" + integration_prefix + "Library>.\n");
+			sb.append(library_uri + " " + label_p + " \"" + escapeForNTriples(libraries.get(val)) + "\".\n");
+			sb.append("\n");
 		}
 		return sb.toString();
 	}
@@ -127,7 +130,7 @@ public class LibraryXmlToNTriples {
 			while (i.hasNext()) {
 				String val = i.next();
 				if (l.locationDisplayName.contains(val)) {
-					sb.append("<"+location_uri+"> <"+integration_prefix+"hasLibrary> <"+integration_prefix+"lib_"+val.toLowerCase()+">.\n");
+					sb.append("<"+location_uri+"> <"+integration_prefix+"hasLibrary> <"+uri_host+"lib_"+val.toLowerCase()+">.\n");
 					found_match = true;
 					break;
 				}
@@ -136,7 +139,7 @@ public class LibraryXmlToNTriples {
 			while (i.hasNext() && ! found_match) {
 				String val = i.next();
 				if (l.locationDisplayName.contains(val)) {
-					sb.append("<"+location_uri+"> <"+integration_prefix+"hasLibrary> <"+integration_prefix+"lib_"+val.toLowerCase()+">.\n");
+					sb.append("<"+location_uri+"> <"+integration_prefix+"hasLibrary> <"+uri_host+"lib_"+val.toLowerCase()+">.\n");
 					found_match = true;
 					break;
 				}
@@ -147,7 +150,7 @@ public class LibraryXmlToNTriples {
 		} else
 			sb.append("<"+location_uri+"> " + label_p + " \"" + escapeForNTriples(l.locationName)+ "\".\n");
 		
-		
+		sb.append("\n");
 		return sb.toString();
 	}
 		
