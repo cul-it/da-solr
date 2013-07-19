@@ -114,7 +114,7 @@ public class ConvertMfhdFullToXml {
 		}
 		// Get File handle for saving mfhdid list
 		File fh = new File(
-				"/usr/local/src/integrationlayer/VoyagerExtract/mhfds-full-"
+				"/usr/local/src/integrationlayer/VoyagerExtract/mfhds-full-"
 						+ getTodayString() + ".txt");
 		FileOutputStream fout = null;
 		try {
