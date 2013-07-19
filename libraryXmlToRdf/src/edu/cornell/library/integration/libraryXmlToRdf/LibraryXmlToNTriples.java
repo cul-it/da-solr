@@ -23,7 +23,12 @@ public class LibraryXmlToNTriples {
 	public static Collection<Integer> no245a = new HashSet<Integer>();
 	public static Map<String,String> priority_libraries = new HashMap<String,String>();
 	public static Map<String,String> libraries = new HashMap<String,String>();
-	
+
+	public static String uri_host = "http://da-rdf.library.cornell.edu/individual/";
+	public static String integration_prefix = "http://da-rdf.library.cornell.edu/integrationLayer/0.1/";
+	public static String label_p = "<http://www.w3.org/2000/01/rdf-schema#label>";
+	public static String type_p = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
+
 
 	public static void libraryXmlToNTriples(File xmlfile, File target) {
 		// priority libraries will match in preference to libraries on the main list.
@@ -54,6 +59,9 @@ public class LibraryXmlToNTriples {
 		libraries.put("Physical","Physical Sciences Library");
 		libraries.put("Uris","Uris Library");
 		libraries.put("Veterinary", "Veterinary Library");
+		
+		System.out.println(generateNTriples(priority_libraries));
+		System.out.println(generateNTriples(libraries));
 		
 		try {
 			FileInputStream xmlstream = new FileInputStream( xmlfile );
@@ -93,14 +101,21 @@ public class LibraryXmlToNTriples {
 		libraryXmlToNTriples( file, new File(destfile));
 		
 	}
-
+	
+	private static String generateNTriples ( Map<String,String> libraries ) {
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> i = libraries.keySet().iterator();
+		while (i.hasNext()) {
+			String val = i.next();
+			String library_uri = "<" + uri_host + "lib_" + val.toLowerCase() + ">";
+			sb.append(library_uri + " " + type_p + "<" + integration_prefix + "Library>.\n");
+			sb.append(library_uri + " " + label_p + " " + libraries.get(val) + ".\n");
+		}
+		return sb.toString();
+	}
+ 
 	private static String generateNTriples ( Location l ) {
 		StringBuilder sb = new StringBuilder();
-
-		String uri_host = "http://da-rdf.library.cornell.edu/individual/";
-		String integration_prefix = "http://da-rdf.library.cornell.edu/integrationLayer/0.1/";
-		String label_p = "<http://www.w3.org/2000/01/rdf-schema#label>";
-		String type_p = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
 
 		String location_uri = uri_host + "loc_" + l.locationId;
 		sb.append("<"+location_uri+"> <"+integration_prefix+"code> \""+escapeForNTriples(l.locationCode)+"\".\n");
