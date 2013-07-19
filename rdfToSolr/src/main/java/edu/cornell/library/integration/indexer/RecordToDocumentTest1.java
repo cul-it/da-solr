@@ -19,7 +19,7 @@ public class RecordToDocumentTest1 extends RecordToDocumentBase {
 		String badquery = 
 		"PREFIX marcrdf:  <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
 	    "SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2)    \n"+ 
-	    "WHERE { <http://fbw4-dev.library.cornell.edu/individuals/b4722> marcrdf:hasField ?f. \n"+ 
+	    "WHERE { <http://da-rdf.library.cornell.edu/individual/b4722> marcrdf:hasField ?f. \n"+ 
 	    "        ?f marcrdf:tag \"008\".\n"+
 	    "        ?f marcrdf:value ?val }  ";
 

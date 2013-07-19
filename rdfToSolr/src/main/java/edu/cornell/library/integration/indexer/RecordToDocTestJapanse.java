@@ -9,9 +9,9 @@ import edu.cornell.library.integration.indexer.resultSetToFields.ResultsToStdout
 
 public class RecordToDocTestJapanse extends RecordToDocumentBase{
 //	http://marcrdf.library.cornell.edu/canonical/0.1/hasField 	
-//		http://fbw4-dev.library.cornell.edu/individuals/b34669_27 	
+//		http://da-rdf.library.cornell.edu/individual/b34669_27 	
 //			http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield 	
-//				http://fbw4-dev.library.cornell.edu/individuals/b34669_27_4 	
+//				http://da-rdf.library.cornell.edu/individual/b34669_27_4 	
 //					http://marcrdf.library.cornell.edu/canonical/0.1/value 	監修池田彌三郎, ドナルド．キーン ; 編集常名鉾二郎, 朝日イブニングニュース社.
 
 
@@ -21,7 +21,7 @@ public class RecordToDocTestJapanse extends RecordToDocumentBase{
 		String query= 
 		"PREFIX marcrdf:  <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
 	    "SELECT * WHERE {   \n"+ 
-	    "  <http://fbw4-dev.library.cornell.edu/individuals/b34669_27_4> marcrdf:value ?v " +
+	    "  <http://da-rdf.library.cornell.edu/individual/b34669_27_4> marcrdf:value ?v " +
 	    "}";
 		
 		return Arrays.asList(						

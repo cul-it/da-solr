@@ -115,12 +115,12 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	
 			
 	public void testLanguageMappingsInRDF() throws RDFServiceException{
-		String englishURI = "<http://fbw4-dev.library.cornell.edu/individuals/leng>";
+		String englishURI = "<http://da-rdf.library.cornell.edu/individual/leng>";
 		assertTrue("Expected to find statements about English mappings in the RDF. " +
 				"The mappings RDF may not be getting loaded for this test.",
 				rdf.sparqlAskQuery(
 						"ASK WHERE { " 
-						+ englishURI + " <http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/code> ?a }"));				
+						+ englishURI + " <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?a }"));				
 	}
 	
 	

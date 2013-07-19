@@ -139,11 +139,12 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
-//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
-//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);
+		
 		try {
 			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
 			while (scanner.hasNextLine()) {
@@ -203,10 +204,10 @@ public class MarcXmlToNTriples {
 			if (shadowLinkedRecs.size() > 0) {
 				BufferedOutputStream shadowOut =  new BufferedOutputStream(new GZIPOutputStream(
 							new FileOutputStream(destdir+"/shadows.nt.gz", true)));
-				String relation = "<http://fbw4-dev.library.cornell.edu/integrationLayer/0.1/boost>";
+				String relation = "<http://da-rdf.library.cornell.edu/integrationLayer/0.1/boost>";
 				String target = "shadowLink";
 				for (String id: shadowLinkedRecs) {
-					String bib = "<http://fbw4-dev.library.cornell.edu/individuals/b"+id+">";
+					String bib = "<http://da-rdf.library.cornell.edu/individual/b"+id+">";
 					String triple = bib + " " + relation + " \"" + target + "\".\n";
 					shadowOut.write(triple.getBytes());
 				}
@@ -464,7 +465,7 @@ public class MarcXmlToNTriples {
 		StringBuilder sb = new StringBuilder();
 		String id = rec.control_fields.get(1).value;
 		rec.id = id;
-		String uri_host = "http://fbw4-dev.library.cornell.edu/individuals/";
+		String uri_host = "http://da-rdf.library.cornell.edu/individual/";
 		String id_pref;
 		String record_type_uri;
 		if (type == RecordType.BIBLIOGRAPHIC) {

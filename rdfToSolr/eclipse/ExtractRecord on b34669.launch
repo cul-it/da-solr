@@ -12,6 +12,6 @@
 <booleanAttribute key="org.eclipse.jdt.debug.ui.CONSIDER_INHERITED_MAIN" value="true"/>
 <booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.cornell.library.integration.recordextract.RecordExtract"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://bdc34-dev.library.cornell.edu:8890/sparql http://fbw4-dev.library.cornell.edu/individuals/b34669"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://bdc34-dev.library.cornell.edu:8890/sparql http://da-rdf.library.cornell.edu/individual/b34669"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="integrationLayer"/>
 </launchConfiguration>
