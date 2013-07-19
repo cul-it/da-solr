@@ -171,8 +171,6 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		Matcher m = p.matcher(bib_xml);
 		while (m.find()) {
 			String uri = m.group(1);
-			if (! uri.contains("4010000")) 
-				continue;
 			System.out.println("*** " + uri + " ***");
 			SolrInputDocument doc;
 			try {
