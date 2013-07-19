@@ -60,7 +60,7 @@ public class ConvertUtils {
    /** ISO6937 ENCODING **/
    public  final String ISO6937_ENCODING = "ISO6937";
    
-   private  String convertEncoding = null;
+   private String convertEncoding = null;
    
    /** perform Unicode normalization */
    private  boolean normalize = true;
@@ -101,7 +101,7 @@ public class ConvertUtils {
     * @return
     */
    public int getSplitSize() {
-      return splitSize;
+      return this.splitSize;
    }
 
    /**
@@ -115,7 +115,7 @@ public class ConvertUtils {
     * @return the convertEncoding
     */
    public String getConvertEncoding() {
-      return convertEncoding;
+      return this.convertEncoding;
    }
 
    /**
@@ -129,7 +129,7 @@ public class ConvertUtils {
     * @return the sequence_prefix
     */
    public String getSequence_prefix() {
-      return sequence_prefix;
+      return this.sequence_prefix;
    }
 
    /**
@@ -143,7 +143,7 @@ public class ConvertUtils {
     * @return the itemId
     */
    public String getItemId() {
-      return itemId;
+      return this.itemId;
    }
 
    /**
@@ -157,7 +157,7 @@ public class ConvertUtils {
     * @return the srcType
     */
    public String getSrcType() {
-      return srcType;
+      return this.srcType;
    }
 
    /**
@@ -171,7 +171,7 @@ public class ConvertUtils {
     * @return the extractType
     */
    public String getExtractType() {
-      return extractType;
+      return this.extractType;
    }
 
    /**
@@ -185,7 +185,7 @@ public class ConvertUtils {
     * @return the ts
     */
    public String getTs() {
-      return ts;
+      return this.ts;
    }
 
    /**
@@ -199,7 +199,7 @@ public class ConvertUtils {
     * @return the destDir
     */
    public String getDestDir() {
-      return destDir;
+      return this.destDir;
    }
 
    /**
@@ -210,8 +210,12 @@ public class ConvertUtils {
    }
 
    public String getControlNumberOfLastReadRecord() {
-      return controlNumberOfLastReadRecord;
-   } 
+      return this.controlNumberOfLastReadRecord;
+   }
+   
+   public void setControlNumberOfLastReadRecord(String controlNumberOfLastReadRecord) {
+	   this.controlNumberOfLastReadRecord = controlNumberOfLastReadRecord;
+   }
    
    /**
     * @param mrc
@@ -219,7 +223,7 @@ public class ConvertUtils {
     * @return
     * @throws Exception
     */
-   public void convertMrcToXml(DavService davService, String srcDir, String srcFile) throws Exception {
+   public List<String> convertMrcToXml(DavService davService, String srcDir, String srcFile) throws Exception {
        
       MarcXmlWriter writer = null;
       boolean hasInvalidChars;
@@ -236,6 +240,7 @@ public class ConvertUtils {
       MarcPermissiveStreamReader reader = null;
       boolean permissive      = true;
       boolean convertToUtf8   = true;
+      List<String> biblist = new ArrayList<String>();
       reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
        
       destXmlFile = getOutputFileName(0);
@@ -258,11 +263,15 @@ public class ConvertUtils {
             }
             counter++; 
             total++;
-            controlNumberOfLastReadRecord = record.getControlNumber();
-            if (MARC_8_ENCODING.equals(convertEncoding)) {
+            setControlNumberOfLastReadRecord(record.getControlNumber());
+            if (MARC_8_ENCODING.equals(getConvertEncoding())) {
                record.getLeader().setCharCodingScheme('a');
             }
-             
+            
+            ControlField f001 = (ControlField) record.getVariableField("001");
+	        if (f001 != null) {
+	           biblist.add(f001.getData().toString());
+	        }  
             hasInvalidChars = false;
             matcher = WEIRD_CHARACTERS_PATTERN.matcher(record.toString());
             if (matcher.find()) {
@@ -317,12 +326,13 @@ public class ConvertUtils {
       
       FileUtils.deleteQuietly(f);
       
-      System.out.println("\ntotal record count: "+ total);          
-      
+      System.out.println("\nTotal record count: "+ total);          
+      return biblist;
        
    }
    
    public Record getMarcRecord(String mrc) {
+	   boolean hasInvalidChars;
 	   Record record = null;
 	   MarcPermissiveStreamReader reader = null;
 	   boolean permissive      = true;
@@ -340,6 +350,16 @@ public class ConvertUtils {
 	         } catch (Exception e) {
 	            e.printStackTrace();
 	            continue;
+	         }
+	         controlNumberOfLastReadRecord = record.getControlNumber();
+	         if (MARC_8_ENCODING.equals(getConvertEncoding())) {
+	            record.getLeader().setCharCodingScheme('a');
+	         }
+	             
+	         hasInvalidChars = false;
+	         matcher = WEIRD_CHARACTERS_PATTERN.matcher(record.toString());
+	         if (matcher.find()) {
+	            hasInvalidChars = doReplacements(record, matcher);
 	         }
 	         //System.out.println(record.toString());
 	      } 
@@ -358,6 +378,9 @@ public class ConvertUtils {
    }
    
    public List<String> getBibIdFromMarc(String mrc) {
+	   
+	   boolean hasInvalidChars;
+	   
 	   List<String> biblist = new ArrayList<String>();
 	   Record record = null;
 	   MarcPermissiveStreamReader reader = null;
@@ -371,10 +394,7 @@ public class ConvertUtils {
 	      while (reader.hasNext()) {
 	         try {
 	            record = reader.next();
-	            ControlField f001 = (ControlField) record.getVariableField("001");
-	            if (f001 != null) {
-	               biblist.add(f001.getData().toString());
-	            }  
+	             
 	         } catch (MarcException me) {
 	            logger.error("MarcException reading record", me);
 	            continue;
@@ -382,6 +402,21 @@ public class ConvertUtils {
 	            e.printStackTrace();
 	            continue;
 	         }
+	         controlNumberOfLastReadRecord = record.getControlNumber();
+	         if (MARC_8_ENCODING.equals(getConvertEncoding())) {
+	            record.getLeader().setCharCodingScheme('a');
+	         }
+	             
+	         hasInvalidChars = false;
+	         matcher = WEIRD_CHARACTERS_PATTERN.matcher(record.toString());
+	         if (matcher.find()) {
+	            hasInvalidChars = doReplacements(record, matcher);
+	         }
+	         
+	         ControlField f001 = (ControlField) record.getVariableField("001");
+	         if (f001 != null) {
+	            biblist.add(f001.getData().toString());
+	         } 
 	         //System.out.println(record.toString());
 	      } 
 	   } catch (UnsupportedEncodingException e) {
@@ -590,15 +625,15 @@ public class ConvertUtils {
     */
    private  void setConverter(MarcXmlWriter writer) throws Exception {
 
-      if (null != convertEncoding) {
+      if (null != getConvertEncoding()) {
          CharConverter charconv = null;
          try {
-            if (convertEncoding != null) {
-               if (MARC_8_ENCODING.equals(convertEncoding)) {
+            if (getConvertEncoding() != null) {
+               if (MARC_8_ENCODING.equals(getConvertEncoding())) {
                   charconv = new AnselToUnicode();
-               } else if (ISO5426_ENCODING.equals(convertEncoding)) {
+               } else if (ISO5426_ENCODING.equals(getConvertEncoding())) {
                   charconv = new Iso5426ToUnicode();
-               } else if (ISO6937_ENCODING.equals(convertEncoding)) {
+               } else if (ISO6937_ENCODING.equals(getConvertEncoding())) {
                   charconv = new Iso6937ToUnicode();
                } else {
                   throw new Exception("Unknown character set");
@@ -611,7 +646,7 @@ public class ConvertUtils {
          } catch (MarcException e) {
             e.printStackTrace();
             throw new Exception("There is a problem with character conversion: "
-               + convertEncoding + " " + e);
+               + getConvertEncoding() + " " + e);
          } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e);
