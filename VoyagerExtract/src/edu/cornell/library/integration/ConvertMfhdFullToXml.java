@@ -3,6 +3,7 @@ package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream; 
@@ -116,6 +117,12 @@ public class ConvertMfhdFullToXml {
 				"/usr/local/src/integrationlayer/VoyagerExtract/mhfds-full-"
 						+ getTodayString() + ".txt");
 		FileOutputStream fout = null;
+		try {
+			fout = new FileOutputStream(fh);
+		} catch (FileNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		List<String> mfhdlist = new ArrayList<String>();
 		
 		ConvertUtils converter = new ConvertUtils();
@@ -137,7 +144,9 @@ public class ConvertMfhdFullToXml {
 					String ts = getTimestampFromFileName(srcFile);
 					converter.setTs(ts);
 					mfhdlist = converter.convertMrcToXml(davService, srcDir, srcFile);
-					saveMfhdList(fout, mfhdlist);
+					if (mfhdlist.size() > 0 ) {
+					   saveMfhdList(fout, mfhdlist);
+					}
 					davService.moveFile(srcDir + "/" + srcFile, doneDir + "/"
 							+ srcFile);
 				} catch (Exception e) {
