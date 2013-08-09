@@ -40,33 +40,6 @@ while (my $line = <$fh>) {
     }
 }
 close $fh;
-$codeMaps{'rmc,anx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'mann,doc'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'olin,av'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'uris,anx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'maps,anx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'lawr,anx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'ilr,ts'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'orni,cumv'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'lawr'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'olin,602'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'orni,mac'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'ech,ranx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,crar'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'was,ranx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'jgsm,proc'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'sasa,ranx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,path'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'asia'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'orni,anx'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,comp'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'mus,ts'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,equ'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'olin,res'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'asia,ref'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,oph'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'vet,feli'} = "LOCATIONOPAC = 'N'";
-$codeMaps{'rmc,ts'} = "LOCATIONOPAC = 'N'";
 
 #print Dumper(\%codeMaps);
 

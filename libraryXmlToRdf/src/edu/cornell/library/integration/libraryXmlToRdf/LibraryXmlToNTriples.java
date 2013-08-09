@@ -78,7 +78,7 @@ public class LibraryXmlToNTriples {
 				if (event.equals("START_ELEMENT"))
 					if (r.getLocalName().equals("location")) {
 						Location l = processLocation(r);
-						if (l.locationOpac.equals("Y"))
+						if (l.suppressInOpac.equals("N"))
 							out.write(generateNTriples(l).getBytes());
 						else 
 							System.out.println("Location "+l.locationCode+" / " + 
