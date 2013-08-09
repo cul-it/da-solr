@@ -20,8 +20,8 @@ public class OracleTables {
     static String DBProtocol = "jdbc:oracle:thin:@";
     static String DBServer = "database.library.cornell.edu:1521:VGER";
     static String DBName = "CORNELLDB";
-    static String DBuser = "username";
-    static String DBpass = "password";
+    static String DBuser = "login";
+    static String DBpass = "login";
 
     static DatabaseMetaData dbmeta = null;
 
