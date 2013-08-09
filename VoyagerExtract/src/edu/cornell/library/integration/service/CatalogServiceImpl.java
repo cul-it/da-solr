@@ -68,6 +68,24 @@ public class CatalogServiceImpl implements CatalogService {
       return bibIdList;
    }
    
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see edu.cornell.library.integration.service.CatalogService#
+	 * getUpdatedBibIdsUsingDateRange(java.lang.String, java.lang.String)
+	 */
+	public List<String> getUpdatedBibIdsUsingDateRange(String fromDate,
+			String toDate) throws Exception {
+		List<String> bibIdList;
+		try {
+			bibIdList = catalogDao.getUpdatedBibIdsUsingDateRange(fromDate,
+					toDate);
+		} catch (Exception e) {
+			throw e;
+		}
+		return bibIdList;
+	}
+   
    public int getRecentBibIdCount(String dateString) throws Exception {
       
       try {
@@ -89,6 +107,40 @@ public class CatalogServiceImpl implements CatalogService {
       }
       return mfhdIdList;
    }
+   
+	public List<String> getMfhdIdsByBibId(String bibid) throws Exception {
+		List<String> mfhdIdList;
+		try {
+			mfhdIdList = catalogDao.getMfhdIdsByBibId(bibid);
+		} catch (Exception e) {
+			throw e;
+		}
+		return mfhdIdList;
+	}
+	
+	public List<String> getBibIdsByMfhdId(String mfhdid) throws Exception {
+		List<String> bibIdList;
+		try {
+			bibIdList = catalogDao.getBibIdsByMfhdId(mfhdid);
+		} catch (Exception e) {
+			throw e;
+		}
+		return bibIdList;
+	}
+	
+	
+   
+   
+   
+   public List<String> getUpdatedMfhdIdsUsingDateRange(String fromDate, String toDate) throws Exception {
+	      List<String> mfhdIdList;
+	      try {
+	         mfhdIdList = catalogDao.getUpdatedMfhdIdsUsingDateRange(fromDate, toDate);
+	      } catch (Exception e) {
+	         throw e;
+	      }
+	      return mfhdIdList;
+	   }
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getRecentMfhdIdCount(java.lang.String)

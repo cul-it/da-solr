@@ -12,7 +12,7 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  
 
  
-public class DavServiceTest {
+public class DataIndexerDavServiceTest {
    
    @Test
    public void testDaveServiceFactory() {

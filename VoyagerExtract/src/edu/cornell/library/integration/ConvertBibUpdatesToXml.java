@@ -106,7 +106,7 @@ public class ConvertBibUpdatesToXml {
       ConvertUtils converter = new ConvertUtils();
       converter.setSrcType("bib");
       converter.setExtractType("updates");
-      converter.setSplitSize(0);
+      converter.setSplitSize(10000);
       converter.setDestDir(destDir); 
       // iterate over mrc files
       if (srcList.size() == 0) {
@@ -117,8 +117,8 @@ public class ConvertBibUpdatesToXml {
    			try {
    			   String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts);
-               String bibid = getBibIdFromFileName(srcFile);
-               converter.setItemId(bibid); 
+               String seqno = getSeqnoFromFileName(srcFile);
+               converter.setItemId(seqno); 
    			   converter.convertMrcToXml(davService, srcDir, srcFile);
    			   davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
    			} catch (Exception e) { 
@@ -136,19 +136,6 @@ public class ConvertBibUpdatesToXml {
       
    } 
        
-    
-   
-   /**
-    * @return
-    */
-   protected String getDateString() {
-	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	   Calendar now = Calendar.getInstance();
-	   Calendar earlier = now;
-	   earlier.add(Calendar.HOUR, -3);
-	   String ds = df.format(earlier.getTime());
-	   return ds;
-   }
    
    /**
     * @param srcFile
@@ -156,20 +143,16 @@ public class ConvertBibUpdatesToXml {
     */
    public String getTimestampFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      if (tokens.length > 3) {
-         return tokens[2] +"."+ tokens[3];   
-      } else {
-         return tokens[2];
-      }
+      return tokens[2];       
    }
    
    /**
     * @param srcFile
     * @return
     */
-   public String getBibIdFromFileName(String srcFile) {
+   public String getSeqnoFromFileName(String srcFile) {
       String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
+      return tokens[3];
    }
    
    

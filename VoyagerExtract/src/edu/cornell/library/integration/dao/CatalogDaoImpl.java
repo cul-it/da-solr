@@ -25,6 +25,7 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibMasterData;
+import edu.cornell.library.integration.bo.BibMfhd;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
@@ -134,7 +135,7 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
        
       String sql = "" 
             +" SELECT BIB_ID FROM BIB_HISTORY"
-            +" WHERE SUPPRESS_IN_OPEN = 'N"
+            +" WHERE SUPPRESS_IN_OPAC = 'N'"
             +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
             
       try {
@@ -150,6 +151,28 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          throw ex;
       } 
    }
+   
+   public List<String> getUpdatedBibIdsUsingDateRange(String fromDate, String toDate) throws Exception {
+       
+	      String sql = "" 
+	            +" SELECT BIB_ID FROM BIB_HISTORY"
+	            +" WHERE SUPPRESS_IN_OPAC = 'N'"
+	            +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + fromDate +"'"
+	            +" AND to_char(BIB_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') < '" + toDate +"'";   
+	            
+	      try {
+	         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+	         return bibIdList;
+	      } catch (EmptyResultDataAccessException ex) {
+	         logger.warn("Empty result set");
+	         logger.info("Query was: "+sql);
+	         return null;
+	      } catch (Exception ex) {
+	         logger.error("Exception: ", ex);
+	         logger.info("Query was: "+sql);
+	         throw ex;
+	      } 
+	   }
    
    
    
@@ -176,6 +199,8 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
          throw ex;
       } 
    }
+   
+   
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.dao.CatalogDao#getBibBlob(java.lang.String)
@@ -320,18 +345,11 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.dao.CatalogDao#getRecentMfidIds(java.lang.String)
     */
-   public List<String> getRecentMfhdIds(String dateString) throws Exception {
-       
-      //String sql = "" 
-      //      +" SELECT MFHD_ID FROM MFHDHISTORY_VW"
-      //      +" WHERE to_char(MFHDHISTORY_VW.UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'"   
-      //      +" OR to_char(MFHDHISTORY_VW.CREATE_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
-
+   public List<String> getRecentMfhdIds(String dateString) throws Exception { 
       String sql = "" 
             +" SELECT MFHD_ID FROM MFHD_HISTORY"
             +" WHERE SUPPRESS_IN_OPAC = 'N'"
-            +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";   
-            
+            +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + dateString + "'";
 
       try {
          List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
@@ -346,6 +364,27 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          throw ex;
       } 
    }
+   
+   public List<String> getUpdatedMfhdIdsUsingDateRange(String fromDate, String toDate) throws Exception { 
+	      String sql = "" 
+	            +" SELECT MFHD_ID FROM MFHD_HISTORY"
+	            +" WHERE SUPPRESS_IN_OPAC = 'N'"
+	            +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') > '" + fromDate +"'"
+	            +" AND to_char(MFHD_HISTORY.ACTION_DATE, 'yyyy-MM-dd HH:mm:ss') < '" + toDate +"'";
+
+	      try {
+	         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+	         return mfhdIdList;
+	      } catch (EmptyResultDataAccessException ex) {
+	         logger.warn("Empty result set");
+	         logger.info("Query was: "+sql);
+	         return null;
+	      } catch (Exception ex) {
+	         logger.error("Exception: ", ex);
+	         logger.info("Query was: "+sql);
+	         throw ex;
+	      } 
+	   }
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.dao.CatalogDao#getRecentMfhdIdCount(java.lang.String)
@@ -516,8 +555,42 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
    }
    
    
+	public List<String> getBibIdsByMfhdId(String mfhdid) throws Exception {
+		String sql = "SELECT BIB_ID from BIB_MFHD WHERE MFHD_ID='" + mfhdid + "'";
+		try {
+			List<String> bibIdList = getSimpleJdbcTemplate().query(sql,
+					new StringMapper ());
+			return bibIdList;
+		} catch (EmptyResultDataAccessException ex) {
+			logger.warn("Empty result set");
+			logger.info("Query was: " + sql);
+			return null;
+		} catch (Exception ex) {
+			logger.error("Exception: ", ex);
+			logger.info("Query was: " + sql);
+			throw ex;
+		}
+	}
+	
+	public List<String> getMfhdIdsByBibId(String bibid) throws Exception {
+		String sql = "SELECT MFHD_ID from BIB_MFHD WHERE BIB_ID='" + bibid + "'";
+		try {
+			List<String> mfhdIdList = getSimpleJdbcTemplate().query(sql, new StringMapper ());
+			return mfhdIdList;
+		} catch (EmptyResultDataAccessException ex) {
+			logger.warn("Empty result set");
+			logger.info("Query was: " + sql);
+			return null;
+		} catch (Exception ex) {
+			logger.error("Exception: ", ex);
+			logger.info("Query was: " + sql);
+			throw ex;
+		}
+	}
 
 
+	    
+	   
 
 
    /**
@@ -561,6 +634,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       
    }
    
+    
    
    
    
@@ -695,6 +769,15 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
+   private static final class BibMfhdMapper implements RowMapper {
+	      public BibMfhd mapRow(ResultSet rs, int rowNum) throws  SQLException {
+	         BibMfhd bibMfhd = new BibMfhd(); 
+	         bibMfhd.setMfhdid(rs.getString("MFHD_ID"));
+	         bibMfhd.setBibId(rs.getString("BIB_ID"));	          
+	         return bibMfhd;
+	       }
+	   }
+   
    /**
     * @author jaf30
     *
@@ -721,6 +804,8 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          return sb.toString();
       }
    }
+
+
 
    
 
