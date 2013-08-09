@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -139,10 +138,10 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
-//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
+//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
+//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);
 		
 		try {
@@ -253,49 +252,35 @@ public class MarcXmlToNTriples {
 		
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
-			
+			/*
 			if (f.tag.equals("700")) {
 				Iterator<Subfield> i = f.subfields.values().iterator();
 				while (i.hasNext()) {
 					Subfield sf = i.next();
 					if (sf.code.equals('4')) {
 						extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
 			                     + f.toString() + "\n");
 					}
 				}
 			}
 			if (f.tag.equals("010")) {
-				extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
 			if (f.tag.equals("020")) {
-				extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
 			if (f.tag.equals("022")) {
-				extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
 			if (f.tag.equals("035")) {
-				extractout.write(rec_id + "\t" 
-	                     + f.ind1 + "\t"
-	                     + f.ind2 + "\t"
-	                     + f.toString() + "\n");
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
 			if (f.tag.equals("050")) {
-				extractout.write(rec_id + "\t" 
-	                     + f.ind1 + "\t"
-	                     + f.ind2 + "\t"
-	                     + f.toString() + "\n");
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
+			*/
+			if (f.tag.equals("852"))
+				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			/*		if (f.tag.equals("856")) {
 				extractout.write(rec_id + "\t" 
 			                     + f.ind1 + "\t"
