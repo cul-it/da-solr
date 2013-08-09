@@ -255,10 +255,10 @@ public class ConvertUtils {
             try {
                record = reader.next();
             } catch (MarcException me) {
-               logger.error("MarcException reading record", me);
+               logger.error("MarcException reading record", me);                
                continue;
             } catch (Exception e) {
-               e.printStackTrace();
+            	logger.error("Exception reading record", e);                 
                continue;
             }
             counter++; 
@@ -283,8 +283,7 @@ public class ConvertUtils {
             }
             
             // check to see if we need to write out a batch of records
-            if (splitSize > 0 && counter == splitSize) {
-               
+            if (splitSize > 0 && counter == splitSize) {               
                
                System.out.println("\nsaving xml batch "+ destXmlFile);
                try {
@@ -331,6 +330,10 @@ public class ConvertUtils {
        
    }
    
+   /**
+   * @param mrc
+   * @return
+   */
    public Record getMarcRecord(String mrc) {
 	   boolean hasInvalidChars;
 	   Record record = null;
@@ -377,6 +380,10 @@ public class ConvertUtils {
 	   return record;
    }
    
+   /**
+   * @param mrc
+   * @return
+   */
    public List<String> getBibIdFromMarc(String mrc) {
 	   
 	   boolean hasInvalidChars;
@@ -553,7 +560,7 @@ public class ConvertUtils {
       if (StringUtils.equals(getExtractType(), "single") ) {
          sb.append(getSrcType() +"."+ getTs() +"."+ getItemId() +".xml");
       } else if (StringUtils.equals(getExtractType(), "updates")) {
-         sb.append(getSrcType() +"."+ getTs() +"."+ getItemId() +".xml");   
+         sb.append(getSrcType() +".update."+ getTs() +"."+ getItemId() +".xml");   
       } else if (StringUtils.equals(getExtractType(), "daily")) {
          if (batch == 0) {
             sequence = String.valueOf(getSequence_prefix()) +"_1";   
@@ -582,7 +589,7 @@ public class ConvertUtils {
    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
       File srcFile = new File(TMPDIR +"/"+ destXmlFile);
       String destFile = destDir +"/"+ destXmlFile;
-      System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
+      //System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
        
       InputStream isr = new FileInputStream(srcFile);
       try { 
