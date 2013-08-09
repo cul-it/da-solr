@@ -25,7 +25,7 @@
       <locationDisplayName>Law Library (Myron Taylor Hall) Rare Books </locationDisplayName>
       <locationCode>lawr</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>627</mfhdCount>
+      <mfhdCount>636</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>RARE</locationSpineLabel>
@@ -58,7 +58,7 @@
       <locationDisplayName>Africana Library (Africana Center)</locationDisplayName>
       <locationCode>afr</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>24287</mfhdCount>
+      <mfhdCount>24604</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>AFR</locationSpineLabel>
@@ -80,7 +80,7 @@
       <locationDisplayName>Africana Library Reserve</locationDisplayName>
       <locationCode>afr,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>100</mfhdCount>
+      <mfhdCount>97</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>AFR</locationSpineLabel>
@@ -91,7 +91,7 @@
       <locationDisplayName>Africana Library Reference ( Non-Circulating)</locationDisplayName>
       <locationCode>afr,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>839</mfhdCount>
+      <mfhdCount>838</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>AFR</locationSpineLabel>
@@ -113,7 +113,7 @@
       <locationDisplayName>Preservation Department (B32 Olin)</locationDisplayName>
       <locationCode>cons</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>553</mfhdCount>
+      <mfhdCount>556</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>CONS</locationSpineLabel>
@@ -133,7 +133,7 @@
       <locationDisplayName>Kroch Library Asia</locationDisplayName>
       <locationCode>ech</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>271542</mfhdCount>
+      <mfhdCount>272783</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -144,7 +144,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>ech,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>202345</mfhdCount>
+      <mfhdCount>203951</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ech,anx</locationSpineLabel>
@@ -155,7 +155,7 @@
       <locationDisplayName>Kroch Library Asia A/V</locationDisplayName>
       <locationCode>ech,av</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>3786</mfhdCount>
+      <mfhdCount>3831</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA AV</locationSpineLabel>
@@ -166,7 +166,7 @@
       <locationDisplayName>Kroch Library Asia Reference (Non-Circulating)</locationDisplayName>
       <locationCode>ech,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1887</mfhdCount>
+      <mfhdCount>1889</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -177,7 +177,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>engr</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>11164</mfhdCount>
+      <mfhdCount>11034</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ENGR</locationSpineLabel>
@@ -188,7 +188,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>engr,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>121526</mfhdCount>
+      <mfhdCount>121750</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ENGR</locationSpineLabel>
@@ -221,7 +221,7 @@
       <locationDisplayName>Entomology Library (Comstock Hall)</locationDisplayName>
       <locationCode>ent</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>3</mfhdCount>
+      <mfhdCount>1</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ENT</locationSpineLabel>
@@ -232,7 +232,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>ent,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>739</mfhdCount>
+      <mfhdCount>748</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ENT</locationSpineLabel>
@@ -242,7 +242,7 @@
       <locationName>Entomology Rare</locationName>
       <locationDisplayName>Entomology Library Rare (Non-Circulating)</locationDisplayName>
       <locationCode>ent,rare</locationCode>
-      <suppressInOpac>N</suppressInOpac>
+      <suppressInOpac>Y</suppressInOpac>
       <mfhdCount>0</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
@@ -253,7 +253,7 @@
       <locationName>Entomology Reference</locationName>
       <locationDisplayName>Entomology Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>ent,ref</locationCode>
-      <suppressInOpac>N</suppressInOpac>
+      <suppressInOpac>Y</suppressInOpac>
       <mfhdCount>0</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
@@ -265,7 +265,7 @@
       <locationDisplayName>Fine Arts Library (Rand Hall)</locationDisplayName>
       <locationCode>fine</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>72834</mfhdCount>
+      <mfhdCount>73721</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>FINE</locationSpineLabel>
@@ -276,7 +276,7 @@
       <locationDisplayName>Fine Arts Library Reserve</locationDisplayName>
       <locationCode>fine,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1382</mfhdCount>
+      <mfhdCount>1385</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>FINE</locationSpineLabel>
@@ -298,7 +298,7 @@
       <locationDisplayName>Fine Arts Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>fine,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1153</mfhdCount>
+      <mfhdCount>1223</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>FINE</locationSpineLabel>
@@ -309,7 +309,7 @@
       <locationDisplayName>Geneva Experiment Station Library</locationDisplayName>
       <locationCode>gnva</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>16025</mfhdCount>
+      <mfhdCount>16103</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>GENEVA</locationSpineLabel>
@@ -342,7 +342,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>hote,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>11967</mfhdCount>
+      <mfhdCount>11969</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -363,7 +363,7 @@
       <locationDisplayName>ILR Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>hote,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1547</mfhdCount>
+      <mfhdCount>1551</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -374,7 +374,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts Reference (Non-Circulating)</locationDisplayName>
       <locationCode>rmc,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>947</mfhdCount>
+      <mfhdCount>951</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>RMC,REF</locationSpineLabel>
@@ -385,7 +385,7 @@
       <locationDisplayName>Olin Library</locationDisplayName>
       <locationCode>rmc,ice</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>7514</mfhdCount>
+      <mfhdCount>7517</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ICE</locationSpineLabel>
@@ -396,7 +396,7 @@
       <locationDisplayName>ILR Library (Ives Hall)</locationDisplayName>
       <locationCode>ilr</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>103852</mfhdCount>
+      <mfhdCount>103991</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -407,7 +407,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>ilr,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>74294</mfhdCount>
+      <mfhdCount>74595</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -418,7 +418,7 @@
       <locationDisplayName>ILR Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>ilr,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1827</mfhdCount>
+      <mfhdCount>1826</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -440,7 +440,7 @@
       <locationDisplayName>ILR Library Kheel Center Reference</locationDisplayName>
       <locationCode>ilr,lmdr</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>448</mfhdCount>
+      <mfhdCount>449</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR,KHEEL,RE</locationSpineLabel>
@@ -462,7 +462,7 @@
       <locationDisplayName>ILR Library (Ives Hall)</locationDisplayName>
       <locationCode>jgsm</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>37610</mfhdCount>
+      <mfhdCount>37777</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MGT</locationSpineLabel>
@@ -473,7 +473,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>jgsm,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>58127</mfhdCount>
+      <mfhdCount>58164</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -484,7 +484,7 @@
       <locationDisplayName>Sage Hall Management Library Reserve</locationDisplayName>
       <locationCode>jgsm,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>574</mfhdCount>
+      <mfhdCount>489</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MGT</locationSpineLabel>
@@ -495,7 +495,7 @@
       <locationDisplayName>Law Library (Myron Taylor Hall)</locationDisplayName>
       <locationCode>law</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>265289</mfhdCount>
+      <mfhdCount>265800</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>LAW</locationSpineLabel>
@@ -528,7 +528,7 @@
       <locationDisplayName>Mann Library</locationDisplayName>
       <locationCode>mann</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>292209</mfhdCount>
+      <mfhdCount>175972</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -550,7 +550,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>mann,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>167942</mfhdCount>
+      <mfhdCount>263302</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -561,7 +561,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>mann,anxt</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>38346</mfhdCount>
+      <mfhdCount>38270</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -572,7 +572,7 @@
       <locationDisplayName>Mann Library Special Collections (Non-Circulating)</locationDisplayName>
       <locationCode>mann,spec</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>10287</mfhdCount>
+      <mfhdCount>10568</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -594,7 +594,7 @@
       <locationDisplayName>Mann Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>mann,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>3163</mfhdCount>
+      <mfhdCount>3157</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN,REF</locationSpineLabel>
@@ -615,7 +615,7 @@
       <locationDisplayName>Mann Library Reserve</locationDisplayName>
       <locationCode>mann,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>2680</mfhdCount>
+      <mfhdCount>2555</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -626,7 +626,7 @@
       <locationDisplayName>Mathematics Library (Malott Hall)</locationDisplayName>
       <locationCode>math</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>56091</mfhdCount>
+      <mfhdCount>56263</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MATH</locationSpineLabel>
@@ -659,7 +659,7 @@
       <locationDisplayName>Mathematics Library Reserve</locationDisplayName>
       <locationCode>math,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>414</mfhdCount>
+      <mfhdCount>415</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MATH</locationSpineLabel>
@@ -670,7 +670,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>mus,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>16482</mfhdCount>
+      <mfhdCount>16689</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -681,7 +681,7 @@
       <locationDisplayName>Music Library Locked Press (Reference Desk)</locationDisplayName>
       <locationCode>mus,lock</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>4733</mfhdCount>
+      <mfhdCount>4859</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MUSIC,LOCKPR</locationSpineLabel>
@@ -692,7 +692,7 @@
       <locationDisplayName>Music Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>mus,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>5349</mfhdCount>
+      <mfhdCount>5560</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MUSIC</locationSpineLabel>
@@ -724,7 +724,7 @@
       <locationDisplayName>Olin Library</locationDisplayName>
       <locationCode>oclc,olim</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>148987</mfhdCount>
+      <mfhdCount>146656</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>oclc,olim</locationSpineLabel>
@@ -746,7 +746,7 @@
       <locationDisplayName>Olin Library</locationDisplayName>
       <locationCode>olin</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1573645</mfhdCount>
+      <mfhdCount>1587671</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -778,7 +778,7 @@
       <locationDisplayName>Olin Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>olin,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>5598</mfhdCount>
+      <mfhdCount>5621</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -789,7 +789,7 @@
       <locationDisplayName>Olin Library Room 301 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,301</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>328</mfhdCount>
+      <mfhdCount>40</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -800,7 +800,7 @@
       <locationDisplayName>Olin Library Room 404 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,404</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1073</mfhdCount>
+      <mfhdCount>181</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -811,7 +811,7 @@
       <locationDisplayName>Olin Library Room 405 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,405</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>76</mfhdCount>
+      <mfhdCount>50</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -822,7 +822,7 @@
       <locationDisplayName>Adelson Library (Lab of Ornithology)</locationDisplayName>
       <locationCode>orni</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>9145</mfhdCount>
+      <mfhdCount>9188</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ORNITH</locationSpineLabel>
@@ -833,7 +833,7 @@
       <locationDisplayName>Physical Sciences Library (Clark Hall)</locationDisplayName>
       <locationCode>phys</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>5438</mfhdCount>
+      <mfhdCount>5437</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>PHYS</locationSpineLabel>
@@ -866,7 +866,7 @@
       <locationDisplayName>Library Technical Services Review Shelves</locationDisplayName>
       <locationCode>cts,rev</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>6262</mfhdCount>
+      <mfhdCount>6476</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>cts,rev</locationSpineLabel>
@@ -877,7 +877,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>rmc,icer</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>16906</mfhdCount>
+      <mfhdCount>16823</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>RMC</locationSpineLabel>
@@ -888,7 +888,7 @@
       <locationDisplayName>Kroch Library Asia</locationDisplayName>
       <locationCode>sasa</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>85915</mfhdCount>
+      <mfhdCount>88095</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -899,7 +899,7 @@
       <locationDisplayName>Kroch Library Asia A/V</locationDisplayName>
       <locationCode>sasa,av</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>2409</mfhdCount>
+      <mfhdCount>2446</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA;A/V</locationSpineLabel>
@@ -921,7 +921,7 @@
       <locationDisplayName>Kroch Library Asia Reference (Non-Circulating)</locationDisplayName>
       <locationCode>sasa,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>729</mfhdCount>
+      <mfhdCount>734</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -932,7 +932,7 @@
       <locationDisplayName>*Networked Resource</locationDisplayName>
       <locationCode>serv,remo</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1164414</mfhdCount>
+      <mfhdCount>1249623</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>serv,remo</locationSpineLabel>
@@ -943,7 +943,7 @@
       <locationDisplayName>Uris Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>uris,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>2535</mfhdCount>
+      <mfhdCount>2534</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>URIS</locationSpineLabel>
@@ -954,7 +954,7 @@
       <locationDisplayName>Uris Library Reserve</locationDisplayName>
       <locationCode>uris,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>897</mfhdCount>
+      <mfhdCount>738</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>URIS</locationSpineLabel>
@@ -965,7 +965,7 @@
       <locationDisplayName>Veterinary Library (Schurman Hall)</locationDisplayName>
       <locationCode>vet</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>19648</mfhdCount>
+      <mfhdCount>18772</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET</locationSpineLabel>
@@ -976,7 +976,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>vet,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>21580</mfhdCount>
+      <mfhdCount>22959</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET</locationSpineLabel>
@@ -987,7 +987,7 @@
       <locationDisplayName>Veterinary Library Rare Books (Non-Circulating)</locationDisplayName>
       <locationCode>vet,rare</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>28</mfhdCount>
+      <mfhdCount>23</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET,RARE</locationSpineLabel>
@@ -998,7 +998,7 @@
       <locationDisplayName>Veterinary Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>vet,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>518</mfhdCount>
+      <mfhdCount>501</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET,REF</locationSpineLabel>
@@ -1009,7 +1009,7 @@
       <locationDisplayName>Kroch Library Asia</locationDisplayName>
       <locationCode>was</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>244016</mfhdCount>
+      <mfhdCount>247500</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -1020,7 +1020,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>was,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>148615</mfhdCount>
+      <mfhdCount>148675</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>was,anx</locationSpineLabel>
@@ -1031,7 +1031,7 @@
       <locationDisplayName>Request at Olin Circulation Desk</locationDisplayName>
       <locationCode>was,str1</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>85</mfhdCount>
+      <mfhdCount>79</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -1042,7 +1042,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>was,rare</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>4226</mfhdCount>
+      <mfhdCount>4377</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA,RARE</locationSpineLabel>
@@ -1099,7 +1099,7 @@
       <locationName>LTS Acquisitions</locationName>
       <locationCode>cts,acq</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>101</mfhdCount>
+      <mfhdCount>87</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>CTS,ACQ</locationSpineLabel>
@@ -1226,7 +1226,7 @@
       <locationName>ILR Circulation</locationName>
       <locationCode>ilr,circ</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>408</mfhdCount>
+      <mfhdCount>421</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -1236,7 +1236,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>ilr,ts</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1020</mfhdCount>
+      <mfhdCount>1002</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -1255,7 +1255,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>jgsm,proc</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>277</mfhdCount>
+      <mfhdCount>269</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>JGSM</locationSpineLabel>
@@ -1285,7 +1285,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>mann,doc</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>0</mfhdCount>
+      <mfhdCount>22426</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>MANN</locationSpineLabel>
@@ -1332,7 +1332,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>mus,ts</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>399</mfhdCount>
+      <mfhdCount>133</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>MUSIC,TS</locationSpineLabel>
@@ -1369,7 +1369,7 @@
       <locationName>Interlibrary Loan (Olin)</locationName>
       <locationCode>olin,ils</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>6</mfhdCount>
+      <mfhdCount>7</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -1378,7 +1378,7 @@
       <locationName>OKU Processing</locationName>
       <locationCode>oku,proc</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>1</mfhdCount>
+      <mfhdCount>2</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -1566,7 +1566,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>ech,rare</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>5068</mfhdCount>
+      <mfhdCount>5173</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -1577,7 +1577,7 @@
       <locationDisplayName>Request at Olin Circulation Desk</locationDisplayName>
       <locationCode>ech,str1</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>37</mfhdCount>
+      <mfhdCount>36</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -1588,7 +1588,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>engr,ref</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>410</mfhdCount>
+      <mfhdCount>409</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ENGR</locationSpineLabel>
@@ -1609,7 +1609,7 @@
       <locationName>Entomology Rare2</locationName>
       <locationDisplayName>Entomology Library Rare (Non-Circulating)</locationDisplayName>
       <locationCode>ent,rar2</locationCode>
-      <suppressInOpac>N</suppressInOpac>
+      <suppressInOpac>Y</suppressInOpac>
       <mfhdCount>0</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
@@ -1620,7 +1620,7 @@
       <locationName>Entomology Reserve</locationName>
       <locationDisplayName>Entomology Library Reserve</locationDisplayName>
       <locationCode>ent,res</locationCode>
-      <suppressInOpac>N</suppressInOpac>
+      <suppressInOpac>Y</suppressInOpac>
       <mfhdCount>7</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
@@ -1632,7 +1632,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>fine,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>127495</mfhdCount>
+      <mfhdCount>127491</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>FINE</locationSpineLabel>
@@ -1676,7 +1676,7 @@
       <locationDisplayName>ILR Library (Ives Hall)</locationDisplayName>
       <locationCode>hote</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>25658</mfhdCount>
+      <mfhdCount>25714</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -1687,7 +1687,7 @@
       <locationDisplayName>Nestle Library Reserve</locationDisplayName>
       <locationCode>hote,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>307</mfhdCount>
+      <mfhdCount>261</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -1698,7 +1698,7 @@
       <locationDisplayName>ILR Library Kheel Center</locationDisplayName>
       <locationCode>ilr,lmdc</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>26288</mfhdCount>
+      <mfhdCount>26462</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR,KHEEL</locationSpineLabel>
@@ -1709,7 +1709,7 @@
       <locationDisplayName>ILR Multi-Copy Storage</locationDisplayName>
       <locationCode>ilr,mcs</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1620</mfhdCount>
+      <mfhdCount>1635</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -1720,7 +1720,7 @@
       <locationDisplayName>ILR Library Reserve</locationDisplayName>
       <locationCode>ilr,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>319</mfhdCount>
+      <mfhdCount>304</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ILR</locationSpineLabel>
@@ -1742,7 +1742,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>law,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1974</mfhdCount>
+      <mfhdCount>2102</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -1753,7 +1753,7 @@
       <locationDisplayName>Law Library Reserve</locationDisplayName>
       <locationCode>law,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1559</mfhdCount>
+      <mfhdCount>1540</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>LAW</locationSpineLabel>
@@ -1764,7 +1764,7 @@
       <locationDisplayName>Bailey Hortorium Reference (Non-Circulating)</locationDisplayName>
       <locationCode>mann,href</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>4423</mfhdCount>
+      <mfhdCount>4424</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>HORT,REF</locationSpineLabel>
@@ -1775,7 +1775,7 @@
       <locationDisplayName>Olin Library Maps (Non-Circulating)</locationDisplayName>
       <locationCode>maps</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>40418</mfhdCount>
+      <mfhdCount>40543</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MAPS</locationSpineLabel>
@@ -1786,7 +1786,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>math,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>180</mfhdCount>
+      <mfhdCount>182</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -1808,7 +1808,7 @@
       <locationDisplayName>Cox Library of Music (Lincoln Hall)</locationDisplayName>
       <locationCode>mus</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>126062</mfhdCount>
+      <mfhdCount>126598</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MUSIC</locationSpineLabel>
@@ -1819,7 +1819,7 @@
       <locationDisplayName>Music Library A/V (Non-Circulating)</locationDisplayName>
       <locationCode>mus,av</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>60772</mfhdCount>
+      <mfhdCount>61651</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>MUSIC,A/V</locationSpineLabel>
@@ -1852,7 +1852,7 @@
       <locationDisplayName>Olin Library Room 305 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,305</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1283</mfhdCount>
+      <mfhdCount>247</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -1863,7 +1863,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>olin,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>818490</mfhdCount>
+      <mfhdCount>818499</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -1916,7 +1916,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>rmc</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>198535</mfhdCount>
+      <mfhdCount>199042</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>RMC</locationSpineLabel>
@@ -1927,7 +1927,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>rmc,hsci</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>36185</mfhdCount>
+      <mfhdCount>36107</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>RMC,HSCI</locationSpineLabel>
@@ -1938,7 +1938,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>sasa,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>104638</mfhdCount>
+      <mfhdCount>104640</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>sasa,anx</locationSpineLabel>
@@ -1949,7 +1949,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Non-Circulating)</locationDisplayName>
       <locationCode>sasa,rare</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>123</mfhdCount>
+      <mfhdCount>128</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA,RARE</locationSpineLabel>
@@ -1960,7 +1960,7 @@
       <locationDisplayName>Uris Library</locationDisplayName>
       <locationCode>uris</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>252133</mfhdCount>
+      <mfhdCount>252932</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>URIS</locationSpineLabel>
@@ -1982,7 +1982,7 @@
       <locationDisplayName>Veterinary Library Core Resource (Non-Circulating)</locationDisplayName>
       <locationCode>vet,core</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1173</mfhdCount>
+      <mfhdCount>1582</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET</locationSpineLabel>
@@ -1993,7 +1993,7 @@
       <locationDisplayName>Veterinary Library Reserve</locationDisplayName>
       <locationCode>vet,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1644</mfhdCount>
+      <mfhdCount>923</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>VET</locationSpineLabel>
@@ -2004,7 +2004,7 @@
       <locationDisplayName>Kroch Library Asia A/V</locationDisplayName>
       <locationCode>was,av</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>4358</mfhdCount>
+      <mfhdCount>4368</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>ASIA,A/V</locationSpineLabel>
@@ -2024,7 +2024,7 @@
       <locationDisplayName>Bailey Hortorium (ask at Mann Library Circulation)</locationDisplayName>
       <locationCode>mann,hort</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>11748</mfhdCount>
+      <mfhdCount>11755</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>HORT</locationSpineLabel>
@@ -2035,7 +2035,7 @@
       <locationDisplayName>Asia Reserve, Severinghouse Reading Rm., Kroch Library</locationDisplayName>
       <locationCode>asia,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>2</mfhdCount>
+      <mfhdCount>1</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -2045,7 +2045,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Request in advance)</locationDisplayName>
       <locationCode>rmc,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>246706</mfhdCount>
+      <mfhdCount>247714</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>RMC</locationSpineLabel>
@@ -2067,7 +2067,7 @@
       <locationDisplayName>Companion Animal Hospital Collection (Departmental use only)</locationDisplayName>
       <locationCode>vet,comp</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>185</mfhdCount>
+      <mfhdCount>190</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>VET,COMP</locationSpineLabel>
@@ -2078,7 +2078,7 @@
       <locationDisplayName>Equine Farm Animal Collection (Departmental use only)</locationDisplayName>
       <locationCode>vet,equ</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>101</mfhdCount>
+      <mfhdCount>102</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>VET,EQU</locationSpineLabel>
@@ -2116,7 +2116,7 @@
       <locationDisplayName>Library Annex</locationDisplayName>
       <locationCode>uris,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>15075</mfhdCount>
+      <mfhdCount>15093</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>URIS</locationSpineLabel>
@@ -2127,7 +2127,7 @@
       <locationDisplayName>Center for Animal Resources and Education (Dept. use only)</locationDisplayName>
       <locationCode>vet,crar</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>577</mfhdCount>
+      <mfhdCount>536</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>VET,CARE</locationSpineLabel>
@@ -2138,7 +2138,7 @@
       <locationDisplayName>Law Library Reference (Non-Circulating)</locationDisplayName>
       <locationCode>law,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1713</mfhdCount>
+      <mfhdCount>1716</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>LAW,REF</locationSpineLabel>
@@ -2149,7 +2149,7 @@
       <locationDisplayName>Olin Library Room 401 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,401</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>73</mfhdCount>
+      <mfhdCount>65</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2160,7 +2160,7 @@
       <locationDisplayName>Olin Library Room 601 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,601</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>123</mfhdCount>
+      <mfhdCount>59</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2171,7 +2171,7 @@
       <locationDisplayName>Olin Library Room 604-605 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,604</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>244</mfhdCount>
+      <mfhdCount>246</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2182,7 +2182,7 @@
       <locationDisplayName>Olin Library Room 604-605 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,605</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>1184</mfhdCount>
+      <mfhdCount>1182</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>Y</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2193,7 +2193,7 @@
       <locationDisplayName>Clinical Ophthalmology Collection (Departmental use only)</locationDisplayName>
       <locationCode>vet,oph</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>18</mfhdCount>
+      <mfhdCount>19</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>VET,OPH</locationSpineLabel>
@@ -2203,7 +2203,7 @@
       <locationName>zBorrow Direct</locationName>
       <locationCode>bd</locationCode>
       <suppressInOpac>Y</suppressInOpac>
-      <mfhdCount>54908</mfhdCount>
+      <mfhdCount>22709</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
     </location>
@@ -2213,7 +2213,7 @@
       <locationDisplayName>Olin Library Room 602 (Non-Circulating)</locationDisplayName>
       <locationCode>olin,602</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>551</mfhdCount>
+      <mfhdCount>11</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2235,7 +2235,7 @@
       <locationDisplayName>Olin Library Media Center</locationDisplayName>
       <locationCode>olin,av</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>17113</mfhdCount>
+      <mfhdCount>17274</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>OLIN AV</locationSpineLabel>
@@ -2273,7 +2273,7 @@
       <locationDisplayName>Olin Library Reserve</locationDisplayName>
       <locationCode>olin,res</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>46</mfhdCount>
+      <mfhdCount>61</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>OLIN</locationSpineLabel>
@@ -2306,7 +2306,7 @@
       <locationDisplayName>Anatomic Pathology Collection (Departmental use only)</locationDisplayName>
       <locationCode>vet,path</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>268</mfhdCount>
+      <mfhdCount>270</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>VET,PATH</locationSpineLabel>
@@ -2347,7 +2347,7 @@
       <locationDisplayName>Macaulay Library (Lab of Ornithology) (Non-circulating)</locationDisplayName>
       <locationCode>orni,mac</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>408</mfhdCount>
+      <mfhdCount>415</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ORNITH MAC</locationSpineLabel>
@@ -2358,7 +2358,7 @@
       <locationDisplayName>Map Storage (Request in Advance at Map Room, Olin Library)</locationDisplayName>
       <locationCode>maps,anx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>8221</mfhdCount>
+      <mfhdCount>8222</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ANNEX</locationSpineLabel>
@@ -2380,7 +2380,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Request in advance)</locationDisplayName>
       <locationCode>sasa,ranx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>254</mfhdCount>
+      <mfhdCount>255</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -2391,7 +2391,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Request in advance)</locationDisplayName>
       <locationCode>ech,ranx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>331</mfhdCount>
+      <mfhdCount>343</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -2402,7 +2402,7 @@
       <locationDisplayName>Kroch Library Rare &amp; Manuscripts (Request in advance)</locationDisplayName>
       <locationCode>was,ranx</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>295</mfhdCount>
+      <mfhdCount>297</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -2413,7 +2413,7 @@
       <locationDisplayName>Kroch Library Asia</locationDisplayName>
       <locationCode>asia</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>215</mfhdCount>
+      <mfhdCount>232</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -2457,7 +2457,7 @@
       <locationDisplayName>Kroch Library Asia Reference (Non-Circulating)</locationDisplayName>
       <locationCode>asia,ref</locationCode>
       <suppressInOpac>N</suppressInOpac>
-      <mfhdCount>29</mfhdCount>
+      <mfhdCount>36</mfhdCount>
       <libraryId>1</libraryId>
       <locationOpac>N</locationOpac>
       <locationSpineLabel>ASIA</locationSpineLabel>
@@ -2492,9 +2492,29 @@
       <locationSpineLabel>JGSM</locationSpineLabel>
     </location>
     <location>
+      <locationId>247</locationId>
+      <locationName>Olin Room 501</locationName>
+      <locationDisplayName>Olin Library Graduate Study Center, Room 501</locationDisplayName>
+      <locationCode>olin,501</locationCode>
+      <suppressInOpac>N</suppressInOpac>
+      <mfhdCount>2900</mfhdCount>
+      <libraryId>1</libraryId>
+      <locationOpac>N</locationOpac>
+      <locationSpineLabel>OLIN</locationSpineLabel>
+    </location>
+    <location>
       <locationId>246</locationId>
       <locationName>Nestle Circulation</locationName>
       <locationCode>nest,circ</locationCode>
+      <suppressInOpac>Y</suppressInOpac>
+      <mfhdCount>0</mfhdCount>
+      <libraryId>1</libraryId>
+      <locationOpac>N</locationOpac>
+    </location>
+    <location>
+      <locationId>248</locationId>
+      <locationName>NYC-Tech Campus</locationName>
+      <locationCode>XX</locationCode>
       <suppressInOpac>Y</suppressInOpac>
       <mfhdCount>0</mfhdCount>
       <libraryId>1</libraryId>

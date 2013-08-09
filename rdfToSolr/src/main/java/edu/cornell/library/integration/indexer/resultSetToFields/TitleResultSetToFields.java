@@ -70,8 +70,14 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			} else {
 				sort_title = title_a.substring(ind2);
 			}
-			addField(fields,"title_sort",removeAllPunctuation(sort_title.toLowerCase())+
-					" " + title_b.toLowerCase());
+			String clean_title_a = removeAllPunctuation(sort_title.toLowerCase());
+			addField(fields,"title_sort", clean_title_a + " " + title_b.toLowerCase());
+			if (clean_title_a.length() >= 2) {
+				addField(fields,"title_1letter_t",clean_title_a.substring(0,1));
+				addField(fields,"title_2letter_t",clean_title_a.substring(0,2));
+			} else if (clean_title_a.length() == 1) {
+				addField(fields,"title_1letter_t",clean_title_a.substring(0,1));
+			}
 		}
 		
 		return fields;

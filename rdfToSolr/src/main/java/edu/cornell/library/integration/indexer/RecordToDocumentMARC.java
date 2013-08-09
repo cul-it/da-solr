@@ -98,6 +98,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"          $recordURI$ marcrdf:hasField ?f.\n" +
 							"          ?f marcrdf:tag \"007\".\n" +
 							"          ?f marcrdf:value ?seven. }}").
+				    addMainStoreQuery("typeOfContinuingResource",
+					   		"SELECT (SUBSTR(?val,22,1) as ?typeOfContinuingResource)\n" +
+				    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
+				    		"        ?f marcrdf:tag \"008\". \n" +
+				    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("format_502",
 							"SELECT ?f502\n" +
 							" WHERE { $recordURI$ marcrdf:hasField ?f502.\n" +

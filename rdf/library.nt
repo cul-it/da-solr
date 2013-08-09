@@ -79,6 +79,21 @@
 <http://da-rdf.library.cornell.edu/individual/lib_mountain> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Library>.
 <http://da-rdf.library.cornell.edu/individual/lib_mountain> <http://www.w3.org/2000/01/rdf-schema#label> "Iron Mountain".
 
+<http://da-rdf.library.cornell.edu/individual/loc_243> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "lawr".
+<http://da-rdf.library.cornell.edu/individual/loc_243> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_243> <http://www.w3.org/2000/01/rdf-schema#label> "Law Library (Myron Taylor Hall) Rare Books ".
+<http://da-rdf.library.cornell.edu/individual/loc_243> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_law>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_240> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,ranx".
+<http://da-rdf.library.cornell.edu/individual/loc_240> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_240> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Request in advance)".
+<http://da-rdf.library.cornell.edu/individual/loc_240> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_244> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "lawr,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_244> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_244> <http://www.w3.org/2000/01/rdf-schema#label> "Law Library Rare--Request in advance at Law Circulation Desk".
+<http://da-rdf.library.cornell.edu/individual/loc_244> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_law>.
+
 <http://da-rdf.library.cornell.edu/individual/loc_2> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "afr".
 <http://da-rdf.library.cornell.edu/individual/loc_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_2> <http://www.w3.org/2000/01/rdf-schema#label> "Africana Library (Africana Center)".
@@ -108,10 +123,6 @@
 <http://da-rdf.library.cornell.edu/individual/loc_10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_10> <http://www.w3.org/2000/01/rdf-schema#label> "Preservation Department (B32 Olin)".
 <http://da-rdf.library.cornell.edu/individual/loc_10> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_12> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "cons,opt".
-<http://da-rdf.library.cornell.edu/individual/loc_12> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_12> <http://www.w3.org/2000/01/rdf-schema#label> "cons,opt".
 
 <http://da-rdf.library.cornell.edu/individual/loc_13> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ech".
 <http://da-rdf.library.cornell.edu/individual/loc_13> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -143,35 +154,10 @@
 <http://da-rdf.library.cornell.edu/individual/loc_21> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
 <http://da-rdf.library.cornell.edu/individual/loc_21> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_22> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "engr,base".
-<http://da-rdf.library.cornell.edu/individual/loc_22> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_22> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
-<http://da-rdf.library.cornell.edu/individual/loc_22> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_23> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "engr,res".
-<http://da-rdf.library.cornell.edu/individual/loc_23> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_23> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
-<http://da-rdf.library.cornell.edu/individual/loc_23> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_25> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent".
-<http://da-rdf.library.cornell.edu/individual/loc_25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_25> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library (Comstock Hall)".
-<http://da-rdf.library.cornell.edu/individual/loc_25> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_entomology>.
-
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,anx".
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_28> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,rare".
-<http://da-rdf.library.cornell.edu/individual/loc_28> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_28> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library Rare (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_28> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_entomology>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_30> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,ref".
-<http://da-rdf.library.cornell.edu/individual/loc_30> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_30> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library Reference (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_30> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_entomology>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_31> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "fine".
 <http://da-rdf.library.cornell.edu/individual/loc_31> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -372,10 +358,6 @@
 <http://da-rdf.library.cornell.edu/individual/loc_93> <http://www.w3.org/2000/01/rdf-schema#label> "Music Library Reference (Non-Circulating)".
 <http://da-rdf.library.cornell.edu/individual/loc_93> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_music>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_94> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "nus".
-<http://da-rdf.library.cornell.edu/individual/loc_94> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_94> <http://www.w3.org/2000/01/rdf-schema#label> "Iron Mountain".
-
 <http://da-rdf.library.cornell.edu/individual/loc_95> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "oclc,afrp".
 <http://da-rdf.library.cornell.edu/individual/loc_95> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_95> <http://www.w3.org/2000/01/rdf-schema#label> "Africana Library Reserve".
@@ -430,20 +412,10 @@
 <http://da-rdf.library.cornell.edu/individual/loc_113> <http://www.w3.org/2000/01/rdf-schema#label> "Adelson Library (Lab of Ornithology)".
 <http://da-rdf.library.cornell.edu/individual/loc_113> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_adelson>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys".
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Sciences Library (Clark Hall)".
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_physical>.
-
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys,anx".
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_117> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys,ref".
-<http://da-rdf.library.cornell.edu/individual/loc_117> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_117> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Sciences Library Reference (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_117> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_physical>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_120> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "cts,rev".
 <http://da-rdf.library.cornell.edu/individual/loc_120> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -533,15 +505,25 @@
 <http://da-rdf.library.cornell.edu/individual/loc_144> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Asia Reference (Non-Circulating)".
 <http://da-rdf.library.cornell.edu/individual/loc_144> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_kroch>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_6> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "agen".
-<http://da-rdf.library.cornell.edu/individual/loc_6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_6> <http://www.w3.org/2000/01/rdf-schema#label> "Ag Engineering Library (Riley Robb Hall) (Dept. use only)".
-<http://da-rdf.library.cornell.edu/individual/loc_6> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_engineering>.
+<http://da-rdf.library.cornell.edu/individual/loc_168> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ilr,ts".
+<http://da-rdf.library.cornell.edu/individual/loc_168> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_168> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_168> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_8> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "bioc".
-<http://da-rdf.library.cornell.edu/individual/loc_8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_8> <http://www.w3.org/2000/01/rdf-schema#label> "Biochem Reading Room (Biotech Building) (Dept. use only)".
-<http://da-rdf.library.cornell.edu/individual/loc_8> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_biochem>.
+<http://da-rdf.library.cornell.edu/individual/loc_170> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "jgsm,proc".
+<http://da-rdf.library.cornell.edu/individual/loc_170> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_170> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_170> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_173> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "mann,doc".
+<http://da-rdf.library.cornell.edu/individual/loc_173> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_173> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_173> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_178> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "mus,ts".
+<http://da-rdf.library.cornell.edu/individual/loc_178> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_178> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_178> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_11> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "cons,lab".
 <http://da-rdf.library.cornell.edu/individual/loc_11> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -558,26 +540,6 @@
 <http://da-rdf.library.cornell.edu/individual/loc_16> <http://www.w3.org/2000/01/rdf-schema#label> "Request at Olin Circulation Desk".
 <http://da-rdf.library.cornell.edu/individual/loc_16> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_20> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "engr,ref".
-<http://da-rdf.library.cornell.edu/individual/loc_20> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_20> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
-<http://da-rdf.library.cornell.edu/individual/loc_20> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_24> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "engr,wpe".
-<http://da-rdf.library.cornell.edu/individual/loc_24> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_24> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
-<http://da-rdf.library.cornell.edu/individual/loc_24> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_27> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,rar2".
-<http://da-rdf.library.cornell.edu/individual/loc_27> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_27> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library Rare (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_27> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_entomology>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_29> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,res".
-<http://da-rdf.library.cornell.edu/individual/loc_29> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_29> <http://www.w3.org/2000/01/rdf-schema#label> "Entomology Library Reserve".
-<http://da-rdf.library.cornell.edu/individual/loc_29> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_entomology>.
-
 <http://da-rdf.library.cornell.edu/individual/loc_32> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "fine,anx".
 <http://da-rdf.library.cornell.edu/individual/loc_32> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_32> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
@@ -587,11 +549,6 @@
 <http://da-rdf.library.cornell.edu/individual/loc_35> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_35> <http://www.w3.org/2000/01/rdf-schema#label> "Fine Arts Library (Ask at Circulation)".
 <http://da-rdf.library.cornell.edu/individual/loc_35> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_fine>.
-
-<http://da-rdf.library.cornell.edu/individual/loc_37> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "food".
-<http://da-rdf.library.cornell.edu/individual/loc_37> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_37> <http://www.w3.org/2000/01/rdf-schema#label> "Food Science Library (Stocking Hall) (Dept. use only)".
-<http://da-rdf.library.cornell.edu/individual/loc_37> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_food>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_40> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva,rare".
 <http://da-rdf.library.cornell.edu/individual/loc_40> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -698,11 +655,6 @@
 <http://da-rdf.library.cornell.edu/individual/loc_114> <http://www.w3.org/2000/01/rdf-schema#label> "Adelson Library Reference (Lab of Ornithology)".
 <http://da-rdf.library.cornell.edu/individual/loc_114> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_adelson>.
 
-<http://da-rdf.library.cornell.edu/individual/loc_119> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys,res".
-<http://da-rdf.library.cornell.edu/individual/loc_119> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_119> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Sciences Reserve".
-<http://da-rdf.library.cornell.edu/individual/loc_119> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_physical>.
-
 <http://da-rdf.library.cornell.edu/individual/loc_87> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "rmc".
 <http://da-rdf.library.cornell.edu/individual/loc_87> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_87> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Non-Circulating)".
@@ -753,6 +705,38 @@
 <http://da-rdf.library.cornell.edu/individual/loc_77> <http://www.w3.org/2000/01/rdf-schema#label> "Bailey Hortorium (ask at Mann Library Circulation)".
 <http://da-rdf.library.cornell.edu/individual/loc_77> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_bailey>.
 
+<http://da-rdf.library.cornell.edu/individual/loc_202> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,res".
+<http://da-rdf.library.cornell.edu/individual/loc_202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_202> <http://www.w3.org/2000/01/rdf-schema#label> "Asia Reserve, Severinghouse Reading Rm., Kroch Library".
+<http://da-rdf.library.cornell.edu/individual/loc_202> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_kroch>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_203> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "rmc,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_203> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_203> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Request in advance)".
+<http://da-rdf.library.cornell.edu/individual/loc_203> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_204> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva,res".
+<http://da-rdf.library.cornell.edu/individual/loc_204> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_204> <http://www.w3.org/2000/01/rdf-schema#label> "Geneva Library Reserve".
+<http://da-rdf.library.cornell.edu/individual/loc_204> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_geneva>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_205> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,comp".
+<http://da-rdf.library.cornell.edu/individual/loc_205> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_205> <http://www.w3.org/2000/01/rdf-schema#label> "Companion Animal Hospital Collection (Departmental use only)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_206> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,equ".
+<http://da-rdf.library.cornell.edu/individual/loc_206> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_206> <http://www.w3.org/2000/01/rdf-schema#label> "Equine Farm Animal Collection (Departmental use only)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_210> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "uris,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_210> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_210> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_210> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_211> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,crar".
+<http://da-rdf.library.cornell.edu/individual/loc_211> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_211> <http://www.w3.org/2000/01/rdf-schema#label> "Center for Animal Resources and Education (Dept. use only)".
+
 <http://da-rdf.library.cornell.edu/individual/loc_65> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "law,ref".
 <http://da-rdf.library.cornell.edu/individual/loc_65> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_65> <http://www.w3.org/2000/01/rdf-schema#label> "Law Library Reference (Non-Circulating)".
@@ -777,4 +761,109 @@
 <http://da-rdf.library.cornell.edu/individual/loc_104> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_104> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library Room 604-605 (Non-Circulating)".
 <http://da-rdf.library.cornell.edu/individual/loc_104> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_212> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,oph".
+<http://da-rdf.library.cornell.edu/individual/loc_212> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_212> <http://www.w3.org/2000/01/rdf-schema#label> "Clinical Ophthalmology Collection (Departmental use only)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_214> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "olin,602".
+<http://da-rdf.library.cornell.edu/individual/loc_214> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_214> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library Room 602 (Non-Circulating)".
+<http://da-rdf.library.cornell.edu/individual/loc_214> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_215> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "dcap".
+<http://da-rdf.library.cornell.edu/individual/loc_215> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_215> <http://www.w3.org/2000/01/rdf-schema#label> "DCAPS (106G Olin)".
+<http://da-rdf.library.cornell.edu/individual/loc_215> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_216> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "olin,av".
+<http://da-rdf.library.cornell.edu/individual/loc_216> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_216> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library Media Center".
+<http://da-rdf.library.cornell.edu/individual/loc_216> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_220> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "olin,res".
+<http://da-rdf.library.cornell.edu/individual/loc_220> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_220> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library Reserve".
+<http://da-rdf.library.cornell.edu/individual/loc_220> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_221> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ilr,ranx".
+<http://da-rdf.library.cornell.edu/individual/loc_221> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_221> <http://www.w3.org/2000/01/rdf-schema#label> "Request at ILR Circulation Desk".
+<http://da-rdf.library.cornell.edu/individual/loc_221> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_ilr>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_222> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "orni,cumv".
+<http://da-rdf.library.cornell.edu/individual/loc_222> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_222> <http://www.w3.org/2000/01/rdf-schema#label> "Museum of Vertebrates (Lab of Ornithology) (non-circulating)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_223> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,path".
+<http://da-rdf.library.cornell.edu/individual/loc_223> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_223> <http://www.w3.org/2000/01/rdf-schema#label> "Anatomic Pathology Collection (Departmental use only)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_226> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "vet,feli".
+<http://da-rdf.library.cornell.edu/individual/loc_226> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_226> <http://www.w3.org/2000/01/rdf-schema#label> "Cornell Feline Health Center (Department use only)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_227> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "orni,mac".
+<http://da-rdf.library.cornell.edu/individual/loc_227> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_227> <http://www.w3.org/2000/01/rdf-schema#label> "Macaulay Library (Lab of Ornithology) (Non-circulating)".
+
+<http://da-rdf.library.cornell.edu/individual/loc_229> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "maps,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_229> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_229> <http://www.w3.org/2000/01/rdf-schema#label> "Map Storage (Request in Advance at Map Room, Olin Library)".
+<http://da-rdf.library.cornell.edu/individual/loc_229> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_231> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "orni,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_231> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_231> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_231> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_232> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "sasa,ranx".
+<http://da-rdf.library.cornell.edu/individual/loc_232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_232> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Request in advance)".
+<http://da-rdf.library.cornell.edu/individual/loc_232> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_233> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ech,ranx".
+<http://da-rdf.library.cornell.edu/individual/loc_233> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_233> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Request in advance)".
+<http://da-rdf.library.cornell.edu/individual/loc_233> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_234> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "was,ranx".
+<http://da-rdf.library.cornell.edu/individual/loc_234> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_234> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Request in advance)".
+<http://da-rdf.library.cornell.edu/individual/loc_234> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_235> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia".
+<http://da-rdf.library.cornell.edu/individual/loc_235> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_235> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Asia".
+<http://da-rdf.library.cornell.edu/individual/loc_235> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_kroch>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_236> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,anx".
+<http://da-rdf.library.cornell.edu/individual/loc_236> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_236> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_236> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_237> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,av".
+<http://da-rdf.library.cornell.edu/individual/loc_237> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_237> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Asia A/V".
+<http://da-rdf.library.cornell.edu/individual/loc_237> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_kroch>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_238> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,rare".
+<http://da-rdf.library.cornell.edu/individual/loc_238> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_238> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Rare & Manuscripts (Non-Circulating)".
+<http://da-rdf.library.cornell.edu/individual/loc_238> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_manuscripts>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_239> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "asia,ref".
+<http://da-rdf.library.cornell.edu/individual/loc_239> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_239> <http://www.w3.org/2000/01/rdf-schema#label> "Kroch Library Asia Reference (Non-Circulating)".
+<http://da-rdf.library.cornell.edu/individual/loc_239> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_kroch>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_245> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "jgsm,ref2".
+<http://da-rdf.library.cornell.edu/individual/loc_245> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_245> <http://www.w3.org/2000/01/rdf-schema#label> "Sage Hall Management Library Reference (Non-Circulating)".
+<http://da-rdf.library.cornell.edu/individual/loc_245> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_management>.
+
+<http://da-rdf.library.cornell.edu/individual/loc_247> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "olin,501".
+<http://da-rdf.library.cornell.edu/individual/loc_247> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_247> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library Graduate Study Center, Room 501".
+<http://da-rdf.library.cornell.edu/individual/loc_247> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_olin>.
 

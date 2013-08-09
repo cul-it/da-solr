@@ -21,7 +21,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
  */
 public class FormatResultSetToFields implements ResultSetToFields {
 
-	protected boolean debug = false;
+	protected boolean debug = true;
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -35,6 +35,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		String category ="";
 		String record_type ="";
 		String bibliographic_level ="";
+		String typeOfContinuingResource = "";
 		Boolean isThesis = false;
 		Collection<String> sf653as = new HashSet<String>();
 		Collection<String> sf245hs = new HashSet<String>();
@@ -69,6 +70,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
+			if (debug) System.out.println("Result Key: "+resultKey);
 			if( rs != null){
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
@@ -76,6 +78,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					while(names.hasNext() ){						
 						String name = names.next();
 						RDFNode node = sol.get(name);
+						if (debug) System.out.println("Field: "+name);
 						if (name.equals("cat")) {
 							category = nodeToString( node );
 							if (debug) System.out.println("category = "+category);
@@ -100,6 +103,9 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						} else if (name.equals("f502")) {
 							isThesis = true;
 							if (debug) System.out.println("It's a thesis.");
+						} else if (name.equals("typeOfContinuingResource")) {
+							typeOfContinuingResource = nodeToString( node );
+							if (debug) System.out.println("type of continuing resource = "+typeOfContinuingResource);
 						}
 					}
 				}
@@ -158,6 +164,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		if (format == null) {
 			if (record_type.equals("a")) {
+				System.out.println("**********************a");
 				if ((bibliographic_level.equals("a"))
 						|| (bibliographic_level.equals("m"))
 						|| (bibliographic_level.equals("d"))
@@ -168,6 +175,21 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						|| (bibliographic_level.equals("s"))) {
 					format = "Journal";
 					if (debug) System.out.println("Journal due to record_type:a and bibliographic_level in: b,s.");
+				} else if (bibliographic_level.equals("i")) {
+					System.out.println("**************************ai");
+					if (typeOfContinuingResource.equals("w")) {
+						format = "Website";
+						if (debug) System.out.println("Website due to record_type:a, bibliographic_level:i and typeOfContinuingResource:w.");
+					} else if (typeOfContinuingResource.equals("m")) {
+						format = "Book";
+						if (debug) System.out.println("Book due to record_type:a, bibliographic_level:i and typeOfContinuingResource:m.");
+					} else if (typeOfContinuingResource.equals("d")) {
+						format = "Database";
+						if (debug) System.out.println("Database due to record_type:a, bibliographic_level:i and typeOfContinuingResource:d.");
+					} else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("n")) {
+						format = "Journal";
+						if (debug) System.out.println("Journal due to record_type:a, bibliographic_level:i and typeOfContinuingResource in:n,p.");
+					}
 				}
 			} else if (record_type.equals("t")) {
 				if (bibliographic_level.equals("a")) {
@@ -223,7 +245,10 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				}
 				if (debug)
 					if ( format == null )
-						System.out.println("format:Unknown due to record_type: p and no rare location code.");
+						System.out.println("format:Miscellaneous due to record_type: p and no rare location code.");
+			} else if (record_type.equals("r")) {
+				format = "Object";
+				if (debug) System.out.println("Object due to record_type: r.");
 			}
 			if (format == null) {
 				if (record_type.equals("t")) {
@@ -240,8 +265,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					format = "Video";
 					if (debug) System.out.println("Video due to category:v.");
 				} else {
-					format = "Unknown";
-					if (debug) System.out.println("format:Unknown due to no format conditions met.");
+					format = "Miscellaneous";
+					if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
 				}
 			}
 		}
