@@ -461,6 +461,17 @@
    <target name="ConvertBibUpdatesToXml" depends="build" description="Run get convert bib updates to XML" >
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertBibUpdatesToXml" >
          <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates"/>
+         <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates"/>
+         <jvmarg value="-Xmx1024m"/>
+         <classpath>
+          <path refid="run-classpath"/>
+        </classpath>
+      </java>
+   </target>
+
+   <target name="ConvertMfhdUpdatesToXml" depends="build" description="Run get convert Mfhd updates to XML" >
+      <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.ConvertMfhdUpdatesToXml" >
+         <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates"/>
          <jvmarg value="-Xmx1024m"/>
          <classpath>
@@ -468,5 +479,6 @@
         </classpath>
       </java>
    </target>
+
 
 </project>
