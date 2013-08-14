@@ -119,8 +119,8 @@ public class GetCombinedUpdatesMrc {
 					fromDate, toDate);
 			System.out.println("MfhdIDList size: " + mfhdIdList.size());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            System.exit(-1);
 		}
 		
         // Check mfhdIdList for  bibIds that are not in the bibIdList
@@ -136,8 +136,8 @@ public class GetCombinedUpdatesMrc {
 					}
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+                System.exit(-1);
 			} 
 		} 
 		System.out.println("ExtraBibIDList: " + extraBibIdList.size());
@@ -156,8 +156,8 @@ public class GetCombinedUpdatesMrc {
 					}
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+                System.exit(-1);
 			} 
 		}
 		// add mfhds for bibid in extraBibIdList as well
@@ -171,8 +171,8 @@ public class GetCombinedUpdatesMrc {
 					}
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+                System.exit(-1);
 			} 
 		} 
 		
@@ -190,7 +190,7 @@ public class GetCombinedUpdatesMrc {
 		
 		for (String bibid : bibIdList) { 
 			try {
-		       //System.out.println("Getting bib mrc for bibid: " + bibid);
+		       //Getting bib mrc for bibid
 		       List<BibData> bibDataList = catalogService.getBibData(bibid);
 		       
                for (BibData bibData : bibDataList) { 
@@ -201,20 +201,18 @@ public class GetCombinedUpdatesMrc {
 		    	   saveBibMrc(sb.toString(), seqno, bibDestDir);
 		    	   seqno = seqno + 1;
 		    	   sb = new StringBuffer();
-		       }
-		        
-		       //System.out.println("mrc: " + mrc);
-		       // 
+		       }		        
 		    } catch (Exception e) { 
 		    	e.printStackTrace(); 
+                System.exit(-1);
 		    } 
 		}
 		try {
 			saveBibMrc(sb.toString(), seqno, bibDestDir);
 			seqno = seqno + 1;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            System.exit(-1);
 		}
 		sb = new StringBuffer();
 		recno  = 0;
@@ -233,18 +231,17 @@ public class GetCombinedUpdatesMrc {
 		    	   sb = new StringBuffer();
 		       }
 		        
-		       //System.out.println("mrc: " + mrc);
-		       // 
-		    } catch (Exception e) { 
+		    } catch (Exception e) {                 
 		    	e.printStackTrace(); 
+                System.exit(-1);
 		    } 
 		}
 		try {
 			saveBibMrc(sb.toString(), seqno, bibDestDir);
 			seqno = seqno + 1;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            System.exit(-1);
 		}
 		
 		// save mhfhd marc
@@ -270,14 +267,15 @@ public class GetCombinedUpdatesMrc {
 		       // 
 		    } catch (Exception e) { 
 		    	e.printStackTrace(); 
+                System.exit(-1);
 		    } 
 		}
 		try {
 			saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
 			seqno = seqno + 1;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            System.exit(-1);
 		}
 		
 		sb = new StringBuffer();
@@ -299,16 +297,17 @@ public class GetCombinedUpdatesMrc {
 		        
 		       //System.out.println("mrc: " + mrc);
 		       // 
-		    } catch (Exception e) { 
+		    } catch (Exception e) {                 
 		    	e.printStackTrace(); 
+                System.exit(-1);
 		    } 
 		}
 		try {
 			saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
 			seqno = seqno + 1;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            System.exit(-1);
 		}	 
         System.out.println("Done.");
 	}
