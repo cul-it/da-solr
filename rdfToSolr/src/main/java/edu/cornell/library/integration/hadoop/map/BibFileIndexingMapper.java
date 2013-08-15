@@ -18,8 +18,14 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.StatusReporter;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
@@ -59,7 +65,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  *
  * @param <K> the incoming key is not used
  */
-public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
+public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
 	protected boolean debug = true;
@@ -79,7 +85,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	//true of an error happened during a single call to map()
 	boolean errors_encountered = false;
 	
-	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
+	public void map(Text unused, Text urlText, Context context) throws IOException, InterruptedException {
 		errors_encountered = false;
 		
         String url = urlText.toString();
@@ -93,7 +99,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 			try{			
 				
-				InputStream is = getUrl( urlText.toString() , context );
+				InputStream is = getUrl( urlText.toString()  );
 				context.progress();
 				
 				log.info("Starting to build model");			
@@ -107,7 +113,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				context.progress();
 				
 				log.info("Model load completed. Starting query for all bib records in model. ");									
-				Set<String> bibUris = getURIsInModel(context, model);
+				Set<String> bibUris = getURIsInModel( model);
 				context.progress();
 				
 				log.info("Getting holding rdf.");
@@ -122,7 +128,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
 						context.write(new Text(bibUri), new Text("URI\tSuccess"));
 					}catch(Throwable ex ){
-						String filename = getSplitFileName(context);
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
 					}
 				}		
@@ -130,9 +135,10 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				try {
 					moveToDone( context );
 				} catch (FileNotFoundException e) {
-					//TODO This error is expected. Why? It should be dealt with. In the meantime, let's not restart the indexing process in response.
+					// This error is likely caused by the file being moved when it was completed by another worker
+                    // let's not restart the indexing process in response.
 					String filename = getSplitFileName(context);
-					String errorMsg = "could not process file URL " + urlText.toString() +
+					String errorMsg = "Processed file URL but could not move to done " + urlText.toString() +
 							" due to " + e.toString() ;
 					log.warn( errorMsg );
 					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
@@ -150,17 +156,23 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				FileUtils.deleteDirectory( tmpDir );			
 			}
 			
-			return; // success
+			return; // success, break out of loop
         }
 	}
 	
-	/** Move the split from the todo directory to the done directory. */ 
-	private void moveToDone( Context context ) throws java.io.IOException{		
-		String filename = getSplitFileName(context);
-		FileSystem fs = FileSystem.get( context.getConfiguration() );
-		FileUtil.copy(fs, new Path(filename),fs, doneDir,
-			true, false, fs.getConf()); 
-	}
+	/** Move the split from the todo directory to the done directory. 
+	 * @throws InterruptedException */ 
+	private void moveToDone( Context context ) throws java.io.IOException, InterruptedException{
+        //skip moveToDone if special value is set for doneDir
+        if( DO_NOT_MOVE_TO_DONE.equals( doneDir ) ) {
+            return;
+        }else{
+            String filename = getSplitFileName(context);
+            FileSystem fs = FileSystem.get( context.getConfiguration() );
+            FileUtil.copy(fs, new Path(filename),fs, doneDir,
+                          true, false, fs.getConf()); 
+        }
+    }
 
 	private void indexToSolr(String bibUri, RDFService rdf) throws Exception{
 		SolrInputDocument doc=null;
@@ -201,7 +213,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 */		
 		for( String holdingUrl : holdingUrls ){
 			try {										
-				loader.loadGraph((GraphTDB)model.getGraph(), getUrl(holdingUrl,context) );
+				loader.loadGraph((GraphTDB)model.getGraph(), getUrl(holdingUrl) );
 				context.progress();
 				context.getCounter(getClass().getName(), "holding urls loaded").increment(1);
 			}catch (Exception e) {
@@ -211,7 +223,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}
 	}
 	
-	private InputStream getUrl(String url, Context context) throws IOException {
+	private InputStream getUrl(String url) throws IOException {
 		InputStream is = null;
 		try {
 			is = davService.getFileAsInputStream(url);
@@ -225,7 +237,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	}
 
 	/** Attempt to get all the bib record URIs from model. */
-	private Set<String> getURIsInModel( Context context, Model model) {
+	private Set<String> getURIsInModel(  Model model ) {
 		Set<String>bibUris = new HashSet<String>();
 		for( String queryStr : idQueries){
 			try{
@@ -249,11 +261,22 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		return bibUris;
 	}
 
-	/** get the filename for the current file (aka input split) that is being worked on. */
-    private String getSplitFileName(Context context){
-    	
-    	FileSplit fileSplit = (FileSplit)context.getInputSplit();
-		return fileSplit.getPath().getName();			
+	/** get the filename for the current file (aka input split) that is being worked on. 
+	 * @throws InterruptedException 
+	 * @throws IOException */
+    private String getSplitFileName(Context context) throws IOException, InterruptedException{
+    	org.apache.hadoop.mapreduce.InputSplit split = context.getInputSplit();
+        if( split instanceof  FileSplit ){
+            FileSplit fileSplit = (FileSplit)context.getInputSplit();
+            return fileSplit.getPath().getName();			
+        }else{
+            String[] locs =  split.getLocations();
+            if( locs != null && locs.length > 0 ){
+                return split.getLocations()[0];
+            }else{
+                return "no_split_location_or_file_found";
+            }
+        }
     }
 
 	@Override
@@ -285,8 +308,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		
 		davService = new DavServiceImpl(
 				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
-				conf.get(BibFileToSolr.BIB_WEBDAV_PASSWORD));		
-	}		
+				conf.get(BibFileToSolr.BIB_WEBDAV_PASSWORD));
+	}
 	
 	private Model loadBaseModel(Context context) throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
@@ -314,5 +337,17 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 //			"  <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> ?URI" +
 //			" }" 						
 	);				
-	
+
+    //If BibFileToSolr.DON_DIR is set to this value
+    // then the input splits will not be moved to the done directory.
+    // this is just for testing, do not use it if you want to be able to 
+    // restart a job. 
+    public final static String DO_NOT_MOVE_TO_DONE = "DO_NOT_MOVE_TO_DONE";
+
+    public Context testContext(Configuration configuration,
+            TaskAttemptID taskAttemptID, RecordReader recordReader,
+            RecordWriter recordWriter, OutputCommitter outputCommitter,
+            StatusReporter statusReporter, InputSplit inputSplit) throws IOException, InterruptedException {
+        return new Context (configuration, taskAttemptID, recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);
+    }
 }
