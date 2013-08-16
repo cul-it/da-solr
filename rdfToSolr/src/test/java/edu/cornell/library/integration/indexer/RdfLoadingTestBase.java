@@ -73,7 +73,8 @@ public class RdfLoadingTestBase {
 		
 		//load the standard files
 		for(String fileName : standardFiles){
-			files.add( new File( testRDFDir.getParentFile().getAbsolutePath() + File.separator +fileName));
+			files.add( new File( testRDFDir.getParentFile().getAbsolutePath() + 
+                                 File.separator +fileName));
 		}
 		
 		Model model = ModelFactory.createDefaultModel();
@@ -96,12 +97,15 @@ public class RdfLoadingTestBase {
 		String englishURI = "<http://da-rdf.library.cornell.edu/individual/leng>";
 		assertTrue("Expected to find statements about English mappings in the RDF. " +
 				"The mappings RDF may not be getting loaded for this test.",
-				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?a }"));			
+				rdf.sparqlAskQuery(
+                   "ASK WHERE { " + englishURI  
+                   + " <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?a }"));
 	}
 			
 	public void testCallnumberMappingsInRDF() throws RDFServiceException{
 		String englishURI = "<http://da-rdf.library.cornell.edu/individual/lc_A>";
-		assertTrue("Expected to find statements about lc callnumber prefix \"A\" mappings in the RDF. " +
+		assertTrue("Expected to find statements about lc callnumber prefix "+
+                   "\"A\" mappings in the RDF. " +
 				"The mappings RDF may not be getting loaded for this test.",
 				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " ?p ?a }"));			
 	}
