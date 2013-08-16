@@ -53,6 +53,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("hote,rare");
 		rareLocCodes.add("ilr,kanx");
 		rareLocCodes.add("ilr,lmdc");
+		rareLocCodes.add("ilr,lmdr");
 		rareLocCodes.add("ilr,rare");
 		rareLocCodes.add("lawr");
 		rareLocCodes.add("lawr,anx");
@@ -61,6 +62,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("rmc,anx");
 		rareLocCodes.add("rmc,hsci");
 		rareLocCodes.add("rmc,icer");
+		rareLocCodes.add("rmc,ref");
 		rareLocCodes.add("sasa,ranx");
 		rareLocCodes.add("sasa,rare");
 		rareLocCodes.add("vet,rare");
