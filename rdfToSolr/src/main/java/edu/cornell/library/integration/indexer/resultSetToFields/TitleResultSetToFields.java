@@ -72,11 +72,12 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			}
 			String clean_title_a = removeAllPunctuation(sort_title.toLowerCase());
 			addField(fields,"title_sort", clean_title_a + " " + title_b.toLowerCase());
+			clean_title_a.replaceAll("\\W", "");
 			if (clean_title_a.length() >= 2) {
-				addField(fields,"title_1letter_t",clean_title_a.substring(0,1));
-				addField(fields,"title_2letter_t",clean_title_a.substring(0,2));
+				addField(fields,"title_1letter_s",clean_title_a.substring(0,1));
+				addField(fields,"title_2letter_s",clean_title_a.substring(0,2));
 			} else if (clean_title_a.length() == 1) {
-				addField(fields,"title_1letter_t",clean_title_a.substring(0,1));
+				addField(fields,"title_1letter_s",clean_title_a.substring(0,1));
 			}
 		}
 		

@@ -21,7 +21,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
  */
 public class FormatResultSetToFields implements ResultSetToFields {
 
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -51,6 +51,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("ent,rar2");
 		rareLocCodes.add("gnva,rare");
 		rareLocCodes.add("hote,rare");
+		rareLocCodes.add("ilr,kanx");
 		rareLocCodes.add("ilr,lmdc");
 		rareLocCodes.add("ilr,rare");
 		rareLocCodes.add("lawr");
@@ -164,7 +165,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		if (format == null) {
 			if (record_type.equals("a")) {
-				System.out.println("**********************a");
 				if ((bibliographic_level.equals("a"))
 						|| (bibliographic_level.equals("m"))
 						|| (bibliographic_level.equals("d"))
@@ -176,7 +176,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					format = "Journal";
 					if (debug) System.out.println("Journal due to record_type:a and bibliographic_level in: b,s.");
 				} else if (bibliographic_level.equals("i")) {
-					System.out.println("**************************ai");
 					if (typeOfContinuingResource.equals("w")) {
 						format = "Website";
 						if (debug) System.out.println("Website due to record_type:a, bibliographic_level:i and typeOfContinuingResource:w.");
@@ -199,7 +198,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			} else if ((record_type.equals("c"))
 					|| (record_type.equals("d"))) {
 				format = "Musical Score";
-				if (debug) System.out.println("Musical Score due to record_type: a or d.");
+				if (debug) System.out.println("Musical Score due to record_type: c or d.");
 			} else if ((record_type.equals("e"))
 					|| (record_type.equals("f"))) {
 				format = "Map or Globe";
