@@ -1,6 +1,8 @@
 	package edu.cornell.library.integration.indexer.resultSetToFields;
 	
-	import java.util.Collections;
+	import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,6 +27,10 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 		@Override
 		public Map<? extends String, ? extends SolrInputField> toFields(
 				Map<String, ResultSet> results) {
+
+			//This method needs to return a map of fields:
+			Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+			
 			Set<String> s = new HashSet<String>();
 			
 			for( String resultKey: results.keySet()){
@@ -44,13 +50,12 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 			}
 			
 			if (s.size() > 0) {
-				SolrInputField field = new SolrInputField(fieldName);
 				Iterator<String> iter = s.iterator();
 				while (iter.hasNext()) {
-					field.setValue(iter.next().trim(), 1);
+					addField(fields,fieldName,iter.next());
 				}
 			
-				return Collections.singletonMap(fieldName,field);
+				return fields;
 			} else {
 				return null;
 			}

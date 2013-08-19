@@ -15,9 +15,8 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * processing various query results into complicated determination of item format,
+ * and "online" status.  
  */
 public class FormatResultSetToFields implements ResultSetToFields {
 
