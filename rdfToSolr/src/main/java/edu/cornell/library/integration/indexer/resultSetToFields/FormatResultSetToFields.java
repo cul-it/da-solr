@@ -15,13 +15,12 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * processing various query results into complicated determination of item format,
+ * and "online" status.  
  */
 public class FormatResultSetToFields implements ResultSetToFields {
 
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -51,7 +50,9 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("ent,rar2");
 		rareLocCodes.add("gnva,rare");
 		rareLocCodes.add("hote,rare");
+		rareLocCodes.add("ilr,kanx");
 		rareLocCodes.add("ilr,lmdc");
+		rareLocCodes.add("ilr,lmdr");
 		rareLocCodes.add("ilr,rare");
 		rareLocCodes.add("lawr");
 		rareLocCodes.add("lawr,anx");
@@ -60,6 +61,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		rareLocCodes.add("rmc,anx");
 		rareLocCodes.add("rmc,hsci");
 		rareLocCodes.add("rmc,icer");
+		rareLocCodes.add("rmc,ref");
 		rareLocCodes.add("sasa,ranx");
 		rareLocCodes.add("sasa,rare");
 		rareLocCodes.add("vet,rare");
@@ -164,7 +166,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 
 		if (format == null) {
 			if (record_type.equals("a")) {
-				System.out.println("**********************a");
 				if ((bibliographic_level.equals("a"))
 						|| (bibliographic_level.equals("m"))
 						|| (bibliographic_level.equals("d"))
@@ -176,7 +177,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					format = "Journal";
 					if (debug) System.out.println("Journal due to record_type:a and bibliographic_level in: b,s.");
 				} else if (bibliographic_level.equals("i")) {
-					System.out.println("**************************ai");
 					if (typeOfContinuingResource.equals("w")) {
 						format = "Website";
 						if (debug) System.out.println("Website due to record_type:a, bibliographic_level:i and typeOfContinuingResource:w.");
@@ -199,7 +199,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			} else if ((record_type.equals("c"))
 					|| (record_type.equals("d"))) {
 				format = "Musical Score";
-				if (debug) System.out.println("Musical Score due to record_type: a or d.");
+				if (debug) System.out.println("Musical Score due to record_type: c or d.");
 			} else if ((record_type.equals("e"))
 					|| (record_type.equals("f"))) {
 				format = "Map or Globe";

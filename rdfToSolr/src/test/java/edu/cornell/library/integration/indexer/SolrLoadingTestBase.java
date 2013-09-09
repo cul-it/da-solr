@@ -1,8 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,12 +17,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.core.CoreContainer;
 import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
 
@@ -207,10 +203,13 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	}
 	
 	private static SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
-		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
-		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-		CoreContainer coreContainer = initializer.initialize();
-		return new EmbeddedSolrServer(coreContainer, "");		
+//		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
+//		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
+//		CoreContainer coreContainer = initializer.initialize();
+//		return new EmbeddedSolrServer(coreContainer, "");
+	    //bdc34: some how I no longer have the EmbeddedSolrServer class
+	    //I think that this might have been removed from solr 4.x
+	    return null;
 	}
 		
 

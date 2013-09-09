@@ -41,6 +41,17 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("id").
 					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 					addResultSetToFields( new AllResultsToField("id") ),
+					
+				new SPARQLFieldMakerImpl().
+					setName("holdings ids").
+					addMainStoreQuery("hold_ids",
+							"SELECT ?id \n"+
+				        	"WHERE {\n"+
+					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
+				        	"  ?hold marcrdf:hasField001 ?f.\n" +
+				        	"  ?f marcrdf:value ?id.\n" +
+							"}").
+					addResultSetToFields( new AllResultsToField("holdings_display")),
 
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
