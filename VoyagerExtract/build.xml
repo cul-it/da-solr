@@ -386,7 +386,7 @@
    <target name="GetAllSuppressedBibId" depends="build" description="Run GetAllSuppressedBibId" >
       <echo message="Running GetAllSuppressedBibId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetAllSuppressedBibId" >
-         <jvmarg value="-Xmx1024m"/>
+         <jvmarg value="-Xmx2048m"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/bib/suppressed" />
          <classpath>
           <path refid="run-classpath"/>
@@ -397,7 +397,7 @@
    <target name="GetAllSuppressedMfhdId" depends="build" description="Run GetAllSuppressedMfhdId" >
       <echo message="Running GetAllSuppressedMfhdId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetAllSuppressedMfhdId" >
-         <jvmarg value="-Xmx1024m"/>
+         <jvmarg value="-Xmx2048m"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/suppressed" />
          <classpath>
           <path refid="run-classpath"/>
@@ -408,7 +408,7 @@
    <target name="GetAllUnSuppressedBibId" depends="build" description="Run GetAllUnSuppressedBibId" >
       <echo message="Running GetAllUnSuppressedBibId"/>
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetAllUnSuppressedBibId" >
-         <jvmarg value="-Xmx1024m"/>
+         <jvmarg value="-Xmx2048m"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/bib/unsuppressed" />
          <classpath>
           <path refid="run-classpath"/>
