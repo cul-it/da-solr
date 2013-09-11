@@ -25,7 +25,7 @@ public class DavServiceTest {
       System.out.println("\ntestGetFileList\n");
       DavService davService = DavServiceFactory.getDavService();
        
-      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
+      String url = "http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
       try {
          List<String> filelist = davService.getFileList(url);
          for (String s : filelist) {
@@ -42,7 +42,7 @@ public class DavServiceTest {
       System.out.println("\ntestGetFileUrlList\n");
       DavService davService = DavServiceFactory.getDavService();
        
-      String url = "http://jaf30-dev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
+      String url = "http://culdatadev.library.cornell.edu/data/voyager/bib/bib.mrc.updates";
       try {
          List<String> filelist = davService.getFileUrlList(url);
          for (String s : filelist) {
@@ -60,7 +60,7 @@ public class DavServiceTest {
    public void testGetFile() {
       System.out.println("\ntestGetFile\n");
       DavService davService = DavServiceFactory.getDavService();
-      String url = "http://jaf30-dev.library.cornell.edu/data/test/test.txt";
+      String url = "http://culdatadev.library.cornell.edu/data/test/test.txt";
       try {
          String str = davService.getFileAsString(url);
          System.out.println("Returned len: "+ str.length());
@@ -76,7 +76,7 @@ public class DavServiceTest {
    public void testSaveFile() {
       System.out.println("\ntestSaveFile\n");
       DavService davService = DavServiceFactory.getDavService();
-      String url = "http://jaf30-dev.library.cornell.edu/data/test/test.txt";
+      String url = "http://culdatadev.library.cornell.edu/data/test/test.txt";
       try {
          String testString = "This is a test";
          byte[] bytes = testString.getBytes("UTF-8");
@@ -94,7 +94,7 @@ public class DavServiceTest {
    public void testSaveBytesToFile() {
       System.out.println("\ntestSaveBytesToFile\n");
       DavService davService = DavServiceFactory.getDavService();
-      String url = "http://jaf30-dev.library.cornell.edu/data/test/test2.txt";
+      String url = "http://culdatadev.library.cornell.edu/data/test/test2.txt";
       try {
          String testString = "This is test2";
          byte[] bytes = testString.getBytes("UTF-8"); 

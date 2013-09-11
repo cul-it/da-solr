@@ -4,6 +4,7 @@ package edu.cornell.library.integration.ilcommons.service;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 
@@ -58,10 +59,24 @@ public interface DavService {
    
    /**
     * @param url
+    * @return
+    * @throws Exception
+    */
+   public Path getNioPath(String url) throws Exception;
+   
+   /**
+    * @param url
     * @param dataStream
     * @throws Exception
     */
    public void saveFile(String url, InputStream dataStream) throws Exception;
+   
+	/**
+	 * @param url
+	 * @param path
+	 * @throws Exception
+	 */
+	public void saveNioPath(String url, Path path) throws Exception;
    
    /**
     * @param url
