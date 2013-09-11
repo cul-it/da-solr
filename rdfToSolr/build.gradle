@@ -1,13 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-task copyToLib(type: Copy) {
-    description = "Copy all dependencies to $buildDir/output/lib for use by IDEs like eclipse"  
-    into "$buildDir/output/lib"
-    from configurations.runtime
-}
 
 dependencies {
+   compile project(':ILCommons')
+
    compile 'org.apache.hadoop:hadoop-core:1.0.3'
 
    compile fileTree(dir: 'libs', include: '*.jar')   
@@ -51,4 +48,10 @@ jar {
        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
     }
     exclude "**/slf4j-jdk14*"
+}
+
+task copyToLib(type: Copy) {
+    description = "Copy all dependencies to $buildDir/output/lib for use by IDEs like eclipse"  
+    into "$buildDir/output/lib"
+    from configurations.runtime
 }
