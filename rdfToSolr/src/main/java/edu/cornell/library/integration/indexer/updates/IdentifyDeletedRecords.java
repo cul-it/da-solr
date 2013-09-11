@@ -70,7 +70,7 @@ public class IdentifyDeletedRecords {
 				String fileName = i.next();
 				Matcher m = p.matcher(fileName);
 				if (m.matches()) {
-					Date thisDate = new SimpleDateFormat("yyyy-mm-dd").parse(m.group(1));
+					Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
 					if (thisDate.after(lastDate)) {
 						lastDate = thisDate;
 						mostRecentBibFile = fileName;
@@ -95,7 +95,7 @@ public class IdentifyDeletedRecords {
 				String fileName = i.next();
 				Matcher m = p.matcher(fileName);
 				if (m.matches()) {
-					Date thisDate = new SimpleDateFormat("yyyy-mm-dd").parse(m.group(1));
+					Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
 					if (thisDate.after(lastDate)) {
 						lastDate = thisDate;
 						mostRecentMfhdFile = fileName;
@@ -125,17 +125,17 @@ public class IdentifyDeletedRecords {
 	// folders. The report files have post-pended dates in their file names.
 	private void produceReport( IndexRecordListComparison c ) {
 
-		String currentDate = new SimpleDateFormat("yyyy-mm-dd").format(new Date());
+		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 		// bibs in index not voyager
 		if (c.bibsInIndexNotVoyager.size() > 0) {
-			System.out.println("bibids to be deleted from Solr");
+//			System.out.println("bibids to be deleted from Solr");
 			Integer[] ids = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
 			Arrays.sort( ids );
 
 			StringBuilder sb = new StringBuilder();
 			for( Integer id: ids ) {
-				System.out.println(id);
+//				System.out.println(id);
 				sb.append(id);
 				sb.append("\n");
 			}
@@ -155,14 +155,14 @@ public class IdentifyDeletedRecords {
 		if (c.mfhdsInIndexNotVoyager.size() > 0) {
 			Iterator<Integer> bibids = c.mfhdsInIndexNotVoyager.values().iterator();
 			Set<Integer> update_bibids = new TreeSet<Integer>();
-			System.out.println("bibids to be updated in solr");
+//			System.out.println("bibids to be updated in solr");
 			while (bibids.hasNext())
 				update_bibids.add(bibids.next());
 			bibids = update_bibids.iterator();
 			StringBuilder sb = new StringBuilder();
 			while (bibids.hasNext()) {
 				Integer bibid = bibids.next();
-				System.out.println(bibid);
+//				System.out.println(bibid);
 				sb.append(bibid);
 				sb.append("\n");
 			}
