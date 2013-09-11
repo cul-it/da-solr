@@ -54,7 +54,7 @@
 		<javac destdir="${build.dir}/classes" srcdir="${src.dir}" debug="true"
 			deprecation="false" optimize="false" failonerror="true">
 			<classpath refid="compile.classpath" />
-			<compilerarg value="${java.opts}" />
+			<!-- <compilerarg value="${java.opts}" /> -->
 		</javac>
 	</target> 
 
