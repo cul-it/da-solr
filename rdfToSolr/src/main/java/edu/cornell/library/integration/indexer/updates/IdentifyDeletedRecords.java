@@ -32,9 +32,14 @@ public class IdentifyDeletedRecords {
 		if (args.length >= 1)
 			coreUrl = args[0];
 		if (args.length >= 3) {
-			Path currentVoyagerBibList = Paths.get(args[1]);
-			Path currentVoyagerMfhdList = Paths.get(args[2]);
-			new IdentifyDeletedRecords(coreUrl,currentVoyagerBibList,currentVoyagerMfhdList);
+			DavService davService = DavServiceFactory.getDavService();
+			try {
+				Path currentVoyagerBibList = davService.getNioPath(args[1]);
+				Path currentVoyagerMfhdList = davService.getNioPath(args[2]);
+				new IdentifyDeletedRecords(coreUrl,currentVoyagerBibList,currentVoyagerMfhdList);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} else 
 			new IdentifyDeletedRecords(coreUrl);
 	}
@@ -42,6 +47,7 @@ public class IdentifyDeletedRecords {
 	public IdentifyDeletedRecords(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) {
 
 		davService = DavServiceFactory.getDavService();
+		System.out.println("Comparing to contents of index at: " + coreUrl);
 
 		IndexRecordListComparison c = new IndexRecordListComparison();
 		c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
@@ -73,7 +79,7 @@ public class IdentifyDeletedRecords {
 			}
 			if (mostRecentBibFile != null) {
 				System.out.println("Most recent bib file identified as: "+davUrl+"/voyager/bib/unsuppressed/"+mostRecentBibFile);
-				currentVoyagerBibList = Paths.get(davUrl+"/voyager/bib/unsuppressed/"+mostRecentBibFile);
+				currentVoyagerBibList = davService.getNioPath(davUrl+"/voyager/bib/unsuppressed/"+mostRecentBibFile);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -98,19 +104,19 @@ public class IdentifyDeletedRecords {
 			}
 			if (mostRecentMfhdFile != null) {
 				System.out.println("Most recent mfhd file identified as: "+davUrl+"/voyager/mfhd/unsuppressed/"+mostRecentMfhdFile);
-				currentVoyagerMfhdList = Paths.get(davUrl+"/voyager/mfhd/unsuppressed/"+mostRecentMfhdFile);
+				currentVoyagerMfhdList = davService.getNioPath(davUrl+"/voyager/mfhd/unsuppressed/"+mostRecentMfhdFile);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if ((currentVoyagerBibList != null) && (currentVoyagerMfhdList != null)) {
-			System.out.println("Lists identified. Moving on.");
-
-//			IndexRecordListComparison c = new IndexRecordListComparison();
-//			c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+			System.out.println("Comparing to contents of index at: " + coreUrl);
 			
-//			printReport(c);
+			IndexRecordListComparison c = new IndexRecordListComparison();
+			c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+			
+			produceReport(c);
 		}
  	}
 
