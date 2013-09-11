@@ -3,6 +3,8 @@ package edu.cornell.library.integration.ilcommons.service;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -14,6 +16,12 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,6 +172,17 @@ public class DavServiceImpl implements DavService {
       is.close();
       return file;
    }
+   
+   public Path getNioPath(String url) throws Exception {
+	   Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+	   InputStream is  = (InputStream) sardine.get(url); 
+	   CopyOption[] options = new CopyOption[]{
+		  StandardCopyOption.REPLACE_EXISTING
+       };
+	   final Path path = Files.createTempFile("nio-temp", ".tmp");
+	   Files.copy(is, path, options);	     
+	   return path;
+   }
 
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.DavService#saveFile(java.lang.String, java.io.InputStream)
@@ -173,6 +192,22 @@ public class DavServiceImpl implements DavService {
       sardine.put(url, dataStream);
        
    }
+   
+	/* (non-Javadoc)
+	 * @see edu.cornell.library.integration.ilcommons.service.DavService#saveNioPath(java.lang.String, java.nio.file.Path)
+	 */
+	public void saveNioPath(String url, Path path) throws Exception {
+		Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+		File file = path.toFile();
+		InputStream dataStream = null;
+		try {
+			dataStream = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sardine.put(url, dataStream);
+	}
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.DavService#saveBytesToFile(java.lang.String, byte[])
