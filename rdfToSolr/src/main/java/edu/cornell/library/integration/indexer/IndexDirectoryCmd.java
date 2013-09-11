@@ -28,6 +28,10 @@ import edu.cornell.library.integration.service.DavServiceImpl;
 
 /**
  * Index all the files in a given directory.
+ * 
+ * This uses the BibFileIndexingMapper and provides basic implementations of the
+ * haddop classes to drive it. 
+ * 
  */
 public class IndexDirectoryCmd extends CommandBase {
 
@@ -38,18 +42,26 @@ public class IndexDirectoryCmd extends CommandBase {
         
 		String sourceDir = args[0];
 		String solrServiceUrl = args[1];
-        String davUser = "what?";
-        String davPass = "meworry?";
+        String davUser = "admin";
+        String davPass = "password";
             
         DavService davService = new DavServiceImpl( davUser, davPass );
 
-        List<String> bibUrls = davService.getFileList( sourceDir );
-
-        for( String url : bibUrls){
+        if( ! sourceDir.endsWith("/") )
+            sourceDir = sourceDir + "/";
+        
+        List<String> fileNames = davService.getFileList( sourceDir );
+                
+        for( String fileName : fileNames){
+            String url = sourceDir + fileName;
             indexBibUrl( url, davUser, davPass, solrServiceUrl );
         }
     }
 
+ 	/**
+ 	 * Run the BibFileIndexingMapper on the file from url and index the results in
+ 	 * solrSeviceUrl. 
+ 	 */
     protected static void indexBibUrl( String url, String davUser, String davPass, String solrServiceUrl) 
             throws IOException, InterruptedException{
 
@@ -75,14 +87,18 @@ public class IndexDirectoryCmd extends CommandBase {
 
         indexingMapper.map(null, new Text(url), context);
 
-        //can access the result records with recordWriter
-
+        //can access the result records with recordWriter if needed
+        //but right now they not used
+        //they would be useful to get error reporting etc.
     }
 
 	private static String help = 
-        "\nIndexDirectoryCmd will convert all run the conversion on all files found " +
-        "in the directory. A webDav URL is acceptable for the directory. \n" +
-        "expected:  sourceDirectory solrIndexURL\n";
+	        "\n"+
+	        "IndexDirectoryCmd will run the conversion on all files found \n" +
+	        "in the directory. A webDav URL is acceptable for the directory. \n" +
+	        "\n" +
+	        "expected:  sourceDirectory solrIndexURL\n";
+	
 	private static boolean help(String[] args) {
 		if( args == null || args.length != 2 ){
 			System.err.print(help);
@@ -91,8 +107,6 @@ public class IndexDirectoryCmd extends CommandBase {
 			return false;
 		}
 	}
-
-
 
 
     final static class MockRecordWriter extends RecordWriter<Text, Text> {

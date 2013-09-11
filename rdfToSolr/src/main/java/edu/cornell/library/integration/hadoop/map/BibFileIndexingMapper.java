@@ -131,18 +131,9 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
 					}
 				}		
-
-				try {
-					moveToDone( context );
-				} catch (FileNotFoundException e) {
-					// This error is likely caused by the file being moved when it was completed by another worker
-                    // let's not restart the indexing process in response.
-					String filename = getSplitFileName(context);
-					String errorMsg = "Processed file URL but could not move to done " + urlText.toString() +
-							" due to " + e.toString() ;
-					log.warn( errorMsg );
-					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
-				}
+				
+				//attempt to move file to done directory when completed
+				moveToDone( context , urlText.toString() );				
 
 			}catch(Throwable th){			
 				String filename = getSplitFileName(context);
@@ -162,16 +153,27 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 	
 	/** Move the split from the todo directory to the done directory. 
 	 * @throws InterruptedException */ 
-	private void moveToDone( Context context ) throws java.io.IOException, InterruptedException{
-        //skip moveToDone if special value is set for doneDir
-        if( DO_NOT_MOVE_TO_DONE.equals( doneDir ) ) {
-            return;
-        }else{
+	private void moveToDone( Context context , String fileUrl) throws java.io.IOException, InterruptedException{
+	    try {
+	        // skip moveToDone if special value is set for doneDir
+	        if( DO_NOT_MOVE_TO_DONE.equals( doneDir.toString()          ) ) {
+	            return;
+	        }else{
+	            String filename = getSplitFileName(context);
+	            FileSystem fs = FileSystem.get( context.getConfiguration() );
+	            FileUtil.copy(fs, new Path(filename),fs, doneDir,
+	                          true, false, fs.getConf()); 
+	        }
+        } catch (FileNotFoundException e) {
+            // This error is likely caused by the file being moved when it was completed by another worker
+            // let's not restart the indexing process in response.
             String filename = getSplitFileName(context);
-            FileSystem fs = FileSystem.get( context.getConfiguration() );
-            FileUtil.copy(fs, new Path(filename),fs, doneDir,
-                          true, false, fs.getConf()); 
-        }
+            String errorMsg = "Processed file URL but could not move from "
+                    + "todo directory to done directory for " + fileUrl +
+                    " due to " + e.toString() ;
+            log.warn( errorMsg );
+            context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+        }	    	            
     }
 
 	private void indexToSolr(String bibUri, RDFService rdf) throws Exception{
@@ -182,7 +184,7 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 			if( doc == null ){
 				throw new Exception("No document created for " + bibUri);				
 			}
-			if (debug) System.out.println(IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ));
+			//if (debug) System.out.println(IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ));
 		}catch(Throwable er){			
 			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
@@ -287,8 +289,10 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 		doneDir = new Path( conf.get(BibFileToSolr.DONE_DIR) );
 		if(doneDir == null )
 			throw new Error("Requires directory of HDFS for the done directory in configuration, " +
-					"this should have been set by BibFileToSolr or the parent hadoop job. " 
-					+ BibFileToSolr.DONE_DIR);
+					"this should have been set by BibFileToSolr or the parent hadoop job. "
+					+ "Set it to " + BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE + " to disable "
+					+ "the done directory feature. "
+					+ "It was " + BibFileToSolr.DONE_DIR);
 		
 		solrURL = conf.get( BibFileToSolr.SOLR_SERVICE_URL );
 		if(solrURL == null )
@@ -314,8 +318,10 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 	private Model loadBaseModel(Context context) throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
 		String[] baseNtFiles = { "/shadows.nt","/library.nt","/language_code.nt", "/callnumber_map.nt","/fieldGroups.nt"};
-		for( String fileName : baseNtFiles ){				
+		for( String fileName : baseNtFiles ){		    
 			InputStream in = getClass().getResourceAsStream(fileName);
+			if( in == null )
+			    throw new IOException("While attempting to load base RDF files, could not find resource " + fileName);
 			baseModel.read(in, null, "N-TRIPLE");
 			in.close();
 			log.info("loaded base model " + fileName);
