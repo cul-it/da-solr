@@ -1,8 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.InputStream;
 
@@ -14,6 +12,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -28,8 +27,13 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
  * Once this is done test queries can be run against the solr
  * service.
  * 
- * @author bdc34 
+ * @author bdc34
+ * 
+ *  THis test is ignored because the supporting solr classes
+ *  are no longer around.  We will have to convert this to some
+ *  sort of integration test.
  */
+@Ignore
 public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@BeforeClass
@@ -42,7 +46,8 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 		takeDownSolr();
 	}
 	
-	@Test 
+	@Test
+	@Ignore
 	public void testForGoodStartup() throws Exception{
 		super.testSolrWasStarted();
 		super.testRadioactiveIds();
@@ -51,6 +56,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}	
 	
 	@Test
+	@Ignore
 	public void testBronte() throws SolrServerException{
 		
 		/* make sure that we have the document in the index before we do anything */			
@@ -72,6 +78,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}		
 	
 	@Test
+	@Ignore 
 	public void testUnicode() throws SolrServerException{
 		testQueryGetsDocs("Expect to find document by doc:id 3309",
 				new SolrQuery().setQuery("id:3309").setParam("qt", "standard"),
@@ -93,6 +100,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}
 
 	@Test
+	@Ignore
 	public void testLanguageSearchFacet() throws SolrServerException{
 
 		try {
@@ -133,6 +141,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}
 	
 	@Test
+	@Ignore
 	public void testCallnumSearchFacet() throws SolrServerException{
 		
 		//"Expected "P - Language & Literature" for lc_1letter_facet on document 4696."
