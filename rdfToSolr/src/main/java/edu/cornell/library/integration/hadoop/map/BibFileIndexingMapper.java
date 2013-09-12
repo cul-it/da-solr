@@ -29,7 +29,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
@@ -47,8 +46,6 @@ import com.hp.hpl.jena.tdb.TDBLoader;
 import com.hp.hpl.jena.tdb.store.GraphTDB;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
-import edu.cornell.library.integration.hadoop.helper.HoldingForBib;
-import edu.cornell.library.integration.indexer.IndexingUtilities;
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.service.DavService;
@@ -79,7 +76,6 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 	//model for data that gets reused each reduce
 	Model baseModel;
 	
-	HoldingForBib holdingsIndex;
 	DavService davService;		
 
 	//true of an error happened during a single call to map()
@@ -114,10 +110,7 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 				
 				log.info("Model load completed. Starting query for all bib records in model. ");									
 				Set<String> bibUris = getURIsInModel( model);
-				context.progress();
-				
-				log.info("Getting holding rdf.");
-				getHoldingRdf(context, bibUris, loader, model);		 
+				context.progress();										 
 				
 				log.info("Starting to index documents");
 				RDFService rdf = new RDFServiceModel(model);
@@ -197,33 +190,7 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 		}
 	}
 	
-	/** Get the holding RDF for all the bib records inn bibUris and add them to model. */
-	private void getHoldingRdf(Context context, Set<String> bibUris , TDBLoader loader , Model model){
-		log.info("Getting additional holding data");
-		Set<String> holdingUrls = new HashSet<String>();
-/*  *Temporarily blocking loading of external MFHD files.	
- 		for( String bibUri : bibUris){
-           try {
-				holdingUrls.addAll( holdingsIndex.getHoldingUrlsForBibURI( bibUri ) );
-			} catch (Exception e) {
-				log.error("could not get holdings RDF for BibUri " + bibUri + 
-						" " + e.getMessage());
-			}
-			
-			context.progress();
-		}			
-*/		
-		for( String holdingUrl : holdingUrls ){
-			try {										
-				loader.loadGraph((GraphTDB)model.getGraph(), getUrl(holdingUrl) );
-				context.progress();
-				context.getCounter(getClass().getName(), "holding urls loaded").increment(1);
-			}catch (Exception e) {
-				log.error("Could not get or load holding for URL for " +  holdingUrl 
-						+ " " + e.getMessage());				
-			}
-		}
-	}
+	
 	
 	private InputStream getUrl(String url) throws IOException {
 		InputStream is = null;
@@ -306,10 +273,7 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 		}
 		
 		baseModel = loadBaseModel( context );
-				
-		holdingsIndex = new HoldingForBib(
-				conf.get(BibFileToSolr.HOLDING_SERVICE_URL));
-		
+						
 		davService = new DavServiceImpl(
 				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
 				conf.get(BibFileToSolr.BIB_WEBDAV_PASSWORD));
