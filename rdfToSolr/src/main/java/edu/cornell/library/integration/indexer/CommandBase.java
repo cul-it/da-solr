@@ -8,8 +8,8 @@ public class CommandBase {
 	protected static RecordToDocument getRecordToDocumentImpl(String recToDocImplClassName) {
 		try{
 			Class recToDocImplClass = Class.forName(recToDocImplClassName);		
-			Constructor zeroArgCons = recToDocImplClass.getConstructor(null);
-			return (RecordToDocument) zeroArgCons.newInstance(null);			
+			Constructor zeroArgCons = recToDocImplClass.getConstructor((Class[])null);
+			return (RecordToDocument) zeroArgCons.newInstance((Object[])null);			
 		}catch(Exception ex){
 			System.err.println("could not instanciate class " + recToDocImplClassName);
 			System.err.print( ex.toString());

@@ -1,0 +1,220 @@
+apply plugin: 'java'
+
+dependencies{
+   compile project(':ILCommons')
+
+   compile fileTree(dir: 'lib', include: '*.jar')   
+}
+
+	
+task (OracleTables, dependsOn: 'build', type: JavaExec){
+   description="Get Oracle Tables" 
+   main='edu.cornell.library.integration.support.OracleTables'
+}
+   
+task (OracleTest, dependsOn: 'build', type: JavaExec){
+   description="Oracle Test" 
+   main='edu.cornell.library.integration.support.OracleTest'
+}
+   
+task (OracleQuery, dependsOn: 'build', type: JavaExec){
+   description="Oracle Query" 
+   main='edu.cornell.library.integration.support.OracleQuery'
+}
+   
+task (GetRecordCount, dependsOn:'build', type: JavaExec){
+   description='Run GetRecordCount'
+   main='edu.cornell.library.integration.GetRecordCount'
+   args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done']
+}
+   
+task (GetDeletedRecords, dependsOn:'build', type: JavaExec){
+ description='Run GetDeletedRecords'
+ main='edu.cornell.library.integration.GetDeletedRecords'
+ args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.deleted' ]
+}
+
+task (GetBibMrc, dependsOn:'build', type: JavaExec){
+ description='Run GetBibMrc'
+ main='edu.cornell.library.integration.GetBibMrc'
+ args = ['6794039', 
+         'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
+}
+   
+task (GetBibUpdatesMrc, dependsOn:'build', type: JavaExec){
+ description='Run GetBibUpdatesMrc'
+ main='edu.cornell.library.integration.GetBibUpdatesMrc'
+ args=['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
+}
+   
+task (GetMfhdMrc, dependsOn:'build', type: JavaExec){
+ description='Run GetMfhdMrc'
+ main='edu.cornell.library.integration.GetMfhdMrc'
+ args=['8318301','http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
+}
+   
+task (GetMfhdUpdatesMrc, dependsOn:'build', type: JavaExec){
+ description='Run GetMfhdUpdatesMrc'
+ main='edu.cornell.library.integration.GetMfhdUpdatesMrc'
+ args=['http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
+}
+   
+task (GetAuthUpdatesMrc, dependsOn:'build', type: JavaExec){
+ description='Run GetAuthUpdatesMrc'
+ main='edu.cornell.library.integration.GetAuthUpdatesMrc'
+ args=['http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates']
+}
+   
+task (ConvertMarcToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertMarcToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ maxHeapSize = '1024m'
+ args= [ 'auth', 'updates',
+   'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates',
+   'http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.updates'] 
+       }
+   
+task (ConvertAuthFullToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertAuthFullToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ maxHeapSize = '1024m'
+ args=['auth','full',
+  'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.full',
+  'http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.full' ]
+}
+    
+   
+task (ConvertBibToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertBibToXml'
+ main='edu.cornell.library.integration.ConvertBibToXml'
+ maxHeapSize = '1024m'
+ args=[ '7937421',
+   'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
+   'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates' ]
+}
+   
+task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertMfhdToXml'
+ main='edu.cornell.library.integration.ConvertMfhdToXml'
+ maxHeapSize = '1024m'
+ args=[ '8318301',
+   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
+   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
+}
+   
+task (ConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertBibUpdatesToXml'
+ main='edu.cornell.library.integration.ConvertBibUpdatesToXml'
+ maxHeapSize = '1024m'
+  args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
+    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.' ]
+}
+   
+task (ConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertMfhdUpdatesToXml'
+ main='edu.cornell.library.integration.ConvertMfhdUpdatesToXml'
+ maxHeapSize = '1024m'
+ args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
+    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
+}
+   
+task (ConvertBibDailyToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertBibDailyToXml'
+ main='edu.cornell.library.integration.ConvertBibDailyToXml'
+ maxHeapSize = '1280m'
+ args= [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.daily',
+   'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.daily' ]
+}
+   
+task (ConvertBibFullToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertBibFullToXml'
+ main='edu.cornell.library.integration.ConvertBibFullToXml'
+ maxHeapSize = '1280m'
+ args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full',
+    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full' ]
+}
+   
+task (ConvertMfhdDailyToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertMfhdDailyToXml'
+ main='edu.cornell.library.integration.ConvertMfhdDailyToXml'
+ maxHeapSize = '1280m'
+ args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily',
+    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily' ]
+}
+   
+task (ConvertMfhdFullToXml, dependsOn:'build', type: JavaExec){
+ description='Run ConvertMfhdFullToXml'
+ main='edu.cornell.library.integration.ConvertMfhdFullToXml'
+ maxHeapSize = '1280m'
+ args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.full',
+    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full' ]
+}
+   
+task (GetRecentBibDataCount, dependsOn:'build', type: JavaExec){
+ description='Run GetRecentBibDataCount'
+ main='edu.cornell.library.integration.GetRecentBibDataCount'
+ maxHeapSize = '1024m'
+ args=['3'  ]
+}
+   
+task (GetRecentMfhdDataCount, dependsOn:'build', type: JavaExec){
+ description='Run GetRecentMfhdDataCount'
+ main='edu.cornell.library.integration.GetRecentMfhdDataCount'
+ maxHeapSize = '1024m'
+ args=['3']
+}
+   
+task (GetLocations, dependsOn:'build', type: JavaExec){
+ description='Run GetLocations'
+ main='edu.cornell.library.integration.GetLocations'
+ maxHeapSize = '1024m'
+}
+   
+task (GetAllSuppressedBibId, dependsOn:'build', type: JavaExec){
+ description='Run GetAllSuppressedBibId'
+ main='edu.cornell.library.integration.GetAllSuppressedBibId'
+ maxHeapSize = '2048m'
+ args=['http://culdata.library.cornell.edu/data/voyager/bib/suppressed']
+}
+   
+task (GetAllSuppressedMfhdId, dependsOn:'build', type: JavaExec){
+ description='Run GetAllSuppressedMfhdId'
+ main='edu.cornell.library.integration.GetAllSuppressedMfhdId'
+ maxHeapSize = '2048m'
+ args=['http://culdata.library.cornell.edu/data/voyager/mfhd/suppressed']
+}
+   
+task (GetAllUnSuppressedBibId, dependsOn:'build', type: JavaExec){
+ description='Run GetAllUnSuppressedBibId'
+ main='edu.cornell.library.integration.GetAllUnSuppressedBibId'
+ maxHeapSize = '2048m'
+ args=['http://culdata.library.cornell.edu/data/voyager/bib/unsuppressed']
+}
+   
+task (GetAllUnSuppressedMfhdId, dependsOn:'build', type: JavaExec){
+ description='Run GetAllUnSuppressedMfhdId'
+ main='edu.cornell.library.integration.GetAllUnSuppressedMfhdId'
+ maxHeapSize = '2048m'
+ args=['http://culdata.library.cornell.edu/data/voyager/mfhd/unsuppressed']
+}
+   
+task (GetBibMasterData, dependsOn:'build', type: JavaExec){
+ description='Run GetBibMasterData'
+ main='edu.cornell.library.integration.GetBibMasterData'
+ args=['6100933']
+}
+   
+task (FindMissingBibId, dependsOn:'build', type: JavaExec){
+ description='Run FindMissingBibId'
+ main='edu.cornell.library.integration.support.FindMissingBibId'
+  maxHeapSize = '2048m'
+}
+   
+task (GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
+ description='Run get the combined updated MRC'
+ main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
+ maxHeapSize = '2048m'
+ args = [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
+   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates' ]
+}
+   
