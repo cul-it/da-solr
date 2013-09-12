@@ -136,7 +136,7 @@ public class ConvertBibFullToXml {
 		} else {
 			String seqno = "";
 			for (String srcFile : srcList) {
-				// System.out.println("Converting mrc file: "+ srcFile);
+				System.out.println("Converting mrc file: "+ srcFile);
 				try {
 					seqno = getSequenceFromFileName(srcFile);
 					converter.setSequence_prefix(seqno);
