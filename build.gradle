@@ -2,13 +2,15 @@
 
 /* The current thinking is to setup a build
    script at the base integrationLayer directory
-   with scripts in the sub sections lie rdfToSolr. */
+   with scripts in the sub diectories like rdfToSolr. */
 
-allprojects {
-    apply plugin: 'java'
-}
+//allprojects {
+//    apply plugin: 'java'
+//}
 
 subprojects {
+    //apply plugin: 'java'
+
     repositories {
         mavenCentral()
         //sesame repository

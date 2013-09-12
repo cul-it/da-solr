@@ -1,0 +1,9 @@
+// Just a gradle project that builds the Jar 
+// using the ant build.xml.
+
+apply plugin: 'java'
+
+dependencies{
+   compile fileTree(dir: 'lib', include: '*.jar')   
+}
+

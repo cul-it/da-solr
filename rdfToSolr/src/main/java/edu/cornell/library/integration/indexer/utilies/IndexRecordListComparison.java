@@ -45,6 +45,9 @@ public class IndexRecordListComparison {
 						processDoc(reader,currentIndexBibList,currentIndexMfhdList);
 			}
 			in.close();
+			System.out.println("Current index contains:");
+			System.out.println("\tbib records: "+currentIndexBibList.size());
+			System.out.println("\tmfhd records: "+currentIndexMfhdList.size());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -56,10 +59,12 @@ public class IndexRecordListComparison {
 		// compare current index bib list with current voyager bib list
 		// HashSet currentIndexBibList is NOT PRESERVED
 		try {
+			int unsuppressedBibCount = 0;
 			String line;
 			BufferedReader reader = Files.newBufferedReader(currentVoyagerBibList, Charset.forName("US-ASCII"));
 			while ((line = reader.readLine()) != null) {
 				Integer bibid = Integer.valueOf(line);
+				unsuppressedBibCount++;
 				if (currentIndexBibList.contains(bibid)) {
 					// bibid is on both lists.
 					currentIndexBibList.remove(bibid);
@@ -67,7 +72,10 @@ public class IndexRecordListComparison {
 					bibsInVoyagerNotIndex.add(bibid);
 				}
 			}
+			System.out.println("unsuppressed bib record list contains: "+unsuppressedBibCount+" records");
+			System.out.println("\ton list but not in index: "+bibsInVoyagerNotIndex.size());
 			bibsInIndexNotVoyager.addAll(currentIndexBibList);
+			System.out.println("\tin index but not on list: "+bibsInIndexNotVoyager.size());
 			currentIndexBibList.clear();
 			reader.close();
 		} catch (IOException e) {
@@ -78,10 +86,12 @@ public class IndexRecordListComparison {
 		// compare current index mfhd list with current voyager mfhd list
 		// HashMap currentIndexMfhdList is NOT PRESERVED
 		try {
+			int unsuppressedMfhdCount = 0;
 			String line;
 			BufferedReader reader = Files.newBufferedReader(currentVoyagerMfhdList, Charset.forName("US-ASCII"));
 			while ((line = reader.readLine()) != null) {
 				Integer mfhdid = Integer.valueOf(line);
+				unsuppressedMfhdCount++;
 				if (currentIndexMfhdList.containsKey(mfhdid)) {
 					// mfhdid is on both lists.
 					currentIndexMfhdList.remove(mfhdid);
@@ -89,7 +99,10 @@ public class IndexRecordListComparison {
 					mfhdsInVoyagerNotIndex.add(mfhdid);
 				}
 			}
+			System.out.println("unsuppressed mfhd record list contains: "+unsuppressedMfhdCount+" records");
+			System.out.println("\ton list but not in index: "+mfhdsInVoyagerNotIndex.size());
 			mfhdsInIndexNotVoyager.putAll(currentIndexMfhdList);
+			System.out.println("\tin index but not on list: "+mfhdsInIndexNotVoyager.size());
 			currentIndexMfhdList.clear();
 			reader.close();
 		} catch (IOException e) {

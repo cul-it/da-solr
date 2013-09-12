@@ -28,12 +28,11 @@ public class MarcToSolrUtilsTest {
 
 	@Test
 	public void getURLsTest() throws IOException{
-		List<String> urls = MarcToSolrUtils.getLinksFromPage("http://culsearchdev.library.cornell.edu/data/voyager/bib/bib.nt.full/");
+		List<String> urls = MarcToSolrUtils.getLinksFromPage("http://library.cornell.edu");
 		assertNotNull( urls );		
 		assertTrue( urls.size() > 0 );
 	}
-	
-	
+		
 
 	//Unicode that should be in file 188_300000 for bib record 7519996
 	String lookingFor ="广西壮族自治区";
@@ -74,8 +73,11 @@ public class MarcToSolrUtilsTest {
 		ByteBuffer ba = Text.encode(nt);
 		String nt2 = Text.decode( ba.array() );
 		
+		//seems that Text might add whitespace at end of string
+		assertEquals(nt.trim(),  nt2.trim());
+		
 		assertTrue("Expected to find " + lookingFor + " in model decoded by Text", 
-				utf8Found( MarcToSolrUtils.readNTStringToModel( nt2 )));			
+				utf8Found( MarcToSolrUtils.readNTStringToModel( nt2.trim() )));			
 	}
 	
 	@Test 
