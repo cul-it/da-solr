@@ -430,7 +430,7 @@
       <java fork="true" dir="${basedir}" classname="edu.cornell.library.integration.GetCombinedUpdatesMrc" >
          <arg value="http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates"/>
          <arg value="http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates"/>
-         <arg value="http://culdata.library.cornell.edu/data/voyager/updates/bib.deletes"/>
+         <arg value="http://culdata.library.cornell.edu/data/voyager/updates/bib.updates"/>
          <jvmarg value="-Xmx2048m"/>
          <classpath>
           <path refid="run-classpath"/>
