@@ -1,6 +1,7 @@
 package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
@@ -28,7 +30,7 @@ public class GetCombinedUpdatesMrc {
    private DavService davService;
    private CatalogService catalogService; 
    
-
+   public static final String TMPDIR = "/tmp";
    /**
     * default constructor
     */
@@ -70,21 +72,22 @@ public class GetCombinedUpdatesMrc {
     */
    public static void main(String[] args) {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
-     if (args.length != 2 ) {
-        System.err.println("You must provide bib and mhfd destination Dirs as an arguments");
+     if (args.length != 3 ) {
+        System.err.println("You must provide bib, mfhd and deletedBibs Dirs as an arguments");
         System.exit(-1);
      }
       
      String bibDestDir  = args[0];
      String mfhdDestDir  = args[1];
-     app.run(bibDestDir, mfhdDestDir);
+     String deletedBibsDir  = args[2];
+     app.run(bibDestDir, mfhdDestDir, deletedBibsDir);
    }
    
 
    /**
     * 
     */
-	public void run(String bibDestDir, String mfhdDestDir) {
+	public void run(String bibDestDir, String mfhdDestDir, String deletedBibsDir) {
 
 		ApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"spring.xml");
@@ -99,8 +102,9 @@ public class GetCombinedUpdatesMrc {
 		setDavService(DavServiceFactory.getDavService());
 
 		Calendar now = Calendar.getInstance();
-		String toDate = getDateString(now);
+		String toDate = getDateTimeString(now);
 		String fromDate = getRelativeDateString(now, -24);
+		String today = getDateString(now);
         System.out.println("fromDate: "+ fromDate);
         System.out.println("toDate: "+ toDate);
 		// get list of bibids updates using recent date String
@@ -143,9 +147,30 @@ public class GetCombinedUpdatesMrc {
 		} 
 		System.out.println("ExtraBibIDList: " + extraBibIdList.size());
 		//
-		// I think this is where we need to add bib ids which have deleted mfhd ids
+		// add bib ids which have deleted mfhd ids
 		//
-		 
+		String bibListForDeleteFileName = "bibListForDelete-"+ today +".txt"; 
+		String tmpFilePath = TMPDIR +"/"+ bibListForDeleteFileName;
+		List<String> bibListForDeleteList = new ArrayList();
+		File bibListForDeleteFile = null;
+	    try {
+	    	bibListForDeleteFile = davService.getFile(deletedBibsDir +"/"+ bibListForDeleteFileName, tmpFilePath);
+			bibListForDeleteList = FileUtils.readLines(bibListForDeleteFile);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			System.exit(-1);
+		} finally {
+			bibListForDeleteFile.delete();	
+		}
+	    System.out.println("bibListForDeleteList: " + bibListForDeleteList.size());
+	    for (String s: bibListForDeleteList) {
+	    	if (! extraBibIdList.contains(s)) {
+				extraBibIdList.add(s);
+			}	
+	    }
+	     
+	    
 		System.out.println("Adding extra holdings ids");
 
 		// add extra holdings ids from each bibId to extraMfhdIdList
@@ -270,7 +295,7 @@ public class GetCombinedUpdatesMrc {
 		       }
 		        
 		       //System.out.println("mrc: " + mrc);
-		       // 
+		        
 		    } catch (Exception e) { 
 		    	e.printStackTrace(); 
                 System.exit(-1);
@@ -372,8 +397,14 @@ public class GetCombinedUpdatesMrc {
    /**
     * @return
     */
-   protected String getDateString(Calendar cal) {
+   protected String getDateTimeString(Calendar cal) {
 	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+	   String ds = df.format(cal.getTime());
+	   return ds;
+   }
+   
+   protected String getDateString(Calendar cal) {
+	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
 	   String ds = df.format(cal.getTime());
 	   return ds;
    }
