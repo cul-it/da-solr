@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.IndexingUtilities;
+import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;

@@ -7,15 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilies.IndexRecordListComparison;
+import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 
 public class IdentifyDeletedRecords {
 	
@@ -26,8 +24,9 @@ public class IdentifyDeletedRecords {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
 		String coreUrl = "http://fbw4-dev.library.cornell.edu:8080/solr/test";
 		if (args.length >= 1)
 			coreUrl = args[0];
@@ -39,9 +38,16 @@ public class IdentifyDeletedRecords {
 				new IdentifyDeletedRecords(coreUrl,currentVoyagerBibList,currentVoyagerMfhdList);
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.exit(1);
 			}
-		} else 
-			new IdentifyDeletedRecords(coreUrl);
+		} else {
+		    try{		
+		        new IdentifyDeletedRecords(coreUrl);
+		    }catch( Exception e){
+		        e.printStackTrace();
+		        System.exit(1);
+		    }
+		}
 	}
 	
 	public IdentifyDeletedRecords(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) {
@@ -55,61 +61,39 @@ public class IdentifyDeletedRecords {
 		produceReport(c);
 
 	}
-
-	public IdentifyDeletedRecords(String coreUrl) {
+	
+    
+	public IdentifyDeletedRecords(String coreUrl) throws Exception {
 		davService = DavServiceFactory.getDavService();
 		Path currentVoyagerBibList = null;
 		Path currentVoyagerMfhdList = null;
-		try {
-			List<String> biblists = davService.getFileList(davUrl+"/voyager/bib/unsuppressed");
-			Pattern p = Pattern.compile("unsuppressedBibId-(....-..-..).txt"); 
-			Iterator<String> i = biblists.iterator();
-			Date lastDate = new SimpleDateFormat("yyyy").parse("1950");
-			String mostRecentBibFile = null;
-			while (i.hasNext()) {
-				String fileName = i.next();
-				Matcher m = p.matcher(fileName);
-				if (m.matches()) {
-					Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
-					if (thisDate.after(lastDate)) {
-						lastDate = thisDate;
-						mostRecentBibFile = fileName;
-					}
-				}
-			}
+		
+		String mostRecentBibFile = findMostRecentBibFile(davService, davUrl);		
+		try{
 			if (mostRecentBibFile != null) {
-				System.out.println("Most recent bib file identified as: "+davUrl+"/voyager/bib/unsuppressed/"+mostRecentBibFile);
-				currentVoyagerBibList = davService.getNioPath(davUrl+"/voyager/bib/unsuppressed/"+mostRecentBibFile);
+				System.out.println("Most recent bib file identified as: "+ mostRecentBibFile);
+				currentVoyagerBibList = davService.getNioPath( mostRecentBibFile );
+			}else{
+			    System.out.println("No recent bib file found.");
+			    System.exit(1);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		    throw new Exception( "Could not get most recent bib file from '" + mostRecentBibFile +"'", e);
 		}
-		try {
-			List<String> mfhdlists = davService.getFileList(davUrl+"/voyager/mfhd/unsuppressed");
-			Pattern p = Pattern.compile("unsuppressedMfhdId-(....-..-..).txt"); 
-			Iterator<String> i = mfhdlists.iterator();
-			Date lastDate = new SimpleDateFormat("yyyy").parse("1950");
-			String mostRecentMfhdFile = null;
-			while (i.hasNext()) {
-				String fileName = i.next();
-				Matcher m = p.matcher(fileName);
-				if (m.matches()) {
-					Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
-					if (thisDate.after(lastDate)) {
-						lastDate = thisDate;
-						mostRecentMfhdFile = fileName;
-					}
-				}
-			}
+		
+		String mostRecentMfhdFile = findMostRecentMfhdFile(davService, davUrl);
+		try {		
 			if (mostRecentMfhdFile != null) {
-				System.out.println("Most recent mfhd file identified as: "+davUrl+"/voyager/mfhd/unsuppressed/"+mostRecentMfhdFile);
-				currentVoyagerMfhdList = davService.getNioPath(davUrl+"/voyager/mfhd/unsuppressed/"+mostRecentMfhdFile);
+				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
+				currentVoyagerMfhdList = davService.getNioPath(davUrl + mostRecentMfhdFile);
+			}else{
+			    System.out.println("No recent Mfhd holdings file found.");
+                System.exit(1);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new Exception( "Could not get most recent Mfhd holding file '" + mostRecentMfhdFile + "'" , e);
 		}
+		
 		if ((currentVoyagerBibList != null) && (currentVoyagerMfhdList != null)) {
 			System.out.println("Comparing to contents of index at: " + coreUrl);
 			
@@ -180,4 +164,19 @@ public class IdentifyDeletedRecords {
 		
 	}
 	
+	public static String findMostRecentBibFile(DavService davService , String davBaseUrl ) throws Exception{        
+        try {
+            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/bib/unsuppressed" , "unsuppressedBibId");                    
+        } catch (Exception cause) {
+            throw new Exception("Could not find most recent bib file", cause);
+        }        
+    }
+
+    public static String findMostRecentMfhdFile(DavService davService, String davBaseUrl) throws Exception{                
+        try {
+            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/mfhd/unsuppressed", " unsuppressedMfhdId");            
+        } catch (Exception e) {
+            throw new Exception( "Could not get most recent Mfhd holding file.", e);
+        }    
+    }
 }

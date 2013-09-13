@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
-import edu.cornell.library.integration.indexer.IndexingUtilities;
+import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 
