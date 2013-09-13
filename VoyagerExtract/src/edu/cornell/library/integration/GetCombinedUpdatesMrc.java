@@ -108,7 +108,8 @@ public class GetCombinedUpdatesMrc {
 		List<String> mfhdIdList = new ArrayList<String>();
 		List<String> extraBibIdList = new ArrayList<String>();
 		List<String> extraMfhdIdList = new ArrayList<String>();
-
+        
+		// get recently update bib and mfhd ids
 		try {
 			System.out.println("Getting recently updated bibids");
 			bibIdList = catalogService.getUpdatedBibIdsUsingDateRange(fromDate,
@@ -141,6 +142,9 @@ public class GetCombinedUpdatesMrc {
 			} 
 		} 
 		System.out.println("ExtraBibIDList: " + extraBibIdList.size());
+		//
+		// I think this is where we need to add bib ids which have deleted mfhd ids
+		//
 		 
 		System.out.println("Adding extra holdings ids");
 
@@ -174,7 +178,9 @@ public class GetCombinedUpdatesMrc {
 				e.printStackTrace();
                 System.exit(-1);
 			} 
-		} 
+		}
+		//
+		
 		
 		System.out.println("ExtraMfhdIDList: " + extraMfhdIdList.size());
 		int totalBibId = bibIdList.size() + extraBibIdList.size();
