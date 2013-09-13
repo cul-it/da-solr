@@ -4,12 +4,9 @@
    script at the base integrationLayer directory
    with scripts in the sub diectories like rdfToSolr. */
 
-//allprojects {
-//    apply plugin: 'java'
-//}
 
 subprojects {
-    //apply plugin: 'java'
+    apply plugin: 'java'
 
     repositories {
         mavenCentral()
@@ -18,8 +15,9 @@ subprojects {
     }    
 }
      
-task prepareForTesting(dependsOn: ['convertRadioactiveMARCToRDF', 'copySolrTemplateDirToTestingResources']) << {
- 
+task prepareForTesting(dependsOn: [
+     'convertRadioactiveMARCToRDF', 
+'copySolrTemplateDirToTestingResources']) << { 
 }
 
 task convertRadioactiveMARCToRDF (type: Xslt)  {  

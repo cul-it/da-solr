@@ -13,13 +13,13 @@
 
 	<!-- The directories containing source code, properties, and webapp files -->
 
-	<property name="src.dir" value="./src" />
-	<property name="test.src" location="test/src" />
+	<property name="src.dir" value="./src/main/java" />
+	<property name="test.src" location="./src/test/java" />
 	<property name="build.test.dir" location="build/tests" />
-	<property name="properties" value="./resources" /> 
 	<property name="dist.dir" value="./dist" />
 	<property name="build.dir" value="./build" /> 
-	 
+    <property name="resources" value="src/main/resources"/>
+
 
 	<property name="java.lib" value="./lib" /> 
 	<path id="compile.classpath">
@@ -84,14 +84,14 @@
 
 	<target name="resources">
 		<copy todir="${build.dir}/classes" preservelastmodified="true">
-			<fileset dir="resources">
+			<fileset dir="${resources}">
 				<include name="**/*.xml" />
 				<include name="**/*.dtd" />
 			</fileset>
 		</copy>
 
 		<copy todir="${build.dir}/classes" preservelastmodified="true">
-			<fileset dir="resources">
+			<fileset dir="${resources}">
 				<include name="*.properties" />
 			</fileset>
 		</copy>
@@ -107,16 +107,18 @@
 	<target name="compile.tests" depends="jar"
 		description="compile the junit test source ">
 		<mkdir dir="${build.test.dir}" />
+
 		<!-- Compile the java code from ${test.src} into ${test.build} -->
 		<javac srcdir="${test.src}" destdir="${build.test.dir}" debug="${compile.debug}"
-			deprecation="false" optimize="false" source="${compile.source}"
-			target="${compile.target}">
+			deprecation="false" optimize="false" >
 			<classpath refid="test-classpath" />
 		</javac>
+
 		<!-- Copy the test resources to output directory -->
 		<copy todir="${build.test.dir}">
-			<fileset dir="test/resources" />
+			<fileset dir="src/test/resources" />
 		</copy>
+
 		<!-- Copy resources that have been placed in the src directory -->
 		<copy todir="${build.test.dir}">
 			<fileset dir="${test.src}">

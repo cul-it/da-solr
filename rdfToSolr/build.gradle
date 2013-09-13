@@ -29,6 +29,13 @@ task list(dependsOn: configurations.compile) << {
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }
 
+task(runIndexDirectoryCmd, dependsOn: 'classes', type: JavaExec) {
+ description = 'Run the incremental index update.'
+ main = 'edu.cornell.library.integration.indexer.IndexDirectoryCmd'
+ classpath = sourceSets.main.runtimeClasspath
+ //args ''
+ //systemProperty 'simple.message', 'Hello '
+}
 
 task libJar(type: Jar){
     description = 'Create a jar of all the dependencies of this project, but no classes from this project'
