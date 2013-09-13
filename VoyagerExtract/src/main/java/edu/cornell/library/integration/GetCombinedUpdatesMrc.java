@@ -156,7 +156,7 @@ public class GetCombinedUpdatesMrc {
 	    	bibListForUpdateFile = davService.getFile(updateBibsDir +"/"+ bibListForUpdateFileName, tmpFilePath);
 			bibListForUpdateList = FileUtils.readLines(bibListForUpdateFile);
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+		        System.err.println("Failed reading: "+ updateBibsDir +"/"+ bibListForUpdateFileName);
 			e1.printStackTrace();
 			System.exit(-1);
 		} finally {
