@@ -85,7 +85,7 @@ public class IdentifyDeletedRecords {
 		try {		
 			if (mostRecentMfhdFile != null) {
 				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
-				currentVoyagerMfhdList = davService.getNioPath(davUrl + mostRecentMfhdFile);
+				currentVoyagerMfhdList = davService.getNioPath( mostRecentMfhdFile);
 			}else{
 			    System.out.println("No recent Mfhd holdings file found.");
                 System.exit(1);
@@ -174,7 +174,7 @@ public class IdentifyDeletedRecords {
 
     public static String findMostRecentMfhdFile(DavService davService, String davBaseUrl) throws Exception{                
         try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/mfhd/unsuppressed", " unsuppressedMfhdId");            
+            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/mfhd/unsuppressed", "unsuppressedMfhdId");            
         } catch (Exception e) {
             throw new Exception( "Could not get most recent Mfhd holding file.", e);
         }    
