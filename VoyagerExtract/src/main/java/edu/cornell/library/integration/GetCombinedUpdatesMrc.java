@@ -153,6 +153,8 @@ public class GetCombinedUpdatesMrc {
 		String tmpFilePath = TMPDIR +"/"+ bibListForDeleteFileName;
 		List<String> bibListForDeleteList = new ArrayList();
 		File bibListForDeleteFile = null;
+
+                System.out.println("Adding bib ids with deleted mfhd ids");
 	    try {
 	    	bibListForDeleteFile = davService.getFile(deletedBibsDir +"/"+ bibListForDeleteFileName, tmpFilePath);
 			bibListForDeleteList = FileUtils.readLines(bibListForDeleteFile);
