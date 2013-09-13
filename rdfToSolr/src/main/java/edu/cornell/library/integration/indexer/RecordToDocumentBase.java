@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.utilies.IndexingUtilities.*;
 
 import java.util.Collections;
 import java.util.List;
