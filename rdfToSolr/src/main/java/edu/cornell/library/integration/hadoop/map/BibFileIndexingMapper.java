@@ -100,7 +100,8 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 				
 				log.info("Starting to build model");			
 				//load the RDF to a triple store			
-				Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
+				@SuppressWarnings("deprecation")
+                Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
 				TDBLoader loader = new TDBLoader() ;
 				loader.loadGraph((GraphTDB)model.getGraph(), is);			
 				model.add(baseModel);
@@ -315,8 +316,8 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
     public final static String DO_NOT_MOVE_TO_DONE = "DO_NOT_MOVE_TO_DONE";
 
     public Context testContext(Configuration configuration,
-            TaskAttemptID taskAttemptID, RecordReader recordReader,
-            RecordWriter recordWriter, OutputCommitter outputCommitter,
+            TaskAttemptID taskAttemptID, RecordReader<Text, Text> recordReader,
+            RecordWriter<Text, Text> recordWriter, OutputCommitter outputCommitter,
             StatusReporter statusReporter, InputSplit inputSplit) throws IOException, InterruptedException {
         return new Context (configuration, taskAttemptID, recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);
     }
