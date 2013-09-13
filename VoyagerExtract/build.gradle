@@ -215,6 +215,7 @@ task (GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
  main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
  maxHeapSize = '2048m'
  args = [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
-   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates' ]
+   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
+   'http://culdata.library.cornell.edu/data/updates/bib.deletes']
 }
    
