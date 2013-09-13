@@ -5,9 +5,9 @@
 require "java"
 $CLASSPATH << 'VoyagerExtract/build/classes/'
 $CLASSPATH << 'VoyagerExtract/resources/'
-Dir["./lib/\*.jar"].each { |jar| require jar }
+Dir["./VoyagerExtract/lib/\*.jar"].each { |jar| require jar }
 
-# print $CLASSPATH
+print $CLASSPATH
 java_import 'edu.cornell.library.integration.GetCombinedUpdatesMrc'
 print "GetCombinedUpdatesMrc...\n"
 bibdir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" 
