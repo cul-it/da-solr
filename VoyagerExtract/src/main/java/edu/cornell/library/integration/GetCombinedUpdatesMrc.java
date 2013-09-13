@@ -73,21 +73,21 @@ public class GetCombinedUpdatesMrc {
    public static void main(String[] args) {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      if (args.length != 3 ) {
-        System.err.println("You must provide bib, mfhd and deletedBibs Dirs as an arguments");
+        System.err.println("You must provide bib, mfhd and updateBibs Dirs as an arguments");
         System.exit(-1);
      }
       
      String bibDestDir  = args[0];
      String mfhdDestDir  = args[1];
-     String deletedBibsDir  = args[2];
-     app.run(bibDestDir, mfhdDestDir, deletedBibsDir);
+     String updateBibsDir  = args[2];
+     app.run(bibDestDir, mfhdDestDir, updateBibsDir);
    }
    
 
    /**
     * 
     */
-	public void run(String bibDestDir, String mfhdDestDir, String deletedBibsDir) {
+	public void run(String bibDestDir, String mfhdDestDir, String updateBibsDir) {
 
 		ApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"spring.xml");
@@ -149,22 +149,22 @@ public class GetCombinedUpdatesMrc {
 		//
 		// add bib ids which have deleted mfhd ids
 		//
-		String bibListForDeleteFileName = "bibListForDelete-"+ today +".txt"; 
-		String tmpFilePath = TMPDIR +"/"+ bibListForDeleteFileName;
-		List<String> bibListForDeleteList = new ArrayList();
-		File bibListForDeleteFile = null;
+		String bibListForUpdateFileName = "bibListForUpdate-"+ today +".txt"; 
+		String tmpFilePath = TMPDIR +"/"+ bibListForUpdateFileName;
+		List<String> bibListForUpdateList = new ArrayList<String>();
+		File bibListForUpdateFile = null;
 	    try {
-	    	bibListForDeleteFile = davService.getFile(deletedBibsDir +"/"+ bibListForDeleteFileName, tmpFilePath);
-			bibListForDeleteList = FileUtils.readLines(bibListForDeleteFile);
+	    	bibListForUpdateFile = davService.getFile(updateBibsDir +"/"+ bibListForUpdateFileName, tmpFilePath);
+			bibListForUpdateList = FileUtils.readLines(bibListForUpdateFile);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			System.exit(-1);
 		} finally {
-			bibListForDeleteFile.delete();	
+			bibListForUpdateFile.delete();	
 		}
-	    System.out.println("bibListForDeleteList: " + bibListForDeleteList.size());
-	    for (String s: bibListForDeleteList) {
+	    System.out.println("bibListForUpdateList: " + bibListForUpdateList.size());
+	    for (String s: bibListForUpdateList) {
 	    	if (! extraBibIdList.contains(s)) {
 				extraBibIdList.add(s);
 			}	
