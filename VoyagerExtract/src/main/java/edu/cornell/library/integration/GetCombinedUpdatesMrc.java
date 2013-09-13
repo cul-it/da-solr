@@ -38,7 +38,6 @@ public class GetCombinedUpdatesMrc {
        
    }  
    
-      
    /**
     * @return the davService
     */
