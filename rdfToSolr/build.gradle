@@ -62,3 +62,13 @@ task copyToLib(type: Copy) {
     into "$buildDir/output/lib"
     from configurations.runtime
 }
+
+   
+task (RunMarcNTToSolr, dependsOn:'build', type: JavaExec){
+ description='Run step of Incremental update that loads MARC n-Triples to Solr'
+ main='edu.cornell.library.integration.indexer.IndexDirectoryCmd'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+// args = [ 'http://SomeSolrURL',
+//   'http://culdata.library.cornell.edu/data/update/bib.updates/SOME_DIR' ]
+}

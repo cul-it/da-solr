@@ -6,13 +6,11 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.MapContext;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.RecordReader;
@@ -40,8 +38,9 @@ public class IndexDirectoryCmd extends CommandBase {
 		if( help( args ) ) 
 			return;
         
-		String sourceDir = args[0];
-		String solrServiceUrl = args[1];
+		String solrServiceUrl = args[0];
+		String sourceDir = args[1];
+		       
         String davUser = "admin";
         String davPass = "password";
             
