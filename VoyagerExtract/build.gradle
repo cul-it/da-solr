@@ -10,33 +10,39 @@ dependencies{
 task (OracleTables, dependsOn: 'build', type: JavaExec){
    description="Get Oracle Tables" 
    main='edu.cornell.library.integration.support.OracleTables'
+   classpath = sourceSets.main.runtimeClasspath
 }
    
 task (OracleTest, dependsOn: 'build', type: JavaExec){
    description="Oracle Test" 
    main='edu.cornell.library.integration.support.OracleTest'
+   classpath = sourceSets.main.runtimeClasspath
 }
    
 task (OracleQuery, dependsOn: 'build', type: JavaExec){
    description="Oracle Query" 
    main='edu.cornell.library.integration.support.OracleQuery'
+   classpath = sourceSets.main.runtimeClasspath
 }
    
 task (GetRecordCount, dependsOn:'build', type: JavaExec){
    description='Run GetRecordCount'
    main='edu.cornell.library.integration.GetRecordCount'
+   classpath = sourceSets.main.runtimeClasspath
    args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done']
 }
    
 task (GetDeletedRecords, dependsOn:'build', type: JavaExec){
  description='Run GetDeletedRecords'
  main='edu.cornell.library.integration.GetDeletedRecords'
+ classpath = sourceSets.main.runtimeClasspath
  args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.deleted' ]
 }
 
 task (GetBibMrc, dependsOn:'build', type: JavaExec){
  description='Run GetBibMrc'
  main='edu.cornell.library.integration.GetBibMrc'
+ classpath = sourceSets.main.runtimeClasspath
  args = ['6794039', 
          'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
 }
@@ -44,30 +50,35 @@ task (GetBibMrc, dependsOn:'build', type: JavaExec){
 task (GetBibUpdatesMrc, dependsOn:'build', type: JavaExec){
  description='Run GetBibUpdatesMrc'
  main='edu.cornell.library.integration.GetBibUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
 }
    
 task (GetMfhdMrc, dependsOn:'build', type: JavaExec){
  description='Run GetMfhdMrc'
  main='edu.cornell.library.integration.GetMfhdMrc'
+ classpath = sourceSets.main.runtimeClasspath
  args=['8318301','http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
 }
    
 task (GetMfhdUpdatesMrc, dependsOn:'build', type: JavaExec){
  description='Run GetMfhdUpdatesMrc'
  main='edu.cornell.library.integration.GetMfhdUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
 }
    
 task (GetAuthUpdatesMrc, dependsOn:'build', type: JavaExec){
  description='Run GetAuthUpdatesMrc'
  main='edu.cornell.library.integration.GetAuthUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates']
 }
    
 task (ConvertMarcToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertMarcToXml'
  main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args= [ 'auth', 'updates',
    'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates',
@@ -77,6 +88,7 @@ task (ConvertMarcToXml, dependsOn:'build', type: JavaExec){
 task (ConvertAuthFullToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertAuthFullToXml'
  main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=['auth','full',
   'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.full',
@@ -87,6 +99,7 @@ task (ConvertAuthFullToXml, dependsOn:'build', type: JavaExec){
 task (ConvertBibToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertBibToXml'
  main='edu.cornell.library.integration.ConvertBibToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=[ '7937421',
    'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
@@ -96,6 +109,7 @@ task (ConvertBibToXml, dependsOn:'build', type: JavaExec){
 task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertMfhdToXml'
  main='edu.cornell.library.integration.ConvertMfhdToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=[ '8318301',
    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
@@ -105,6 +119,7 @@ task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
 task (ConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertBibUpdatesToXml'
  main='edu.cornell.library.integration.ConvertBibUpdatesToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
   args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
     'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.' ]
@@ -113,6 +128,7 @@ task (ConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
 task (ConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertMfhdUpdatesToXml'
  main='edu.cornell.library.integration.ConvertMfhdUpdatesToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
@@ -121,6 +137,7 @@ task (ConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
 task (ConvertBibDailyToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertBibDailyToXml'
  main='edu.cornell.library.integration.ConvertBibDailyToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
  args= [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.daily',
    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.daily' ]
@@ -129,6 +146,7 @@ task (ConvertBibDailyToXml, dependsOn:'build', type: JavaExec){
 task (ConvertBibFullToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertBibFullToXml'
  main='edu.cornell.library.integration.ConvertBibFullToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
  args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full',
     'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full' ]
@@ -137,6 +155,7 @@ task (ConvertBibFullToXml, dependsOn:'build', type: JavaExec){
 task (ConvertMfhdDailyToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertMfhdDailyToXml'
  main='edu.cornell.library.integration.ConvertMfhdDailyToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
  args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.daily',
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily' ]
@@ -145,6 +164,7 @@ task (ConvertMfhdDailyToXml, dependsOn:'build', type: JavaExec){
 task (ConvertMfhdFullToXml, dependsOn:'build', type: JavaExec){
  description='Run ConvertMfhdFullToXml'
  main='edu.cornell.library.integration.ConvertMfhdFullToXml'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
  args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.full',
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full' ]
@@ -153,6 +173,7 @@ task (ConvertMfhdFullToXml, dependsOn:'build', type: JavaExec){
 task (GetRecentBibDataCount, dependsOn:'build', type: JavaExec){
  description='Run GetRecentBibDataCount'
  main='edu.cornell.library.integration.GetRecentBibDataCount'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=['3'  ]
 }
@@ -160,6 +181,7 @@ task (GetRecentBibDataCount, dependsOn:'build', type: JavaExec){
 task (GetRecentMfhdDataCount, dependsOn:'build', type: JavaExec){
  description='Run GetRecentMfhdDataCount'
  main='edu.cornell.library.integration.GetRecentMfhdDataCount'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=['3']
 }
@@ -167,12 +189,14 @@ task (GetRecentMfhdDataCount, dependsOn:'build', type: JavaExec){
 task (GetLocations, dependsOn:'build', type: JavaExec){
  description='Run GetLocations'
  main='edu.cornell.library.integration.GetLocations'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
    
 task (GetAllSuppressedBibId, dependsOn:'build', type: JavaExec){
  description='Run GetAllSuppressedBibId'
  main='edu.cornell.library.integration.GetAllSuppressedBibId'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
  args=['http://culdata.library.cornell.edu/data/voyager/bib/suppressed']
 }
@@ -180,6 +204,7 @@ task (GetAllSuppressedBibId, dependsOn:'build', type: JavaExec){
 task (GetAllSuppressedMfhdId, dependsOn:'build', type: JavaExec){
  description='Run GetAllSuppressedMfhdId'
  main='edu.cornell.library.integration.GetAllSuppressedMfhdId'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
  args=['http://culdata.library.cornell.edu/data/voyager/mfhd/suppressed']
 }
@@ -187,6 +212,7 @@ task (GetAllSuppressedMfhdId, dependsOn:'build', type: JavaExec){
 task (GetAllUnSuppressedBibId, dependsOn:'build', type: JavaExec){
  description='Run GetAllUnSuppressedBibId'
  main='edu.cornell.library.integration.GetAllUnSuppressedBibId'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
  args=['http://culdata.library.cornell.edu/data/voyager/bib/unsuppressed']
 }
@@ -194,6 +220,7 @@ task (GetAllUnSuppressedBibId, dependsOn:'build', type: JavaExec){
 task (GetAllUnSuppressedMfhdId, dependsOn:'build', type: JavaExec){
  description='Run GetAllUnSuppressedMfhdId'
  main='edu.cornell.library.integration.GetAllUnSuppressedMfhdId'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
  args=['http://culdata.library.cornell.edu/data/voyager/mfhd/unsuppressed']
 }
@@ -201,18 +228,21 @@ task (GetAllUnSuppressedMfhdId, dependsOn:'build', type: JavaExec){
 task (GetBibMasterData, dependsOn:'build', type: JavaExec){
  description='Run GetBibMasterData'
  main='edu.cornell.library.integration.GetBibMasterData'
+ classpath = sourceSets.main.runtimeClasspath
  args=['6100933']
 }
    
 task (FindMissingBibId, dependsOn:'build', type: JavaExec){
  description='Run FindMissingBibId'
  main='edu.cornell.library.integration.support.FindMissingBibId'
+ classpath = sourceSets.main.runtimeClasspath
   maxHeapSize = '2048m'
 }
    
 task (GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
  description='Run get the combined updated MRC'
  main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
  args = [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates' ]
