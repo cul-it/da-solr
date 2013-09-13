@@ -1,8 +1,14 @@
-package edu.cornell.library.integration.indexer;
+package edu.cornell.library.integration.indexer.utilies;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -13,6 +19,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
+
+import edu.cornell.library.integration.ilcommons.service.DavService;
 
 public class IndexingUtilities {
 	
@@ -86,5 +94,49 @@ public class IndexingUtilities {
 	public static String prettyFormat(String input) {
 	    return prettyFormat(input, 2);
 	}
+
+    /**
+     * Utility method for finding most recent files in a directory 
+     * where the file names follow the pattern :
+     *  
+     *  directoryURL/fileNamePrefix-yyyy-MM-dd.txt
+     *  
+     *  Such as:
+     *  
+     *  http://example.com/files/bibs-2013-12-27.txt
+     *  http://example.com/files/bibs-2013-12-28.txt
+     *  http://example.com/files/bibs-2013-12-29.txt
+     *  
+     * @param davService 
+     * @param directoryURL - directory to check for most recent files
+     * @param fileNamePrefix - prefix for file names
+     * @return name of most recent file, or null if none found. 
+     *   The returned string will be the full URL to the file.
+     * @throws Exception if there is a problem with the WEBDAV service. 
+     */
+    public static String findMostRecentFile(DavService davService , String directoryURL, String fileNamePrefix ) throws Exception{
+        if( ! directoryURL.endsWith("/"))
+            directoryURL = directoryURL + "/";
+        
+        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..).txt");
+        Date lastDate = new SimpleDateFormat("yyyy").parse("1950");
+        String mostRecentFile = null;
+                               
+        List<String> biblists = davService.getFileList( directoryURL );   
+        
+        Iterator<String> i = biblists.iterator();            
+        while (i.hasNext()) {
+            String fileName = i.next();
+            Matcher m = p.matcher(fileName);
+            if (m.matches()) {
+                Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
+                if (thisDate.after(lastDate)) {
+                    lastDate = thisDate;
+                    mostRecentFile = fileName;
+                }
+            }
+        }
+        return directoryURL +  mostRecentFile;
+    }
 
 }
