@@ -1,16 +1,14 @@
 package edu.cornell.library.integration;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import org.apache.commons.io.IOUtils; 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService; 
-import edu.cornell.library.integration.util.ConvertUtils; 
+import edu.cornell.library.integration.service.CatalogService;
+import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ConvertMfhdToXml {
    

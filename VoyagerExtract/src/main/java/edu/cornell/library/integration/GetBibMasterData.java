@@ -2,13 +2,13 @@ package edu.cornell.library.integration;
 
  
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext; 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import edu.cornell.library.integration.bo.BibMasterData; 
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ObjectUtils;  
+import edu.cornell.library.integration.util.ObjectUtils;
 
 public class GetBibMasterData {
    

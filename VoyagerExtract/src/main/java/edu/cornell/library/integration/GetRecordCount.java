@@ -3,17 +3,17 @@ package edu.cornell.library.integration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.marc4j.MarcException;
-import org.marc4j.MarcPermissiveStreamReader; 
-import org.marc4j.marc.Record; 
+import org.marc4j.MarcPermissiveStreamReader;
+import org.marc4j.marc.Record;
+
 import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory; 
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 public class GetRecordCount {
    
    protected final Log logger = LogFactory.getLog(getClass());

@@ -2,18 +2,18 @@ package edu.cornell.library.integration;
 
 
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService; 
+import edu.cornell.library.integration.service.CatalogService;
 import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ConvertBibUpdatesToXml {
