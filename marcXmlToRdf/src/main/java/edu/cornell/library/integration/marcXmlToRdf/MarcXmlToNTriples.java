@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +16,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -24,6 +27,9 @@ import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
+
+import edu.cornell.library.integration.ilcommons.service.DavService;
+
 
 public class MarcXmlToNTriples {
 	
@@ -42,6 +48,82 @@ public class MarcXmlToNTriples {
 	   = Pattern.compile("https?://catalog.library.cornell.edu/cgi-bin/Pwebrecon.cgi\\?BBID=([0-9]+)&DB=local");
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
 	
+	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
+			 							 Collection<Integer> unsuppressedMfhds,
+			 							 DavService davService,
+			 							 String bibSrcDir,
+			 							 String mfhdSrcDir,
+			 							 File target) throws Exception {
+
+//		if (! target.isDirectory()) {
+		BufferedOutputStream out =  new BufferedOutputStream(new GZIPOutputStream(
+						new FileOutputStream(target, true)));
+//		}
+		
+		RecordType type = RecordType.BIBLIOGRAPHIC;
+		List<String> bibSrcFiles = davService.getFileUrlList(bibSrcDir);
+		Iterator<String> i = bibSrcFiles.iterator();
+		while (i.hasNext()) {
+			String srcFile = i.next();
+			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = 
+					input_factory.createXMLStreamReader(xmlstream);
+			processRecords(r,type,unsuppressedBibs,out);
+			xmlstream.close();
+		}
+		
+		type = RecordType.HOLDINGS;
+		List<String> mfhdSrcFiles = davService.getFileUrlList(mfhdSrcDir);
+		i = mfhdSrcFiles.iterator();
+		while (i.hasNext()) {
+			String srcFile = i.next();
+			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = 
+					input_factory.createXMLStreamReader(xmlstream);
+			processRecords(r,type,unsuppressedMfhds,out);
+			xmlstream.close();
+		}
+		out.close();
+
+	}
+	
+	private static void processRecords (XMLStreamReader r,
+										RecordType type,
+										Collection<Integer> unsuppressedList,
+										BufferedOutputStream out) throws Exception {
+		while (r.hasNext()) {
+			String event = getEventTypeString(r.next());
+			if (event.equals("START_ELEMENT"))
+				if (r.getLocalName().equals("record")) {
+					MarcRecord rec = processRecord(r);
+					rec.type = type;
+					
+					Integer id = Integer.valueOf(rec.id);
+					if (unsuppressedList.contains(id)) {
+						// Remove id from list to prevent processing duplicates, and to
+						// create list of not-found bibs. This list is more important for
+						// full updates than incrementals.
+						unsuppressedList.remove(id);
+					} else {
+//						System.out.println("Record not on unsuppressed list, " + id + " - skipping.");
+						continue;
+					}
+					
+//					tabulateFieldData(rec);
+					identifyShadowRecordTargets(rec);
+//					extractData(rec);
+					mapNonRomanFieldsToRomanizedFields(rec);
+//					if (rec.type == RecordType.BIBLIOGRAPHIC) 
+//						attemptToConfirmDateValues(rec);
+					String ntriples = generateNTriples( rec, type );
+					out.write( ntriples.getBytes() );
+				}
+		}
+		
+	}
+
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
 		if (xmlfile.getName().startsWith("mfhd"))
@@ -56,7 +138,7 @@ public class MarcXmlToNTriples {
 		}		
 		marcXmlToNTriples( xmlfile, targetfile, type );
 	}
-
+	
 	public static void marcXmlToNTriples(File xmlfile, File target, RecordType type) throws Exception {
 		FileInputStream xmlstream = new FileInputStream( xmlfile );
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
