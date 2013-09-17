@@ -79,5 +79,5 @@ task (runIdentifyDeleteRecords, dependsOn:'classes', type: JavaExec){
  main='edu.cornell.library.integration.indexer.updates.IdentifyDeletedRecords'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2056m'
- args = [ 'http://da-dev-solr.library.cornell.edu/solr/August9' ]
+ args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
