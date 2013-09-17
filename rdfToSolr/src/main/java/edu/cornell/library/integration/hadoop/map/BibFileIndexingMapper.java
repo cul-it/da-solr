@@ -62,7 +62,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  *
  * @param <K> the incoming key is not used
  */
-public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
+public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
 	protected boolean debug = true;
@@ -81,7 +81,7 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
 	//true of an error happened during a single call to map()
 	boolean errors_encountered = false;
 	
-	public void map(Text unused, Text urlText, Context context) throws IOException, InterruptedException {
+	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
 		errors_encountered = false;
 		
         String url = urlText.toString();
@@ -319,6 +319,6 @@ public class BibFileIndexingMapper extends Mapper<Text, Text, Text, Text>{
             TaskAttemptID taskAttemptID, RecordReader<Text, Text> recordReader,
             RecordWriter<Text, Text> recordWriter, OutputCommitter outputCommitter,
             StatusReporter statusReporter, InputSplit inputSplit) throws IOException, InterruptedException {
-        return new Context (configuration, taskAttemptID, recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);
+        return new Context (configuration, taskAttemptID, (RecordReader<K, Text>) recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);
     }
 }

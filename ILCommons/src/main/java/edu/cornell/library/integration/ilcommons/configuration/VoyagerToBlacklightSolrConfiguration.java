@@ -1,5 +1,8 @@
 package edu.cornell.library.integration.ilcommons.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -58,6 +61,61 @@ public class VoyagerToBlacklightSolrConfiguration {
      */
     String solrUrl;
     
+    /**
+     * A utility method to load properties from command line or environment.
+     * 
+     * Configured jobs on integration servers or automation systems are
+     * expected to use the environment variable V2BL_CONFIG to indicate the property
+     * file to use.
+     * 
+     * Development jobs are expected to use command line arguments.
+     *  
+     * If properties files exist on the command line use those, 
+     * If the environment variable V2BL_CONFIG exists use those,
+     * If both environment variable V2BL_CONFIG and command line arguments exist, 
+     * throw an error because that is a confused state and likely a problem.
+     *  
+     * The value of the environment variable V2BL_CONFIG may be a comma separated list of files.
+     * 
+     *  @param argv may be null to force use of the environment variable. Should be 
+     *  argv from main().
+     * @throws Exception if no configuration is found or if there are problems with the configuration.
+     */
+    public static VoyagerToBlacklightSolrConfiguration loadConfig( String[] argv ) throws Exception{
+        
+        String v2bl_config = System.getenv(V2BL_CONFIG);
+        
+        if( v2bl_config != null &&  argv != null && argv.length > 0 )
+            throw new RuntimeException( "Both command line arguments and the environment variable "
+                    + "V2BL_CONFIG are defined. It is unclear which to use.\n" + HELP );
+        
+        if( v2bl_config == null && ( argv == null || argv.length ==0 ))
+            throw new RuntimeException("No configuration specified. \n"
+                    + "A configuration is expeced on the command line or in the environment variable "
+                    + "V2BL_CONFIG.\n" + HELP );        
+        
+        VoyagerToBlacklightSolrConfiguration config=null;
+        if( v2bl_config != null )
+            config = loadFromPropertiesFile( getFile( v2bl_config ), null);            
+        else
+            config = loadFromArgv( argv );
+        
+        String errs = checkConfiguration( config );
+        if( errs != null || errs.trim().isEmpty() ){
+            throw new Exception("There were problems with the configuration.\n " + errs);
+        }
+        
+        return config;        
+    }
+
+    private static VoyagerToBlacklightSolrConfiguration loadFromArgv(
+            String[] argv) throws FileNotFoundException, IOException {
+        if( argv.length > 1 ){            
+            return loadFromPropertiesFile( getFile( argv[0]), null );
+        }else{
+            return loadFromPropertiesFile( getFile(argv[0]), getFile(argv[1]));
+        }            
+    }
 
     /**
      * Load properties for VoyagerToBlacklightSolrConfiguration.
@@ -186,5 +244,32 @@ public class VoyagerToBlacklightSolrConfiguration {
         else
             return "";       
     }
+    
+    protected static InputStream getFile(String name ) throws FileNotFoundException{
+        File f = new File(name);
+        if( f.exists() ){
+            return new FileInputStream(f);
+        }else{
+            InputStream is = VoyagerToBlacklightSolrConfiguration.class.getClassLoader().getResourceAsStream(name);
+            if( is == null )
+                throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
+            else
+                return is;
+        }                        
+    }
+    
+    
+    /**
+     * Name of environment variable for configuration files.
+     */
+    public final static String V2BL_CONFIG = "V2BL_CONFIG";
+    
+    public final static String HELP = 
+            "On the command line the first two parameters may be configuration property files.\n"+
+            "Ex. java someClass staging.v2bl.properties dav.properties \n" +
+            "Or the environment variable V2BL_CONFIG can be set to one or two properties files:\n" +
+            "Ex. V2BL_CONFIG=prod.v2bl.properties,prodDav.properties java someClass\n" +
+            "Do not use both a environment variable and command line parameters.\n" +
+            "These files will be searched for first in the file system, then from the classpath/ClassLoader.\n";
 }
 

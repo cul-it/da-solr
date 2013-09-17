@@ -19,7 +19,7 @@ public class ClassPathPropertyLoader {
       
       // error in case file is not found 
       if (in == null) {
-         throw new IOException("Input Stream handle to file is [null]");
+         throw new IOException("Could not find file named " + propertyFileName + " on the classpath.");
       }
       
       // create the properties object and load in
