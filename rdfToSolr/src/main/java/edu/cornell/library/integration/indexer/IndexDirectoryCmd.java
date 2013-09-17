@@ -71,9 +71,9 @@ public class IndexDirectoryCmd extends CommandBase {
         MockRecordWriter recordWriter = new MockRecordWriter();
         MockRecordReader recordReader = new MockRecordReader();
 
-        BibFileIndexingMapper indexingMapper = new BibFileIndexingMapper();
-        
-        Mapper<Text,Text,Text,Text>.Context context = 
+        BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
+                
+        Mapper<Object,Text,Text,Text>.Context context = 
             indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
                     recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
         

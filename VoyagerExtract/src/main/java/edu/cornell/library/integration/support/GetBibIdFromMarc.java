@@ -1,11 +1,7 @@
 package edu.cornell.library.integration.support;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,16 +13,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.cornell.library.integration.bo.Location;
-import edu.cornell.library.integration.bo.LocationInfo;
-import edu.cornell.library.integration.config.IntegrationDataProperties;
-import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ConvertUtils;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.service.CatalogService;
+import edu.cornell.library.integration.util.ConvertUtils;
 
 public class GetBibIdFromMarc {
 
