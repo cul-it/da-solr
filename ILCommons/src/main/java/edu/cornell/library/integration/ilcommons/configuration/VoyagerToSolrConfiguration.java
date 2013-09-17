@@ -16,6 +16,12 @@ import java.util.Properties;
  * configurations that can be called for from the command line of
  * the different steps of the conversion.
  * 
+ * If you'd like to add a new configuration setting to this class,
+ *  1 add a property to this class
+ *  2 add a getter to this class
+ *  3 make sure your property is loaded in loadFromPropertiesFile
+ *  4 make sure your property is checked in checkConfiguration
+ *  5 add your property to the example properties file at voyagerToSolrConfig.properties.example
  */
 public class VoyagerToSolrConfiguration {
     /** 
@@ -61,6 +67,127 @@ public class VoyagerToSolrConfiguration {
      */
     String solrUrl;
     
+        
+    
+    /**
+     * @return the webdavBaseUrl
+     */
+    public String getWebdavBaseUrl() {
+        return webdavBaseUrl;
+    }
+
+    /**
+     * @return the webdavUser
+     */
+    public String getWebdavUser() {
+        return webdavUser;
+    }
+
+    /**
+     * @return the webdavPassword
+     */
+    public String getWebdavPassword() {
+        return webdavPassword;
+    }
+
+    /**
+     * @return the fullMrc21Dir
+     */
+    public String getFullMrc21Dir() {
+        return fullMrc21Dir;
+    }
+
+    /**
+     * @return the fullMrc21DoneDir
+     */
+    public String getFullMrc21DoneDir() {
+        return fullMrc21DoneDir;
+    }
+
+    /**
+     * @return the fullMrc21BadDir
+     */
+    public String getFullMrc21BadDir() {
+        return fullMrc21BadDir;
+    }
+
+    /**
+     * @return the fullMrcXmlDir
+     */
+    public String getFullMrcXmlDir() {
+        return fullMrcXmlDir;
+    }
+
+    /**
+     * @return the fullMrcNtDir
+     */
+    public String getFullMrcNtDir() {
+        return fullMrcNtDir;
+    }
+
+    /**
+     * @return the dailyMrcDir
+     */
+    public String getDailyMrcDir() {
+        return dailyMrcDir;
+    }
+
+    /**
+     * @return the dailyMrcDoneDir
+     */
+    public String getDailyMrcDoneDir() {
+        return dailyMrcDoneDir;
+    }
+
+    /**
+     * @return the dailyMrcBadDir
+     */
+    public String getDailyMrcBadDir() {
+        return dailyMrcBadDir;
+    }
+
+    /**
+     * @return the dailyMrcDeleted
+     */
+    public String getDailyMrcDeleted() {
+        return dailyMrcDeleted;
+    }
+
+    /**
+     * @return the dailyMrcXmlDir
+     */
+    public String getDailyMrcXmlDir() {
+        return dailyMrcXmlDir;
+    }
+
+    /**
+     * @return the dailyMrcNtDir
+     */
+    public String getDailyMrcNtDir() {
+        return dailyMrcNtDir;
+    }
+
+    /**
+     * @return the dailySuppressedDir
+     */
+    public String getDailySuppressedDir() {
+        return dailySuppressedDir;
+    }
+
+    /**
+     * @return the dailyUnsuppressedDir
+     */
+    public String getDailyUnsuppressedDir() {
+        return dailyUnsuppressedDir;
+    }
+
+    /**
+     * @return the solrUrl
+     */
+    public String getSolrUrl() {
+        return solrUrl;
+    }
+
     /**
      * A utility method to load properties from command line or environment.
      * 
@@ -81,7 +208,7 @@ public class VoyagerToSolrConfiguration {
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
-    public static VoyagerToSolrConfiguration loadConfig( String[] argv ) throws Exception{
+    public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
         
         String v2bl_config = System.getenv(V2S_CONFIG);
         
@@ -95,14 +222,18 @@ public class VoyagerToSolrConfiguration {
                     + "V2BL_CONFIG.\n" + HELP );        
         
         VoyagerToSolrConfiguration config=null;
+        try{
         if( v2bl_config != null )
             config = loadFromPropertiesFile( getFile( v2bl_config ), null);            
         else
             config = loadFromArgv( argv );
+        }catch( Exception ex){
+            throw new RuntimeException("There were problems loading the configuration.\n " , ex);
+        }
         
         String errs = checkConfiguration( config );
         if( errs != null || errs.trim().isEmpty() ){
-            throw new Exception("There were problems with the configuration.\n " + errs);
+            throw new RuntimeException("There were problems with the configuration.\n " + errs);
         }
         
         return config;        
