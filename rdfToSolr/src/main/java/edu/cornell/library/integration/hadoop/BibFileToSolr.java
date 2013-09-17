@@ -25,8 +25,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
-import edu.cornell.library.integration.service.DavService;
-import edu.cornell.library.integration.service.DavServiceImpl;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 
 /**
  * This is a hadoop job that is intended to load all the bib and holdings and

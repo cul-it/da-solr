@@ -48,8 +48,8 @@ import com.hp.hpl.jena.tdb.store.GraphTDB;
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
-import edu.cornell.library.integration.service.DavService;
-import edu.cornell.library.integration.service.DavServiceImpl;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 

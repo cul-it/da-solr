@@ -21,8 +21,8 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
-import edu.cornell.library.integration.service.DavService;
-import edu.cornell.library.integration.service.DavServiceImpl;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 
 /**
  * Index all the files in a given directory.
