@@ -17,7 +17,7 @@ import java.util.Properties;
  * the different steps of the conversion.
  * 
  */
-public class VoyagerToBlacklightSolrConfiguration {
+public class VoyagerToSolrConfiguration {
     /** 
      * Base part of webDav URL. The following directories will be appended to this base. 
      */
@@ -81,9 +81,9 @@ public class VoyagerToBlacklightSolrConfiguration {
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
-    public static VoyagerToBlacklightSolrConfiguration loadConfig( String[] argv ) throws Exception{
+    public static VoyagerToSolrConfiguration loadConfig( String[] argv ) throws Exception{
         
-        String v2bl_config = System.getenv(V2BL_CONFIG);
+        String v2bl_config = System.getenv(V2S_CONFIG);
         
         if( v2bl_config != null &&  argv != null && argv.length > 0 )
             throw new RuntimeException( "Both command line arguments and the environment variable "
@@ -94,7 +94,7 @@ public class VoyagerToBlacklightSolrConfiguration {
                     + "A configuration is expeced on the command line or in the environment variable "
                     + "V2BL_CONFIG.\n" + HELP );        
         
-        VoyagerToBlacklightSolrConfiguration config=null;
+        VoyagerToSolrConfiguration config=null;
         if( v2bl_config != null )
             config = loadFromPropertiesFile( getFile( v2bl_config ), null);            
         else
@@ -108,7 +108,7 @@ public class VoyagerToBlacklightSolrConfiguration {
         return config;        
     }
 
-    private static VoyagerToBlacklightSolrConfiguration loadFromArgv(
+    private static VoyagerToSolrConfiguration loadFromArgv(
             String[] argv) throws FileNotFoundException, IOException {
         if( argv.length > 1 ){            
             return loadFromPropertiesFile( getFile( argv[0]), null );
@@ -124,7 +124,7 @@ public class VoyagerToBlacklightSolrConfiguration {
      * 
      * If inB is null, only inA will be loaded. 
      */
-    public static VoyagerToBlacklightSolrConfiguration loadFromPropertiesFile(InputStream inA, InputStream inB) 
+    public static VoyagerToSolrConfiguration loadFromPropertiesFile(InputStream inA, InputStream inB) 
             throws IOException{
         
         Properties prop;
@@ -146,7 +146,7 @@ public class VoyagerToBlacklightSolrConfiguration {
         else
             prop = propB;
         
-        VoyagerToBlacklightSolrConfiguration conf = new VoyagerToBlacklightSolrConfiguration();
+        VoyagerToSolrConfiguration conf = new VoyagerToSolrConfiguration();
 
         conf.webdavBaseUrl = prop.getProperty("webdavBaseUrl");        
         
@@ -177,7 +177,7 @@ public class VoyagerToBlacklightSolrConfiguration {
      * Returns empty String if configuration is good.
      * Otherwise, it returns a message describing what is missing or problematic.
      */
-    public static String checkConfiguration( VoyagerToBlacklightSolrConfiguration checkMe){
+    public static String checkConfiguration( VoyagerToSolrConfiguration checkMe){
         String errMsgs = "";
 
         errMsgs += checkWebdavUrl( checkMe.webdavBaseUrl );
@@ -250,7 +250,7 @@ public class VoyagerToBlacklightSolrConfiguration {
         if( f.exists() ){
             return new FileInputStream(f);
         }else{
-            InputStream is = VoyagerToBlacklightSolrConfiguration.class.getClassLoader().getResourceAsStream(name);
+            InputStream is = VoyagerToSolrConfiguration.class.getClassLoader().getResourceAsStream(name);
             if( is == null )
                 throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
             else
@@ -262,7 +262,7 @@ public class VoyagerToBlacklightSolrConfiguration {
     /**
      * Name of environment variable for configuration files.
      */
-    public final static String V2BL_CONFIG = "V2BL_CONFIG";
+    public final static String V2S_CONFIG = "VoyagerToSolrConfig";
     
     public final static String HELP = 
             "On the command line the first two parameters may be configuration property files.\n"+
