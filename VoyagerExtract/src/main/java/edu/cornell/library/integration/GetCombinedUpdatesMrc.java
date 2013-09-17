@@ -18,18 +18,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
-import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
 
-public class GetCombinedUpdatesMrc {
+public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
 
-   private DavService davService;
-   private CatalogService catalogService; 
-   
    public static final String TMPDIR = "/tmp";
    /**
     * default constructor
@@ -37,34 +34,6 @@ public class GetCombinedUpdatesMrc {
    public GetCombinedUpdatesMrc() { 
        
    }  
-   
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
-
-   /**
-    * @return the catalogService
-    */
-   public CatalogService getCatalogService() {
-      return this.catalogService;
-   }
-
-   /**
-    * @param catalogService the catalogService to set
-    */
-   public void setCatalogService(CatalogService catalogService) {
-      this.catalogService = catalogService;
-   } 
    
    /**
     * @param args
@@ -76,29 +45,28 @@ public class GetCombinedUpdatesMrc {
         System.exit(-1);
      }
       
-     String bibDestDir  = args[0];
-     String mfhdDestDir  = args[1];
-     String updateBibsDir  = args[2];
-     app.run(bibDestDir, mfhdDestDir, updateBibsDir);
+     VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args );
+     
+//     bibdir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" 
+//     mfhddir = "http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" 
+//     updateBibsDir = "http://culdata.library.cornell.edu/data/updates/bib.updates"
+     
+     String bibDestDir  = config.getWebdavBaseUrl() + config.getDailyMrcDir();          
+     String mfhdDestDir  = config.getWebdavBaseUrl() + config.getDailyMfhdDir() ;
+     String updateBibsDir  = config.getWebdavBaseUrl() + config.getDailyCombinedMrcDir();
+     
+     app.run(config, bibDestDir, mfhdDestDir, updateBibsDir);
    }
    
 
    /**
+ * @param config 
     * 
     */
-	public void run(String bibDestDir, String mfhdDestDir, String updateBibsDir) {
-
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(
-				"spring.xml");
-
-		if (ctx.containsBean("catalogService")) {
-			setCatalogService((CatalogService) ctx.getBean("catalogService"));
-		} else {
-			System.err.println("Could not get catalogService");
-			System.exit(-1);
-		}
-
-		setDavService(DavServiceFactory.getDavService());
+	public void run(VoyagerToSolrConfiguration config, 
+	        String bibDestDir, String mfhdDestDir, String updateBibsDir) {
+		
+		setDavService(DavServiceFactory.getDavService(config));
 
 		Calendar now = Calendar.getInstance();
 		String toDate = getDateTimeString(now);
@@ -106,6 +74,7 @@ public class GetCombinedUpdatesMrc {
 		String today = getDateString(now);
         System.out.println("fromDate: "+ fromDate);
         System.out.println("toDate: "+ toDate);
+        
 		// get list of bibids updates using recent date String
 		List<String> bibIdList = new ArrayList<String>();
 		List<String> mfhdIdList = new ArrayList<String>();
@@ -115,11 +84,11 @@ public class GetCombinedUpdatesMrc {
 		// get recently update bib and mfhd ids
 		try {
 			System.out.println("Getting recently updated bibids");
-			bibIdList = catalogService.getUpdatedBibIdsUsingDateRange(fromDate,
+			bibIdList = getCatalogService().getUpdatedBibIdsUsingDateRange(fromDate,
 					toDate);
 			System.out.println("BibIDList size: "+ bibIdList.size());
 			System.out.println("Getting recently updated mfhd ids");
-			mfhdIdList = catalogService.getUpdatedMfhdIdsUsingDateRange(
+			mfhdIdList = getCatalogService().getUpdatedMfhdIdsUsingDateRange(
 					fromDate, toDate);
 			System.out.println("MfhdIDList size: " + mfhdIdList.size());
 		} catch (Exception e) {
@@ -133,7 +102,7 @@ public class GetCombinedUpdatesMrc {
 		for (String mfhdid : mfhdIdList) {
 			try {
 				tmpBibIdList.clear(); 
-				tmpBibIdList = catalogService.getBibIdsByMfhdId(mfhdid);
+				tmpBibIdList = getCatalogService().getBibIdsByMfhdId(mfhdid);
 				for (String bibid : tmpBibIdList) {
 					if (! bibIdList.contains(bibid)) {
 						extraBibIdList.add(bibid);
@@ -153,7 +122,7 @@ public class GetCombinedUpdatesMrc {
 		List<String> bibListForUpdateList = new ArrayList<String>();
 		File bibListForUpdateFile = null;
 	    try {
-	    	bibListForUpdateFile = davService.getFile(updateBibsDir +"/"+ bibListForUpdateFileName, tmpFilePath);
+	    	bibListForUpdateFile = getDavService().getFile(updateBibsDir +"/"+ bibListForUpdateFileName, tmpFilePath);
 			bibListForUpdateList = FileUtils.readLines(bibListForUpdateFile);
 		} catch (Exception e1) {
 		        System.err.println("Failed reading: "+ updateBibsDir +"/"+ bibListForUpdateFileName);
@@ -177,7 +146,7 @@ public class GetCombinedUpdatesMrc {
 		for (String bibid : bibIdList) {
 			try {
 				tmpMfhdIdList.clear(); 
-				tmpMfhdIdList = catalogService.getMfhdIdsByBibId(bibid);
+				tmpMfhdIdList = getCatalogService().getMfhdIdsByBibId(bibid);
 				for (String mfhdid: tmpMfhdIdList) {
 					if (! mfhdIdList.contains(mfhdid)) {
 						extraMfhdIdList.add(mfhdid);
@@ -192,7 +161,7 @@ public class GetCombinedUpdatesMrc {
 		for (String bibid : extraBibIdList) {
 			try {
 				tmpMfhdIdList.clear(); 
-				tmpMfhdIdList = catalogService.getMfhdIdsByBibId(bibid);
+				tmpMfhdIdList = getCatalogService().getMfhdIdsByBibId(bibid);
 				for (String mfhdid: tmpMfhdIdList) {
 					if (! mfhdIdList.contains(mfhdid)) {
 						extraMfhdIdList.add(mfhdid);
@@ -221,7 +190,7 @@ public class GetCombinedUpdatesMrc {
 		for (String bibid : bibIdList) { 
 			try {
 		       //Getting bib mrc for bibid
-		       List<BibData> bibDataList = catalogService.getBibData(bibid);
+		       List<BibData> bibDataList = getCatalogService().getBibData(bibid);
 		       
                for (BibData bibData : bibDataList) { 
             	   sb.append(bibData.getRecord()); 
@@ -249,7 +218,7 @@ public class GetCombinedUpdatesMrc {
 		for (String bibid : extraBibIdList) { 
 			try {
 		       //System.out.println("Getting bib mrc for bibid: " + bibid);
-		       List<BibData> bibDataList = catalogService.getBibData(bibid);
+		       List<BibData> bibDataList = getCatalogService().getBibData(bibid);
 		       
                for (BibData bibData : bibDataList) { 
             	   sb.append(bibData.getRecord()); 
@@ -281,7 +250,7 @@ public class GetCombinedUpdatesMrc {
 		for (String mfhdid : mfhdIdList) { 
 			try {
 		       //System.out.println("Getting mfhd mrc for mfhdid: " + mfhdid);
-		       List<MfhdData> mfhdDataList = catalogService.getMfhdData(mfhdid);
+		       List<MfhdData> mfhdDataList = getCatalogService().getMfhdData(mfhdid);
 		       
                for (MfhdData mfhdData : mfhdDataList) { 
             	   sb.append(mfhdData.getRecord()); 
@@ -313,7 +282,7 @@ public class GetCombinedUpdatesMrc {
 		for (String mfhdid : extraMfhdIdList) { 
 			try {
 		       //System.out.println("Getting mfhd mrc for mfhdid: " + mfhdid);
-		       List<MfhdData> mfhdDataList = catalogService.getMfhdData(mfhdid);
+		       List<MfhdData> mfhdDataList = getCatalogService().getMfhdData(mfhdid);
 		       
                for (MfhdData mfhdData : mfhdDataList) { 
             	   sb.append(mfhdData.getRecord()); 

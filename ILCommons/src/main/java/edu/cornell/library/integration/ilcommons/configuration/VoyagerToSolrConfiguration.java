@@ -54,6 +54,8 @@ public class VoyagerToSolrConfiguration {
     
     /* ******** properties used for Incremental Update ********* */
     String dailyMrcDir;
+    String dailyMfhdDir;
+    String dailyCombinedMrcDir;
     String dailyMrcDoneDir;
     String dailyMrcBadDir;
     String dailyMrcDeleted;
@@ -67,7 +69,7 @@ public class VoyagerToSolrConfiguration {
      */
     String solrUrl;
     
-        
+    String tmpDir;
     
     /**
      * @return the webdavBaseUrl
@@ -125,6 +127,10 @@ public class VoyagerToSolrConfiguration {
         return fullMrcNtDir;
     }
 
+    public String getDailyMfhdDir() {
+        return this.dailyMfhdDir;
+    }
+
     /**
      * @return the dailyMrcDir
      */
@@ -132,6 +138,11 @@ public class VoyagerToSolrConfiguration {
         return dailyMrcDir;
     }
 
+
+    public String getDailyCombinedMrcDir() {   
+        return this.dailyCombinedMrcDir;
+    }
+        
     /**
      * @return the dailyMrcDoneDir
      */
@@ -186,6 +197,13 @@ public class VoyagerToSolrConfiguration {
      */
     public String getSolrUrl() {
         return solrUrl;
+    }
+    
+    /**
+     * @return the tmpDir
+     */
+    public String getTmpDir() {
+      return tmpDir;
     }
 
     /**
@@ -291,6 +309,8 @@ public class VoyagerToSolrConfiguration {
         conf.fullMrcNtDir = prop.getProperty("fullMrcNtDir");
         
         conf.dailyMrcDir = prop.getProperty("dailyMrcDir");
+        conf.dailyMfhdDir = prop.getProperty("dailyMfhdDir");
+        conf.dailyCombinedMrcDir = prop.getProperty("dailyCombinedMrcDir");
         conf.dailyMrcDoneDir = prop.getProperty("dailyMrcDoneDir");
         conf.dailyMrcBadDir = prop.getProperty("dailyMrcBadDir");
         conf.dailyMrcDeleted = prop.getProperty("dailyMrcDeleted");
@@ -300,6 +320,8 @@ public class VoyagerToSolrConfiguration {
         conf.dailyUnsuppressedDir = prop.getProperty("dailyUnsuppressedDir");
         
         conf.solrUrl = prop.getProperty("solrUrl");
+        
+        conf.tmpDir = prop.getProperty("tmpDir");
         
         return conf;
     }
@@ -316,29 +338,40 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkExits( checkMe.webdavUser , "webdavUser");
         errMsgs += checkExits( checkMe.webdavPassword , "webdavPassword");
         
-        errMsgs += checkDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
-        errMsgs += checkDir( checkMe.fullMrc21DoneDir, "fullMrc21DoneDir");
-        errMsgs += checkDir( checkMe.fullMrc21BadDir, "fullMrc21BadDir");    
-        errMsgs += checkDir( checkMe.fullMrcXmlDir, "fullMrcXmlDir");   
-        errMsgs += checkDir( checkMe.fullMrcNtDir, "fullMrcNtDir");     
-        errMsgs += checkDir( checkMe.dailyMrcDir, "dailyMrcDir");
-        errMsgs += checkDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
-        errMsgs += checkDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
-        errMsgs += checkDir( checkMe.dailyMrcDeleted, "dailyMrcDeleted");
-        errMsgs += checkDir( checkMe.dailyMrcXmlDir, "dailyMrcXmlDir");
-        errMsgs += checkDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");
-        errMsgs += checkDir( checkMe.dailySuppressedDir, "dailySuppressedDir");
-        errMsgs += checkDir( checkMe.dailyUnsuppressedDir, "dailyUnsuppressedDir");
+        errMsgs += checkWebdavDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
+        errMsgs += checkWebdavDir( checkMe.fullMrc21DoneDir, "fullMrc21DoneDir");
+        errMsgs += checkWebdavDir( checkMe.fullMrc21BadDir, "fullMrc21BadDir");    
+        errMsgs += checkWebdavDir( checkMe.fullMrcXmlDir, "fullMrcXmlDir");   
+        errMsgs += checkWebdavDir( checkMe.fullMrcNtDir, "fullMrcNtDir");     
+        errMsgs += checkWebdavDir( checkMe.dailyMrcDir, "dailyMrcDir");        
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdDir, "dailyMfhdDir");
+        errMsgs += checkWebdavDir( checkMe.dailyCombinedMrcDir, "dailyCombinedMrcDir");        
+        errMsgs += checkWebdavDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
+        errMsgs += checkWebdavDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
+        errMsgs += checkWebdavDir( checkMe.dailyMrcDeleted, "dailyMrcDeleted");
+        errMsgs += checkWebdavDir( checkMe.dailyMrcXmlDir, "dailyMrcXmlDir");
+        errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");
+        errMsgs += checkWebdavDir( checkMe.dailySuppressedDir, "dailySuppressedDir");
+        errMsgs += checkWebdavDir( checkMe.dailyUnsuppressedDir, "dailyUnsuppressedDir");
 
         errMsgs += checkSolrUrl( checkMe.solrUrl );
+        
+        errMsgs += checkDir( checkMe.tmpDir, "tmpDir");
         return errMsgs;        
     }
     
     
     
+    private static String checkDir(String value, String propName) {
+        if( value == null || value.trim().isEmpty() ){
+            return "The property " + propName + " must not be empty or null.\n";
+        }
+        return "";
+    }
+
     private static String checkExits(String value , String propName) {
        if( value == null || value.trim().isEmpty() )
-           return "The property " + propName + " must not be empty or null.";
+           return "The property " + propName + " must not be empty or null.\n";
        else
            return "";
     }
@@ -362,7 +395,7 @@ public class VoyagerToSolrConfiguration {
             return "";     
     }
     
-    private static String checkDir( String dir, String propName ){
+    private static String checkWebdavDir( String dir, String propName ){
         String partEx = " It should be a directory part ex. voyager/bib.nt.daily\n";
         if( dir == null || dir.trim().isEmpty() )
             return "The property " + propName + " must not be empty." + partEx ;
@@ -402,5 +435,7 @@ public class VoyagerToSolrConfiguration {
             "Ex. V2BL_CONFIG=prod.v2bl.properties,prodDav.properties java someClass\n" +
             "Do not use both a environment variable and command line parameters.\n" +
             "These files will be searched for first in the file system, then from the classpath/ClassLoader.\n";
+
+    
 }
 

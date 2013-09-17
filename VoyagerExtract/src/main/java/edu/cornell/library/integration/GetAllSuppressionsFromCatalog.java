@@ -2,9 +2,7 @@ package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -14,17 +12,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
-import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
 
-public class GetAllSuppressionsFromCatalog {
+public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
    
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
-
-   private DavService davService;
-   private CatalogService catalogService; 
 
    /**
     * default constructor
@@ -34,34 +28,6 @@ public class GetAllSuppressionsFromCatalog {
    }  
    
       
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
-
-   /**
-    * @return the catalogService
-    */
-   public CatalogService getCatalogService() {
-      return this.catalogService;
-   }
-
-   /**
-    * @param catalogService the catalogService to set
-    */
-   public void setCatalogService(CatalogService catalogService) {
-      this.catalogService = catalogService;
-   } 
-   
    public static void main(String[] args) {       
        new GetAllSuppressionsFromCatalog().run( args );
    }
@@ -75,11 +41,11 @@ public class GetAllSuppressionsFromCatalog {
            } else {
               System.err.println("Could not get catalogService");
               System.exit(-1);
-           }
-
-           setDavService(DavServiceFactory.getDavService()); 
+           }            
            
            VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig( args );
+           
+           setDavService(DavServiceFactory.getDavService(config));
            
            getAllSuppressedBibId( config );
            getAllSuppressedMfhdId( config );
@@ -172,13 +138,6 @@ public class GetAllSuppressionsFromCatalog {
      InputStream isr = new  ByteArrayInputStream(bytes);
                 
      getDavService().saveFile(destUrl, isr);      
-   }   
-   
-   private String getDateString() {
-      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-      Calendar now = Calendar.getInstance();      
-      String ds = df.format(now.getTime());
-      return ds;
    }
    
 

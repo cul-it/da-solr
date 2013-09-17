@@ -20,12 +20,7 @@ public class IdentifyDeletedRecords {
 	private final String davUrl = "http://culdata.library.cornell.edu/data";
 
 	DavService davService;
-	
-	
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
+			
 	public static void main(String[] args)  {
 		String coreUrl = "http://fbw4-dev.library.cornell.edu:8080/solr/test";
 		if (args.length >= 1)
