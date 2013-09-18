@@ -33,6 +33,8 @@ task(runIndexDirectoryCmd, dependsOn: 'classes', type: JavaExec) {
  description = 'Run the incremental index update.'
  main = 'edu.cornell.library.integration.indexer.IndexDirectoryCmd'
  classpath = sourceSets.main.runtimeClasspath
+ args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1',
+          'http://culdata.library.cornell.edu/data/voyager/bib/bib.nt.daily' ]
  //args ''
  //systemProperty 'simple.message', 'Hello '
 }
