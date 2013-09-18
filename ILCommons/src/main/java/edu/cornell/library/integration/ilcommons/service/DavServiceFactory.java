@@ -12,12 +12,13 @@ public class DavServiceFactory {
    public static DavService getDavService() {
       Properties props = null;
       ClassPathPropertyLoader loader = new ClassPathPropertyLoader();
+      
       try {
          props = loader.load("dav.properties");
       } catch (IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+          throw new RuntimeException("Could not load dav.properties from classpath", e);
       }
+      
       return new DavServiceImpl(props.getProperty("dav_user"), props.getProperty("dav_pass"));
    } 
    
