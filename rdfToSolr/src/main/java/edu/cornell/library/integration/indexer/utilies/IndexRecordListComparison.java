@@ -138,7 +138,12 @@ public class IndexRecordListComparison {
 					}
 					if (r.getLocalName().equals("str")) {
 						if (currentField.equals("id"))
-							bibid = Integer.valueOf(r.getElementText());
+							try {
+								bibid = Integer.valueOf(r.getElementText());
+							} catch (NumberFormatException e) {
+								// Not a Voyager record. We may want to support this in the future, but not yet.
+								return;
+							}
 						else if (currentField.equals("holdings_display"))
 							mfhdid.add(Integer.valueOf(r.getElementText()));
 					}

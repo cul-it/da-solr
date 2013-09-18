@@ -37,8 +37,9 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    
    /**
     * @param args
+ * @throws Exception 
     */
-   public static void main(String[] args) {
+   public static void main(String[] args) throws Exception {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      if (args.length != 3 ) {
         System.err.println("You must provide bib, mfhd and updateBibs Dirs as an arguments");
@@ -63,16 +64,29 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
  * @param config 
     * 
     */
-	public void run(VoyagerToSolrConfiguration config, 
-	        String bibDestDir, String mfhdDestDir, String updateBibsDir) {
-		
-		setDavService(DavServiceFactory.getDavService(config));
+
+	public void run(String bibDestDir, String mfhdDestDir, String updateBibsDir) throws Exception{
+
+		ApplicationContext ctx = new ClassPathXmlApplicationContext(
+				"spring.xml");
+
+		if (ctx.containsBean("catalogService")) {
+			setCatalogService((CatalogService) ctx.getBean("catalogService"));
+		} else {
+			System.err.println("Could not get catalogService");
+			System.exit(-1);
+		}
+
+		setDavService(DavServiceFactory.getDavService());
 
 		Calendar now = Calendar.getInstance();
 		String toDate = getDateTimeString(now);
-		String fromDate = getRelativeDateString(now, -24);
 		String today = getDateString(now);
-        System.out.println("fromDate: "+ fromDate);
+
+		// The call has side effects!!!
+		String fromDate = getRelativeDateString(now, -24);
+ 
+		System.out.println("fromDate: "+ fromDate);
         System.out.println("toDate: "+ toDate);
         
 		// get list of bibids updates using recent date String
@@ -118,20 +132,22 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		// add bib ids which have deleted mfhd ids
 		//
 		String bibListForUpdateFileName = "bibListForUpdate-"+ today +".txt"; 
+
 		String tmpFilePath = TMPDIR +"/"+ bibListForUpdateFileName;
 		List<String> bibListForUpdateList = new ArrayList<String>();
 		File bibListForUpdateFile = null;
 	    try {
-	    	bibListForUpdateFile = getDavService().getFile(updateBibsDir +"/"+ bibListForUpdateFileName, tmpFilePath);
+
+	    	bibListForUpdateFile = davService.getFile(updateBibsDir+"/"+bibListForUpdateFileName, tmpFilePath);
 			bibListForUpdateList = FileUtils.readLines(bibListForUpdateFile);
 		} catch (Exception e1) {
-		        System.err.println("Failed reading: "+ updateBibsDir +"/"+ bibListForUpdateFileName);
+		        System.err.println("Failed reading: "+ updateBibsDir+"/"+bibListForUpdateFileName);
 			e1.printStackTrace();
 			System.exit(-1);
 		} finally {
 			bibListForUpdateFile.delete();	
 		}
-	    System.out.println("bibListForUpdateList: " + bibListForUpdateList.size());
+	    System.out.println("bibListForUpdate: " + bibListForUpdateList.size() + " (from deleted and suppressed mfhds)");
 	    for (String s: bibListForUpdateList) {
 	    	if (! extraBibIdList.contains(s)) {
 				extraBibIdList.add(s);
@@ -315,8 +331,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	public void saveBibMrc(String mrc, int seqno, String destDir)
 			throws Exception {
 		Calendar now = Calendar.getInstance();
-		long ts = now.getTimeInMillis();
-		String url = destDir + "/bib.update." + ts + "."+ seqno +".mrc";
+		String url = destDir + "/bib.update." + getDateString(now) + "."+ seqno +".mrc";
 		// System.out.println("Saving mrc to: "+ url);
 		try {
 
@@ -334,8 +349,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	
 	public void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
 		Calendar now = Calendar.getInstance();
-		long ts = now.getTimeInMillis();
-		String url = destDir + "/mfhd.update." + ts + "."+ seqno +".mrc";
+		String url = destDir + "/mfhd.update." + getDateString(now) + "."+ seqno +".mrc";
 		// System.out.println("Saving mrc to: "+ url);
 		try {
 
@@ -384,9 +398,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	   String ds = df.format(offsetCal.getTime());
 	   return ds;
    }
-   
-   
-   
-   
+      
     
 }

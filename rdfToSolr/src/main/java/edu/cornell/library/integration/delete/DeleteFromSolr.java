@@ -30,12 +30,12 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
  */
 public class DeleteFromSolr {
 
-    String solrURL;
-    SolrServer solr;    
+    static String solrURL;
+    static SolrServer solr;    
     
-    String davBaseURL = "http://culdata.library.cornell.edu/data";
+    static String davBaseURL = "http://culdata.library.cornell.edu/data";
     
-    public void main(String[] argv)  {
+    public static void main(String[] argv)  {
         
         if( argv.length < 1 || argv.length > 2 )
             help();
@@ -88,7 +88,7 @@ public class DeleteFromSolr {
         }
     }
     
-    public void help(){
+    public static void help(){
         System.out.println("Deletes a list of bibIDs from the solr index.");
         System.out.println("The file should have one bibID per a line and should be avaiable via WEBDAV.");
         System.out.println("args: solrURL [deleteListFileURL]");

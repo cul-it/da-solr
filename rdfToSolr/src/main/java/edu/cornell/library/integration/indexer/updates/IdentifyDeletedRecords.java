@@ -2,7 +2,6 @@ package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
