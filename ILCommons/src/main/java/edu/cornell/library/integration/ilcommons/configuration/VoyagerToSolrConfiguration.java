@@ -59,10 +59,18 @@ public class VoyagerToSolrConfiguration {
     String dailyMrcDoneDir;
     String dailyMrcBadDir;
     String dailyMrcDeleted;
-    String dailyMrcXmlDir;
+    String dailyBibMrcXmlDir;
+    String dailyMfhdMrcXmlDir;
     String dailyMrcNtDir;
-    String dailySuppressedDir;
-    String dailyUnsuppressedDir;
+    String dailyMrcNtFilenamePrefix;
+    String dailyBibSuppressedDir;
+    String dailyBibSuppressedFilenamePrefix;
+    String dailyBibUnsuppressedDir;
+    String dailyBibUnsuppressedFilenamePrefix;
+    String dailyMfhdSuppressedDir;
+    String dailyMfhdSuppressedFilenamePrefix;
+    String dailyMfhdUnsuppressedDir;
+    String dailyMfhdUnsuppressedFilenamePrefix;
         
     /**
      * URL of the solr service.
@@ -165,10 +173,17 @@ public class VoyagerToSolrConfiguration {
     }
 
     /**
-     * @return the dailyMrcXmlDir
+     * @return the dailyBibMrcXmlDir
      */
-    public String getDailyMrcXmlDir() {
-        return dailyMrcXmlDir;
+    public String getDailyBibMrcXmlDir() {
+        return dailyBibMrcXmlDir;
+    }
+
+    /**
+     * @return the dailyMfhdMrcXmlDir
+     */
+    public String getDailyMfhdMrcXmlDir() {
+        return dailyMfhdMrcXmlDir;
     }
 
     /**
@@ -179,19 +194,68 @@ public class VoyagerToSolrConfiguration {
     }
 
     /**
-     * @return the dailySuppressedDir
+     * @return the dailyMrcNtFilenamePrefix
      */
-    public String getDailySuppressedDir() {
-        return dailySuppressedDir;
+    public String getDailyMrcNtFilenamePrefix() {
+        return dailyMrcNtFilenamePrefix;
     }
 
     /**
-     * @return the dailyUnsuppressedDir
+     * @return the dailyBibSuppressedDir
      */
-    public String getDailyUnsuppressedDir() {
-        return dailyUnsuppressedDir;
+    public String getDailyBibSuppressedDir() {
+        return dailyBibSuppressedDir;
     }
 
+    /**
+     * @return the dailyBibSuppressedFilenamePrefix
+     */
+    public String getDailyBibSuppressedFilenamePrefix() {
+        return dailyBibSuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyBibUnsuppressedDir
+     */
+    public String getDailyBibUnsuppressedDir() {
+        return dailyBibUnsuppressedDir;
+    }
+
+    /**
+     * @return the dailyBibUnsuppressedFilenamePrefix
+     */
+    public String getDailyBibUnsuppressedFilenamePrefix() {
+        return dailyBibUnsuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyMfhdSuppressedDir
+     */
+    public String getDailyMfhdSuppressedDir() {
+        return dailyMfhdSuppressedDir;
+    }
+
+    /**
+     * @return the dailyMfhdSuppressedFilenamePrefix
+     */
+    public String getDailyMfhdSuppressedFilenamePrefix() {
+        return dailyMfhdSuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyMfhdUnsuppressedDir
+     */
+    public String getDailyMfhdUnsuppressedDir() {
+        return dailyMfhdUnsuppressedDir;
+    }
+
+    /**
+     * @return the dailyMfhdUnsuppressedFilenamePrefix
+     */
+    public String getDailyMfhdUnsuppressedFilenamePrefix() {
+        return dailyMfhdUnsuppressedFilenamePrefix;
+    }
+    
     /**
      * @return the solrUrl
      */
@@ -314,10 +378,18 @@ public class VoyagerToSolrConfiguration {
         conf.dailyMrcDoneDir = prop.getProperty("dailyMrcDoneDir");
         conf.dailyMrcBadDir = prop.getProperty("dailyMrcBadDir");
         conf.dailyMrcDeleted = prop.getProperty("dailyMrcDeleted");
-        conf.dailyMrcXmlDir = prop.getProperty("dailyMrcXmlDir");
-        conf.dailyMrcNtDir = prop.getProperty("dailyMrcNtDir");        
-        conf.dailySuppressedDir = prop.getProperty("dailySuppressedDir");
-        conf.dailyUnsuppressedDir = prop.getProperty("dailyUnsuppressedDir");
+        conf.dailyBibMrcXmlDir = prop.getProperty("dailyBibMrcXmlDir");
+        conf.dailyMfhdMrcXmlDir = prop.getProperty("dailyMrcXmlDir");
+        conf.dailyMrcNtDir = prop.getProperty("dailyMrcNtDir");
+        conf.dailyMrcNtFilenamePrefix = prop.getProperty("dailyMrcNtFilenamePrefix");
+        conf.dailyBibSuppressedDir = prop.getProperty("dailyBibSuppressedDir");
+        conf.dailyBibSuppressedFilenamePrefix = prop.getProperty("dailyBibSuppressedFilenamePrefix");
+        conf.dailyBibUnsuppressedDir = prop.getProperty("dailyBibUnsuppressedDir");
+        conf.dailyBibUnsuppressedFilenamePrefix = prop.getProperty("dailyBibUnsuppressedFilenamePrefix");
+        conf.dailyMfhdSuppressedDir = prop.getProperty("dailyMfhdSuppressedDir");
+        conf.dailyMfhdSuppressedFilenamePrefix = prop.getProperty("dailyMfhdSuppressedFilenamePrefix");
+        conf.dailyMfhdUnsuppressedDir = prop.getProperty("dailyMfhdUnsuppressedDir");
+        conf.dailyMfhdUnsuppressedFilenamePrefix = prop.getProperty("dailyMfhdUnsuppressedFilenamePrefix");
         
         conf.solrUrl = prop.getProperty("solrUrl");
         
@@ -335,8 +407,8 @@ public class VoyagerToSolrConfiguration {
 
         errMsgs += checkWebdavUrl( checkMe.webdavBaseUrl );
     
-        errMsgs += checkExits( checkMe.webdavUser , "webdavUser");
-        errMsgs += checkExits( checkMe.webdavPassword , "webdavPassword");
+        errMsgs += checkExists( checkMe.webdavUser , "webdavUser");
+        errMsgs += checkExists( checkMe.webdavPassword , "webdavPassword");
         
         errMsgs += checkWebdavDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
         errMsgs += checkWebdavDir( checkMe.fullMrc21DoneDir, "fullMrc21DoneDir");
@@ -349,10 +421,18 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkWebdavDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcDeleted, "dailyMrcDeleted");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcXmlDir, "dailyMrcXmlDir");
+        errMsgs += checkWebdavDir( checkMe.dailyBibMrcXmlDir, "dailyBibMrcXmlDir");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdMrcXmlDir, "dailyMfhdMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");
-        errMsgs += checkWebdavDir( checkMe.dailySuppressedDir, "dailySuppressedDir");
-        errMsgs += checkWebdavDir( checkMe.dailyUnsuppressedDir, "dailyUnsuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyMrcNtFilenamePrefix, "dailyMrcNtFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyBibSuppressedDir, "dailyBibSuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyBibSuppressedFilenamePrefix, "dailyBibSuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyBibUnsuppressedDir, "dailyBibUnsuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyBibUnsuppressedFilenamePrefix, "dailyBibUnsuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdSuppressedDir, "dailyMfhdSuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyMfhdSuppressedFilenamePrefix, "dailyMfhdSuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdUnsuppressedDir, "dailyMfhdUnsuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyMfhdUnsuppressedFilenamePrefix, "dailyMfhdUnsuppressedFilenamePrefix");
 
         errMsgs += checkSolrUrl( checkMe.solrUrl );
         
@@ -369,7 +449,7 @@ public class VoyagerToSolrConfiguration {
         return "";
     }
 
-    private static String checkExits(String value , String propName) {
+    private static String checkExists(String value , String propName) {
        if( value == null || value.trim().isEmpty() )
            return "The property " + propName + " must not be empty or null.\n";
        else
