@@ -192,37 +192,13 @@ task (GetLocations, dependsOn:'build', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
-   
-task (GetAllSuppressedBibId, dependsOn:'build', type: JavaExec){
- description='Run GetAllSuppressedBibId'
- main='edu.cornell.library.integration.GetAllSuppressedBibId'
+      
+task (GetAllSuppressionsFromCatalog, dependsOn:'build', type: JavaExec){
+ description='Run GetAllSuppressionsFromCatalog'
+ main='edu.cornell.library.integration.GetAllSuppressionsFromCatalog'
  classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
- args=['http://culdata.library.cornell.edu/data/voyager/bib/suppressed']
-}
-   
-task (GetAllSuppressedMfhdId, dependsOn:'build', type: JavaExec){
- description='Run GetAllSuppressedMfhdId'
- main='edu.cornell.library.integration.GetAllSuppressedMfhdId'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
- args=['http://culdata.library.cornell.edu/data/voyager/mfhd/suppressed']
-}
-   
-task (GetAllUnSuppressedBibId, dependsOn:'build', type: JavaExec){
- description='Run GetAllUnSuppressedBibId'
- main='edu.cornell.library.integration.GetAllUnSuppressedBibId'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
- args=['http://culdata.library.cornell.edu/data/voyager/bib/unsuppressed']
-}
-   
-task (GetAllUnSuppressedMfhdId, dependsOn:'build', type: JavaExec){
- description='Run GetAllUnSuppressedMfhdId'
- main='edu.cornell.library.integration.GetAllUnSuppressedMfhdId'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
- args=['http://culdata.library.cornell.edu/data/voyager/mfhd/unsuppressed']
+ maxHeapSize = '1024m'
+ args=[ 'config/VoyagerToSolrConfig.test.properties' , 'config/webdav.properties' ]
 }
    
 task (GetBibMasterData, dependsOn:'build', type: JavaExec){

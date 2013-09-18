@@ -48,10 +48,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
       
      VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args );
      
-//     bibdir = "http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates" 
-//     mfhddir = "http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates" 
-//     updateBibsDir = "http://culdata.library.cornell.edu/data/updates/bib.updates"
-     
      String bibDestDir  = config.getWebdavBaseUrl() + config.getDailyMrcDir();          
      String mfhdDestDir  = config.getWebdavBaseUrl() + config.getDailyMfhdDir() ;
      String updateBibsDir  = config.getWebdavBaseUrl() + config.getDailyCombinedMrcDir();
@@ -65,19 +61,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     * 
     */
 
-	public void run(String bibDestDir, String mfhdDestDir, String updateBibsDir) throws Exception{
+	public void run(VoyagerToSolrConfiguration config, 
+	        String bibDestDir, String mfhdDestDir, String updateBibsDir) throws Exception{
 
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(
-				"spring.xml");
-
-		if (ctx.containsBean("catalogService")) {
-			setCatalogService((CatalogService) ctx.getBean("catalogService"));
-		} else {
+		if ( getCatalogService() == null ){
 			System.err.println("Could not get catalogService");
 			System.exit(-1);
 		}
 
-		setDavService(DavServiceFactory.getDavService());
+		setDavService(DavServiceFactory.getDavService( config ));
 
 		Calendar now = Calendar.getInstance();
 		String toDate = getDateTimeString(now);
@@ -138,7 +130,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		File bibListForUpdateFile = null;
 	    try {
 
-	    	bibListForUpdateFile = davService.getFile(updateBibsDir+"/"+bibListForUpdateFileName, tmpFilePath);
+	    	bibListForUpdateFile = getDavService().getFile(updateBibsDir+"/"+bibListForUpdateFileName, tmpFilePath);
 			bibListForUpdateList = FileUtils.readLines(bibListForUpdateFile);
 		} catch (Exception e1) {
 		        System.err.println("Failed reading: "+ updateBibsDir+"/"+bibListForUpdateFileName);
