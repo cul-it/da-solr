@@ -180,6 +180,7 @@ public class DavServiceImpl implements DavService {
 		  StandardCopyOption.REPLACE_EXISTING
        };
 	   final Path path = Files.createTempFile("nio-temp", ".tmp");
+	   path.toFile().deleteOnExit();
 	   Files.copy(is, path, options);	     
 	   return path;
    }
