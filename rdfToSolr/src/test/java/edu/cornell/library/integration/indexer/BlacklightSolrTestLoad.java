@@ -30,6 +30,15 @@ import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
+
+/**
+ * This isn't really a unit test. This is more of an integration test that uses 
+ * a pre-existing solr test server.
+ * 
+ * TODO: Give this class a main that does the needed testing.
+ * 
+ *
+ */
 public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 			
 	static SolrServer solr = null;		
@@ -56,17 +65,13 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	
 	
 	
-	@BeforeClass
+	
 	public static void setup() throws Exception{
 		setupSolr();		
 	}
 
-/*	@AfterClass
-	public static void down() throws Exception{
-		takeDownSolr();
-	} */
-	
-	@Test 
+
+	 
 	public void testForGoodStartup() throws Exception{
 		super.testLanguageMappingsInRDF();
 		super.testCallnumberMappingsInRDF();
