@@ -68,7 +68,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
        } 
        
        try {
-           String url = config.getWebdavBaseUrl() +  config.getDailySuppressedDir() 
+           String url = config.getWebdavBaseUrl() +  config.getDailyBibSuppressedDir() 
                    +  "/suppressedBibId-"+ getDateString() +".txt";
           saveList(ids, url );
        } catch (Exception e) {
@@ -85,7 +85,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
        } 
        
        try {
-           String url = config.getWebdavBaseUrl() + config.getDailySuppressedDir() 
+           String url = config.getWebdavBaseUrl() + config.getDailyMfhdSuppressedDir() 
                    + "/suppressedMfhdId-" + getDateString() + ".txt";
           saveList(ids, url);
        } catch (Exception e) {
@@ -103,7 +103,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
        } 
        
        try {
-           String url = config.getWebdavBaseUrl() + config.getDailyUnsuppressedDir() 
+           String url = config.getWebdavBaseUrl() + config.getDailyBibUnsuppressedDir() 
                    + "/unsuppressedBibid-" + getDateString() + ".txt";
           saveList(ids, url);
        } catch (Exception e) {
@@ -121,7 +121,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
        } 
        
        try {
-           String url = config.getWebdavBaseUrl() + config.getDailyUnsuppressedDir() 
+           String url = config.getWebdavBaseUrl() + config.getDailyMfhdUnsuppressedDir() 
                    + "/unsuppressedMfhdId-" + getDateString() + ".txt";
           saveList(ids, url);
        } catch (Exception e) {
