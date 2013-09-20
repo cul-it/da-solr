@@ -13,19 +13,17 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService;
 
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
+   protected static Integer reportPeriod = 1; //days
 
    public static final String TMPDIR = "/tmp";
    /**
@@ -52,7 +50,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      String mfhdDestDir  = config.getWebdavBaseUrl() + config.getDailyMfhdDir() ;
      String updateBibsDir  = config.getWebdavBaseUrl() + config.getDailyCombinedMrcDir();
      
-     app.run(config, bibDestDir, mfhdDestDir, updateBibsDir);
+     app.run(config, bibDestDir, mfhdDestDir, updateBibsDir, reportPeriod);
    }
    
 
@@ -62,7 +60,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     */
 
 	public void run(VoyagerToSolrConfiguration config, 
-	        String bibDestDir, String mfhdDestDir, String updateBibsDir) throws Exception{
+	        String bibDestDir, String mfhdDestDir, String updateBibsDir,
+	        Integer reportPeriod) throws Exception{
 
 		if ( getCatalogService() == null ){
 			System.err.println("Could not get catalogService");
@@ -72,11 +71,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		setDavService(DavServiceFactory.getDavService( config ));
 
 		Calendar now = Calendar.getInstance();
-		String toDate = getDateTimeString(now);
+		String toDate = midnightThisMorning();
+		String fromDate = daysEarlier(reportPeriod);
 		String today = getDateString(now);
 
-		// The call has side effects!!!
-		String fromDate = getRelativeDateString(now, -24);
  
 		System.out.println("fromDate: "+ fromDate);
         System.out.println("toDate: "+ toDate);
@@ -371,6 +369,26 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    /**
     * @return
     */
+   protected String midnightThisMorning() {
+	   Calendar today = Calendar.getInstance();
+	   today.set(Calendar.HOUR_OF_DAY, 0);
+	   today.set(Calendar.MINUTE, 0);
+	   today.set(Calendar.SECOND, 0);
+	   today.set(Calendar.MILLISECOND, 0); 
+	   return getDateTimeString(today);
+   }
+   
+   protected String daysEarlier(Integer noDays) {
+	   Calendar date = Calendar.getInstance();
+	   date.set(Calendar.HOUR_OF_DAY, 0);
+	   date.set(Calendar.MINUTE, 0);
+	   date.set(Calendar.SECOND, 0);
+	   date.set(Calendar.MILLISECOND, 0);
+	   date.add(Calendar.DAY_OF_MONTH, - noDays);
+	   return getDateTimeString(date);
+   }
+   
+   
    protected String getDateTimeString(Calendar cal) {
 	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 	   String ds = df.format(cal.getTime());
