@@ -94,6 +94,7 @@ task (runIdentifyDeleteRecords, dependsOn:'classes', type: JavaExec){
  description='Run step of Incremental update that identifies records that have been deleted from voyager.'
  main='edu.cornell.library.integration.indexer.updates.IdentifyDeletedRecords'
  classpath = sourceSets.main.runtimeClasspath
+ jvmArgs = [ '-Dlog4j.debug' ]
  maxHeapSize = '2056m'
  args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
