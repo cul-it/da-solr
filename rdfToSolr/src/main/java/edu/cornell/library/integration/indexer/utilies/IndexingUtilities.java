@@ -115,11 +115,45 @@ public class IndexingUtilities {
      * @throws Exception if there is a problem with the WEBDAV service. 
      */
     public static String findMostRecentFile(DavService davService , String directoryURL, String fileNamePrefix ) throws Exception{
+       return findMostRecentFile(davService,directoryURL,fileNamePrefix,".txt");
+    }
+
+    
+    /**
+     * Utility method for finding most recent files in a directory 
+     * where the file names follow the pattern :
+     *  
+     *  directoryURL/fileNamePrefix-yyyy-MM-dd.fileNamePostfix
+     *  
+     *  Such as:
+     *  
+     *  http://example.com/files/bibs-2013-12-27.nt.gz
+     *  http://example.com/files/bibs-2013-12-28.nt.gz
+     *  http://example.com/files/bibs-2013-12-29.nt.gz
+     *  
+     * @param davService 
+     * @param directoryURL - directory to check for most recent files
+     * @param fileNamePrefix - prefix for file names
+     * @param fileNamePostfix - ending for file names
+     * 
+     * @return name of most recent file, or null if none found. 
+     *   The returned string will be the full URL to the file.
+     * @throws Exception if there is a problem with the WEBDAV service. 
+     */
+    public static String findMostRecentFile(
+            DavService davService, 
+            String directoryURL, 
+            String fileNamePrefix, 
+            String fileNamePostfix)throws Exception{
+        
         if( ! directoryURL.endsWith("/"))
             directoryURL = directoryURL + "/";
         
-        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..).txt");
-        Date lastDate = new SimpleDateFormat("yyyy").parse("1950");
+        if( ! fileNamePostfix.startsWith("."))
+            fileNamePostfix = "." + fileNamePostfix;
+        
+        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..)" + fileNamePrefix);
+        Date lastDate = new SimpleDateFormat("yyyy").parse("1900");
         String mostRecentFile = null;
                                
         List<String> biblists = davService.getFileList( directoryURL );   
@@ -137,6 +171,6 @@ public class IndexingUtilities {
             }
         }
         return directoryURL +  mostRecentFile;
+        
     }
-
 }

@@ -1,3 +1,8 @@
+# ignore real properties file 
+# For these, we do not want to check in any properties files
+# other than the examples.
+webdav.properties
+
 # ignore build,support directories
 build/
 bin/
