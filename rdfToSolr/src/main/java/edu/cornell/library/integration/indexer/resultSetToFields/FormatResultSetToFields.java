@@ -290,8 +290,13 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				if (debug) System.out.println("Not Manuscript/Archive due to collision with format:Thesis.");				
 			}
 		}
-		if (format != null)
+		if (format != null) {
 			addField(fields,"format",format);
+			addField(fields,"format_main_facet",format);
+		} else {
+			if (isThesis)
+				addField(fields,"format_main_facet","Thesis");
+		}
 		if (online) {
 			addField(fields,"online","Online");
 		}

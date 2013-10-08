@@ -26,6 +26,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SingleValueField("author_display",Correction.firstValue),
 				new SingleValueField("author_sort",Correction.firstValue),
 				new SingleValueField("author_t",Correction.firstValue),
+				new SingleValueField("format_main_facet",Correction.firstValue),
 				new RecordBoost(),
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
