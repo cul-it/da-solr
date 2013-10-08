@@ -478,7 +478,7 @@
         donor_t
         pubplace_t
         id_s
-        eightninenine_s
+        eightninenine_t
         notes
         notes_t
         summary_t
@@ -517,7 +517,7 @@
         donor_t
         pubplace_t
         id_s
-        eightninenine_s
+        eightninenine_t
         notes
         notes_t
         text
@@ -617,12 +617,12 @@
       <str name="number_qf">
         id_t
         id
-        eightninenine_s
+        eightninenine_t
       </str>
       <str name="number_pf">
         id_t
         id
-        eightninenine_s
+        eightninenine_t
       </str>
 
       <str name="notes_qf"> notes notes_t </str>
