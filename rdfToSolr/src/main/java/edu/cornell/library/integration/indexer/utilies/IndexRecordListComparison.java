@@ -19,22 +19,48 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
+/**
+ * This class is intended to compare the current voyager BIB and MFHD
+ * records with the records in a Solr index. It will create a list of 
+ * records that have been removed from Voyager or that are missing 
+ * from the Solr Index.
+ * 
+ * To use this class, make a new IndexRecordListComparison and then
+ * call compare().  After the call to compare() the properties
+ * bibsInIndexNotVoyager, bibsInVoyagerNotIndex, mfhdsInIndexNotVoyager
+ * and mfhdsInVoyagerNotIndex will then be set.
+ * 
+ * Maximum of 10,000,000 records will be returned from Solr. 
+ */
 public class IndexRecordListComparison {
-
+    
 	public Set<Integer> bibsInIndexNotVoyager = new HashSet<Integer>();
 	public Set<Integer> bibsInVoyagerNotIndex = new HashSet<Integer>();
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager = new HashMap<Integer,Integer>();
 	public Set<Integer> mfhdsInVoyagerNotIndex = new HashSet<Integer>();
 	
-	
-	public void compare(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) {
+	/**
+	 * Query Solr service at coreUrl and create a list:
+	 * 
+	 *  BIB records in Index but not in Voyager 
+	 *  BIB records in Voyager but not in Index
+	 *  MFHD records in Index but not in Voyager
+	 *  MFHD records in Voyager but not in Index
+	 *  
+	 *  This method works by side-effect. 
+	 *  
+	 *  @param solrCoreURL URL of the solr instance to get the complement of.
+	 *  @param currentVoyagerBibList file of BIB IDs in Voyager. Should have one BIB ID per line.
+	 *  @param currentVoyagerMfhdList file of MFHD IDs in Voyager. Should have one MFHD ID per line.    
+	 */
+	public void compare(String solrCoreURL, Path currentVoyagerBibList, Path currentVoyagerMfhdList) {
 
-		Set<Integer> currentIndexBibList = new HashSet<Integer>();
-		Map<Integer,Integer> currentIndexMfhdList = new HashMap<Integer,Integer>();
+		Set<Integer> solrIndexBibList = new HashSet<Integer>();
+		Map<Integer,Integer> solrIndexMfhdList = new HashMap<Integer,Integer>();
 
-		//Compile lists of bibs and mfhds currently in Solr.
+		//Compile lists of BIB and MFHD ids in Solr.
 		try {
-			URL queryUrl = new URL(coreUrl + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display&rows=10000000");
+			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display&rows=10000000");
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
@@ -42,12 +68,12 @@ public class IndexRecordListComparison {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc"))
-						processDoc(reader,currentIndexBibList,currentIndexMfhdList);
+						processDoc(reader,solrIndexBibList,solrIndexMfhdList);
 			}
 			in.close();
 			System.out.println("Current index contains:");
-			System.out.println("\tbib records: "+currentIndexBibList.size());
-			System.out.println("\tmfhd records: "+currentIndexMfhdList.size());
+			System.out.println("\tbib records: "+solrIndexBibList.size());
+			System.out.println("\tmfhd records: "+solrIndexMfhdList.size());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -56,8 +82,8 @@ public class IndexRecordListComparison {
 			e.printStackTrace();
 		}
 		
-		// compare current index bib list with current voyager bib list
-		// HashSet currentIndexBibList is NOT PRESERVED
+		// compare current index bib list with current voyager bib list		
+		// HashSet solrIndexBibList is NOT PRESERVED		
 		try {
 			int unsuppressedBibCount = 0;
 			String line;
@@ -65,18 +91,18 @@ public class IndexRecordListComparison {
 			while ((line = reader.readLine()) != null) {
 				Integer bibid = Integer.valueOf(line);
 				unsuppressedBibCount++;
-				if (currentIndexBibList.contains(bibid)) {
+				if (solrIndexBibList.contains(bibid)) {
 					// bibid is on both lists.
-					currentIndexBibList.remove(bibid);
+					solrIndexBibList.remove(bibid);
 				} else {
 					bibsInVoyagerNotIndex.add(bibid);
 				}
 			}
 			System.out.println("unsuppressed bib record list contains: "+unsuppressedBibCount+" records");
 			System.out.println("\ton list but not in index: "+bibsInVoyagerNotIndex.size());
-			bibsInIndexNotVoyager.addAll(currentIndexBibList);
+			bibsInIndexNotVoyager.addAll(solrIndexBibList);
 			System.out.println("\tin index but not on list: "+bibsInIndexNotVoyager.size());
-			currentIndexBibList.clear();
+			solrIndexBibList.clear();
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -84,7 +110,7 @@ public class IndexRecordListComparison {
 
 		
 		// compare current index mfhd list with current voyager mfhd list
-		// HashMap currentIndexMfhdList is NOT PRESERVED
+		// HashMap solrIndexMfhdList is NOT PRESERVED
 		try {
 			int unsuppressedMfhdCount = 0;
 			String line;
@@ -92,18 +118,18 @@ public class IndexRecordListComparison {
 			while ((line = reader.readLine()) != null) {
 				Integer mfhdid = Integer.valueOf(line);
 				unsuppressedMfhdCount++;
-				if (currentIndexMfhdList.containsKey(mfhdid)) {
+				if (solrIndexMfhdList.containsKey(mfhdid)) {
 					// mfhdid is on both lists.
-					currentIndexMfhdList.remove(mfhdid);
+					solrIndexMfhdList.remove(mfhdid);
 				} else {
 					mfhdsInVoyagerNotIndex.add(mfhdid);
 				}
 			}
 			System.out.println("unsuppressed mfhd record list contains: "+unsuppressedMfhdCount+" records");
 			System.out.println("\ton list but not in index: "+mfhdsInVoyagerNotIndex.size());
-			mfhdsInIndexNotVoyager.putAll(currentIndexMfhdList);
+			mfhdsInIndexNotVoyager.putAll(solrIndexMfhdList);
 			System.out.println("\tin index but not on list: "+mfhdsInIndexNotVoyager.size());
-			currentIndexMfhdList.clear();
+			solrIndexMfhdList.clear();
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -111,9 +137,13 @@ public class IndexRecordListComparison {
 		
 	}
 	
-	public static void processDoc( XMLStreamReader r, 
-								   Set<Integer> currentIndexBibList,
-								   Map<Integer,Integer> currentIndexMfhdList ) {
+	/**
+	 * Process XML from solr and build solrIndexBibList
+	 * and solrIndexMfhdList.  
+	 */
+	private static void processDoc( XMLStreamReader r, 
+								   Set<Integer> solrIndexBibList,
+								   Map<Integer,Integer> solrIndexMfhdList ) {
 		Integer bibid = 0;
 		HashSet<Integer> mfhdid = new HashSet<Integer>();
 		String currentField = "";
@@ -124,10 +154,10 @@ public class IndexRecordListComparison {
 					if (r.getLocalName().equals("doc")) {
 						// end of doc;
 						if (bibid == 0) return;
-						currentIndexBibList.add(bibid);
+						solrIndexBibList.add(bibid);
 						Iterator<Integer> i = mfhdid.iterator();
 						while (i.hasNext())
-							currentIndexMfhdList.put(i.next(), bibid);
+							solrIndexMfhdList.put(i.next(), bibid);
 						return;
 					}
 				} else if (eventType == XMLEvent.START_ELEMENT) {

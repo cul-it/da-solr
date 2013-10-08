@@ -35,19 +35,22 @@ dailyBibMrcXmlDir = voyager/bib/bib.xml.updates
 dailyMfhdMrcXmlDir = voyager/mfhd/mfhd.xml.updates
 
 dailyMrcNtDir = voyager/bib/bib.nt.daily
- dailyMrcNtFilenamePrefix = bibmfhd
+dailyMrcNtFilenamePrefix = bibmfhd
 
 dailyBibSuppressedDir = voyager/bib/suppressed
- dailyBibSuppressedFilenamePrefix = suppressedBibId
+dailyBibSuppressedFilenamePrefix = suppressedBibId
 
 dailyBibUnsuppressedDir = voyager/bib/unsuppressed
- dailyBibUnsuppressedFilenamePrefix = unsuppressedBibId
+dailyBibUnsuppressedFilenamePrefix = unsuppressedBibId
 
 dailyMfhdSuppressedDir = voyager/mfhd/suppressed
- dailyMfhdSuppressedFilenamePrefix = suppressedMfhdId
+dailyMfhdSuppressedFilenamePrefix = suppressedMfhdId
 
 dailyMfhdUnsuppressedDir = voyager/mfhd/unsuppressed
- dailyMfhdUnsuppressedFilenamePrefix = unsuppressedMfhdId
+dailyMfhdUnsuppressedFilenamePrefix = unsuppressedMfhdId
+
+dailyBibUpdates = updates/bib.updates
+dailyBibDeltes = updates/bib.deletes
 
 
 #### Properties related to Solr ###

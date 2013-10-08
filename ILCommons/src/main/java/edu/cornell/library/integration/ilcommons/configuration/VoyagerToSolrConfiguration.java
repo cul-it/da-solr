@@ -16,6 +16,9 @@ import java.util.Properties;
  * configurations that can be called for from the command line of
  * the different steps of the conversion.
  * 
+ * See the method loadConfig(String[]) for how the VoyagerToSolrConfiguration can
+ * be loaded. 
+ * 
  * If you'd like to add a new configuration setting to this class,
  *  1 add a property to this class
  *  2 add a getter to this class
@@ -71,7 +74,9 @@ public class VoyagerToSolrConfiguration {
     String dailyMfhdSuppressedFilenamePrefix;
     String dailyMfhdUnsuppressedDir;
     String dailyMfhdUnsuppressedFilenamePrefix;
-        
+    String dailyBibUpdates; //= updates/bib.updates
+    String dailyBibDeltes;// = updates/bib.deletes
+
     /**
      * URL of the solr service.
      */
@@ -79,6 +84,22 @@ public class VoyagerToSolrConfiguration {
     
     String tmpDir;
     
+    public String getDailyBibUpdates() {
+        return dailyBibUpdates;
+    }
+
+    public void setDailyBibUpdates(String dailyBibUpdates) {
+        this.dailyBibUpdates = dailyBibUpdates;
+    }
+
+    public String getDailyBibDeltes() {
+        return dailyBibDeltes;
+    }
+
+    public void setDailyBibDeltes(String dailyBibDeltes) {
+        this.dailyBibDeltes = dailyBibDeltes;
+    }
+
     /**
      * @return the webdavBaseUrl
      */
@@ -390,6 +411,8 @@ public class VoyagerToSolrConfiguration {
         conf.dailyMfhdSuppressedFilenamePrefix = prop.getProperty("dailyMfhdSuppressedFilenamePrefix");
         conf.dailyMfhdUnsuppressedDir = prop.getProperty("dailyMfhdUnsuppressedDir");
         conf.dailyMfhdUnsuppressedFilenamePrefix = prop.getProperty("dailyMfhdUnsuppressedFilenamePrefix");
+        conf.dailyBibDeltes = prop.getProperty("dailBibDelets");
+        conf.dailyBibUpdates = prop.getProperty("dailyBibUpdates");
         
         conf.solrUrl = prop.getProperty("solrUrl");
         
@@ -433,7 +456,8 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkExists(    checkMe.dailyMfhdSuppressedFilenamePrefix, "dailyMfhdSuppressedFilenamePrefix");
         errMsgs += checkWebdavDir( checkMe.dailyMfhdUnsuppressedDir, "dailyMfhdUnsuppressedDir");
         errMsgs += checkExists(    checkMe.dailyMfhdUnsuppressedFilenamePrefix, "dailyMfhdUnsuppressedFilenamePrefix");
-
+        errMsgs += checkWebdavDir( checkMe.dailyBibDeltes,  "dailBibDeletes");
+        errMsgs += checkWebdavDir( checkMe.dailyBibUpdates, "dailyBibUpdates");
         errMsgs += checkSolrUrl( checkMe.solrUrl );
         
         errMsgs += checkDir( checkMe.tmpDir, "tmpDir");
