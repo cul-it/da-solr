@@ -27,14 +27,7 @@ public interface DavService {
     * @throws IOException
     */
    public List<String> getFileUrlList(String url) throws IOException;
-   
-   /**
-    *  @param url
-    * @return list of data directories
-    * @throws IOException
-    */
-   //public List<String> getDirectories(String url) throws IOException;
-   
+
    /**
     * @param url
     * @return a File as a String
@@ -50,12 +43,10 @@ public interface DavService {
    public InputStream getFileAsInputStream(String url) throws Exception;
    
    /**
-    * @param url
-    * @param outFile
-    * @return
-    * @throws Exception
+    * Get the file at url from WEBDAV, save it to the local file 
+    * outFile and return a File to outFile.
     */
-   public File getFile(String url, String outFile) throws Exception;
+   public File getFile(String url, String localOutFile) throws Exception;
    
    /**
     * @param url
