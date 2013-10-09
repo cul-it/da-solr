@@ -379,14 +379,5 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	   String ds = df.format(cal.getTime());
 	   return ds;
    }
-   
-   protected String getRelativeDateString(Calendar cal, int offset) {
-	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	   Calendar offsetCal = cal;
-	   offsetCal.add(Calendar.HOUR, offset);
-	   String ds = df.format(offsetCal.getTime());
-	   return ds;
-   }
-      
-    
+       
 }
