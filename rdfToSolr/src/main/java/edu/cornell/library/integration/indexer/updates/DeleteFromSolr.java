@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.delete;
+package edu.cornell.library.integration.indexer.updates;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
+import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -16,50 +17,38 @@ import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 /**
  * Utility to delete bibs from Solr index.
  * 
- * Expects a URL of a file that it can get via WEBDAV. If the file 
- * is not provided as an argument to main, then the most current
+ * Gets directory from config.getDailyMrcDeleted() via WEBDAV. the most current
  * delete file will be used.
  * 
  * The file should have a single Bib ID per a line. It should be UTF-8 encoded.
  * 
  * A delete requests will be sent to the Solr service for each bib ID. They
  * may be sent in batches.
- * 
- * @author bdc34
- *
  */
 public class DeleteFromSolr {
-
-    static String solrURL;
-    static SolrServer solr;    
-    
-    static String davBaseURL = "http://culdata.library.cornell.edu/data";
-    
+           
     public static void main(String[] argv)  {
+            
+        VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(argv);
         
-        if( argv.length < 1 || argv.length > 2 )
-            help();
+        String solrURL = config.getSolrUrl();                                        
+        SolrServer solr = new HttpSolrServer( solrURL );        
         
-        String solrServiceURL = argv[0];
-        solr = new HttpSolrServer( solrServiceURL );        
+        String davBaseURL = config.getWebdavBaseUrl();
+        DavService davService = DavServiceFactory.getDavService( config );
         
-        DavService davService = DavServiceFactory.getDavService();
-        
-        String deleteFileURL= null;        
-        if( argv.length == 2 )
-            deleteFileURL= argv[1];        
-        else{
-            // no delete file specified on cmd line, use the most current delete file
-            String dir = davBaseURL + "/updates/bib.updates/";
-            String prefix = "bibListForUpdate";                  
-            try {
-                deleteFileURL = FileNameUtils.findMostRecentFile(davService, dir, prefix);
-            } catch (Exception e) {
-                System.out.println("Could not get the most recent deletes file from " + dir );
-                System.out.println(e.getMessage());
-                System.exit(1);
-            }            
-        }        
+        //  use the most current delete file        
+        String prefix = "bibListForUpdate";                  
+        String deleteFileURL="notYetSet?";
+        try {
+            deleteFileURL = FileNameUtils.findMostRecentFile(davService, config.getDailyMrcDeleted(), prefix);
+        } catch (Exception e) {
+            System.out.println("Could not get the most "
+                    + "recent deletes file from " + config.getDailyMrcDeleted() );
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }            
+                
         
         int lineNum = 0;
         try{
@@ -82,16 +71,11 @@ public class DeleteFromSolr {
             }                        
         } catch (Exception e) {
             System.out.println("Could not process deletes form file " + deleteFileURL);
-            System.out.println("problem around line " + lineNum);
+            System.out.println("problem around line " + lineNum + ", some documents may have been deleted from Solr.");
             System.out.println(e.getMessage());
             System.exit(1);
         }
-    }
-    
-    public static void help(){
-        System.out.println("Deletes a list of bibIDs from the solr index.");
-        System.out.println("The file should have one bibID per a line and should be avaiable via WEBDAV.");
-        System.out.println("args: solrURL [deleteListFileURL]");
-        System.exit(1);
-    }
+        
+        System.out.println("Success: deleted " + lineNum + " documents from solr.");
+    }    
 }
