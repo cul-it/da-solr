@@ -15,6 +15,9 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  *   2) Move the source MARC file to the "done" directory or
  *      if there is an Exception, move the XML to the "bad" directory.
  *  
+ * This class has a main that uses the standard VoyagerToSolrConfiguration
+ * command line parameters and properties. 
+ * 
  * This class extends VoyagerToSolrStep but it doesn't use 
  * much from that class. It is primarily extended to indicate
  * that ConvertMfhdUpdatesToXml is a step in the voyager to Solr
@@ -76,7 +79,8 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
                 try {
                     System.out.println("Exception caught: could not "
                             + "convert file: " + srcFile + "\n" 
-                            + "due to " + e.getMessage() );                        
+                            + "due to " + e.getMessage() 
+                            + "moving source file to bad dir at '" + badDir + "'" );
                     getDavService().moveFile(srcDir + "/" + srcFile,
                             badDir + "/" + srcFile);
                 } catch (Exception e1) {
