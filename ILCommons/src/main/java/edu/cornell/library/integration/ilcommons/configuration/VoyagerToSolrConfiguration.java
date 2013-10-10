@@ -76,7 +76,8 @@ public class VoyagerToSolrConfiguration {
     String dailyMfhdUnsuppressedFilenamePrefix;
     String dailyBibUpdates; //= updates/bib.updates
     String dailyBibDeltes;// = updates/bib.deletes
-
+    String dailyReports;
+    
     /**
      * URL of the solr service.
      */
@@ -291,6 +292,14 @@ public class VoyagerToSolrConfiguration {
       return tmpDir;
     }
 
+    public String getDailyReports(){
+        return dailyReports;
+    }
+    
+    public void setDailyReports(String reports){
+        dailyReports = reports;
+    }
+    
     /**
      * A utility method to load properties from command line or environment.
      * 
@@ -413,6 +422,7 @@ public class VoyagerToSolrConfiguration {
         conf.dailyMfhdUnsuppressedFilenamePrefix = prop.getProperty("dailyMfhdUnsuppressedFilenamePrefix");
         conf.dailyBibDeltes = prop.getProperty("dailBibDelets");
         conf.dailyBibUpdates = prop.getProperty("dailyBibUpdates");
+        conf.dailyReports = prop.getProperty("dailyReports");
         
         conf.solrUrl = prop.getProperty("solrUrl");
         
@@ -458,6 +468,8 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkExists(    checkMe.dailyMfhdUnsuppressedFilenamePrefix, "dailyMfhdUnsuppressedFilenamePrefix");
         errMsgs += checkWebdavDir( checkMe.dailyBibDeltes,  "dailBibDeletes");
         errMsgs += checkWebdavDir( checkMe.dailyBibUpdates, "dailyBibUpdates");
+        errMsgs += checkWebdavDir( checkMe.dailyReports,    "dailyReports");
+        
         errMsgs += checkSolrUrl( checkMe.solrUrl );
         
         errMsgs += checkDir( checkMe.tmpDir, "tmpDir");
@@ -500,11 +512,14 @@ public class VoyagerToSolrConfiguration {
     }
     
     private static String checkWebdavDir( String dir, String propName ){
-        String partEx = " It should be a directory part ex. voyager/bib.nt.daily\n";
+        String partEx = " It should be a directory part with no leading or trailing slash ex. voyager/bib.nt.daily \n";
         if( dir == null || dir.trim().isEmpty() )
             return "The property " + propName + " must not be empty." + partEx ;
         else if( dir.startsWith( "/" ) )
             return "The property " + propName + " must not start with a forward slash."
+                    + partEx;
+        else if( dir.endsWith("/"))
+            return "The property " + propName + " must not end with a forward slash."
                     + partEx;
         else if( dir.startsWith("http://"))
             return "The property " + propName + " must not be a URL."

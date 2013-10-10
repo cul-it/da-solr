@@ -52,6 +52,7 @@ dailyMfhdUnsuppressedFilenamePrefix = unsuppressedMfhdId
 dailyBibUpdates = updates/bib.updates
 dailyBibDeltes = updates/bib.deletes
 
+dailyReports = reports/voyager
 
 #### Properties related to Solr ###
 
