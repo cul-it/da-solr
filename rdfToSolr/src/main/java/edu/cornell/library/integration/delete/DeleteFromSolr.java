@@ -9,9 +9,9 @@ import java.util.List;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 
 /**
  * Utility to delete bibs from Solr index.
@@ -53,7 +53,7 @@ public class DeleteFromSolr {
             String dir = davBaseURL + "/updates/bib.updates/";
             String prefix = "bibListForUpdate";                  
             try {
-                deleteFileURL = IndexingUtilities.findMostRecentFile(davService, dir, prefix);
+                deleteFileURL = FileNameUtils.findMostRecentFile(davService, dir, prefix);
             } catch (Exception e) {
                 System.out.println("Could not get the most recent deletes file from " + dir );
                 System.out.println(e.getMessage());

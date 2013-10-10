@@ -12,8 +12,8 @@ import java.util.TreeSet;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.utilies.IndexRecordListComparison;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 
 /**
  * Identify records that have been deleted from Voyager. This is done
@@ -76,7 +76,8 @@ public class IdentifyDeletedRecords {
 		Path currentVoyagerBibList = null;
 		Path currentVoyagerMfhdList = null;
 		
-		String mostRecentBibFile = findMostRecentBibFile(davService, config.getDailyBibUnsuppressedDir());		
+		String mostRecentBibFile = FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, davService); 
+		        		
 		try{
 			if (mostRecentBibFile != null) {
 				System.out.println("Most recent bib file identified as: "+ mostRecentBibFile);
@@ -89,7 +90,7 @@ public class IdentifyDeletedRecords {
 		    throw new Exception( "Could not get most recent bib file from '" + mostRecentBibFile +"'", e);
 		}
 		
-		String mostRecentMfhdFile = findMostRecentMfhdFile(davService, config.getDailyMfhdUnsuppressedDir() );
+		String mostRecentMfhdFile = FileNameUtils.findMostRecentUnsuppressedMfhdIdFile( config, davService );
 		try {		
 			if (mostRecentMfhdFile != null) {
 				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
@@ -175,19 +176,4 @@ public class IdentifyDeletedRecords {
 		
 	}
 	
-	public static String findMostRecentBibFile(DavService davService , String davBaseUrl ) throws Exception{        
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/bib/unsuppressed" , "unsuppressedBibId");                    
-        } catch (Exception cause) {
-            throw new Exception("Could not find most recent bib file", cause);
-        }        
-    }
-
-    public static String findMostRecentMfhdFile(DavService davService, String davBaseUrl) throws Exception{                
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/mfhd/unsuppressed", "unsuppressedMfhdId");            
-        } catch (Exception e) {
-            throw new Exception( "Could not get most recent Mfhd holding file.", e);
-        }    
-    }
 }

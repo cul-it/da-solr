@@ -2,8 +2,8 @@ package edu.cornell.library.integration.indexer.updates;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.IndexDirectory;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 
 /**
  * Index all the MARC n-Triple BIB files for the incremental update. 
@@ -27,7 +27,7 @@ public class IncrementalBibFileToSolr {
         /* Figure out the name of the most recent BIB MARC NT file. */
         String fileToIndex;
         try {
-            fileToIndex = IndexingUtilities.findMostRecentFile(
+            fileToIndex = FileNameUtils.findMostRecentFile(
                     DavServiceFactory.getDavService(config), 
                     config.getWebdavBaseUrl() + config.getDailyMrcNtDir() , 
                     config.getDailyMrcNtFilenamePrefix(), ".nt.gz");

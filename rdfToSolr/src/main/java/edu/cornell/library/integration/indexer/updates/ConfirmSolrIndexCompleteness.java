@@ -11,8 +11,8 @@ import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.utilies.IndexRecordListComparison;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
 
 public class ConfirmSolrIndexCompleteness {
 	
@@ -206,19 +206,13 @@ public class ConfirmSolrIndexCompleteness {
 			System.out.println("");
 	}
 	
-	private static String findMostRecentBibFile(DavService davService , String davBaseUrl ) throws Exception{        
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/bib/unsuppressed" , "unsuppressedBibId");                    
-        } catch (Exception cause) {
-            throw new Exception("Could not find most recent bib file", cause);
-        }        
+	private static String findMostRecentBibFile(DavService davService , String davBaseUrl ) throws Exception{
+	    throw new Exception("Implement ME!");
+        //return FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, davService);                                    
     }
 
-    private static String findMostRecentMfhdFile(DavService davService, String davBaseUrl) throws Exception{                
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + "/voyager/mfhd/unsuppressed", "unsuppressedMfhdId");            
-        } catch (Exception e) {
-            throw new Exception( "Could not get most recent Mfhd holding file.", e);
-        }    
+    private static String findMostRecentMfhdFile(DavService davService, String davBaseUrl) throws Exception{
+        throw new Exception("Implement ME!");                
+        //return FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, davService);    
     }
 }

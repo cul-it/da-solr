@@ -7,16 +7,15 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Scanner;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 
 public class VoyagerUpdate {
 
@@ -47,7 +46,7 @@ public class VoyagerUpdate {
 		Path currentVoyagerMfhdList = null;
 		Collection<Integer> unsuppressedBibs = new HashSet<Integer>();
 		Collection<Integer> unsuppressedMfhds = new HashSet<Integer>();
-		String mostRecentBibFile = findMostRecentBibFile(config,davService, davUrl);		
+		String mostRecentBibFile = FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, davService);		
 		try{
 			if (mostRecentBibFile != null) {
 				System.out.println("Most recent bib file identified as: "+ mostRecentBibFile);
@@ -71,7 +70,7 @@ public class VoyagerUpdate {
 		}
 
 		
-		String mostRecentMfhdFile = findMostRecentMfhdFile(config,davService, davUrl);
+		String mostRecentMfhdFile = FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, davService);
 		try {		
 			if (mostRecentMfhdFile != null) {
 				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
@@ -115,23 +114,7 @@ public class VoyagerUpdate {
 		
 	}
 	
-	public static String findMostRecentBibFile(VoyagerToSolrConfiguration config, 
-			                    DavService davService , String davBaseUrl ) throws Exception{        
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + config.getDailyBibUnsuppressedDir() , config.getDailyBibUnsuppressedFilenamePrefix());                    
-        } catch (Exception cause) {
-            throw new Exception("Could not find most recent bib file", cause);
-        }        
-    }
 
-    public static String findMostRecentMfhdFile(VoyagerToSolrConfiguration config,
-    		                    DavService davService, String davBaseUrl) throws Exception{                
-        try {
-            return IndexingUtilities.findMostRecentFile( davService, davBaseUrl + config.getDailyMfhdUnsuppressedDir(), config.getDailyMfhdUnsuppressedFilenamePrefix());            
-        } catch (Exception e) {
-            throw new Exception( "Could not get most recent Mfhd holding file.", e);
-        }    
-    }
 
 
 }
