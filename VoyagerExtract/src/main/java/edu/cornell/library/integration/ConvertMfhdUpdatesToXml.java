@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.util.ConvertUtils;
 
 /**
  * Get the list of files in the MFHD updates directory, 
@@ -33,7 +32,7 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         app.run( config );
     }
 
-    private void run(VoyagerToSolrConfiguration config) throws Exception {
+    public void run(VoyagerToSolrConfiguration config) throws Exception {
         setDavService(DavServiceFactory.getDavService(config));                
         
         String srcDir = config.getDailyMfhdDir();        
@@ -43,49 +42,51 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         // get list of mfhdids updates using recent date String
         List<String> srcList = new ArrayList<String>();
         try {
-            System.out.println("Getting list of mfhd marc files");
+            System.out.println("Getting list of MFHD MARC files from "
+                    + "'" + config.getDailyMfhdDir() +"'") ;
             srcList = getDavService().getFileList(srcDir);
         } catch (Exception e) {
-            throw new Exception("could not get a lit of MFHD MARC "
+            throw new Exception("could not get a list of MFHD MARC "
                     + "files from " + srcDir, e);
         }
         
-        ConvertUtils converter = new ConvertUtils();
+        MrcToXmlConverter converter = new MrcToXmlConverter();
         converter.setSrcType("mfhd");
         converter.setExtractType("updates");
         converter.setSplitSize(10000);
         converter.setDestDir( config.getDailyBibMrcXmlDir() );
+        converter.setTmpDir( config.getTmpDir() );
+                
+        if (srcList.size() == 0) {
+            System.out.println("No update Marc files available to process in "
+                    + config.getDailyMfhdDir());
+            return;
+        }
         
         // iterate over mrc files
-        if (srcList.size() == 0) {
-            System.out.println("No update Marc files available to process");
-        } else {
-            for (String srcFile : srcList) {
+        for (String srcFile : srcList) {
+            try {                    
+                converter.setTs( getTimestampFromFileName(srcFile) );                    
+                converter.setItemId(getSeqnoFromFileName(srcFile));
+                converter.convertMrcToXml(getDavService(), srcDir, srcFile);
+
+                getDavService().moveFile(srcDir  + "/" + srcFile, 
+                                         doneDir + "/" + srcFile);
+            } catch (Exception e) {
                 try {
-                    String ts = getTimestampFromFileName(srcFile);
-                    converter.setTs(ts);
-                    String seqno = getSeqnoFromFileName(srcFile);
-                    converter.setItemId(seqno);
-                    converter.convertMrcToXml(getDavService(), srcDir, srcFile);
-                    getDavService().moveFile(srcDir + "/" + srcFile, doneDir + "/"
-                            + srcFile);
-                } catch (Exception e) {
-                    try {
-                        System.out.println("Exception caught: could not "
-                                + "convert file: " + srcFile + "\n" 
-                                + "due to " + e.getMessage() );                        
-                        getDavService().moveFile(srcDir + "/" + srcFile,
-                                badDir + "/" + srcFile);
-                    } catch (Exception e1) {
-                        System.out.println("Error while trying to handle bad file,"
-                                + " could not move to bad dir: " + srcFile + "\n"
-                                + "due to " + e1.getMessage());
-                        e1.printStackTrace();
-                    }
+                    System.out.println("Exception caught: could not "
+                            + "convert file: " + srcFile + "\n" 
+                            + "due to " + e.getMessage() );                        
+                    getDavService().moveFile(srcDir + "/" + srcFile,
+                            badDir + "/" + srcFile);
+                } catch (Exception e1) {
+                    System.out.println("Error while trying to handle bad file,"
+                            + " could not move to bad dir: " + srcFile + "\n"
+                            + "due to " + e1.getMessage());
+                    e1.printStackTrace();
                 }
             }
         }
-
     }
 
     /**

@@ -103,7 +103,7 @@ public class ConvertBibUpdatesToXml {
          e.printStackTrace();
       }
       
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("bib");
       converter.setExtractType("updates");
       converter.setSplitSize(10000);

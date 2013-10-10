@@ -125,7 +125,7 @@ public class ConvertMfhdFullToXml {
 		}
 		List<String> mfhdlist = new ArrayList<String>();
 		
-		ConvertUtils converter = new ConvertUtils();
+		MrcToXmlConverter converter = new MrcToXmlConverter();
 		converter.setSrcType("mfhd");
 		converter.setExtractType("full");
 		converter.setSplitSize(10000);

@@ -125,7 +125,7 @@ public class ConvertBibFullToXml {
 		}
 		List<String> biblist = new ArrayList<String>();
 
-		ConvertUtils converter = new ConvertUtils();
+		MrcToXmlConverter converter = new MrcToXmlConverter();
 		converter.setSrcType("bib");
 		converter.setExtractType("full");
 		converter.setSplitSize(10000);

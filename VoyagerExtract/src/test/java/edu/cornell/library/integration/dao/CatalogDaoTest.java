@@ -90,9 +90,8 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
           StringBuffer sb = new StringBuffer();
           for (BibData bibData : bibDataList) {
              sb.append(bibData.getRecord());
-          }
-          ConvertUtils convert = new ConvertUtils();
-          Record record = convert.getMarcRecord(sb.toString());
+          }          
+          Record record = ConvertUtils.getMarcRecord(sb.toString());
           System.out.println(record.toString());
       } catch (Exception e) { 
          // TODO Auto-generated catch block
@@ -113,7 +112,7 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
              sb.append(mfhdData.getRecord());
           }
           ConvertUtils convert = new ConvertUtils();
-          Record record = convert.getMarcRecord(sb.toString());
+          Record record = convert.getMarcRecord(sb.toString(),null);
           System.out.println(record.toString());
       } catch (Exception e) { 
          // TODO Auto-generated catch block
