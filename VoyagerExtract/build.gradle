@@ -116,8 +116,9 @@ task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
 }
    
-task (ConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
- description='Run ConvertBibUpdatesToXml'
+task (step4aConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Converts the BIB MARC21 files from step 3 to MARC XML.'
  main='edu.cornell.library.integration.ConvertBibUpdatesToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
@@ -125,8 +126,10 @@ task (ConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.' ]
 }
    
-task (ConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
- description='Run ConvertMfhdUpdatesToXml'
+task (step4bConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Converts the MFHD MARC21 files from step 3 to MARC XML.'
+
  main='edu.cornell.library.integration.ConvertMfhdUpdatesToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
@@ -193,12 +196,16 @@ task (GetLocations, dependsOn:'build', type: JavaExec){
  maxHeapSize = '1024m'
 }
       
-task (GetAllSuppressionsFromCatalog, dependsOn:'build', type: JavaExec){
- description='Run GetAllSuppressionsFromCatalog'
+task (step1GetAllSuppressionsFromCatalog, dependsOn:'build', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Get Lists of currently suppressed and\
+unsuppressed bib and holdings record IDs in Voyager."
+
  main='edu.cornell.library.integration.GetAllSuppressionsFromCatalog'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
- args=[ 'config/VoyagerToSolrConfig.test.properties' , 'config/webdav.properties' ]
+ // no args, uses V2S_CONFIG env var.
+ args=[  ]
 }
    
 task (GetBibMasterData, dependsOn:'build', type: JavaExec){
@@ -215,8 +222,11 @@ task (FindMissingBibId, dependsOn:'build', type: JavaExec){
   maxHeapSize = '2048m'
 }
    
-task (GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
- description='Run get the combined updated MRC'
+task (step3GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets a list of BIB and\
+ MFHD records updates from the Voyager database for the previous day."
+
  main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
