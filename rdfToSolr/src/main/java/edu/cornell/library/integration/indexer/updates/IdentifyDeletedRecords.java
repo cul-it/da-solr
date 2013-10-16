@@ -137,7 +137,7 @@ public class IdentifyDeletedRecords {
 			}
 
 			String deleteReport = sb.toString(); 
-			String deleteReportFile = config.getWebdavBaseUrl() + config.getDailyBibDeltes() 
+			String deleteReportFile = config.getWebdavBaseUrl() + config.getDailyBibDeletes() 
 			        + "bibListForDelete-"+ currentDate + ".txt";			
 			try {
 				davService.saveFile( deleteReportFile , new ByteArrayInputStream(deleteReport.getBytes("UTF-8")));

@@ -89,7 +89,7 @@ public class FindMissingBibId {
 
 		setDavService(DavServiceFactory.getDavService());
 
-		List<String> unsuppressedBibIdList = new ArrayList<String>();
+		List<Integer> unsuppressedBibIdList = new ArrayList<Integer>();
 		try {
 			unsuppressedBibIdList = getCatalogService()
 					.getAllUnSuppressedBibId();
@@ -131,8 +131,8 @@ public class FindMissingBibId {
 			e.printStackTrace();
 		}
 
-		for (String bibid : unsuppressedBibIdList) {
-			if (!fullBibIdList.contains(bibid)) {
+		for (Integer bibid : unsuppressedBibIdList) {
+			if (!fullBibIdList.contains( bibid.toString() )) {
 				System.out.println("BibId: " + bibid + " not found in extract");
 			}
 		}

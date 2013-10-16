@@ -7,39 +7,39 @@ dependencies{
 }
 
 	
-task (OracleTables, dependsOn: 'build', type: JavaExec){
+task (OracleTables, dependsOn: 'assemble', type: JavaExec){
    description="Get Oracle Tables" 
    main='edu.cornell.library.integration.support.OracleTables'
    classpath = sourceSets.main.runtimeClasspath
 }
    
-task (OracleTest, dependsOn: 'build', type: JavaExec){
+task (OracleTest, dependsOn: 'assemble', type: JavaExec){
    description="Oracle Test" 
    main='edu.cornell.library.integration.support.OracleTest'
    classpath = sourceSets.main.runtimeClasspath
 }
    
-task (OracleQuery, dependsOn: 'build', type: JavaExec){
+task (OracleQuery, dependsOn: 'assemble', type: JavaExec){
    description="Oracle Query" 
    main='edu.cornell.library.integration.support.OracleQuery'
    classpath = sourceSets.main.runtimeClasspath
 }
    
-task (GetRecordCount, dependsOn:'build', type: JavaExec){
+task (GetRecordCount, dependsOn:'assemble', type: JavaExec){
    description='Run GetRecordCount'
    main='edu.cornell.library.integration.GetRecordCount'
    classpath = sourceSets.main.runtimeClasspath
    args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done']
 }
    
-task (GetDeletedRecords, dependsOn:'build', type: JavaExec){
+task (GetDeletedRecords, dependsOn:'assemble', type: JavaExec){
  description='Run GetDeletedRecords'
  main='edu.cornell.library.integration.GetDeletedRecords'
  classpath = sourceSets.main.runtimeClasspath
  args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.deleted' ]
 }
 
-task (GetBibMrc, dependsOn:'build', type: JavaExec){
+task (GetBibMrc, dependsOn:'assemble', type: JavaExec){
  description='Run GetBibMrc'
  main='edu.cornell.library.integration.GetBibMrc'
  classpath = sourceSets.main.runtimeClasspath
@@ -47,35 +47,35 @@ task (GetBibMrc, dependsOn:'build', type: JavaExec){
          'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
 }
    
-task (GetBibUpdatesMrc, dependsOn:'build', type: JavaExec){
+task (GetBibUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  description='Run GetBibUpdatesMrc'
  main='edu.cornell.library.integration.GetBibUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
 }
    
-task (GetMfhdMrc, dependsOn:'build', type: JavaExec){
+task (GetMfhdMrc, dependsOn:'assemble', type: JavaExec){
  description='Run GetMfhdMrc'
  main='edu.cornell.library.integration.GetMfhdMrc'
  classpath = sourceSets.main.runtimeClasspath
  args=['8318301','http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
 }
    
-task (GetMfhdUpdatesMrc, dependsOn:'build', type: JavaExec){
+task (GetMfhdUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  description='Run GetMfhdUpdatesMrc'
  main='edu.cornell.library.integration.GetMfhdUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
 }
    
-task (GetAuthUpdatesMrc, dependsOn:'build', type: JavaExec){
+task (GetAuthUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  description='Run GetAuthUpdatesMrc'
  main='edu.cornell.library.integration.GetAuthUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  args=['http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates']
 }
    
-task (ConvertMarcToXml, dependsOn:'build', type: JavaExec){
+task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertMarcToXml'
  main='edu.cornell.library.integration.ConvertMarcToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -85,7 +85,7 @@ task (ConvertMarcToXml, dependsOn:'build', type: JavaExec){
    'http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.updates'] 
        }
    
-task (ConvertAuthFullToXml, dependsOn:'build', type: JavaExec){
+task (ConvertAuthFullToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertAuthFullToXml'
  main='edu.cornell.library.integration.ConvertMarcToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -96,7 +96,7 @@ task (ConvertAuthFullToXml, dependsOn:'build', type: JavaExec){
 }
     
    
-task (ConvertBibToXml, dependsOn:'build', type: JavaExec){
+task (ConvertBibToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertBibToXml'
  main='edu.cornell.library.integration.ConvertBibToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -106,7 +106,7 @@ task (ConvertBibToXml, dependsOn:'build', type: JavaExec){
    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.updates' ]
 }
    
-task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
+task (ConvertMfhdToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertMfhdToXml'
  main='edu.cornell.library.integration.ConvertMfhdToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -116,7 +116,7 @@ task (ConvertMfhdToXml, dependsOn:'build', type: JavaExec){
    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
 }
    
-task (step4aConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
+task (step4aConvertBibUpdatesToXml, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description='Converts the BIB MARC21 files from step 3 to MARC XML.'
  main='edu.cornell.library.integration.ConvertBibUpdatesToXml'
@@ -126,7 +126,7 @@ task (step4aConvertBibUpdatesToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.' ]
 }
    
-task (step4bConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
+task (step4bConvertMfhdUpdatesToXml, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description='Converts the MFHD MARC21 files from step 3 to MARC XML.'
 
@@ -137,7 +137,7 @@ task (step4bConvertMfhdUpdatesToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
 }
    
-task (ConvertBibDailyToXml, dependsOn:'build', type: JavaExec){
+task (ConvertBibDailyToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertBibDailyToXml'
  main='edu.cornell.library.integration.ConvertBibDailyToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -146,7 +146,7 @@ task (ConvertBibDailyToXml, dependsOn:'build', type: JavaExec){
    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.daily' ]
 }
    
-task (ConvertBibFullToXml, dependsOn:'build', type: JavaExec){
+task (ConvertBibFullToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertBibFullToXml'
  main='edu.cornell.library.integration.ConvertBibFullToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -155,7 +155,7 @@ task (ConvertBibFullToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full' ]
 }
    
-task (ConvertMfhdDailyToXml, dependsOn:'build', type: JavaExec){
+task (ConvertMfhdDailyToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertMfhdDailyToXml'
  main='edu.cornell.library.integration.ConvertMfhdDailyToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -164,7 +164,7 @@ task (ConvertMfhdDailyToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.daily' ]
 }
    
-task (ConvertMfhdFullToXml, dependsOn:'build', type: JavaExec){
+task (ConvertMfhdFullToXml, dependsOn:'assemble', type: JavaExec){
  description='Run ConvertMfhdFullToXml'
  main='edu.cornell.library.integration.ConvertMfhdFullToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -173,7 +173,7 @@ task (ConvertMfhdFullToXml, dependsOn:'build', type: JavaExec){
     'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full' ]
 }
    
-task (GetRecentBibDataCount, dependsOn:'build', type: JavaExec){
+task (GetRecentBibDataCount, dependsOn:'assemble', type: JavaExec){
  description='Run GetRecentBibDataCount'
  main='edu.cornell.library.integration.GetRecentBibDataCount'
  classpath = sourceSets.main.runtimeClasspath
@@ -181,7 +181,7 @@ task (GetRecentBibDataCount, dependsOn:'build', type: JavaExec){
  args=['3'  ]
 }
    
-task (GetRecentMfhdDataCount, dependsOn:'build', type: JavaExec){
+task (GetRecentMfhdDataCount, dependsOn:'assemble', type: JavaExec){
  description='Run GetRecentMfhdDataCount'
  main='edu.cornell.library.integration.GetRecentMfhdDataCount'
  classpath = sourceSets.main.runtimeClasspath
@@ -189,14 +189,14 @@ task (GetRecentMfhdDataCount, dependsOn:'build', type: JavaExec){
  args=['3']
 }
    
-task (GetLocations, dependsOn:'build', type: JavaExec){
+task (GetLocations, dependsOn:'assemble', type: JavaExec){
  description='Run GetLocations'
  main='edu.cornell.library.integration.GetLocations'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
       
-task (step1GetAllSuppressionsFromCatalog, dependsOn:'build', type: JavaExec){
+task (step1GetAllSuppressionsFromCatalog, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Get Lists of currently suppressed and\
 unsuppressed bib and holdings record IDs in Voyager."
@@ -208,21 +208,21 @@ unsuppressed bib and holdings record IDs in Voyager."
  args=[  ]
 }
    
-task (GetBibMasterData, dependsOn:'build', type: JavaExec){
+task (GetBibMasterData, dependsOn:'assemble', type: JavaExec){
  description='Run GetBibMasterData'
  main='edu.cornell.library.integration.GetBibMasterData'
  classpath = sourceSets.main.runtimeClasspath
  args=['6100933']
 }
    
-task (FindMissingBibId, dependsOn:'build', type: JavaExec){
+task (FindMissingBibId, dependsOn:'assemble', type: JavaExec){
  description='Run FindMissingBibId'
  main='edu.cornell.library.integration.support.FindMissingBibId'
  classpath = sourceSets.main.runtimeClasspath
   maxHeapSize = '2048m'
 }
    
-task (step3GetCombinedUpdatesMrc, dependsOn:'build', type: JavaExec){
+task (step3GetCombinedUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB and\
  MFHD records updates from the Voyager database for the previous day."

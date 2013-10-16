@@ -38,11 +38,10 @@ public class VoyagerToSolrStep {
         */
     public CatalogService getCatalogService() {
         if( this.catalogService == null ){            
-            if (ctx.containsBean("catalogService")) {
+            if (getContext().containsBean("catalogService")) {
                 this.catalogService = ((CatalogService) ctx.getBean("catalogService"));
             } else {
-                System.err.println("Could not get catalogService from context");
-                System.exit(-1);
+                throw new Error("Could not get catalogService from context");                
             }
         }            
             
@@ -64,9 +63,11 @@ public class VoyagerToSolrStep {
        }
     
     protected ApplicationContext getContext(){
-        if( ctx != null ){
-            ctx = new ClassPathXmlApplicationContext("spring.xml");                   
-        }
+        if( ctx == null ){
+            ctx = new ClassPathXmlApplicationContext("spring.xml");
+            if( ctx == null )
+                throw new Error("could not load application context from spring.xml");
+        }        
         return ctx;
     }
 

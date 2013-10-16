@@ -17,7 +17,7 @@ import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 /**
  * Utility to delete bibs from Solr index.
  * 
- * Gets directory from config.getDailyMrcDeleted() via WEBDAV. the most current
+ * Gets directory from config.getDailyBibDeleted() via WEBDAV. the most current
  * delete file will be used.
  * 
  * The file should have a single Bib ID per a line. It should be UTF-8 encoded.
@@ -27,31 +27,35 @@ import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
  */
 public class DeleteFromSolr {
            
-    public static void main(String[] argv)  {
-            
+    public static void main(String[] argv) throws Exception{
         VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(argv);
         
-        String solrURL = config.getSolrUrl();                                        
-        SolrServer solr = new HttpSolrServer( solrURL );        
-        
-        String davBaseURL = config.getWebdavBaseUrl();
+        DeleteFromSolr dfs = new DeleteFromSolr();        
+        dfs.doTheDelete(config);        
+    }
+    
+    public void doTheDelete(VoyagerToSolrConfiguration config) throws Exception  {
+            
+            
         DavService davService = DavServiceFactory.getDavService( config );
         
         //  use the most current delete file        
-        String prefix = "bibListForUpdate";                  
+        String prefix = "bibListForDelete";                  
         String deleteFileURL="notYetSet?";
         try {
-            deleteFileURL = FileNameUtils.findMostRecentFile(davService, config.getDailyMrcDeleted(), prefix);
-        } catch (Exception e) {
-            System.out.println("Could not get the most "
-                    + "recent deletes file from " + config.getDailyMrcDeleted() );
-            System.out.println(e.getMessage());
-            System.exit(1);
+            deleteFileURL = FileNameUtils.findMostRecentFile(davService, config.getDailyBibDeletes(), prefix);
+        } catch (Exception e) {                        
+            throw new Exception("No documents have been deleted, could not find the most recent deletes "
+                    + "file from " + config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() , e );
         }            
                 
-        
+                
+        String solrURL = config.getSolrUrl();                                        
+        SolrServer solr = new HttpSolrServer( solrURL );        
+                        
         int lineNum = 0;
         try{
+            System.out.println("Deleteing BIB IDs found in " + deleteFileURL);
             InputStream is = davService.getFileAsInputStream( deleteFileURL );      
             BufferedReader reader = new BufferedReader(new InputStreamReader( is , "UTF-8" ));
     
@@ -70,10 +74,8 @@ public class DeleteFromSolr {
                 }                    
             }                        
         } catch (Exception e) {
-            System.out.println("Could not process deletes form file " + deleteFileURL);
-            System.out.println("problem around line " + lineNum + ", some documents may have been deleted from Solr.");
-            System.out.println(e.getMessage());
-            System.exit(1);
+            throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
+                    ", problem around line " + lineNum + ", some documents may have been deleted from Solr.", e);
         }
         
         System.out.println("Success: deleted " + lineNum + " documents from solr.");

@@ -244,27 +244,23 @@ public class CatalogServiceImpl implements CatalogService {
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedBibId()
     */
-   public List<String> getAllSuppressedBibId() throws Exception {
-      List<String> bibIdList;
+   public List<Integer> getAllSuppressedBibId() throws Exception {      
       try {
-         bibIdList = catalogDao.getAllSuppressedBibId();
+         return  catalogDao.getAllSuppressedBibId();
       } catch (Exception e) {
          throw e;
-      }
-      return bibIdList;
+      }      
    }
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedBibId()
     */
-   public List<String> getAllUnSuppressedBibId() throws Exception {
-      List<String> bibIdList;
+   public List<Integer> getAllUnSuppressedBibId() throws Exception {      
       try {
-         bibIdList = catalogDao.getAllUnSuppressedBibId();
+         return catalogDao.getAllUnSuppressedBibId();
       } catch (Exception e) {
          throw e;
-      }
-      return bibIdList;
+      }      
    }
    
    /* (non-Javadoc)
@@ -283,21 +279,19 @@ public class CatalogServiceImpl implements CatalogService {
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedMfhdId()
     */
-   public List<String> getAllSuppressedMfhdId() throws Exception {
-      List<String> mfhdIdList;
+   public List<Integer> getAllSuppressedMfhdId() throws Exception {      
       try {
-         mfhdIdList = catalogDao.getAllSuppressedMfhdId();
+         return catalogDao.getAllSuppressedMfhdId();
       } catch (Exception e) {
          throw e;
-      }
-      return mfhdIdList;
+      }      
    }
    
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getAllSuppressedMfhdId()
     */
-   public List<String> getAllUnSuppressedMfhdId() throws Exception {
-      List<String> mfhdIdList;
+   public List<Integer> getAllUnSuppressedMfhdId() throws Exception {
+      List<Integer> mfhdIdList;
       try {
          mfhdIdList = catalogDao.getAllUnSuppressedMfhdId();
       } catch (Exception e) {

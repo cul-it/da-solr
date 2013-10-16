@@ -304,17 +304,17 @@ public class VoyagerToSolrConfiguration {
      * A utility method to load properties from command line or environment.
      * 
      * Configured jobs on integration servers or automation systems are
-     * expected to use the environment variable V2S_CONFIG to indicate the property
+     * expected to use the environment variable VOYAGER_TO_SOLR_CONFIG to indicate the property
      * file to use.
      * 
      * Development jobs are expected to use command line arguments.
      *  
      * If properties files exist on the command line use those, 
-     * If the environment variable V2S_CONFIG exists use those,
-     * If both environment variable V2S_CONFIG and command line arguments exist, 
+     * If the environment variable VOYAGER_TO_SOLR_CONFIG exists use those,
+     * If both environment variable VOYAGER_TO_SOLR_CONFIG and command line arguments exist, 
      * throw an error because that is a confused state and likely a problem.
      *  
-     * The value of the environment variable V2S_CONFIG may be a comma separated list of files.
+     * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
      * 
      *  @param argv may be null to force use of the environment variable. Should be 
      *  argv from main().
@@ -322,7 +322,7 @@ public class VoyagerToSolrConfiguration {
      */
     public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
         
-        String v2bl_config = System.getenv(V2S_CONFIG);
+        String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
         if( v2bl_config != null &&  argv != null && argv.length > 0 )
             throw new RuntimeException( "Both command line arguments and the environment variable "
@@ -331,7 +331,7 @@ public class VoyagerToSolrConfiguration {
         if( v2bl_config == null && ( argv == null || argv.length ==0 ))
             throw new RuntimeException("No configuration specified. \n"
                     + "A configuration is expeced on the command line or in the environment variable "
-                    + "V2BL_CONFIG.\n" + HELP );        
+                    + VOYAGER_TO_SOLR_CONFIG + ".\n" + HELP );        
         
         VoyagerToSolrConfiguration config=null;
         try{
@@ -353,9 +353,13 @@ public class VoyagerToSolrConfiguration {
 
     private static VoyagerToSolrConfiguration loadFromArgv(
             String[] argv) throws FileNotFoundException, IOException {
-        if( argv.length > 1 ){            
+        if( argv.length > 1 ){   
+            System.out.println("loading from command line arg: \n" 
+                    + argv[0]);
             return loadFromPropertiesFile( getFile( argv[0]), null );
         }else{
+            System.out.println("loading from command line arg: \n" 
+                    + argv[0] + "  " + argv[1] );
             return loadFromPropertiesFile( getFile(argv[0]), getFile(argv[1]));
         }            
     }
@@ -366,7 +370,7 @@ public class VoyagerToSolrConfiguration {
      * by a comma.  Also check the classpath.
      */
     private static VoyagerToSolrConfiguration loadFromEnvVar( String value ) throws Exception {
-        System.out.println("loading from environment variable '" + V2S_CONFIG + "'="+value);
+        System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
         if( ! value.contains(",") ){
             return loadFromPropertiesFile( getFile( value ), null );
@@ -572,7 +576,7 @@ public class VoyagerToSolrConfiguration {
     /**
      * Name of environment variable for configuration files.
      */
-    public final static String V2S_CONFIG = "VoyagerToSolrConfig";
+    public final static String VOYAGER_TO_SOLR_CONFIG = "VoyagerToSolrConfig";
     
     public final static String HELP = 
             "On the command line the first two parameters may be configuration property files.\n"+

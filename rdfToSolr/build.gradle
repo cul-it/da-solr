@@ -29,7 +29,7 @@ task list(dependsOn: configurations.compile) << {
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }
 
-task( step8ConfirmSolrIndexCompleteness, dependsOn: 'classes', type: JavaExec) {
+task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Generates a report of what records are missing\
  from the Solr Index or are in the Solr index but not in Voyager."
@@ -39,7 +39,7 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'classes', type: JavaExec) {
  args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
 
-task(step7DeleteFromSolr, dependsOn: 'classes', type: JavaExec) {
+task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 
  description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
 
@@ -48,7 +48,7 @@ task(step7DeleteFromSolr, dependsOn: 'classes', type: JavaExec) {
  args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
 
-task(step6IndexDirectoryCmd, dependsOn: 'classes', type: JavaExec) {
+task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Builds Solr Documents for MARC\
  n-Triples from step 5 and adds them to the Solr index."
@@ -88,7 +88,7 @@ task copyToLib(type: Copy) {
 }
 
 
-task (step2IdentifyDeleteRecords, dependsOn:'classes', type: JavaExec){
+task (step2IdentifyDeleteRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB and MFHD\
  records updates from the Voyager database for the previous day"

@@ -431,14 +431,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       
    }
    
-   public List<String> getAllSuppressedBibId() throws Exception {
+   public List<Integer> getAllSuppressedBibId() throws Exception {
       String sql = "" 
             +" SELECT BIB_ID FROM BIB_MASTER"
             +" WHERE SUPPRESS_IN_OPAC = 'Y'";
 
       try {
-         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
-         return bibIdList;
+         return  getSimpleJdbcTemplate().query(sql, new IntegerMapper());         
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
          logger.info("Query was: "+sql);
@@ -450,13 +449,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       } 
    }
    
-   public List<String> getAllUnSuppressedBibId() throws Exception {
+   public List<Integer> getAllUnSuppressedBibId() throws Exception {
       String sql = "" 
             +" SELECT BIB_ID FROM BIB_MASTER"
             +" WHERE SUPPRESS_IN_OPAC = 'N'";
 
       try {
-         List<String> bibIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         List<Integer> bibIdList =  getSimpleJdbcTemplate().query(sql, new IntegerMapper());
          return bibIdList;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
@@ -490,14 +489,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       } 
    }
    
-   public List<String> getAllSuppressedMfhdId() throws Exception {
+   public List<Integer> getAllSuppressedMfhdId() throws Exception {
       String sql = "" 
             +" SELECT MFHD_ID FROM MFHD_MASTER"
             +" WHERE SUPPRESS_IN_OPAC = 'Y'";
 
       try {
-         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
-         return mfhdIdList;
+         return  getSimpleJdbcTemplate().query(sql, new IntegerMapper());         
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
          logger.info("Query was: "+sql);
@@ -509,13 +507,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       } 
    }
    
-   public List<String> getAllUnSuppressedMfhdId() throws Exception {
+   public List<Integer> getAllUnSuppressedMfhdId() throws Exception {
       String sql = "" 
             +" SELECT MFHD_ID FROM MFHD_MASTER"
             +" WHERE SUPPRESS_IN_OPAC = 'N'";
 
       try {
-         List<String> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new StringMapper());
+         List<Integer> mfhdIdList =  getSimpleJdbcTemplate().query(sql, new IntegerMapper());
          return mfhdIdList;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
@@ -788,6 +786,12 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          s = rs.getString(1);
          return s;
       }
+   }
+   
+   private static final class IntegerMapper implements RowMapper{
+       public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {           
+           return Integer.parseInt( rs.getString(1) );           
+        }
    }
    
    private static final class TabbedStringMapper implements RowMapper {
