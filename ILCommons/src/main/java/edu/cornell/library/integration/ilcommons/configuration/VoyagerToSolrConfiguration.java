@@ -326,7 +326,7 @@ public class VoyagerToSolrConfiguration {
         
         if( v2bl_config != null &&  argv != null && argv.length > 0 )
             throw new RuntimeException( "Both command line arguments and the environment variable "
-                    + "V2BL_CONFIG are defined. It is unclear which to use.\n" + HELP );
+                    + VOYAGER_TO_SOLR_CONFIG + " are defined. It is unclear which to use.\n" + HELP );
         
         if( v2bl_config == null && ( argv == null || argv.length ==0 ))
             throw new RuntimeException("No configuration specified. \n"

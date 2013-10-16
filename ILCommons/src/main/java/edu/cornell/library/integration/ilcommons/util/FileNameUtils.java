@@ -71,7 +71,7 @@ public class FileNameUtils {
         if( ! fileNamePostfix.startsWith("."))
             fileNamePostfix = "." + fileNamePostfix;
         
-        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..)" + fileNamePrefix);
+        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..)" + fileNamePostfix);
         Date lastDate = new SimpleDateFormat("yyyy").parse("1900");
         String mostRecentFile = null;
                                
@@ -99,13 +99,18 @@ public class FileNameUtils {
     public static String findMostRecentUnsuppressedBibIdFile(
             VoyagerToSolrConfiguration config, 
             DavService davService) throws Exception {
+        
+        String dirToLookIn = 
+                config.getWebdavBaseUrl() + "/" + config.getDailyBibUnsuppressedDir();
+        
         try {
-            return FileNameUtils.findMostRecentFile(davService, 
-                    config.getWebdavBaseUrl()
-                    + config.getDailyBibUnsuppressedDir(),
+            return FileNameUtils.findMostRecentFile(davService,
+                    dirToLookIn,                    
                     config.getDailyBibUnsuppressedFilenamePrefix());
         } catch (Exception cause) {
-            throw new Exception("Could not find most recent bib file", cause);
+            throw new Exception("Could not find most recent unsuppressed BIB file with prefix " 
+                    + config.getDailyBibUnsuppressedFilenamePrefix()
+                    + " in WEBDAV directory " + dirToLookIn  , cause);
         }
     }
 
@@ -115,14 +120,18 @@ public class FileNameUtils {
     public static String findMostRecentUnsuppressedMfhdIdFile(
             VoyagerToSolrConfiguration config, 
             DavService davService) throws Exception {
+        
+        String dirToLookIn = 
+                config.getWebdavBaseUrl() + "/" + config.getDailyMfhdUnsuppressedDir();
+        
         try {
             return FileNameUtils.findMostRecentFile(davService, 
-                    config.getWebdavBaseUrl()
-                    + config.getDailyMfhdUnsuppressedDir(),
+                    dirToLookIn,
                     config.getDailyMfhdUnsuppressedFilenamePrefix());
         } catch (Exception e) {
-            throw new Exception("Could not get most recent Mfhd holding file.",
-                    e);
+            throw new Exception("Could not get most recent unsuppressed MFHD holding file." 
+                    + " with prefix " + config.getDailyMfhdUnsuppressedFilenamePrefix() 
+                    + " in WEBDAV directory " + dirToLookIn , e);
         }
     }
 }

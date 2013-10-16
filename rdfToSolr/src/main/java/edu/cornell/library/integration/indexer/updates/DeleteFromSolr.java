@@ -40,7 +40,7 @@ public class DeleteFromSolr {
         DavService davService = DavServiceFactory.getDavService( config );
         
         //  use the most current delete file        
-        String prefix = "bibListForDelete";                  
+        String prefix = "bibListForDelete";                          
         String deleteFileURL="notYetSet?";
         try {
             deleteFileURL = FileNameUtils.findMostRecentFile(davService, config.getDailyBibDeletes(), prefix);

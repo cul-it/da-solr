@@ -96,11 +96,11 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
 		// get BIB MARC and save it
 		updatedBibIds.addAll( extraBibIds );		
-		saveBIBsToMARC(  updatedBibIds , config.getWebdavBaseUrl() + config.getDailyMrcDir() );
+		saveBIBsToMARC(  updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		
         // get MFHD MARC and save it
 		updatedMfhdIds.addAll( extraMfhdIds );
-		saveMFHDsToMARC( updatedMfhdIds, config.getWebdavBaseUrl() + config.getDailyMfhdDir() );
+		saveMFHDsToMARC( updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
 		
 		System.out.println("Done.");		
 	}
@@ -240,7 +240,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         String tmpDir = config.getTmpDir();
         String tmpFilePath = tmpDir +"/"+ bibListForUpdateFileName;
         
-        String updateBibsDir  = config.getWebdavBaseUrl() + config.getDailyCombinedMrcDir();
+        String updateBibsDir  = config.getWebdavBaseUrl() +"/" + config.getDailyCombinedMrcDir();
         
         List<String> bibListForUpdateList;
         File localTmpBibListForUpdateFile = null;

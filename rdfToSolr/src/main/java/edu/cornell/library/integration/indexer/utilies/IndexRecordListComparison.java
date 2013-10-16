@@ -52,8 +52,9 @@ public class IndexRecordListComparison {
 	 *  @param solrCoreURL URL of the solr instance to get the complement of.
 	 *  @param currentVoyagerBibList file of BIB IDs in Voyager. Should have one BIB ID per line.
 	 *  @param currentVoyagerMfhdList file of MFHD IDs in Voyager. Should have one MFHD ID per line.    
+	 * @throws Exception 
 	 */
-	public void compare(String solrCoreURL, Path currentVoyagerBibList, Path currentVoyagerMfhdList) {
+	public void compare(String solrCoreURL, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
 
 		Set<Integer> solrIndexBibList = new HashSet<Integer>();
 		Map<Integer,Integer> solrIndexMfhdList = new HashMap<Integer,Integer>();
@@ -74,12 +75,8 @@ public class IndexRecordListComparison {
 			System.out.println("Current index contains:");
 			System.out.println("\tbib records: "+solrIndexBibList.size());
 			System.out.println("\tmfhd records: "+solrIndexMfhdList.size());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
+		} catch( Exception e){
+		    throw new Exception("Could not query Solr and/or parse the results. Solr URL: " + solrCoreURL, e);
 		}
 		
 		// compare current index bib list with current voyager bib list		
@@ -105,7 +102,8 @@ public class IndexRecordListComparison {
 			solrIndexBibList.clear();
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new Exception("Could not read list of BIB IDs from file " 
+			        + currentVoyagerBibList.toString(),e );
 		}
 
 		
@@ -132,7 +130,7 @@ public class IndexRecordListComparison {
 			solrIndexMfhdList.clear();
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new Exception("Exception while comparing MFHD list",e);
 		}
 		
 	}

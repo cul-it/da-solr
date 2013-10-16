@@ -26,14 +26,15 @@ public class IncrementalBibFileToSolr {
         
         /* Figure out the name of the most recent BIB MARC NT file. */
         String fileToIndex;
+        String dirToLookIn = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir() ; 
         try {
             fileToIndex = FileNameUtils.findMostRecentFile(
                     DavServiceFactory.getDavService(config), 
-                    config.getWebdavBaseUrl() + config.getDailyMrcNtDir() , 
+                    dirToLookIn,
                     config.getDailyMrcNtFilenamePrefix(), ".nt.gz");
         } catch (Exception e) {
-            throw new Exception("Could not find most recent file in "
-                    + "directory '" + config.getWebdavBaseUrl() + config.getDailyMrcNtDir(),e);
+            throw new Exception("Could not find most recent file in directory " 
+                    + dirToLookIn, e);
         }                       
         
         indexer.setInputsURL( fileToIndex ); 

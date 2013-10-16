@@ -31,10 +31,12 @@ public class ConfirmSolrIndexCompleteness  {
 	private String davUrl;	
 	private VoyagerToSolrConfiguration config;
 	private DavService davService;
+    private String reportsUrl;
 	
 	public ConfirmSolrIndexCompleteness(VoyagerToSolrConfiguration config) {
         this.config = config;
         this.davUrl = config.getWebdavBaseUrl();
+        this.reportsUrl = davUrl + "/" + config.getDailyReports() + "/";
         this.davService = DavServiceFactory.getDavService(config);
     }
 	
@@ -133,25 +135,28 @@ public class ConfirmSolrIndexCompleteness  {
 			}
 			sb.append(pair).append('\n');
 		}
-								
+		
+		String url = reportsUrl + reportFilename;
+		
 		// Print summary to stdout
 		if (idList.size() > 0){
             System.out.println(reportDesc);
             System.out.println( StringUtils.join(display_examples, ", ") );
             if (idList.size() > 10)
-                System.out.println("(for the full list, see "+davUrl+"/reports/voyager/"+reportFilename+")");
+                System.out.println("(for the full list, see "+ url + ")");
             System.out.println("");
 		}		           
 		
-		// Save file on WEBDAV
+		// Save file on WEBDAV		 
 		try {
-			getDavService().saveFile(davUrl+"/reports/voyager/"+reportFilename,
+			getDavService().saveFile( url,
 					new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));			
 		} catch (Exception e) {
-		    throw new Exception("Problem saving report " + reportFilename + " because: " + e.getMessage());
+		    throw new Exception("Problem saving report " + url ,e);
 		}				
 	}
 
+	
 	private void reportList( Set<Integer> idList, String reportFilename, String reportDesc) throws Exception {
 		Integer[] ids = idList.toArray(new Integer[ idList.size() ]);
 		Arrays.sort( ids );
@@ -166,21 +171,22 @@ public class ConfirmSolrIndexCompleteness  {
 			sb.append(id).append("\n");
 		}
 				
+		String url = reportsUrl + reportFilename;
 		// Print summary to Stdout
 		if (idList.size() > 0){
 		    System.out.println(reportDesc);
 		    System.out.println( StringUtils.join( display_examples, ", ") );
 		    if (idList.size() > 10)
-	            System.out.println("(for the full list, see "+davUrl+"/reports/voyager/"+reportFilename+")");
+	            System.out.println("(for the full list, see "+ url +")");
 		    System.out.println("");
 		}				        
 		
 		// Save file on WEBDAV
 		try {
-			getDavService().saveFile(davUrl+"/reports/voyager/"+reportFilename,
+			getDavService().saveFile( url , 
 					new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));
 		} catch (Exception e) {
-		    throw new Exception("Problem saving report " + reportFilename + " because: " + e.getMessage());			
+		    throw new Exception("Problem saving report " + url, e);			
 		}
 		
 	}

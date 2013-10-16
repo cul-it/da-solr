@@ -104,12 +104,17 @@ public class IdentifyDeletedRecords {
 		}
 		
 		if ((currentVoyagerBibList != null) && (currentVoyagerMfhdList != null)) {
-			System.out.println("Comparing to contents of index at: " + config);
+			System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 			
 			IndexRecordListComparison c = new IndexRecordListComparison();
 			c.compare(config.getSolrUrl(), currentVoyagerBibList, currentVoyagerMfhdList);
 			
-			produceReport(c);
+			Integer[] bibsToDelete = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
+			Iterator<Integer> bibidsForDeletedMFHDs = c.mfhdsInIndexNotVoyager.values().iterator();
+			
+			c = null; // to allow GC
+			
+			produceReport(bibsToDelete, bibidsForDeletedMFHDs);
 		}
  	}
 
@@ -120,27 +125,28 @@ public class IdentifyDeletedRecords {
 	 *  to a files on the WEBDAV server.
 	 *  
 	 *  The report files have post-pended dates in their file names.
+	 *  
 	 */
-	private void produceReport( IndexRecordListComparison c ) throws Exception {
+	private void produceReport( Integer[] bibIdsInIndexNotInVoyager,Iterator<Integer> bibsWithDeletedMhds) throws Exception {
 
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
+		
 		// Write a file of BIBIDs that are in the Solr index but not voyager
-		if (c.bibsInIndexNotVoyager.size() > 0) {
-			Integer[] ids = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
-			Arrays.sort( ids );
-
+		if ( bibIdsInIndexNotInVoyager != null && bibIdsInIndexNotInVoyager.length > 0) {						
+			Arrays.sort( bibIdsInIndexNotInVoyager );
 			StringBuilder sb = new StringBuilder();
-			for( Integer id: ids ) {
+			for( Integer id: bibIdsInIndexNotInVoyager ) {
 				sb.append(id);
 				sb.append("\n");
 			}
 
 			String deleteReport = sb.toString(); 
-			String deleteReportFile = config.getWebdavBaseUrl() + config.getDailyBibDeletes() 
+			String deleteReportFile = 
+			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() 
 			        + "bibListForDelete-"+ currentDate + ".txt";			
 			try {
 				davService.saveFile( deleteReportFile , new ByteArrayInputStream(deleteReport.getBytes("UTF-8")));
+				System.out.println("Wrote report to " + deleteReportFile);
 			} catch (Exception e) {
 				throw new Exception("Could not save report of deletes to '" + deleteReportFile + "'" , e);
 			}		
@@ -148,25 +154,26 @@ public class IdentifyDeletedRecords {
 
 		
 		// CurrentIndexMfhdList should now only contain mfhds to be deleted.
-		if (c.mfhdsInIndexNotVoyager.size() > 0) {
-			Iterator<Integer> bibids = c.mfhdsInIndexNotVoyager.values().iterator();
+		if (bibsWithDeletedMhds != null ){			
+			
 			Set<Integer> update_bibids = new TreeSet<Integer>();
-			while (bibids.hasNext())
-				update_bibids.add(bibids.next());
-			bibids = update_bibids.iterator();
+			while (bibsWithDeletedMhds.hasNext())
+				update_bibids.add(bibsWithDeletedMhds.next());
+			bibsWithDeletedMhds = update_bibids.iterator();
 			StringBuilder sb = new StringBuilder();
-			while (bibids.hasNext()) {
-				Integer bibid = bibids.next();
+			while (bibsWithDeletedMhds.hasNext()) {
+				Integer bibid = bibsWithDeletedMhds.next();
 				sb.append(bibid);
 				sb.append("\n");
 			}
 
 			String updateReport = sb.toString();
-			//String fileName = davUrl+"/updates/bib.updates/bibListForUpdate-"+ currentDate + ".txt";
-			String fileName = config.getWebdavBaseUrl() + config.getDailyBibUpdates() 
+
+			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() 
 			        + "bibListForUpdate-"+ currentDate + ".txt";
 			try {			    
 				davService.saveFile(fileName, new ByteArrayInputStream(updateReport.getBytes("UTF-8")));
+				System.out.println("Wrote report to " + fileName);
 			} catch (Exception e) {
 			    throw new Exception("Could not save list of "
 			            + "BIB IDs that need update to file '" + fileName + "'",e);   
