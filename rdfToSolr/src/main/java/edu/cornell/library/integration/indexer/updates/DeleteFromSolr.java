@@ -40,27 +40,36 @@ public class DeleteFromSolr {
         DavService davService = DavServiceFactory.getDavService( config );
         
         //  use the most current delete file        
-        String prefix = "bibListForDelete";                          
+        String prefix = "bibListForDelete"; 
+        String deletesDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes(); 
         String deleteFileURL="notYetSet?";
         try {
-            deleteFileURL = FileNameUtils.findMostRecentFile(davService, config.getDailyBibDeletes(), prefix);
+            deleteFileURL = FileNameUtils.findMostRecentFile(davService, deletesDir, prefix);
         } catch (Exception e) {                        
             throw new Exception("No documents have been deleted, could not find the most recent deletes "
-                    + "file from " + config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() , e );
+                    + "file from " + deletesDir + " with prefix " + prefix, e );
         }            
-                
+        if( deleteFileURL == null )
+            throw new Exception("No documents have been deleted, could not find the most recent deletes "
+                    + "file from " + deletesDir + " with prefix " + prefix);
                 
         String solrURL = config.getSolrUrl();                                        
         SolrServer solr = new HttpSolrServer( solrURL );        
                         
         int lineNum = 0;
         try{
-            System.out.println("Deleteing BIB IDs found in " + deleteFileURL);
+            System.out.println("Deleteing BIB IDs found in: " + deleteFileURL);
+            System.out.println("from Solr at: " + solrURL);
+            
             InputStream is = davService.getFileAsInputStream( deleteFileURL );      
             BufferedReader reader = new BufferedReader(new InputStreamReader( is , "UTF-8" ));
     
-            List<String> ids = new ArrayList<String>(100);
-                        
+            
+            int batchSize = 1000;
+            List<String> ids = new ArrayList<String>(batchSize);
+            
+            int commitSize = batchSize * 10;
+            
             String line;   
             while ((line = reader.readLine()) != null)   {
                 if( line != null && !line.trim().isEmpty()){
@@ -68,16 +77,27 @@ public class DeleteFromSolr {
                     ids.add( line );
                 }
                 
-                if( ids.size() > 99 ){
-                    solr.deleteById(ids, 1000 * 10 );
-                    ids.clear();
+                if( ids.size() >= batchSize ){
+                    solr.deleteById(ids, 1000 * 60 );
+                    ids.clear();                    
                 }                    
-            }                        
+                
+                if( lineNum % commitSize == 0 ){
+                    System.out.println("Requested " + lineNum + " deletes and doing a commit.");
+                    solr.commit();
+                }                
+            }    
+            
+            System.out.println("Doing end of batch commit.");
+            solr.commit();
+            
         } catch (Exception e) {
             throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
-                    ", problem around line " + lineNum + ", some documents may have been deleted from Solr.", e);
+                    ", problem around line " + lineNum + ", some documents may "
+                    + "have been deleted from Solr.", e);
         }
         
-        System.out.println("Success: deleted " + lineNum + " documents from solr.");
+        System.out.println("Success: requested " + lineNum + " documents "
+                + "to be deleted from solr at " + config.getSolrUrl());
     }    
 }

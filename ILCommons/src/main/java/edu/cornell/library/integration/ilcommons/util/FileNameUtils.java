@@ -89,6 +89,10 @@ public class FileNameUtils {
                 }
             }
         }
+        
+        if( mostRecentFile == null )
+            return null;
+        
         return directoryURL +  mostRecentFile;
         
     }
