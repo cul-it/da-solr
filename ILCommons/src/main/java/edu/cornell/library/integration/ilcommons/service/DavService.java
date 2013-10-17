@@ -91,4 +91,11 @@ public interface DavService {
    public void moveFile(String srcUrl, String destUrl) throws Exception;
 
    
+   /**
+    * Attempt to make the directory on the WEBDAV server.
+ * @throws IOException 
+    */
+   public void mkDir(String badDir) throws IOException;
+
+   
 }

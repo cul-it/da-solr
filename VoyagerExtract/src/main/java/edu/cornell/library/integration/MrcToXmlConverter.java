@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -289,10 +290,7 @@ public class MrcToXmlConverter {
              } // end writing batch   
               
           } // end while loop
-          
-          if (total > 0) {
-             System.out.println("\nsaving final xml batch "+ destXmlFile);
-          }
+                   
           try { 
              if (writer != null) writer.close();             
           } catch (Exception ex) {
@@ -378,18 +376,17 @@ public class MrcToXmlConverter {
     private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
        File srcFile = new File(getTmpDir() +"/"+ destXmlFile);
        String destFile = destDir +"/"+ destXmlFile;
-       //System.out.println("sending to dav: "+ srcFile.getAbsolutePath());
-        
-       InputStream isr = new FileInputStream(srcFile);
-       try { 
+          
+       InputStream isr = null;
+       try {
+          isr = new FileInputStream(srcFile);
           davService.saveFile(destFile, isr);
+          System.out.println("Saved to webdav: "+ destFile );
           FileUtils.deleteQuietly(srcFile);
-       } catch (UnsupportedEncodingException ex) {
-          throw ex;
        } catch (Exception ex) {
-          throw ex;
+          throw new Exception("Could not save from temp file " + srcFile + " to WEBDAV " + destFile, ex);
        } finally {
-          isr.close();
+          IOUtils.closeQuietly( isr );
        }
     }
     

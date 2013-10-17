@@ -38,13 +38,16 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
          
    public void run( VoyagerToSolrConfiguration config ) throws Exception{
                  
-      setDavService(DavServiceFactory.getDavService(config));
+      setDavService( DavServiceFactory.getDavService(config) );
       
-      String srcDir = config.getDailyBibUpdates() ;
-      String destDir = config.getDailyBibMrcXmlDir();            
+      String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir();
+      String destDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir();
       
       String badDir = srcDir +".bad";
       String doneDir = srcDir +".done"; 
+      
+      getDavService().mkDir( badDir );
+      getDavService().mkDir( doneDir );
       
       // get list of bibids updates using recent date String
       List<String> srcList = new ArrayList<String>();

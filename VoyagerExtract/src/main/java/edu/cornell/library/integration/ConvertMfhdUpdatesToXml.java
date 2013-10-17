@@ -38,9 +38,14 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
     public void run(VoyagerToSolrConfiguration config) throws Exception {
         setDavService(DavServiceFactory.getDavService(config));                
         
-        String srcDir = config.getDailyMfhdDir();        
+        String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir();
+        String destDir = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir();
+               
         String badDir = srcDir + ".bad";
         String doneDir = srcDir + ".done";
+        
+        getDavService().mkDir( badDir );
+        getDavService().mkDir( doneDir );
         
         // get list of mfhdids updates using recent date String
         List<String> srcList = new ArrayList<String>();
@@ -57,7 +62,7 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         converter.setSrcType("mfhd");
         converter.setExtractType("updates");
         converter.setSplitSize(10000);
-        converter.setDestDir( config.getDailyBibMrcXmlDir() );
+        converter.setDestDir( destDir );
         converter.setTmpDir( config.getTmpDir() );
                 
         if (srcList.size() == 0) {

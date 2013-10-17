@@ -40,8 +40,7 @@ public class VoyagerUpdate {
 		
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args );
-		davService = DavServiceFactory.getDavService(config);
-		davUrl = config.getWebdavBaseUrl();
+		davService = DavServiceFactory.getDavService(config);		
 		Path currentVoyagerBibList = null;
 		Path currentVoyagerMfhdList = null;
 		Collection<Integer> unsuppressedBibs = new HashSet<Integer>();
@@ -94,8 +93,8 @@ public class VoyagerUpdate {
 		}
 		
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		String targetNTFile = davUrl + config.getDailyMrcNtDir() +
-				config.getDailyMrcNtFilenamePrefix() + currentDate+".nt.gz";
+		String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
+				+ "/" + config.getDailyMrcNtFilenamePrefix() + currentDate+".nt.gz";
 		
 		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
 		tempFile.deleteOnExit();
@@ -104,8 +103,8 @@ public class VoyagerUpdate {
 		MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
 				                            unsuppressedMfhds, 
 											davService, 
-				                            davUrl + config.getDailyBibMrcXmlDir(),
-				                            davUrl + config.getDailyMfhdMrcXmlDir(),
+											config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(),
+											config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(),
 				                            tempFile);
 		InputStream is = new FileInputStream(tempFile);
 		davService.saveFile(targetNTFile, is);

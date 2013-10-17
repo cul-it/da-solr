@@ -122,8 +122,6 @@ task (step4aConvertBibUpdatesToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertBibUpdatesToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
-  args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
-    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.' ]
 }
    
 task (step4bConvertMfhdUpdatesToXml, dependsOn:'assemble', type: JavaExec){
@@ -133,8 +131,6 @@ task (step4bConvertMfhdUpdatesToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertMfhdUpdatesToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
- args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
-    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.updates' ]
 }
    
 task (ConvertBibDailyToXml, dependsOn:'assemble', type: JavaExec){
