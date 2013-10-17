@@ -234,23 +234,25 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * 
 	 */
 	private List<String> getBibIdsWithDeletedMfhd( VoyagerToSolrConfiguration config, String today ) throws Exception {
+        
+        String tmpFilePath = config.getTmpDir() +"/"+ "bibListForUpdate-"+ today +".txt";;
+        
+        //String updateBibsDir  = config.getWebdavBaseUrl() +"/" + config.getDailyCombinedMrcDir();                
 
-        String bibListForUpdateFileName = "bibListForUpdate-"+ today +".txt";
-        
-        String tmpDir = config.getTmpDir();
-        String tmpFilePath = tmpDir +"/"+ bibListForUpdateFileName;
-        
-        String updateBibsDir  = config.getWebdavBaseUrl() +"/" + config.getDailyCombinedMrcDir();
+        String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
+                + "bibListForUpdate-"+ today + ".txt";
+        System.out.println("Reading BIB ID with modified MHFDs from " + fileName );
         
         List<String> bibListForUpdateList;
         File localTmpBibListForUpdateFile = null;
         try {
-            localTmpBibListForUpdateFile = getDavService().getFile(updateBibsDir+"/"+bibListForUpdateFileName, tmpFilePath);
+            localTmpBibListForUpdateFile = getDavService().getFile(fileName, tmpFilePath);
             bibListForUpdateList = FileUtils.readLines(localTmpBibListForUpdateFile);
         } catch (Exception e1) {
-            throw new Exception("Failed reading: "+ updateBibsDir+"/"+bibListForUpdateFileName, e1);            
+            throw new Exception("Failed reading: "+ fileName, e1);            
         } finally {
-            localTmpBibListForUpdateFile.delete();  
+            if( localTmpBibListForUpdateFile != null)
+                localTmpBibListForUpdateFile.delete();  
         }
         return bibListForUpdateList;
     }
@@ -301,11 +303,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 			throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/bib.update." + getDateString(now) + "."+ seqno +".mrc";
-		// System.out.println("Saving mrc to: "+ url);
-		try {
-
-			// FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc,
-			// "UTF-8");
+		System.out.println("Saving BIB mrc to "+ url);
+		try { 
 			InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
 			getDavService().saveFile(url, isr);
 
@@ -319,11 +318,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	public void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/mfhd.update." + getDateString(now) + "."+ seqno +".mrc";
-		// System.out.println("Saving mrc to: "+ url);
+		System.out.println("Saving MFHD mrc to: "+ url);
 		try {
-
-			// FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc,
-			// "UTF-8");
 			InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
 			getDavService().saveFile(url, isr);
 

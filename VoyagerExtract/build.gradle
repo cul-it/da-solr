@@ -230,8 +230,5 @@ task (step3GetCombinedUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
- args = [ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates',
-   'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates',
-   'http://culdata.library.cornell.edu/data/updates/bib.updates']
 }
    

@@ -142,7 +142,7 @@ public class IdentifyDeletedRecords {
 
 			String deleteReport = sb.toString(); 
 			String deleteReportFile = 
-			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() 
+			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() + "/"
 			        + "bibListForDelete-"+ currentDate + ".txt";			
 			try {
 				davService.saveFile( deleteReportFile , new ByteArrayInputStream(deleteReport.getBytes("UTF-8")));
@@ -169,7 +169,7 @@ public class IdentifyDeletedRecords {
 
 			String updateReport = sb.toString();
 
-			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() 
+			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
 			        + "bibListForUpdate-"+ currentDate + ".txt";
 			try {			    
 				davService.saveFile(fileName, new ByteArrayInputStream(updateReport.getBytes("UTF-8")));

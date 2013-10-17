@@ -25,8 +25,9 @@ public interface DavService {
     * @param url
     * @return list of file urls
     * @throws IOException
+ * @throws Exception 
     */
-   public List<String> getFileUrlList(String url) throws IOException;
+   public List<String> getFileUrlList(String url) throws IOException, Exception;
 
    /**
     * @param url
