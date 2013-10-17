@@ -31,7 +31,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	
 	Map<String,String> defaultPrefixes;
 
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
 	public SPARQLFieldMakerBase() {
 		this.defaultPrefixes = new HashMap<String,String>();

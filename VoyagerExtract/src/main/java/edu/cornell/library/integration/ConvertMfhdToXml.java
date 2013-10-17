@@ -89,7 +89,7 @@ public class ConvertMfhdToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("mfhd");
       converter.setExtractType("single");
       converter.setSplitSize(0);

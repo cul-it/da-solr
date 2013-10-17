@@ -13,6 +13,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import ch.qos.logback.core.pattern.ConverterUtil;
+import edu.cornell.library.integration.MrcToXmlConverter;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
@@ -87,7 +89,7 @@ public class FindMissingBibId {
 
 		setDavService(DavServiceFactory.getDavService());
 
-		List<String> unsuppressedBibIdList = new ArrayList<String>();
+		List<Integer> unsuppressedBibIdList = new ArrayList<Integer>();
 		try {
 			unsuppressedBibIdList = getCatalogService()
 					.getAllUnSuppressedBibId();
@@ -110,11 +112,11 @@ public class FindMissingBibId {
 		List<String> fullBibIdList = new ArrayList<String>();
 		List<String> extractBibIdList = new ArrayList<String>();
 		String mrc = new String();
-		ConvertUtils converter = new ConvertUtils();
+		
 		for (String srcFile : srcList) {
 			try {
 				mrc = davService.getFileAsString(srcDir + "/" + srcFile);
-				extractBibIdList = converter.getBibIdFromMarc(mrc);
+				extractBibIdList = ConvertUtils.getBibIdFromMarc(mrc,null);
 				fullBibIdList.addAll(extractBibIdList);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -129,8 +131,8 @@ public class FindMissingBibId {
 			e.printStackTrace();
 		}
 
-		for (String bibid : unsuppressedBibIdList) {
-			if (!fullBibIdList.contains(bibid)) {
+		for (Integer bibid : unsuppressedBibIdList) {
+			if (!fullBibIdList.contains( bibid.toString() )) {
 				System.out.println("BibId: " + bibid + " not found in extract");
 			}
 		}

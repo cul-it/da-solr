@@ -115,25 +115,25 @@ public interface CatalogDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getAllSuppressedBibId() throws Exception;
+	public List<Integer> getAllSuppressedBibId() throws Exception;
 
 	/**
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getAllUnSuppressedBibId() throws Exception;
+	public List<Integer> getAllUnSuppressedBibId() throws Exception;
 
 	/**
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getAllSuppressedMfhdId() throws Exception;
+	public List<Integer> getAllSuppressedMfhdId() throws Exception;
 
 	/**
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getAllUnSuppressedMfhdId() throws Exception;
+	public List<Integer> getAllUnSuppressedMfhdId() throws Exception;
 
 	/**
 	 * @param fromDateString

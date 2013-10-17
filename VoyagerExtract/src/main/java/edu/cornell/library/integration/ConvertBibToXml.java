@@ -95,7 +95,7 @@ public class ConvertBibToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("bib");
       converter.setExtractType("single");
       converter.setSplitSize(0);

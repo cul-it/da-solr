@@ -65,7 +65,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
-	protected boolean debug = true;
+	protected boolean debug = false;
 	
     //hadoop directory for the input splits that are completed 
     Path doneDir;

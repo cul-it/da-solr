@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -25,50 +26,92 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 
 /**
- * Index all the files in a given directory.
+ * Index all the files in a given WEBDAV directory. It is intended as a simple way to 
+ * index a set of MARC n-Triple files.
  * 
  * This uses the BibFileIndexingMapper and provides basic implementations of the
- * haddop classes to drive it. 
+ * Haddop classes to drive it. 
  * 
  */
-public class IndexDirectoryCmd extends CommandBase {
+public class IndexDirectory {
 
+    /**
+     * DavUser name
+     */
+    String davUser;
+    
+    /**
+     * Dav user password
+     */
+    String davPass;
+    
+    /**
+     * URL of WEBDAV directory where input files can be found.
+     */
+    String inputsURL;
+    
+    /**
+     * URL of Solr service to write Documents to.
+     */
+    String solrURL;
+    
+    /**
+     * Results from Hadoop are sent to recordWriter.
+     * This could be used to get results about how each
+     * record was processed.  
+     */
+    MockRecordWriter recordWriter;     
 
- 	public static void main(String [] args) throws IOException, InterruptedException{				
-		if( help( args ) ) 
-			return;
-        
-		String solrServiceUrl = args[0];
-		String sourceDir = args[1];
-		       
-        String davUser = "admin";
-        String davPass = "password";
-            
-        DavService davService = new DavServiceImpl( davUser, davPass );
-
-        if( ! sourceDir.endsWith("/") )
-            sourceDir = sourceDir + "/";
-        
-        List<String> fileNames = davService.getFileList( sourceDir );
-                
-        for( String fileName : fileNames){
-            String url = sourceDir + fileName;
-            indexBibUrl( url, davUser, davPass, solrServiceUrl );
-        }
+    
+ 	public String getDavUser() {
+        return davUser;
     }
 
- 	/**
- 	 * Run the BibFileIndexingMapper on the file from url and index the results in
- 	 * solrSeviceUrl. 
+    public void setDavUser(String davUser) {
+        this.davUser = davUser;
+    }
+
+    public String getDavPass() {
+        return davPass;
+    }
+
+    public void setDavPass(String davPass) {
+        this.davPass = davPass;
+    }
+
+    public String getInputsURL() {
+        return inputsURL;
+    }
+
+    public void setInputsURL(String inputsURL) {
+        this.inputsURL = inputsURL;
+    }
+
+    public String getSolrURL() {
+        return solrURL;
+    }
+
+    public void setSolrURL(String solrURL) {
+        this.solrURL = solrURL;
+    }
+
+    public MockRecordWriter getRecordWriter() {
+        return recordWriter;
+    }
+
+    /**
+ 	 * Run the BibFileIndexingMapper on the file from WEBDAV URL
+ 	 * and index the results in solrSeviceUrl. 
+ 	 * 
  	 */
-    protected static void indexBibUrl( String url, String davUser, String davPass, String solrServiceUrl) 
+    public void indexDocuments( ) 
             throws IOException, InterruptedException{
 
 
-        MockInputSplit inputSplit = new MockInputSplit(url);            
+        MockInputSplit inputSplit = new MockInputSplit(inputsURL);            
         MockOutputCommitter outputCommitter = new MockOutputCommitter();
         MockStatusReporter statusReporter = new MockStatusReporter();
-        MockRecordWriter recordWriter = new MockRecordWriter();
+        recordWriter = new MockRecordWriter();
         MockRecordReader recordReader = new MockRecordReader();
 
         BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
@@ -78,58 +121,34 @@ public class IndexDirectoryCmd extends CommandBase {
                     recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
         
         context.getConfiguration().set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
-        context.getConfiguration().set( BibFileToSolr.SOLR_SERVICE_URL, solrServiceUrl);
+        context.getConfiguration().set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
         context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
         context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
 
         indexingMapper.setup(context);
 
-        indexingMapper.map(null, new Text(url), context);
+        indexingMapper.map(null, new Text(inputsURL), context);
 
         //can access the result records with recordWriter if needed
         //but right now they not used
         //they would be useful to get error reporting etc.
     }
 
-	private static String help = 
-	        "\n"+
-	        "IndexDirectoryCmd will run the conversion on all files found \n" +
-	        "in the directory. A webDav URL is acceptable for the directory. \n" +
-	        "\n" +
-	        "expected:  sourceDirectory solrIndexURL\n";
-	
-	private static boolean help(String[] args) {
-		if( args == null || args.length != 2 ){
-			System.err.print(help);
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-
-    final static class MockRecordWriter extends RecordWriter<Text, Text> {
+    public final static class MockRecordWriter extends RecordWriter<Text, Text> {
         
-        ArrayList<Text> keys = new ArrayList<Text>();
-        ArrayList<Text> values = new ArrayList<Text>();
+        HashMap<String,String> results = new HashMap<String,String>();
         
-        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { }
-        
-        public Text[] getKeys() {
-            Text result[] = new Text[keys.size()];
-            keys.toArray(result);
-            return result;
+        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { 
+            //nothing to do here
         }
-        public IntWritable[] getValues() {
-            IntWritable[] result = new IntWritable[values.size()];
-            values.toArray(result);
-            return result;
+        
+        public HashMap<String,String> getRecords(){ 
+            return results; 
         }
+        
         @Override
-        public void write(Text key, Text value) throws IOException,
-                InterruptedException {
-            keys.add(key);
-            values.add(value);            
+        public void write(Text key, Text value) throws IOException, InterruptedException {
+            results.put(key.toString(), value.toString());
         }
     };  
 

@@ -16,6 +16,9 @@ import java.util.Properties;
  * configurations that can be called for from the command line of
  * the different steps of the conversion.
  * 
+ * See the method loadConfig(String[]) for how the VoyagerToSolrConfiguration can
+ * be loaded. 
+ * 
  * If you'd like to add a new configuration setting to this class,
  *  1 add a property to this class
  *  2 add a getter to this class
@@ -59,11 +62,22 @@ public class VoyagerToSolrConfiguration {
     String dailyMrcDoneDir;
     String dailyMrcBadDir;
     String dailyMrcDeleted;
-    String dailyMrcXmlDir;
+    String dailyBibMrcXmlDir;
+    String dailyMfhdMrcXmlDir;
     String dailyMrcNtDir;
-    String dailySuppressedDir;
-    String dailyUnsuppressedDir;
-        
+    String dailyMrcNtFilenamePrefix;
+    String dailyBibSuppressedDir;
+    String dailyBibSuppressedFilenamePrefix;
+    String dailyBibUnsuppressedDir;
+    String dailyBibUnsuppressedFilenamePrefix;
+    String dailyMfhdSuppressedDir;
+    String dailyMfhdSuppressedFilenamePrefix;
+    String dailyMfhdUnsuppressedDir;
+    String dailyMfhdUnsuppressedFilenamePrefix;
+    String dailyBibUpdates; //= updates/bib.updates
+    String dailyBibDeletes;
+    String dailyReports;
+    
     /**
      * URL of the solr service.
      */
@@ -71,6 +85,22 @@ public class VoyagerToSolrConfiguration {
     
     String tmpDir;
     
+    public String getDailyBibUpdates() {
+        return dailyBibUpdates;
+    }
+
+    public void setDailyBibUpdates(String dailyBibUpdates) {
+        this.dailyBibUpdates = dailyBibUpdates;
+    }
+
+    public String getDailyBibDeletes() {
+        return dailyBibDeletes;
+    }
+
+    public void setDailyBibDeletes(String str) {
+        this.dailyBibDeletes = str;
+    }
+
     /**
      * @return the webdavBaseUrl
      */
@@ -165,10 +195,17 @@ public class VoyagerToSolrConfiguration {
     }
 
     /**
-     * @return the dailyMrcXmlDir
+     * @return the dailyBibMrcXmlDir
      */
-    public String getDailyMrcXmlDir() {
-        return dailyMrcXmlDir;
+    public String getDailyBibMrcXmlDir() {
+        return dailyBibMrcXmlDir;
+    }
+
+    /**
+     * @return the dailyMfhdMrcXmlDir
+     */
+    public String getDailyMfhdMrcXmlDir() {
+        return dailyMfhdMrcXmlDir;
     }
 
     /**
@@ -179,19 +216,68 @@ public class VoyagerToSolrConfiguration {
     }
 
     /**
-     * @return the dailySuppressedDir
+     * @return the dailyMrcNtFilenamePrefix
      */
-    public String getDailySuppressedDir() {
-        return dailySuppressedDir;
+    public String getDailyMrcNtFilenamePrefix() {
+        return dailyMrcNtFilenamePrefix;
     }
 
     /**
-     * @return the dailyUnsuppressedDir
+     * @return the dailyBibSuppressedDir
      */
-    public String getDailyUnsuppressedDir() {
-        return dailyUnsuppressedDir;
+    public String getDailyBibSuppressedDir() {
+        return dailyBibSuppressedDir;
     }
 
+    /**
+     * @return the dailyBibSuppressedFilenamePrefix
+     */
+    public String getDailyBibSuppressedFilenamePrefix() {
+        return dailyBibSuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyBibUnsuppressedDir
+     */
+    public String getDailyBibUnsuppressedDir() {
+        return dailyBibUnsuppressedDir;
+    }
+
+    /**
+     * @return the dailyBibUnsuppressedFilenamePrefix
+     */
+    public String getDailyBibUnsuppressedFilenamePrefix() {
+        return dailyBibUnsuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyMfhdSuppressedDir
+     */
+    public String getDailyMfhdSuppressedDir() {
+        return dailyMfhdSuppressedDir;
+    }
+
+    /**
+     * @return the dailyMfhdSuppressedFilenamePrefix
+     */
+    public String getDailyMfhdSuppressedFilenamePrefix() {
+        return dailyMfhdSuppressedFilenamePrefix;
+    }
+
+    /**
+     * @return the dailyMfhdUnsuppressedDir
+     */
+    public String getDailyMfhdUnsuppressedDir() {
+        return dailyMfhdUnsuppressedDir;
+    }
+
+    /**
+     * @return the dailyMfhdUnsuppressedFilenamePrefix
+     */
+    public String getDailyMfhdUnsuppressedFilenamePrefix() {
+        return dailyMfhdUnsuppressedFilenamePrefix;
+    }
+    
     /**
      * @return the solrUrl
      */
@@ -206,21 +292,29 @@ public class VoyagerToSolrConfiguration {
       return tmpDir;
     }
 
+    public String getDailyReports(){
+        return dailyReports;
+    }
+    
+    public void setDailyReports(String reports){
+        dailyReports = reports;
+    }
+    
     /**
      * A utility method to load properties from command line or environment.
      * 
      * Configured jobs on integration servers or automation systems are
-     * expected to use the environment variable V2BL_CONFIG to indicate the property
+     * expected to use the environment variable VOYAGER_TO_SOLR_CONFIG to indicate the property
      * file to use.
      * 
      * Development jobs are expected to use command line arguments.
      *  
      * If properties files exist on the command line use those, 
-     * If the environment variable V2BL_CONFIG exists use those,
-     * If both environment variable V2BL_CONFIG and command line arguments exist, 
+     * If the environment variable VOYAGER_TO_SOLR_CONFIG exists use those,
+     * If both environment variable VOYAGER_TO_SOLR_CONFIG and command line arguments exist, 
      * throw an error because that is a confused state and likely a problem.
      *  
-     * The value of the environment variable V2BL_CONFIG may be a comma separated list of files.
+     * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
      * 
      *  @param argv may be null to force use of the environment variable. Should be 
      *  argv from main().
@@ -228,21 +322,21 @@ public class VoyagerToSolrConfiguration {
      */
     public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
         
-        String v2bl_config = System.getenv(V2S_CONFIG);
+        String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
         if( v2bl_config != null &&  argv != null && argv.length > 0 )
             throw new RuntimeException( "Both command line arguments and the environment variable "
-                    + "V2BL_CONFIG are defined. It is unclear which to use.\n" + HELP );
+                    + VOYAGER_TO_SOLR_CONFIG + " are defined. It is unclear which to use.\n" + HELP );
         
         if( v2bl_config == null && ( argv == null || argv.length ==0 ))
             throw new RuntimeException("No configuration specified. \n"
                     + "A configuration is expeced on the command line or in the environment variable "
-                    + "V2BL_CONFIG.\n" + HELP );        
+                    + VOYAGER_TO_SOLR_CONFIG + ".\n" + HELP );        
         
         VoyagerToSolrConfiguration config=null;
         try{
         if( v2bl_config != null )
-            config = loadFromPropertiesFile( getFile( v2bl_config ), null);            
+            config = loadFromEnvVar( v2bl_config );
         else
             config = loadFromArgv( argv );
         }catch( Exception ex){
@@ -250,7 +344,7 @@ public class VoyagerToSolrConfiguration {
         }
         
         String errs = checkConfiguration( config );
-        if( errs != null || errs.trim().isEmpty() ){
+        if( errs == null ||  ! errs.trim().isEmpty() ){
             throw new RuntimeException("There were problems with the configuration.\n " + errs);
         }
         
@@ -259,12 +353,38 @@ public class VoyagerToSolrConfiguration {
 
     private static VoyagerToSolrConfiguration loadFromArgv(
             String[] argv) throws FileNotFoundException, IOException {
-        if( argv.length > 1 ){            
+        if( argv.length > 1 ){   
+            System.out.println("loading from command line arg: \n" 
+                    + argv[0]);
             return loadFromPropertiesFile( getFile( argv[0]), null );
         }else{
+            System.out.println("loading from command line arg: \n" 
+                    + argv[0] + "  " + argv[1] );
             return loadFromPropertiesFile( getFile(argv[0]), getFile(argv[1]));
         }            
     }
+
+
+    /**
+     * Load from the env var. It might be a single file name, or two file names seperated 
+     * by a comma.  Also check the classpath.
+     */
+    private static VoyagerToSolrConfiguration loadFromEnvVar( String value ) throws Exception {
+        System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
+
+        if( ! value.contains(",") ){
+            return loadFromPropertiesFile( getFile( value ), null );
+        }else{
+            String firstFileName, secondFileName;
+            String names[] = value.split(",");
+            if( names.length > 2 )
+                throw new Exception("The env var has more than two files: " + value);
+            if( names.length < 2 )
+                throw new Exception("The env var has fewer than two files: " + value);
+            return loadFromPropertiesFile( getFile(names[0]), getFile(names[1]));
+        }        
+    }
+
 
     /**
      * Load properties for VoyagerToBlacklightSolrConfiguration.
@@ -279,21 +399,23 @@ public class VoyagerToSolrConfiguration {
         Properties prop;
         
         Properties propA = new Properties();
-        //InputStream in = getClass().getResourceAsStream("//configuration.properties");                
-        propA.load(inA);        
+        propA.load( inA );
         inA.close();
         
         Properties propB = null; 
         if( inB != null ){
-            propB = new Properties( propA );
+            propB = new Properties( );
             propB.load(inB);
             inB.close();
         }
         
-        if( inB != null )
-            prop = propA;
-        else
+        if( inB != null ){
+            prop = new Properties();
+            prop.putAll( propB );
+            prop.putAll( propA );
+        } else {
             prop = propB;
+        }
         
         VoyagerToSolrConfiguration conf = new VoyagerToSolrConfiguration();
 
@@ -314,10 +436,24 @@ public class VoyagerToSolrConfiguration {
         conf.dailyMrcDoneDir = prop.getProperty("dailyMrcDoneDir");
         conf.dailyMrcBadDir = prop.getProperty("dailyMrcBadDir");
         conf.dailyMrcDeleted = prop.getProperty("dailyMrcDeleted");
-        conf.dailyMrcXmlDir = prop.getProperty("dailyMrcXmlDir");
-        conf.dailyMrcNtDir = prop.getProperty("dailyMrcNtDir");        
-        conf.dailySuppressedDir = prop.getProperty("dailySuppressedDir");
-        conf.dailyUnsuppressedDir = prop.getProperty("dailyUnsuppressedDir");
+        conf.dailyBibMrcXmlDir = prop.getProperty("dailyBibMrcXmlDir");
+        conf.dailyMfhdMrcXmlDir = prop.getProperty("dailyMfhdMrcXmlDir");
+        conf.dailyMrcNtDir = prop.getProperty("dailyMrcNtDir");
+        conf.dailyMrcNtFilenamePrefix = prop.getProperty("dailyMrcNtFilenamePrefix");
+        conf.dailyBibSuppressedDir = prop.getProperty("dailyBibSuppressedDir");
+        conf.dailyBibSuppressedFilenamePrefix = prop.getProperty("dailyBibSuppressedFilenamePrefix");
+        conf.dailyBibUnsuppressedDir = prop.getProperty("dailyBibUnsuppressedDir");
+        conf.dailyBibUnsuppressedFilenamePrefix = prop.getProperty("dailyBibUnsuppressedFilenamePrefix");
+        conf.dailyMfhdSuppressedDir = prop.getProperty("dailyMfhdSuppressedDir");
+        conf.dailyMfhdSuppressedFilenamePrefix = prop.getProperty("dailyMfhdSuppressedFilenamePrefix");
+        conf.dailyMfhdUnsuppressedDir = prop.getProperty("dailyMfhdUnsuppressedDir");
+        conf.dailyMfhdUnsuppressedFilenamePrefix = prop.getProperty("dailyMfhdUnsuppressedFilenamePrefix");
+        conf.dailyBibDeletes = prop.getProperty( "dailyBibDelets");
+        conf.dailyBibUpdates = prop.getProperty("dailyBibUpdates");
+
+        conf.dailyBibDeletes = prop.getProperty( "dailyBibDeletes");
+
+        conf.dailyReports = prop.getProperty("dailyReports");
         
         conf.solrUrl = prop.getProperty("solrUrl");
         
@@ -335,8 +471,8 @@ public class VoyagerToSolrConfiguration {
 
         errMsgs += checkWebdavUrl( checkMe.webdavBaseUrl );
     
-        errMsgs += checkExits( checkMe.webdavUser , "webdavUser");
-        errMsgs += checkExits( checkMe.webdavPassword , "webdavPassword");
+        errMsgs += checkExists( checkMe.webdavUser , "webdavUser");
+        errMsgs += checkExists( checkMe.webdavPassword , "webdavPassword");
         
         errMsgs += checkWebdavDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
         errMsgs += checkWebdavDir( checkMe.fullMrc21DoneDir, "fullMrc21DoneDir");
@@ -349,11 +485,22 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkWebdavDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcDeleted, "dailyMrcDeleted");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcXmlDir, "dailyMrcXmlDir");
+        errMsgs += checkWebdavDir( checkMe.dailyBibMrcXmlDir, "dailyBibMrcXmlDir");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdMrcXmlDir, "dailyMfhdMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");
-        errMsgs += checkWebdavDir( checkMe.dailySuppressedDir, "dailySuppressedDir");
-        errMsgs += checkWebdavDir( checkMe.dailyUnsuppressedDir, "dailyUnsuppressedDir");
-
+        errMsgs += checkExists(    checkMe.dailyMrcNtFilenamePrefix, "dailyMrcNtFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyBibSuppressedDir, "dailyBibSuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyBibSuppressedFilenamePrefix, "dailyBibSuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyBibUnsuppressedDir, "dailyBibUnsuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyBibUnsuppressedFilenamePrefix, "dailyBibUnsuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdSuppressedDir, "dailyMfhdSuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyMfhdSuppressedFilenamePrefix, "dailyMfhdSuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyMfhdUnsuppressedDir, "dailyMfhdUnsuppressedDir");
+        errMsgs += checkExists(    checkMe.dailyMfhdUnsuppressedFilenamePrefix, "dailyMfhdUnsuppressedFilenamePrefix");
+        errMsgs += checkWebdavDir( checkMe.dailyBibDeletes,  "dailyBibDeletes");
+        errMsgs += checkWebdavDir( checkMe.dailyBibUpdates, "dailyBibUpdates");
+        errMsgs += checkWebdavDir( checkMe.dailyReports,    "dailyReports");
+        
         errMsgs += checkSolrUrl( checkMe.solrUrl );
         
         errMsgs += checkDir( checkMe.tmpDir, "tmpDir");
@@ -369,7 +516,7 @@ public class VoyagerToSolrConfiguration {
         return "";
     }
 
-    private static String checkExits(String value , String propName) {
+    private static String checkExists(String value , String propName) {
        if( value == null || value.trim().isEmpty() )
            return "The property " + propName + " must not be empty or null.\n";
        else
@@ -396,11 +543,14 @@ public class VoyagerToSolrConfiguration {
     }
     
     private static String checkWebdavDir( String dir, String propName ){
-        String partEx = " It should be a directory part ex. voyager/bib.nt.daily\n";
+        String partEx = " It should be a directory part with no leading or trailing slash ex. voyager/bib.nt.daily \n";
         if( dir == null || dir.trim().isEmpty() )
             return "The property " + propName + " must not be empty." + partEx ;
         else if( dir.startsWith( "/" ) )
             return "The property " + propName + " must not start with a forward slash."
+                    + partEx;
+        else if( dir.endsWith("/"))
+            return "The property " + propName + " must not end with a forward slash."
                     + partEx;
         else if( dir.startsWith("http://"))
             return "The property " + propName + " must not be a URL."
@@ -426,13 +576,13 @@ public class VoyagerToSolrConfiguration {
     /**
      * Name of environment variable for configuration files.
      */
-    public final static String V2S_CONFIG = "VoyagerToSolrConfig";
+    public final static String VOYAGER_TO_SOLR_CONFIG = "VoyagerToSolrConfig";
     
     public final static String HELP = 
             "On the command line the first two parameters may be configuration property files.\n"+
-            "Ex. java someClass staging.v2bl.properties dav.properties \n" +
-            "Or the environment variable V2BL_CONFIG can be set to one or two properties files:\n" +
-            "Ex. V2BL_CONFIG=prod.v2bl.properties,prodDav.properties java someClass\n" +
+            "Ex. java someClass staging.properties dav.properties \n" +
+            "Or the environment variable VoyagerToSolrConfig can be set to one or two properties files:\n" +
+            "Ex. VoyagerToSolrConfig=prod.properties,prodDav.properties java someClass\n" +
             "Do not use both a environment variable and command line parameters.\n" +
             "These files will be searched for first in the file system, then from the classpath/ClassLoader.\n";
 

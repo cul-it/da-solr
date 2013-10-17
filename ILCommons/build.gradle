@@ -1,13 +1,19 @@
 // Just a gradle project that builds the Jar 
 // using the ant build.xml.
 
+//commons-codec-1.5.jar
+
 apply plugin: 'java'
 
 dependencies{
+
+
+
+   compile 'commons-io:commons-io:2.4'
    compile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
    runtime fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
 
    testCompile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
-   testRuntime fileTree(dir: 'lib', include: '*.jar' )
+   testRuntime fileTree(dir: 'lib', include: '*.jar' )   
 }
 

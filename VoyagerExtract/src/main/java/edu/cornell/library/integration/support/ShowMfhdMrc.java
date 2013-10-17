@@ -82,7 +82,7 @@ public class ShowMfhdMrc {
             sb.append(mfhdData.getRecord());
          }
          ConvertUtils convert = new ConvertUtils();
-         Record record = convert.getMarcRecord(sb.toString());
+         Record record = convert.getMarcRecord(sb.toString(), null);
          System.out.println(record.toString()); 
           
       } catch (Exception e) {

@@ -1,19 +1,19 @@
 package edu.cornell.library.integration;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService;
 
 public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
    
@@ -28,117 +28,163 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
    }  
    
       
-   public static void main(String[] args) {       
+   public static void main(String[] args) throws Exception {       
        new GetAllSuppressionsFromCatalog().run( args );
    }
    
-   public void run(String[] args)  {
-       try{
-           ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
-           
-           if (ctx.containsBean("catalogService")) {
-              setCatalogService((CatalogService) ctx.getBean("catalogService"));
-           } else {
-              System.err.println("Could not get catalogService");
-              System.exit(-1);
-           }            
-           
-           VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig( args );
-           
-           setDavService(DavServiceFactory.getDavService(config));
-           
-           getAllSuppressedBibId( config );
-           getAllSuppressedMfhdId( config );
-           getAllUnSuppressedBibId( config );
-           getAllUnSuppressedMfhdId( config );
-                                
-       }catch(Throwable th){
-           th.printStackTrace();
-           System.exit(1);
-       }      
+   public void run(String[] args) throws Exception  {
+                                       
+       if ( getCatalogService() == null ){              
+          System.err.println("Could not get catalogService");
+          System.exit(-1);
+       }            
+       
+       VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig( args );
+
+       setDavService(DavServiceFactory.getDavService(config));
+       
+       getAllSuppressedBibId( config );
+       getAllSuppressedMfhdId( config );
+       getAllUnSuppressedBibId( config );
+       getAllUnSuppressedMfhdId( config );
+                            
+       System.out.println("Success");             
       
    }
    
    private void getAllSuppressedBibId(VoyagerToSolrConfiguration config) throws Exception{
-       List<String> ids = new ArrayList<String>();
+       List<Integer> ids;
        try {
           ids = getCatalogService().getAllSuppressedBibId();
        } catch (Exception e) {
           throw new Exception("Could not get the suppressed BibIDs from the catalog service",e );
        } 
+   
+       String url = config.getWebdavBaseUrl() + "/" + config.getDailyBibSuppressedDir() +  "/"  
+               + config.getDailyBibSuppressedFilenamePrefix() + "-"+ getDateString() +".txt";
        
-       try {
-           String url = config.getWebdavBaseUrl() +  config.getDailySuppressedDir() 
-                   +  "/suppressedBibId-"+ getDateString() +".txt";
+       try {          
+           int size = ids.size();
           saveList(ids, url );
+          ids=null;
+          System.out.println( "Saved suppressed BIB IDs to " + url );
+          System.out.println( "suppressed BIB ID count: " + size );
        } catch (Exception e) {
-           throw new Exception("Could not save the suppressed BibIDs",e );
+           throw new Exception("Could not save the suppressed BibIDs to " + url ,e );
        }
    }
    
    private void getAllSuppressedMfhdId( VoyagerToSolrConfiguration config) throws Exception{       
-       List<String> ids = new ArrayList<String>();
+       List<Integer> ids ;
        try {
           ids = getCatalogService().getAllSuppressedMfhdId();
        } catch (Exception e) {
            throw new Exception("Could not get suppressed Mfhd IDs from catalog service",e);
        } 
        
-       try {
-           String url = config.getWebdavBaseUrl() + config.getDailySuppressedDir() 
-                   + "/suppressedMfhdId-" + getDateString() + ".txt";
+       String url = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdSuppressedDir() + "/"  
+               + config.getDailyMfhdSuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
+       
+       try {           
+           int size = ids.size();
           saveList(ids, url);
+          ids=null;
+          System.out.println( "Saved suppressed MFHD IDs to " + url );
+          System.out.println( "suppressed MFHID ID count: " + size );
        } catch (Exception e) {
-           throw new Exception("Could not save suppressed Mfhd IDs",e);
+           throw new Exception("Could not save suppressed Mfhd IDs to " +url ,e);
        }          
    }
    
    
    private void getAllUnSuppressedBibId( VoyagerToSolrConfiguration config) throws Exception{       
-       List<String> ids = new ArrayList<String>();
+       List<Integer> ids;
        try {
-          ids = getCatalogService().getAllSuppressedMfhdId();
+          ids = getCatalogService().getAllUnSuppressedBibId();
        } catch (Exception e) {
            throw new Exception("Could not get unsuppressed Bib IDs from catalog service",e);
        } 
+
+       String url = config.getWebdavBaseUrl() + "/" +config.getDailyBibUnsuppressedDir() + "/" +  
+           config.getDailyBibUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
        try {
-           String url = config.getWebdavBaseUrl() + config.getDailyUnsuppressedDir() 
-                   + "/unsuppressedBibid-" + getDateString() + ".txt";
+           int size = ids.size();
           saveList(ids, url);
+          ids=null;
+          System.out.println( "Saved unsuppressed BIB IDs to " + url );
+          System.out.println( "unsuppressed BIB ID count: " + size );
        } catch (Exception e) {
-           throw new Exception("Could not save unsuppressed Bib IDs",e);
+           throw new Exception("Could not save unsuppressed Bib IDs to " + url ,e);
        }          
    }
    
    
    private void getAllUnSuppressedMfhdId(VoyagerToSolrConfiguration config) throws Exception{       
-       List<String> ids = new ArrayList<String>();
+       List<Integer> ids;
        try {
-          ids = getCatalogService().getAllSuppressedMfhdId();
+          ids = getCatalogService().getAllUnSuppressedMfhdId();
        } catch (Exception e) {
            throw new Exception("Could not get unsuppressed Mfhd IDs from catalog service",e);
        } 
+
+       String url = config.getWebdavBaseUrl() + "/" +config.getDailyMfhdUnsuppressedDir() + "/" + 
+            config.getDailyMfhdUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
        try {
-           String url = config.getWebdavBaseUrl() + config.getDailyUnsuppressedDir() 
-                   + "/unsuppressedMfhdId-" + getDateString() + ".txt";
-          saveList(ids, url);
+           int size = ids.size();
+           saveList(ids, url);
+           ids=null;
+           System.out.println( "Saved unsuppressed MFHD IDs to " + url );
+           System.out.println( "unsuppressed MFHD ID count: " + size);
        } catch (Exception e) {
-           throw new Exception("Could not save unsuppressed Mfhd IDs",e);
+           throw new Exception("Could not save unsuppressed Mfhd IDs to " + url ,e);
        }          
    }
-       
-   private void saveList(List<String> bibIdList, String destUrl ) throws Exception {      
-     StringBuilder sb = new StringBuilder();
-     for (String s : bibIdList) {
-         sb.append(s+"\n");
-     }
-     byte[] bytes = sb.toString().getBytes("UTF-8");
-     InputStream isr = new  ByteArrayInputStream(bytes);
-                
-     getDavService().saveFile(destUrl, isr);      
+     
+   /**
+    * Save the list to a temporary file and then send that file to the webdav destUrl.
+    * 
+    * We are using a temp file to avoid large heap sizes. 
+    * 
+    */
+   private void saveList(List<Integer> bibIdList, String destUrl ) throws Exception {
+       Path tmpFile = saveToTmpFile( bibIdList );       
+       getDavService().saveFile(destUrl, Files.newInputStream(tmpFile, new OpenOption[]{}) );            
    }
+   
+   
+   
+   private Path saveToTmpFile( List<Integer> bibIdList ) throws IOException{
+              
+       final Path path = Files.createTempFile("GetAllSuppressionsFromCatalog-", ".tmp");                     
+       path.toFile().deleteOnExit();
+
+       Runtime.getRuntime().addShutdownHook(new Thread() {
+         public void run() {
+           try {
+             Files.delete(path);
+             System.out.println("deleted file at "+path);
+           } catch (IOException e) {
+             e.printStackTrace();
+           }
+         }
+       });
+
+     BufferedWriter out = Files.newBufferedWriter(path, Charset.forName("UTF-8"), new OpenOption[]{});
+     try{
+         for (Integer s : bibIdList) {
+             out.write( s.toString() + "\n");         
+         }    
+     }finally{
+         out.close();
+     }
+     
+     return path;       
+   }
+   
+  
+   
    
 
 }

@@ -8,9 +8,9 @@ dependencies{
 }
 
 	
-task (runUpdatesMarcXmlToNt, dependsOn: 'build', type: JavaExec){
-   description="Convert Voyager Updates MARC XML to MARC N-Triples." 
+task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+   description="Converts Voyager Updates MARC XML to MARC N-Triples." 
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
    classpath = sourceSets.main.runtimeClasspath
-   args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }

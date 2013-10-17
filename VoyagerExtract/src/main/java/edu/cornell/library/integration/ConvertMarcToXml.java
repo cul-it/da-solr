@@ -108,7 +108,7 @@ public class ConvertMarcToXml {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType(srcType);
       converter.setExtractType(extractType);
       if (extractType.equals("updates")) {

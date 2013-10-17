@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import edu.cornell.library.integration.MrcToXmlConverter;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
@@ -106,13 +107,13 @@ public class GetBibIdFromMarc {
 		
 		List<String> extractBibIdList = new ArrayList<String>();
 		String mrc = new String();
-		ConvertUtils converter = new ConvertUtils();
+		
 		for (String srcFile : srcList) {
 		   System.out.println("Reading bibids from mrc file: "+ srcFile);
 	 
 		   try {
 			  mrc = davService.getFileAsString(srcDir +"/"+ srcFile);
-			  for (String s: converter.getBibIdFromMarc(mrc)) {
+			  for (String s: ConvertUtils.getBibIdFromMarc(mrc,null)) {
 			     System.out.println(s);
 			  }
 			   

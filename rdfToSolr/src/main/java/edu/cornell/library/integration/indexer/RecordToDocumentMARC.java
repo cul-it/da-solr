@@ -26,6 +26,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SingleValueField("author_display",Correction.firstValue),
 				new SingleValueField("author_sort",Correction.firstValue),
 				new SingleValueField("author_t",Correction.firstValue),
+				new SingleValueField("format_main_facet",Correction.firstValue),
 				new RecordBoost(),
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
@@ -562,7 +563,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("isbnissn_s","020","a"),				
 				new StandardMARCFieldMaker("isbnissn_s","022","a"),
 				
-				new StandardMARCFieldMaker("eightninenine_s","899","a"),
+			//	new StandardMARCFieldMaker("eightninenine_s","899","a"),
+				new StandardMARCFieldMaker("eightninenine_t","899","ab"),
 				
 				new StandardMARCFieldMaker("other_identifier_display","024","a"),
 				new StandardMARCFieldMaker("id_t","024","a"),

@@ -3,8 +3,8 @@
 #### WEBDAV properties ####
 
 webdavBaseUrl = http://somewebdavUrl.edu/data/
-webdavUser = bob
-webdavPassword = isyouruncle
+#webdavUser = bob
+#webdavPassword = isyouruncle
 
 
 
@@ -30,12 +30,29 @@ dailyCombinedMrcDir = updates/bib.updates
 dailyMrcDoneDir = bib.mrc.updates.done
 dailyMrcBadDir = bib.mrc.updated.bad
 dailyMrcDeleted = bib.mrc.deleted
-dailyMrcXmlDir = bib.xml.updates
-dailyMrcNtDir = bib.nt.daily
-dailySuppressedDir = suppressed
-dailyUnsuppressedDir = unsuppressed
 
+dailyBibMrcXmlDir = voyager/bib/bib.xml.updates
+dailyMfhdMrcXmlDir = voyager/mfhd/mfhd.xml.updates
 
+dailyMrcNtDir = voyager/bib/bib.nt.daily
+dailyMrcNtFilenamePrefix = bibmfhd
+
+dailyBibSuppressedDir = voyager/bib/suppressed
+dailyBibSuppressedFilenamePrefix = suppressedBibId
+
+dailyBibUnsuppressedDir = voyager/bib/unsuppressed
+dailyBibUnsuppressedFilenamePrefix = unsuppressedBibId
+
+dailyMfhdSuppressedDir = voyager/mfhd/suppressed
+dailyMfhdSuppressedFilenamePrefix = suppressedMfhdId
+
+dailyMfhdUnsuppressedDir = voyager/mfhd/unsuppressed
+dailyMfhdUnsuppressedFilenamePrefix = unsuppressedMfhdId
+
+dailyBibUpdates = updates/bib.updates
+dailyBibDeltes = updates/bib.deletes
+
+dailyReports = reports/voyager
 
 #### Properties related to Solr ###
 

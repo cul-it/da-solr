@@ -90,7 +90,7 @@ public class ShowBibMrc {
          }
          ConvertUtils convert = new ConvertUtils();
          System.out.println(sb.toString());
-         Record record = convert.getMarcRecord(sb.toString());
+         Record record = convert.getMarcRecord(sb.toString() , null );
          if (record != null) {
             System.out.println(record.toString()); 
          } else {

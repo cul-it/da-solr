@@ -102,7 +102,7 @@ public class ConvertMfhdDailyToXml {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("mfhd");
       converter.setExtractType("daily");
       converter.setSplitSize(10000);

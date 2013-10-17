@@ -6,134 +6,98 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ConvertUtils;
 
-public class ConvertBibUpdatesToXml {
-   
-   /** Logger for this class and subclasses */
-   protected final Log logger = LogFactory.getLog(getClass()); 
 
-   private DavService davService;
-   private CatalogService catalogService; 
-   
-
-   /**
-    * default constructor
-    */
-   public ConvertBibUpdatesToXml() { 
-       
-   }  
-   
-      
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
-
-   /**
-    * @return the catalogService
-    */
-   public CatalogService getCatalogService() {
-      return this.catalogService;
-   }
-
-   /**
-    * @param catalogService the catalogService to set
-    */
-   public void setCatalogService(CatalogService catalogService) {
-      this.catalogService = catalogService;
-   } 
-   
-   /**
-    * @param args
-    */
-   public static void main(String[] args) {
-     ConvertBibUpdatesToXml app = new ConvertBibUpdatesToXml();
-     if (args.length != 2 ) {
-        System.err.println("You must provide a src and destination Dir as arguments");
-        System.exit(-1);
-     }
-     String srcDir  = args[0]; 
-     String destDir  = args[1];
-     app.run(srcDir, destDir);
-   }
-   
-
-   /**
-    * 
-    */
-   public void run(String srcDir, String destDir) {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
+/**
+ * Get the list of files in the BIB updates directory, 
+ * For each file do:
+ *   1) Convert the file to XML
+ *   2) Move the source MARC file to the "done" directory or
+ *      if there is an Exception, move the XML to the "bad" directory.
+ *  
+ * This class has a main that uses the standard VoyagerToSolrConfiguration
+ * command line parameters and properties. 
+ *  
+ * This class extends VoyagerToSolrStep but it doesn't use 
+ * much from that class. It is primarily extended to indicate
+ * that this is a step in the voyager to Solr process. 
+ *
+ */
+public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      
-      if (ctx.containsBean("catalogService")) {
-         setCatalogService((CatalogService) ctx.getBean("catalogService"));
-      } else {
-         System.err.println("Could not get catalogService");
-         System.exit(-1);
-      }
-
-      setDavService(DavServiceFactory.getDavService());
+   public static void main(String[] args) throws Exception {        
+     VoyagerToSolrConfiguration config  = VoyagerToSolrConfiguration.loadConfig(args);
+     new ConvertBibUpdatesToXml().run(config);     
+   }
+         
+   public void run( VoyagerToSolrConfiguration config ) throws Exception{
+                 
+      setDavService( DavServiceFactory.getDavService(config) );
+      
+      String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir();
+      String destDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir();
+      
       String badDir = srcDir +".bad";
       String doneDir = srcDir +".done"; 
+      
+      getDavService().mkDir( badDir );
+      getDavService().mkDir( doneDir );
+      
       // get list of bibids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
-         System.out.println("Getting list of bib marc files");
-         srcList = davService.getFileList(srcDir);
+         System.out.println("Getting list of bib marc files from '" 
+                 + srcDir + "'");
+         srcList = getDavService().getFileList(srcDir);
       } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+          throw new Exception("Could not get list of BIB MARC files for "
+                  + "update from: '" + srcDir + "'", e);
       }
       
-      ConvertUtils converter = new ConvertUtils();
+      MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("bib");
       converter.setExtractType("updates");
       converter.setSplitSize(10000);
-      converter.setDestDir(destDir); 
+      converter.setDestDir(destDir);
+      converter.setTmpDir(config.getTmpDir());
+      
       // iterate over mrc files
       if (srcList.size() == 0) {
-         System.out.println("No update Marc files available to process");
-      } else {
-         for (String srcFile  : srcList) {
-            System.out.println("Converting mrc file: "+ srcFile);
-   			try {
-   			   String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
-               String seqno = getSeqnoFromFileName(srcFile);
-               converter.setItemId(seqno); 
-   			   converter.convertMrcToXml(davService, srcDir, srcFile);
-   			   davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
-   			} catch (Exception e) { 
-   			   try {
-   			      System.out.println("Exception caught: could not convert file: "+ srcFile);
-   			      e.printStackTrace();
-                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
-               } catch (Exception e1) {
-                  // TODO Auto-generated catch block
-                  e1.printStackTrace();
-               } 
-   			}
-   		}
+         System.out.println("No update Marc files available to "
+                 + "process in '" + srcDir + "'");
+         return;
       }
       
+     for (String srcFile  : srcList) {
+        System.out.println("Converting mrc file: "+ srcFile);
+		try {
+		   String ts = getTimestampFromFileName(srcFile);
+           converter.setTs(ts);
+           String seqno = getSeqnoFromFileName(srcFile);
+           converter.setItemId(seqno); 
+		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);
+		   getDavService().moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
+		} catch (Exception e) { 
+		   try {
+		      System.out.println("Exception caught: could not "
+		              + "convert file: "+ srcFile + "\n" 
+		              + "due to " + e.getMessage() + "\n" 
+		              + "moving source file to bad dir at '" + badDir + "'" );		      
+		      getDavService().moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+           } catch (Exception e1) {
+               System.out.println("Error while trying to handle bad file,"
+                       + " could not move to bad dir: " + srcFile + "\n"
+                       + "due to " + e1.getMessage());
+               e1.printStackTrace();
+           }
+		}
+	}            
    } 
        
    
@@ -154,7 +118,5 @@ public class ConvertBibUpdatesToXml {
       String[] tokens = StringUtils.split(srcFile, ".");
       return tokens[3];
    }
-   
-   
     
 }
