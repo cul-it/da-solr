@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -110,7 +111,7 @@ public class IndexDirectory {
         MockInputSplit inputSplit = new MockInputSplit(inputsURL);            
         MockOutputCommitter outputCommitter = new MockOutputCommitter();
         MockStatusReporter statusReporter = new MockStatusReporter();
-        MockRecordWriter recordWriter = new MockRecordWriter();
+        recordWriter = new MockRecordWriter();
         MockRecordReader recordReader = new MockRecordReader();
 
         BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
@@ -133,28 +134,21 @@ public class IndexDirectory {
         //they would be useful to get error reporting etc.
     }
 
-    final static class MockRecordWriter extends RecordWriter<Text, Text> {
+    public final static class MockRecordWriter extends RecordWriter<Text, Text> {
         
-        ArrayList<Text> keys = new ArrayList<Text>();
-        ArrayList<Text> values = new ArrayList<Text>();
+        HashMap<String,String> results = new HashMap<String,String>();
         
-        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { }
-        
-        public Text[] getKeys() {
-            Text result[] = new Text[keys.size()];
-            keys.toArray(result);
-            return result;
+        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { 
+            //nothing to do here
         }
-        public IntWritable[] getValues() {
-            IntWritable[] result = new IntWritable[values.size()];
-            values.toArray(result);
-            return result;
+        
+        public HashMap<String,String> getRecords(){ 
+            return results; 
         }
+        
         @Override
-        public void write(Text key, Text value) throws IOException,
-                InterruptedException {
-            keys.add(key);
-            values.add(value);            
+        public void write(Text key, Text value) throws IOException, InterruptedException {
+            results.put(key.toString(), value.toString());
         }
     };  
 

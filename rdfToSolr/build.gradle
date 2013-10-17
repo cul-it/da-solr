@@ -36,16 +36,14 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) 
 
  main = 'edu.cornell.library.integration.indexer.updates.ConfirmSolrIndexCompleteness'
  classpath = sourceSets.main.runtimeClasspath
- args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
 
 task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 
  description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
 
- main = 'edu.cornell.library.integration.delete.DeleteFromSolr'
+ main = 'edu.cornell.library.integration.indexer.updates.DeleteFromSolr'
  classpath = sourceSets.main.runtimeClasspath
- args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1' ]
 }
 
 task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
@@ -53,12 +51,8 @@ task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  description = "Builds Solr Documents for MARC\
  n-Triples from step 5 and adds them to the Solr index."
  maxHeapSize = '2048m'
- main = 'edu.cornell.library.integration.indexer.IndexDirectoryCmd'
+ main = 'edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr'
  classpath = sourceSets.main.runtimeClasspath
- args = [ 'http://da-stg-msolr.library.cornell.edu:8080/solr/August1',
-          'http://culdata.library.cornell.edu/data/voyager/bib/bib.nt.daily' ]
-
- //systemProperty 'simple.message', 'Hello '
 }
 
 task libJar(type: Jar){

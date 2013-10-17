@@ -2,7 +2,6 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -18,102 +17,89 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 
 public class VoyagerUpdate {
-
-	private String davUrl = null;
-
+	
 	DavService davService;
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
-		try {
-			new VoyagerUpdate(args);
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-		}
-		
+	public static void main(String[] args) throws Exception {		
+	    new VoyagerUpdate(args);			
 	}
 	
 	public VoyagerUpdate(String[] args) throws Exception {
 		
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args );
-		davService = DavServiceFactory.getDavService(config);		
-		Path currentVoyagerBibList = null;
-		Path currentVoyagerMfhdList = null;
-		Collection<Integer> unsuppressedBibs = new HashSet<Integer>();
-		Collection<Integer> unsuppressedMfhds = new HashSet<Integer>();
-		String mostRecentBibFile = FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, davService);		
-		try{
-			if (mostRecentBibFile != null) {
-				System.out.println("Most recent bib file identified as: "+ mostRecentBibFile);
-				currentVoyagerBibList = davService.getNioPath( mostRecentBibFile );
-			}else{
-			    System.out.println("No recent bib file found.");
-			    System.exit(1);
-			}
-		} catch (Exception e) {
-		    throw new Exception( "Could not get most recent bib file from '" + mostRecentBibFile +"'", e);
-		}
-		try {
-			Scanner scanner = new Scanner(currentVoyagerBibList,StandardCharsets.UTF_8.name());
-			while (scanner.hasNextLine()) {
-				String id = scanner.nextLine();
-				unsuppressedBibs.add(Integer.valueOf(id));
-			}
-			scanner.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
 		
-		String mostRecentMfhdFile = FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, davService);
-		try {		
-			if (mostRecentMfhdFile != null) {
-				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
-				currentVoyagerMfhdList = davService.getNioPath( mostRecentMfhdFile);
-			}else{
-			    System.out.println("No recent Mfhd holdings file found.");
-                System.exit(1);
-			}
-		} catch (Exception e) {
-			throw new Exception( "Could not get most recent Mfhd holding file '" + mostRecentMfhdFile + "'" , e);
+		davService = DavServiceFactory.getDavService(config);				
+		
+		Collection<Integer> unsuppressedBibs;
+		try{
+		    String mostRecentBibFile = FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, davService);
+		    System.out.println("Most recent file of BIB IDs identified as: "+ mostRecentBibFile);
+		    unsuppressedBibs = getIdsFromFile( mostRecentBibFile );
+		}catch(Exception e){
+		    throw new Exception("Could not get most recent BIB ID file", e);
 		}
-		try {
-			Scanner scanner = new Scanner(currentVoyagerMfhdList,StandardCharsets.UTF_8.name());
-			while (scanner.hasNextLine()) {
-				String id = scanner.nextLine();
-				unsuppressedMfhds.add(Integer.valueOf(id));
-			}
-			scanner.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		
+		Collection<Integer> unsuppressedMfhds = new HashSet<Integer>();
+		try{
+		    String mostRecentMfhdFile = FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, davService);
+		    System.out.println("Most recent file of MFHD IDs identified as: "+ unsuppressedMfhds);		    
+		    unsuppressedMfhds = getIdsFromFile( mostRecentMfhdFile );
+		}catch(Exception e){
+		    throw new Exception("Could not be the most recent MFHD ID file", e);
+		}			
 		
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
-				+ "/" + config.getDailyMrcNtFilenamePrefix() + currentDate+".nt.gz";
-		
+				
 		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
 		tempFile.deleteOnExit();
-		System.out.println("Temp file : " + tempFile.getAbsolutePath());
+		System.out.println("Temp XML file : " + tempFile.getAbsolutePath());
 		
-		MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
+		try{
+		    MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
 				                            unsuppressedMfhds, 
 											davService, 
 											config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(),
 											config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(),
 				                            tempFile);
-		InputStream is = new FileInputStream(tempFile);
-		davService.saveFile(targetNTFile, is);
+		}catch (Exception e){
+		    throw new Exception("Problems while converting to N-Triples",e);
+		}
+			
+		String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
+                + "/" + config.getDailyMrcNtFilenamePrefix() + "-" + currentDate+".nt.gz";
 		
-		
-		
+	    InputStream is = new FileInputStream(tempFile);
+	    davService.saveFile(targetNTFile, is);						
+		System.out.println("MARC N-Triples file saved to " + targetNTFile);		
 	}
 	
 
 
+	private Collection<Integer> getIdsFromFile(String idFileUrl ) throws Exception{
+	    Path file = null;
+	    Collection<Integer> idList = new HashSet<Integer>();
+	    	    
+        if (idFileUrl != null) {            
+            file = davService.getNioPath( idFileUrl );
+        }else{
+            throw new Exception("No file found at " + idFileUrl);
+        }
+        
+       
+        Scanner scanner = new Scanner(file,StandardCharsets.UTF_8.name());
+        while (scanner.hasNextLine()) {
+            String id = scanner.nextLine();
+            idList.add(Integer.valueOf(id));
+        }
+        scanner.close();        
+        
+        return idList;
+
+	}
 
 }
