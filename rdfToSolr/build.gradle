@@ -33,7 +33,7 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) 
  group="Incremental Update Steps"
  description = "Generates a report of what records are missing\
  from the Solr Index or are in the Solr index but not in Voyager."
-
+ maxHeapSize = '1024m'  
  main = 'edu.cornell.library.integration.indexer.updates.ConfirmSolrIndexCompleteness'
  classpath = sourceSets.main.runtimeClasspath
 }
