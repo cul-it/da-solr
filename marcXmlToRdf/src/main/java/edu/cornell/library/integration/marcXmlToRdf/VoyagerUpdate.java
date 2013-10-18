@@ -47,7 +47,7 @@ public class VoyagerUpdate {
 		Collection<Integer> unsuppressedMfhds = new HashSet<Integer>();
 		try{
 		    String mostRecentMfhdFile = FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, davService);
-		    System.out.println("Most recent file of MFHD IDs identified as: "+ unsuppressedMfhds);		    
+		    System.out.println("Most recent file of MFHD IDs identified as: "+ mostRecentMfhdFile);		    
 		    unsuppressedMfhds = getIdsFromFile( mostRecentMfhdFile );
 		}catch(Exception e){
 		    throw new Exception("Could not be the most recent MFHD ID file", e);
