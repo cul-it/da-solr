@@ -14,18 +14,27 @@ subprojects {
         maven { url "http://repo.aduna-software.org/maven2/releases/" }
     }    
 }
-     
-task prepareForTesting(dependsOn: [
-     'convertRadioactiveMARCToRDF', 
-'copySolrTemplateDirToTestingResources']) << { 
-}
 
-task convertRadioactiveMARCToRDF (type: Xslt)  {  
-  source file('rdf/sources/RadMARCATS1.xml' )
-  destDir = file('rdf/output')
-  extension = 'nt' 
-  stylesheetFile = file( 'rdf/voyager-to-vitroTriples.datamap.xsl' )
-}
+
+
+task wrapper(type: Wrapper) {
+
+    description = "Setups up gradle wraper. see\
+ http://www.gradle.org/docs/current/userguide/gradle_wrapper.html"
+
+    gradleVersion = '1.4'
+}     
+
+//task prepareForTesting(dependsOn: ['convertRadioactiveMARCToRDF', 
+//'copySolrTemplateDirToTestingResources']) << { 
+//}
+
+// task convertRadioactiveMARCToRDF (type: Xslt)  {  
+//   source file('rdf/sources/RadMARCATS1.xml' )
+//   destDir = file('rdf/output')
+//   extension = 'nt' 
+//   stylesheetFile = file( 'rdf/voyager-to-vitroTriples.datamap.xsl' )
+// }
 
 task copySolrTemplateDirToTestingResources (type: Sync) {
   //Need to use the solr template dir in the unit tests.
@@ -90,62 +99,62 @@ task solrTestPropertiesFile  {
  *
  */
 
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
+// import javax.xml.transform.TransformerFactory
+// import javax.xml.transform.stream.StreamResult
+// import javax.xml.transform.stream.StreamSource
 
 
-// Trying to work around a small defficiency in plug-in class
-// resolution.
-project.Xslt = Xslt.class
+// // Trying to work around a small defficiency in plug-in class
+// // resolution.
+// project.Xslt = Xslt.class
 
-class Xslt extends SourceTask {
+// class Xslt extends SourceTask {
 
-    @OutputFile @Optional
-    File destFile
+//     @OutputFile @Optional
+//     File destFile
 
-    @OutputDirectory @Optional
-    File destDir
+//     @OutputDirectory @Optional
+//     File destDir
 
-    @InputFile
-    File stylesheetFile
+//     @InputFile
+//     File stylesheetFile
 
-    @Optional
-    String extension
+//     @Optional
+//     String extension
 
-    @TaskAction
-    def transform() {
-        if (!((destFile != null) ^ (destDir != null))) {
-            throw new InvalidUserDataException("Must specify exactly 1 of output file or dir.")
-        }
+//     @TaskAction
+//     def transform() {
+//         if (!((destFile != null) ^ (destDir != null))) {
+//             throw new InvalidUserDataException("Must specify exactly 1 of output file or dir.")
+//         }
 
-        println( "Using XSL style sheet:" + stylesheetFile );
+//         println( "Using XSL style sheet:" + stylesheetFile );
 
-        def factory = TransformerFactory.newInstance()
-        def transformer = factory.newTransformer(new StreamSource(stylesheetFile));
+//         def factory = TransformerFactory.newInstance()
+//         def transformer = factory.newTransformer(new StreamSource(stylesheetFile));
 
-        source.visit { FileVisitDetails fvd ->
-            if (fvd.isDirectory()) {
-                return
-            }
+//         source.visit { FileVisitDetails fvd ->
+//             if (fvd.isDirectory()) {
+//                 return
+//             }
 
-            println( "Processing " + fvd )
+//             println( "Processing " + fvd )
 
-            File d = destFile;
-            if( d == null )
-                {
-                // Remove the extension from the file name
-                name = fvd.file.name.replaceAll( '[.][^\\.]*$', '' )
-                if( extension != null )
-                    name += '.' + extension
-                d = new File( destDir, name )
-                }
-            println( "--> output:" + d )
+//             File d = destFile;
+//             if( d == null )
+//                 {
+//                 // Remove the extension from the file name
+//                 name = fvd.file.name.replaceAll( '[.][^\\.]*$', '' )
+//                 if( extension != null )
+//                     name += '.' + extension
+//                 d = new File( destDir, name )
+//                 }
+//             println( "--> output:" + d )
 
-            transformer.transform(new StreamSource(fvd.file), new StreamResult(d))
+//             transformer.transform(new StreamSource(fvd.file), new StreamResult(d))
 
 
-        }
-    }
+//         }
+//     }
 
-}
+// }
