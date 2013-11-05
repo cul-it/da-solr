@@ -50,7 +50,6 @@ public class BibFileToSolr extends Configured implements Tool {
     public final static String BIB_WEBDAV_PASSWORD = "BibFileToSolr.bibWebdavPassword";
     
     public final static String HOLDING_SERVICE_URL= "BibFileToSolr.holdingServiceUrl";
-    
 
 	//holdingsIndex = new HoldingForBib("http://jaf30-dev.library.cornell.edu:8080/DataIndexer/showTriplesLocation.do");
 	//admin password

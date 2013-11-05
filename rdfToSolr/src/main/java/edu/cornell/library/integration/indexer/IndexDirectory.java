@@ -115,6 +115,8 @@ public class IndexDirectory {
         MockRecordReader recordReader = new MockRecordReader();
 
         BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
+        indexingMapper.doSolrUpdate = true; 
+        indexingMapper.attempts = 1;
                 
         Mapper<Object,Text,Text,Text>.Context context = 
             indexingMapper.testContext(new Configuration(), new TaskAttemptID(),

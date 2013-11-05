@@ -72,14 +72,24 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	String solrURL;
 	SolrServer solr;
-	
+
+    /** If true, attempt to delete the document from solr before adding them
+        in order to do an update. */
+    public boolean doSolrUpdate = false;
+
+    /** Number of attempts if there are any exceptions during the mapping step. */
+    public int attempts = 4;
+
 	//model for data that gets reused each reduce
 	Model baseModel;
-	
+
+    //URL of the WEBDAV service
 	DavService davService;		
 
 	//true of an error happened during a single call to map()
 	boolean errors_encountered = false;
+
+   
 	
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
 		errors_encountered = false;
@@ -88,7 +98,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
 
-        for (int i = 0; i < 4; i++) { // In case of trouble, retry up to four times.
+        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
 
         	File tmpDir = Files.createTempDir();
 			log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
@@ -150,7 +160,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	private void moveToDone( Context context , String fileUrl) throws java.io.IOException, InterruptedException{
 	    try {
 	        // skip moveToDone if special value is set for doneDir
-	        if( DO_NOT_MOVE_TO_DONE.equals( doneDir.toString()          ) ) {
+	        if( DO_NOT_MOVE_TO_DONE.equals( doneDir.toString() )) {
 	            return;
 	        }else{
 	            String filename = getSplitFileName(context);
@@ -184,6 +194,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}
 					
 		try{
+            if( doSolrUpdate ){
+                //in solr an update is a delete followed by an add
+                solr.deleteById((String)doc.getFieldValue("id"));
+            }
+
 			solr.add(doc);				
 		}catch (Throwable er) {			
 			throw new Exception("Could not add document to index for " + bibUri +
