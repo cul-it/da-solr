@@ -161,16 +161,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"SELECT ?part1 ?part2 ?ind1\n"+
 			        	"WHERE {\n"+
 			        	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
-			        	"  ?hold marcrdf:hasField ?hold852.\n" +
-			        	"  ?hold marcrdf:ind1 ?ind1." +
-			        	"  ?hold852 marcrdf:tag \"852\".\n" +
+			        	"  ?hold marcrdf:hasField852 ?hold852.\n" +
+			        	"  ?hold852 marcrdf:ind1 ?ind1." +
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\".\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
 			        	"    ?hold852i marcrdf:code \"i\".\n" +
-			        	"    ?hold852i marcrdf:value ?part2. }\n" +
+			        	"    ?hold852i marcrdf:value ?part2. }\n" + 
 			        	"}").
 				    addMainStoreQuery("bib_callno",
 					    "SELECT ?part1 ?part2\n"+

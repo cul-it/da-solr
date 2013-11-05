@@ -19,6 +19,9 @@ import com.hp.hpl.jena.query.ResultSet;
  */
 public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 
+	
+	final boolean debug = false;
+	
 	@Override
 	public FieldMakerStep toFields(
 			Map<String, ResultSet> results) throws Exception {
@@ -40,11 +43,23 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 				
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
+			if (debug)
+				System.out.println(resultKey);
 			
 			if ( resultKey.endsWith("callno")) {
 				if( rs != null){
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
+
+						if (debug) {
+							System.out.println(" result.");
+							Iterator<String> i = sol.varNames();
+							while (i.hasNext()) {
+								String fieldname = i.next();
+								System.out.println(fieldname +": " + nodeToString(sol.get(fieldname)));
+							}
+						}
+							
 						String callno = nodeToString( sol.get("part1") );
 						if (callno.startsWith("MLC")) continue;
 						if (callno.equalsIgnoreCase("No Call Number")) continue;
@@ -61,6 +76,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 								callno += " " + part2;
 							}
 						}
+						if (debug)
+							System.out.println(callno);
 						callnos.add(callno);
 					}
 				}
@@ -72,9 +89,11 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
  		Iterator<String> i = callnos.iterator();
 		while (i.hasNext())
 			addField(fields,"lc_callnum_full",i.next());
-		i = callno_1stblocks.iterator();
+		
+		// Turning off lc_callnum_main for now - left truncation makes this unnecessary
+		/*i = callno_1stblocks.iterator();
 		while (i.hasNext())
-			addField(fields,"lc_callnum_main",i.next());
+			addField(fields,"lc_callnum_main",i.next()); */
 		
 		i = letters.iterator();
 		while (i.hasNext()) {
