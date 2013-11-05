@@ -1,6 +1,11 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import java.io.IOException;
 import java.util.Map;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -11,6 +16,8 @@ import edu.cornell.library.integration.indexer.IndexDirectory;
  * Index all the MARC n-Triple BIB files for the incremental update. 
  * It will attempt to index the most recent MARC BIB n-Triples incremental
  * update file. 
+ * 
+ * After the indexing this will do a hard and soft commit.
  * 
  * This loads configuration properties using the VoyagerToSolrConfiguration.
  */
@@ -50,12 +57,26 @@ public class IncrementalBibFileToSolr {
             indexer.setSolrURL(config.getSolrUrl());     
             
             indexer.setInputsURL( fileToIndex );
-            indexer.indexDocuments();
+            
+            indexer.indexDocuments();            
+            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
+            
         }catch(Exception e){
             throw new Exception("Problem while indexing documents from '" + fileToIndex + "'", e);
         }
         
         checkForErrors( indexer.getRecordWriter().getRecords() );
+    }
+
+    /**
+     * Do a hard and soft commit. This should commit the changes to the index (hard commit)
+     * and also open new searchers on the Solr server so the search results are
+     * visible (soft commit). 
+     */
+    private static void commitAndMakeAvaiableForSearch(String solrUrl) 
+            throws SolrServerException, IOException {
+        SolrServer solr = new  HttpSolrServer( solrUrl );
+        solr.commit(true,true,true);        
     }
 
 

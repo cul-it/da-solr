@@ -50,7 +50,7 @@ task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Builds Solr Documents for MARC\
  n-Triples from step 5 and adds them to the Solr index."
- maxHeapSize = '750m'
+ maxHeapSize = '1000m'
  main = 'edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr'
  classpath = sourceSets.main.runtimeClasspath
 }

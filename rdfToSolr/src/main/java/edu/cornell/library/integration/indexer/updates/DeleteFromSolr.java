@@ -6,8 +6,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -60,11 +64,11 @@ public class DeleteFromSolr {
         try{
             System.out.println("Deleteing BIB IDs found in: " + deleteFileURL);
             System.out.println("from Solr at: " + solrURL);
-            
+    
+            long countBeforeDel = countOfDocsInSolr( solr );
             InputStream is = davService.getFileAsInputStream( deleteFileURL );      
             BufferedReader reader = new BufferedReader(new InputStreamReader( is , "UTF-8" ));
-    
-            
+                
             int batchSize = 1000;
             List<String> ids = new ArrayList<String>(batchSize);
             
@@ -78,7 +82,7 @@ public class DeleteFromSolr {
                 }
                 
                 if( ids.size() >= batchSize ){
-                    solr.deleteById(ids, 1000 * 60 );
+                    solr.deleteById( ids );
                     ids.clear();                    
                 }                    
                 
@@ -88,8 +92,14 @@ public class DeleteFromSolr {
                 }                
             }    
             
-            System.out.println("Doing end of batch commit.");
-            solr.commit();
+            System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
+            solr.commit(true,true,true);
+            
+            long countAfterDel = countOfDocsInSolr( solr );
+            
+            System.out.println("Expeced to delete " + lineNum + " documents from Solr index.");
+            System.out.println("Solr document count before delete: " + countBeforeDel + 
+                    " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));            
             
         } catch (Exception e) {
             throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
@@ -100,4 +110,12 @@ public class DeleteFromSolr {
         System.out.println("Success: requested " + lineNum + " documents "
                 + "to be deleted from solr at " + config.getSolrUrl());
     }    
+    
+    private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException{
+        SolrQuery query = new SolrQuery();
+        query.set("qt", "standard");
+        query.setQuery("*:*");
+        query.setRows(0);
+        return solr.query( query ).getResults().getNumFound();        
+    }
 }
