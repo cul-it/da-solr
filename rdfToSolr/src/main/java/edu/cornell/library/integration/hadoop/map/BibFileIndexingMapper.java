@@ -293,6 +293,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		davService = new DavServiceImpl(
 				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
 				conf.get(BibFileToSolr.BIB_WEBDAV_PASSWORD));
+
+        //set tmp directory system prop
+        if( conf.get(BibFileToSolr.TMP_DIR) != null ){
+            System.setProperty("java.io.tmpdir", conf.get(BibFileToSolr.TMP_DIR));
+        }
 	}
 	
 	private Model loadBaseModel(Context context) throws IOException {		

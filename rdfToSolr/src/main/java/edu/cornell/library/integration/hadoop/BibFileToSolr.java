@@ -51,6 +51,8 @@ public class BibFileToSolr extends Configured implements Tool {
     
     public final static String HOLDING_SERVICE_URL= "BibFileToSolr.holdingServiceUrl";
 
+    public final static String TMP_DIR = "BibFileToSolr.tmpDir";
+
 	//holdingsIndex = new HoldingForBib("http://jaf30-dev.library.cornell.edu:8080/DataIndexer/showTriplesLocation.do");
 	//admin password
     

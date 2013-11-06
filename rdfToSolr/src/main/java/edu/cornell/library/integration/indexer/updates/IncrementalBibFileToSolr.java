@@ -51,7 +51,8 @@ public class IncrementalBibFileToSolr {
         
         IndexDirectory indexer = new IndexDirectory();
         try{
-            /* Setup indexer with properties from config. */                
+            /* Setup indexer with properties from config. */
+            indexer.setTmpDir( config.getTmpDir() );
             indexer.setDavUser(config.getWebdavUser());
             indexer.setDavPass(config.getWebdavPassword());
             indexer.setSolrURL(config.getSolrUrl());     

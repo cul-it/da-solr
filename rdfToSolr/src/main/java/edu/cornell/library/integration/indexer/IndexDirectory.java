@@ -54,7 +54,13 @@ public class IndexDirectory {
      * URL of Solr service to write Documents to.
      */
     String solrURL;
-    
+
+    /**
+     * Tmp directory. if not null, the value will
+     * replace the system property java.io.tmpdir
+     */
+    String tmpDir;
+
     /**
      * Results from Hadoop are sent to recordWriter.
      * This could be used to get results about how each
@@ -95,6 +101,14 @@ public class IndexDirectory {
         this.solrURL = solrURL;
     }
 
+    public String getTmpDir(){
+        return tmpDir;
+    }
+    
+    public void setTmpDir(String td){
+        this.tmpDir = td;
+    }
+
     public MockRecordWriter getRecordWriter() {
         return recordWriter;
     }
@@ -126,6 +140,9 @@ public class IndexDirectory {
         context.getConfiguration().set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
         context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
         context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
+
+        if( tmpDir != null )
+            context.getConfiguration().set( BibFileToSolr.TMP_DIR, tmpDir);
 
         indexingMapper.setup(context);
 
