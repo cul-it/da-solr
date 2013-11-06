@@ -114,10 +114,10 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
                 Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
 				TDBLoader loader = new TDBLoader() ;
 				loader.loadGraph((GraphTDB)model.getGraph(), is);			
-				model.add(baseModel);
-				
-				is.close();			
 				context.progress();
+
+				is.close();			
+				model.add(baseModel);
 				
 				log.info("Model load completed. Starting query for all bib records in model. ");									
 				Set<String> bibUris = getURIsInModel( model);
