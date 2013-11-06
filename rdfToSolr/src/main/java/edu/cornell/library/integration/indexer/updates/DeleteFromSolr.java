@@ -91,7 +91,11 @@ public class DeleteFromSolr {
                     solr.commit();
                 }                
             }    
-            
+
+            if( ids.size() > 0 ){
+                solr.deleteById( ids );
+            }
+
             System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
             solr.commit(true,true,true);
             
