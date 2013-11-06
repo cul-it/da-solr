@@ -264,17 +264,17 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      */
 	private Set<String> getUpdatedMfhdIdsFromCatalog(String fromDate, String toDate) 
 	        throws Exception {
-	    List<String> bibIdList;
+	    List<String> mfhdIdList;
 	    try {
-            System.out.println("Getting recently updated BIB IDs from Catalog");
-            bibIdList = getCatalogService().getUpdatedBibIdsUsingDateRange(fromDate, toDate);
-            System.out.println("BibIDList size: "+ bibIdList.size());
+            System.out.println("Getting recently updated MFHD IDs from Catalog");
+            mfhdIdList = getCatalogService().getUpdatedMfhdIdsUsingDateRange(fromDate, toDate);
+            System.out.println("MfhdIDList size: " + mfhdIdList.size());
         } catch (Exception e) {
             throw new Exception("Problem while attempting to get the updated "
                     + "MFHD IDs from the Catalog",e);
         }
         
-	    return new HashSet<String>(bibIdList);                
+	    return new HashSet<String>(mfhdIdList);                
     }
 
 
@@ -285,17 +285,16 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     private Set<String> getUpdatedBibIdsFromCatalog(String fromDate, String toDate) 
             throws Exception {
         
-        List<String> mfhdIdList = null;        
+        List<String> bibIdList = null;        
         try{
-            System.out.println("Getting recently updated MFHD IDs from Catalog");
-            mfhdIdList = getCatalogService().getUpdatedMfhdIdsUsingDateRange(
-                    fromDate, toDate);          
-            System.out.println("MfhdIDList size: " + mfhdIdList.size());
+            System.out.println("Getting recently updated BIB IDs from Catalog");
+            bibIdList = getCatalogService().getUpdatedBibIdsUsingDateRange(fromDate, toDate);
+            System.out.println("BibIDList size: "+ bibIdList.size());
         } catch (Exception e) {
             throw new Exception("Problem while attempting to get the updated "
-                    + "MFHD IDs from the Catalog",e);
+                    + "BIB IDs from the Catalog",e);
         }
-        return new HashSet<String>(mfhdIdList);
+        return new HashSet<String>(bibIdList);
     }
 
 
