@@ -91,8 +91,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		extraMfhdIds.addAll( getHoldingsForBibs( extraBibIds ) );								
 		
 		System.out.println("ExtraMfhdIDList: " + extraMfhdIds.size());
-		System.out.println("Total BibIDList: " + updatedBibIds.size() + extraBibIds.size());
-		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size() + extraMfhdIds.size());
+		System.out.println("Total BibIDList: " + (updatedBibIds.size() + extraBibIds.size() ));
+		System.out.println("Total MfhdIDList: " + (updatedMfhdIds.size() + extraMfhdIds.size() ));
 
 		// get BIB MARC and save it
 		updatedBibIds.addAll( extraBibIds );		
