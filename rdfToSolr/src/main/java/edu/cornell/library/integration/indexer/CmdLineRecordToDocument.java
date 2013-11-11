@@ -59,6 +59,8 @@ public class CmdLineRecordToDocument extends CommandBase{
 			if( solrIndexURL != null )
 				indexDoc( solrIndexURL, doc );
 			
+			OracleQuery.closeConnection(voyager);
+			
 		}catch(Exception ex){
 			System.err.println( ex.toString() );
 			ex.printStackTrace(System.err);

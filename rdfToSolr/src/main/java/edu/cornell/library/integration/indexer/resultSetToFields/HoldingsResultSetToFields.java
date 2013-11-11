@@ -52,6 +52,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 		
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
+			System.out.println(holdingURI);
 			System.out.println(rec.toString());
 			
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();

@@ -144,6 +144,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					}
 				}		
 				
+				OracleQuery.closeConnection(voyager);
+				
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
 

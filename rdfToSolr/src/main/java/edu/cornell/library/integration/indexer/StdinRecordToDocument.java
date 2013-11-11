@@ -52,13 +52,13 @@ public class StdinRecordToDocument extends CommandBase {
 		try{	
 			int count =0;
 			BufferedReader in = new BufferedReader(new InputStreamReader( System.in ));
+			Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+					OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
 			String recordURI = in.readLine();
 			while(  recordURI != null ){
 				
 				System.err.println(recordURI);
 				try{
-					Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
-							OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
 					addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService, voyager) );
 				}catch(Exception ex){
 					System.out.println("exception while working on " + recordURI + "\n" + ex.getMessage());
@@ -70,6 +70,7 @@ public class StdinRecordToDocument extends CommandBase {
 				
 				recordURI = in.readLine();
 			}
+			OracleQuery.closeConnection(voyager);
 			
 			solrServer.commit();
 		}catch(Exception ex){

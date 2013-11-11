@@ -1,14 +1,11 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-
+import java.sql.Connection;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /** When field values are being generated in multiple places and/or with standard field
@@ -19,7 +16,7 @@ public class SuppressUnwantedValues implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 
 		String fieldName = "subject_topic_facet";
 		String value = "Electronic books";

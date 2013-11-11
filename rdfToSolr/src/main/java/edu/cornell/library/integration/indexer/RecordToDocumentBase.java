@@ -75,7 +75,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			RDFService mainStorQueryService, Connection voyager) throws Exception {	
+			RDFService mainStoreQueryService, Connection voyager) throws Exception {	
 						
 		if(debug)
 			System.out.println("building document for " + recordURI);
@@ -86,7 +86,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			 localStore = getLocalStoreFactory().getRDFService();
 			if( localStore != null ){
 				for( LocalDataMaker con : getLocalDataMakers()){
-					con.gather(recordURI, mainStorQueryService, localStore);								
+					con.gather(recordURI, mainStoreQueryService, localStore);								
 				}
 			}
 		}
@@ -99,7 +99,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			
 			try {
 				//this needs to merge the values from fields with the same key
-				combineFields( doc, maker.buildFields(recordURI,mainStorQueryService, localStore));
+				combineFields( doc, maker.buildFields(recordURI,mainStoreQueryService, localStore));
 				
 				//that might throw an error, let the error pass up the stack.
 				//but log exceptions.
@@ -112,7 +112,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		List<? extends DocumentPostProcess> dpps = getDocumentPostProcess();
 		if( dpps != null ){
 			for( DocumentPostProcess dpp : dpps){
-				dpp.p(recordURI, mainStorQueryService, localStore, doc);
+				dpp.p(recordURI, mainStoreQueryService, localStore, doc, voyager);
 			}
 		}
 		
