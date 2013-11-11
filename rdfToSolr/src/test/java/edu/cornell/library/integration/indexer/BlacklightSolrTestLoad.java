@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
@@ -175,12 +177,15 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		System.out.println(bib_xml);
 		Pattern p = Pattern.compile("<([^>]*)>");
 		Matcher m = p.matcher(bib_xml);
+		Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+				OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+
 		while (m.find()) {
 			String uri = m.group(1);
 			System.out.println("*** " + uri + " ***");
 			SolrInputDocument doc;
 			try {
-				doc = r2d.buildDoc(uri, rdfService);
+				doc = r2d.buildDoc(uri, rdfService, voyager);
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;

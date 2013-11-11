@@ -74,38 +74,42 @@ public class MarcRecord {
 		public void addDataFieldResultSet( ResultSet rs ) {
 			while( rs.hasNext() ){
 				QuerySolution sol = rs.nextSolution();
-				String f_uri = nodeToString( sol.get("field") );
-				Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-				String sf_uri = nodeToString( sol.get("sfield") );
-				Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
-				DataField f;
-				if (this.data_fields.containsKey(field_no)) {
-					f = this.data_fields.get(field_no);
-				} else {
-					f = new DataField();
-					f.id = field_no;
-					f.tag = nodeToString( sol.get("tag"));
-					f.ind1 = nodeToString(sol.get("ind1")).charAt(0);
-					f.ind2 = nodeToString(sol.get("ind2")).charAt(0);
-					if (sol.contains("p")) {
-						String p = nodeToString(sol.get("p"));
-						f.mainTag = p.substring(p.length() - 3);
-					}
-				}
-				Subfield sf = new Subfield();
-				sf.id = sfield_no;
-				sf.code = nodeToString( sol.get("code")).charAt(0);
-				sf.value = nodeToString( sol.get("value"));
-				if (sf.code.equals('6')) {
-					if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
-							&& Character.isDigit(sf.value.charAt(5))) {
-						f.linkOccurrenceNumber = Integer.valueOf(sf.value.substring(4, 6));
-					}
-				}
-				f.subfields.put(sfield_no, sf);
-				this.data_fields.put(field_no, f);
-				
+				addDataFieldQuerySolution(sol);
 			}
+		}
+		
+		public void addDataFieldQuerySolution( QuerySolution sol ) {
+			String f_uri = nodeToString( sol.get("field") );
+			Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
+			String sf_uri = nodeToString( sol.get("sfield") );
+			Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
+			DataField f;
+			if (this.data_fields.containsKey(field_no)) {
+				f = this.data_fields.get(field_no);
+			} else {
+				f = new DataField();
+				f.id = field_no;
+				f.tag = nodeToString( sol.get("tag"));
+				f.ind1 = nodeToString(sol.get("ind1")).charAt(0);
+				f.ind2 = nodeToString(sol.get("ind2")).charAt(0);
+				if (sol.contains("p")) {
+					String p = nodeToString(sol.get("p"));
+					f.mainTag = p.substring(p.length() - 3);
+				}
+			}
+			Subfield sf = new Subfield();
+			sf.id = sfield_no;
+			sf.code = nodeToString( sol.get("code")).charAt(0);
+			sf.value = nodeToString( sol.get("value"));
+			if (sf.code.equals('6')) {
+				if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
+						&& Character.isDigit(sf.value.charAt(5))) {
+					f.linkOccurrenceNumber = Integer.valueOf(sf.value.substring(4, 6));
+				}
+			}
+			f.subfields.put(sfield_no, sf);
+			this.data_fields.put(field_no, f);
+			
 		}
 		
 		public Map<Integer,FieldSet> matchAndSortDataFields() {

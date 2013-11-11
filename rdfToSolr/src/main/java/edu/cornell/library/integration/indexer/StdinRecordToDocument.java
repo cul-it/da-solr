@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.sql.Connection;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -12,6 +13,7 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 
@@ -55,7 +57,9 @@ public class StdinRecordToDocument extends CommandBase {
 				
 				System.err.println(recordURI);
 				try{
-					addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService) );
+					Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+							OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+					addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService, voyager) );
 				}catch(Exception ex){
 					System.out.println("exception while working on " + recordURI + "\n" + ex.getMessage());
 					ex.printStackTrace(System.out);
