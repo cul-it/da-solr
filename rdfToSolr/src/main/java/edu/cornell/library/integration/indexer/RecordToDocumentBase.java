@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilies.IndexingUtilities.*;
 
+import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			RDFService mainStorQueryService) throws Exception {	
+			RDFService mainStorQueryService, Connection voyager) throws Exception {	
 						
 		if(debug)
 			System.out.println("building document for " + recordURI);

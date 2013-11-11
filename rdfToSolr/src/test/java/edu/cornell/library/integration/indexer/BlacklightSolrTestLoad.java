@@ -65,13 +65,13 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	
 	
 	
-	
+	@BeforeClass
 	public static void setup() throws Exception{
 		setupSolr();		
 	}
 
 
-	 
+	@Test
 	public void testForGoodStartup() throws Exception{
 		super.testLanguageMappingsInRDF();
 		super.testCallnumberMappingsInRDF();
