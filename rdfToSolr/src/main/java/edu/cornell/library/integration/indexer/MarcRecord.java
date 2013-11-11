@@ -60,14 +60,19 @@ public class MarcRecord {
 		public void addControlFieldResultSet( ResultSet rs ) {
 			while (rs.hasNext()) {
 				QuerySolution sol = rs.nextSolution();
-				String f_uri = nodeToString( sol.get("field") );
-				Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-				ControlField f = new ControlField();
-				f.tag = nodeToString(sol.get("tag"));
-				f.value = nodeToString(sol.get("value"));
-				f.id = field_no;
-				this.control_fields.put(field_no, f);
+				addControlFieldQuerySolution( sol );
 			}
+			
+		}
+		
+		public void addControlFieldQuerySolution( QuerySolution sol ) {
+			String f_uri = nodeToString( sol.get("field") );
+			Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
+			ControlField f = new ControlField();
+			f.tag = nodeToString(sol.get("tag"));
+			f.value = nodeToString(sol.get("value"));
+			f.id = field_no;
+			this.control_fields.put(field_no, f);
 			
 		}
 		

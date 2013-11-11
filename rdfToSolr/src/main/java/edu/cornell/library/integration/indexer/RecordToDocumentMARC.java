@@ -420,7 +420,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        
 			    new SPARQLFieldMakerImpl().
 			        setName("holdings_data").
-			        addMainStoreQuery("holdings",
+				    addMainStoreQuery("holdings_control_fields",
+				    		"SELECT *\n" +
+				    		" WHERE {\n" +
+				    		"   ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+				    		"   ?mfhd marcrdf:hasField ?field.\n" +
+				    		"   ?field marcrdf:tag ?tag.\n" +
+				    		"   ?field marcrdf:value ?value. }").
+			        addMainStoreQuery("holdings_data_fields",
 			        	"SELECT * \n"+
 			        	"WHERE {\n" +
 			        	"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +

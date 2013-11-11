@@ -44,7 +44,11 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 				} else {
 					rec = new MarcRecord();
 				}
-				rec.addDataFieldQuerySolution(sol);
+				if (resultKey.contains("control")) {
+					rec.addControlFieldQuerySolution(sol);
+				} else {
+					rec.addDataFieldQuerySolution(sol);
+				}
 				recs.put(recordURI, rec);
 			}
 //			rec.addDataFieldResultSet(rs);
