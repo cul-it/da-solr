@@ -257,6 +257,9 @@ public class MarcRecord {
 					Subfield sf = this.subfields.get(sf_id);					
 					if (first) first = false;
 					else sb.append(" ");
+					sb.append("\u2021");
+					sb.append(sf.code);
+					sb.append(" ");
 					sb.append(sf.value.trim());
 				}
 				

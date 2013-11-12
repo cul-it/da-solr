@@ -438,6 +438,21 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
+			        addMainStoreQuery("location",
+					   	"SELECT DISTINCT ?locuri ?name ?library ?code \n"+
+					   	"WHERE {\n"+
+		                "  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"+
+					  	"  OPTIONAL {\n" +
+					   	"    ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+					    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
+					    "    ?mfhd852b marcrdf:code \"b\".\n" +
+					    "    ?mfhd852b marcrdf:value ?code.\n" +
+					    "    ?locuri intlayer:code ?code.\n" +
+					    "    ?locuri rdfs:label ?name.\n" +
+					    "    OPTIONAL {\n" +
+					    "      ?locuri intlayer:hasLibrary ?liburi.\n" +
+					    "      ?liburi rdfs:label ?library.\n" +
+					    "}}}").
 		        addResultSetToFields( new HoldingsResultSetToFields()),
 			        
 			    new SPARQLFieldMakerImpl().
