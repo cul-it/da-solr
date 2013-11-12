@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -100,7 +99,6 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 		
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
-			System.out.println(rec.toString());
 						
 			for (ControlField f: rec.control_fields.values()) {
 				if (f.tag.equals("001")) {
@@ -200,7 +198,6 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			w.writeEndElement(); // record
 			w.writeEndDocument();
 			String xml = xmlstream.toString("UTF-8");
-			System.out.println(xml);
 			addField(solrFields,"holdings_record_display",xml);
 			
 		}
