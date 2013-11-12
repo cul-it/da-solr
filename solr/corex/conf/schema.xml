@@ -276,7 +276,7 @@
 		<!-- move decimal numbers on first cutter to far left -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]+\d{1,4})\.(\d+)" replacement="$2 $1"/>
         <!-- remove period prefix from all cutters --> 		
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" ." replacement=" "/> 
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" \." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
@@ -293,7 +293,7 @@
 		<!-- move decimal numbers on first cutter to far left -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]+\d{1,4})\.(\d+)" replacement="$2 $1"/> 		
         <!-- remove period prefix from all cutters --> 		
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" ." replacement=" "/> 
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" \." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
