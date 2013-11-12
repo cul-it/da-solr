@@ -271,8 +271,12 @@
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([A-Z]{1,3}) ?(\d{1,4}(\.\d+)?) ?\.?([A-Z]\d+)" replacement="$1$2 .$4"/>  
         <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))(\d+)" replacement="$1 $4"/>  
-        <!-- prepend yyyy to string so searches can be left anchored -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="yyyy$1"/>  
+        <!-- prepend prefixx to string so searches can be left anchored -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="prefixx$1"/> 
+		<!-- move decimal numbers on first cutter to far left -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]+\d{1,4})\.(\d+)" replacement="$2 $1"/>
+        <!-- remove period prefix from all cutters --> 		
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" ." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
@@ -284,8 +288,12 @@
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)?) *\.?([A-Z](\d+)?)" replacement="$1 .$3" />  
         <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))([^ ])" replacement="$1 $4"/>  
-        <!-- prepend yyyy to string so searches can be left anchored -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="yyyy$1"/>
+        <!-- prepend prefixx to string so searches can be left anchored -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="prefixx$1"/>
+		<!-- move decimal numbers on first cutter to far left -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]+\d{1,4})\.(\d+)" replacement="$2 $1"/> 		
+        <!-- remove period prefix from all cutters --> 		
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" ." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
