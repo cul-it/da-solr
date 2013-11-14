@@ -473,7 +473,8 @@
         subject_addl_t^50
         title_series_unstem_search^25
         title_series_t^10
-        isbnissn_t
+        isbn_t
+        issn_t
         donor_s
         donor_t
         pubplace_t
@@ -512,7 +513,8 @@
         subject_addl_t^500
         title_series_unstem_search^250
         title_series_t^100
-        isbnissn_t
+        isbn_t
+        issn_t
         donor_s
         donor_t
         pubplace_t
@@ -611,8 +613,16 @@
         donor_t
       </str>
 
-      <str name="isbnissn_qf"> isbnissn_s </str>
-      <str name="isbnissn_pf"> isbnissn_s </str>
+      <str name="isbnissn_qf">
+       isbnissn_s
+       isbn_t
+       issn_t
+      </str>
+      <str name="isbnissn_pf">
+       isbnissn_s
+       isbn_t
+       issn_t
+      </str>
 
       <str name="number_qf">
         id_t
@@ -649,7 +659,8 @@
         author_vern_display, 
         format, 
         online, 
-        isbn_t, 
+        isbn_t,
+        issn_t,
         language_facet, 
         location_facet, 
         lc_callnum_display,
@@ -793,7 +804,7 @@
       <str name="donor_qf"> donor_s donor_t </str>
 
       <!-- for user query terms in number text box -->
-      <str name="qf_number">isbn_t</str>
+      <str name="qf_number">isbn_t issn_t</str>
       
       <!-- for user query terms in keyword text box -->
       <str name="qf_keyword">text</str>
@@ -808,6 +819,7 @@
         format, 
         online, 
         isbn_t, 
+        issn_t,
         language_facet, 
         location_facet, 
         lc_callnum_display,
