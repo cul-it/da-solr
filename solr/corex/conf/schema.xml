@@ -267,35 +267,34 @@
     <!-- multiple terms per whitespace only, normalized -->
     <fieldType name="whitespaceNormalized" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
+        <filter class="solr.LowerCaseFilterFactory" />
         <!-- LC: no space between class letters and digits; normalize to " ." before first cutter, no leading space -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([A-Z]{1,3}) ?(\d{1,4}(\.\d+)?) ?\.?([A-Z]\d+)" replacement="$1$2 .$4"/>  
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([a-z]{1,3}) ?(\d{1,4}(\.\d+)?) ?\.?([a-z]\d+)" replacement="$1$2 .$4"/>  
         <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))(\d+)" replacement="$1 $4"/>  
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([a-z]{1,3}\d{1,4}(\.\d+)? \.([a-z]))(\d+)" replacement="$1 $4"/>  
         <!-- prepend prefixx to string so searches can be left anchored -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="prefixx$1"/> 
 		<!-- move decimal numbers on first cutter to far left -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Za-z]+\d{1,4})\.(\d+)" replacement="$2 $1"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([a-z]+\d{1,4})\.(\d+)" replacement="$2 $1"/>
         <!-- remove period prefix from all cutters --> 		
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" \." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
       <analyzer type="query">
-        <!-- Note that the query string could be a partial call number, so we can't combine all patterns -->
+        <filter class="solr.LowerCaseFilterFactory" />
         <!-- LC: no space between class letters and digits, no leading space -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([A-Z]{1,3}) *(\d{1,4})" replacement="$1$2" />  
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([a-z]{1,3}) *(\d{1,4})" replacement="$1$2" />  
         <!-- LC: normalize to " ." before first cutter or first letter of cutter (could be preceded by " ." "." " " or nothing) -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)?) *\.?([A-Z](\d+)?)" replacement="$1 .$3" />  
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([a-z]{1,3}\d{1,4}(\.\d+)?) *\.?([a-z](\d+)?)" replacement="$1 .$3" />  
         <!-- LC: add space between first cutter letter and its digits to allow matching on first cutter letter only -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Z]{1,3}\d{1,4}(\.\d+)? \.([A-Z]))([^ ])" replacement="$1 $4"/>  
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([a-z]{1,3}\d{1,4}(\.\d+)? \.([a-z]))([^ ])" replacement="$1 $4"/>  
         <!-- prepend prefixx to string so searches can be left anchored -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^ *([^ ]{1})" replacement="prefixx$1"/>
 		<!-- move decimal numbers on first cutter to far left -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([A-Za-z]+\d{1,4})\.(\d+)" replacement="$2 $1"/> 		
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^([a-z]+\d{1,4})\.(\d+)" replacement="$2 $1"/> 		
         <!-- remove period prefix from all cutters --> 		
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern=" \." replacement=" "/> 
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
 
