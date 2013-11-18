@@ -120,13 +120,32 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 				DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 				for (DataField f: dataFields) {
 					String callno = null;
+					if (f.tag.equals("506")) {
+						// restrictions on access note
+						notes.add(f.concatenateSpecificSubfields("ancdefu3"));
+					} else if (f.tag.equals("561")) {
+						// ownership and custodial history
+						if (! f.ind1.equals('0')) // '0' = private
+							notes.add(f.concatenateSpecificSubfields("au3"));
+					} else if (f.tag.equals("562")) {
+						notes.add(f.concatenateSpecificSubfields("abcde3"));
+						// copy and version identification note
+					} else if (f.tag.equals("843")) {
+						// reproduction note
+						notes.add(f.concatenateSpecificSubfields("abcdefmn3"));
+					} else if (f.tag.equals("845")) {
+						// terms governing use and reproduction note
+						notes.add(f.concatenateSpecificSubfields("abcdu3"));
+					}
 					for (Subfield sf: f.subfields.values()) {
 						if (f.tag.equals("852")) {
 							if (sf.code.equals('b')) {
 								loccodes.add(sf.value);
 							} else if (sf.code.equals('h')) {
 								// If there is a subfield ‡h, then there is a call number. So we will record
-								// a concatenation of all the call number fields.
+								// a concatenation of all the call number fields. If there are (erroneously)
+								// multiple subfield ‡h entries in one field, the callno will be overwritten
+								// and not duplicated in the call number array.
 								callno = f.concatenateSpecificSubfields("hijklm");
 							} else if (sf.code.equals('z')) {
 								notes.add(sf.value);
@@ -135,9 +154,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 						} else if (f.tag.equals("866") || f.tag.equals("867") || f.tag.equals("868")) {
 							if (sf.code.equals('a')) {
 								holdings.add(sf.value);
+							} if (sf.code.equals('z')) {
+								notes.add(sf.value);
 							}
-						} else if (f.tag.startsWith("3") || f.tag.startsWith("5") || f.tag.startsWith("84")) {
-							notes.add(f.concateSubfieldsOtherThan6());
 						}
 					}
 					if (callno != null)
