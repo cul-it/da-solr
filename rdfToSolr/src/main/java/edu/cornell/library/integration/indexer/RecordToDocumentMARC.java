@@ -84,6 +84,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
 					    "    ?mfhd852b marcrdf:code \"b\".\n" +
 					    "    ?mfhd852b marcrdf:value ?code.\n" +
+					    "    ?locuri rdf:type intlayer:Location.\n" +
 					    "    ?locuri intlayer:code ?code.\n" +
 					    "    ?locuri rdfs:label ?name.\n" +
 					    "    OPTIONAL {\n" +
@@ -446,6 +447,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"    ?hold852b marcrdf:code \"b\".\n" +
 			        	"    ?hold852b marcrdf:value ?loccode.\n" +
 			        	"    ?location intlayer:code ?loccode.\n" +
+			        	"    ?location rdf:type intlayer:Location.\n" +
 			        	"    ?location rdfs:label ?location_name.\n" +
 			        	"    OPTIONAL {\n" +
 			        	"      ?location intlayer:hasLibrary ?library.\n" +

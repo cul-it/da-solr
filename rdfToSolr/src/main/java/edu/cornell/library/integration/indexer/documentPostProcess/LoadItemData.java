@@ -7,12 +7,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -33,7 +36,7 @@ public class LoadItemData implements DocumentPostProcess{
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		for (Object mfhd_id_obj: field.getValues()) {
-			String query = "SELECT CORNELLDB.ITEM.* FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM" +
+			String query = "SELECT * FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM" +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
 							"AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID";
 			if (debug)
@@ -43,52 +46,41 @@ public class LoadItemData implements DocumentPostProcess{
 	        ResultSet rs = null;
 	        ResultSetMetaData rsmd = null;
 	        try {
-	           stmt = voyager.createStatement();
+	        	stmt = voyager.createStatement();
 	
-	           rs = stmt.executeQuery(query);
-	           rsmd = rs.getMetaData();
-	           int mdcolumnCount = rsmd.getColumnCount();
-	           while (rs.next()) {
+	        	rs = stmt.executeQuery(query);
+	        	rsmd = rs.getMetaData();
+	        	int mdcolumnCount = rsmd.getColumnCount();
+	        	while (rs.next()) {
 		        	   
-		   		  XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-				  ByteArrayOutputStream xmlstream = new ByteArrayOutputStream();
-				  XMLStreamWriter w = outputFactory.createXMLStreamWriter(xmlstream);
-				  w.writeStartDocument("UTF-8", "1.0");
-				  w.writeStartElement("record");
-				  w.writeStartElement("mfhd_id");
-			 	  w.writeCharacters(mfhd_id_obj.toString());
-				  w.writeEndElement();
-
+	        		ObjectMapper mapper = new ObjectMapper();
+	        		Map<String,String> record = new HashMap<String,String>();
+	        		record.put("mfhd_id",mfhd_id_obj.toString());
 				
-	        	  if (debug) 
-	        		  System.out.println();
-	              for (int i=1; i <= mdcolumnCount ; i++) {
-	                 String colname = rsmd.getColumnName(i);
-	                 w.writeStartElement(colname.toLowerCase());
-	                 int coltype = rsmd.getColumnType(i);
-	                 String value = null;
-	                 if (coltype == java.sql.Types.CLOB) {
-	                    Clob clob = rs.getClob(i);  
-	                    value = OracleQuery.convertClobToString(clob);
-	                 } else { 
-	                	value = rs.getString(i);
-	                 }
-	               	 if (value == null)
-	               		value = "";
-	                 if (debug)
-	               		System.out.println(colname+": "+value);
-	                 w.writeCharacters(value);
-	                 w.writeEndElement();
-	              }
-	              w.writeEndElement(); //record
-	              w.writeEndDocument();
-	              String xml = xmlstream.toString("UTF-8");
-	              if (debug)
-	            	  System.out.println(xml);
-	              itemField.addValue(xml, 1);
-
- 	           }
-	
+	        		if (debug) 
+	        			System.out.println();
+	        		for (int i=1; i <= mdcolumnCount ; i++) {
+	        			String colname = rsmd.getColumnName(i);
+	        			int coltype = rsmd.getColumnType(i);
+	        			String value = null;
+	       				if (coltype == java.sql.Types.CLOB) {
+	       					Clob clob = rs.getClob(i);  
+	        				value = OracleQuery.convertClobToString(clob);
+	        			} else { 
+	        				value = rs.getString(i);
+	       				}
+	       				if (value == null)
+	       					value = "";
+	       				if (debug)
+	       					System.out.println(colname+": "+value);
+	       				
+	       				record.put(colname.toLowerCase(), value);
+	        		}
+	        		
+	        		String json = mapper.writeValueAsString(record);
+	        		System.out.println(json);
+	        		itemField.addValue(json, 1);
+	        	}
 	        } catch (SQLException ex) {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());

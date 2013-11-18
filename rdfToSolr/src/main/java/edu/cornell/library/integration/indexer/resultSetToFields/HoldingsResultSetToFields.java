@@ -9,15 +9,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.apache.solr.common.SolrInputField;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -29,9 +28,8 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
+ * For a bib record with multiple holdings records, each holdings record will have it's own holdings_record_display.
  */
 public class HoldingsResultSetToFields implements ResultSetToFields {
 
@@ -74,6 +72,8 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 					Matcher m = p.matcher(nodeToString(sol.get("locuri")));
 					if (m.matches()) {
 						l.number = Integer.valueOf(m.group(1));
+					} else {
+						System.out.println(nodeToString(sol.get("locuri")));
 					}
 					locations.put(l.code, l);					
 					
@@ -164,57 +164,25 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 				}
 			}
 			
-			
-			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-			ByteArrayOutputStream xmlstream = new ByteArrayOutputStream();
-			XMLStreamWriter w = outputFactory.createXMLStreamWriter(xmlstream);
-			w.writeStartDocument("UTF-8", "1.0");
-			w.writeStartElement("record");
-			w.writeStartElement("id");
-			w.writeCharacters(rec.id);
-			w.writeEndElement(); // holdings id
-			
-			for (String loccode: loccodes) {
-				w.writeStartElement("location");
-				Location l = locations.get(loccode);
-				w.writeStartElement("id");
-				w.writeCharacters(l.number.toString());
-				w.writeEndElement(); //id
-				w.writeStartElement("code");
-				w.writeCharacters(l.code);
-				w.writeEndElement(); //code
-				w.writeStartElement("name");
-				w.writeCharacters(l.name);
-				w.writeEndElement(); //name
-				w.writeStartElement("library");
-				w.writeCharacters(l.library);
-				w.writeEndElement(); //library
-				w.writeEndElement(); //location
+			Holdings holding = new Holdings();
+			holding.id = rec.id;
+			holding.callnos = callnos.toArray(new String[ callnos.size() ]);
+			holding.notes = notes.toArray(new String[ notes.size() ]);
+			holding.holdings_desc = holdings.toArray(new String[ holdings.size() ]);
+			holding.locations = new Location[loccodes.size()];
+			Iterator<String> iter = loccodes.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				String loccode = iter.next();
+				holding.locations[i] = locations.get(loccode);
+				i++;
 			}
-
-			for (String callno: callnos) {
-				w.writeStartElement("callno");
-				w.writeCharacters(callno);
-				w.writeEndElement(); //callno
-			}
-
-			for (String holding: holdings) {
-				w.writeStartElement("holdings_desc");
-				w.writeCharacters(holding);
-				w.writeEndElement(); //holdings_desc
-			}
-
-			for (String note: notes) {
-				w.writeStartElement("note");
-				w.writeCharacters(note);
-				w.writeEndElement(); //note
-			}
-			
-			w.writeEndElement(); // record
-			w.writeEndDocument();
-			String xml = xmlstream.toString("UTF-8");
-			addField(solrFields,"holdings_record_display",xml);
-			
+			ObjectMapper mapper = new ObjectMapper();
+			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+			mapper.writeValue(jsonstream, holding);
+			String json = jsonstream.toString("UTF-8");
+			addField(solrFields,"holdings_record_display",json);
+			System.out.println(json);
 		}
 		
 		
@@ -240,6 +208,14 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			sb.append(this.library);
 			return sb.toString();
 		}
+	}
+	
+	public static class Holdings {
+		public String id;
+		public String[] callnos;
+		public String[] notes;
+		public String[] holdings_desc;
+		public Location[] locations;
 	}
 
 
