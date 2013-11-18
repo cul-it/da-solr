@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.sql.Connection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class SuppressShadowRecords implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 		
 		Boolean isShadow = false;
 		SubfieldCodeMaker scm = new SubfieldCodeMaker("shadow_flag","948","h");

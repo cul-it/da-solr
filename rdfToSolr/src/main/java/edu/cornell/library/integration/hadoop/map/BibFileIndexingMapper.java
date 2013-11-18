@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
@@ -72,6 +74,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	String solrURL;
 	SolrServer solr;
+
+	Connection voyager;
 
     /** If true, attempt to delete the document from solr before adding them
         in order to do an update. */
@@ -118,8 +122,12 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 				is.close();			
 				model.add(baseModel);
+			
+				log.info("Model load completed. Creating connection to Voyager Database.");
+				voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+						OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
 				
-				log.info("Model load completed. Starting query for all bib records in model. ");									
+				log.info("Starting query for all bib records in model. ");									
 				Set<String> bibUris = getURIsInModel( model);
 				context.progress();										 
 				
@@ -135,6 +143,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
 					}
 				}		
+				
+				OracleQuery.closeConnection(voyager);
 				
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
@@ -184,7 +194,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
-			doc = r2d.buildDoc(bibUri, rdf);
+			doc = r2d.buildDoc(bibUri, rdf, voyager);
 			if( doc == null ){
 				throw new Exception("No document created for " + bibUri);				
 			}

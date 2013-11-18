@@ -80,7 +80,7 @@
 <http://da-rdf.library.cornell.edu/individual/h5777_8_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
 <http://da-rdf.library.cornell.edu/individual/h5777_8_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
 <http://da-rdf.library.cornell.edu/individual/h5777_8_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "v.1-2".
-<http://da-rdf.library.cornell.edu/individual/h5778> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/HoldingsRecord> .
+<http://da-rdf.library.cornell.edu/individual/h5777> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/HoldingsRecord> .
 <http://da-rdf.library.cornell.edu/individual/h5778> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/HoldingsRecord> .
 <http://da-rdf.library.cornell.edu/individual/h5778> <http://www.w3.org/2000/01/rdf-schema#label> "5778".
 <http://da-rdf.library.cornell.edu/individual/h5778> <http://marcrdf.library.cornell.edu/canonical/0.1/leader> "00222ny  a22001093  4500".

@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import org.apache.solr.client.solrj.SolrServer;
+import java.sql.Connection;
+
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -17,10 +18,12 @@ public interface DocumentPostProcess {
 	 * @param mainStore
 	 * @param localStore
 	 * @param document - may be modified by instances of this interface.
+	 * @param voyager TODO
 	 * @throws Exception 
 	 */
 	void p( String recordURI, 
 			RDFService mainStore, 
 			RDFService localStore, 
-			SolrInputDocument document) throws Exception;
+			SolrInputDocument document,
+			Connection voyager) throws Exception;
 }

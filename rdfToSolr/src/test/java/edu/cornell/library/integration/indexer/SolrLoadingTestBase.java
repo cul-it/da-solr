@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -25,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
 
 import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
@@ -220,7 +222,9 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		for( String uri: rMarcURIS){
 			SolrInputDocument doc;
 			try {
-				doc = r2d.buildDoc(uri, rdfService);
+				Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+						OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+				doc = r2d.buildDoc(uri, rdfService, voyager);
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				throw e;

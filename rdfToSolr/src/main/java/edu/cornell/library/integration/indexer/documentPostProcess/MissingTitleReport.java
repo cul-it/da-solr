@@ -1,14 +1,10 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-
-import java.util.Iterator;
-import java.util.Map;
+import java.sql.Connection;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /** To boost shadow records, identify them, then set boost to X times current boost.
@@ -19,7 +15,7 @@ public class MissingTitleReport implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 		
 		if (document.getFieldNames().contains("title_display")) {
 			SolrInputField titleField = document.getField("title_display");

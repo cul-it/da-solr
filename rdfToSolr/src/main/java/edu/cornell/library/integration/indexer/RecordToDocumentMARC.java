@@ -30,7 +30,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new RecordBoost(),
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
-				new SuppressShadowRecords()
+				new SuppressShadowRecords(),
+				new LoadItemData()
 		);
 	}
 
@@ -53,6 +54,44 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				        	"  ?f marcrdf:value ?id.\n" +
 							"}").
 					addResultSetToFields( new AllResultsToField("holdings_display")),
+			        
+			    new SPARQLFieldMakerImpl().
+			        setName("holdings_data").
+				    addMainStoreQuery("holdings_control_fields",
+				    		"SELECT *\n" +
+				    		" WHERE {\n" +
+				    		"   ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+				    		"   ?mfhd marcrdf:hasField ?field.\n" +
+				    		"   ?field marcrdf:tag ?tag.\n" +
+				    		"   ?field marcrdf:value ?value. }").
+			        addMainStoreQuery("holdings_data_fields",
+			        	"SELECT * \n"+
+			        	"WHERE {\n" +
+			        	"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+			        	"  ?mfhd marcrdf:hasField ?field.\n" +
+			        	"  ?field marcrdf:tag ?tag.\n" +
+			        	"  ?field marcrdf:ind1 ?ind1.\n" +
+			        	"  ?field marcrdf:ind2 ?ind2.\n" +
+			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			        	"  ?sfield marcrdf:code ?code.\n" +
+			        	"  ?sfield marcrdf:value ?value. }").
+			        addMainStoreQuery("location",
+					   	"SELECT DISTINCT ?locuri ?name ?library ?code \n"+
+					   	"WHERE {\n"+
+		                "  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"+
+					  	"  OPTIONAL {\n" +
+					   	"    ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+					    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
+					    "    ?mfhd852b marcrdf:code \"b\".\n" +
+					    "    ?mfhd852b marcrdf:value ?code.\n" +
+					    "    ?locuri rdf:type intlayer:Location.\n" +
+					    "    ?locuri intlayer:code ?code.\n" +
+					    "    ?locuri rdfs:label ?name.\n" +
+					    "    OPTIONAL {\n" +
+					    "      ?locuri intlayer:hasLibrary ?liburi.\n" +
+					    "      ?liburi rdfs:label ?library.\n" +
+					    "}}}").
+		        addResultSetToFields( new HoldingsResultSetToFields()),
 
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
@@ -408,6 +447,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"    ?hold852b marcrdf:code \"b\".\n" +
 			        	"    ?hold852b marcrdf:value ?loccode.\n" +
 			        	"    ?location intlayer:code ?loccode.\n" +
+			        	"    ?location rdf:type intlayer:Location.\n" +
 			        	"    ?location rdfs:label ?location_name.\n" +
 			        	"    OPTIONAL {\n" +
 			        	"      ?location intlayer:hasLibrary ?library.\n" +
@@ -417,7 +457,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"        ?libgroup rdfs:label ?group_name.\n" +
 			        	"}}}}").
 			        addResultSetToFields( new LocationResultSetToFields() ),
-
+			        
 			    new SPARQLFieldMakerImpl().
 			    	setName("citation_reference_note").
 			    	addMainStoreQuery("field510", 

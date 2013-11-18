@@ -4,22 +4,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Connection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
-
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -41,7 +36,7 @@ public class SolrSchemaSingleValueValidation implements DocumentPostProcess {
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 				
 		solrSchemaUrl = solrUrl + "/admin/file/?contentType=text/xml;charset=utf-8&file=schema.xml";
 		Document schemaXml = getSchemaXml();

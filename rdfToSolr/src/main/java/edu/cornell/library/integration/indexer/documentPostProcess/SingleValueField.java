@@ -1,7 +1,8 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.sql.Connection;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -31,7 +32,7 @@ public class SingleValueField implements DocumentPostProcess {
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 		
 		if (! document.containsKey(fieldName)) {
 			return;

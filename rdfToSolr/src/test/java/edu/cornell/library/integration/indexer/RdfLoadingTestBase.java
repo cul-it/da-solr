@@ -33,25 +33,10 @@ public class RdfLoadingTestBase {
 	 * This test needs to load a set of RDF to use to build
 	 * documents from. 
 	 */
-	static final String testRDFDir =  "rdf/testRecords/";
-	
-	/**
-	 * These are the path prefixes to try to use 
-	 * when looking for RDF directories. The intent
-	 * is to allow the test to be run from different 
-	 * directories.  It would be better to load these
-	 * from resources but you cannot access directories
-	 * from resources.  
-	 * 
-	 * A better system for this would be welcome. The
-	 * test need to be run from the build script
-	 * and from eclipse. 
-	 */
-	static final String[] testRDFDirBases = {
-		"./",
-		"../"
-	};
-	
+//	static final String testRDFDir =  "rdfToSolr/src/main/resources/";
+	static final String testRDFDir =  "rdf/testrecords/";
+	static final String standardRDFDir =  "rdfToSolr/build/resources/main/";
+		
 	
 	static final String[] standardFiles = { "shadows.nt", "language_code.nt", "library.nt", "callnumber_map.nt", "fieldGroups.nt" };
 	
@@ -63,17 +48,15 @@ public class RdfLoadingTestBase {
 	}
 			
 	static RDFService loadRdf() throws Exception {		
-		//find test dir
-		File testRDFDir = findTestDir();
 		
 		//load all files in test dir
-		List<File> files = new LinkedList<File>(Arrays.asList(testRDFDir.listFiles()));		
+		List<File> files = new LinkedList<File>(Arrays.asList(new File("./"+testRDFDir).listFiles()));		
 		assertNotNull("no test RDF files found",files);
 		assertTrue("no test RDF files found", files.size() > 0 );
 		
 		//load the standard files
 		for(String fileName : standardFiles){
-			files.add( new File( testRDFDir.getParentFile().getAbsolutePath() + 
+			files.add( new File( new File("./"+standardRDFDir).getAbsolutePath() + 
                                  File.separator +fileName));
 		}
 		
@@ -109,21 +92,4 @@ public class RdfLoadingTestBase {
 				"The mappings RDF may not be getting loaded for this test.",
 				rdf.sparqlAskQuery("ASK WHERE { " + englishURI + " ?p ?a }"));			
 	}
-
-	
-	protected static File findTestDir() {
-		List<String> attempted = new ArrayList<String>();		
-		File f = null;
-		for( String base: testRDFDirBases){
-			String attemptedDir =base + testRDFDir ;
-			attempted.add( attemptedDir);
-			f = new File( attemptedDir );
-			if( f != null && f.exists() && f.isDirectory() )
-				break;
-		}				
-		assertNotNull("Could not find directory " +
-				"of test RDF, check in these locations:\n" +
-				StringUtils.join(attempted,"\n  "), f);
-		return f;
-	}			
 }

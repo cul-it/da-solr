@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import java.net.URL;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 
 import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 
@@ -46,14 +47,19 @@ public class CmdLineRecordToDocument extends CommandBase{
 		RDFService queryService = new RDFServiceSparqlHttp( readEndpointURI );
 			
 		//make the solr document
-		try{			
-			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService);						
+		try{
+			Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
+					OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+
+			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService, voyager);						
 			System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
 			System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
 			
 			//index the solr doc if a server was specified 
 			if( solrIndexURL != null )
 				indexDoc( solrIndexURL, doc );
+			
+			OracleQuery.closeConnection(voyager);
 			
 		}catch(Exception ex){
 			System.err.println( ex.toString() );

@@ -80,8 +80,8 @@ public class BibFileToSolr extends Configured implements Tool {
 		setupInputDir( conf, inputDir);
 		
 		//make a new output dir each run because FileOutputFormat needs that.
-		Path outputDir = setupOutputDir( conf );				
-		
+		Path outputDir = setupOutputDir( conf );	
+				
 		//set todo dir if there is none in conf.
 		Path todoDir = null;
 		if( conf.get(TODO_DIR) == null ){
