@@ -11,7 +11,8 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
