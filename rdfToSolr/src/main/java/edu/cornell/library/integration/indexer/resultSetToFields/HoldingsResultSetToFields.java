@@ -119,16 +119,17 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 				FieldSet fs = sortedFields.get(id);
 				DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 				for (DataField f: dataFields) {
-					String h = null;
-					String i = null;
+					String callno = null;
 					for (Subfield sf: f.subfields.values()) {
 						if (f.tag.equals("852")) {
 							if (sf.code.equals('b')) {
 								loccodes.add(sf.value);
 							} else if (sf.code.equals('h')) {
-								h = sf.value;
-							} else if (sf.code.equals('i')) {
-								i = sf.value;
+								// If there is a subfield ‡h, then there is a call number. So we will record
+								// a concatenation of all the call number fields.
+								callno = f.concatenateSpecificSubfields("hijklm");
+							} else if (sf.code.equals('z')) {
+								notes.add(sf.value);
 							}
 							
 						} else if (f.tag.equals("866") || f.tag.equals("867") || f.tag.equals("868")) {
@@ -139,13 +140,8 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 							notes.add(f.concateSubfieldsOtherThan6());
 						}
 					}
-					if (h != null) {
-						if (i == null) {
-							callnos.add(h);
-						} else {
-							callnos.add(h + " " + i);
-						}
-					}
+					if (callno != null)
+						callnos.add(callno);
 				}
 			}
 			
