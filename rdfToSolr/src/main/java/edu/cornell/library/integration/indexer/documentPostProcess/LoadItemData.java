@@ -27,7 +27,9 @@ public class LoadItemData implements DocumentPostProcess{
 	@Override
 	public void p(String recordURI, RDFService mainStore,
 			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
-		
+
+		if (! document.containsKey("holdings_display"))
+			return;
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
