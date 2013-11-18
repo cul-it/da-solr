@@ -182,7 +182,6 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
 			addField(solrFields,"holdings_record_display",json);
-			System.out.println(json);
 		}
 		
 		

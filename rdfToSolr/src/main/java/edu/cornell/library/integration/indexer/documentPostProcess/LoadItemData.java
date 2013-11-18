@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.io.ByteArrayOutputStream;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,9 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -36,9 +32,11 @@ public class LoadItemData implements DocumentPostProcess{
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		for (Object mfhd_id_obj: field.getValues()) {
-			String query = "SELECT * FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM" +
+			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME " +
+					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM, CORNELLDB.ITEM_TYPE" +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
-							"AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID";
+					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
+					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID";
 			if (debug)
 				System.out.println(query);
 	
@@ -71,14 +69,13 @@ public class LoadItemData implements DocumentPostProcess{
 	       				}
 	       				if (value == null)
 	       					value = "";
-	       				if (debug)
-	       					System.out.println(colname+": "+value);
 	       				
 	       				record.put(colname.toLowerCase(), value);
 	        		}
 	        		
 	        		String json = mapper.writeValueAsString(record);
-	        		System.out.println(json);
+	        		if (debug)
+	        			System.out.println(json);
 	        		itemField.addValue(json, 1);
 	        	}
 	        } catch (SQLException ex) {
