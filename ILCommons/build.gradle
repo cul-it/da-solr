@@ -7,7 +7,7 @@ apply plugin: 'java'
 
 dependencies{
 
-
+   compile 'org.apache.solr:solr-solrj:4.2.1'
 
    compile 'commons-io:commons-io:2.4'
    compile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
