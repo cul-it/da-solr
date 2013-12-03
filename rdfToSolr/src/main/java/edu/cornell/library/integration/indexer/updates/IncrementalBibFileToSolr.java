@@ -7,6 +7,9 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
+import com.hp.hpl.jena.query.ARQ;
+import com.hp.hpl.jena.sparql.mgt.Explain;
+
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -58,7 +61,9 @@ public class IncrementalBibFileToSolr {
             indexer.setSolrURL(config.getSolrUrl());     
             
             indexer.setInputsURL( fileToIndex );
-            
+
+            //ARQ.setExecutionLogging(Explain.InfoLevel.ALL) ;
+
             indexer.indexDocuments();            
             commitAndMakeAvaiableForSearch( config.getSolrUrl() );
             
@@ -83,7 +88,8 @@ public class IncrementalBibFileToSolr {
 
     private static void checkForErrors( Map<String,String> records) throws Exception{
         if( records == null || records.isEmpty() ){
-            throw new Exception("No records found for indexer, there may have been no inputs or there may have been a problem.");
+            throw new Exception("No records found for indexer, there may have been no inputs "
+                                +"or there may have been a problem.");
         }
         
         String foundError = "";        
@@ -93,7 +99,7 @@ public class IncrementalBibFileToSolr {
             String  value = records.get(key);
             if(value == null ){
                 foundError += "No record for " + key + '\n';
-            }else if( value.contains("ERROR") ){
+            }else if( value.toLowerCase().contains("error") ){
                 foundError += key + '\t' + value + '\n';
             }                        
         }

@@ -31,7 +31,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+
 import com.google.common.io.Files;
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -41,9 +44,13 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.TDBLoader;
 import com.hp.hpl.jena.tdb.store.GraphTDB;
+import com.hp.hpl.jena.util.FileManager;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.indexer.RecordToDocument;
@@ -105,27 +112,48 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 			try{			
 				
-				InputStream is = getUrl( urlText.toString()  );
 				context.progress();
 				
 				log.info("Starting to build model");			
-				//load the RDF to a triple store			
-				@SuppressWarnings("deprecation")
-                Model model = TDBFactory.createModel(tmpDir.getAbsolutePath());
-				TDBLoader loader = new TDBLoader() ;
-				loader.loadGraph((GraphTDB)model.getGraph(), is);			
-				context.progress();
+				//load the RDF to a triple store							
+				Dataset dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
+				Model model = dataset.getDefaultModel();
 
-				is.close();			
 				model.add(baseModel);
+				TDB.sync( dataset );
+
+				// We are using the TDBLoader directly because of the use of 
+				// zipped InputStream. It seems in the newer version of Jena (2.10)
+				// there might be a more standard way to do this
+				// see http://jena.apache.org/documentation/io/rdf-input.html
+				
+				//TDBLoader loader = new TDBLoader() ;
+				//InputStream is = getUrl( urlText.toString()  );
+				//loader.loadGraph((GraphTDB)model.getGraph(), is);
+
+				InputStream is = getUrl( urlText.toString()  );
+                RDFDataMgr.read( model, is, Lang.NT);
+				context.progress();
+								
+				is.close();
+				
+				TDB.sync( dataset );
 				
 				log.info("Model load completed. Starting query for all bib records in model. ");									
 				Set<String> bibUris = getURIsInModel( model);
+                int total = bibUris.size();
+
 				context.progress();										 
 				
 				log.info("Starting to index documents");
 				RDFService rdf = new RDFServiceModel(model);
+                int n = 0;
+
 				for( String bibUri: bibUris){	
+                    n++;
+                    System.out.println("indexing " + n + " out of " + total 
+                                       + ". bib URI: " + bibUri );
+
 					try{
 						indexToSolr(bibUri, rdf);	
 						context.progress();
@@ -133,6 +161,9 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						context.write(new Text(bibUri), new Text("URI\tSuccess"));
 					}catch(Throwable ex ){
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
+                        if( checkForOutOfSpace( ex ) ){
+                            return;
+                        }
 					}
 				}		
 				
@@ -155,6 +186,16 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }
 	}
 	
+    /**
+     * Check if ex is an out of space exception.
+     */
+    private boolean checkForOutOfSpace( Throwable ex){
+        return ex != null 
+            && ex.getMessage() != null 
+            && ex.getMessage().toLowerCase().contains("no space left on device");
+    }
+
+
 	/** Move the split from the todo directory to the done directory. 
 	 * @throws InterruptedException */ 
 	private void moveToDone( Context context , String fileUrl) throws java.io.IOException, InterruptedException{
@@ -282,7 +323,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			throw new Error("Requires URL of Solr server in config property " 
 					+ BibFileToSolr.SOLR_SERVICE_URL);
 				
-		solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
+		//solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
+        solr = new HttpSolrServer(solrURL);
 		
 		try { solr.ping(); } catch (SolrServerException e) {
 			throw new Error("Cannot connect to solr server at \""+solrURL+"\".",e);
@@ -317,7 +359,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	//queries to get URIs from model, expected to variable named URI in result set
 	protected static final List<String> idQueries = Arrays.asList(
 			//query for bib IDs from bib MARC
-			"SELECT ?URI WHERE {\n" +
+			"SELECT DISTINCT ?URI WHERE {\n" +
 			"  ?URI " +
 			"  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
 			"  <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> " +
