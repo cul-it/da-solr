@@ -78,7 +78,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						}
 						if (debug)
 							System.out.println(callno);
-						callnos.add(callno);
+						if (resultKey.equals("holdings_callno"))
+							callnos.add(callno);
 					}
 				}
 			}

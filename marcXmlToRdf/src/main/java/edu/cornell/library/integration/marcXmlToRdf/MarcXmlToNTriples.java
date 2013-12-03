@@ -220,8 +220,8 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/suppressedMfhdId.txt";
-		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/mfhds/unsuppressedMfhdId.txt";
+		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/suppressed.txt";
+		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/unsuppressed.txt";
 //		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
 //		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
 		Path path = Paths.get(suppressedFile);

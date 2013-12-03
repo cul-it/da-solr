@@ -4,6 +4,7 @@ apply plugin: 'eclipse'
 
 dependencies {
    compile project(':ILCommons')
+   compile project(':VoyagerExtract')
 
    compile 'org.apache.hadoop:hadoop-core:1.0.3'
 

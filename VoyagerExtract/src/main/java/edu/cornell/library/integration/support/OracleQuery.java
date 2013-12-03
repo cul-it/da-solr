@@ -24,13 +24,13 @@ import org.apache.commons.io.IOUtils;
 
 public class OracleQuery {
 
-    static String DBDriver = "oracle.jdbc.driver.OracleDriver";
-    static String DBUrl = "jdbc:oracle:thin:@database.library.cornell.edu:1521:VGER";
-    static String DBProtocol = "jdbc:oracle:thin:@";
-    static String DBServer = "database.library.cornell.edu:1521:VGER";
-    static String DBName = "CORNELLDB";
-    static String DBuser = "username";
-    static String DBpass = "password";
+    static public String DBDriver = "oracle.jdbc.driver.OracleDriver";
+    static public String DBUrl = "jdbc:oracle:thin:@database.library.cornell.edu:1521:VGER";
+    static public String DBProtocol = "jdbc:oracle:thin:@";
+    static public String DBServer = "database.library.cornell.edu:1521:VGER";
+    static public String DBName = "CORNELLDB";
+    static public String DBuser = "username";
+    static public String DBpass = "password";
 
     static DatabaseMetaData dbmeta = null;
 

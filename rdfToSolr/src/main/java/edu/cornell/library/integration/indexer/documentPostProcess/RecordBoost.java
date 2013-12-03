@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.sql.Connection;
 import java.util.Iterator;
 
 import org.apache.solr.common.SolrInputDocument;
@@ -15,7 +16,7 @@ public class RecordBoost implements DocumentPostProcess{
 
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
 		
 		int boost = 1;
 		if (document.getFieldNames().contains("boost")) {
