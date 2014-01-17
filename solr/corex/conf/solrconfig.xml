@@ -200,6 +200,19 @@
      <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
   </indexConfig>
 
+<requestHandler name="/replication" class="solr.ReplicationHandler" >
+    <lst name="master">
+        <str name="enable">${enable.master:false}</str>
+        <str name="replicateAfter">startup,optimize</str>
+        <str name="confFiles">schema.xml,solrconfig.xml,protwords.txt,synonyms.txt</str>
+    </lst>
+    <lst name="slave">
+        <str name="enable">${enable.slave:false}</str>
+        <str name="masterUrl">http://da-stg-msolr.library.cornell.edu/solr/blacklight/replication</str>
+        <str name="pollInterval">00:20:00</str>
+    </lst>
+</requestHandler>
+
   <updateHandler class="solr.DirectUpdateHandler2" >
     <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
          Auto Commit behavior except it enables/ensures that changes are
