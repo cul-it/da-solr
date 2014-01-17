@@ -25,8 +25,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.junit.rules.TemporaryFolder;
 import org.xml.sax.SAXException;
 
+import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
 import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
-import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
@@ -222,8 +222,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		for( String uri: rMarcURIS){
 			SolrInputDocument doc;
 			try {
-				Connection voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
-						OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+				Connection voyager = BibFileIndexingMapper.openConnection();
 				doc = r2d.buildDoc(uri, rdfService, voyager);
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);

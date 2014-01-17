@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,12 +11,12 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /** To boost shadow records, identify them, then set boost to X times current boost.
@@ -66,7 +68,7 @@ public class LoadItemData implements DocumentPostProcess{
 	        			String value = null;
 	       				if (coltype == java.sql.Types.CLOB) {
 	       					Clob clob = rs.getClob(i);  
-	        				value = OracleQuery.convertClobToString(clob);
+	        				value = convertClobToString(clob);
 	        			} else { 
 	        				value = rs.getString(i);
 	       				}
@@ -99,4 +101,11 @@ public class LoadItemData implements DocumentPostProcess{
 		document.put("item_record_display", itemField);
 	}
 
+	
+	public static String convertClobToString(Clob clob) throws Exception {
+        InputStream inputStream = clob.getAsciiStream();
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(inputStream, writer, "utf-8");
+        return writer.toString();
+     }
 }

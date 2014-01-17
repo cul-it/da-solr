@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +53,6 @@ import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
-import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
@@ -68,7 +69,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
 	
 	protected boolean debug = false;
-	
+		
     //hadoop directory for the input splits that are completed 
     Path doneDir;
 	
@@ -124,8 +125,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				model.add(baseModel);
 			
 				log.info("Model load completed. Creating connection to Voyager Database.");
-				voyager = OracleQuery.openConnection(OracleQuery.DBDriver, OracleQuery.DBProtocol, 
-						OracleQuery.DBServer, OracleQuery.DBName, OracleQuery.DBuser, OracleQuery.DBpass);
+				voyager = openConnection();
 				
 				log.info("Starting query for all bib records in model. ");									
 				Set<String> bibUris = getURIsInModel( model);
@@ -144,7 +144,10 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					}
 				}		
 				
-				OracleQuery.closeConnection(voyager);
+				try {
+					voyager.close();
+				}
+				catch (SQLException SQLEx) { /* ignore */ }
 				
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
@@ -164,6 +167,43 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			return; // success, break out of loop
         }
 	}
+	
+
+	// Open Connection to the Voyager Oracle Database
+	public static Connection openConnection() {
+        Connection connection = null;
+        
+        String DBDriver = "oracle.jdbc.driver.OracleDriver";
+ //       String DBUrl = "jdbc:oracle:thin:@database.library.cornell.edu:1521:VGER";
+        String DBProtocol = "jdbc:oracle:thin:@";
+        String DBServer = "database.library.cornell.edu:1521:VGER";
+ //       String DBName = "CORNELLDB";
+        String DBUser = "username";
+        String DBPass = "password";
+
+        // actually connect to the database
+        try {
+
+           Class.forName(DBDriver);
+           String dburl = DBProtocol + DBServer;
+           // System.out.println("database connection url: "+dburl);
+           connection = DriverManager.getConnection(dburl , DBUser, DBPass);
+
+           if (connection == null) {
+              System.out.println("openconnection: no connection made");
+           }
+           // end alert if no connection made
+        } catch (SQLException sqlexception) {
+           System.out.println(sqlexception.getMessage());
+           sqlexception.printStackTrace();
+        } catch (Exception exception) {
+           //System.out.println(exception);
+           exception.printStackTrace();
+        }
+
+        return connection;
+     }
+
 	
 	/** Move the split from the todo directory to the done directory. 
 	 * @throws InterruptedException */ 
