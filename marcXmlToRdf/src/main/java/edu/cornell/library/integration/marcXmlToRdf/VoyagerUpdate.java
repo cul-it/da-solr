@@ -57,7 +57,7 @@ public class VoyagerUpdate {
 				
 		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
 		tempFile.deleteOnExit();
-		System.out.println("Temp XML file : " + tempFile.getAbsolutePath());
+		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
 		
 		try{
 		    MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
