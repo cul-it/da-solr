@@ -10,7 +10,11 @@ dependencies {
    compile fileTree(dir: 'libs', include: '*.jar')   
 
    //get us core, tdb, arq, and iri
-   compile 'org.apache.jena:apache-jena:2.7.3'
+   //compile 'org.apache.jena:apache-jena:2.11.'
+
+   //usually this is brought in by jena but I'm doing these odd tests 
+   // with hand compiled jena from SVN
+   //compile 'org.apache.httpcomponents:httpclient:4.2.3'
 
    //gets a lot of sesame jars   
    compile 'org.openrdf.sesame:sesame-runtime:2.6.6'
@@ -20,7 +24,7 @@ dependencies {
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
              
-   compile 'org.apache.solr:solr-solrj:4.1.0'
+   compile 'org.apache.solr:solr-solrj:4.2.1'
    
    compile 'com.google.guava:guava:14.0'            
 }
