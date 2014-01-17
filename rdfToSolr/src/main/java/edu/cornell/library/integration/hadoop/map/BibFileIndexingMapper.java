@@ -200,7 +200,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }
 	}
 	
-<<<<<<< HEAD
 
 	// Open Connection to the Voyager Oracle Database
 	public static Connection openConnection() {
@@ -238,7 +237,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
      }
 
 	
-=======
     /**
      * Check if ex is an out of space exception.
      */
@@ -248,8 +246,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
             && ex.getMessage().toLowerCase().contains("no space left on device");
     }
 
-
->>>>>>> master
 	/** Move the split from the todo directory to the done directory. 
 	 * @throws InterruptedException */ 
 	private void moveToDone( Context context , String fileUrl) throws java.io.IOException, InterruptedException{
