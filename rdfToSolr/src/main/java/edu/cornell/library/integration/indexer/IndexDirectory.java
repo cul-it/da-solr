@@ -1,12 +1,9 @@
 package edu.cornell.library.integration.indexer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Counters;
@@ -22,8 +19,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 
 /**
  * Index all the files in a given WEBDAV directory. It is intended as a simple way to 

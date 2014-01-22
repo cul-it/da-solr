@@ -58,10 +58,8 @@ public class VoyagerToSolrConfiguration {
     /* ******** properties used for Incremental Update ********* */
     String dailyMrcDir;
     String dailyMfhdDir;
-    String dailyCombinedMrcDir;
     String dailyMrcDoneDir;
     String dailyMrcBadDir;
-    String dailyMrcDeleted;
     String dailyBibMrcXmlDir;
     String dailyMfhdMrcXmlDir;
     String dailyMrcNtDir;
@@ -167,11 +165,6 @@ public class VoyagerToSolrConfiguration {
     public String getDailyMrcDir() {
         return dailyMrcDir;
     }
-
-
-    public String getDailyCombinedMrcDir() {   
-        return this.dailyCombinedMrcDir;
-    }
         
     /**
      * @return the dailyMrcDoneDir
@@ -185,13 +178,6 @@ public class VoyagerToSolrConfiguration {
      */
     public String getDailyMrcBadDir() {
         return dailyMrcBadDir;
-    }
-
-    /**
-     * @return the dailyMrcDeleted
-     */
-    public String getDailyMrcDeleted() {
-        return dailyMrcDeleted;
     }
 
     /**
@@ -375,7 +361,7 @@ public class VoyagerToSolrConfiguration {
         if( ! value.contains(",") ){
             return loadFromPropertiesFile( getFile( value ), null );
         }else{
-            String firstFileName, secondFileName;
+//            String firstFileName, secondFileName;
             String names[] = value.split(",");
             if( names.length > 2 )
                 throw new Exception("The env var has more than two files: " + value);
@@ -432,10 +418,8 @@ public class VoyagerToSolrConfiguration {
         
         conf.dailyMrcDir = prop.getProperty("dailyMrcDir");
         conf.dailyMfhdDir = prop.getProperty("dailyMfhdDir");
-        conf.dailyCombinedMrcDir = prop.getProperty("dailyCombinedMrcDir");
         conf.dailyMrcDoneDir = prop.getProperty("dailyMrcDoneDir");
         conf.dailyMrcBadDir = prop.getProperty("dailyMrcBadDir");
-        conf.dailyMrcDeleted = prop.getProperty("dailyMrcDeleted");
         conf.dailyBibMrcXmlDir = prop.getProperty("dailyBibMrcXmlDir");
         conf.dailyMfhdMrcXmlDir = prop.getProperty("dailyMfhdMrcXmlDir");
         conf.dailyMrcNtDir = prop.getProperty("dailyMrcNtDir");
@@ -481,10 +465,8 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkWebdavDir( checkMe.fullMrcNtDir, "fullMrcNtDir");     
         errMsgs += checkWebdavDir( checkMe.dailyMrcDir, "dailyMrcDir");        
         errMsgs += checkWebdavDir( checkMe.dailyMfhdDir, "dailyMfhdDir");
-        errMsgs += checkWebdavDir( checkMe.dailyCombinedMrcDir, "dailyCombinedMrcDir");        
         errMsgs += checkWebdavDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcDeleted, "dailyMrcDeleted");
         errMsgs += checkWebdavDir( checkMe.dailyBibMrcXmlDir, "dailyBibMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMfhdMrcXmlDir, "dailyMfhdMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");

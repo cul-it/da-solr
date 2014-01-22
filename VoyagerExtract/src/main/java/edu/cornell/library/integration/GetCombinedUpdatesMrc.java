@@ -237,8 +237,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         
         String tmpFilePath = config.getTmpDir() +"/"+ "bibListForUpdate-"+ today +".txt";;
         
-        //String updateBibsDir  = config.getWebdavBaseUrl() +"/" + config.getDailyCombinedMrcDir();                
-
         String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
                 + "bibListForUpdate-"+ today + ".txt";
         System.out.println("Reading BIB ID with modified MHFDs from " + fileName );
