@@ -77,18 +77,19 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		System.out.println("Adding extra BIB IDs that need to be updated beacause "
 		        + "their MFHD records changed");				
 		Set<String> extraBibIds = getBibIdsWhosMfhdsChanged( updatedMfhdIds );
-		extraBibIds.removeAll( updatedBibIds ); 
 			
 		// Get additional BIB IDs that have deleted MFHDs from step 2
 		Calendar now = Calendar.getInstance();
 		List<String> bibListForUpdate = getBibIdsWithDeletedMfhd( config, getDateString(now) );					    
 	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() + " (from deleted and suppressed mfhds)");
 	    extraBibIds.addAll( bibListForUpdate );	    
+		extraBibIds.removeAll( updatedBibIds ); 
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Adding extra holdings ids");		
 		Set<String> extraMfhdIds = getHoldingsForBibs( updatedBibIds ) ;
 		extraMfhdIds.addAll( getHoldingsForBibs( extraBibIds ) );								
+		extraMfhdIds.removeAll( updatedMfhdIds );
 		
 		System.out.println("ExtraMfhdIDList: " + extraMfhdIds.size());
 		System.out.println("Total BibIDList: " + (updatedBibIds.size() + extraBibIds.size() ));

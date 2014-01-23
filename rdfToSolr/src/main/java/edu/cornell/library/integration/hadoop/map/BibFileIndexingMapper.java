@@ -247,7 +247,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	private void moveToDone( Context context , String fileUrl) throws java.io.IOException, InterruptedException{
 	    try {
 	        // skip moveToDone if special value is set for doneDir
-	        if( DO_NOT_MOVE_TO_DONE.equals( doneDir.toString() )) {
+	        if( DO_NOT_MOVE_TO_DONE.equals( context.getConfiguration().get(BibFileToSolr.DONE_DIR) )) {
 	            return;
 	        }else{
 	            String filename = getSplitFileName(context);
