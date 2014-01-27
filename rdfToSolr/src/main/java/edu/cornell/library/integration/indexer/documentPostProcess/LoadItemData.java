@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,21 +9,23 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
+import edu.cornell.library.integration.indexer.resultSetToFields.NameFieldsAsColumnsRSTF;
+import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
-/** To boost shadow records, identify them, then set boost to X times current boost.
- *  We're currently boosting the whole record, but we may want to put a special boost
- *  on the title in the future to promote title searches.
+/** If holdings record ID(s) are identified in holdings_display, pull any matching
+ *  item records from the voyager database and serialize them in json.
  *  */
 public class LoadItemData implements DocumentPostProcess{
 
-	final static Boolean debug = false;
+	final static Boolean debug = true;
+	Map<Integer,Location> locations = new HashMap<Integer,Location>();
 	
 	@Override
 	public void p(String recordURI, RDFService mainStore,
@@ -37,6 +37,7 @@ public class LoadItemData implements DocumentPostProcess{
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		for (Object mfhd_id_obj: field.getValues()) {
+			System.out.println(mfhd_id_obj.toString());
 			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM, CORNELLDB.ITEM_TYPE" +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
@@ -57,7 +58,7 @@ public class LoadItemData implements DocumentPostProcess{
 	        	while (rs.next()) {
 		        	   
 	        		ObjectMapper mapper = new ObjectMapper();
-	        		Map<String,String> record = new HashMap<String,String>();
+	        		Map<String,Object> record = new HashMap<String,Object>();
 	        		record.put("mfhd_id",mfhd_id_obj.toString());
 				
 	        		if (debug) 
@@ -68,14 +69,23 @@ public class LoadItemData implements DocumentPostProcess{
 	        			String value = null;
 	       				if (coltype == java.sql.Types.CLOB) {
 	       					Clob clob = rs.getClob(i);  
-	        				value = convertClobToString(clob);
+	        				value = OracleQuery.convertClobToString(clob);
 	        			} else { 
 	        				value = rs.getString(i);
 	       				}
 	       				if (value == null)
 	       					value = "";
-	       				
-	       				record.put(colname.toLowerCase(), value);
+//       					System.out.println(colname+" "+value);
+	       				if ((colname.equalsIgnoreCase("temp_location")
+	       						|| colname.equalsIgnoreCase("perm_location"))
+	       						&& ! value.equals("0")) {
+	       					
+	       					System.out.println(colname+": "+value);
+	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
+	       					record.put(colname.toLowerCase(), l);
+	       				} else {
+	       					record.put(colname.toLowerCase(), value);
+	       				}
 	        		}
 	        		
 	        		String json = mapper.writeValueAsString(record);
@@ -95,17 +105,63 @@ public class LoadItemData implements DocumentPostProcess{
 	              if (rs != null) rs.close();
 	           } catch (Exception ex) {}
 	        }
-	        System.out.println();
         
 		}
 		document.put("item_record_display", itemField);
 	}
-
 	
-	public static String convertClobToString(Clob clob) throws Exception {
-        InputStream inputStream = clob.getAsciiStream();
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(inputStream, writer, "utf-8");
-        return writer.toString();
-     }
+	private Location getLocation (String recordURI, RDFService mainStore,
+			RDFService localStore, Integer id) throws Exception{
+
+		if (locations.containsKey(id))
+			return locations.get(id);
+		
+		String loc_uri = "<http://da-rdf.library.cornell.edu/individual/loc_"+id+">";
+		System.out.println(loc_uri);
+		SPARQLFieldMakerImpl fm = new SPARQLFieldMakerImpl().
+        setName("location").
+        addMainStoreQuery("location",
+		   	"SELECT DISTINCT ?name ?library ?code \n"+
+		   	"WHERE {\n"+
+		    "  "+loc_uri+" rdf:type intlayer:Location.\n" +
+		    "  "+loc_uri+" intlayer:code ?code.\n" +
+		    "  "+loc_uri+" rdfs:label ?name.\n" +
+		    "  OPTIONAL {\n" +
+		    "    "+loc_uri+" intlayer:hasLibrary ?liburi.\n" +
+		    "    ?liburi rdfs:label ?library.\n" +
+		    "}}").
+        addResultSetToFields( new NameFieldsAsColumnsRSTF());
+		Map<? extends String, ? extends SolrInputField> tempfields = 
+				fm.buildFields(recordURI, mainStore, localStore);
+		System.out.println(tempfields.toString());
+		System.out.println(tempfields.get("name").getValue());
+		Location l = new Location();
+		l.code = tempfields.get("code").getValue().toString();
+		l.name = tempfields.get("name").getValue().toString();
+		l.library = tempfields.get("library").getValue().toString();
+		l.number = id;
+		locations.put(id, l);
+		return l;
+	}
+	
+	public static class Location {
+		public String code;
+		public Integer number;
+		public String name;
+		public String library;
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("code: ");
+			sb.append(this.code);
+			sb.append("; number: ");
+			sb.append(this.number);
+			sb.append("; name: ");
+			sb.append(this.name);
+			sb.append("; library: ");
+			sb.append(this.library);
+			return sb.toString();
+		}
+	}
+
+
 }
