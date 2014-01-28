@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,6 +11,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -16,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.resultSetToFields.NameFieldsAsColumnsRSTF;
-import edu.cornell.library.integration.support.OracleQuery;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /** If holdings record ID(s) are identified in holdings_display, pull any matching
@@ -24,7 +26,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  *  */
 public class LoadItemData implements DocumentPostProcess{
 
-	final static Boolean debug = true;
+	final static Boolean debug = false;
 	Map<Integer,Location> locations = new HashMap<Integer,Location>();
 	
 	@Override
@@ -69,18 +71,17 @@ public class LoadItemData implements DocumentPostProcess{
 	        			String value = null;
 	       				if (coltype == java.sql.Types.CLOB) {
 	       					Clob clob = rs.getClob(i);  
-	        				value = OracleQuery.convertClobToString(clob);
+	        				value = convertClobToString(clob);
 	        			} else { 
 	        				value = rs.getString(i);
 	       				}
 	       				if (value == null)
 	       					value = "";
-//       					System.out.println(colname+" "+value);
 	       				if ((colname.equalsIgnoreCase("temp_location")
 	       						|| colname.equalsIgnoreCase("perm_location"))
 	       						&& ! value.equals("0")) {
-	       					
-	       					System.out.println(colname+": "+value);
+	       					if (debug)
+	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
 	       					record.put(colname.toLowerCase(), l);
 	       				} else {
@@ -117,7 +118,8 @@ public class LoadItemData implements DocumentPostProcess{
 			return locations.get(id);
 		
 		String loc_uri = "<http://da-rdf.library.cornell.edu/individual/loc_"+id+">";
-		System.out.println(loc_uri);
+		if (debug)
+			System.out.println(loc_uri);
 		SPARQLFieldMakerImpl fm = new SPARQLFieldMakerImpl().
         setName("location").
         addMainStoreQuery("location",
@@ -133,8 +135,10 @@ public class LoadItemData implements DocumentPostProcess{
         addResultSetToFields( new NameFieldsAsColumnsRSTF());
 		Map<? extends String, ? extends SolrInputField> tempfields = 
 				fm.buildFields(recordURI, mainStore, localStore);
-		System.out.println(tempfields.toString());
-		System.out.println(tempfields.get("name").getValue());
+		if (debug) {
+			System.out.println(tempfields.toString());
+			System.out.println(tempfields.get("name").getValue());
+		}
 		Location l = new Location();
 		l.code = tempfields.get("code").getValue().toString();
 		l.name = tempfields.get("name").getValue().toString();
@@ -144,7 +148,14 @@ public class LoadItemData implements DocumentPostProcess{
 		return l;
 	}
 	
-	public static class Location {
+    private static String convertClobToString(Clob clob) throws Exception {
+        InputStream inputStream = clob.getAsciiStream();
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(inputStream, writer, "utf-8");
+        return writer.toString();
+     }
+	
+	private static class Location {
 		public String code;
 		public Integer number;
 		public String name;
