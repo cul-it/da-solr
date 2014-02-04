@@ -23,7 +23,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ConvertMfhdFullToXml {
    
@@ -101,8 +100,6 @@ public class ConvertMfhdFullToXml {
 		}
 
 		setDavService(DavServiceFactory.getDavService());
-		String badDir = srcDir + ".bad";
-		String doneDir = srcDir + ".done";
 		// get list of Full mrc files
 		List<String> srcList = new ArrayList<String>();
 		try {
@@ -147,16 +144,12 @@ public class ConvertMfhdFullToXml {
 					if (mfhdlist.size() > 0 ) {
 					   saveMfhdList(fout, mfhdlist);
 					}
-					davService.moveFile(srcDir + "/" + srcFile, doneDir + "/"
-							+ srcFile);
 				} catch (Exception e) {
 					try {
 						System.out
 								.println("Exception thrown. Could not convert file: "
 										+ srcFile);
 						e.printStackTrace();
-						davService.moveFile(srcDir + "/" + srcFile, badDir
-								+ "/" + srcFile);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}

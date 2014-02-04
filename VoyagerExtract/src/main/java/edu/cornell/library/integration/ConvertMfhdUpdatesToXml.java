@@ -40,12 +40,6 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         
         String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir();
         String destDir = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir();
-               
-        String badDir = srcDir + ".bad";
-        String doneDir = srcDir + ".done";
-        
-        getDavService().mkDir( badDir );
-        getDavService().mkDir( doneDir );
         
         // get list of mfhdids updates using recent date String
         List<String> srcList = new ArrayList<String>();
@@ -78,16 +72,11 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
                 converter.setItemId(getSeqnoFromFileName(srcFile));
                 converter.convertMrcToXml(getDavService(), srcDir, srcFile);
 
-                getDavService().moveFile(srcDir  + "/" + srcFile, 
-                                         doneDir + "/" + srcFile);
             } catch (Exception e) {
                 try {
                     System.out.println("Exception caught: could not "
                             + "convert file: " + srcFile + "\n" 
-                            + "due to " + e.getMessage() 
-                            + "moving source file to bad dir at '" + badDir + "'" );
-                    getDavService().moveFile(srcDir + "/" + srcFile,
-                            badDir + "/" + srcFile);
+                            + "due to " + e.getMessage() );
                 } catch (Exception e1) {
                     System.out.println("Error while trying to handle bad file,"
                             + " could not move to bad dir: " + srcFile + "\n"

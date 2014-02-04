@@ -23,7 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ConvertUtils;
+
 public class ConvertBibFullToXml {
    
    /** Logger for this class and subclasses */
@@ -100,8 +100,6 @@ public class ConvertBibFullToXml {
 		}
 
 		setDavService(DavServiceFactory.getDavService());
-		String badDir = srcDir + ".bad";
-		String doneDir = srcDir + ".done";
 
 		// get list of Full mrc files
 		List<String> srcList = new ArrayList<String>();
@@ -142,21 +140,15 @@ public class ConvertBibFullToXml {
 					converter.setSequence_prefix(seqno);
 					String ts = getTimestampFromFileName(srcFile);
 					converter.setTs(ts);
-					InputStream is = davService.getFileAsInputStream(srcDir
-							+ "/" + srcFile);
 					biblist = converter.convertMrcToXml(davService, srcDir,
 							srcFile);
 					saveBibList(fout, biblist);
-					davService.moveFile(srcDir + "/" + srcFile, doneDir + "/"
-							+ srcFile);
 				} catch (Exception e) {
 					try {
 						System.out
 								.println("Exception thrown. Could not convert file: "
 										+ srcFile);
 						e.printStackTrace();
-						davService.moveFile(srcDir + "/" + srcFile, badDir
-								+ "/" + srcFile);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}

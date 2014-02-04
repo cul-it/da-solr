@@ -95,12 +95,12 @@ public interface DavService {
     * Attempt to make the directory on the WEBDAV server.
  * @throws IOException 
     */
-   public void mkDir(String badDir) throws IOException;
+   public void mkDir(String dir) throws IOException;
 
    /**
     * Attempt to make the directory on the WEBDAV server.
  * @throws IOException 
     */
-   public void mkDirRecursive(String badDir) throws IOException;
+   public void mkDirRecursive(String dir) throws IOException;
    
 }

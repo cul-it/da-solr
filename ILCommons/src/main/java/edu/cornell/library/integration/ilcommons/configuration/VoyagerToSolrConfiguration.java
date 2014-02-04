@@ -45,10 +45,7 @@ public class VoyagerToSolrConfiguration {
      * Directory of Mrc21 extract. This dir will be appended to the webdavBaseURL.
      */
     String fullMrc21Dir;
-    
-    String fullMrc21DoneDir;
-    String fullMrc21BadDir;
-    
+        
     /** 
      * Directory of MrcXML. This dir will be appended to the webdavBaseURL.
      */
@@ -63,8 +60,6 @@ public class VoyagerToSolrConfiguration {
     /* ******** properties used for Incremental Update ********* */
     String dailyMrcDir;
     String dailyMfhdDir;
-    String dailyMrcDoneDir;
-    String dailyMrcBadDir;
     String dailyBibMrcXmlDir;
     String dailyMfhdMrcXmlDir;
     String dailyMrcNtDir;
@@ -139,22 +134,6 @@ public class VoyagerToSolrConfiguration {
     }
 
     /**
-     * @return the fullMrc21DoneDir
-     */
-    public String getFullMrc21DoneDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + fullMrc21DoneDir);
-        return fullMrc21DoneDir;
-    }
-
-    /**
-     * @return the fullMrc21BadDir
-     */
-    public String getFullMrc21BadDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + fullMrc21BadDir);
-        return fullMrc21BadDir;
-    }
-
-    /**
      * @return the fullMrcXmlDir
      */
     public String getFullMrcXmlDir() throws IOException {
@@ -183,22 +162,6 @@ public class VoyagerToSolrConfiguration {
         return dailyMrcDir;
     }
         
-    /**
-     * @return the dailyMrcDoneDir
-     */
-    public String getDailyMrcDoneDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMrcDoneDir);
-        return dailyMrcDoneDir;
-    }
-
-    /**
-     * @return the dailyMrcBadDir
-     */
-    public String getDailyMrcBadDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMrcBadDir);
-        return dailyMrcBadDir;
-    }
-
     /**
      * @return the dailyBibMrcXmlDir
      */
@@ -438,15 +401,11 @@ public class VoyagerToSolrConfiguration {
         conf.webdavPassword = insertDate(prop.getProperty( "webdavPassword"));
         
         conf.fullMrc21Dir = insertDate(prop.getProperty("fullMrc21Dir"));        
-        conf.fullMrc21DoneDir = insertDate(prop.getProperty("fullMrc21DoneDir"));
-        conf.fullMrc21BadDir = insertDate(prop.getProperty("fullMrc21BadDir"));        
         conf.fullMrcXmlDir = insertDate(prop.getProperty("fullMrcXmlDir"));    
         conf.fullMrcNtDir = insertDate(prop.getProperty("fullMrcNtDir"));
         
         conf.dailyMrcDir = insertDate(prop.getProperty("dailyMrcDir"));
         conf.dailyMfhdDir = insertDate(prop.getProperty("dailyMfhdDir"));
-        conf.dailyMrcDoneDir = insertDate(prop.getProperty("dailyMrcDoneDir"));
-        conf.dailyMrcBadDir = insertDate(prop.getProperty("dailyMrcBadDir"));
         conf.dailyBibMrcXmlDir = insertDate(prop.getProperty("dailyBibMrcXmlDir"));
         conf.dailyMfhdMrcXmlDir = insertDate(prop.getProperty("dailyMfhdMrcXmlDir"));
         conf.dailyMrcNtDir = insertDate(prop.getProperty("dailyMrcNtDir"));
@@ -504,14 +463,10 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkExists( checkMe.webdavPassword , "webdavPassword");
         
         errMsgs += checkWebdavDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
-        errMsgs += checkWebdavDir( checkMe.fullMrc21DoneDir, "fullMrc21DoneDir");
-        errMsgs += checkWebdavDir( checkMe.fullMrc21BadDir, "fullMrc21BadDir");    
         errMsgs += checkWebdavDir( checkMe.fullMrcXmlDir, "fullMrcXmlDir");   
         errMsgs += checkWebdavDir( checkMe.fullMrcNtDir, "fullMrcNtDir");     
         errMsgs += checkWebdavDir( checkMe.dailyMrcDir, "dailyMrcDir");        
         errMsgs += checkWebdavDir( checkMe.dailyMfhdDir, "dailyMfhdDir");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcDoneDir, "dailyMrcDoneDir");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcBadDir, "dailyMrcBadDir");
         errMsgs += checkWebdavDir( checkMe.dailyBibMrcXmlDir, "dailyBibMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMfhdMrcXmlDir, "dailyMfhdMrcXmlDir");
         errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");

@@ -6,12 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService;
 
 
 /**
@@ -42,13 +39,7 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
       
       String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir();
       String destDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir();
-      
-      String badDir = srcDir +".bad";
-      String doneDir = srcDir +".done"; 
-      
-      getDavService().mkDir( badDir );
-      getDavService().mkDir( doneDir );
-      
+            
       // get list of bibids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
@@ -82,14 +73,11 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
            String seqno = getSeqnoFromFileName(srcFile);
            converter.setItemId(seqno); 
 		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);
-		   getDavService().moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
 		} catch (Exception e) { 
 		   try {
 		      System.out.println("Exception caught: could not "
 		              + "convert file: "+ srcFile + "\n" 
-		              + "due to " + e.getMessage() + "\n" 
-		              + "moving source file to bad dir at '" + badDir + "'" );		      
-		      getDavService().moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
+		              + "due to " + e.getMessage() );		      
            } catch (Exception e1) {
                System.out.println("Error while trying to handle bad file,"
                        + " could not move to bad dir: " + srcFile + "\n"

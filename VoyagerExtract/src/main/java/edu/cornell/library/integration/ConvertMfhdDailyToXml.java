@@ -14,7 +14,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
-import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ConvertMfhdDailyToXml {
    
@@ -91,8 +90,6 @@ public class ConvertMfhdDailyToXml {
       }
 
       setDavService(DavServiceFactory.getDavService());
-      String badDir = srcDir +".bad";
-      String doneDir = srcDir +".done"; 
       // get list of mfhdids updates using recent date String
       List<String> srcList = new ArrayList<String>();
       try {
@@ -108,7 +105,7 @@ public class ConvertMfhdDailyToXml {
       converter.setSplitSize(10000);
       converter.setDestDir(destDir);
       // iterate over mrc files
-      int srcCounter = 1;
+//      int srcCounter = 1;
       if (srcList.size() == 0) {
          System.out.println("No Daily Marc files available to process");
       } else {
@@ -121,13 +118,10 @@ public class ConvertMfhdDailyToXml {
                String ts = getTimestampFromFileName(srcFile);
                converter.setTs(ts); 
                converter.convertMrcToXml(davService, srcDir, srcFile);
-               //System.out.println("moving "+srcFile+ " to "+doneDir);
-               davService.moveFile(srcDir +"/" +srcFile, doneDir +"/"+ srcFile);
             } catch (Exception e) {
                try {
                   System.out.println("Exception thrown. Could not convert file: "+ srcFile);
                   e.printStackTrace();
-                  davService.moveFile(srcDir +"/" +srcFile, badDir +"/"+ srcFile);
                } catch (Exception e1) { 
                   e1.printStackTrace();
                } 
