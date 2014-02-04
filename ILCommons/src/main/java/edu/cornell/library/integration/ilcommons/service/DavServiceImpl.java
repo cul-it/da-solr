@@ -258,4 +258,28 @@ public class DavServiceImpl implements DavService {
     }    
 
 
+    @Override
+    public void mkDirRecursive(String dir) throws IOException {
+        try{
+            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+            if (sardine.exists(dir)) {
+            	return;
+            }
+            int lastSlash = dir.lastIndexOf('/');
+        	if (lastSlash == -1) {
+            	throw new IOException("Problem creating directory " +dir+". Invalid path?");
+        	}
+            String parentDir = dir.substring(0, lastSlash);
+            mkDirRecursive( parentDir );
+            sardine.createDirectory( dir );
+        }catch(SardineException se){
+            //oddly this seems to be an exception that gets thrown even when this works.
+            if( se.getStatusCode() != 301 ){
+                throw new IOException("Problem creating directory " + dir , se);
+            }
+        }catch(IOException e){
+            throw new IOException("Problem creating directory " + dir , e);
+        }   
+    }  
+    
 }

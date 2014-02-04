@@ -206,8 +206,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         String DBProtocol = "jdbc:oracle:thin:@";
         String DBServer = "database.library.cornell.edu:1521:VGER";
  //       String DBName = "CORNELLDB";
-        String DBUser = "username";
-        String DBPass = "password";
+        String DBUser = "login";
+        String DBPass = "login";
 
         // actually connect to the database
         try {

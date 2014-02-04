@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class ConfirmSolrIndexCompleteness  {
 	private DavService davService;
     private String reportsUrl;
 	
-	public ConfirmSolrIndexCompleteness(VoyagerToSolrConfiguration config) {
+	public ConfirmSolrIndexCompleteness(VoyagerToSolrConfiguration config) throws IOException {
         this.config = config;
         this.davUrl = config.getWebdavBaseUrl();
         this.reportsUrl = davUrl + "/" + config.getDailyReports() + "/";
