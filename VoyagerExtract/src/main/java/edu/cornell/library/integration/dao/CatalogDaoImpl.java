@@ -26,6 +26,7 @@ import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.BibMfhd;
+import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
@@ -657,7 +658,17 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          return location;
        }
    }
-   
+
+   private static final class ItemMapper implements RowMapper {
+	      public ItemMap mapRow(ResultSet rs, int rowNum) throws SQLException {
+	         ItemMap im = new ItemMap();
+	         im.setBibId(rs.getInt("BIB_ID"));
+	         im.setMfhdId(rs.getInt("MFHD_ID"));
+	         im.setItemId(rs.getInt("ITEM_ID"));
+	         return im;
+	       }
+	   }
+
    /**
     * @author jaf30
     *

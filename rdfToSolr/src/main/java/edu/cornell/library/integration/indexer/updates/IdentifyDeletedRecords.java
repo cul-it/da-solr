@@ -39,8 +39,6 @@ import edu.cornell.library.integration.indexer.utilies.IndexRecordListComparison
  */
 public class IdentifyDeletedRecords {
 	
-	//private final String davUrl = "http://culdata.library.cornell.edu/data";
-
 	DavService davService;
 	VoyagerToSolrConfiguration config;
 	

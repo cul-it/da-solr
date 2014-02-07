@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.utilies;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -18,6 +17,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 /**
  * This class is intended to compare the current voyager BIB and MFHD
@@ -38,7 +40,8 @@ public class IndexRecordListComparison {
 	public Set<Integer> bibsInVoyagerNotIndex = new HashSet<Integer>();
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager = new HashMap<Integer,Integer>();
 	public Set<Integer> mfhdsInVoyagerNotIndex = new HashSet<Integer>();
-	
+	private static ObjectMapper jsonMapper = new ObjectMapper();
+
 	/**
 	 * Query Solr service at coreUrl and create a list:
 	 * 
@@ -58,10 +61,11 @@ public class IndexRecordListComparison {
 
 		Set<Integer> solrIndexBibList = new HashSet<Integer>();
 		Map<Integer,Integer> solrIndexMfhdList = new HashMap<Integer,Integer>();
+		Map<Integer,Item> solrIndexItemList = new HashMap<Integer,Item>();
 
 		//Compile lists of BIB and MFHD ids in Solr.
 		try {
-			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display&rows=10000000");
+			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display,item_record_display&rows=10000000");
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
@@ -69,12 +73,13 @@ public class IndexRecordListComparison {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc"))
-						processDoc(reader,solrIndexBibList,solrIndexMfhdList);
+						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
 			}
 			in.close();
 			System.out.println("Current index contains:");
 			System.out.println("\tbib records: "+solrIndexBibList.size());
 			System.out.println("\tmfhd records: "+solrIndexMfhdList.size());
+			System.out.println("\titem recourds: "+solrIndexItemList.size());
 		} catch( Exception e){
 		    throw new Exception("Could not query Solr and/or parse the results. Solr URL: " + solrCoreURL, e);
 		}
@@ -139,11 +144,14 @@ public class IndexRecordListComparison {
 	 * Process XML from solr and build solrIndexBibList
 	 * and solrIndexMfhdList.  
 	 */
-	private static void processDoc( XMLStreamReader r, 
+	@SuppressWarnings("unchecked")
+	private void processDoc( XMLStreamReader r,
 								   Set<Integer> solrIndexBibList,
-								   Map<Integer,Integer> solrIndexMfhdList ) {
+								   Map<Integer,Integer> solrIndexMfhdList, 
+								   Map<Integer,Item> solrIndexItemList ) {
 		Integer bibid = 0;
 		HashSet<Integer> mfhdid = new HashSet<Integer>();
+		Set<Item> itemid = new HashSet<Item>();
 		String currentField = "";
 		try {
 			while (r.hasNext()) {
@@ -156,6 +164,12 @@ public class IndexRecordListComparison {
 						Iterator<Integer> i = mfhdid.iterator();
 						while (i.hasNext())
 							solrIndexMfhdList.put(i.next(), bibid);
+						Iterator<Item> iter = itemid.iterator();
+						while (iter.hasNext()) {
+							Item item = iter.next();
+							item.bibid = bibid;
+							solrIndexItemList.put(item.item_id,item);
+						}
 						return;
 					}
 				} else if (eventType == XMLEvent.START_ELEMENT) {
@@ -174,6 +188,25 @@ public class IndexRecordListComparison {
 							}
 						else if (currentField.equals("holdings_display"))
 							mfhdid.add(Integer.valueOf(r.getElementText()));
+						else if (currentField.equals("item_record_display")) {
+							String s = r.getElementText();
+							Map<String,Object> itemRecord = null;
+							try {
+								System.out.println(s);
+								itemRecord = jsonMapper.readValue(s, Map.class);
+							} catch (Exception e) {
+							//} catch (JsonParseException | JsonMappingException | IOException e) {
+								// really shouldn't be an issue, as the json in question doesn't have multiple
+								// sources and should parse correctly. Generic catch saves importing exceptions.
+								e.printStackTrace();
+							}
+							if (itemRecord != null) {
+								Item item = new IndexRecordListComparison.Item();
+								item.item_id = Integer.valueOf(itemRecord.get("item_id").toString());
+								item.mfhd_id = Integer.valueOf(itemRecord.get("mfhd_id").toString());
+								itemid.add(item);
+							}
+						}
 					}
 				}
 			}
@@ -212,6 +245,12 @@ public class IndexRecordListComparison {
 	          return "SPACE";
 	    }
 	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
+	}
+	
+	protected class Item {
+		Integer item_id;
+		Integer mfhd_id;
+		Integer bibid;
 	}
 	
 }
