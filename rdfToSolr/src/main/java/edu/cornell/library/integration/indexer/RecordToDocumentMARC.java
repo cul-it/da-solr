@@ -650,21 +650,20 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	    setName("language").
 	    addMainStoreQuery("language_main",
 	    		"SELECT DISTINCT ?language\n" +
-	    		" WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
-	    		"        ?f marcrdf:tag \"008\".\n" +
+	    		" WHERE {$recordURI$ marcrdf:hasField008 ?f.\n" +
 	    		"        ?f marcrdf:value ?val.\n" +
+	    		"        FILTER( SUBSTR( ?val,36,3) = ?langcode )\n" +
 	    		"        ?l rdf:type intlayer:Language.\n" +
 	    		"        ?l intlayer:code ?langcode.\n" +
-	    		"        FILTER( SUBSTR( ?val,36,3) = ?langcode )\n" +
 	    		"        ?l rdfs:label ?language.\n" +
 	    		"	}").
 	    addMainStoreQuery("languages_041",
 	    		"SELECT DISTINCT ?c ?language\n"+
-	            " WHERE {$recordURI$ marcrdf:hasField ?f.\n" +
-	            "        ?f marcrdf:tag \"041\".\n" +
+	            " WHERE {$recordURI$ marcrdf:hasField041 ?f.\n" +
 	            "        ?f marcrdf:hasSubfield ?sf.\n" +
 	            "        ?sf marcrdf:code ?c.\n" +
 	            "        ?sf marcrdf:value ?langcode.\n" +
+	            "        ?l rdf:type intlayer:Language.\n" +
 	            "        ?l intlayer:code ?langcode.\n" +
 	            "        ?l rdfs:label ?language.\n" +
 	            "}").

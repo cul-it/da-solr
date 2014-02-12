@@ -1,15 +1,14 @@
 package edu.cornell.library.integration.indexer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.rules.TemporaryFolder;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -34,7 +33,7 @@ public class RdfLoadingTestBase {
 	 * documents from. 
 	 */
 //	static final String testRDFDir =  "rdfToSolr/src/main/resources/";
-	static final String testRDFDir =  "rdf/testrecords/";
+	static final String testRDFDir =  "rdf/testRecords/";
 	static final String standardRDFDir =  "rdfToSolr/build/resources/main/";
 		
 	

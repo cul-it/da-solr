@@ -38,14 +38,23 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 			if( rs != null){
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
+					String language = nodeToString(sol.get("language"));
+					System.out.println(language);
+					
+					// Suppress "Undetermined" and "No Linguistic Content"
+					// from facet and display (DISCOVERYACCESS-822
+					if (language.equalsIgnoreCase("Undetermined")
+							|| language.equalsIgnoreCase("No Linguistic Content"))
+						continue;
+
 					if (resultKey.equals("language_main")) {
-						display_langs.add(nodeToString(sol.get("language")));
-						facet_langs.add(nodeToString(sol.get("language")));						
-					} else if (resultKey.equals("language_041")) {
+						display_langs.add(language);
+						facet_langs.add(language);						
+					} else if (resultKey.equals("languages_041")) {
 						String subfield_code = nodeToString(sol.get("c"));
-						display_langs.add(nodeToString(sol.get("language")));
+						display_langs.add(language);
 						if ("adegj".contains(subfield_code)) {
-							facet_langs.add(nodeToString(sol.get("language")));
+							facet_langs.add(language);
 						}
 					}
 				}
