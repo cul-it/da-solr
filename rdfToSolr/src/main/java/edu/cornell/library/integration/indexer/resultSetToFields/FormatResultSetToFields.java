@@ -186,7 +186,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					} else if (typeOfContinuingResource.equals("d")) {
 						format = "Database";
 						if (debug) System.out.println("Database due to record_type:a, bibliographic_level:i and typeOfContinuingResource:d.");
-					} else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("n")) {
+					} else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("p")) {
 						format = "Journal";
 						if (debug) System.out.println("Journal due to record_type:a, bibliographic_level:i and typeOfContinuingResource in:n,p.");
 					}
