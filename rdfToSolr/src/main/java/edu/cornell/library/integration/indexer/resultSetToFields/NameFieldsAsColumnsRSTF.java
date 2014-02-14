@@ -15,7 +15,9 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 	
 	
 	public class NameFieldsAsColumnsRSTF implements ResultSetToFields {
-			
+	
+		protected boolean debug = false;
+		
 		@Override
 		public Map<? extends String, ? extends SolrInputField> toFields(
 				Map<String, ResultSet> results) {
@@ -31,7 +33,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 						Iterator<String> names = sol.varNames();
 						while(names.hasNext() ){						
 							String name = names.next();
-							System.out.println(name + ": " + nodeToString(sol.get(name)));
+							if (debug) System.out.println(name + ": " + nodeToString(sol.get(name)));
 							addField(fields,name,nodeToString(sol.get(name)));
 						}
 					}
