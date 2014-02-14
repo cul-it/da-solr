@@ -130,10 +130,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SPARQLFieldMakerImpl().
 				    setName("multival").
 				    addMainStoreQuery("holdings_descr",
-				    		"SELECT ?f\n"+
+				    		"SELECT ?f (SUBSTR(?leader,7,1) as ?rectype)\n"+
 				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
-				    				" ?h ?p ?f.\n"+
-				                    " ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }").
+				    				" ?h marcrdf:leader ?leader.\n"+
+				    				" OPTIONAL {?h ?p ?f.\n"+
+				                    "   ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }}").
 				    addResultSetToFields( new MultivolResultSetToFields() ),
 
 				                    
