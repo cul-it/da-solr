@@ -55,21 +55,24 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 		
 			for (DataField f: dataFields) {
 				String subfields;
+				String ctsSubfields;
 				if (f.mainTag.equals("100")) {
 					subfields = "abcq";
+					ctsSubfields = "abd";
 				} else {
 					subfields = "abcefghijklmnopqrstuvwxyz";
+					ctsSubfields = "ab";
 				}
 				if (! subfields.equals("")) {
 					String value = f.concatenateSpecificSubfields(subfields);
 					if (value.isEmpty()) continue;
 					if (f.tag.equals("880")) {
 						values880.add(value);
-						cts880 = f.concatenateSpecificSubfields("a");
+						cts880 = f.concatenateSpecificSubfields(ctsSubfields);
 					} else {
 						dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
 						valuesMain.add(value);
-						cts = f.concatenateSpecificSubfields("a");
+						cts = f.concatenateSpecificSubfields(ctsSubfields);
 					}
 				}
 			}
