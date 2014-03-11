@@ -185,6 +185,13 @@ task (GetRecentMfhdDataCount, dependsOn:'assemble', type: JavaExec){
  args=['3']
 }
    
+task (GetItems, dependsOn:'assemble', type: JavaExec){
+ description='Run GetItems'
+ main='edu.cornell.library.integration.GetItems'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
 task (GetLocations, dependsOn:'assemble', type: JavaExec){
  description='Run GetLocations'
  main='edu.cornell.library.integration.GetLocations'
