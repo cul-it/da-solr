@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,15 +32,72 @@ public class LoadItemData implements DocumentPostProcess{
 	
 	@Override
 	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
 
 		if (! document.containsKey("holdings_display"))
 			return;
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
+		SolrInputField itemlist = new SolrInputField("item_display");
+		if (true) {
+			for (Object mfhd_id_obj: field.getValues()) {
+				if (debug)
+					System.out.println(mfhd_id_obj.toString());
+				String query = "select * from item where mfhdid = "+mfhd_id_obj.toString();
+				if (debug)
+					System.out.println(query);
+		
+		        Statement stmt = null;
+		        ResultSet rs = null;
+		        try {
+		        	stmt = conn.createStatement();
+		
+		        	rs = stmt.executeQuery(query);
+		        	while (rs.next()) {
+			        	   
+		        		ObjectMapper mapper = new ObjectMapper();
+		        		Map<String,Object> record = mapper.readValue(rs.getString("json"),Map.class);
+		        		ArrayList<String> locationFields = new ArrayList<String>();
+		        		locationFields.add("temp_location");
+		        		locationFields.add("perm_location");
+		        		for (String colname : locationFields) {
+			        		if (colname.equalsIgnoreCase("temp_location")
+			       						|| colname.equalsIgnoreCase("perm_location")) {
+			        			Integer loc_id = Integer.valueOf(record.get(colname).toString());
+			        			if (loc_id > 1) {
+			       					if (debug)
+			       						System.out.println(colname+": "+loc_id);
+			       					Location l = getLocation(recordURI,mainStore,localStore,loc_id);
+			       					record.put(colname.toLowerCase(), l);
+			        			}
+			        		}
+		        		}
+
+		        		String json = mapper.writeValueAsString(record);
+		        		if (debug)
+		        			System.out.println(json);
+		        		itemField.addValue(json, 1);
+		        	}
+		        } catch (SQLException ex) {
+		           System.out.println(query);
+		           System.out.println(ex.getMessage());
+		        } catch (Exception ex) {
+		           System.out.println(ex.getMessage());   
+		        } finally {
+		       
+		           try {
+		              if (stmt != null) stmt.close();
+		              if (rs != null) rs.close();
+		           } catch (Exception ex) {}
+		        }
+	        
+			}
+			
+		} else {
 		for (Object mfhd_id_obj: field.getValues()) {
-			System.out.println(mfhd_id_obj.toString());
+			if (debug)
+				System.out.println(mfhd_id_obj.toString());
 			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM, CORNELLDB.ITEM_TYPE" +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
@@ -52,7 +110,7 @@ public class LoadItemData implements DocumentPostProcess{
 	        ResultSet rs = null;
 	        ResultSetMetaData rsmd = null;
 	        try {
-	        	stmt = voyager.createStatement();
+	        	stmt = conn.createStatement();
 	
 	        	rs = stmt.executeQuery(query);
 	        	rsmd = rs.getMetaData();
@@ -108,6 +166,8 @@ public class LoadItemData implements DocumentPostProcess{
 	        }
         
 		}
+		}
+		document.put("item_display", itemlist);
 		document.put("item_record_display", itemField);
 	}
 	

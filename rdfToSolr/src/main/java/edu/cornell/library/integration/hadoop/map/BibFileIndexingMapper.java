@@ -208,7 +208,16 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
  //       String DBName = "CORNELLDB";
         String DBUser = "login";
         String DBPass = "login";
-
+        
+        if (true) {
+        	DBDriver = "com.mysql.jdbc.Driver";
+        	DBProtocol = "jdbc:mysql://";
+        	DBServer = "fbw4-dev.library.cornell.edu:3306/item_data";
+        	DBUser = "dna";
+        	DBPass = "dna password";
+        }
+        
+        
         // actually connect to the database
         try {
 
