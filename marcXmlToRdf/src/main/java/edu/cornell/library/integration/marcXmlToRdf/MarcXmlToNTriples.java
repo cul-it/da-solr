@@ -600,7 +600,7 @@ public class MarcXmlToNTriples {
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> "+field_uri+".\n");
 			sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.tag+"> "+field_uri+".\n");
 			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .\n");
-			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+escapeForNTriples(f.tag)+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples(f.value)+"\".\n");
 			if ((f.tag.contentEquals("004")) && (type == RecordType.HOLDINGS)) {
 				rec.bib_id = f.value;
@@ -615,7 +615,7 @@ public class MarcXmlToNTriples {
 			if (f.alttag != null)
 				sb.append(record_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasField"+f.alttag+"> "+field_uri+".\n");
 			sb.append(field_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .\n");
-			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+f.tag+"\".\n");
+			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \""+escapeForNTriples(f.tag)+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \""+escapeForNTriples(f.ind1.toString())+"\".\n");
 			sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> \""+escapeForNTriples(f.ind2.toString())+"\".\n");
 
@@ -624,9 +624,8 @@ public class MarcXmlToNTriples {
 				Subfield sf = f.subfields.get(++sfid);
 				String subfield_uri = "<"+uri_host+id_pref+id+"_"+fid+"_"+sfid+">";
 				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> "+subfield_uri+".\n");
-				sb.append(field_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield"+Character.toUpperCase( sf.code )+"> "+subfield_uri+".\n");
 				sb.append(subfield_uri+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .\n");
-				sb.append(subfield_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/code> \""+sf.code+"\".\n");
+				sb.append(subfield_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/code> \""+escapeForNTriples(sf.code.toString())+"\".\n");
 				sb.append(subfield_uri+" <http://marcrdf.library.cornell.edu/canonical/0.1/value> \""+escapeForNTriples( sf.value )+"\".\n");
 			}
 
