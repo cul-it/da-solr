@@ -39,7 +39,6 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
 					String language = nodeToString(sol.get("language"));
-					System.out.println(language);
 					
 					// Suppress "Undetermined" and "No Linguistic Content"
 					// from facet and display (DISCOVERYACCESS-822
