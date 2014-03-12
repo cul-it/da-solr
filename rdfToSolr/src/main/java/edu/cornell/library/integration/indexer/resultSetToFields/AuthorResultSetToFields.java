@@ -58,7 +58,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 				String ctsSubfields;
 				if (f.mainTag.equals("100")) {
 					subfields = "abcq";
-					ctsSubfields = "abd";
+					ctsSubfields = "abcdq";
 				} else {
 					subfields = "abcefghijklmnopqrstuvwxyz";
 					ctsSubfields = "ab";

@@ -54,10 +54,17 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			for (DataField f: dataFields) {
-				if (f.tag.equals("880"))
-					mainEntryVern = removeTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
-				else
-					mainEntry = removeTrailingPunctuation(f.concateSubfieldsOtherThan6(),".,");
+				if (f.tag.equals("880")) {
+					if (f.mainTag.equals("100"))
+						mainEntryVern = removeTrailingPunctuation(f.concatenateSpecificSubfields("abcdq"),".,");
+					else
+						mainEntryVern = removeTrailingPunctuation(f.concatenateSpecificSubfields("ab"),".,");						
+				} else {
+					if (f.tag.equals("100"))
+						mainEntry = removeTrailingPunctuation(f.concatenateSpecificSubfields("abcdq"),".,");
+					else
+						mainEntry = removeTrailingPunctuation(f.concatenateSpecificSubfields("ab"),".,");						
+				}
 			}
 		}
 

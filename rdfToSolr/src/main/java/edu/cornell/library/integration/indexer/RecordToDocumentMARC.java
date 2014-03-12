@@ -332,7 +332,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?field marcrdf:ind2 ?ind2. \n" +
 				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
 				    		"        ?sfield marcrdf:code ?code.\n" +
-				    		"        ?sfield marcrdf:code \"a\".\n" +
 				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
 			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
