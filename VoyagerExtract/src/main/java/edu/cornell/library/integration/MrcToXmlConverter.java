@@ -266,7 +266,7 @@ public class MrcToXmlConverter {
              if (!hasInvalidChars) {
                 writer.write(record);
              }else{
-                 System.out.println("Skipping record due to invalid chracters" );
+                 System.out.println("Skipping record due to invalid characters" );
                  System.out.println(String.format( "ControlNumber: %s Record in "
                          + "total: %d Record in file: %d", controlNum, total, counter));
              }

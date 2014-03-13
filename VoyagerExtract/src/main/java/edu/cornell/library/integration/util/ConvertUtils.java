@@ -18,6 +18,7 @@ import org.marc4j.marc.ControlField;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.Record;
 import org.marc4j.marc.Subfield;
+import org.marc4j.marc.VariableField;
 import org.marc4j.marc.impl.LeaderImpl;
 import org.marc4j.marc.impl.SubfieldImpl;
 
@@ -148,7 +149,7 @@ public class ConvertUtils {
     */
    private static void modifyRecord(Record record, RecordLine line,
          String invalidCharacter, String badCharacterLocator) {
-
+	   
       // change LEADER
       // String leaderReplaced = "The character is replaced with zero.\n";
       if (line.getLine().startsWith("LEADER")) {
@@ -167,42 +168,46 @@ public class ConvertUtils {
          // change data fields
       } else if (line.getLine().startsWith("LEADER") == false) {
          String tag = line.getLine().substring(0, 3);
-         DataField fd = (DataField) record.getVariableField(tag);
-         record.removeVariableField(fd);
-
-         // indicators
-         fd.setIndicator1(String.valueOf(fd.getIndicator1())
-               .replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
-         fd.setIndicator2(String.valueOf(fd.getIndicator2())
-               .replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
-
-         // subfields
-         List<Subfield> sfs = fd.getSubfields();
-         List<Subfield> newSfs = new ArrayList<Subfield>();
-         List<Subfield> oldSfs = new ArrayList<Subfield>();
-         // replace the subfields' weird characters
-         for (Subfield sf : sfs) {
-            oldSfs.add(sf);
-            char code;
-            if (WEIRD_CHARACTERS_PATTERN.matcher(
-                  String.valueOf(sf.getCode())).find()) {
-               code = String.valueOf(sf.getCode())
-                     .replaceAll(WEIRD_CHARACTERS, " ").charAt(0);
-            } else {
-               code = sf.getCode();
-            }
-            newSfs.add(new SubfieldImpl(code, sf.getData().replaceAll(
-                  WEIRD_CHARACTERS, " ")));
+//         DataField fd = (DataField) record.getVariableField(tag);
+         List<VariableField> fds = record.getVariableFields(tag);
+         for (VariableField fdv: fds) {
+        	 DataField fd = (DataField) fdv;
+	         record.removeVariableField(fd);
+	
+	         // indicators
+	         fd.setIndicator1(String.valueOf(fd.getIndicator1())
+	               .replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
+	         fd.setIndicator2(String.valueOf(fd.getIndicator2())
+	               .replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
+	
+	         // subfields
+	         List<Subfield> sfs = fd.getSubfields();
+	         List<Subfield> newSfs = new ArrayList<Subfield>();
+	         List<Subfield> oldSfs = new ArrayList<Subfield>();
+	         // replace the subfields' weird characters
+	         for (Subfield sf : sfs) {
+	            oldSfs.add(sf);
+	            char code;
+	            if (WEIRD_CHARACTERS_PATTERN.matcher(
+	                  String.valueOf(sf.getCode())).find()) {
+	               code = String.valueOf(sf.getCode())
+	                     .replaceAll(WEIRD_CHARACTERS, " ").charAt(0);
+	            } else {
+	               code = sf.getCode();
+	            }
+	            newSfs.add(new SubfieldImpl(code, sf.getData().replaceAll(
+	                  WEIRD_CHARACTERS, " ")));
+	         }
+	         // remove old subfields ...
+	         for (Subfield sf : oldSfs) {
+	            fd.removeSubfield(sf);
+	         }
+	         // ... and add the new ones
+	         for (Subfield sf : newSfs) {
+	            fd.addSubfield(sf);
+	         }
+	         record.addVariableField(fd);
          }
-         // remove old subfields ...
-         for (Subfield sf : oldSfs) {
-            fd.removeSubfield(sf);
-         }
-         // ... and add the new ones
-         for (Subfield sf : newSfs) {
-            fd.addSubfield(sf);
-         }
-         record.addVariableField(fd);
 
       }
        
