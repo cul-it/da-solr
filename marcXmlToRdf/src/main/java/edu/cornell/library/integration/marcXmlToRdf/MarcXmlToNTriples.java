@@ -43,7 +43,8 @@ public class MarcXmlToNTriples {
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	public static Long recordCount = new Long(0);
 	public static Collection<Integer> no245a = new HashSet<Integer>();
-	private static Integer groupsize = 10000;
+	private static Integer groupsize = 1000;
+	
 	private static Pattern shadowLinkPattern 
 	   = Pattern.compile("https?://catalog.library.cornell.edu/cgi-bin/Pwebrecon.cgi\\?BBID=([0-9]+)&DB=local");
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
