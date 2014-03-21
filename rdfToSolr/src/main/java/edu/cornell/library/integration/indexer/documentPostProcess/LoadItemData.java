@@ -40,7 +40,7 @@ public class LoadItemData implements DocumentPostProcess{
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
-		if (true) {
+		if (false) {
 			for (Object mfhd_id_obj: field.getValues()) {
 				if (debug)
 					System.out.println(mfhd_id_obj.toString());
@@ -77,6 +77,7 @@ public class LoadItemData implements DocumentPostProcess{
 		        		String json = mapper.writeValueAsString(record);
 		        		if (debug)
 		        			System.out.println(json);
+					itemlist.addValue(record.get("item_id"),1);
 		        		itemField.addValue(json, 1);
 		        	}
 		        } catch (SQLException ex) {

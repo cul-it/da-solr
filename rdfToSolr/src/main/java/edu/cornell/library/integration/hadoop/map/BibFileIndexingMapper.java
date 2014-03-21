@@ -209,7 +209,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         String DBUser = "login";
         String DBPass = "login";
         
-        if (true) {
+        if (false) {
         	DBDriver = "com.mysql.jdbc.Driver";
         	DBProtocol = "jdbc:mysql://";
         	DBServer = "fbw4-dev.library.cornell.edu:3306/item_data";
