@@ -65,7 +65,7 @@ public class IndexRecordListComparison {
 
 		//Compile lists of BIB and MFHD ids in Solr.
 		try {
-			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display,item_record_display&rows=10000000");
+			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display,item_display&rows=10000000");
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
@@ -192,7 +192,6 @@ public class IndexRecordListComparison {
 							String s = r.getElementText();
 							Map<String,Object> itemRecord = null;
 							try {
-								System.out.println(s);
 								itemRecord = jsonMapper.readValue(s, Map.class);
 							} catch (Exception e) {
 							//} catch (JsonParseException | JsonMappingException | IOException e) {
