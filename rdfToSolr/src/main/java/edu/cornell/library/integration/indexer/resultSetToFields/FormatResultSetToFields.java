@@ -117,25 +117,24 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		Iterator<String> i = sf245hs.iterator();
 		while (i.hasNext())
 			if (i.next().toLowerCase().contains("[electronic resource]")) {
-				online = true;
-				if (debug) System.out.println("Online status due to 245h: [electronic resource].");
+//				online = true;
+//				if (debug) System.out.println("Online status due to 245h: [electronic resource].");
+				Iterator<String> j = sf948fs.iterator();
+				while (j.hasNext())
+					if (j.next().toLowerCase().equals("j")) {
+						format = "Journal";
+						if (debug) System.out.println("Journal format due to 245h: [electronic resource] and 948f: j.");					
+					}			
 			}
 
-		i = sf948fs.iterator();
-		while (i.hasNext())
-			if (i.next().toLowerCase().equals("j"))
-				if (online) { //i.e. If 245h said [electronic resource]
-					format = "Journal";
-					if (debug) System.out.println("Journal format due to 245h: [electronic resource] and 948f: j.");					
-				}
 
 		i = sf948fs.iterator();
 		while (i.hasNext()) {
 			String val = i.next();
 			if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
 				format = "Database";
-				online = true;
-				if (debug) System.out.println("Online and Database due to 948f: webfeatdb OR fd.");				
+//				online = true;
+				if (debug) System.out.println("Database due to 948f: webfeatdb OR fd.");				
 			}
 		}
 
@@ -144,26 +143,26 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			String val = i.next();
 			if (val.equalsIgnoreCase("research guide")) {
 				format = "Research Guide";
-				online = true;
-				if (debug) System.out.println("Online and format:Research Guide due to 653a: research guide.");
+//				online = true;
+				if (debug) System.out.println("format:Research Guide due to 653a: research guide.");
 			} else if (val.equalsIgnoreCase("course guide")) {
 				format = "Course Guide";
-				online = true;
-				if (debug) System.out.println("Online and format:Course Guide due to 653a: course guide.");
+//				online = true;
+				if (debug) System.out.println("format:Course Guide due to 653a: course guide.");
 			} else if (val.equalsIgnoreCase("library guide")) {
 				format = "Library Guide";
-				online = true;
-				if (debug) System.out.println("Online and format:Library Guide due to 653a: library guide.");
+//				online = true;
+				if (debug) System.out.println("format:Library Guide due to 653a: library guide.");
 			}
 		}
 
-		i = sf948fs.iterator();
-		while (i.hasNext())
-			if (i.next().toLowerCase().equals("ebk")) {
-				online = true;
-				if (debug) System.out.println("Online due to 948f: ebk.");
-			}
-
+/*		i = sf948fs.iterator();
+ *		while (i.hasNext())
+ *			if (i.next().toLowerCase().equals("ebk")) {
+ *				online = true;
+ *				if (debug) System.out.println("Online due to 948f: ebk.");
+ *			}
+ */
 		if (format == null) {
 			if (record_type.equals("a")) {
 				if ((bibliographic_level.equals("a"))
@@ -270,18 +269,16 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-				
-		if (loccodes.contains("serv,remo")) {
-			if (!online) {
-				online = true;
-				if (debug) System.out.println("Online due to loccode: serv,remo.");
-			}
-		} else {
-			if (online) {
-				if (debug) System.out.println("Online despite lack of loccode: serv,remo.");
-			}
+		
+		
+		if (online) {
+			System.out.println("Online flag incorrectly applied for reason other than 'serv,remo' flag in mfhd.");
 		}
 		
+		if (loccodes.contains("serv,remo")) {
+			online = true;
+			if (debug) System.out.println("Online due to loccode: serv,remo.");
+		}		
 
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
 			addField(fields,"format","Thesis");
