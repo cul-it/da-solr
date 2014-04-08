@@ -1,11 +1,8 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,7 +60,6 @@ public class VoyagerUpdate {
 //		tempFile.deleteOnExit();
 //		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
 	    Path tempDir = Files.createTempDirectory("IL-build_nt");
-//TODO  delete on exit? Probably won't work if there's anything in there.
 	    
 		
 		try{
@@ -73,7 +69,6 @@ public class VoyagerUpdate {
 											config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(),
 											config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(),
 											tempDir);
-//TODO call must accept directory instead of File.
 		}catch (Exception e){
 		    throw new Exception("Problems while converting to N-Triples",e);
 		}
@@ -90,6 +85,7 @@ public class VoyagerUpdate {
 			System.out.println("MARC N-Triples file saved to " + targetNTFile);
 			Files.delete(file);
 		}
+		Files.delete(tempDir);
 	}
 	
 
