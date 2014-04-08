@@ -2,8 +2,12 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -55,9 +59,12 @@ public class VoyagerUpdate {
 		
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 				
-		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
-		tempFile.deleteOnExit();
-		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
+//		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
+//		tempFile.deleteOnExit();
+//		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
+	    Path tempDir = Files.createTempDirectory("IL-build_nt");
+//TODO  delete on exit? Probably won't work if there's anything in there.
+	    
 		
 		try{
 		    MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
@@ -65,17 +72,24 @@ public class VoyagerUpdate {
 											davService, 
 											config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(),
 											config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(),
-				                            tempFile);
+											tempDir);
+//TODO call must accept directory instead of File.
 		}catch (Exception e){
 		    throw new Exception("Problems while converting to N-Triples",e);
 		}
 			
-		String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
-                + "/" + config.getDailyMrcNtFilenamePrefix() + "-" + currentDate+".nt.gz";
-		
-	    InputStream is = new FileInputStream(tempFile);
-	    davService.saveFile(targetNTFile, is);						
-		System.out.println("MARC N-Triples file saved to " + targetNTFile);		
+		// Upload N-Triples files
+		int fileCount=0;
+		DirectoryStream<Path> stream = Files.newDirectoryStream(tempDir);
+		for (Path file: stream) {
+			System.out.println(file.getFileName());
+			String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
+					+ "/" + config.getDailyMrcNtFilenamePrefix() + "-" + currentDate+"."+ String.valueOf(++fileCount)  +".nt.gz";
+			InputStream is = new FileInputStream(file.toString());
+			davService.saveFile(targetNTFile, is);						
+			System.out.println("MARC N-Triples file saved to " + targetNTFile);
+			Files.delete(file);
+		}
 	}
 	
 

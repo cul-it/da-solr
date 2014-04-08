@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -89,7 +90,69 @@ public class MarcXmlToNTriples {
 		out.close();
 
 	}
+
 	
+	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
+			 Collection<Integer> unsuppressedMfhds,
+			 DavService davService,
+			 String bibSrcDir,
+			 String mfhdSrcDir,
+			 Path targetDir) throws Exception {
+
+		//TODO Download all bib xml
+		Path tempDir = Files.createTempDirectory("IL-updatesBibs");
+		List<String> bibSrcFiles = davService.getFileUrlList(bibSrcDir);
+		Iterator<String> i = bibSrcFiles.iterator();
+		while (i.hasNext()) {
+			String srcFile = i.next();
+			String filename = srcFile.substring(srcFile.lastIndexOf('/') + 1);
+			System.out.println(filename);
+			davService.getFile(srcFile, tempDir+"/"+filename);
+		}
+		System.exit(0);
+		
+		//TODO Create list of bib ids
+		
+		//TODO Define target bibid ranges (Create BufferedOutputStream Map?)
+		
+		BufferedOutputStream out =  new BufferedOutputStream(new GZIPOutputStream(
+				new FileOutputStream(targetDir+"/Somefile", true)));
+
+		//TODO Use local file copies instead of DAV
+		RecordType type = RecordType.BIBLIOGRAPHIC;
+//		List<String> bibSrcFiles = davService.getFileUrlList(bibSrcDir);
+		i = bibSrcFiles.iterator();
+		while (i.hasNext()) {
+			String srcFile = i.next();
+			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = 
+					input_factory.createXMLStreamReader(xmlstream);
+			processRecords(r,type,unsuppressedBibs,out);
+			xmlstream.close();
+		}
+		
+		//TODO Delete local bib record copies 
+
+		type = RecordType.HOLDINGS;
+		List<String> mfhdSrcFiles = davService.getFileUrlList(mfhdSrcDir);
+		i = mfhdSrcFiles.iterator();
+		while (i.hasNext()) {
+			String srcFile = i.next();
+			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = 
+					input_factory.createXMLStreamReader(xmlstream);
+			//TODO Pass bib id ranges
+			processRecords(r,type,unsuppressedMfhds,out);
+			xmlstream.close();
+		}
+		out.close();
+
+	}
+
+	
+	//TODO Create Version that accepts bib id ranges
 	private static void processRecords (XMLStreamReader r,
 										RecordType type,
 										Collection<Integer> unsuppressedList,
@@ -119,6 +182,7 @@ public class MarcXmlToNTriples {
 //					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 //						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
+					//TODO New Version should switch outputs if need be.
 					out.write( ntriples.getBytes() );
 				}
 		}
