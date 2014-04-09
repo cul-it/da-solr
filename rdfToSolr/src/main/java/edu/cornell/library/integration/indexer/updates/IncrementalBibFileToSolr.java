@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -28,10 +29,10 @@ public class IncrementalBibFileToSolr {
         VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(argv);
                                      
         /* Figure out the name of the most recent BIB MARC NT file. */
-        String fileToIndex;
+        List<String> filesToIndex;
         String dirToLookIn = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir() ; 
         try {
-            fileToIndex = FileNameUtils.findMostRecentFile(
+            filesToIndex = FileNameUtils.findMostRecentFiles(
                     DavServiceFactory.getDavService(config), 
                     dirToLookIn,
                     config.getDailyMrcNtFilenamePrefix(), ".nt.gz");
@@ -40,35 +41,42 @@ public class IncrementalBibFileToSolr {
                     + dirToLookIn, e);
         }                       
                 
-        if( fileToIndex == null )
+        if(( filesToIndex == null ) || filesToIndex.isEmpty())
             throw new Exception("Could not find most recent file in directory " 
                     + dirToLookIn );
         
-        System.out.println("Attemping to load from " + fileToIndex );
-        System.out.println("      to Solr Index at " + config.getSolrUrl());
-                         
-        /* Do the document building and indexing. */
+        System.out.println(filesToIndex.size() + " N-Triples batch files found.");
         
-        IndexDirectory indexer = new IndexDirectory();
-        try{
-            /* Setup indexer with properties from config. */
-            indexer.setTmpDir( config.getTmpDir() );
-            indexer.setDavUser(config.getWebdavUser());
-            indexer.setDavPass(config.getWebdavPassword());
-            indexer.setSolrURL(config.getSolrUrl());     
-            
-            indexer.setInputsURL( fileToIndex );
+        int batchNo = 0;
+        for (String fileToIndex: filesToIndex) {
+	        System.out.println("Attemping to load from " + fileToIndex );
+	        System.out.println("      to Solr Index at " + config.getSolrUrl());
+	        System.out.println("         this is batch " + ++batchNo + " out of " + filesToIndex.size());
+	                         
+	        /* Do the document building and indexing. */
+	        
+	        IndexDirectory indexer = new IndexDirectory();
+	        try{
+	            /* Setup indexer with properties from config. */
+	            indexer.setTmpDir( config.getTmpDir() );
+	            indexer.setDavUser(config.getWebdavUser());
+	            indexer.setDavPass(config.getWebdavPassword());
+	            indexer.setSolrURL(config.getSolrUrl());     
+	            
+	            indexer.setInputsURL( fileToIndex );
+	
+	            //ARQ.setExecutionLogging(Explain.InfoLevel.ALL) ;
+	
+	            indexer.indexDocuments();            
+	            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
+	            
+	        }catch(Exception e){
+	            throw new Exception("Problem while indexing documents from '" + fileToIndex + "'", e);
+	        }
+	        
+	        checkForErrors( indexer.getRecordWriter().getRecords() );
 
-            //ARQ.setExecutionLogging(Explain.InfoLevel.ALL) ;
-
-            indexer.indexDocuments();            
-            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
-            
-        }catch(Exception e){
-            throw new Exception("Problem while indexing documents from '" + fileToIndex + "'", e);
         }
-        
-        checkForErrors( indexer.getRecordWriter().getRecords() );
     }
 
     /**

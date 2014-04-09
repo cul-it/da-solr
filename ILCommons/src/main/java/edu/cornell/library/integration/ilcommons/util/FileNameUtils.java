@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.ilcommons.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +35,9 @@ public class FileNameUtils {
      * @throws Exception if there is a problem with the WEBDAV service. 
      */
     public static String findMostRecentFile(DavService davService , String directoryURL, String fileNamePrefix ) throws Exception{
-       return findMostRecentFile(davService,directoryURL,fileNamePrefix,".txt");
+       List<String> files = findMostRecentFiles(davService,directoryURL,fileNamePrefix,".txt");
+       if (files.isEmpty()) return null;
+       return files.iterator().next();
     }
 
     
@@ -59,7 +62,7 @@ public class FileNameUtils {
      *   The returned string will be the full URL to the file.
      * @throws Exception if there is a problem with the WEBDAV service. 
      */
-    public static String findMostRecentFile(
+    public static List<String> findMostRecentFiles(
             DavService davService, 
             String directoryURL, 
             String fileNamePrefix, 
@@ -71,8 +74,9 @@ public class FileNameUtils {
         if( ! fileNamePostfix.startsWith("."))
             fileNamePostfix = "." + fileNamePostfix;
         
-        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..)" + fileNamePostfix);
+        Pattern p = Pattern.compile(fileNamePrefix + "-(....-..-..)(.\\d+)?" + fileNamePostfix);
         Date lastDate = new SimpleDateFormat("yyyy").parse("1900");
+        List<String> mostRecentFiles = new ArrayList<String>();
         String mostRecentFile = null;
                                
         List<String> biblists = davService.getFileList( directoryURL );   
@@ -85,7 +89,11 @@ public class FileNameUtils {
                 Date thisDate = new SimpleDateFormat("yyyy-MM-dd").parse(m.group(1));
                 if (thisDate.after(lastDate)) {
                     lastDate = thisDate;
+                    mostRecentFiles.clear();
+                    mostRecentFiles.add(directoryURL + fileName);
                     mostRecentFile = fileName;
+                } else if (thisDate.equals(lastDate)) {
+                    mostRecentFiles.add(directoryURL + fileName);
                 }
             }
         }
@@ -93,7 +101,7 @@ public class FileNameUtils {
         if( mostRecentFile == null )
             return null;
         
-        return directoryURL +  mostRecentFile;
+        return mostRecentFiles;
         
     }
     
