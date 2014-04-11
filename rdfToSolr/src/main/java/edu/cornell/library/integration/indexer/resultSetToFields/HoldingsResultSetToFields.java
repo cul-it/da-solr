@@ -109,6 +109,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			Collection<String> loccodes = new HashSet<String>();
 			Collection<String> callnos = new HashSet<String>();
 			List<String> holdings = new ArrayList<String>();
+			List<String> recentHoldings = new ArrayList<String>();
+			List<String> supplementalHoldings = new ArrayList<String>();
+			List<String> indexHoldings = new ArrayList<String>();
 			List<String> notes = new ArrayList<String>();
 			
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
@@ -136,9 +139,8 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 					} else if (f.tag.equals("845")) {
 						// terms governing use and reproduction note
 						notes.add(f.concatenateSpecificSubfields("abcdu3"));
-					}
-					for (Subfield sf: f.subfields.values()) {
-						if (f.tag.equals("852")) {
+					} else if (f.tag.equals("852")) {
+						for (Subfield sf: f.subfields.values()) {
 							if (sf.code.equals('b')) {
 								loccodes.add(sf.value);
 							} else if (sf.code.equals('h')) {
@@ -149,15 +151,17 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 								callno = f.concatenateSpecificSubfields("hijklm");
 							} else if (sf.code.equals('z')) {
 								notes.add(sf.value);
-							}
-							
-						} else if (f.tag.equals("866") || f.tag.equals("867") || f.tag.equals("868")) {
-							if (sf.code.equals('a')) {
-								holdings.add(sf.value);
-							} if (sf.code.equals('z')) {
-								notes.add(sf.value);
-							}
+							}		
 						}
+					} else if (f.tag.equals("866")) {
+						if (f.ind1.equals(' ') && f.ind2.equals(' '))
+							recentHoldings.add(f.concatenateSpecificSubfields("az"));
+						else
+							holdings.add(f.concatenateSpecificSubfields("az"));
+					} else if (f.tag.equals("867")) {
+						supplementalHoldings.add(f.concatenateSpecificSubfields("az"));
+					} else if (f.tag.equals("868")) {
+						indexHoldings.add(f.concatenateSpecificSubfields("az"));
 					}
 					if (callno != null)
 						callnos.add(callno);
@@ -169,6 +173,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			holding.callnos = callnos.toArray(new String[ callnos.size() ]);
 			holding.notes = notes.toArray(new String[ notes.size() ]);
 			holding.holdings_desc = holdings.toArray(new String[ holdings.size() ]);
+			holding.recent_holdings_desc = recentHoldings.toArray(new String[ holdings.size() ]);
+			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ holdings.size() ]);
+			holding.index_holdings_desc = indexHoldings.toArray(new String[ holdings.size() ]);
 			holding.locations = new Location[loccodes.size()];
 			Iterator<String> iter = loccodes.iterator();
 			int i = 0;
@@ -214,6 +221,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 		public String[] callnos;
 		public String[] notes;
 		public String[] holdings_desc;
+		public String[] recent_holdings_desc;
+		public String[] supplemental_holdings_desc;
+		public String[] index_holdings_desc;
 		public Location[] locations;
 	}
 

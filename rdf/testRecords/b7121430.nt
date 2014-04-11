@@ -1,0 +1,398 @@
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://www.w3.org/2000/01/rdf-schema#label> "7121430".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/leader> "01237cas a2200349 a 4500".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField001> <http://da-rdf.library.cornell.edu/individual/b7121430_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_1> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "001".
+<http://da-rdf.library.cornell.edu/individual/b7121430_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "7121430".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField005> <http://da-rdf.library.cornell.edu/individual/b7121430_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_2> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "005".
+<http://da-rdf.library.cornell.edu/individual/b7121430_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "20110131085142.0".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> <http://da-rdf.library.cornell.edu/individual/b7121430_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_3> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "008".
+<http://da-rdf.library.cornell.edu/individual/b7121430_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "101117c20109999is qr p       0    0heboc".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField010> <http://da-rdf.library.cornell.edu/individual/b7121430_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_4> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "010".
+<http://da-rdf.library.cornell.edu/individual/b7121430_4> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_4> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_4> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_4_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_4_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_4_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_4_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "  2011240050".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_5>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField022> <http://da-rdf.library.cornell.edu/individual/b7121430_5>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "022".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_5_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "y".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "0024-1091".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_5_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "l".
+<http://da-rdf.library.cornell.edu/individual/b7121430_5_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "0024-1091".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_6>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField035> <http://da-rdf.library.cornell.edu/individual/b7121430_6>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_6> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "035".
+<http://da-rdf.library.cornell.edu/individual/b7121430_6> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_6> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_6> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_6_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_6_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_6_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_6_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "(OCoLC)681763132".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_7>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField037> <http://da-rdf.library.cornell.edu/individual/b7121430_7>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_7> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "037".
+<http://da-rdf.library.cornell.edu/individual/b7121430_7> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_7> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_7> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_7_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_7_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_7_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_7_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Academy of the Hebrew Language, Givʻat Ram Campus, 91904 Jerusalem, Israel".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_8>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField040> <http://da-rdf.library.cornell.edu/individual/b7121430_8>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "040".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_8_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "OSU".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_8_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "c".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "OSU".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_8_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "d".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "OSU".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_8_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_4> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "d".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_4> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "IXA".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_8_5>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_5> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "d".
+<http://da-rdf.library.cornell.edu/individual/b7121430_8_5> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "NIC".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_9>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField041> <http://da-rdf.library.cornell.edu/individual/b7121430_9>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "041".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_9_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "heb".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_9_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "f".
+<http://da-rdf.library.cornell.edu/individual/b7121430_9_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "eng".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_10>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField042> <http://da-rdf.library.cornell.edu/individual/b7121430_10>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_10> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "042".
+<http://da-rdf.library.cornell.edu/individual/b7121430_10> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_10> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_10> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_10_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_10_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_10_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_10_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "pcc".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_11>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField043> <http://da-rdf.library.cornell.edu/individual/b7121430_11>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_11> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_11> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "043".
+<http://da-rdf.library.cornell.edu/individual/b7121430_11> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_11> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_11> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_11_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_11_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_11_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_11_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "a-is---".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_12>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField050> <http://da-rdf.library.cornell.edu/individual/b7121430_12>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "050".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "1".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "4".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_12_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "PJ4513".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_12_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_12_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> ".V2".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_13>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField245> <http://da-rdf.library.cornell.edu/individual/b7121430_13>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_13> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_13> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "245".
+<http://da-rdf.library.cornell.edu/individual/b7121430_13> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_13> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "3".
+<http://da-rdf.library.cornell.edu/individual/b7121430_13> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_13_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_13_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_13_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_13_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "ha-ʻIvrit.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_14>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField246> <http://da-rdf.library.cornell.edu/individual/b7121430_14>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_14> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_14> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "246".
+<http://da-rdf.library.cornell.edu/individual/b7121430_14> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "1".
+<http://da-rdf.library.cornell.edu/individual/b7121430_14> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "5".
+<http://da-rdf.library.cornell.edu/individual/b7121430_14> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_14_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_14_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_14_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_14_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "haʻIvrit".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_15>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField260> <http://da-rdf.library.cornell.edu/individual/b7121430_15>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "260".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_15_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Yerushalayim :".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_15_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "ha-Aḳademyah la-lashon ha-ʻIvrit,".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_15_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "c".
+<http://da-rdf.library.cornell.edu/individual/b7121430_15_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "c2010-".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_16>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField300> <http://da-rdf.library.cornell.edu/individual/b7121430_16>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "300".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_16_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "v. :".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_16_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "ill. ;".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_16_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "c".
+<http://da-rdf.library.cornell.edu/individual/b7121430_16_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "23 cm.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_17>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField310> <http://da-rdf.library.cornell.edu/individual/b7121430_17>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_17> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_17> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "310".
+<http://da-rdf.library.cornell.edu/individual/b7121430_17> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_17> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_17> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_17_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_17_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_17_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_17_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Quarterly".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_18>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField362> <http://da-rdf.library.cornell.edu/individual/b7121430_18>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_18> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_18> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "362".
+<http://da-rdf.library.cornell.edu/individual/b7121430_18> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_18> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_18> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_18_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_18_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_18_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_18_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Maḥzor 58, ḥov. 1/2 (769-770)-   = Vol. 58, no. 1/2 (2010)-".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_19>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField515> <http://da-rdf.library.cornell.edu/individual/b7121430_19>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_19> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_19> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "515".
+<http://da-rdf.library.cornell.edu/individual/b7121430_19> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_19> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_19> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_19_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_19_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_19_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_19_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Some numbers combined.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_20>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField546> <http://da-rdf.library.cornell.edu/individual/b7121430_20>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_20> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_20> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "546".
+<http://da-rdf.library.cornell.edu/individual/b7121430_20> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_20> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_20> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_20_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_20_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_20_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_20_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Added t.p. with English table of contents.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_21>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField588> <http://da-rdf.library.cornell.edu/individual/b7121430_21>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_21> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_21> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "588".
+<http://da-rdf.library.cornell.edu/individual/b7121430_21> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_21> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_21> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_21_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_21_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_21_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_21_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Description based on first issue; title from title page.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_22>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField588> <http://da-rdf.library.cornell.edu/individual/b7121430_22>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_22> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_22> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "588".
+<http://da-rdf.library.cornell.edu/individual/b7121430_22> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_22> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_22> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_22_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_22_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_22_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_22_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Latest issue consulted: Vol. 58, no. 1/2 (2010).".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_23>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField650> <http://da-rdf.library.cornell.edu/individual/b7121430_23>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "650".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_23_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Hebrew language".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_23_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "v".
+<http://da-rdf.library.cornell.edu/individual/b7121430_23_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Periodicals.".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_24>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField710> <http://da-rdf.library.cornell.edu/individual/b7121430_24>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_24> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_24> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "710".
+<http://da-rdf.library.cornell.edu/individual/b7121430_24> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "2".
+<http://da-rdf.library.cornell.edu/individual/b7121430_24> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_24> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_24_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_24_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_24_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_24_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Aḳademyah la-lashon ha-ʻIvrit (Jerusalem)".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_25>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField780> <http://da-rdf.library.cornell.edu/individual/b7121430_25>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "780".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_25_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "t".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "Leshonenu la-ʻam".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_25_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "x".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "0024-1091".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_25_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "w".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "(DLC)   74645624".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_25_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_4> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "w".
+<http://da-rdf.library.cornell.edu/individual/b7121430_25_4> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "(OCoLC)1794650".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_26>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField948> <http://da-rdf.library.cornell.edu/individual/b7121430_26>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "948".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_26_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "20110124".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_26_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "i".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_26_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "d".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "yz276".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_26_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_4> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "e".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_4> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "lts".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_26_5>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_5> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "h".
+<http://da-rdf.library.cornell.edu/individual/b7121430_26_5> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "appr".
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/b7121430_27>.
+<http://da-rdf.library.cornell.edu/individual/b7121430> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField948> <http://da-rdf.library.cornell.edu/individual/b7121430_27>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "948".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "1".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_27_1>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "20110131".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_27_2>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "c".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_27_3>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "d".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "str1".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7121430_27_4>.
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_4> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "e".
+<http://da-rdf.library.cornell.edu/individual/b7121430_27_4> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "lts".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/HoldingsRecord> .
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://www.w3.org/2000/01/rdf-schema#label> "7557063".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/leader> "00214cy  a22000974  4500".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_1>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField001> <http://da-rdf.library.cornell.edu/individual/h7557063_1>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_1> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "001".
+<http://da-rdf.library.cornell.edu/individual/h7557063_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "7557063".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_2>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField004> <http://da-rdf.library.cornell.edu/individual/h7557063_2>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_2> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "004".
+<http://da-rdf.library.cornell.edu/individual/h7557063_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "7121430".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasBibliographicRecord> <http://da-rdf.library.cornell.edu/individual/b7121430>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_3>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField005> <http://da-rdf.library.cornell.edu/individual/h7557063_3>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_3> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "005".
+<http://da-rdf.library.cornell.edu/individual/h7557063_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "20130507144058.0".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_4>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> <http://da-rdf.library.cornell.edu/individual/h7557063_4>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/ControlField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_4> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "008".
+<http://da-rdf.library.cornell.edu/individual/h7557063_4> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "1101244p    8   1001uu   0000000".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_5>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField852> <http://da-rdf.library.cornell.edu/individual/h7557063_5>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "852".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> "0".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> "1".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/h7557063_5_1>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "olin".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/h7557063_5_2>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "h".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "PJ4513".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/h7557063_5_3>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_3> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "i".
+<http://da-rdf.library.cornell.edu/individual/h7557063_5_3> <http://marcrdf.library.cornell.edu/canonical/0.1/value> ".L62".
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> <http://da-rdf.library.cornell.edu/individual/h7557063_6>.
+<http://da-rdf.library.cornell.edu/individual/h7557063> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField866> <http://da-rdf.library.cornell.edu/individual/h7557063_6>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/DataField> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_6> <http://marcrdf.library.cornell.edu/canonical/0.1/tag> "866".
+<http://da-rdf.library.cornell.edu/individual/h7557063_6> <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> " ".
+<http://da-rdf.library.cornell.edu/individual/h7557063_6> <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> " ".
+<http://da-rdf.library.cornell.edu/individual/h7557063_6> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/h7557063_6_1>.
+<http://da-rdf.library.cornell.edu/individual/h7557063_6_1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
+<http://da-rdf.library.cornell.edu/individual/h7557063_6_1> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "a".
+<http://da-rdf.library.cornell.edu/individual/h7557063_6_1> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "v.LVIII-LX (2010-2012)".
