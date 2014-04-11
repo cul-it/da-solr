@@ -36,6 +36,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		String bibliographic_level ="";
 		String typeOfContinuingResource = "";
 		Boolean isThesis = false;
+		Boolean isDatabase = false;
 		Collection<String> sf653as = new HashSet<String>();
 		Collection<String> sf245hs = new HashSet<String>();
 		Collection<String> sf948fs = new HashSet<String>();
@@ -133,8 +134,14 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			String val = i.next();
 			if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
 				format = "Database";
-//				online = true;
-				if (debug) System.out.println("Database due to 948f: webfeatdb OR fd.");				
+				if (debug) System.out.println("format:Database due to 948f: webfeatdb OR fd.");
+				
+				// format:Database differs from database_b flag.
+				// The latter is used for Database ERMS.
+				if (val.equals("webfeatdb")) {
+					isDatabase = true;
+					if (debug) System.out.println("Database_b true due to 948f: webfeatdb.");
+				}
 			}
 		}
 
@@ -143,15 +150,12 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			String val = i.next();
 			if (val.equalsIgnoreCase("research guide")) {
 				format = "Research Guide";
-//				online = true;
 				if (debug) System.out.println("format:Research Guide due to 653a: research guide.");
 			} else if (val.equalsIgnoreCase("course guide")) {
 				format = "Course Guide";
-//				online = true;
 				if (debug) System.out.println("format:Course Guide due to 653a: course guide.");
 			} else if (val.equalsIgnoreCase("library guide")) {
 				format = "Library Guide";
-//				online = true;
 				if (debug) System.out.println("format:Library Guide due to 653a: library guide.");
 			}
 		}
@@ -297,6 +301,9 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		if (online) {
 			addField(fields,"online","Online");
 		}
+		SolrInputField dbField = new SolrInputField("database_b");
+		dbField.setValue(isDatabase, 1.0f);
+		fields.put("database_b", dbField);
 		return fields;
 
 	}

@@ -72,6 +72,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("653")) {
+					// This field list is used for subject_display and sixfivethree_display.
 					main_fields = "a";
 				} else if (f.mainTag.equals("654")) {
 					main_fields = "abe";
@@ -103,6 +104,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					StringBuilder sb = new StringBuilder();
 					sb.append(f.concatenateSpecificSubfields(main_fields));
 					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
+					if (f.mainTag.equals("653")) {
+						addField(solrFields,"sixfivethree_display",sb.toString());
+					}
 					if ((dashed_terms != null) && ! dashed_terms.equals("")) {
 						sb.append("|"+dashed_terms);
 					}
