@@ -269,17 +269,17 @@
 	other call numbers such as "1-1-1" and "Thesis 3" should be supported. -->
     <fieldType name="callNumberNormalized" class="solr.TextField" omitNorms="true">
       <analyzer>
-        <filter class="solr.LowerCaseFilterFactory" />
         <!-- replace any periods with spaces if they precede a letter -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.([a-z])" replacement=" $1" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.([a-zA-Z])" replacement=" $1" />
         <!-- if a number follows directly after a letter, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-z])(\d)" replacement="$1 $2" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
         <!-- if a letter follows directly after a number, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-z])" replacement="$1 $2" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
         <!-- replace any leading whitespace with "lccncode." to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^\s*" replacement="lccncode." />
         <!-- treat any sequences of characters that are not alphanumeric + periods as breaks between tokens -->
-        <tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-z\d\.]+"/>
+        <tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+        <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
 
@@ -328,7 +328,6 @@
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callnumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="lc_callnum_main" type="callnumberNormalized" indexed="true" stored="false" multiValued="true" />
 
     <!-- format is used for facet, display, and choosing which partial to use for the show view, so it must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
