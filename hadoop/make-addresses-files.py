@@ -49,7 +49,8 @@ def getVMInfo( testfile=None ) :
               
     vmValues = map( str.split , desc.splitlines() )    
     #make a list, one item per vm, where the item is a map of vm values
-    keys = ['type','id','emi','ip','ip2nd','state','key','unknown','size','date','zone','kernel','ramdisk']
+    keys = ['type','id','emi','hostname','hostnameInternal','state','key','unknown','size','date','zone','kernel','ramdisk','monitoring','ip','ip2nd','instanceStore']
+#    keys = ['type','id','emi','ip','ip2nd','state','key','unknown','size','date','zone','kernel','ramdisk']
     return map( lambda values: dict(zip(keys,values)) , vmValues)  
 
 def runEucaDesc():
@@ -146,7 +147,7 @@ def makeHadoopConfs(vms):
     with open(os.path.join(dir,"slaves"),'w') as f:
         for i in range(0,len(vms)) :
             if i != master :
-                f.write(ipToHostname(vms[i]['ip']) + '\n') 
+                f.write(vms[i]['hostname'] + '\n') 
     
     with open(os.path.join(dir,"masters"),'w') as f:
         #f.write(vms[master]['ip2nd'] + '\n')
