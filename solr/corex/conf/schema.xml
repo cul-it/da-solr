@@ -329,9 +329,10 @@
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callnumberNormalized" indexed="true" stored="false" multiValued="true" />
 
-    <!-- format is used for facet, display, and choosing which partial to use for the show view, so it must be stored and indexed -->
+    <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="sixfivethree" type="string" indexed="true" stored="true" multiValued="true"/>
     <!-- format_main_facet is used for type-aggregated relevance sorting, so it must be single valued-->
     <field name="format_main_facet" type="string" indexed="true" stored="true" multiValued="false"/>
 
