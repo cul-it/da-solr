@@ -208,8 +208,8 @@
     </lst>
     <lst name="slave">
         <str name="enable">${enable.slave:false}</str>
-        <str name="masterUrl">http://da-stg-msolr.library.cornell.edu/solr/blacklight/replication</str>
-        <str name="pollInterval">00:20:00</str>
+        <str name="masterUrl">${master.url}</str>
+        <str name="pollInterval">01:00:00</str>
     </lst>
 </requestHandler>
 
@@ -493,7 +493,6 @@
         subject_unstem_search^750
         subject_topic_facet^625
         subject_t^500
-        lc_callnum_main^400
         author_unstem_search^250
         author_addl_unstem_search^250
         author_t^100
@@ -533,7 +532,6 @@
         subject_unstem_search^7500
         subject_topic_facet^6250
         subject_t^5000
-        lc_callnum_main^4000
         author_unstem_search^2500
         author_addl_unstem_search^2500
         author_t^1000
@@ -627,11 +625,9 @@
       </str>
       
       <str name="lc_callnum_qf">
-        lc_callnum_main^10
         lc_callnum_full
       </str>
       <str name="lc_callnum_pf">
-        lc_callnum_main^4
         lc_callnum_full
       </str>
 
@@ -694,7 +690,6 @@
         issn_t,
         language_facet, 
         location_facet, 
-        lc_callnum_display,
         material_type_display, 
         published_display,
         published_vern_display,
@@ -853,7 +848,6 @@
         issn_t,
         language_facet, 
         location_facet, 
-        lc_callnum_display,
         material_type_display, 
         published_display,
         published_vern_display, 

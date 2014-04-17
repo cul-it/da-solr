@@ -327,7 +327,7 @@
     <field name="pub_date_sort" type="tint" indexed="true" stored="true" multiValued="false"/>
   
     <!-- call number uses custom type -->
-    <field name="lc_callnum_full" type="callnumberNormalized" indexed="true" stored="false" multiValued="true" />
+    <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
 
     <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
