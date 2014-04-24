@@ -1,7 +1,10 @@
 package edu.cornell.library.integration;
 
 
-import static edu.cornell.library.integration.util.MarcToXmlConstants.*;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.ISO5426_ENCODING;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.ISO6937_ENCODING;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.MARC_8_ENCODING;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.TMPDIR;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,10 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

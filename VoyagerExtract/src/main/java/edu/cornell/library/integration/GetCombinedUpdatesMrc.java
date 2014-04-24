@@ -153,6 +153,14 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             for (MfhdData mfhdData : mfhdDataList) { 
                 sb.append(mfhdData.getRecord()); 
             }
+            /* Inserting a carriage return after each MARC record in the file.
+             * This is not valid in a technically correct MARC "database" file, but
+             * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
+             * library, we may need to remove this. For now, it simplifies pulling problem
+             * records from the MARC "database".
+             */
+            if (! mfhdDataList.isEmpty())
+         	   sb.append('\n');
             
             recno = recno + 1;
             
@@ -195,6 +203,14 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
            for (BibData bibData : bibDataList) { 
                sb.append(bibData.getRecord()); 
            }
+           /* Inserting a carriage return after each MARC record in the file.
+            * This is not valid in a technically correct MARC "database" file, but
+            * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
+            * library, we may need to remove this. For now, it simplifies pulling problem
+            * records from the MARC "database".
+            */
+           if (! bibDataList.isEmpty())
+        	   sb.append('\n');
            
            recno = recno + 1;
            if (recno >= maxrec || ! bibIds.hasNext() ) {
