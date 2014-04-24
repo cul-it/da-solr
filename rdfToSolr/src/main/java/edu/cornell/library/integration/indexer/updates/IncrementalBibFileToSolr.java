@@ -1,6 +1,9 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -46,12 +49,14 @@ public class IncrementalBibFileToSolr {
                     + dirToLookIn );
         
         System.out.println(filesToIndex.size() + " N-Triples batch files found.");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         
         int batchNo = 0;
         for (String fileToIndex: filesToIndex) {
 	        System.out.println("Attemping to load from " + fileToIndex );
 	        System.out.println("      to Solr Index at " + config.getSolrUrl());
 	        System.out.println("         this is batch " + ++batchNo + " out of " + filesToIndex.size());
+	        System.out.println("           starting at " + dateFormat.format(Calendar.getInstance().getTime()));
 	                         
 	        /* Do the document building and indexing. */
 	        
@@ -77,6 +82,8 @@ public class IncrementalBibFileToSolr {
 	        checkForErrors( indexer.getRecordWriter().getRecords() );
 
         }
+        System.out.println("All updates batches loaded as of " + dateFormat.format(Calendar.getInstance().getTime()));
+
     }
 
     /**
