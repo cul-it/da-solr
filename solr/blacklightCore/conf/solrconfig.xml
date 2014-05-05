@@ -458,6 +458,21 @@
       <str name="q">*</str>
       <str name="q.alt">*</str>
       <str name="facet.mincount">1</str>
+      <str name="qf">
+        sixfivethree^5000      
+        title_unstem_search^50000
+        subtitle_unstem_search^25000
+        title_uniform_unstem_search^10000
+        title_addl_unstem_search^10000
+        title_ngram^6000
+        title_t^5000
+        subtitle_t^2500
+        title_uniform_t^100
+        title_addl_t^100
+        title_added_entry_unstem_search^50
+        title_added_entry_t^10
+        title_series_unstem_search^5
+        title_series_t</str>
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
