@@ -445,7 +445,7 @@
     </lst>
   </requestHandler>
   
-  <!-- search handler to support database ERM interface -->
+  <!-- search handlers to support database ERM interface -->
   <requestHandler name="/databases" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
@@ -457,11 +457,30 @@
       <str name="wt">ruby</str>
       <str name="q">*</str>
       <str name="q.alt">*</str>
+      <str name="facet.mincount">1</str>
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
     </lst>
   </requestHandler>
+  <requestHandler name="/databaseAlphaBuckets" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display</str>
+      <str name="df">title_1letter_s</str>
+      <str name="sort">title_sort asc</str>
+      <str name="rows">1000000</str>
+      <str name="wt">ruby</str>
+      <str name="q">*</str>
+      <str name="q.alt">*</str>
+      <str name="facet.mincount">1</str>
+    </lst>
+    <lst name="appends">
+      <str name="fq">database_b:true</str>
+    </lst>
+  </requestHandler>
+
 
   <!-- Searching ("All Fields") -->
   <requestHandler name="search" class="solr.SearchHandler" default="true" >
