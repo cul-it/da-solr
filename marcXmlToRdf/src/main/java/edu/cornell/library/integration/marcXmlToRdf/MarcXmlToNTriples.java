@@ -88,6 +88,7 @@ public class MarcXmlToNTriples {
 			processRecords(r,type,unsuppressedMfhds,out);
 			xmlstream.close();
 		}
+		out.flush();
 		out.close();
 
 	}
@@ -190,6 +191,7 @@ public class MarcXmlToNTriples {
 		Iterator<Integer> outIter = outs.keySet().iterator();
 		while (outIter.hasNext()) {
 			Integer minBibid = outIter.next();
+			outs.get(minBibid).flush();
 			outs.get(minBibid).close();
 		}
 
@@ -354,8 +356,10 @@ public class MarcXmlToNTriples {
 					}
 					if (target.isDirectory()) {
 						if (! file.equals(curfile)) {
-							if (! curfile.equals(""))
+							if (! curfile.equals("")) {
+								out.flush();
 								out.close();
+							}
 							System.out.println("    =>  "+target + "/" +file);
 							out =  new BufferedOutputStream(new GZIPOutputStream(
 									new FileOutputStream(target + "/" + file, true)));
@@ -369,6 +373,7 @@ public class MarcXmlToNTriples {
 		if (curfile.isEmpty()) {
 			System.out.println("    =>  FILE CONTAINS NO UNSUPPRESSED RECORDS.");
 		} else {
+			out.flush();
 			out.close();
 		}
 	}
@@ -449,6 +454,7 @@ public class MarcXmlToNTriples {
 					String triple = bib + " " + relation + " \"" + target + "\".\n";
 					shadowOut.write(triple.getBytes());
 				}
+				shadowOut.flush();
 				shadowOut.close();
 			}
 		} catch (IOException e) {
