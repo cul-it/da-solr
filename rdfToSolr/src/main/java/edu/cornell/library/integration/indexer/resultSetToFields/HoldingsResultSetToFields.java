@@ -173,9 +173,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			holding.callnos = callnos.toArray(new String[ callnos.size() ]);
 			holding.notes = notes.toArray(new String[ notes.size() ]);
 			holding.holdings_desc = holdings.toArray(new String[ holdings.size() ]);
-			holding.recent_holdings_desc = recentHoldings.toArray(new String[ holdings.size() ]);
-			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ holdings.size() ]);
-			holding.index_holdings_desc = indexHoldings.toArray(new String[ holdings.size() ]);
+			holding.recent_holdings_desc = recentHoldings.toArray(new String[ recentHoldings.size() ]);
+			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
+			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
 			holding.locations = new Location[loccodes.size()];
 			Iterator<String> iter = loccodes.iterator();
 			int i = 0;
