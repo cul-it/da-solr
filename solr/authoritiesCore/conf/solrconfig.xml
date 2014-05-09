@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  
+    For information on how to customize this file, please see
+    http://wiki.apache.org/solr/SolrConfigXml. The page also has a link to 
+    an extensively commented version of this file. 
+-->
+<config>
+<!-- Admin Handlers - This will register all the standard admin RequestHandlers. -->
+
+  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
+  <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
+  
+  <!-- lib directives can be used to instruct Solr to load an Jars identified
+       and use them to resolve any "plugins" specified in your solrconfig.xml or
+       schema.xml (ie: Analyzers, Request Handlers, etc...).
+
+       All directories and paths are resolved relative the instanceDir.
+
+       If a "./lib" directory exists in your instanceDir, all files found in it
+       are included as if you had used the following syntax...
+
+              <lib dir="./lib" />
+    -->
+  <!-- A dir option by itself adds any files found in the directory to the
+       classpath, this is useful for including all jars in a directory.
+    -->
+  <!-- <lib dir="../../contrib/extraction/lib" /> -->
+  <!-- When a regex is specified in addition to a directory, only the files in that
+       directory which completely match the regex (anchored on both ends)
+       will be included.
+    -->
+  <!-- <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" /> -->
+  <!-- <lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" /> -->
+  <!-- If a dir option (with or without a regex) is used and nothing is found
+       that matches, it will be ignored
+    -->
+  <!-- <lib dir="../../contrib/clustering/lib/downloads/" /> -->
+  
+  <dataDir>${solr.data.dir:}</dataDir>
+
+
+ <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Index Config - These settings control low-level behavior of indexing
+       Most example settings here show the default value, but are commented
+       out, to more easily see where customizations have been made.
+       
+       Note: This replaces <indexDefaults> and <mainIndex> from older versions
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <indexConfig>
+    <!-- maxFieldLength was removed in 4.0. To get similar behavior, include a 
+         LimitTokenCountFilterFactory in your fieldType definition. E.g. 
+     <filter class="solr.LimitTokenCountFilterFactory" maxTokenCount="10000"/>
+    -->
+    <!-- Maximum time to wait for a write lock (ms) for an IndexWriter. Default: 1000 -->
+    <!-- <writeLockTimeout>1000</writeLockTimeout>  -->
+
+    <!-- The maximum number of simultaneous threads that may be
+         indexing documents at once in IndexWriter; if more than this
+         many threads arrive they will wait for others to finish.
+         Default in Solr/Lucene is 8. -->
+    <!-- <maxIndexingThreads>8</maxIndexingThreads>  -->
+
+    <!-- Expert: Enabling compound file will use less files for the index, 
+         using fewer file descriptors on the expense of performance decrease. 
+         Default in Lucene is "true". Default in Solr is "false" (since 3.6) -->
+    <!-- <useCompoundFile>false</useCompoundFile> -->
+
+    <!-- ramBufferSizeMB sets the amount of RAM that may be used by Lucene
+         indexing for buffering added documents and deletions before they are
+         flushed to the Directory.
+         maxBufferedDocs sets a limit on the number of documents buffered
+         before flushing.
+         If both ramBufferSizeMB and maxBufferedDocs is set, then
+         Lucene will flush based on whichever limit is hit first.  -->
+    <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
+    <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
+
+    <!-- Expert: Merge Policy 
+         The Merge Policy in Lucene controls how merging of segments is done.
+         The default since Solr/Lucene 3.3 is TieredMergePolicy.
+         The default since Lucene 2.3 was the LogByteSizeMergePolicy,
+         Even older versions of Lucene used LogDocMergePolicy.
+      -->
+    <!--
+        <mergePolicy class="org.apache.lucene.index.TieredMergePolicy">
+          <int name="maxMergeAtOnce">10</int>
+          <int name="segmentsPerTier">10</int>
+        </mergePolicy>
+      -->
+       
+    <!-- Merge Factor
+         The merge factor controls how many segments will get merged at a time.
+         For TieredMergePolicy, mergeFactor is a convenience parameter which
+         will set both MaxMergeAtOnce and SegmentsPerTier at once.
+         For LogByteSizeMergePolicy, mergeFactor decides how many new segments
+         will be allowed before they are merged into one.
+         Default is 10 for both merge policies.
+      -->
+    <!-- 
+    <mergeFactor>10</mergeFactor>
+      -->
+
+    <!-- Expert: Merge Scheduler
+         The Merge Scheduler in Lucene controls how merges are
+         performed.  The ConcurrentMergeScheduler (Lucene 2.3 default)
+         can perform merges in the background using separate threads.
+         The SerialMergeScheduler (Lucene 2.2 default) does not.
+     -->
+    <!-- 
+       <mergeScheduler class="org.apache.lucene.index.ConcurrentMergeScheduler"/>
+       -->
+
+    <!-- LockFactory 
+
+         This option specifies which Lucene LockFactory implementation
+         to use.
+      
+         single = SingleInstanceLockFactory - suggested for a
+                  read-only index or when there is no possibility of
+                  another process trying to modify the index.
+         native = NativeFSLockFactory - uses OS native file locking.
+                  Do not use when multiple solr webapps in the same
+                  JVM are attempting to share a single index.
+         simple = SimpleFSLockFactory  - uses a plain file for locking
+
+         Defaults: 'native' is default for Solr3.6 and later, otherwise
+                   'simple' is the default
+
+         More details on the nuances of each LockFactory...
+         http://wiki.apache.org/lucene-java/AvailableLockFactories
+    -->
+    <!-- <lockType>native</lockType> -->
+
+    <!-- Unlock On Startup
+
+         If true, unlock any held write or commit locks on startup.
+         This defeats the locking mechanism that allows multiple
+         processes to safely access a lucene index, and should be used
+         with care. Default is "false".
+
+         This is not needed if lock type is 'none' or 'single'
+     -->
+    <!--
+    <unlockOnStartup>false</unlockOnStartup>
+      -->
+    
+    <!-- Expert: Controls how often Lucene loads terms into memory
+         Default is 128 and is likely good for most everyone.
+      -->
+    <!-- <termIndexInterval>128</termIndexInterval> -->
+
+    <!-- If true, IndexReaders will be reopened (often more efficient)
+         instead of closed and then opened. Default: true
+      -->
+    <!-- 
+    <reopenReaders>true</reopenReaders>
+      -->
+
+    <!-- Commit Deletion Policy
+
+         Custom deletion policies can be specified here. The class must
+         implement org.apache.lucene.index.IndexDeletionPolicy.
+
+         http://lucene.apache.org/java/3_5_0/api/core/org/apache/lucene/index/IndexDeletionPolicy.html
+
+         The default Solr IndexDeletionPolicy implementation supports
+         deleting index commit points on number of commits, age of
+         commit point and optimized status.
+         
+         The latest commit point should always be preserved regardless
+         of the criteria.
+    -->
+    <!-- 
+    <deletionPolicy class="solr.SolrDeletionPolicy">
+    -->
+      <!-- The number of commit points to be kept -->
+      <!-- <str name="maxCommitsToKeep">1</str> -->
+      <!-- The number of optimized commit points to be kept -->
+      <!-- <str name="maxOptimizedCommitsToKeep">0</str> -->
+      <!--
+          Delete all commit points once they have reached the given age.
+          Supports DateMathParser syntax e.g.
+        -->
+      <!--
+         <str name="maxCommitAge">30MINUTES</str>
+         <str name="maxCommitAge">1DAY</str>
+      -->
+    <!-- 
+    </deletionPolicy>
+    -->
+
+    <!-- Lucene Infostream
+       
+         To aid in advanced debugging, Lucene provides an "InfoStream"
+         of detailed information when indexing.
+
+         Setting The value to true will instruct the underlying Lucene
+         IndexWriter to write its debugging info the specified file
+      -->
+     <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
+  </indexConfig>
+
+<requestHandler name="/replication" class="solr.ReplicationHandler" >
+    <lst name="master">
+        <str name="enable">${enable.master:false}</str>
+        <str name="replicateAfter">startup,optimize</str>
+        <str name="confFiles">schema.xml,solrconfig.xml,protwords.txt,synonyms.txt</str>
+    </lst>
+    <lst name="slave">
+        <str name="enable">${enable.slave:false}</str>
+        <str name="masterUrl">${master.url}</str>
+        <str name="pollInterval">01:00:00</str>
+    </lst>
+</requestHandler>
+
+  <updateHandler class="solr.DirectUpdateHandler2" >
+    <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
+         Auto Commit behavior except it enables/ensures that changes are
+         visible.  However it does not ensure that data is synced to
+         disk.  Of course this is faster and more Near-Realtime friendly -->
+    <updateLog>
+      <str name="dir">${solr.data.dir:}</str>
+    </updateLog>  
+
+    <!-- AutoCommit
+
+         Perform a hard commit automatically under certain conditions.
+         Instead of enabling autoCommit, consider using "commitWithin"
+         when adding documents. 
+
+         http://wiki.apache.org/solr/UpdateXmlMessages
+
+         maxDocs - Maximum number of documents to add since the last
+                   commit before automatically triggering a new commit.
+
+         maxTime - Maximum amount of time in ms that is allowed to pass
+                   since a document was added before automaticly
+                   triggering a new commit. 
+         openSearcher - if false, the commit causes recent index changes
+           to be flushed to stable storage, but does not cause a new
+           searcher to be opened to make those changes visible.
+
+         If the updateLog is enabled, then it's highly recommended to
+         have some sort of hard autoCommit to limit the log size.
+      -->
+     <autoCommit> 
+       <maxTime>120000</maxTime> 
+       <openSearcher>false</openSearcher> 
+     </autoCommit>
+
+    <!-- softAutoCommit is like autoCommit except it causes a
+         'soft' commit which only ensures that changes are visible
+         but does not ensure that data is synced to disk.  This is
+         faster and more near-realtime friendly than a hard commit.
+      -->
+     <!--
+       <autoSoftCommit> 
+         <maxTime>1000</maxTime> 
+       </autoSoftCommit>
+      -->
+
+    <!-- Update Related Event Listeners
+         
+         Various IndexWriter related events can trigger Listeners to
+         take actions.
+
+         postCommit - fired after every commit or optimize command
+         postOptimize - fired after every optimize command
+      -->
+    <!-- The RunExecutableListener executes an external command from a
+         hook such as postCommit or postOptimize.
+         
+         exe - the name of the executable to run
+         dir - dir to use as the current working directory. (default=".")
+         wait - the calling thread waits until the executable returns. 
+                (default="true")
+         args - the arguments to pass to the program.  (default is none)
+         env - environment variables to set.  (default is none)
+      -->
+    <!-- This example shows how RunExecutableListener could be used
+         with the script based replication...
+         http://wiki.apache.org/solr/CollectionDistribution
+      -->
+    <!--
+       <listener event="postCommit" class="solr.RunExecutableListener">
+         <str name="exe">solr/bin/snapshooter</str>
+         <str name="dir">.</str>
+         <bool name="wait">true</bool>
+         <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
+         <arr name="env"> <str>MYVAR=val1</str> </arr>
+       </listener>
+      -->
+  </updateHandler>
+
+  <!-- Once we define ‘updateLog ‘ configuration and it also requires
+       a Near-Realtime Handler too -->
+  <requestHandler name="/get" class="solr.RealTimeGetHandler">
+    <lst name="defaults">
+      <str name="omitHeader">true</str>
+      <str name="wt">json</str>
+      <str name="indent">true</str>
+    </lst>
+  </requestHandler>
+
+  <!-- query time configurations -->
+  <query>
+    <maxBooleanClauses>1024</maxBooleanClauses>
+    <filterCache class="solr.FastLRUCache"
+        size="512" initialSize="512" autowarmCount="128"/>
+    <queryResultCache class="solr.LRUCache"
+        size="512" initialSize="512" autowarmCount="32"/>
+    <documentCache class="solr.LRUCache"
+        size="512" initialSize="512" autowarmCount="0"/>
+    <enableLazyFieldLoading>true</enableLazyFieldLoading>
+    <queryResultWindowSize>50</queryResultWindowSize>
+    <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+    <HashDocSet maxSize="3000" loadFactor="0.75"/>
+
+    <!-- a newSearcher event is fired whenever a new searcher is being prepared
+      and there is a current searcher handling requests (aka registered).
+      It can be used to prime certain caches to prevent long request times for
+      certain requests.
+    -->
+    <!-- QuerySenderListener takes an array of NamedList and executes a
+         local query request for each NamedList in sequence. -->
+    <listener event="newSearcher" class="solr.QuerySenderListener">
+      <arr name="queries">
+        <!-- query for all objects (default query) for home page facets -->
+        <lst>
+          <str name="rows">0</str> 
+          <str name="fl">score</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.limit">10</str>
+          <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
+          <str name="facet.field">lc_1letter_facet</str>
+          <str name="f.lc_1letter_facet.facet.sort">false</str>
+          <str name="facet.field">lc_alpha_facet</str>
+          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
+          <str name="facet.field">subject_era_facet</str>
+          <str name="facet.field">subject_geo_facet</str>
+          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">subject_content_facet</str>
+        </lst>
+        <!-- query for single document to populate filter cache -->
+        <lst>
+          <str name="q">id:00282214</str>
+          <str name="qt">standard</str>
+          <str name="rows">0</str>
+          <str name="fl">score</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.limit">10</str>
+          <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
+          <str name="facet.field">lc_1letter_facet</str>
+          <str name="f.lc_1letter_facet.facet.sort">false</str>
+          <str name="facet.field">lc_alpha_facet</str>
+          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
+          <str name="facet.field">subject_era_facet</str>
+          <str name="facet.field">subject_geo_facet</str>
+          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">subject_content_facet</str>
+        </lst>
+      </arr>
+    </listener>
+
+    <!-- a firstSearcher event is fired whenever a new searcher is being
+         prepared but there is no current registered searcher to handle
+         requests or to gain autowarming data from. -->
+    <listener event="firstSearcher" class="solr.QuerySenderListener">
+      <arr name="queries">
+        <!-- query for all objects (default query) for home page facets -->
+        <lst>
+          <str name="rows">0</str> 
+          <str name="fl">score</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.limit">10</str>
+          <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
+          <str name="facet.field">lc_1letter_facet</str>
+          <str name="f.lc_1letter_facet.facet.sort">false</str>
+          <str name="facet.field">lc_alpha_facet</str>
+          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
+          <str name="facet.field">subject_era_facet</str>
+          <str name="facet.field">subject_geo_facet</str>
+          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">subject_content_facet</str>
+        </lst>
+        <!-- query for single document to populate filter cache -->
+        <lst>
+          <str name="q">id:00282214</str>
+          <str name="qt">standard</str>
+          <str name="rows">0</str>
+          <str name="fl">score</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.limit">10</str>
+          <str name="facet.field">format</str>
+          <str name="facet.field">online</str>
+          <str name="facet.field">lc_1letter_facet</str>
+          <str name="f.lc_1letter_facet.facet.sort">false</str>
+          <str name="facet.field">lc_alpha_facet</str>
+          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">language_facet</str>
+          <str name="facet.field">location_facet</str>
+          <str name="facet.field">pub_date_facet</str>
+          <str name="facet.field">author_facet</str>
+          <str name="facet.field">subject_era_facet</str>
+          <str name="facet.field">subject_geo_facet</str>
+          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">subject_content_facet</str>
+        </lst>
+      </arr>
+    </listener>
+
+    <useColdSearcher>false</useColdSearcher>
+    <maxWarmingSearchers>2</maxWarmingSearchers>
+  </query>
+
+  <requestDispatcher handleSelect="true" >
+    <requestParsers enableRemoteStreaming="false" multipartUploadLimitInKB="2048" />
+    <httpCaching lastModifiedFrom="openTime" etagSeed="Solr" />
+  </requestDispatcher>
+
+  <requestHandler name="/subjects" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">
+        heading,
+        preferedForm,
+        equivalentValues,
+        seeAlsos,
+        authorized_b,
+        subjectReferenceCount,
+      </str>
+      <str name="df">heading</str>
+      <str name="sort">heading asc</str>
+      <str name="rows">20</str>
+      <str name="wt">ruby</str>
+      <str name="q">[* TO *]</str>
+    </lst>
+    <lst name="appends">
+      <str name="fq">headingType:subject</str>
+    </lst>
+  </requestHandler>
+
+  
+  <!-- search handler to support database ERM interface -->
+  <requestHandler name="/databases" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">id,fulltitle_display,summary_display,sixfivethree,url_access_display</str>
+      <str name="df">sixfivethree</str>
+      <str name="sort">title_sort asc</str>
+      <str name="rows">1000000</str>
+      <str name="wt">ruby</str>
+      <str name="q">*</str>
+      <str name="q.alt">*</str>
+    </lst>
+    <lst name="appends">
+      <str name="fq">database_b:true</str>
+    </lst>
+  </requestHandler>
+  
+  <!-- for requests to get a single document; use id=666 instead of q=id:666 -->
+  <requestHandler name="document" class="solr.SearchHandler" >
+    <lst name="defaults">
+      <str name="echoParams">all</str>
+      <str name="fl">*</str>
+      <str name="rows">1</str>
+      <str name="q">{!raw f=id v=$id}</str> <!-- use id=666 instead of q=id:666 -->
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
+
+<!-- this caused a problem with solr 4.1 -->
+<!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
+
+  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+  <requestHandler name="/admin/ping" class="PingRequestHandler">
+    <lst name="defaults">
+      <str name="qt">search</str>
+      <str name="q">book</str>
+      <str name="echoParams">all</str>
+    </lst>
+  </requestHandler>
+  <admin>
+    <defaultQuery>book</defaultQuery>
+  </admin>
+
+  <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
+    <lst name="defaults">
+     <str name="echoParams">explicit</str>
+     <str name="echoHandler">true</str>
+    </lst>
+  </requestHandler>
+
+  <!-- used for admin analysis tool -->
+  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
+</config>
