@@ -877,7 +877,8 @@
   </requestHandler>
   
   <!-- for docfreq term counts -->
-  <requestHandler name="/terms" class="solr.SearchHandler">
+  <searchComponent name="terms" class="solr.TermsComponent"/>  
+  <requestHandler name="/terms" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <bool name="terms">true</bool>
       <bool name="distrib">false</bool>
