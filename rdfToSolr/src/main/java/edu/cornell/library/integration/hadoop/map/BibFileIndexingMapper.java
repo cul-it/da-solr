@@ -110,15 +110,18 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
         	File tmpDir = Files.createTempDir();
 			log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
-
+			
+			Dataset dataset = null;
+			Model model = null;
+			
 			try{			
 				
 				context.progress();
 				
 				log.info("Starting to build model");			
 				//load the RDF to a triple store							
-				Dataset dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
-				Model model = dataset.getDefaultModel();
+				dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
+				model = dataset.getDefaultModel();
 
 				model.add(baseModel);
 
@@ -176,7 +179,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					voyager.close();
 				}
 				catch (SQLException SQLEx) { /* ignore */ }
-				
+								
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
 
@@ -190,6 +193,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 			}finally{			
 				FileUtils.deleteDirectory( tmpDir );			
+				model.close();
+				dataset.close();
 			}
 			
 			return; // success, break out of loop
