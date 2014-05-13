@@ -241,6 +241,11 @@ public class MarcXmlToNTriples {
 						if ((bibid <= batch) && (outputBatch > batch))
 							outputBatch = batch;
 					}
+					if (outputBatch == 100_000_000) {
+						System.out.println("Failed to identify output batch for bib "+bibid
+								+". Not writing "+type+" record to N-Triples.");
+						continue;
+					}
 					outs.get(outputBatch).write( ntriples.getBytes() );
 				}
 		}
