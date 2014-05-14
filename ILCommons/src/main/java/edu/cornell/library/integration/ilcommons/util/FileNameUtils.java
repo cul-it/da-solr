@@ -36,7 +36,7 @@ public class FileNameUtils {
      */
     public static String findMostRecentFile(DavService davService , String directoryURL, String fileNamePrefix ) throws Exception{
        List<String> files = findMostRecentFiles(davService,directoryURL,fileNamePrefix,".txt");
-       if (files.isEmpty()) return null;
+       if ((files == null) || files.isEmpty()) return null;
        return files.iterator().next();
     }
 
@@ -99,7 +99,7 @@ public class FileNameUtils {
         }
         
         if( mostRecentFile == null )
-            return null;
+            return mostRecentFiles;
         
         return mostRecentFiles;
         

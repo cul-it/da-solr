@@ -53,10 +53,12 @@ public class DeleteFromSolr {
             throw new Exception("No documents have been deleted, could not find the most recent deletes "
                     + "file from " + deletesDir + " with prefix " + prefix, e );
         }            
-        if( deleteFileURL == null )
-            throw new Exception("No documents have been deleted, could not find the most recent deletes "
+        if( deleteFileURL == null ) {
+            System.out.println("No documents have been deleted, could not find the most recent deletes "
                     + "file from " + deletesDir + " with prefix " + prefix);
-                
+            return;
+        }
+        
         String solrURL = config.getSolrUrl();                                        
         SolrServer solr = new HttpSolrServer( solrURL );        
                         
