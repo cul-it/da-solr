@@ -7,7 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
@@ -32,248 +39,240 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  *  5 add your property to the example properties file at voyagerToSolrConfig.properties.example
  */
 public class VoyagerToSolrConfiguration {
-    /** 
-     * Base part of webDav URL. The following directories will be appended to this base. 
-     */
-    String webdavBaseUrl;
-    
-    String webdavUser;
-    String webdavPassword;
-    
-    /* ********* properties used for FULL extract ************** */
-    /** 
-     * Directory of Mrc21 extract. This dir will be appended to the webdavBaseURL.
-     */
-    String fullMrc21Dir;
-        
-    /** 
-     * Directory of MrcXML. This dir will be appended to the webdavBaseURL.
-     */
-    String fullMrcXmlDir;
-    
-    /** 
-     * Directory of MrcNT. This dir will be appended to the webdavBaseURL.
-     */
-    String fullMrcNtDir;
-    
-    
-    /* ******** properties used for Incremental Update ********* */
-    String dailyMrcDir;
-    String dailyMfhdDir;
-    String dailyBibMrcXmlDir;
-    String dailyMfhdMrcXmlDir;
-    String dailyMrcNtDir;
-    String dailyMrcNtFilenamePrefix;
-    String dailyBibSuppressedDir;
-    String dailyBibSuppressedFilenamePrefix;
-    String dailyBibUnsuppressedDir;
-    String dailyBibUnsuppressedFilenamePrefix;
-    String dailyMfhdSuppressedDir;
-    String dailyMfhdSuppressedFilenamePrefix;
-    String dailyMfhdUnsuppressedDir;
-    String dailyMfhdUnsuppressedFilenamePrefix;
-    String dailyBibUpdates; //= updates/bib.updates
-    String dailyBibDeletes;
-    String dailyReports;
-    
-    /**
-     * URL of the solr service.
-     */
-    String solrUrl;
-    
-    String tmpDir;
+
+	Map<String,String> values = new HashMap<String,String>();
     static DavService davService = null;
+
     
     public String getDailyBibUpdates() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyBibUpdates);
-        return dailyBibUpdates;
+    	if (values.containsKey("dailyBibUpdates")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibUpdates"));
+    		return values.get("dailyBibUpdates");
+    	} else {
+    		return null;
+    	}
     }
 
-    public void setDailyBibUpdates(String dailyBibUpdates) {
-        this.dailyBibUpdates = insertDate(dailyBibUpdates);
+    public void setDailyBibUpdates(String str) {
+        values.put("dailyBibUpdates", insertDate(str)) ;
     }
 
     public String getDailyBibDeletes() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyBibDeletes);
-        return dailyBibDeletes;
+    	if (values.containsKey("dailyBibDeletes")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibDeletes"));
+    		return values.get("dailyBibDeletes");
+    	} else {
+    		return null;
+    	}
     }
 
     public void setDailyBibDeletes(String str) {
-        this.dailyBibDeletes = insertDate(str);
+        values.put("dailyBibDeletes", insertDate(str));
     }
 
-    /**
-     * @return the webdavBaseUrl
-     * @throws IOException 
-     */
     public String getWebdavBaseUrl() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl);
-        return webdavBaseUrl;
+    	if (values.containsKey("webdavBaseUrl")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl"));
+    		return values.get("webdavBaseUrl");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the webdavUser
-     */
     public String getWebdavUser() {
-        return webdavUser;
+    	if (values.containsKey("webdavUser")) {
+    		return values.get("webdavUser");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the webdavPassword
-     */
     public String getWebdavPassword() {
-        return webdavPassword;
+    	if (values.containsKey("webdavPassword")) {
+    		return values.get("webdavPassword");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the fullMrc21Dir
-     */
     public String getFullMrc21Dir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + fullMrc21Dir);
-        return fullMrc21Dir;
+    	if (values.containsKey("fullMrc21Dir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrc21Dir"));
+    		return values.get("fullMrc21Dir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the fullMrcXmlDir
-     */
     public String getFullMrcXmlDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + fullMrcXmlDir);
-        return fullMrcXmlDir;
+    	if (values.containsKey("fullMrcXmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcXmlDir"));
+    		return values.get("fullMrcXmlDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the fullMrcNtDir
-     */
     public String getFullMrcNtDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + fullMrcNtDir);
-        return fullMrcNtDir;
+    	if (values.containsKey("fullMrcNtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcNtDir"));
+    		return values.get("fullMrcNtDir");
+    	} else {
+    		return null;
+    	}
     }
 
     public String getDailyMfhdDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMfhdDir);
-        return this.dailyMfhdDir;
+    	if (values.containsKey("dailyMfhdDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdDir"));
+    		return values.get("dailyMfhdDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMrcDir
-     */
     public String getDailyMrcDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMrcDir);
-        return dailyMrcDir;
+    	if (values.containsKey("dailyMrcDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMrcDir"));
+    		return values.get("dailyMrcDir");
+    	} else {
+    		return null;
+    	}
     }
         
-    /**
-     * @return the dailyBibMrcXmlDir
-     */
     public String getDailyBibMrcXmlDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyBibMrcXmlDir);
-        return dailyBibMrcXmlDir;
+    	if (values.containsKey("dailyBibMrcXmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibMrcXmlDir"));
+    		return values.get("dailyBibMrcXmlDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMfhdMrcXmlDir
-     */
     public String getDailyMfhdMrcXmlDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMfhdMrcXmlDir);
-        return dailyMfhdMrcXmlDir;
+    	if (values.containsKey("dailyMfhdMrcXmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdMrcXmlDir"));
+    		return values.get("dailyMfhdMrcXmlDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMrcNtDir
-     */
     public String getDailyMrcNtDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMrcNtDir);
-        return dailyMrcNtDir;
+    	if (values.containsKey("dailyMrcNtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMrcNtDir"));
+    		return values.get("dailyMrcNtDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMrcNtFilenamePrefix
-     */
     public String getDailyMrcNtFilenamePrefix() {
-        return dailyMrcNtFilenamePrefix;
+    	if (values.containsKey("dailyMrcNtFilenamePrefix")) {
+    		return values.get("dailyMrcNtFilenamePrefix");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyBibSuppressedDir
-     */
     public String getDailyBibSuppressedDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyBibSuppressedDir);
-        return dailyBibSuppressedDir;
+    	if (values.containsKey("dailyBibSuppressedDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibSuppressedDir"));
+    		return values.get("dailyBibSuppressedDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyBibSuppressedFilenamePrefix
-     */
     public String getDailyBibSuppressedFilenamePrefix() {
-        return dailyBibSuppressedFilenamePrefix;
+    	if (values.containsKey("dailyBibSuppressedFilenamePrefix")) {
+    		return values.get("dailyBibSuppressedFilenamePrefix");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyBibUnsuppressedDir
-     */
     public String getDailyBibUnsuppressedDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyBibUnsuppressedDir);
-        return dailyBibUnsuppressedDir;
+    	if (values.containsKey("dailyBibUnsuppressedDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibUnsuppressedDir"));
+    		return values.get("dailyBibUnsuppressedDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyBibUnsuppressedFilenamePrefix
-     */
     public String getDailyBibUnsuppressedFilenamePrefix() {
-        return dailyBibUnsuppressedFilenamePrefix;
+    	if (values.containsKey("dailyBibUnsuppressedFilenamePrefix")) {
+    		return values.get("dailyBibUnsuppressedFilenamePrefix");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMfhdSuppressedDir
-     */
     public String getDailyMfhdSuppressedDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMfhdSuppressedDir);
-        return dailyMfhdSuppressedDir;
+    	if (values.containsKey("dailyMfhdSuppressedDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdSuppressedDir"));
+    		return values.get("dailyMfhdSuppressedDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMfhdSuppressedFilenamePrefix
-     */
     public String getDailyMfhdSuppressedFilenamePrefix() {
-        return dailyMfhdSuppressedFilenamePrefix;
+    	if (values.containsKey("dailyMfhdSuppressedFilenamePrefix")) {
+    		return values.get("dailyMfhdSuppressedFilenamePrefix");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMfhdUnsuppressedDir
-     */
     public String getDailyMfhdUnsuppressedDir() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyMfhdUnsuppressedDir);
-        return dailyMfhdUnsuppressedDir;
+    	if (values.containsKey("dailyMfhdUnsuppressedDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdUnsuppressedDir"));
+    		return values.get("dailyMfhdUnsuppressedDir");
+    	} else {
+    		return null;
+    	}
     }
 
-    /**
-     * @return the dailyMfhdUnsuppressedFilenamePrefix
-     */
     public String getDailyMfhdUnsuppressedFilenamePrefix() {
-        return dailyMfhdUnsuppressedFilenamePrefix;
+    	if (values.containsKey("dailyMfhdUnsuppressedFilenamePrefix")) {
+    		return values.get("dailyMfhdUnsuppressedFilenamePrefix");
+    	} else {
+    		return null;
+    	}
     }
     
-    /**
-     * @return the solrUrl
-     */
     public String getSolrUrl() {
-        return solrUrl;
+    	if (values.containsKey("solrUrl")) {
+    		return values.get("solrUrl");
+    	} else {
+    		return null;
+    	}
     }
     
     /**
      * @return the tmpDir on local file system
      */
     public String getTmpDir() {
-      return tmpDir;
+    	if (values.containsKey("tmpDir")) {
+    		return values.get("tmpDir");
+    	} else {
+    		return null;
+    	}
     }
 
     public String getDailyReports() throws IOException {
-    	makeDirIfNeeded(webdavBaseUrl + "/" + dailyReports);
-        return dailyReports;
+    	if (values.containsKey("dailyReports")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyReports"));
+    		return values.get("dailyReports");
+    	} else {
+    		return null;
+    	}
     }
     
     public void setDailyReports(String reports){
-        dailyReports = insertDate(reports);
+        values.put("dailyReports", insertDate(reports));
     }
     
     /**
@@ -292,11 +291,17 @@ public class VoyagerToSolrConfiguration {
      *  
      * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
      * 
-     *  @param argv may be null to force use of the environment variable. Should be 
+     *  @param requiredFields is an optional, task-specific Collection of field names required for the task.
+     *  argv may be null to force use of the environment variable. Should be 
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
     public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
+    	Collection<String> requiredFields = new HashSet<String>();
+        return loadConfig(requiredFields,argv);        
+    }
+    
+    public static VoyagerToSolrConfiguration loadConfig( Collection<String> requiredFields, String[] argv ) {
         
         String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
@@ -326,6 +331,7 @@ public class VoyagerToSolrConfiguration {
         
         return config;        
     }
+
 
     private static VoyagerToSolrConfiguration loadFromArgv(
             String[] argv) throws FileNotFoundException, IOException {
@@ -395,38 +401,12 @@ public class VoyagerToSolrConfiguration {
         
         VoyagerToSolrConfiguration conf = new VoyagerToSolrConfiguration();
 
-        conf.webdavBaseUrl = insertDate(prop.getProperty("webdavBaseUrl"));        
-        
-        conf.webdavUser = insertDate(prop.getProperty("webdavUser"));
-        conf.webdavPassword = insertDate(prop.getProperty( "webdavPassword"));
-        
-        conf.fullMrc21Dir = insertDate(prop.getProperty("fullMrc21Dir"));        
-        conf.fullMrcXmlDir = insertDate(prop.getProperty("fullMrcXmlDir"));    
-        conf.fullMrcNtDir = insertDate(prop.getProperty("fullMrcNtDir"));
-        
-        conf.dailyMrcDir = insertDate(prop.getProperty("dailyMrcDir"));
-        conf.dailyMfhdDir = insertDate(prop.getProperty("dailyMfhdDir"));
-        conf.dailyBibMrcXmlDir = insertDate(prop.getProperty("dailyBibMrcXmlDir"));
-        conf.dailyMfhdMrcXmlDir = insertDate(prop.getProperty("dailyMfhdMrcXmlDir"));
-        conf.dailyMrcNtDir = insertDate(prop.getProperty("dailyMrcNtDir"));
-        conf.dailyMrcNtFilenamePrefix = insertDate(prop.getProperty("dailyMrcNtFilenamePrefix"));
-        conf.dailyBibSuppressedDir = insertDate(prop.getProperty("dailyBibSuppressedDir"));
-        conf.dailyBibSuppressedFilenamePrefix = insertDate(prop.getProperty("dailyBibSuppressedFilenamePrefix"));
-        conf.dailyBibUnsuppressedDir = insertDate(prop.getProperty("dailyBibUnsuppressedDir"));
-        conf.dailyBibUnsuppressedFilenamePrefix = insertDate(prop.getProperty("dailyBibUnsuppressedFilenamePrefix"));
-        conf.dailyMfhdSuppressedDir = insertDate(prop.getProperty("dailyMfhdSuppressedDir"));
-        conf.dailyMfhdSuppressedFilenamePrefix = insertDate(prop.getProperty("dailyMfhdSuppressedFilenamePrefix"));
-        conf.dailyMfhdUnsuppressedDir = insertDate(prop.getProperty("dailyMfhdUnsuppressedDir"));
-        conf.dailyMfhdUnsuppressedFilenamePrefix = insertDate(prop.getProperty("dailyMfhdUnsuppressedFilenamePrefix"));
-        conf.dailyBibDeletes = insertDate(prop.getProperty( "dailyBibDeletes"));
-        conf.dailyBibUpdates = insertDate(prop.getProperty("dailyBibUpdates"));
+        Iterator<Object> i = prop.keySet().iterator();
+        while (i.hasNext()) {
+        	String field = i.next().toString();
+        	conf.values.put(field,insertDate(prop.getProperty(field)));
+        }
 
-        conf.dailyReports = insertDate(prop.getProperty("dailyReports"));
-        
-        conf.solrUrl = insertDate(prop.getProperty("solrUrl"));
-        
-        conf.tmpDir = insertDate(prop.getProperty("tmpDir"));
-        
         return conf;
     }
     
@@ -457,35 +437,14 @@ public class VoyagerToSolrConfiguration {
     public static String checkConfiguration( VoyagerToSolrConfiguration checkMe){
         String errMsgs = "";
 
-        errMsgs += checkWebdavUrl( checkMe.webdavBaseUrl );
-    
-        errMsgs += checkExists( checkMe.webdavUser , "webdavUser");
-        errMsgs += checkExists( checkMe.webdavPassword , "webdavPassword");
+        // universally required fields
+        errMsgs += checkWebdavUrl( checkMe.values.get("webdavBaseUrl"));
+        errMsgs += checkExists( checkMe.values.get("webdavUser") , "webdavUser");
+        errMsgs += checkExists( checkMe.values.get("webdavPassword") , "webdavPassword");
+        errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
         
-        errMsgs += checkWebdavDir( checkMe.fullMrc21Dir, "fullMrc21Dir");    
-        errMsgs += checkWebdavDir( checkMe.fullMrcXmlDir, "fullMrcXmlDir");   
-        errMsgs += checkWebdavDir( checkMe.fullMrcNtDir, "fullMrcNtDir");     
-        errMsgs += checkWebdavDir( checkMe.dailyMrcDir, "dailyMrcDir");        
-        errMsgs += checkWebdavDir( checkMe.dailyMfhdDir, "dailyMfhdDir");
-        errMsgs += checkWebdavDir( checkMe.dailyBibMrcXmlDir, "dailyBibMrcXmlDir");
-        errMsgs += checkWebdavDir( checkMe.dailyMfhdMrcXmlDir, "dailyMfhdMrcXmlDir");
-        errMsgs += checkWebdavDir( checkMe.dailyMrcNtDir, "dailyMrcNtDir");
-        errMsgs += checkExists(    checkMe.dailyMrcNtFilenamePrefix, "dailyMrcNtFilenamePrefix");
-        errMsgs += checkWebdavDir( checkMe.dailyBibSuppressedDir, "dailyBibSuppressedDir");
-        errMsgs += checkExists(    checkMe.dailyBibSuppressedFilenamePrefix, "dailyBibSuppressedFilenamePrefix");
-        errMsgs += checkWebdavDir( checkMe.dailyBibUnsuppressedDir, "dailyBibUnsuppressedDir");
-        errMsgs += checkExists(    checkMe.dailyBibUnsuppressedFilenamePrefix, "dailyBibUnsuppressedFilenamePrefix");
-        errMsgs += checkWebdavDir( checkMe.dailyMfhdSuppressedDir, "dailyMfhdSuppressedDir");
-        errMsgs += checkExists(    checkMe.dailyMfhdSuppressedFilenamePrefix, "dailyMfhdSuppressedFilenamePrefix");
-        errMsgs += checkWebdavDir( checkMe.dailyMfhdUnsuppressedDir, "dailyMfhdUnsuppressedDir");
-        errMsgs += checkExists(    checkMe.dailyMfhdUnsuppressedFilenamePrefix, "dailyMfhdUnsuppressedFilenamePrefix");
-        errMsgs += checkWebdavDir( checkMe.dailyBibDeletes,  "dailyBibDeletes");
-        errMsgs += checkWebdavDir( checkMe.dailyBibUpdates, "dailyBibUpdates");
-        errMsgs += checkWebdavDir( checkMe.dailyReports,    "dailyReports");
         
-        errMsgs += checkSolrUrl( checkMe.solrUrl );
-        
-        errMsgs += checkDir( checkMe.tmpDir, "tmpDir");
+
         return errMsgs;        
     }
     
