@@ -298,19 +298,16 @@
 
 
 	<!-- values directly from the records -->
+	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="collationText" indexed="true" stored="true" multiValued="false" required="true"/>
 	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="false"/>
 	<field name="equivalentValues" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="seeAlsos" type="string" indexed="false" stored="true" multiValued="true"/>
     
     <!-- filter fields -->
-    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false"/>
-    <field name="authorized_b" type="boolean" indexed="true" stored="true" multiValued="false"/>
-
-	<!-- calculated values -->
-	<field name="subjectReferenceCount"     type="int" indexed="false" stored="true" multiValued="false" default="0"/>
-	<field name="authorReferenceCount"      type="int" indexed="false" stored="true" multiValued="false" default="0"/>
-	<field name="authorTitleReferenceCount" type="int" indexed="false" stored="true" multiValued="false" default="0"/>
+    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="prefered_b" type="boolean" indexed="true" stored="true" multiValued="false"/>
+    <field name="source" type="string" indexed="true" stored="true" multivalued="false" required="true"/>
 
   </fields>
 

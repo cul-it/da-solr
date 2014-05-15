@@ -442,21 +442,33 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,
-        preferedForm,
-        equivalentValues,
-        seeAlsos,
-        authorized_b,
-        subjectReferenceCount,
+        heading,preferedForm,equivalentValues,seeAlsos,prefered_b,source
       </str>
       <str name="df">heading</str>
       <str name="sort">heading asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[* TO *]</str>
+      <str name="q">[$start TO *]</str>
     </lst>
     <lst name="appends">
       <str name="fq">headingType:subject</str>
+    </lst>
+  </requestHandler>
+  <requestHandler name="/authors" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">
+        heading,preferedForm,equivalentValues,seeAlsos,prefered_b,source
+      </str>
+      <str name="df">heading</str>
+      <str name="sort">heading asc</str>
+      <str name="rows">20</str>
+      <str name="wt">ruby</str>
+      <str name="q">[$start TO *]</str>
+    </lst>
+    <lst name="appends">
+      <str name="fq">headingType:author</str>
     </lst>
   </requestHandler>
 
