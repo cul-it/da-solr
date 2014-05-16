@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -90,6 +89,15 @@ public class VoyagerToSolrConfiguration {
     public String getWebdavPassword() {
     	if (values.containsKey("webdavPassword")) {
     		return values.get("webdavPassword");
+    	} else {
+    		return null;
+    	}
+    }
+
+    public String getFullAuthXmlDir() throws IOException {
+    	if (values.containsKey("fullAuthXmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullAuthXmlDir"));
+    		return values.get("fullAuthXmlDir");
     	} else {
     		return null;
     	}
@@ -250,6 +258,13 @@ public class VoyagerToSolrConfiguration {
     		return null;
     	}
     }
+    public String getBlacklightSolrUrl() {
+    	if (values.containsKey("blacklightSolrUrl")) {
+    		return values.get("blacklightSolrUrl");
+    	} else {
+    		return null;
+    	}
+    }
     
     /**
      * @return the tmpDir on local file system
@@ -298,10 +313,10 @@ public class VoyagerToSolrConfiguration {
      */
     public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
     	Collection<String> requiredFields = new HashSet<String>();
-        return loadConfig(requiredFields,argv);        
+        return loadConfig(argv,requiredFields);        
     }
     
-    public static VoyagerToSolrConfiguration loadConfig( Collection<String> requiredFields, String[] argv ) {
+    public static VoyagerToSolrConfiguration loadConfig( String[] argv, Collection<String> requiredFields ) {
         
         String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
@@ -324,7 +339,7 @@ public class VoyagerToSolrConfiguration {
             throw new RuntimeException("There were problems loading the configuration.\n " , ex);
         }
         
-        String errs = checkConfiguration( config );
+        String errs = checkConfiguration( requiredFields, config );
         if( errs == null ||  ! errs.trim().isEmpty() ){
             throw new RuntimeException("There were problems with the configuration.\n " + errs);
         }
@@ -434,7 +449,7 @@ public class VoyagerToSolrConfiguration {
      * Returns empty String if configuration is good.
      * Otherwise, it returns a message describing what is missing or problematic.
      */
-    public static String checkConfiguration( VoyagerToSolrConfiguration checkMe){
+    public static String checkConfiguration( Collection<String> requiredArgs, VoyagerToSolrConfiguration checkMe){
         String errMsgs = "";
 
         // universally required fields
@@ -442,6 +457,12 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkExists( checkMe.values.get("webdavUser") , "webdavUser");
         errMsgs += checkExists( checkMe.values.get("webdavPassword") , "webdavPassword");
         errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
+        if (requiredArgs.contains("blacklightSolrUrl")) {
+            errMsgs += checkSolrUrl( checkMe.values.get("blacklightSolrUrl") );
+        }
+        if (requiredArgs.contains("fullAuthXmlDir")) {
+        	errMsgs += checkDir( checkMe.values.get("fullAuthXmlDir"), "fullAuthXmlDir");
+        }
         
         
 
