@@ -59,6 +59,15 @@ task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+   description="Converts Voyager Updates MARC XML to MARC N-Triples." 
+   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
+   maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+
 task libJar(type: Jar){
     description = 'Create a jar of all the dependencies of this project, but no classes from this project'
     from {
