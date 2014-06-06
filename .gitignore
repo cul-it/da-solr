@@ -12,6 +12,7 @@ bin/
 #gradle
 .gradle
 build/
+gradle-libs/
 
 rdf/output
 rdf/*.nt
