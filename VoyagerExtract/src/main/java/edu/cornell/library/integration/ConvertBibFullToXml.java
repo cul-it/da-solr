@@ -2,10 +2,6 @@ package edu.cornell.library.integration;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -111,18 +107,18 @@ public class ConvertBibFullToXml {
 			e.printStackTrace();
 		}
 		// Get File handle for saving bib id list
-		File fh = new File(
-				"/usr/local/src/integrationlayer/VoyagerExtract/bibs-full-"
-						+ getTodayString() + ".txt");
-		FileOutputStream fout = null;
-		try {
-			fout = new FileOutputStream(fh);
-		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		List<String> biblist = new ArrayList<String>();
-
+/* We might want to restore the tracking of id lists in the future, but differently.
+ *	  	File fh = new File(
+ *     		"/usr/local/src/integrationlayer/VoyagerExtract/bibs-full-"
+ *      				+ getTodayString() + ".txt");
+ *      FileOutputStream fout = null;
+ *		try {
+ *			fout = new FileOutputStream(fh);
+ *		} catch (FileNotFoundException e2) {
+ *			e2.printStackTrace();
+ *		}
+ *		List<String> biblist = new ArrayList<String>();
+ */
 		MrcToXmlConverter converter = new MrcToXmlConverter();
 		converter.setSrcType("bib");
 		converter.setExtractType("full");
@@ -140,9 +136,10 @@ public class ConvertBibFullToXml {
 					converter.setSequence_prefix(seqno);
 					String ts = getTimestampFromFileName(srcFile);
 					converter.setTs(ts);
-					biblist = converter.convertMrcToXml(davService, srcDir,
-							srcFile);
-					saveBibList(fout, biblist);
+/*					biblist = converter.convertMrcToXml(davService, srcDir,
+ *							srcFile);
+ *					saveBibList(fout, biblist);
+ */
 				} catch (Exception e) {
 					try {
 						System.out
@@ -155,15 +152,14 @@ public class ConvertBibFullToXml {
 				}
 			}
 		}
-		if (fout != null) {
-			try {
-				fout.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
+/*		if (fout != null) {
+ *			try {
+ *				fout.close();
+ *			} catch (IOException e) {
+ *				e.printStackTrace();
+ *			}
+ *		}
+ */
 	}
    
     
