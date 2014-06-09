@@ -241,8 +241,7 @@ public class MarcRecord {
 			
 			public Integer linkOccurrenceNumber; //from MARC subfield 6
 			public String mainTag = null;
-			
-			
+				
 			public String toString() {
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.tag);
@@ -326,10 +325,10 @@ public class MarcRecord {
 				}
 			}
 			
-			public Script script() {
+			public Script getScript() {
 				for (Subfield sf: this.subfields.values()) {
 					if (sf.code == '6') {
-						if (sf.value.endsWith("/(3"))
+						if (sf.value.endsWith("/(3") || sf.value.endsWith("/(3/r"))
 							return Script.ARABIC;
 						else if (sf.value.endsWith("/(B"))
 							return Script.LATIN;
@@ -339,7 +338,7 @@ public class MarcRecord {
 							return Script.CYRILLIC;
 						else if (sf.value.endsWith("/S"))
 							return Script.GREEK;
-						else if (sf.value.endsWith("/(2"))
+						else if (sf.value.endsWith("/(2") || sf.value.endsWith("/(2/r"))
 							return Script.HEBREW;
 					}
 				}

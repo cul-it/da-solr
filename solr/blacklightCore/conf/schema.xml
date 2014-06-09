@@ -363,13 +363,6 @@
   <!-- Copy Fields -->
 
   <copyField source="donor_display" dest="donor_s"/>
-  <copyField source="cite_as_display" dest="notes_t"/>
-  <copyField source="restrictions_display" dest="notes_t"/>
-  <copyField source="finding_aids_display" dest="notes_t"/>
-  <copyField source="historical_note_display" dest="notes_t"/>
-  <copyField source="summary_display" dest="summary_t"/>
-  <copyField source="contents_display" dest="toc_t"/>
-  <copyField source="partial_contents_display" dest="toc_t"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>

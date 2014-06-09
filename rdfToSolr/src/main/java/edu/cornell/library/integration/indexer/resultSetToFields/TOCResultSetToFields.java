@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +47,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<String>();
+			Set<Boolean> isCJK = new HashSet<Boolean>();
 			Set<String> valuesMain = new HashSet<String>();
 			String relation = null;
 			String subfields = "atr";
@@ -60,14 +62,23 @@ public class TOCResultSetToFields implements ResultSetToFields {
 						relation = "partial_contents";
 					}
 				}
-				if (f.tag.equals("880"))
+				if (f.tag.equals("880")) {
 					values880.add(f.concatenateSpecificSubfields(subfields));
-				else
+					if (f.getScript().equals(MarcRecord.Script.CJK)) 
+						isCJK.add(true);
+					else
+						isCJK.add(false);
+				} else
 					valuesMain.add(f.concatenateSpecificSubfields(subfields));
 			}
 			if (relation != null) {
-				for (String s: values880)
-					if (values880.size() == 1) {
+				Boolean exactlyOne880 = (values880.size() == 1);
+				Iterator<String> i = values880.iterator();
+				Iterator<Boolean> cjk_i = isCJK.iterator();
+				while (i.hasNext()) {
+					String s = i.next();
+					Boolean cjk = cjk_i.next();
+					if (exactlyOne880) {
 						for(String item: s.split(" *-- *")) {
 							if (s.endsWith(PDF_closeRTL)) {
 								if (! item.startsWith(RTE_openRTL))
@@ -76,16 +87,28 @@ public class TOCResultSetToFields implements ResultSetToFields {
 									item += PDF_closeRTL;
 							}
 							addField(solrFields,relation+"_display",item);
+							if (cjk)
+								addField(solrFields,"toc_t_cjk",item);
+							else
+								addField(solrFields,"toc_t",item);
 						}
 					} else {
 						addField(solrFields,relation+"_display",s);
+						if (cjk)
+							addField(solrFields,"toc_t_cjk",s);
+						else
+							addField(solrFields,"toc_t",s);
 					}
+				}
 				for (String s: valuesMain)
 					if (valuesMain.size() == 1) {
-						for (String item: s.split(" *-- *"))
+						for (String item: s.split(" *-- *")) {
 							addField(solrFields,relation+"_display",item);
+							addField(solrFields,"toc_t",item);
+						}
 					} else {
 						addField(solrFields,relation+"_display",s);
+						addField(solrFields,"toc_t",s);
 					}
 			}
 		}

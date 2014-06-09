@@ -139,6 +139,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				solrField = new SolrInputField(solrVernFieldName);
 				fieldmap.put(solrVernFieldName,solrField);
 			}
+			if (vernMode.equals(VernMode.SEARCH)) {
+				solrField = new SolrInputField(solrFieldName + "_cjk");
+				fieldmap.put(solrFieldName+"_cjk", solrField);
+			}
 
 			
 			// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
@@ -180,8 +184,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						if (value.length() == 0) continue;
 						if (f.tag.equals("880")) {
 							if (vernMode.equals(VernMode.SEARCH)) {
-								MarcRecord.Script script = f.script();
-								System.out.println(script.toString() + ": " + value);
+								MarcRecord.Script script = f.getScript();
 								if (script.equals(MarcRecord.Script.CJK))
 									valuesCJK.add(value);
 								else if (script.equals(MarcRecord.Script.UNKNOWN)) {
@@ -276,8 +279,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		}
 		
 		private void applyCJKSorting(Map<String,SolrInputField> fieldmap, DataField f, String val) {
-			MarcRecord.Script script = f.script();
-			System.out.println(script.toString() + ": " + val);
+			MarcRecord.Script script = f.getScript();
 
 			if (script.equals(MarcRecord.Script.CJK))
 				fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
