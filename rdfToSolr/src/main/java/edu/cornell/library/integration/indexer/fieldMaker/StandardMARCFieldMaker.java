@@ -157,6 +157,9 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							|| vernMode.equals(VernMode.SING_VERN))
 						&& f.tag.equals("880")) {
 						fieldmap.get(solrVernFieldName).addValue(val, 1.0f);
+					} else if (vernMode.equals(VernMode.SEARCH)
+							&& f.tag.equals("880")) {
+						applyCJKSorting(fieldmap,f,val);
 					} else {
 						fieldmap.get(solrFieldName).addValue(val, 1.0f);
 					}
@@ -170,11 +173,26 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					Arrays.sort(field_ids);
 					Set<String> values880 = new HashSet<String>();
 					Set<String> valuesMain = new HashSet<String>();
+					Set<String> valuesCJK = new HashSet<String>();
 					for (Integer fid: field_ids) {
 						DataField f = reordered.get(fid);
 						String value = concatenateSubfields(f).trim();
 						if (value.length() == 0) continue;
-						if (f.tag.equals("880")) values880.add(value);
+						if (f.tag.equals("880")) {
+							if (vernMode.equals(VernMode.SEARCH)) {
+								MarcRecord.Script script = f.script();
+								System.out.println(script.toString() + ": " + value);
+								if (script.equals(MarcRecord.Script.CJK))
+									valuesCJK.add(value);
+								else if (script.equals(MarcRecord.Script.UNKNOWN)) {
+									valuesCJK.add(value);
+									values880.add(value);
+								} else
+									values880.add(value);
+							} else {
+								values880.add(value);
+							}
+						}
 						else valuesMain.add(value);
 					}
 					Iterator<String> i880 = values880.iterator();
@@ -199,7 +217,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 									|| (vernMode == VernMode.SING_VERN)){
 								fieldmap.get(solrVernFieldName).addValue(s880, 1.0f);
 								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
-							} else { //VernMode.SEPARATE
+							} else { //VernMode.SEPARATE VernMode.SEARCH
 								fieldmap.get(solrFieldName).addValue(s880, 1.0f);
 								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 							}
@@ -229,6 +247,11 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							if (val.length() > 0)
 								fieldmap.get(solrFieldName).addValue(val, 1.0f);
 						}
+						if (vernMode == VernMode.SEARCH) {
+							Iterator<String> i = valuesCJK.iterator();
+							while (i.hasNext())
+								fieldmap.get(solrFieldName + "_cjk").addValue(i.next(), 1.0f);
+						}
 					}
 				}
 			}
@@ -250,6 +273,19 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			}
 			return fieldmap;
 			
+		}
+		
+		private void applyCJKSorting(Map<String,SolrInputField> fieldmap, DataField f, String val) {
+			MarcRecord.Script script = f.script();
+			System.out.println(script.toString() + ": " + val);
+
+			if (script.equals(MarcRecord.Script.CJK))
+				fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
+			else if (script.equals(MarcRecord.Script.UNKNOWN)) {
+				fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
+				fieldmap.get(solrFieldName).addValue(val, 1.0f);
+			} else 
+				fieldmap.get(solrFieldName).addValue(val, 1.0f);
 		}
 		
 		private SolrInputField concatenateValues( SolrInputField field ) {
@@ -287,7 +323,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		
 		SINGULAR,  // same as COMBINED, but combines all values, without regard to link_id.
 		
-		SING_VERN  // same as VERNACULAR, ‡6 occurrence numbers are disregarded and all
+		SING_VERN,  // same as VERNACULAR, $6 occurrence numbers are disregarded and all
 		           // values are treated as matching
+		SEARCH     // CJK values get "_cjk" postpended to their field names, indexes as SEPARATE
 	}
 }

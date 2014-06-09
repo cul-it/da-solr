@@ -242,6 +242,7 @@ public class MarcRecord {
 			public Integer linkOccurrenceNumber; //from MARC subfield 6
 			public String mainTag = null;
 			
+			
 			public String toString() {
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.tag);
@@ -324,6 +325,26 @@ public class MarcRecord {
 					return val;
 				}
 			}
+			
+			public Script script() {
+				for (Subfield sf: this.subfields.values()) {
+					if (sf.code == '6') {
+						if (sf.value.endsWith("/(3"))
+							return Script.ARABIC;
+						else if (sf.value.endsWith("/(B"))
+							return Script.LATIN;
+						else if (sf.value.endsWith("/$1"))
+							return Script.CJK;
+						else if (sf.value.endsWith("/(N"))
+							return Script.CYRILLIC;
+						else if (sf.value.endsWith("/S"))
+							return Script.GREEK;
+						else if (sf.value.endsWith("/(2"))
+							return Script.HEBREW;
+					}
+				}
+				return Script.UNKNOWN;
+			}
 		
 		
 		}
@@ -363,6 +384,10 @@ public class MarcRecord {
 		
 		public static enum RecordType {
 			BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
+		}
+		
+		public static enum Script {
+			ARABIC, LATIN, CJK, CYRILLIC, GREEK, HEBREW, UNKNOWN
 		}
 	
 	
