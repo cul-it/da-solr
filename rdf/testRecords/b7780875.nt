@@ -305,7 +305,7 @@
 <http://da-rdf.library.cornell.edu/individual/b7780875_23> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfieldB> <http://da-rdf.library.cornell.edu/individual/b7780875_23_2>.
 <http://da-rdf.library.cornell.edu/individual/b7780875_23_2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .
 <http://da-rdf.library.cornell.edu/individual/b7780875_23_2> <http://marcrdf.library.cornell.edu/canonical/0.1/code> "b".
-<http://da-rdf.library.cornell.edu/individual/b7780875_23_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "the movement of people, goods, and ideas over four millennia /".
+<http://da-rdf.library.cornell.edu/individual/b7780875_23_2> <http://marcrdf.library.cornell.edu/canonical/0.1/value> "the movement of people, goods, and ideas over four millennia = Zhongguo yi dong /".
 <http://da-rdf.library.cornell.edu/individual/b7780875_23> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> <http://da-rdf.library.cornell.edu/individual/b7780875_23_3>.
 <http://da-rdf.library.cornell.edu/individual/b7780875_23> <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfieldC> <http://da-rdf.library.cornell.edu/individual/b7780875_23_3>.
 <http://da-rdf.library.cornell.edu/individual/b7780875_23_3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://marcrdf.library.cornell.edu/canonical/0.1/Subfield> .

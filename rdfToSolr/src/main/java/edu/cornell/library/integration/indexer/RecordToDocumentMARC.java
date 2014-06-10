@@ -32,7 +32,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
 				new SuppressShadowRecords(),
-				new LoadItemData()
+				new LoadItemData(),
+				new RemoveDuplicateTitleData()
 		);
 	}
 
