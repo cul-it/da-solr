@@ -58,7 +58,7 @@ createIndexCore()
 	targetHost=${BASH_REMATCH[1]}
 	echo $targetHost
 	#copy files into place on target Solr
-	scp -r "." ${targetHost}:$solrindexDir/$coreName
+	scp -r "." tomcat@${targetHost}:$solrindexDir/$coreName
 	#tell Solr to spin up the new core
 	curl "${targetUrl}admin/cores?action=CREATE&name=${coreName}&instanceDir=${coreName}&config=solrconfig.xml&schema=schema.xml&dataDir=data"
 	if [ $coreType = "slave" ]; then
@@ -87,7 +87,7 @@ checkTargetSystemSolrXmlForSpecificCoreDir()
     if [[ $targetUrl =~ $solrServerHostP ]]; then
 	targetHost=${BASH_REMATCH[1]}
 	solrXml=$(mktemp)
-	scp $targetHost:$solrindexDir/solr.xml $solrXml
+	scp tomcat@$targetHost:$solrindexDir/solr.xml $solrXml
 	coreXml=$(grep -E -e "instanceDir=\"$coreName/?\"" $solrXml)
 	if [[ $coreXml =~ $solrXmlCoreNameP ]]; then
 	    corePublicName=${BASH_REMATCH[1]}
