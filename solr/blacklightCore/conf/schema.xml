@@ -276,7 +276,7 @@
         <!-- if a letter follows directly after a number, insert a space between them -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
         <!-- replace any leading whitespace with "lccncode." to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^\s*" replacement="lccncode." />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^[^a-zA-Z\d]*([a-zA-Z\d])" replacement="lccncode.$1" />
         <!-- treat any sequences of characters that are not alphanumeric + periods as breaks between tokens -->
         <tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
         <filter class="solr.LowerCaseFilterFactory" />
