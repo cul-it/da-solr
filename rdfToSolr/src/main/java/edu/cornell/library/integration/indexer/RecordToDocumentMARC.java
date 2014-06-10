@@ -654,7 +654,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    addMainStoreQuery("main_entry", 
 						"SELECT *\n" +
 						" WHERE { $recordURI$ ?p ?field.\n" +
-						"        ?p rdfs:subPropertyOf marcrdf:MainEntry.\n"+
+						"        ?p rdfs:subPropertyOf marcrdf:MainEntryAuthor.\n"+
 			    		"        ?field marcrdf:tag ?tag. \n" +
 			    		"        ?field marcrdf:ind1 ?ind1. \n" +
 			    		"        ?field marcrdf:ind2 ?ind2. \n" +
