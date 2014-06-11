@@ -31,6 +31,11 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
 
 public class MarcXmlToNTriples {
@@ -926,7 +931,7 @@ public class MarcXmlToNTriples {
 						}
 					} else {
 						logout.write("Error: ("+rec.type.toString()+":" + rec_id +") "+
-								f.tag+" field has ‡6 with unexpected format: \""+sf.value+"\".\n");
+								f.tag+" field has ���6 with unexpected format: \""+sf.value+"\".\n");
 					}
 				}
 			}
@@ -1047,91 +1052,6 @@ public class MarcXmlToNTriples {
 	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
 	}
 
-	static class MarcRecord {
-		
-		public String leader;
-		public Map<Integer,ControlField> control_fields 
-									= new HashMap<Integer,ControlField>();
-		public Map<Integer,DataField> data_fields
-									= new HashMap<Integer,DataField>();
-		public RecordType type;
-		public String id;
-		public String bib_id;
-		
-		public String toString( ) {
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append("000    "+this.leader+"\n");
-			int id = 0;
-			while( this.control_fields.containsKey(id+1) ) {
-				ControlField f = this.control_fields.get(++id);
-				sb.append(f.tag + "    " + f.value+"\n");
-			}
-
-			while( this.data_fields.containsKey(id+1) ) {
-				DataField f = this.data_fields.get(++id);
-				sb.append(f.toString());
-				sb.append("\n");
-			}
-			return sb.toString();
-		}
-
-	}
-	
-	static class ControlField {
-		
-		public int id;
-		public String tag;
-		public String value;
-	}
-	
-	static class DataField {
-		
-		public int id;
-		public String tag;
-		public Character ind1;
-		public Character ind2;
-		public Map<Integer,Subfield> subfields;
-
-		// Linked field number if field is 880
-		public String alttag;
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.tag);
-			sb.append(" ");
-			sb.append(this.ind1);
-			sb.append(this.ind2);
-			sb.append(" ");
-			int sf_id = 0;
-			while( this.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = this.subfields.get(++sf_id);
-				sb.append(sf.toString());
-				sb.append(" ");
-			}
-			return sb.toString();
-		}
-	}
-	
-	static class Subfield {
-		
-		public int id;
-		public Character code;
-		public String value;
-
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("\u2021");
-			sb.append(this.code);
-			sb.append(" ");
-			sb.append(this.value);
-			return sb.toString();
-		}
-	}
-	
-	static enum RecordType {
-		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
-	}
-	
 	static class FieldStats {
 		public String tag;
 		public Long recordCount = new Long(0);

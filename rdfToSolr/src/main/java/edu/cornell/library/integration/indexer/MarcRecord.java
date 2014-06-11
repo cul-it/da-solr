@@ -235,6 +235,7 @@ public class MarcRecord {
 			
 			public int id;
 			public String tag;
+			public String alttag; //subfield 6 tag number for an 880 field
 			public Character ind1 = ' ';
 			public Character ind2 = ' ';
 			public Map<Integer,Subfield> subfields = new HashMap<Integer,Subfield>();
