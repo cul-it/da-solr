@@ -136,6 +136,7 @@ public class ConvertBibFullToXml {
 					converter.setSequence_prefix(seqno);
 					String ts = getTimestampFromFileName(srcFile);
 					converter.setTs(ts);
+					converter.convertMrcToXml(davService, srcDir, srcFile);
 /*					biblist = converter.convertMrcToXml(davService, srcDir,
  *							srcFile);
  *					saveBibList(fout, biblist);
