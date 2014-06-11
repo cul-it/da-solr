@@ -30,6 +30,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
@@ -352,6 +353,7 @@ public class MarcXmlToNTriples {
 					identifyShadowRecordTargets(rec);
 					extractData(rec);
 					mapNonRomanFieldsToRomanizedFields(rec);
+					surveyForCJKValues(rec);
 					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
@@ -388,6 +390,35 @@ public class MarcXmlToNTriples {
 		}
 	}
 
+	public static void surveyForCJKValues( MarcRecord rec ) throws IOException {
+		if (logout == null) {
+			FileWriter logstream = new FileWriter(logfile);
+			logout = new BufferedWriter( logstream );
+		}
+
+		Map<Integer,DataField> datafields = rec.data_fields;
+		for (DataField f : datafields.values() ) {
+			String text = f.concateSubfieldsOtherThan6();
+			Boolean isCJK = isCJK(text);
+			if (f.tag.equals("880")) {
+				MarcRecord.Script script = f.getScript();
+				if (script.equals(MarcRecord.Script.CJK)) {
+					if (! isCJK)
+						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
+								") 880 field labeled CJK but doesn't appear to be: "+f.toString());
+				} else {
+					if (isCJK)
+						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
+								") 880 field appears to be CJK but isn't labeled that way: "+f.toString());
+ 				}	
+			} else {
+				if (isCJK)
+					logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
+							") non-880 field appears to contain CJK text: "+f.toString());
+			}
+		}
+	}
+	
 	/**
 	 * @param args
 	 */
