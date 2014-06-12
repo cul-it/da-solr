@@ -9,7 +9,7 @@ public class CharacterSetUtils {
 	static Pattern IS_NOT_CJK = null;
 	
 	public static final float MIN_RATIO = (float)0.15;
-	public static final int MIN_CHAR = 3;
+	public static final int MIN_CHAR = 2;
 	
 	/*
 	 * If CJK characters constitute a ratio of MIN_RATIO or a count of MIN_CHAR,

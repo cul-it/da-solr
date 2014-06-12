@@ -405,16 +405,16 @@ public class MarcXmlToNTriples {
 				if (script.equals(MarcRecord.Script.CJK)) {
 					if (! isCJK)
 						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
-								") 880 field labeled CJK but doesn't appear to be: "+f.toString());
+								") 880 field labeled CJK but doesn't appear to be: "+f.toString()+"\n");
 				} else {
 					if (isCJK)
 						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
-								") 880 field appears to be CJK but isn't labeled that way: "+f.toString());
+								") 880 field appears to be CJK but isn't labeled that way: "+f.toString()+"\n");
  				}	
 			} else {
 				if (isCJK)
 					logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
-							") non-880 field appears to contain CJK text: "+f.toString());
+							") non-880 field appears to contain CJK text: "+f.toString()+"\n");
 			}
 		}
 	}
