@@ -60,21 +60,14 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 
 		for (String vernPart : vernTitleParts) {
 			Boolean matched = false;
-			System.out.println("{"+vernPart+"}");
+
 			for (String mainPart: mainTitleParts) {
-				if (vernPart.equals(mainPart)) {
+				if (vernPart.equals(mainPart))
 					matched = true;
-					System.out.println("\tmatches: {"+mainPart+"}");
-				} else {
-					System.out.println("\tdoes not match: {"+mainPart+"}");
-				}
 			}
 			if (! matched)
 				newVernTitleParts.add(vernPart);
-			else
-				System.out.println("Dropped title segment: \""+vernPart+"\" as duplicate.");
 		}
-		System.out.println(newVernTitleParts.toString());
 		if (newVernTitleParts.size() < vernTitleParts.length) {
 			String newVernTitle = null;
 			if (isRTL) {
