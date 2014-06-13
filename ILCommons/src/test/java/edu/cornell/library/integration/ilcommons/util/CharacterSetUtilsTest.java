@@ -20,4 +20,19 @@ public class CharacterSetUtilsTest {
 		assertFalse(isCJK("Hi! How are you? シ"));
 	}
 	
+	/*
+	 * We expect the same results from hasCJK() as isCJK(), except for the final test,
+	 * which should return true instead of false.
+	 */
+	@Test
+	public void testHasCJK() {
+		assertFalse(hasCJK("القاهرة : شمس للنشر والتوزيع، 2012.‏‬‎")); 
+		assertTrue(hasCJK("論究ジュリスト = Quarterly jurist"));
+		assertTrue(hasCJK("一九五〇年代的台灣"));
+		assertFalse(hasCJK("Saint Antoine le Grand dans l'Orient chretien"));
+		assertTrue(hasCJK("제국 의 위안부"));
+		assertFalse(hasCJK("Advanced linear algebra"));
+		assertTrue(hasCJK("Hi! How are you? シ"));
+	}
+	
 }

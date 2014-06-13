@@ -29,6 +29,7 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		
 		removeDuplicates(document, "title_vern_display","title_display");
 		removeDuplicates(document, "subtitle_vern_display","subtitle_display");
+		removeDuplicates(document, "fulltitle_vern_display","fulltitle_display");
 		
 	}
 

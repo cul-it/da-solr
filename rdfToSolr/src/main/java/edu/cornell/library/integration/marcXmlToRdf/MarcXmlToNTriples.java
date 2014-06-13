@@ -399,20 +399,19 @@ public class MarcXmlToNTriples {
 		Map<Integer,DataField> datafields = rec.data_fields;
 		for (DataField f : datafields.values() ) {
 			String text = f.concateSubfieldsOtherThan6();
-			Boolean isCJK = isCJK(text);
 			if (f.tag.equals("880")) {
 				MarcRecord.Script script = f.getScript();
 				if (script.equals(MarcRecord.Script.CJK)) {
-					if (! isCJK)
+					if (! hasCJK(text))
 						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
 								") 880 field labeled CJK but doesn't appear to be: "+f.toString()+"\n");
 				} else {
-					if (isCJK)
+					if (isCJK(text))
 						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
 								") 880 field appears to be CJK but isn't labeled that way: "+f.toString()+"\n");
  				}	
 			} else {
-				if (isCJK)
+				if (isCJK(text))
 					logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
 							") non-880 field appears to contain CJK text: "+f.toString()+"\n");
 			}
