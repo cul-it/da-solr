@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -152,7 +153,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			for( Integer id: ids) {
 				FieldSet fs = sortedFields.get(id);
 				DataField[] fields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-				// If a "group" contains only one field, the organization is straightforward.
+				// If a "group" contains only one field, the organization is more straightforward.
 				if (fs.fields.size() == 1) {
 					DataField f = fields[0];
 					String val = concatenateSubfields(f).trim();
@@ -161,9 +162,20 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							|| vernMode.equals(VernMode.SING_VERN))
 						&& f.tag.equals("880")) {
 						fieldmap.get(solrVernFieldName).addValue(val, 1.0f);
-					} else if (vernMode.equals(VernMode.SEARCH)
-							&& f.tag.equals("880")) {
-						applyCJKSorting(fieldmap,f,val);
+					} else if (vernMode.equals(VernMode.SEARCH)) {
+						if (f.tag.equals("880")) {
+							if (f.getScript().equals(MarcRecord.Script.CJK))
+								fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
+							else {
+								if (hasCJK(val))
+									fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
+								fieldmap.get(solrFieldName).addValue(val, 1.0f);
+							}							
+						} else {
+							if (isCJK(val))
+								fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
+							fieldmap.get(solrFieldName).addValue(val, 1.0f);
+						}
 					} else {
 						fieldmap.get(solrFieldName).addValue(val, 1.0f);
 					}
@@ -184,19 +196,22 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						if (value.length() == 0) continue;
 						if (f.tag.equals("880")) {
 							if (vernMode.equals(VernMode.SEARCH)) {
-								MarcRecord.Script script = f.getScript();
-								if (script.equals(MarcRecord.Script.CJK))
+								if (f.getScript().equals(MarcRecord.Script.CJK)) {
 									valuesCJK.add(value);
-								else if (script.equals(MarcRecord.Script.UNKNOWN)) {
-									valuesCJK.add(value);
+								} else {
 									values880.add(value);
-								} else
-									values880.add(value);
+									if (hasCJK(value))
+										valuesCJK.add(value);
+								}
 							} else {
 								values880.add(value);
 							}
+						} else {
+							if (vernMode.equals(VernMode.SEARCH))
+								if (isCJK(value))
+									valuesCJK.add(value);
+							valuesMain.add(value);
 						}
-						else valuesMain.add(value);
 					}
 					Iterator<String> i880 = values880.iterator();
 					Iterator<String> iMain = valuesMain.iterator();
@@ -229,7 +244,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						     // there aren't exactly one each of 880 and "other" in fieldset
 						if (vernMode != VernMode.SINGULAR) {
 							while (i880.hasNext())
-								if ((vernMode == VernMode.VERNACULAR) || (vernMode == VernMode.SING_VERN)) {
+								if (vernMode.equals(VernMode.VERNACULAR)
+										|| vernMode.equals(VernMode.SING_VERN)) {
 									fieldmap.get(solrVernFieldName).addValue(i880.next(), 1.0f);
 								} else {
 									fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
@@ -276,18 +292,6 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			}
 			return fieldmap;
 			
-		}
-		
-		private void applyCJKSorting(Map<String,SolrInputField> fieldmap, DataField f, String val) {
-			MarcRecord.Script script = f.getScript();
-
-			if (script.equals(MarcRecord.Script.CJK))
-				fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
-			else if (script.equals(MarcRecord.Script.UNKNOWN)) {
-				fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
-				fieldmap.get(solrFieldName).addValue(val, 1.0f);
-			} else 
-				fieldmap.get(solrFieldName).addValue(val, 1.0f);
 		}
 		
 		private SolrInputField concatenateValues( SolrInputField field ) {

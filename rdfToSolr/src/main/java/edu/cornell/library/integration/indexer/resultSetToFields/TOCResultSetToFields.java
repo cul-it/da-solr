@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,15 +90,21 @@ public class TOCResultSetToFields implements ResultSetToFields {
 							addField(solrFields,relation+"_display",item);
 							if (cjk)
 								addField(solrFields,"toc_t_cjk",item);
-							else
+							else {
+								if (hasCJK(item))
+									addField(solrFields,"toc_t_cjk",item);
 								addField(solrFields,"toc_t",item);
+							}
 						}
 					} else {
 						addField(solrFields,relation+"_display",s);
 						if (cjk)
 							addField(solrFields,"toc_t_cjk",s);
-						else
+						else {
+							if (hasCJK(s))
+								addField(solrFields,"toc_t_cjk",s);
 							addField(solrFields,"toc_t",s);
+						}
 					}
 				}
 				for (String s: valuesMain)
@@ -105,10 +112,14 @@ public class TOCResultSetToFields implements ResultSetToFields {
 						for (String item: s.split(" *-- *")) {
 							addField(solrFields,relation+"_display",item);
 							addField(solrFields,"toc_t",item);
+							if (isCJK(item))
+								addField(solrFields,"toc_t_cjk",item);
 						}
 					} else {
 						addField(solrFields,relation+"_display",s);
 						addField(solrFields,"toc_t",s);
+						if (isCJK(s))
+							addField(solrFields,"toc_t_cjk",s);
 					}
 			}
 		}

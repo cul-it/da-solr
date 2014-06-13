@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -173,7 +174,19 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						|| f.mainTag.equals("777")
 						) {
 					String subfields = "atbcdegkqrs";
-					addField(solrFields,"title_uniform_t",f.concatenateSpecificSubfields(subfields));
+					String value = f.concatenateSpecificSubfields(subfields); 
+					addField(solrFields,"title_uniform_t",value);
+					if (f.tag.equals("880")) {
+						if (f.getScript().equals(MarcRecord.Script.CJK)) {
+							addField(solrFields,"title_uniform_t_cjk",value);
+						} else {
+							if (hasCJK(value))
+								addField(solrFields,"title_uniform_t_cjk",value);
+						}
+					} else {
+						if (isCJK(value))
+							addField(solrFields,"title_uniform_t_cjk",value);
+					}
 				}
 
 
