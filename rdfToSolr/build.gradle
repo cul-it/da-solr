@@ -42,6 +42,14 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) 
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task( fullMarcXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
+ group="Full Build Steps"
+ description = "Convert all MARC XML to N-Triples"
+ maxHeapSize = '1024m'  
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 
  description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
