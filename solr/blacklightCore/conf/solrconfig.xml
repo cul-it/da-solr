@@ -969,9 +969,13 @@
       <str name="spellcheck.collate">false</str>
       <str name="spellcheck.count">5</str>
     </lst>
+    <lst name="appends">
+      <str name="fq">type:Catalog</str>
+    </lst>
     <arr name="last-components">
       <str>spellcheck</str>
     </arr>
+    
   </requestHandler>
   
   <!-- for requests to get a single document; use id=666 instead of q=id:666 -->

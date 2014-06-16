@@ -11,7 +11,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 	
 	
-	public class MultivolResultSetToFields implements ResultSetToFields {
+	public class MultivolRSTF implements ResultSetToFields {
 	
 		protected boolean debug = false;
 

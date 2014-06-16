@@ -31,7 +31,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new RecordBoost(),
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
-				new SuppressShadowRecords(),
+//				new SuppressShadowRecords(),
 				new LoadItemData(),
 				new RemoveDuplicateTitleData()
 		);
@@ -130,16 +130,24 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addResultSetToFields( new MARCResultSetToFields() ),
 				    
 				new SPARQLFieldMakerImpl().
-				    setName("multival").
+				    setName("multivol").
 				    addMainStoreQuery("holdings_descr",
 				    		"SELECT ?f (SUBSTR(?leader,7,1) as ?rectype)\n"+
 				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
 				    				" ?h marcrdf:leader ?leader.\n"+
 				    				" OPTIONAL {?h ?p ?f.\n"+
 				                    "   ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }}").
-				    addResultSetToFields( new MultivolResultSetToFields() ),
+				    addResultSetToFields( new MultivolRSTF() ),
 
-				                    
+				new SPARQLFieldMakerImpl().
+				    setName("rec_type").
+				    addMainStoreQuery("shadow_rec",
+							"SELECT ?sf948h\n" +
+							" WHERE { $recordURI$ marcrdf:hasField948 ?f.\n" +
+							"       ?f marcrdf:hasSubfield ?sf948.\n" +
+							"       ?sf948 marcrdf:code \"h\".\n" +
+							"       ?sf948 marcrdf:value ?sf948h. }").
+				    addResultSetToFields( new RecordTypeRSTF() ),                  
 				    		
 				new SPARQLFieldMakerImpl().
 					setName("format").
@@ -149,13 +157,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"       (SUBSTR(?seven,1,1) as ?cat)\n" +
 							" WHERE { $recordURI$ marcrdf:leader ?leader.\n" +
 							"       OPTIONAL {\n" +
-							"          $recordURI$ marcrdf:hasField ?f.\n" +
-							"          ?f marcrdf:tag \"007\".\n" +
+							"          $recordURI$ marcrdf:hasField007 ?f.\n" +
 							"          ?f marcrdf:value ?seven. }}").
 				    addMainStoreQuery("typeOfContinuingResource",
 					   		"SELECT (SUBSTR(?val,22,1) as ?typeOfContinuingResource)\n" +
-				    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
-				    		"        ?f marcrdf:tag \"008\". \n" +
+				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 				    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("format_502",
 							"SELECT ?f502\n" +
@@ -163,22 +169,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"       ?f502 marcrdf:tag \"502\". }").
 					addMainStoreQuery("format_653",
 							"SELECT ?sf653a\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
-							"       ?f marcrdf:tag \"653\".\n" +
+							" WHERE { $recordURI$ marcrdf:hasField653 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf653.\n" +
 							"       ?sf653 marcrdf:code \"a\".\n" +
 							"       ?sf653 marcrdf:value ?sf653a. }").
 					addMainStoreQuery("format_948",
 							"SELECT ?sf948f\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
-							"       ?f marcrdf:tag \"948\".\n" +
+							" WHERE { $recordURI$ marcrdf:hasField948 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf948.\n" +
 							"       ?sf948 marcrdf:code \"f\".\n" +
 							"       ?sf948 marcrdf:value ?sf948f. }").
 					addMainStoreQuery("format_245",
 							"SELECT ?sf245h\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f.\n" +
-							"       ?f marcrdf:tag \"245\".\n" +
+							" WHERE { $recordURI$ marcrdf:hasField245 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf245.\n" +
 							"       ?sf245 marcrdf:code \"h\".\n" +
 							"       ?sf245 marcrdf:value ?sf245h. }").
@@ -186,8 +189,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				        	"SELECT ?loccode \n"+
 				        	"WHERE {\n"+
 					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
-				        	"  ?hold marcrdf:hasField ?hold852.\n" +
-				        	"  ?hold852 marcrdf:tag \"852\".\n" +
+				        	"  ?hold marcrdf:hasField852 ?hold852.\n" +
 				        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
 				        	"  ?hold852b marcrdf:code \"b\".\n" +
 					    	"  ?hold852b marcrdf:value ?loccode.\n" +
