@@ -36,6 +36,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		boolean isFAST = false;
 		
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -47,39 +48,47 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 		
-			String main_fields = "", dashed_fields = "";
+			String main_fields = "", dashed_fields = "", facet_topic_fields = "";
 			for (DataField f: dataFields) {
 				
 				if (f.mainTag.equals("600")) {
 					main_fields = "abcdefghkjlmnopqrstu";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "abcdq";
 				} else if (f.mainTag.equals("610")) {
 					main_fields = "abcdefghklmnoprstu";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("611")) {
 					main_fields = "acdefghklnpqstu";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("630")) {
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "ap";
 				} else if (f.mainTag.equals("648")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("650")) {
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "a";
 				} else if (f.mainTag.equals("651")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("653")) {
 					// This field list is used for subject_display and sixfivethree.
 					main_fields = "a";
+					facet_topic_fields = "a";
 				} else if (f.mainTag.equals("654")) {
 					main_fields = "abe";
 					dashed_fields = "vyz";
+					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("655")) {
 					main_fields = "ab";
 					dashed_fields = "vxyz";
+					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("656")) {
 					main_fields = "ak";
 					dashed_fields = "vxyz";
@@ -116,6 +125,16 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						valuesMain.add(removeTrailingPunctuation(sb.toString(),"."));
 					}
 				}
+				if (! facet_topic_fields.equals("")) {
+					String value = f.concatenateSpecificSubfields(facet_topic_fields);
+					addField(solrFields,"subject_topic_facet",value);
+					if (f.ind2.equals('7'))
+						for ( Subfield sf : f.subfields.values() )
+							if (sf.code.equals('2') && sf.value.equalsIgnoreCase("fast"))
+								isFAST = true;
+					if (isFAST)
+						addField(solrFields,"fast_facet",value);
+				}
 			}
 			for (String s: values880)
 				addField(solrFields,"subject_display",s);
@@ -123,6 +142,10 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"subject_display",s);
 		}
 		
+		SolrInputField field = new SolrInputField("fast_b");
+		field.setValue(isFAST, 1.0f);
+		solrFields.put("fast_b", field);
+
 		return solrFields;
 	}	
 

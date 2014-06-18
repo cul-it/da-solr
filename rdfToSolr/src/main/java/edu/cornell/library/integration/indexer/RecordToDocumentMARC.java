@@ -566,15 +566,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("subject_geo_facet","651","a",VernMode.SEPARATE,"."),
 				new StandardMARCFieldMaker("subject_geo_facet","650","z",VernMode.SEPARATE,"."),
 
-				new StandardMARCFieldMaker("subject_topic_facet","600","abcdq",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","610","ab",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","611","ab",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","630","a",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","630","ap",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","650","a",VernMode.SEPARATE,",."),
-				new StandardMARCFieldMaker("subject_topic_facet","653","a",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_topic_facet","654","ab",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_topic_facet","655","ab",VernMode.SEPARATE,"."),
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
 					addMainStoreQuery("fact_or_fiction",
