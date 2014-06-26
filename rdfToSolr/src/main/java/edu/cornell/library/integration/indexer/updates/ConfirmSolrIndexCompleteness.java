@@ -51,7 +51,7 @@ public class ConfirmSolrIndexCompleteness  {
         csic.doCompletnessCheck( config.getSolrUrl() );
 	}
 	
-	public void doCompletnessCheck(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
+	public int doCompletnessCheck(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
 		System.out.println("Comparing \n" 
 		        + currentVoyagerBibList.toUri()  + " and \n" 
 		        + currentVoyagerMfhdList.toUri() + "\n"
@@ -60,6 +60,8 @@ public class ConfirmSolrIndexCompleteness  {
 		IndexRecordListComparison c = new IndexRecordListComparison();
 		c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
 		produceReport(davUrl,c);
+		
+		return c.bibsInVoyagerNotIndex.size();
 	}	
     
 	public void  doCompletnessCheck(String coreUrl) throws Exception {
@@ -96,7 +98,8 @@ public class ConfirmSolrIndexCompleteness  {
 			throw new Exception( "Could not get most recent Mfhd holding file '" + mostRecentMfhdFile + "'" , e);
 		}		
 
-        doCompletnessCheck( coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+		int numberOfMissingBibs = doCompletnessCheck( coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+        System.exit(numberOfMissingBibs); //any bibs missing from index should cause failure status
  	}
 
 	// Based on the IndexRecordListComparison, bib records to be updated and deleted are printed to STDOUT
