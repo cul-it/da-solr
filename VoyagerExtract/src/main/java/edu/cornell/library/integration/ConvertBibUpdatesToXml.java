@@ -68,8 +68,6 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      for (String srcFile  : srcList) {
         System.out.println("Converting mrc file: "+ srcFile);
 		try {
-		   String ts = getTimestampFromFileName(srcFile);
-           converter.setTs(ts);
            String seqno = getSeqnoFromFileName(srcFile);
            converter.setItemId(seqno); 
 		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);

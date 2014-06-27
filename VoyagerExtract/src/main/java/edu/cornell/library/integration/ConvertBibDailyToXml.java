@@ -120,8 +120,6 @@ public class ConvertBibDailyToXml {
    			              
    			   seqno = getSequenceFromFileName(srcFile);           
                converter.setSequence_prefix(seqno);
-               String ts = getTimestampFromFileName(srcFile);
-               converter.setTs(ts);
                converter.convertMrcToXml(davService, srcDir, srcFile);
    			} catch (Exception e) {
    			   try {

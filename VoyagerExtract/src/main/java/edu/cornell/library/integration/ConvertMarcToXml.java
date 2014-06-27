@@ -127,9 +127,6 @@ public class ConvertMarcToXml {
    			   seqno = getSequenceFromFileName(srcFile, extractType);
    			   //System.out.println("seqno: "+seqno);
                converter.setSequence_prefix(seqno);
-               String ts = getTimestampFromFileName(srcFile, extractType);
-               //System.out.println("ts: "+ts);
-               converter.setTs(ts);
                if (extractType.equals("updates")){
                   converter.setItemId(seqno);
                }

@@ -68,7 +68,6 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         // iterate over mrc files
         for (String srcFile : srcList) {
             try {                    
-                converter.setTs( getTimestampFromFileName(srcFile) );                    
                 converter.setItemId(getSeqnoFromFileName(srcFile));
                 converter.convertMrcToXml(getDavService(), srcDir, srcFile);
 
@@ -85,16 +84,6 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
                 }
             }
         }
-    }
-
-    /**
-     * @param srcFile
-     * @return
-     */
-    private  String getTimestampFromFileName(String srcFile) {
-        String[] tokens = StringUtils.split(srcFile, ".");
-        return tokens[2];
-
     }
 
     /**

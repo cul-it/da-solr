@@ -138,8 +138,6 @@ public class ConvertMfhdFullToXml {
 					seqno = getSequenceFromFileName(srcFile);
 					converter.setSequence_prefix(seqno);
 
-					String ts = getTimestampFromFileName(srcFile);
-					converter.setTs(ts);
 					mfhdlist = converter.convertMrcToXml(davService, srcDir, srcFile);
 					if (mfhdlist.size() > 0 ) {
 					   saveMfhdList(fout, mfhdlist);

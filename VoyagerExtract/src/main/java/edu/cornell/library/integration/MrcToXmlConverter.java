@@ -60,10 +60,7 @@ public class MrcToXmlConverter {
     
     /** holds a bibid, mfid, or other unique id for single or updates conversions */
     private String itemId = "";
-    
-    /** timestamp string from the original source file */
-    private String ts;
-    
+        
     /** the type of marc21 records, typically bib or mfhd */
     private String srcType;
     
@@ -167,20 +164,6 @@ public class MrcToXmlConverter {
      */
     public void setExtractType(String extractType) {
        this.extractType = extractType;
-    }
-
-    /**
-     * @return the ts
-     */
-    public String getTs() {
-       return this.ts;
-    }
-
-    /**
-     * @param ts the ts to set
-     */
-    public void setTs(String ts) {
-       this.ts = ts;
     }
 
     /**
@@ -323,23 +306,23 @@ public class MrcToXmlConverter {
        String sequence = new String();
        
        if (StringUtils.equals(getExtractType(), "single") ) {
-          sb.append(getSrcType() +"."+ getTs() +"."+ getItemId() +".xml");
+          sb.append(getSrcType() +"."+ getItemId() +".xml");
        } else if (StringUtils.equals(getExtractType(), "updates")) {
-          sb.append(getSrcType() +".update."+ getTs() +"."+ getItemId() +".xml");   
+          sb.append(getSrcType() +".update."+ getItemId() +".xml");   
        } else if (StringUtils.equals(getExtractType(), "daily")) {
           if (batch == 0) {
              sequence = String.valueOf(getSequence_prefix()) +"_1";   
           } else {
              sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
           }
-          sb.append(getSrcType() +"."+ getTs() +"."+ sequence +".xml");
+          sb.append(getSrcType() +"."+ sequence +".xml");
        } else if (StringUtils.equals(getExtractType(), "full")) {
           if (batch == 0) {
              sequence = String.valueOf(getSequence_prefix()) +"_1";   
           } else {
              sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
           }
-          sb.append(getSrcType() +"."+ getTs() +"."+ sequence +".xml");
+          sb.append(getSrcType() +"."+ sequence +".xml");
        }
        
        return sb.toString();
