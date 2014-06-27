@@ -74,16 +74,10 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
            converter.setItemId(seqno); 
 		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);
 		} catch (Exception e) { 
-		   try {
-		      System.out.println("Exception caught: could not "
-		              + "convert file: "+ srcFile + "\n" 
-		              + "due to " + e.getMessage() );		      
-           } catch (Exception e1) {
-               System.out.println("Error while trying to handle bad file,"
-                       + " could not move to bad dir: " + srcFile + "\n"
-                       + "due to " + e1.getMessage());
-               e1.printStackTrace();
-           }
+			System.out.println("Exception caught: could not "
+					+ "convert file: "+ srcFile + "\n" 
+					+ "due to " + e.getMessage() );
+			e.printStackTrace();
 		}
 	}            
    } 
