@@ -3,8 +3,6 @@ package edu.cornell.library.integration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
@@ -55,7 +53,7 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         MrcToXmlConverter converter = new MrcToXmlConverter();
         converter.setSrcType("mfhd");
         converter.setExtractType("updates");
-        converter.setSplitSize(10000);
+        converter.setSplitSize(0);
         converter.setDestDir( destDir );
         converter.setTmpDir( config.getTmpDir() );
                 
@@ -67,33 +65,15 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         
         // iterate over mrc files
         for (String srcFile : srcList) {
-            try {                    
-                converter.setItemId(getSeqnoFromFileName(srcFile));
+            try {
                 converter.convertMrcToXml(getDavService(), srcDir, srcFile);
-
             } catch (Exception e) {
-                try {
-                    System.out.println("Exception caught: could not "
-                            + "convert file: " + srcFile + "\n" 
-                            + "due to " + e.getMessage() );
-                } catch (Exception e1) {
-                    System.out.println("Error while trying to handle bad file,"
-                            + " could not move to bad dir: " + srcFile + "\n"
-                            + "due to " + e1.getMessage());
-                    e1.printStackTrace();
-                }
+            	System.out.println("Exception caught: could not "
+            			+ "convert file: " + srcFile + "\n" 
+            			+ "due to: " );
+            	e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * @param srcFile
-     * @return
-     */
-    private String getSeqnoFromFileName(String srcFile) {
-        String[] tokens = StringUtils.split(srcFile, ".");
-        return tokens[3];
-    }
-    
+    }    
 
 }

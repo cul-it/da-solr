@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.marc4j.MarcException;
@@ -72,6 +71,9 @@ public class MrcToXmlConverter {
 
     /** local directory to use for temporary files. */
     private String tmpDir = null;    
+    
+    /** the root of the source file name (without .mrc extension) **/
+    private String fileNameRoot = null;
     
     public MrcToXmlConverter() { }
     
@@ -206,6 +208,7 @@ public class MrcToXmlConverter {
        String destXmlFile = new String();
        String tmpFilePath = getTmpDir() + "/"+ srcFile;
        File f = davService.getFile(srcDir +"/"+ srcFile, tmpFilePath);
+       fileNameRoot = srcFile.replaceAll(".mrc$", "");
        FileInputStream is = new FileInputStream(f);
         
        MarcPermissiveStreamReader reader = null;
@@ -302,30 +305,28 @@ public class MrcToXmlConverter {
     
     // this method figures out what the output file name should be
     private String getOutputFileName(int batch) {
-       StringBuffer sb = new StringBuffer();
        String sequence = new String();
        
-       if (StringUtils.equals(getExtractType(), "single") ) {
-          sb.append(getSrcType() +"."+ getItemId() +".xml");
-       } else if (StringUtils.equals(getExtractType(), "updates")) {
-          sb.append(getSrcType() +".update."+ getItemId() +".xml");   
-       } else if (StringUtils.equals(getExtractType(), "daily")) {
+       if (getExtractType().equals("single") ) {
+    	   return getSrcType() +"."+ getItemId() +".xml";
+       } else if (getExtractType().equals("updates")) {
+    	   return fileNameRoot + ".xml";
+       } else if (getExtractType().equals("daily")) {
           if (batch == 0) {
              sequence = String.valueOf(getSequence_prefix()) +"_1";   
           } else {
              sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
           }
-          sb.append(getSrcType() +"."+ sequence +".xml");
-       } else if (StringUtils.equals(getExtractType(), "full")) {
+          return getSrcType() +"."+ sequence +".xml";
+       } else if (getExtractType().equals("full")) {
           if (batch == 0) {
              sequence = String.valueOf(getSequence_prefix()) +"_1";   
           } else {
              sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
           }
-          sb.append(getSrcType() +"."+ sequence +".xml");
+          return getSrcType() +"."+ sequence +".xml";
        }
-       
-       return sb.toString();
+       return null;
     } 
     
     /**

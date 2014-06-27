@@ -54,7 +54,7 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
       MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setSrcType("bib");
       converter.setExtractType("updates");
-      converter.setSplitSize(10000);
+      converter.setSplitSize(0);
       converter.setDestDir(destDir);
       converter.setTmpDir(config.getTmpDir());
       
@@ -68,13 +68,11 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      for (String srcFile  : srcList) {
         System.out.println("Converting mrc file: "+ srcFile);
 		try {
-           String seqno = getSeqnoFromFileName(srcFile);
-           converter.setItemId(seqno); 
 		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);
 		} catch (Exception e) { 
 			System.out.println("Exception caught: could not "
 					+ "convert file: "+ srcFile + "\n" 
-					+ "due to " + e.getMessage() );
+					+ "due to: " );
 			e.printStackTrace();
 		}
 	}            
