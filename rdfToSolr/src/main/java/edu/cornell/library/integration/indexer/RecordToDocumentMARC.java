@@ -514,8 +514,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","535","abcd3",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","537","a"),
 				new StandardMARCFieldMaker("notes_t","537","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("notes","538","a"),
-				new StandardMARCFieldMaker("notes_t","538","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","544","a"),
 				new StandardMARCFieldMaker("notes_t","544","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","547","a"),
@@ -557,7 +555,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","520","ab",VernMode.SEARCH),
 				
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
-				
+				new StandardMARCFieldMaker("description_display","538","a"),
+				new StandardMARCFieldMaker("notes_t","538","a",VernMode.SEARCH),
+	
 				new StandardMARCFieldMaker("subject_era_facet","650","y",VernMode.SEPARATE,"."),
 				new StandardMARCFieldMaker("subject_era_facet","651","y",VernMode.SEPARATE,"."),
 				new StandardMARCFieldMaker("subject_era_facet","654","y",VernMode.SEPARATE,"."),
