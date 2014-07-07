@@ -361,7 +361,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
 			    new StandardMARCFieldMaker("fulltitle_display","245","abdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
 			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:/ "),
-			    new StandardMARCFieldMaker("title_t","245","abcdefgknpqsv",VernMode.SEARCH,".,;:/ "),
+			    new StandardMARCFieldMaker("title_t","245","abdefgknpqsv",VernMode.SEARCH,".,;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
