@@ -260,11 +260,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
 			    	addResultSetToFields( new PubInfoResultSetToFields()),
-//				new StandardMARCFieldMaker("pub_info_display","264","abc"),
 				
+			    // publisher_display and pubplace_display from field 260 handled by PubInfoResultSetToField
+			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED),
 				new StandardMARCFieldMaker("publisher_t","260","b",VernMode.SEARCH),
 				new StandardMARCFieldMaker("publisher_t","264","b",VernMode.SEARCH),
 					
+				new StandardMARCFieldMaker("pubplace_display","260","a",VernMode.COMBINED),
 				new StandardMARCFieldMaker("pubplace_t","260","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("pubplace_t","264","a",VernMode.SEARCH),
 

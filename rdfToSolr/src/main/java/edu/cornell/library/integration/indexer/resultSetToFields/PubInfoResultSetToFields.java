@@ -51,6 +51,10 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			String relation = null;
+			String publisher = null;
+			String pubplace = null;
+			String publisherVern = null;
+			String pubplaceVern = null;
 			for (DataField f: dataFields) {
 				if (relation == null) {
 					if (f.ind2.equals('0')) relation = "pub_prod";
@@ -59,17 +63,41 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 					else if (f.ind2.equals('3')) relation = "pub_manu";
 					else if (f.ind2.equals('4')) relation = "pub_copy";
 				}
-				if (f.tag.equals("880"))
+				if (f.tag.equals("880")) {
 					values880.add(f.concateSubfieldsOtherThan6());
-				else
+					if (relation.equals("pub_info")) {
+						publisherVern = f.concatenateSpecificSubfields("b");
+						pubplaceVern = f.concatenateSpecificSubfields("a");
+					}
+				} else {
 					valuesMain.add(f.concateSubfieldsOtherThan6());
+					if (relation.equals("pub_info")) {
+						publisher = f.concatenateSpecificSubfields("b");
+						pubplace = f.concatenateSpecificSubfields("a");
+					}
+				}
 			}
 			if (relation != null) {
 				for (String s: values880)
 					addField(solrFields,relation+"_display",s);	
 				for (String s: valuesMain)
-					addField(solrFields,relation+"_display",s);	
+					addField(solrFields,relation+"_display",s);
 			}
+			if (pubplace != null) {
+				if (pubplaceVern != null)
+					addField(solrFields,"pubplace_display",pubplaceVern +" / "+ pubplace);
+				else
+					addField(solrFields,"pubplace_display",pubplace);
+			} else if (pubplaceVern != null)
+				addField(solrFields,"pubplace_display",pubplaceVern);
+
+			if (publisher != null) {
+				if (publisherVern != null)
+					addField(solrFields,"publisher_display",publisherVern +" / "+ publisher);
+				else
+					addField(solrFields,"publisher_display",publisher);
+			} else if (publisherVern != null)
+				addField(solrFields,"publisher_display",publisherVern);
 		}
 				
 		return solrFields;
