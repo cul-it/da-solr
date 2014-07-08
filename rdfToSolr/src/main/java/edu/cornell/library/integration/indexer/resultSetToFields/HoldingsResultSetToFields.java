@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -155,13 +156,13 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 						}
 					} else if (f.tag.equals("866")) {
 						if (f.ind1.equals(' ') && f.ind2.equals(' '))
-							recentHoldings.add(f.concatenateSpecificSubfields("az"));
+							recentHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						else
-							holdings.add(f.concatenateSpecificSubfields("az"));
+							holdings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 					} else if (f.tag.equals("867")) {
-						supplementalHoldings.add(f.concatenateSpecificSubfields("az"));
+						supplementalHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 					} else if (f.tag.equals("868")) {
-						indexHoldings.add(f.concatenateSpecificSubfields("az"));
+						indexHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 					}
 					if (callno != null)
 						callnos.add(callno);

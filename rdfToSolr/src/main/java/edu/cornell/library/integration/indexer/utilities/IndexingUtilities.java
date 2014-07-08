@@ -1,13 +1,8 @@
-package edu.cornell.library.integration.indexer.utilies;
+package edu.cornell.library.integration.indexer.utilities;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
@@ -19,8 +14,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
-
-import edu.cornell.library.integration.ilcommons.service.DavService;
 
 public class IndexingUtilities {
 	
@@ -70,9 +63,16 @@ public class IndexingUtilities {
 		}
 	}
 	
-
-	
-
+	/**
+	 * Any time a comma is followed by a character that is not a space, a
+	 * space will be inserted.
+	 */
+	static Pattern commaFollowedByNonSpace = null;
+	public static String insertSpaceAfterCommas( String s ) {
+		if (commaFollowedByNonSpace == null)
+			commaFollowedByNonSpace = Pattern.compile(",([^\\s])");
+		return commaFollowedByNonSpace.matcher(s).replaceAll(", $1");
+	}
 
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
 	public static String prettyFormat(String input, int indent) {

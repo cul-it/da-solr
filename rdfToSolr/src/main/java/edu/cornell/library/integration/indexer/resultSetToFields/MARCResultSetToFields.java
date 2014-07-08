@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
-import static edu.cornell.library.integration.indexer.utilies.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.*;
 
 import java.util.HashMap;
 import java.util.Map;

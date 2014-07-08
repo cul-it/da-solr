@@ -14,7 +14,7 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
-import edu.cornell.library.integration.indexer.utilies.IndexingUtilities;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
 

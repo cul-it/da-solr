@@ -15,7 +15,7 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
-import edu.cornell.library.integration.indexer.utilies.IndexRecordListComparison;
+import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 
 /**
  * Generate reports on:

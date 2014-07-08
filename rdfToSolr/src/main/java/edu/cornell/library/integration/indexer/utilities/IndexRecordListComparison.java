@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.utilies;
+package edu.cornell.library.integration.indexer.utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;
