@@ -126,10 +126,11 @@ public class ConvertMfhdFullToXml {
 		if (srcList.size() == 0) {
 			System.out.println("No Full Marc files available to process");
 		} else {
+			int totalRecordCount = 0;
 			for (String srcFile : srcList) {
 				System.out.println("Converting mrc file: "+ srcFile);
 				try {
-					converter.convertMrcToXml(davService, srcDir, srcFile);
+					totalRecordCount += converter.convertMrcToXml(davService, srcDir, srcFile).size();
 /*					if (mfhdlist.size() > 0 ) {
  *					   saveMfhdList(fout, mfhdlist); 
  *					} */
@@ -144,6 +145,7 @@ public class ConvertMfhdFullToXml {
 					}
 				}
 			}
+			System.out.println("\nTotal record count: "+totalRecordCount);
 		}
 /*		
  *		if (fout != null) {

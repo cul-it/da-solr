@@ -64,9 +64,10 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         }
         
         // iterate over mrc files
+        int totalRecordCount = 0;
         for (String srcFile : srcList) {
             try {
-                converter.convertMrcToXml(getDavService(), srcDir, srcFile);
+                totalRecordCount += converter.convertMrcToXml(getDavService(), srcDir, srcFile).size();
             } catch (Exception e) {
             	System.out.println("Exception caught: could not "
             			+ "convert file: " + srcFile + "\n" 
@@ -74,6 +75,7 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
             	e.printStackTrace();
             }
         }
+		System.out.println("\nTotal record count: "+totalRecordCount);
     }    
 
 }

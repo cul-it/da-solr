@@ -65,17 +65,20 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
          return;
       }
       
-     for (String srcFile  : srcList) {
+      int totalRecordCount = 0;
+      for (String srcFile  : srcList) {
         System.out.println("Converting mrc file: "+ srcFile);
 		try {
-		   converter.convertMrcToXml(getDavService(), srcDir, srcFile);
+		   totalRecordCount += converter.convertMrcToXml(getDavService(), srcDir, srcFile).size();
 		} catch (Exception e) { 
 			System.out.println("Exception caught: could not "
 					+ "convert file: "+ srcFile + "\n" 
 					+ "due to: " );
 			e.printStackTrace();
 		}
-	}            
+     }
+     System.out.println("\nTotal record count: "+totalRecordCount);
+
    } 
        
    

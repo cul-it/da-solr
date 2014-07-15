@@ -244,7 +244,6 @@ public class MrcToXmlConverter {
              // check to see if we need to write out a batch of records
              if (getSplitSize() > 0 && counter >= getSplitSize()) {               
                 
-                System.out.println("\nsaving xml batch "+ destXmlFile);
                 try {
                    if (writer != null) writer.close();                   
                 } catch (Exception ex) {
@@ -281,7 +280,7 @@ public class MrcToXmlConverter {
        
        FileUtils.deleteQuietly(f);
        
-       System.out.println("\nTotal record count: "+ total);          
+       System.out.println("\nFile record count: "+ total);
        return f001list;
         
     }
