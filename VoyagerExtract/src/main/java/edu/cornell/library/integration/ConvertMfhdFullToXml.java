@@ -2,10 +2,6 @@ package edu.cornell.library.integration;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -110,18 +105,18 @@ public class ConvertMfhdFullToXml {
 			e.printStackTrace();
 		}
 		// Get File handle for saving mfhdid list
-		File fh = new File(
-				"/usr/local/src/integrationlayer/VoyagerExtract/mfhds-full-"
-						+ getTodayString() + ".txt");
-		FileOutputStream fout = null;
-		try {
-			fout = new FileOutputStream(fh);
-		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		List<String> mfhdlist = new ArrayList<String>();
-		
+/* We might want to restore the tracking of id lists in the future, but differently.
+ *		File fh = new File(
+ *				"/usr/local/src/integrationlayer/VoyagerExtract/mfhds-full-"
+ *						+ getTodayString() + ".txt");
+ *		FileOutputStream fout = null;
+ *		try {
+ *			fout = new FileOutputStream(fh);
+ *		} catch (FileNotFoundException e2) {
+ *			// TODO Auto-generated catch block
+ *			e2.printStackTrace();
+ *		}
+ *		List<String> mfhdlist = new ArrayList<String>();  */		
 		MrcToXmlConverter converter = new MrcToXmlConverter();
 		converter.setSrcType("mfhd");
 		converter.setExtractType("full");
@@ -131,17 +126,13 @@ public class ConvertMfhdFullToXml {
 		if (srcList.size() == 0) {
 			System.out.println("No Full Marc files available to process");
 		} else {
-			String seqno = "";
 			for (String srcFile : srcList) {
 				System.out.println("Converting mrc file: "+ srcFile);
 				try {
-					seqno = getSequenceFromFileName(srcFile);
-					converter.setSequence_prefix(seqno);
-
-					mfhdlist = converter.convertMrcToXml(davService, srcDir, srcFile);
-					if (mfhdlist.size() > 0 ) {
-					   saveMfhdList(fout, mfhdlist);
-					}
+					converter.convertMrcToXml(davService, srcDir, srcFile);
+/*					if (mfhdlist.size() > 0 ) {
+ *					   saveMfhdList(fout, mfhdlist); 
+ *					} */
 				} catch (Exception e) {
 					try {
 						System.out
@@ -154,15 +145,15 @@ public class ConvertMfhdFullToXml {
 				}
 			}
 		}
-		
-		if (fout != null) {
-			try {
-				fout.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+/*		
+ *		if (fout != null) {
+ *			try {
+ *				fout.close();
+ *			} catch (IOException e) {
+ *				// TODO Auto-generated catch block
+ *				e.printStackTrace();
+ *			}
+ *		} */
 
 	}
    
@@ -176,26 +167,7 @@ public class ConvertMfhdFullToXml {
    protected  InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
       byte[] bytes = str.getBytes("UTF-8");
       return new ByteArrayInputStream(bytes);   
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getSequenceFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
-   }
-       
+   }       
    
    /**
     * @return

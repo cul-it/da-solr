@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -119,17 +118,9 @@ public class ConvertMarcToXml {
       if (srcList.size() == 0) {
          System.out.println("No Marc files available to process");
       } else {
-         String seqno = "";
          for (String srcFile  : srcList) {
             System.out.println("Converting mrc file: "+ srcFile);
    			try {
-   			              
-   			   seqno = getSequenceFromFileName(srcFile, extractType);
-   			   //System.out.println("seqno: "+seqno);
-               converter.setSequence_prefix(seqno);
-               if (extractType.equals("updates")){
-                  converter.setItemId(seqno);
-               }
    				converter.convertMrcToXml(davService, srcDir, srcFile);
    			} catch (Exception e) {
    			   try {
@@ -155,37 +146,7 @@ public class ConvertMarcToXml {
       byte[] bytes = str.getBytes("UTF-8");
       return new ByteArrayInputStream(bytes);   
    }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile, String extractType) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      if (extractType.equals("updates")) {
-         return tokens[2];
-      } else {
-         return tokens[1];
-      }
-
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getSequenceFromFileName(String srcFile, String extractType) {
       
-      String[] tokens = StringUtils.split(srcFile, ".");
-      if (extractType.equals("updates")) {
-         return tokens[1];
-      } else if (extractType.equals("daily"))  {
-         return tokens[2]+"_"+tokens[3];
-      } else {
-         return tokens[2];   
-      }
-   }
-       
    
    /**
     * @return

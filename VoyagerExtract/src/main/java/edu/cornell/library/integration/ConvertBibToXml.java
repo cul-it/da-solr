@@ -98,7 +98,6 @@ public class ConvertBibToXml {
       converter.setSrcType("bib");
       converter.setExtractType("single");
       converter.setSplitSize(0);
-      converter.setSequence_prefix(bibid);
       try {            
           
          String srcFile = bibid + ".mrc";       

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -128,12 +127,9 @@ public class ConvertBibFullToXml {
 		if (srcList.size() == 0) {
 			System.out.println("No Full Marc files available to process");
 		} else {
-			String seqno = "";
 			for (String srcFile : srcList) {
 				System.out.println("Converting mrc file: "+ srcFile);
 				try {
-					seqno = getSequenceFromFileName(srcFile);
-					converter.setSequence_prefix(seqno);
 					converter.convertMrcToXml(davService, srcDir, srcFile);
 /*					biblist = converter.convertMrcToXml(davService, srcDir,
  *							srcFile);
@@ -172,27 +168,8 @@ public class ConvertBibFullToXml {
       byte[] bytes = str.getBytes("UTF-8");
       return new ByteArrayInputStream(bytes);   
    }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[1];
+      
 
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getSequenceFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];
-   }
-       
-   
    /**
     * @return
     */

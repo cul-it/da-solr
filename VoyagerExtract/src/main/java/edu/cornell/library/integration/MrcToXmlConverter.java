@@ -54,9 +54,6 @@ public class MrcToXmlConverter {
     /** split output file into this many records. Set to 0 for no splits. */
     private int splitSize = 10000;
     
-    /** prefix to use in sequence string in output file name */
-    private String sequence_prefix = "0";
-    
     /** holds a bibid, mfid, or other unique id for single or updates conversions */
     private String itemId = "";
         
@@ -110,20 +107,6 @@ public class MrcToXmlConverter {
      */
     public void setConvertEncoding(String convertEncoding) {
        this.convertEncoding = convertEncoding;
-    }
-
-    /**
-     * @return the sequence_prefix
-     */
-    public String getSequence_prefix() {
-       return this.sequence_prefix;
-    }
-
-    /**
-     * @param sequence_prefix the sequence_prefix to set
-     */
-    public void setSequence_prefix(String sequence_prefix) {
-       this.sequence_prefix = sequence_prefix;
     }
     
     /**
@@ -203,7 +186,7 @@ public class MrcToXmlConverter {
        /** record counter */
        int counter = 0;
        int total = 0;
-       int batch = 0;      
+       int batch = 1;      
        Record record = null;
        String destXmlFile = new String();
        String tmpFilePath = getTmpDir() + "/"+ srcFile;
@@ -217,7 +200,7 @@ public class MrcToXmlConverter {
        List<String> f001list = new ArrayList<String>();
        reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
         
-       destXmlFile = getOutputFileName(0);
+       destXmlFile = getOutputFileName(batch);
        writer = getWriter(destXmlFile);       
        
        if (normalize == true) {
@@ -271,7 +254,7 @@ public class MrcToXmlConverter {
                 moveXmlToDav(davService, destDir, destXmlFile);
                 batch++; 
                  
-                destXmlFile = getOutputFileName(counter * batch);
+                destXmlFile = getOutputFileName(batch);
                 writer = getWriter(destXmlFile); 
                 counter = 0;
              } // end writing batch   
@@ -305,26 +288,11 @@ public class MrcToXmlConverter {
     
     // this method figures out what the output file name should be
     private String getOutputFileName(int batch) {
-       String sequence = new String();
        
-       if (getExtractType().equals("single") ) {
-    	   return getSrcType() +"."+ getItemId() +".xml";
-       } else if (getExtractType().equals("updates")) {
+       if (getExtractType().equals("updates") || getExtractType().equals("single")) {
     	   return fileNameRoot + ".xml";
-       } else if (getExtractType().equals("daily")) {
-          if (batch == 0) {
-             sequence = String.valueOf(getSequence_prefix()) +"_1";   
-          } else {
-             sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
-          }
-          return getSrcType() +"."+ sequence +".xml";
-       } else if (getExtractType().equals("full")) {
-          if (batch == 0) {
-             sequence = String.valueOf(getSequence_prefix()) +"_1";   
-          } else {
-             sequence = String.valueOf(getSequence_prefix()) +"_"+ String.valueOf(batch);
-          }
-          return getSrcType() +"."+ sequence +".xml";
+       } else if (getExtractType().equals("full") || getExtractType().equals("daily")) {
+    	   return fileNameRoot + "." + batch + ".xml";
        }
        return null;
     } 
