@@ -18,7 +18,6 @@ and => et
 # computer languages
 # these are explicit mappings so when WDF drops the non-letter chars, c++ is not equivalent to c
 c++ => cplusplus
-j#, j♯ => jsssharp
 # c# and f# are music keys as well as computer languages
 
 # musical keys

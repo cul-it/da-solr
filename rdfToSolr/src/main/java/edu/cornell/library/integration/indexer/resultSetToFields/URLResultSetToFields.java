@@ -89,20 +89,38 @@ public class URLResultSetToFields implements ResultSetToFields {
 				sb.append(z);
 			}
 			String comment = sb.toString().trim();
-			String lc_comment = comment.toLowerCase();
-			if (lc_comment.contains("table of contents")
-					|| lc_comment.contains("tables of contents")
-					|| lc_comment.endsWith(" toc")
-					|| lc_comment.contains(" toc ")
-					|| lc_comment.startsWith("toc ")
-					|| lc_comment.equals("toc")
-					|| lc_comment.contains("cover image")
-					|| lc_comment.contains("publisher description")
-					|| lc_comment.contains("contributor biographical information")
-					|| lc_comment.contains("sample text")) {
+			String lc = comment.toLowerCase();
+			if (lc.contains("table of contents")
+					|| lc.contains("tables of contents")
+					|| lc.endsWith(" toc")
+					|| lc.contains(" toc ")
+					|| lc.startsWith("toc ")
+					|| lc.equals("toc")
+					|| lc.contains("cover image")
+					|| lc.equals("cover")
+					|| lc.contains("publisher description")
+					|| lc.contains("contributor biographical information")
+					|| lc.contains("inhaltsverzeichnis")  //table of contents
+					|| lc.contains("beschreibung") // description
+					|| lc.contains("klappentext") // blurb
+					|| lc.contains("buchcover")
+					|| lc.contains("rezension") // review
+					|| lc.contains("publisher's summary")
+					|| lc.contains("executive summary")
+					|| lc.startsWith("summary")
+					|| lc.startsWith("about the")
+					|| lc.contains("additional information")
+					|| lc.contains("'s website") // eg author's website, publisher's website
+					|| lc.startsWith("companion") // e.g. companion website
+					|| lc.contains("review") // eg book review, Connect to reviews of this title online
+					|| lc.contains("record available for display")
+					|| lc.startsWith("related") // related web site, related electronic resource...
+					|| lc.contains("Internet Movie Database")
+					|| lc.contains("more information")
+					|| lc.contains("sample text")) {
 				relation = "other";
 			}
-			if (lc_comment.contains("finding aid"))
+			if (lc.contains("inding aid"))
 				relation = "findingaid";
 			for (String u: us) {
 				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
