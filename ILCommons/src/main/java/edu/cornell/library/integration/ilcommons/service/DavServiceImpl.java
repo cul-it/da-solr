@@ -83,6 +83,7 @@ public class DavServiceImpl implements DavService {
                     filelist.add(res.getName());
                 }
             }
+            java.util.Collections.sort(filelist);
             return filelist;
         }catch (IOException e){
             throw new IOException( "Problem while trying to get file list from " + url ,e);
@@ -108,6 +109,7 @@ public class DavServiceImpl implements DavService {
                     filelist.add(scheme + "://" + host +  uri.getPath());
                 }
             }
+            java.util.Collections.sort(filelist);
             return filelist;
         }catch (IOException e){
             throw new Exception( "Problem while trying to get file list from " + url ,e);
