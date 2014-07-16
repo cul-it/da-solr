@@ -143,6 +143,7 @@ task (ConvertBibDailyToXml, dependsOn:'assemble', type: JavaExec){
 }
    
 task (ConvertBibFullToXml, dependsOn:'assemble', type: JavaExec){
+ group="Full Build Steps"
  description='Run ConvertBibFullToXml'
  main='edu.cornell.library.integration.ConvertBibFullToXml'
  classpath = sourceSets.main.runtimeClasspath
@@ -161,6 +162,7 @@ task (ConvertMfhdDailyToXml, dependsOn:'assemble', type: JavaExec){
 }
    
 task (ConvertMfhdFullToXml, dependsOn:'assemble', type: JavaExec){
+ group="Full Build Steps"
  description='Run ConvertMfhdFullToXml'
  main='edu.cornell.library.integration.ConvertMfhdFullToXml'
  classpath = sourceSets.main.runtimeClasspath
