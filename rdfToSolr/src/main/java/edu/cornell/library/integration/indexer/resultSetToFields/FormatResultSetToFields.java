@@ -118,8 +118,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		Iterator<String> i = sf245hs.iterator();
 		while (i.hasNext())
 			if (i.next().toLowerCase().contains("[electronic resource]")) {
-//				online = true;
-//				if (debug) System.out.println("Online status due to 245h: [electronic resource].");
 				Iterator<String> j = sf948fs.iterator();
 				while (j.hasNext())
 					if (j.next().toLowerCase().equals("j")) {
@@ -160,13 +158,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 			}
 		}
 
-/*		i = sf948fs.iterator();
- *		while (i.hasNext())
- *			if (i.next().toLowerCase().equals("ebk")) {
- *				online = true;
- *				if (debug) System.out.println("Online due to 948f: ebk.");
- *			}
- */
 		if (format == null) {
 			if (record_type.equals("a")) {
 				if ((bibliographic_level.equals("a"))
@@ -272,11 +263,6 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
 				}
 			}
-		}
-		
-		
-		if (online) {
-			System.out.println("Online flag incorrectly applied for reason other than 'serv,remo' flag in mfhd.");
 		}
 		
 		if (loccodes.contains("serv,remo")) {
