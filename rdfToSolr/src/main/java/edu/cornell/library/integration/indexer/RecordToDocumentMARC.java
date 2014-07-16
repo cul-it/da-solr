@@ -436,7 +436,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?sf marcrdf:code ?c.\n" +
 			        	"  ?sf marcrdf:value ?v. }").
 		        addResultSetToFields( new URLResultSetToFields()),
-
+		        
+		        new SPARQLFieldMakerImpl().
+		        	setName("database codes").
+		        	addMainStoreQuery("url instructions", 
+		        		"SELECT *\n" +
+		        		" WHERE {\n" +
+		        		"  $recordURI$ marcrdf:hasField856 ?f.\n" +
+		        		"  ?f marcrdf:hasSubfield ?sf.\n" +
+		        		"  ?sf marcrdf:code \"i\".\n" +
+		        		"  ?sf marcrdf:value ?v. }").
+		        	addResultSetToFields( new DBCodeRSTF()),
+	        
+	        
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
 			        addMainStoreQuery("location",
