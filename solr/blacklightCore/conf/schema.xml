@@ -306,6 +306,10 @@
     <!-- default, catch all search field -->
     <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
+	<!-- fields used for back-end linking of license data for databases -->
+    <field name="dbcode" type="string" indexed="false" stored="true" multiValued="true"/>
+    <field name="providercode" type="string" indexed="false" stored="true" multiValued="true"/>
+
     <!-- these display fields are NOT multi-valued -->
     <field name="marc_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="title_display" type="string" indexed="false" stored="true" multiValued="false"/>
