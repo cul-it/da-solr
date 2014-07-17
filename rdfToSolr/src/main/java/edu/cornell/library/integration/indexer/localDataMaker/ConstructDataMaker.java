@@ -6,7 +6,6 @@ import java.util.List;
 
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeSet;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFQueryService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService.ModelSerializationFormat;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;

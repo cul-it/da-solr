@@ -32,7 +32,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
-
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import com.google.common.io.Files;
@@ -48,6 +47,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
+
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -203,6 +203,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 
 	// Open Connection to the Voyager Oracle Database
+	@SuppressWarnings("unused")
 	public static Connection openConnection() {
         Connection connection = null;
         

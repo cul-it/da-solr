@@ -7,7 +7,6 @@ import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SubfieldCodeMaker;
 import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
-import edu.cornell.library.integration.indexer.resultSetToFields.ExampleResultSetToFields;
 
 /**
  * An example RecordToDocument implementation. 
@@ -16,13 +15,13 @@ public class RecordToDocumentTest1 extends RecordToDocumentBase {
 	
 	@Override
 	List<? extends FieldMaker> getFieldMakers() {
-		String badquery = 
-		"PREFIX marcrdf:  <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
-	    "SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2)    \n"+ 
-	    "WHERE { <http://da-rdf.library.cornell.edu/individual/b4722> marcrdf:hasField ?f. \n"+ 
-	    "        ?f marcrdf:tag \"008\".\n"+
-	    "        ?f marcrdf:value ?val }  ";
-
+/*		String badquery = 
+ *		"PREFIX marcrdf:  <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
+ *	    "SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2)    \n"+ 
+ *	    "WHERE { <http://da-rdf.library.cornell.edu/individual/b4722> marcrdf:hasField ?f. \n"+ 
+ *	    "        ?f marcrdf:tag \"008\".\n"+
+ *	    "        ?f marcrdf:value ?val }  ";
+ */
 		
 		return Arrays.asList(
 				

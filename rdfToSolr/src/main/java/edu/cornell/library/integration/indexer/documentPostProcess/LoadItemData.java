@@ -30,6 +30,7 @@ public class LoadItemData implements DocumentPostProcess{
 	final static Boolean debug = false;
 	Map<Integer,Location> locations = new HashMap<Integer,Location>();
 	
+	@SuppressWarnings("unused")
 	@Override
 	public void p(String recordURI, RDFService mainStore,
 			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
@@ -57,7 +58,8 @@ public class LoadItemData implements DocumentPostProcess{
 		        	while (rs.next()) {
 			        	   
 		        		ObjectMapper mapper = new ObjectMapper();
-		        		Map<String,Object> record = mapper.readValue(rs.getString("json"),Map.class);
+		        		@SuppressWarnings("unchecked")
+						Map<String,Object> record = mapper.readValue(rs.getString("json"),Map.class);
 		        		ArrayList<String> locationFields = new ArrayList<String>();
 		        		locationFields.add("temp_location");
 		        		locationFields.add("perm_location");

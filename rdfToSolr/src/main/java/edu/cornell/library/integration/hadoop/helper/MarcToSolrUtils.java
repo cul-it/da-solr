@@ -26,6 +26,7 @@ public class MarcToSolrUtils {
 			out.write(s );
 			out.write('\n');
 		}
+		out.close();
 	}
 	
 	public static List<String> getLinksFromPage(String urlOfIndex) throws  IOException{
