@@ -72,7 +72,7 @@ public class OracleTest {
      public static void describeTable(Connection conn, String table) {
         ResultSet rs = null;
         HashMap<String, String> columns = new HashMap<String, String>();
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            dbmeta = conn.getMetaData();
            rs = dbmeta.getColumns(null,"CORNELLDB",table,null);
@@ -84,7 +84,7 @@ public class OracleTest {
               String columnName = rs.getString("COLUMN_NAME");
               String typeName = rs.getString("TYPE_NAME");
               String columnSize = rs.getString("COLUMN_SIZE");
-              String digits = rs.getString("DECIMAL_DIGITS");
+//              String digits = rs.getString("DECIMAL_DIGITS");
               String columnType = new String();
               if (typeName.equals("VARCHAR2") || typeName.equals("CHAR") || typeName.equals("DATE")) {
                  columnType = typeName + "("+columnSize+")";
@@ -106,9 +106,9 @@ public class OracleTest {
            }catch (Exception ex) {}
         }
         System.out.println("Table: "+table);
-        Iterator iter = columns.keySet().iterator();
+        Iterator<String> iter = columns.keySet().iterator();
         while (iter.hasNext()) {
-            String key = (String) iter.next();
+            String key = iter.next();
             String value = columns.get(key);
             System.out.println("\t"+key+" "+value );
         }
@@ -117,7 +117,7 @@ public class OracleTest {
 
      public static void getPrimaryKeys(Connection conn, String table) {
         ResultSet rs = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            dbmeta = conn.getMetaData();
            rs = dbmeta.getPrimaryKeys(null,"CORNELLDB",table);
@@ -137,7 +137,7 @@ public class OracleTest {
         Statement stmt = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            stmt = conn.createStatement();
            String sql = "SELECT * FROM CORNELLDB.CIRC_TRANSACTIONS WHERE CORNELLDB.CIRC_TRANSACTIONS.ITEM_ID = " +bibid;
@@ -168,7 +168,7 @@ public class OracleTest {
         Statement stmt = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            stmt = conn.createStatement();
 
@@ -208,7 +208,7 @@ public class OracleTest {
         Statement stmt = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            stmt = conn.createStatement();
 
@@ -250,7 +250,7 @@ public class OracleTest {
         Statement stmt = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            stmt = conn.createStatement();
 
@@ -289,7 +289,7 @@ public class OracleTest {
         Statement stmt = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
-        HashMap<String, String> keys = new HashMap<String, String>();
+//        HashMap<String, String> keys = new HashMap<String, String>();
         try {
            stmt = conn.createStatement();
 
