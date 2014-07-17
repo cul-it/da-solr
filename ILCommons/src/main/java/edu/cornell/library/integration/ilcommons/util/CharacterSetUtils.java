@@ -37,4 +37,24 @@ public class CharacterSetUtils {
 		return m.find();
 	}
 
+	/*
+	 * Java's built-in String.trim() method trims leading and trailing whitespace, but only
+	 * looks for whitespace characters within ASCII ranges. Instead, we want to trim all the
+	 * whitespace from Unicode ranges.
+	 */
+	public static String trimInternationally( String s ) {
+		if (s == null) return null;
+		if (s.length() == 0) return s;
+		int leadingOffset = 0;
+		while (leadingOffset < s.length() &&
+				Character.isWhitespace(s.charAt(leadingOffset)))
+			leadingOffset++;
+		if (leadingOffset == s.length())
+			return ""; // No non-whitespace characters found. Return empty string
+		int trailingOffset = s.length() - 1;
+		while (Character.isWhitespace(s.charAt(trailingOffset)))
+			trailingOffset--;
+		return s.substring(leadingOffset, trailingOffset + 1);
+	}
+
 }

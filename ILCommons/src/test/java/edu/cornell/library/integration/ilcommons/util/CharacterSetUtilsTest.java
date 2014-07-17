@@ -35,4 +35,13 @@ public class CharacterSetUtilsTest {
 		assertTrue(hasCJK("Hi! How are you? シ"));
 	}
 	
+	@Test
+	public void testTrimInternationally() {
+		// tests involving standard ASCII spacing
+		assertTrue(trimInternationally(" abc ").equals("abc"));
+		assertTrue(trimInternationally("   ").equals(""));
+		assertTrue(trimInternationally("\tHello,   World !\n").equals("Hello,   World !"));
+		// CJK spacing
+		assertTrue(trimInternationally("　　俄国　东正教　侵　华　史略　").equals("俄国　东正教　侵　华　史略"));
+	}
 }

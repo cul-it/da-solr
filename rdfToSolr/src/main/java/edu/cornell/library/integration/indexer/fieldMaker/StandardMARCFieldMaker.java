@@ -156,7 +156,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				// If a "group" contains only one field, the organization is more straightforward.
 				if (fs.fields.size() == 1) {
 					DataField f = fields[0];
-					String val = concatenateSubfields(f).trim();
+					String val = trimInternationally( concatenateSubfields(f) );
 					if (val.length() == 0) continue;
 					if ((vernMode.equals(VernMode.VERNACULAR)
 							|| vernMode.equals(VernMode.SING_VERN))
@@ -192,7 +192,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					Set<String> valuesCJK = new HashSet<String>();
 					for (Integer fid: field_ids) {
 						DataField f = reordered.get(fid);
-						String value = concatenateSubfields(f).trim();
+						String value = trimInternationally( concatenateSubfields(f) );
 						if (value.length() == 0) continue;
 						if (f.tag.equals("880")) {
 							if (vernMode.equals(VernMode.SEARCH)) {
@@ -262,7 +262,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 								sb.append(" ");
 								sb.append(iMain.next());
 							}
-							String val = sb.toString().trim();
+							String val = trimInternationally( sb.toString() );
 							if (val.length() > 0)
 								fieldmap.get(solrFieldName).addValue(val, 1.0f);
 						}
