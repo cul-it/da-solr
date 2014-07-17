@@ -1,6 +1,7 @@
 	package edu.cornell.library.integration.indexer.resultSetToFields;
 	
-	import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +13,6 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 	
 	
@@ -58,16 +58,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 				return fields;
 			} else {
 				return null;
-			}
-		}
-		
-		private String nodeToString( RDFNode node){
-			if( node == null )
-				return "";
-			else if ( node.canAs( Literal.class )){
-				return ((Literal)node).getLexicalForm();			
-			}else {
-				return node.toString();
 			}
 		}
 	}

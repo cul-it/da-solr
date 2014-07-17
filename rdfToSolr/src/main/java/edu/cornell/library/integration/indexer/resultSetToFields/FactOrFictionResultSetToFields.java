@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,7 +11,6 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
@@ -64,16 +65,4 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 		return fields;
 
 	}
-
-
-	private String nodeToString( RDFNode node){
-		if( node == null )
-			return "";
-		else if ( node.canAs( Literal.class )){
-			return ((Literal)node).getLexicalForm();			
-		}else {
-			return node.toString();
-		}
-	}
-
 }

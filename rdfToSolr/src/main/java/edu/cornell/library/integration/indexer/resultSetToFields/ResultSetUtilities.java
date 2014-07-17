@@ -139,10 +139,8 @@ public class ResultSetUtilities {
 			Resource res = qs.getResource("value");
 			if( res != null ){
 				throw new Exception("findValueByKey() requires a column named 'value', " +
-						"but none was found in columns: " + getVarNames(qs));				
-			}else if( res.getURI()!= null){
-				return res.getURI();
-			}else{
+						"but none was found in columns: " + getVarNames(qs));
+ 			}else{
 				return null;
 			}
 		}
