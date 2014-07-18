@@ -263,11 +263,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    	addResultSetToFields( new PubInfoResultSetToFields()),
 				
 			    // publisher_display and pubplace_display from field 260 handled by PubInfoResultSetToField
-			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED,"/:, "),
+			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED,"/:,， "),
 				new StandardMARCFieldMaker("publisher_t","260","b",VernMode.SEARCH),
 				new StandardMARCFieldMaker("publisher_t","264","b",VernMode.SEARCH),
 					
-				new StandardMARCFieldMaker("pubplace_display","260","a",VernMode.COMBINED,"/:, "),
+				new StandardMARCFieldMaker("pubplace_display","260","a",VernMode.COMBINED,"/:,， "),
 				new StandardMARCFieldMaker("pubplace_t","260","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("pubplace_t","264","a",VernMode.SEARCH),
 
@@ -277,7 +277,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("title_addl_t","222","ab",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","242","abnp",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","243","abcdefgklmnopqrs",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","245","abnps",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_245c_t","245","c",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","246","abcdefgklmnopqrs",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp",VernMode.SEARCH),
@@ -361,10 +360,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
 			    		"      }\n").
 			    	addResultSetToFields( new TitleResultSetToFields()),
-			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:/ "),
-			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
-			    new StandardMARCFieldMaker("fulltitle_display","245","abdefgknpqsv",VernMode.SING_VERN,".,;:/ "),
-			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:/ "),
+			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:：/／= "),
+			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:：/／ "),
+			    new StandardMARCFieldMaker("fulltitle_display","245","abdefgknpqsv",VernMode.SING_VERN,".,;:：/／ "),
+			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:：/／ "),
 			    new StandardMARCFieldMaker("title_t","245","abdefgknpqsv",VernMode.SEARCH,".,;:/ "),
 			    	
 			    new SPARQLFieldMakerImpl().
