@@ -79,12 +79,12 @@ public class IndexRecordListComparison {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
-						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
 						if (0 == (solrIndexBibList.size() % 500_000)) {
 							System.out.println(dateFormat.format(Calendar.getInstance().getTime()) + ": " +
 									formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.");
 							System.out.flush();
 						}
+						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
 					}
 			}
 			in.close();
