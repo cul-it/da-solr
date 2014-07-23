@@ -87,6 +87,8 @@ public class IndexRecordListComparison {
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
 					}
 			}
+			System.out.println(dateFormat.format(Calendar.getInstance().getTime()) + ": " +
+					formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.");
 			in.close();
 			System.out.println("Current index contains:");
 			System.out.println("\tbib records: "+solrIndexBibList.size());
