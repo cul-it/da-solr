@@ -69,18 +69,18 @@ public class IndexRecordListComparison {
 
 		//Compile lists of BIB and MFHD ids in Solr.
 		try {
-			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=false&qt=standard&fl=id,holdings_display,item_display&rows=10000000");
+			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=false&qt=standard&fl=id,holdings_display,item_display&rows=100000000");
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
-			DecimalFormat formatter = new DecimalFormat("##,###,###");
+			DecimalFormat formatter = new DecimalFormat("###,###,###");
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			while (reader.hasNext()) {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
-						if (0 == (solrIndexBibList.size() % 100_000)) {
+						if (0 == (solrIndexBibList.size() % 500_000)) {
 							System.out.println(dateFormat.format(Calendar.getInstance().getTime()) + ": " +
 									formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.");
 							System.out.flush();
