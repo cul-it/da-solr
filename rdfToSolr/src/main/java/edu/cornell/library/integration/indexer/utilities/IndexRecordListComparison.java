@@ -65,18 +65,17 @@ public class IndexRecordListComparison {
 
 		//Compile lists of BIB and MFHD ids in Solr.
 		try {
-			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=true&qt=standard&fl=id,holdings_display,item_display&rows=10000000");
+			URL queryUrl = new URL(solrCoreURL + "/select?q=id%3A*&wt=xml&indent=false&qt=standard&fl=id,holdings_display,item_display&rows=10000000");
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
-			int records = 0;
 			while (reader.hasNext()) {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
-						if (0 == (++records % 100_000))
-							System.out.println(records + " Solr docs ID'd.");
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
+						if (0 == (solrIndexItemList.size() % 10_000))
+							System.out.println(solrIndexItemList.size() + " Solr docs ID'd.");
 					}
 			}
 			in.close();
