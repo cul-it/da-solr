@@ -7,7 +7,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,13 +74,15 @@ public class IndexRecordListComparison {
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
 			DecimalFormat formatter = new DecimalFormat("##,###,###");
+			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			while (reader.hasNext()) {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
-						if (0 == (solrIndexBibList.size() % 1_000)) {
-							System.out.print(formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.\r");
+						if (0 == (solrIndexBibList.size() % 100_000)) {
+							System.out.println(dateFormat.format(Calendar.getInstance().getTime()) + ": " +
+									formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.");
 							System.out.flush();
 						}
 					}
