@@ -74,8 +74,8 @@ public class IndexRecordListComparison {
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
-						if (0 == (solrIndexItemList.size() % 10_000))
-							System.out.println(solrIndexItemList.size() + " Solr docs ID'd.");
+						if (0 == (solrIndexBibList.size() % 10_000))
+							System.out.println(solrIndexBibList.size() + " Solr docs ID'd.");
 					}
 			}
 			in.close();
