@@ -86,7 +86,7 @@ public class LoadItemData implements DocumentPostProcess{
 		           System.out.println(query);
 		           System.out.println(ex.getMessage());
 		        } catch (Exception ex) {
-		           System.out.println(ex.getMessage());   
+		        	ex.printStackTrace();
 		        } finally {
 		       
 		           try {
@@ -159,7 +159,7 @@ public class LoadItemData implements DocumentPostProcess{
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
 	        } catch (Exception ex) {
-	           System.out.println(ex.getMessage());   
+	        	ex.printStackTrace();
 	        } finally {
 	       
 	           try {

@@ -23,7 +23,6 @@ public class NoAccessUrlsUnlessOnline implements DocumentPostProcess {
 		
 		if (! document.containsKey(accessField))
 			return; // without access links, we have nothing to reclassify in any case
-		System.out.println("We have access links.");
 		
 		if (document.containsKey(onlineField)) {
 			SolrInputField field = document.getField( onlineField );
@@ -31,7 +30,6 @@ public class NoAccessUrlsUnlessOnline implements DocumentPostProcess {
 				if ( o.toString().equals("Online") )
 					return; // for online resource, we change nothing
 		}
-		System.out.println("But the resource isn't online!! 🙀");
 
 		SolrInputField combinedLinks;
 		if (document.containsKey(otherField)) {
