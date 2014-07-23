@@ -69,11 +69,15 @@ public class IndexRecordListComparison {
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
+			int records = 0;
 			while (reader.hasNext()) {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
-					if (reader.getLocalName().equals("doc"))
+					if (reader.getLocalName().equals("doc")) {
+						if (0 == (++records % 100_000))
+							System.out.println(records + " Solr docs ID'd.");
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
+					}
 			}
 			in.close();
 			System.out.println("Current index contains:");
