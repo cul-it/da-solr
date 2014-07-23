@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,20 +70,23 @@ public class IndexRecordListComparison {
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 			InputStream in = queryUrl.openStream();
 			XMLStreamReader reader  = inputFactory.createXMLStreamReader(in);
+			DecimalFormat formatter = new DecimalFormat("##,###,###");
 			while (reader.hasNext()) {
 				String event = getEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
 						processDoc(reader,solrIndexBibList,solrIndexMfhdList, solrIndexItemList);
-						if (0 == (solrIndexBibList.size() % 10_000))
-							System.out.println(solrIndexBibList.size() + " Solr docs ID'd.");
+						if (0 == (solrIndexBibList.size() % 1_000)) {
+							System.out.print(formatter.format(solrIndexBibList.size()) + " Solr docs ID'd.\r");
+							System.out.flush();
+						}
 					}
 			}
 			in.close();
 			System.out.println("Current index contains:");
 			System.out.println("\tbib records: "+solrIndexBibList.size());
 			System.out.println("\tmfhd records: "+solrIndexMfhdList.size());
-			System.out.println("\titem recourds: "+solrIndexItemList.size());
+		//	System.out.println("\titem recourds: "+solrIndexItemList.size());
 		} catch( Exception e){
 		    throw new Exception("Could not query Solr and/or parse the results. Solr URL: " + solrCoreURL, e);
 		}
