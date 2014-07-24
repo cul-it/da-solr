@@ -148,6 +148,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"       ?f marcrdf:hasSubfield ?sf948.\n" +
 							"       ?sf948 marcrdf:code \"h\".\n" +
 							"       ?sf948 marcrdf:value ?sf948h. }").
+					addMainStoreQuery("shadow_rec_mfhd",
+							"SELECT ?sf852x\n" +
+							" WHERE {?h marcrdf:hasBibliographicRecord $recordURI$.\n" +
+							"        ?h marcrdf:hasField852 ?f.\n" +
+							"        ?f marcrdf:hasSubfield ?sf.\n" +
+							"        ?sf marcrdf:code \"x\".\n" +
+							"        ?sf marcrdf:value ?sf852x. }").
 				    addResultSetToFields( new RecordTypeRSTF() ),                  
 				    		
 				new SPARQLFieldMakerImpl().

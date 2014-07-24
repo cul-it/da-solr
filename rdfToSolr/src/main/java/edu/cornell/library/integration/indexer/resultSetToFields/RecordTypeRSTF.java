@@ -35,6 +35,7 @@ public class RecordTypeRSTF implements ResultSetToFields {
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		Collection<String> sf948hs = new HashSet<String>();
+		Collection<String> sf852xs = new HashSet<String>();
 		Boolean isShadow = false;
 		
 
@@ -52,7 +53,11 @@ public class RecordTypeRSTF implements ResultSetToFields {
 						if (name.equals("sf948h")) {
 							sf948hs.add(nodeToString( node ));
 							if (debug) System.out.println("sf948h = "+nodeToString( node ));
+						} else if (name.equals("sf852x")) {
+							sf852xs.add(nodeToString( node ));
+							if (debug) System.out.println("sf852x = "+nodeToString( node ));
 						}
+
 					}
 				}
 			}
@@ -64,7 +69,13 @@ public class RecordTypeRSTF implements ResultSetToFields {
 				isShadow = true;
 				if (debug) System.out.println("type:Shadow due to 948‡h = \"PUBLIC SERVICES SHADOW RECORD\".");
 			}
-
+		i = sf852xs.iterator();
+		while (i.hasNext())
+			if (i.next().toLowerCase().equals("public services shadow record")) {
+				isShadow = true;
+				if (debug) System.out.println("type:Shadow due to mfhd 852‡x = \"PUBLIC SERVICES SHADOW RECORD\".");
+			}
+		
 		if (isShadow) {
 			addField(fields,"type","Shadow");
 		} else {
