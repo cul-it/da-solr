@@ -47,13 +47,13 @@ public class ConfirmSolrIndexCompleteness  {
 	 * This main method takes the standard command line parameters
 	 * for VoyagerToSolrConfiguration. 
 	 */
-	public static int main(String[] args) throws Exception  {
+	public static void main(String[] args) throws Exception  {
         VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
         if (numberOfMissingBibs == 0) 
         	optimizeIndex( config.getSolrUrl() );
-        return numberOfMissingBibs;  //any bibs missing from index should cause failure status
+        System.exit(numberOfMissingBibs);  //any bibs missing from index should cause failure status
 	}
 	
 	public int doCompletnessCheck(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
