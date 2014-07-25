@@ -46,7 +46,7 @@ public class IndexingUtilities {
 		
 	}
 	
-	public static String substitueInRecordURI(String recordURI, String query) {
+	public static String substituteInRecordURI(String recordURI, String query) {
 		if( query == null )
 			return null;			
 		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		

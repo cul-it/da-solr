@@ -66,7 +66,7 @@ public class RecordExtract {
 			if( is == null ) 
 				throw new Exception("Cannot find resource " + fname);
 			String q = IOUtils.toString(is,"UTF-8");
-			queries.add(IndexingUtilities.substitueInRecordURI(recordURI, q));
+			queries.add(IndexingUtilities.substituteInRecordURI(recordURI, q));
 		}
 		return queries;
 	}

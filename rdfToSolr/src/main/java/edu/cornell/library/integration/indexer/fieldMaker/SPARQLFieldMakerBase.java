@@ -84,7 +84,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 			if( queries != null ){
 				for( String queryName : queries.keySet()){			
 					String query = queries.get(queryName);
-					query = substitueInRecordURI( recordURI, query );
+					query = substituteInRecordURI( recordURI, query );
 					debugLocalQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, localStore);
 					results.put(queryName, rs);			
@@ -103,7 +103,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 							querybuild.append("PREFIX " + prefix + ":  <" + this.defaultPrefixes.get(prefix) + ">\n");
 						}
 					}
-					querybuild.append(substitueInRecordURI( recordURI, queries.get(queryName) ));
+					querybuild.append(substituteInRecordURI( recordURI, queries.get(queryName) ));
 					String query = querybuild.toString();
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);

@@ -28,7 +28,7 @@ public class ConstructDataMaker implements LocalDataMaker{
 		for( String construct : SPARQLConstructs ){			
 			ChangeSet changes = localStore.manufactureChangeSet();
 			
-			String query = IndexingUtilities.substitueInRecordURI(recordURI, construct);
+			String query = IndexingUtilities.substituteInRecordURI(recordURI, construct);
 			InputStream is = mainStore.sparqlConstructQuery(query, format);
 			
 			changes.addAddition(is, format, (String)null);
