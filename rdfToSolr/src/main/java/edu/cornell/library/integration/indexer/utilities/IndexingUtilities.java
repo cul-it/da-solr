@@ -25,7 +25,7 @@ public class IndexingUtilities {
 	
 	public static void optimizeIndex( String solrCoreURL ) {
 		try {
-			URL queryUrl = new URL(solrCoreURL + "/");
+			URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
 			InputStream in = queryUrl.openStream();
 			BufferedReader buff = new BufferedReader(new InputStreamReader(in));
 			String line;
