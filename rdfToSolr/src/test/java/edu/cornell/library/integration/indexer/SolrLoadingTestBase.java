@@ -233,7 +233,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 			} catch (Exception e) {
 				System.out.println("Failed adding doc to solr for uri:" + uri);				
 				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
-				System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
+				System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 				throw e;
 			}
 		}

@@ -190,7 +190,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 				System.out.println("failed on uri:" + uri);
 				throw e;
 			}
-			System.out.println( IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ) );
+			System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 			try {
 				solr.add( doc );
 			} catch (Exception e) {

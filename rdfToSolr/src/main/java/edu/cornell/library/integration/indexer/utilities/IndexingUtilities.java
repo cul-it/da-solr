@@ -103,7 +103,7 @@ public class IndexingUtilities {
 	}
 
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
-	public static String prettyFormat(String input, int indent) {
+	public static String prettyXMLFormat(String input, int indent) {
 	    try {
 	        Source xmlInput = new StreamSource(new StringReader(input));
 	        StringWriter stringWriter = new StringWriter();
@@ -119,8 +119,8 @@ public class IndexingUtilities {
 	    }
 	}
 	
-	public static String prettyFormat(String input) {
-	    return prettyFormat(input, 2);
+	public static String prettyXMLFormat(String input) {
+	    return prettyXMLFormat(input, 2);
 	}
 
     
