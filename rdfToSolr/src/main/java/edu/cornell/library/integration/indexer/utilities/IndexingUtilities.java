@@ -1,7 +1,13 @@
 package edu.cornell.library.integration.indexer.utilities;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -16,6 +22,29 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
 public class IndexingUtilities {
+	
+	public static void optimizeIndex( String solrCoreURL ) {
+		try {
+			URL queryUrl = new URL(solrCoreURL + "/");
+			InputStream in = queryUrl.openStream();
+			BufferedReader buff = new BufferedReader(new InputStreamReader(in));
+			String line;
+			while ( (line = buff.readLine()) != null ) 
+				System.out.println(line);
+			buff.close();
+			in.close();
+		} catch (MalformedURLException e) {
+			// if optimization happens after indexing records, there's almost
+			// no chance of getting far enough with a bad URL to hit this.
+			e.printStackTrace();
+			System.exit(1); 
+		} catch (IOException e) {
+			System.out.println("We appear to have lost contact with Solr. Failed to optimize index.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+	}
 	
 	public static String substitueInRecordURI(String recordURI, String query) {
 		if( query == null )

@@ -16,6 +16,8 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.optimizeIndex;
+
 
 /**
  * Generate reports on:
@@ -45,10 +47,13 @@ public class ConfirmSolrIndexCompleteness  {
 	 * This main method takes the standard command line parameters
 	 * for VoyagerToSolrConfiguration. 
 	 */
-	public static void main(String[] args) throws Exception  {
+	public static int main(String[] args) throws Exception  {
         VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
-        csic.doCompletnessCheck( config.getSolrUrl() );
+        int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
+        if (numberOfMissingBibs == 0) 
+        	optimizeIndex( config.getSolrUrl() );
+        return numberOfMissingBibs;  //any bibs missing from index should cause failure status
 	}
 	
 	public int doCompletnessCheck(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
@@ -64,7 +69,7 @@ public class ConfirmSolrIndexCompleteness  {
 		return c.bibsInVoyagerNotIndex.size();
 	}	
     
-	public void  doCompletnessCheck(String coreUrl) throws Exception {
+	public int  doCompletnessCheck(String coreUrl) throws Exception {
 		
 		Path currentVoyagerBibList = null;
 		Path currentVoyagerMfhdList = null;
@@ -99,7 +104,7 @@ public class ConfirmSolrIndexCompleteness  {
 		}		
 
 		int numberOfMissingBibs = doCompletnessCheck( coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
-        System.exit(numberOfMissingBibs); //any bibs missing from index should cause failure status
+        return numberOfMissingBibs;
  	}
 
 	// Based on the IndexRecordListComparison, bib records to be updated and deleted are printed to STDOUT
