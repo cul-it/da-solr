@@ -38,9 +38,10 @@ public class IndexingUtilities {
 			e.printStackTrace();
 			System.exit(1); 
 		} catch (IOException e) {
-			System.out.println("We appear to have lost contact with Solr. Failed to optimize index.");
+			// Solr appears to return a 500 error at times and still successfully optimize the
+			// index. As such, the best we can do for the time being is print the stracktrace
+			// for reference but not report an error.
 			e.printStackTrace();
-			System.exit(1);
 		}
 		
 	}
