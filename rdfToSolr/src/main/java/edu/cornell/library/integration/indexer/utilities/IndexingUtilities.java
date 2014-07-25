@@ -24,6 +24,7 @@ import org.apache.solr.common.SolrInputField;
 public class IndexingUtilities {
 	
 	public static void optimizeIndex( String solrCoreURL ) {
+		System.out.println("Optimizing index at: "+solrCoreURL+". This may take a while...");
 		try {
 			URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
 			InputStream in = queryUrl.openStream();
@@ -34,8 +35,6 @@ public class IndexingUtilities {
 			buff.close();
 			in.close();
 		} catch (MalformedURLException e) {
-			// if optimization happens after indexing records, there's almost
-			// no chance of getting far enough with a bad URL to hit this.
 			e.printStackTrace();
 			System.exit(1); 
 		} catch (IOException e) {
