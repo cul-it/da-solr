@@ -700,6 +700,8 @@
         summary_t_cjk
         toc_t
         toc_t_cjk
+        author_245c_t
+        author_245c_t_cjk
         text
       </str>
       <str name="pf">
@@ -754,6 +756,8 @@
         notes
         notes_t
         notes_t_cjk
+        author_245c_t
+        author_245c_t_cjk
         text
       </str>
       <str name="author_qf">
@@ -761,16 +765,20 @@
         author_t^50
         author_t_cjk^50
         author_addl_unstem_search^20
-        author_addl_t
-        author_addl_t_cjk
+        author_addl_t^10
+        author_addl_t_cjk^10
+        author_245c_t
+        author_245c_t_cjk
       </str>
       <str name="author_pf">
         author_unstem_search^2000
         author_t^500
         author_t_cjk^500
         author_addl_unstem_search^200
-        author_addl_t^10
-        author_addl_t_cjk^10
+        author_addl_t^50
+        author_addl_t_cjk^50
+        author_245c_t
+        author_245c_t_cjk
       </str>
       <str name="title_qf">
         title_unstem_search^50000
