@@ -8,6 +8,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -25,6 +28,8 @@ public class IndexingUtilities {
 	
 	public static void optimizeIndex( String solrCoreURL ) {
 		System.out.println("Optimizing index at: "+solrCoreURL+". This may take a while...");
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
 		try {
 			URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
 			InputStream in = queryUrl.openStream();
@@ -38,12 +43,11 @@ public class IndexingUtilities {
 			e.printStackTrace();
 			System.exit(1); 
 		} catch (IOException e) {
-			// Solr appears to return a 500 error at times and still successfully optimize the
-			// index. As such, the best we can do for the time being is print the stracktrace
-			// for reference but not report an error.
+			// With the Apache timeout set sufficiently high, an IOException should represent an actual problem.
 			e.printStackTrace();
+			System.exit(1);
 		}
-		
+		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
 	
 	public static String substituteInRecordURI(String recordURI, String query) {
