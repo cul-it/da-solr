@@ -145,8 +145,6 @@ public class ConfirmSolrIndexCompleteness  {
 			sb.append(pair).append('\n');
 		}
 		
-		idMap.clear();
-
 		String url = reportsUrl + reportFilename;
 		
 		// Print summary to stdout
@@ -158,6 +156,8 @@ public class ConfirmSolrIndexCompleteness  {
             System.out.println("");
 		}		           
 		
+		idMap.clear();
+
 		// Save file on WEBDAV		 
 		try {
 			ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
