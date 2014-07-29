@@ -162,7 +162,8 @@ public class ConfirmSolrIndexCompleteness  {
 					new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));			
 		} catch (Exception e) {
 		    throw new Exception("Problem saving report " + url ,e);
-		}				
+		}
+		idMap.clear();
 	}
 
 	
