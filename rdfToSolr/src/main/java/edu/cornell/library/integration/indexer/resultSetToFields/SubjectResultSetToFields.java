@@ -36,7 +36,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-		boolean isFAST = false;
+		boolean recordIsFAST = false;
 		
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -47,6 +47,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
+			Boolean fieldIsFAST = false;
 		
 			String main_fields = "", dashed_fields = "", facet_topic_fields = "";
 			for (DataField f: dataFields) {
@@ -130,9 +131,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"subject_topic_facet",value);
 					if (f.ind2.equals('7'))
 						for ( Subfield sf : f.subfields.values() )
-							if (sf.code.equals('2') && sf.value.equalsIgnoreCase("fast"))
-								isFAST = true;
-					if (isFAST)
+							if (sf.code.equals('2') && sf.value.equalsIgnoreCase("fast")) {
+								recordIsFAST = true;
+								fieldIsFAST = true;
+							}
+					if (fieldIsFAST)
 						addField(solrFields,"fast_facet",value);
 				}
 			}
@@ -143,7 +146,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		}
 		
 		SolrInputField field = new SolrInputField("fast_b");
-		field.setValue(isFAST, 1.0f);
+		field.setValue(recordIsFAST, 1.0f);
 		solrFields.put("fast_b", field);
 
 		return solrFields;
