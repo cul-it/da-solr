@@ -515,44 +515,35 @@
         summary_t_cjk
         toc_t
         toc_t_cjk
+        author_245c_t
+        author_245c_t_cjk
         text
       </str>
       <str name="pf">
         title_unstem_search^1000000
         subtitle_unstem_search^500000
-        title_ngram^30000
-        title_t^250000
         title_t_cjk^250000
-        subtitle_t^100000
         subtitle_t_cjk^100000
         title_uniform_unstem_search^50000
         title_addl_unstem_search^50000
-        title_uniform_t^25000
         title_uniform_t_cjk^25000
-        title_addl_t^25000
         title_addl_t_cjk^25000
         title_added_entry_unstem_search^15000
-        title_added_entry_t^12500
         title_added_entry_t_cjk^12500
         subject_topic_unstem_search^10000
         subject_unstem_search^7500
         subject_topic_facet^6250
-        subject_t^5000
         subject_t_cjk^5000
         author_unstem_search^2500
         author_addl_unstem_search^2500
-        author_t^1000
         author_t_cjk^1000
         lc_callnum_full^1000
         publisher_t^1000
         publisher_t_cjk^1000
-        author_addl_t^500
         author_addl_t_cjk^500
         subject_addl_unstem_search^2500
-        subject_addl_t^500
         subject_addl_t_cjk^500
         title_series_unstem_search^250
-        title_series_t^100
         title_series_t_cjk^100
         isbn_t
         issn_t
@@ -569,6 +560,8 @@
         notes
         notes_t
         notes_t_cjk
+        author_245c_t
+        author_245c_t_cjk
         text
       </str>
     </lst>
@@ -707,39 +700,28 @@
       <str name="pf">
         title_unstem_search^1000000
         subtitle_unstem_search^500000
-        title_ngram^30000
-        title_t^250000
         title_t_cjk^250000
-        subtitle_t^100000
         subtitle_t_cjk^100000
         title_uniform_unstem_search^50000
         title_addl_unstem_search^50000
-        title_uniform_t^25000
         title_uniform_t_cjk^25000
-        title_addl_t^25000
         title_addl_t_cjk^25000
         title_added_entry_unstem_search^15000
-        title_added_entry_t^12500
         title_added_entry_t_cjk^12500
         subject_topic_unstem_search^10000
         subject_unstem_search^7500
         subject_topic_facet^6250
-        subject_t^5000
         subject_t_cjk^5000
         author_unstem_search^2500
         author_addl_unstem_search^2500
-        author_t^1000
         author_t_cjk^1000
         lc_callnum_full^1000
         publisher_t^1000
         publisher_t_cjk^1000
-        author_addl_t^500
         author_addl_t_cjk^500
         subject_addl_unstem_search^2500
-        subject_addl_t^500
         subject_addl_t_cjk^500
         title_series_unstem_search^250
-        title_series_t^100
         title_series_t_cjk^100
         isbn_t
         issn_t
@@ -772,10 +754,8 @@
       </str>
       <str name="author_pf">
         author_unstem_search^2000
-        author_t^500
         author_t_cjk^500
         author_addl_unstem_search^200
-        author_addl_t^50
         author_addl_t_cjk^50
         author_245c_t
         author_245c_t_cjk
@@ -802,25 +782,18 @@
         title_series_t_cjk
       </str>
       <str name="title_pf">
-        title_unstem_search^500000
-        subtitle_unstem_search^250000
-        title_uniform_unstem_search^100000
-        title_addl_unstem_search^100000
-        title_ngram^6000
-        title_t^50000
-        title_t_cjk^50000
-        subtitle_t^25000
-        subtitle_t_cjk^25000
-        title_uniform_t^1000
-        title_uniform_t_cjk^1000
-        title_addl_t^1000
-        title_addl_t_cjk^1000
-        title_added_entry_unstem_search^500
-        title_added_entry_t^100
-        title_added_entry_t_cjk^100
-        title_series_t^50
-        title_series_t_cjk^50
-        title_series_unstem_search^10
+        title_unstem_search^250000
+        subtitle_unstem_search^125000
+        title_uniform_unstem_search^50000
+        title_addl_unstem_search^50000
+        title_t_cjk^25000
+        subtitle_t_cjk^12500
+        title_uniform_t_cjk^500
+        title_addl_t_cjk^500
+        title_added_entry_unstem_search^250
+        title_added_entry_t_cjk^250
+        title_series_t_cjk^25
+        title_series_unstem_search^5
       </str>
       <str name="subject_qf">
         subject_topic_unstem_search^200
@@ -835,11 +808,9 @@
       <str name="subject_pf">
         subject_topic_unstem_search^2000
         subject_unstem_search^1250
-        subject_t^1000
         subject_t_cjk^1000
         subject_topic_facet^500
         subject_addl_unstem_search^100
-        subject_addl_t^10
         subject_addl_t_cjk^10
       </str>
       <str name="publisher_qf">
