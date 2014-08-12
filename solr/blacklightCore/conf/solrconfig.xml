@@ -637,13 +637,6 @@
       <str name="echoParams">explicit</str>      
       <str name="q.alt">*:*</str>      
       <str name="mm">100%</str>
-      <!-- this qf and pf are used by default, if not otherwise specified by
-           client. The default blacklight_config will use these for the
-           "keywords" search. See the author_qf/author_pf, title_qf, etc 
-           below, which the default blacklight_config will specify for
-           those searches. You may also be interested in:
-           http://wiki.apache.org/solr/LocalParams
-      -->
       <str name="qf">
         title_unstem_search^100000
         subtitle_unstem_search^50000
@@ -661,9 +654,7 @@
         title_added_entry_unstem_search^1500
         title_added_entry_t^1250
         title_added_entry_t_cjk^1250
-        subject_topic_unstem_search^1000
         subject_unstem_search^750
-        subject_topic_facet^625
         subject_t^500
         subject_t_cjk^500
         author_unstem_search^250
@@ -671,6 +662,7 @@
         author_t^100
         author_t_cjk^100
         lc_callnum_full^100
+        publisher_unstem_search^150
         publisher_t^100
         publisher_t_cjk^100
         author_addl_t^50
@@ -680,6 +672,53 @@
         subject_addl_t_cjk^50
         title_series_unstem_search^25
         title_series_t^10
+        title_series_t_cjk^10
+        isbn_t
+        issn_t
+        isbn_t_cjk
+        issn_t_cjk
+        donor_s
+        donor_t
+        donor_t_cjk
+        pubplace_t
+        pubplace_t_cjk
+        id_s
+        eightninenine_t
+        eightninenine_t_cjk
+        notes
+        notes_t
+        notes_t_cjk
+        summary_t
+        summary_t_cjk
+        toc_t
+        toc_t_cjk
+        author_245c_t
+        author_245c_t_cjk
+        text
+      </str>
+      <str name="quot_qf">
+        title_unstem_search^100000
+        subtitle_unstem_search^50000
+        title_t_cjk^25000   
+        subtitle_t_cjk^10000
+        title_uniform_unstem_search^5000
+        title_addl_unstem_search^5000
+        title_uniform_t_cjk^2500
+        title_addl_t_cjk^2500
+        title_added_entry_unstem_search^1500
+        title_added_entry_t_cjk^1250
+        subject_unstem_search^750
+        subject_t_cjk^500
+        author_unstem_search^250
+        author_addl_unstem_search^250
+        author_t_cjk^100
+        lc_callnum_full^100
+        publisher_unstem_search^100
+        publisher_t_cjk^100
+        author_addl_t_cjk^50
+        subject_addl_unstem_search^250
+        subject_addl_t_cjk^50
+        title_series_unstem_search^25
         title_series_t_cjk^10
         isbn_t
         issn_t
@@ -823,9 +862,7 @@
         title_series_unstem_search^10
       </str>
       <str name="subject_qf">
-        subject_topic_unstem_search^200
         subject_unstem_search^125
-        subject_topic_facet^100
         subject_t^50
         subject_t_cjk^50
         subject_addl_unstem_search^10
@@ -833,23 +870,19 @@
         subject_addl_t_cjk
       </str>
       <str name="subject_pf">
-        subject_topic_unstem_search^2000
         subject_unstem_search^1250
         subject_t^1000
         subject_t_cjk^1000
-        subject_topic_facet^500
         subject_addl_unstem_search^100
         subject_addl_t^10
         subject_addl_t_cjk^10
       </str>
-      <str name="publisher_qf">
-        publisher_t
-        publisher_t_cjk
-      </str>
-      <str name="publisher_pf">
-        publisher_t
-        publisher_t_cjk
-      </str>
+      
+      <str name="publisher_qf"> publisher_unstem_search publisher_t publisher_t_cjk </str>
+      <str name="publisher_pf"> publisher_unstem_search publisher_t publisher_t_cjk </str>
+      <str name="publisher_quot_qf"> publisher_unstem_search publisher_t_cjk </str>
+      <str name="publisher_quot_pf"> publisher_unstem_search publisher_t_cjk </str>
+
       <str name="pubplace_qf">
         pubplace_t
         pubplace_t_cjk

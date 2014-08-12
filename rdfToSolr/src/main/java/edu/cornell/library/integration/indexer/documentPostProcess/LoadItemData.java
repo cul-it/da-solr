@@ -9,7 +9,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -35,8 +37,15 @@ public class LoadItemData implements DocumentPostProcess{
 	public void p(String recordURI, RDFService mainStore,
 			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
 
-		if (! document.containsKey("holdings_display"))
+		Boolean multivol = false;
+		SolrInputField multivolField = new SolrInputField("multivol_b");
+		Collection<String> locsAndCopyNums = new HashSet<String>();
+		
+		if (! document.containsKey("holdings_display")) {
+			multivolField.setValue(multivol, 1.0f);
+			document.put("multivol_b", multivolField);
 			return;
+		}
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
@@ -72,6 +81,19 @@ public class LoadItemData implements DocumentPostProcess{
 			       						System.out.println(colname+": "+loc_id);
 			       					Location l = getLocation(recordURI,mainStore,localStore,loc_id);
 			       					record.put(colname.toLowerCase(), l);
+			        			}
+			        		}
+			        		
+			        		if (! multivol && colname.equalsIgnoreCase("item_enum")) {
+			        			String[] enums = record.get(colname).toString().split(":");
+			        			for (String s : enums) {
+			        				if (s.startsWith("v.")
+			        						|| s.startsWith("no.")
+			        						|| s.startsWith("th.")
+			        						|| s.startsWith("t.")
+			        						|| s.endsWith(" ser.")
+			        						|| s.endsWith(" ed."))
+			        					multivol = true;
 			        			}
 			        		}
 		        		}
@@ -123,6 +145,8 @@ public class LoadItemData implements DocumentPostProcess{
 	        		ObjectMapper mapper = new ObjectMapper();
 	        		Map<String,Object> record = new HashMap<String,Object>();
 	        		record.put("mfhd_id",mfhd_id_obj.toString());
+	        		int copyNumber = 0;
+	        		int locId = 0;
 				
 	        		if (debug) 
 	        			System.out.println();
@@ -141,6 +165,9 @@ public class LoadItemData implements DocumentPostProcess{
 	       				if ((colname.equalsIgnoreCase("temp_location")
 	       						|| colname.equalsIgnoreCase("perm_location"))
 	       						&& ! value.equals("0")) {
+	       					if ((locId == 0) || colname.equalsIgnoreCase("temp_location")) {
+	       						locId = Integer.valueOf(value);
+	       					}
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
@@ -148,12 +175,36 @@ public class LoadItemData implements DocumentPostProcess{
 	       				} else {
 	       					record.put(colname.toLowerCase(), value);
 	       				}
+	       				
+	       				if (colname.equalsIgnoreCase("copy_number")) {
+	       					copyNumber = Integer.valueOf(value);
+	       				}
+		        		
+		        		if (! multivol && colname.equalsIgnoreCase("item_enum")) {
+		        			String[] enums = record.get(colname).toString().split(":");
+		        			for (String s : enums) {
+		        				if (s.startsWith("v.")
+		        						|| s.startsWith("no.")
+		        						|| s.startsWith("th.")
+		        						|| s.startsWith("t.")
+		        						|| s.endsWith(" ser.")
+		        						|| s.endsWith(" ed."))
+		        					multivol = true;
+		        			}
+		        		}
+
 	        		}
 	        		
 	        		String json = mapper.writeValueAsString(record);
 	        		if (debug)
 	        			System.out.println(json);
 	        		itemField.addValue(json, 1);
+	        		
+	        		String locAndCopyNum = locId + "+" + copyNumber;
+	        		if (locsAndCopyNums.contains(locAndCopyNum)) 
+	        			multivol = true;
+	        		else
+	        			locsAndCopyNums.add(locAndCopyNum);
 	        	}
 	        } catch (SQLException ex) {
 	           System.out.println(query);
@@ -170,6 +221,8 @@ public class LoadItemData implements DocumentPostProcess{
         
 		}
 		}
+		multivolField.setValue(multivol, 1.0f);
+		document.put("multivol_b", multivolField);
 		document.put("item_display", itemlist);
 		document.put("item_record_display", itemField);
 	}

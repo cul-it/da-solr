@@ -10,6 +10,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
+import edu.cornell.library.integration.indexer.fieldMaker.IndicatorReq;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
 import edu.cornell.library.integration.indexer.resultSetToFields.*;
 
@@ -130,6 +131,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
 				    
+				/*  The new logic for multivol uses item data not available in this step. Field
+				 * population moving to LoadItemData document post-processor.
 				new SPARQLFieldMakerImpl().
 				    setName("multivol").
 				    addMainStoreQuery("holdings_descr",
@@ -138,7 +141,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    				" ?h marcrdf:leader ?leader.\n"+
 				    				" OPTIONAL {?h ?p ?f.\n"+
 				                    "   ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }}").
-				    addResultSetToFields( new MultivolRSTF() ),
+				    addResultSetToFields( new MultivolRSTF() ), */
 
 				new SPARQLFieldMakerImpl().
 				    setName("rec_type").
@@ -267,7 +270,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new PubInfoResultSetToFields()),
+			    	addResultSetToFields( new PubInfoResultSetToFields()), // IndicatorReq to be added?
 				
 			    // publisher_display and pubplace_display from field 260 handled by PubInfoResultSetToField
 			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED,"/:,， "),
@@ -460,15 +463,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
 			        addMainStoreQuery("location",
-			        	"SELECT ?bib_id ?location_name ?library_name ?group_name \n"+
+			        	"SELECT ?location_name ?library_name ?group_name \n"+
 			        	"WHERE {\n"+
-                        "  $recordURI$ rdfs:label ?bib_id.\n"+
-			        	"  OPTIONAL {\n" +
-			        	"    ?hold marcrdf:hasField ?hold04.\n" +
-			        	"    ?hold04 marcrdf:tag \"004\".\n" +
-			        	"    ?hold04 marcrdf:value ?bib_id.\n" +
-			        	"    ?hold marcrdf:hasField ?hold852.\n" +
-			        	"    ?hold852 marcrdf:tag \"852\".\n" +
+                        "    ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"+
+			        	"    ?hold marcrdf:hasField852 ?hold852.\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
 			        	"    ?hold852b marcrdf:code \"b\".\n" +
 			        	"    ?hold852b marcrdf:value ?loccode.\n" +
@@ -481,7 +479,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"      OPTIONAL {\n" +
 			        	"        ?library intlayer:hasGroup ?libgroup.\n" +
 			        	"        ?libgroup rdfs:label ?group_name.\n" +
-			        	"}}}}").
+			        	"}}}").
 			        addResultSetToFields( new LocationResultSetToFields() ),
 			        
 			    new SPARQLFieldMakerImpl().
@@ -496,7 +494,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()),
+			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()), //IndicatorReq Needed!
 			    
 				new StandardMARCFieldMaker("notes","500","a"),
 				new StandardMARCFieldMaker("notes_t","500","a",VernMode.SEARCH),
@@ -648,6 +646,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    " }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
 				
+				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"a"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 				
 				new StandardMARCFieldMaker("frequency_display","310","a"),

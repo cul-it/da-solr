@@ -378,7 +378,7 @@
 
   <!-- Copy Fields -->
 
-  <copyField source="donor_display" dest="donor_s"/>
+  <copyField source="donor_display" dest="donor_t"/>
 
   <!-- unstemmed fields -->
   <copyField source="title_t" dest="title_unstem_search"/>
@@ -393,7 +393,7 @@
   <copyField source="author_addl_t" dest="author_addl_unstem_search"/>
   <copyField source="subject_t" dest="subject_unstem_search"/>
   <copyField source="subject_addl_t" dest="subject_addl_unstem_search"/>
-  <copyField source="subject_topic_facet" dest="subject_topic_unstem_search"/>
+  <copyField source="publisher_t" dest="publisher_unstem_search"/>
   
   <!-- sort fields -->
   <!-- pub_date may have multiple values so pub_date_sort needs to be manually created -->

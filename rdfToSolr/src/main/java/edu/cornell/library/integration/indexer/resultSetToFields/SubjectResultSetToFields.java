@@ -5,6 +5,7 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,7 +37,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-		boolean recordIsFAST = false;
+		boolean recordHasFAST = false;
+		boolean recordHasLCSH = false;
+		
+		Collection<String> allSubj = new HashSet<String>();
+		Collection<String> nonFASTSubj = new HashSet<String>();
 		
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -128,27 +133,46 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				}
 				if (! facet_topic_fields.equals("")) {
 					String value = f.concatenateSpecificSubfields(facet_topic_fields);
-					addField(solrFields,"subject_topic_facet",value);
-					if (f.ind2.equals('7'))
+					addField(solrFields,"subject_topic_facet",removeTrailingPunctuation(value,"."));
+					if (f.ind2.equals('7')) {
 						for ( Subfield sf : f.subfields.values() )
-							if (sf.code.equals('2') && sf.value.equalsIgnoreCase("fast")) {
-								recordIsFAST = true;
+							if (sf.code.equals('2') 
+									&& (sf.value.equalsIgnoreCase("fast")
+											|| sf.value.equalsIgnoreCase("fast/NIC")
+											|| sf.value.equalsIgnoreCase("fast/NIC/NAC"))) {
+								recordHasFAST = true;
 								fieldIsFAST = true;
 							}
+					} else if (f.ind2.equals('0')) {
+						recordHasLCSH = true;
+					}
 					if (fieldIsFAST)
-						addField(solrFields,"fast_facet",value);
+						addField(solrFields,"fast_facet",removeTrailingPunctuation(value,"."));
 				}
 			}
-			for (String s: values880)
-				addField(solrFields,"subject_display",s);
-			for (String s: valuesMain)
-				addField(solrFields,"subject_display",s);
+			for (String s: values880) {
+				allSubj.add(s);
+				if (! fieldIsFAST)
+					nonFASTSubj.add(s);
+			}
+			for (String s: valuesMain) {
+				allSubj.add(s);
+				if (! fieldIsFAST)
+					nonFASTSubj.add(s);
+			}
 		}
 		
 		SolrInputField field = new SolrInputField("fast_b");
-		field.setValue(recordIsFAST, 1.0f);
+		field.setValue(recordHasFAST, 1.0f);
 		solrFields.put("fast_b", field);
-
+		
+		if (recordHasLCSH)
+			for (String s : nonFASTSubj) 
+				addField(solrFields,"subject_display",s);
+		else
+			for (String s : allSubj)
+				addField(solrFields,"subject_display",s);
+		
 		return solrFields;
 	}	
 
