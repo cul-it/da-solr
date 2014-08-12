@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +31,6 @@ public class LoadItemData implements DocumentPostProcess{
 	final static Boolean debug = false;
 	Map<Integer,Location> locations = new HashMap<Integer,Location>();
 	
-	@SuppressWarnings("unused")
 	@Override
 	public void p(String recordURI, RDFService mainStore,
 			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
@@ -50,84 +48,16 @@ public class LoadItemData implements DocumentPostProcess{
 		SolrInputField field = document.getField( "holdings_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
-		if (false) {
-			for (Object mfhd_id_obj: field.getValues()) {
-				if (debug)
-					System.out.println(mfhd_id_obj.toString());
-				String query = "select * from item where mfhdid = "+mfhd_id_obj.toString();
-				if (debug)
-					System.out.println(query);
-		
-		        Statement stmt = null;
-		        ResultSet rs = null;
-		        try {
-		        	stmt = conn.createStatement();
-		
-		        	rs = stmt.executeQuery(query);
-		        	while (rs.next()) {
-			        	   
-		        		ObjectMapper mapper = new ObjectMapper();
-		        		@SuppressWarnings("unchecked")
-						Map<String,Object> record = mapper.readValue(rs.getString("json"),Map.class);
-		        		ArrayList<String> locationFields = new ArrayList<String>();
-		        		locationFields.add("temp_location");
-		        		locationFields.add("perm_location");
-		        		for (String colname : locationFields) {
-			        		if (colname.equalsIgnoreCase("temp_location")
-			       						|| colname.equalsIgnoreCase("perm_location")) {
-			        			Integer loc_id = Integer.valueOf(record.get(colname).toString());
-			        			if (loc_id > 1) {
-			       					if (debug)
-			       						System.out.println(colname+": "+loc_id);
-			       					Location l = getLocation(recordURI,mainStore,localStore,loc_id);
-			       					record.put(colname.toLowerCase(), l);
-			        			}
-			        		}
-			        		
-			        		if (! multivol && colname.equalsIgnoreCase("item_enum")) {
-			        			String[] enums = record.get(colname).toString().split(":");
-			        			for (String s : enums) {
-			        				if (s.startsWith("v.")
-			        						|| s.startsWith("no.")
-			        						|| s.startsWith("th.")
-			        						|| s.startsWith("t.")
-			        						|| s.endsWith(" ser.")
-			        						|| s.endsWith(" ed."))
-			        					multivol = true;
-			        			}
-			        		}
-		        		}
-
-		        		String json = mapper.writeValueAsString(record);
-		        		if (debug)
-		        			System.out.println(json);
-					itemlist.addValue(record.get("item_id"),1);
-		        		itemField.addValue(json, 1);
-		        	}
-		        } catch (SQLException ex) {
-		           System.out.println(query);
-		           System.out.println(ex.getMessage());
-		        } catch (Exception ex) {
-		        	ex.printStackTrace();
-		        } finally {
-		       
-		           try {
-		              if (stmt != null) stmt.close();
-		              if (rs != null) rs.close();
-		           } catch (Exception ex) {}
-		        }
-	        
-			}
-			
-		} else {
 		for (Object mfhd_id_obj: field.getValues()) {
 			if (debug)
 				System.out.println(mfhd_id_obj.toString());
-			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME " +
-					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM, CORNELLDB.ITEM_TYPE" +
+			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
+					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
+					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID " +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
-					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID";
+					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" +
+					   " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'";
 			if (debug)
 				System.out.println(query);
 	
@@ -174,6 +104,8 @@ public class LoadItemData implements DocumentPostProcess{
 	       					record.put(colname.toLowerCase(), l);
 	       				} else {
 	       					record.put(colname.toLowerCase(), value);
+	       					if (debug)
+	       						System.out.println(colname+": "+value);
 	       				}
 	       				
 	       				if (colname.equalsIgnoreCase("copy_number")) {
@@ -181,8 +113,9 @@ public class LoadItemData implements DocumentPostProcess{
 	       				}
 		        		
 		        		if (! multivol && colname.equalsIgnoreCase("item_enum")) {
-		        			String[] enums = record.get(colname).toString().split(":");
+		        			String[] enums = value.split("[:;]\\s*");
 		        			for (String s : enums) {
+			        			if (debug) System.out.println("evaluating enum for multivol: "+s);
 		        				if (s.startsWith("v.")
 		        						|| s.startsWith("no.")
 		        						|| s.startsWith("th.")
@@ -219,7 +152,6 @@ public class LoadItemData implements DocumentPostProcess{
 	           } catch (Exception ex) {}
 	        }
         
-		}
 		}
 		multivolField.setValue(multivol, 1.0f);
 		document.put("multivol_b", multivolField);

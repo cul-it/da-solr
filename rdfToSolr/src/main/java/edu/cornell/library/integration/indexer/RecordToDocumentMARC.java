@@ -34,6 +34,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new MissingTitleReport(),
 //				new SuppressShadowRecords(),
 				new LoadItemData(),
+				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
 				new NoAccessUrlsUnlessOnline()
 		);
@@ -664,6 +665,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("publisher_number_display","028","a"),
 				new StandardMARCFieldMaker("id_t","028","a",VernMode.SEARCH),
 				
+				new StandardMARCFieldMaker("barcode_t","903","p",VernMode.SEARCH),
+ 
 			    new SPARQLFieldMakerImpl().
 		    	setName("author display").
 			    addMainStoreQuery("main_entry", 

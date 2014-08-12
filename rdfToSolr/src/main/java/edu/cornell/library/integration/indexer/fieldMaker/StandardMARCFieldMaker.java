@@ -144,6 +144,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
 		StringBuilder sb = new StringBuilder();
+		if (indicatorReq == null) indicatorReq = new IndicatorReq();
 		sb.append(
 				"SELECT (str(?f) as ?field) (str(?sf) as ?sfield) ?tag ?code ?value ?ind1 ?ind2 WHERE { \n"+
 				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField" + marcFieldTag + "> ?f . \n"+

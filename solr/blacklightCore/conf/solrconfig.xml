@@ -694,6 +694,7 @@
         toc_t_cjk
         author_245c_t
         author_245c_t_cjk
+        barcode_t
         text
       </str>
       <str name="quot_qf">
@@ -741,6 +742,7 @@
         toc_t_cjk
         author_245c_t
         author_245c_t_cjk
+        barcode_t
         text
       </str>
       <str name="pf">
@@ -931,6 +933,7 @@
         id
         eightninenine_t
         eightninenine_t_cjk
+        barcode_t
       </str>
       <str name="number_pf">
         id_t
@@ -938,6 +941,7 @@
         id
         eightninenine_t
         eightninenine_t_cjk
+        barcode_t
       </str>
 
       <str name="notes_qf"> notes notes_t notes_t_cjk </str>
