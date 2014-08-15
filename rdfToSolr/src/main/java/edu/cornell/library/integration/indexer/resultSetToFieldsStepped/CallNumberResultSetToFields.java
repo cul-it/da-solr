@@ -61,7 +61,6 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						}
 							
 						String callno = nodeToString( sol.get("part1") );
-						if (callno.startsWith("MLC")) continue;
 						if (callno.equalsIgnoreCase("No Call Number")) continue;
 						if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
 							// Not an LOC call number (probably)
@@ -78,8 +77,20 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						}
 						if (debug)
 							System.out.println(callno);
-						if (resultKey.equals("holdings_callno"))
+						if (resultKey.equals("holdings_callno")) {
 							callnos.add(callno);
+							if (callno.toLowerCase().startsWith("thesis ")) {
+								callno = callno.substring(7);
+								callnos.add(callno);
+							}
+							if (sol.contains("prefix")) {
+								String prefix = nodeToString( sol.get("prefix") );
+								if (! prefix.equals("")) {
+									callno = prefix + " " + callno;
+									callnos.add(callno);
+								}
+							}
+						}
 					}
 				}
 			}
