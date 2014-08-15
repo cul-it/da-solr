@@ -15,9 +15,4 @@
 # unrelated words to the same base word.
 oed
 waterer
-
-# Some non-words that normally won't be encountered,
-# just to test that they won't be stemmed.
-dontstems
-zwhacky
-
+signale
