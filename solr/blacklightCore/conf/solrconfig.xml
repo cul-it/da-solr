@@ -460,116 +460,112 @@
       <str name="facet.mincount">1</str>
       <str name="mm">100%</str>
       <str name="qf">
-        title_unstem_search^100000
-        subtitle_unstem_search^50000
-        title_ngram^30000
-        title_t^25000        
-        title_t_cjk^25000   
-        subtitle_t^10000
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^25000  
+        subtitle_t^5000            subtitle_tP^5000
         subtitle_t_cjk^10000
-        title_uniform_unstem_search^5000
-        title_addl_unstem_search^5000
-        title_uniform_t^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
         title_uniform_t_cjk^2500
-        title_addl_t^2500
+        title_addl_t^1250          title_addl_tP^1250
         title_addl_t_cjk^2500
-        title_added_entry_unstem_search^1500
-        title_added_entry_t^1250
-        title_added_entry_t_cjk^1250
-        subject_topic_unstem_search^1000
-        subject_unstem_search^750
-        subject_topic_facet^625
-        subject_t^500
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
         subject_t_cjk^500
-        author_unstem_search^250
-        author_addl_unstem_search^250
-        author_t^100
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
         author_t_cjk^100
         lc_callnum_full^100
-        publisher_t^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
         publisher_t_cjk^100
-        author_addl_t^50
+        author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^50
-        subject_addl_unstem_search^250
-        subject_addl_t^50
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
         subject_addl_t_cjk^50
-        title_series_unstem_search^25
-        title_series_t^10
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
         title_series_t_cjk^10
-        isbn_t
-        issn_t
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
         isbn_t_cjk
         issn_t_cjk
         donor_s
-        donor_t
+        donor_t                    donor_tP
         donor_t_cjk
-        pubplace_t
+        pubplace_t                 pubplace_tP
         pubplace_t_cjk
-        id_s
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        notes
-        notes_t
+        notes_t                    notes_tP
         notes_t_cjk
-        summary_t
+        summary_t                  summary_tP
         summary_t_cjk
-        toc_t
+        toc_t                      toc_tP
         toc_t_cjk
-        text
+        author_245c_t              author_245c_tP
+        author_245c_t_cjk
+        barcode_t                  barcode_tP
       </str>
       <str name="pf">
-        title_unstem_search^1000000
-        subtitle_unstem_search^500000
-        title_ngram^30000
-        title_t^250000
-        title_t_cjk^250000
-        subtitle_t^100000
-        subtitle_t_cjk^100000
-        title_uniform_unstem_search^50000
-        title_addl_unstem_search^50000
-        title_uniform_t^25000
-        title_uniform_t_cjk^25000
-        title_addl_t^25000
-        title_addl_t_cjk^25000
-        title_added_entry_unstem_search^15000
-        title_added_entry_t^12500
-        title_added_entry_t_cjk^12500
-        subject_topic_unstem_search^10000
-        subject_unstem_search^7500
-        subject_topic_facet^6250
-        subject_t^5000
-        subject_t_cjk^5000
-        author_unstem_search^2500
-        author_addl_unstem_search^2500
-        author_t^1000
-        author_t_cjk^1000
-        lc_callnum_full^1000
-        publisher_t^1000
-        publisher_t_cjk^1000
-        author_addl_t^500
-        author_addl_t_cjk^500
-        subject_addl_unstem_search^2500
-        subject_addl_t^500
-        subject_addl_t_cjk^500
-        title_series_unstem_search^250
-        title_series_t^100
-        title_series_t_cjk^100
-        isbn_t
-        issn_t
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^25000  
+        subtitle_t^5000            subtitle_tP^5000
+        subtitle_t_cjk^10000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
+        title_uniform_t_cjk^2500
+        title_addl_t^1250          title_addl_tP^1250
+        title_addl_t_cjk^2500
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
+        subject_t_cjk^500
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^100
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
+        publisher_t_cjk^100
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^50
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
+        subject_addl_t_cjk^50
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk^10
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
         isbn_t_cjk
         issn_t_cjk
         donor_s
-        donor_t
+        donor_t                    donor_tP
         donor_t_cjk
-        pubplace_t
+        pubplace_t                 pubplace_tP
         pubplace_t_cjk
-        id_s
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        notes
-        notes_t
+        notes_t                    notes_tP
         notes_t_cjk
-        text
+        summary_t                  summary_tP
+        summary_t_cjk
+        toc_t                      toc_tP
+        toc_t_cjk
+        author_245c_t              author_245c_tP
+        author_245c_t_cjk
+        barcode_t                  barcode_tP
       </str>
     </lst>
     <lst name="appends">
@@ -638,259 +634,361 @@
       <str name="q.alt">*:*</str>      
       <str name="mm">100%</str>
       <str name="qf">
-        title_unstem_search^100000
-        subtitle_unstem_search^50000
-        title_ngram^30000
-        title_t^25000        
-        title_t_cjk^25000   
-        subtitle_t^10000
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^25000  
+        subtitle_t^5000            subtitle_tP^5000
         subtitle_t_cjk^10000
-        title_uniform_unstem_search^5000
-        title_addl_unstem_search^5000
-        title_uniform_t^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
         title_uniform_t_cjk^2500
-        title_addl_t^2500
+        title_addl_t^1250          title_addl_tP^1250
         title_addl_t_cjk^2500
-        title_added_entry_unstem_search^1500
-        title_added_entry_t^1250
-        title_added_entry_t_cjk^1250
-        subject_unstem_search^750
-        subject_t^500
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
         subject_t_cjk^500
-        author_unstem_search^250
-        author_addl_unstem_search^250
-        author_t^100
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
         author_t_cjk^100
         lc_callnum_full^100
-        publisher_unstem_search^150
-        publisher_t^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
         publisher_t_cjk^100
-        author_addl_t^50
+        author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^50
-        subject_addl_unstem_search^250
-        subject_addl_t^50
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
         subject_addl_t_cjk^50
-        title_series_unstem_search^25
-        title_series_t^10
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
         title_series_t_cjk^10
-        isbn_t
-        issn_t
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
         isbn_t_cjk
         issn_t_cjk
         donor_s
-        donor_t
+        donor_t                    donor_tP
         donor_t_cjk
-        pubplace_t
+        pubplace_t                 pubplace_tP
         pubplace_t_cjk
-        id_s
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        notes
-        notes_t
+        notes_t                    notes_tP
         notes_t_cjk
-        summary_t
+        summary_t                  summary_tP
         summary_t_cjk
-        toc_t
+        toc_t                      toc_tP
         toc_t_cjk
-        author_245c_t
+        author_245c_t              author_245c_tP
         author_245c_t_cjk
-        barcode_t
-        text
+        barcode_t                  barcode_tP
       </str>
       <str name="quot_qf">
-        title_unstem_search^100000
-        subtitle_unstem_search^50000
-        title_t_cjk^25000   
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t_cjk^25000  
         subtitle_t_cjk^10000
-        title_uniform_unstem_search^5000
-        title_addl_unstem_search^5000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
         title_uniform_t_cjk^2500
         title_addl_t_cjk^2500
-        title_added_entry_unstem_search^1500
-        title_added_entry_t_cjk^1250
-        subject_unstem_search^750
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
         subject_t_cjk^500
-        author_unstem_search^250
-        author_addl_unstem_search^250
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
         author_t_cjk^100
         lc_callnum_full^100
-        publisher_unstem_search^100
+        publisher_unstemC^75       publisher_unstemP^75
         publisher_t_cjk^100
         author_addl_t_cjk^50
-        subject_addl_unstem_search^250
+        subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t_cjk^50
-        title_series_unstem_search^25
+        title_series_unstemC^25    title_series_unstemP^25
         title_series_t_cjk^10
-        isbn_t
-        issn_t
+        isbn_unstemC               isbn_unstemP
+        issn_unstemC               issn_unstemP
         isbn_t_cjk
         issn_t_cjk
         donor_s
-        donor_t
+        donor_unstemC              donor_unstemP
         donor_t_cjk
-        pubplace_t
+        pubplace_unstemC           pubplace_unstemP
         pubplace_t_cjk
-        id_s
-        eightninenine_t
+        eightninenine_unstemC      eightninenine_unstemP
         eightninenine_t_cjk
-        notes
-        notes_t
+        notes_unstemC              notes_unstemP
         notes_t_cjk
-        summary_t
+        summary_unstemC            summary_unstemP
         summary_t_cjk
-        toc_t
+        toc_unstemC                toc_unstemP
         toc_t_cjk
-        author_245c_t
+        author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
-        barcode_t
-        text
+        barcode_unstemC            barcode_unstemP
       </str>
       <str name="pf">
-        title_unstem_search^1000000
-        subtitle_unstem_search^500000
-        title_ngram^30000
-        title_t^250000
-        title_t_cjk^250000
-        subtitle_t^100000
-        subtitle_t_cjk^100000
-        title_uniform_unstem_search^50000
-        title_addl_unstem_search^50000
-        title_uniform_t^25000
-        title_uniform_t_cjk^25000
-        title_addl_t^25000
-        title_addl_t_cjk^25000
-        title_added_entry_unstem_search^15000
-        title_added_entry_t^12500
-        title_added_entry_t_cjk^12500
-        subject_topic_unstem_search^10000
-        subject_unstem_search^7500
-        subject_topic_facet^6250
-        subject_t^5000
-        subject_t_cjk^5000
-        author_unstem_search^2500
-        author_addl_unstem_search^2500
-        author_t^1000
-        author_t_cjk^1000
-        lc_callnum_full^1000
-        publisher_t^1000
-        publisher_t_cjk^1000
-        author_addl_t^500
-        author_addl_t_cjk^500
-        subject_addl_unstem_search^2500
-        subject_addl_t^500
-        subject_addl_t_cjk^500
-        title_series_unstem_search^250
-        title_series_t^100
-        title_series_t_cjk^100
-        isbn_t
-        issn_t
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^25000  
+        subtitle_t^5000            subtitle_tP^5000
+        subtitle_t_cjk^10000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
+        title_uniform_t_cjk^2500
+        title_addl_t^1250          title_addl_tP^1250
+        title_addl_t_cjk^2500
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
+        subject_t_cjk^500
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^100
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
+        publisher_t_cjk^100
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^50
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
+        subject_addl_t_cjk^50
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk^10
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
         isbn_t_cjk
         issn_t_cjk
         donor_s
-        donor_t
+        donor_t                    donor_tP
         donor_t_cjk
-        pubplace_t
+        pubplace_t                 pubplace_tP
         pubplace_t_cjk
-        id_s
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        notes
-        notes_t
+        notes_t                    notes_tP
         notes_t_cjk
-        author_245c_t
+        summary_t                  summary_tP
+        summary_t_cjk
+        toc_t                      toc_tP
+        toc_t_cjk
+        author_245c_t              author_245c_tP
         author_245c_t_cjk
-        text
+        barcode_t                  barcode_tP
       </str>
+      <str name="quot_pf">
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t_cjk^25000  
+        subtitle_t_cjk^10000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t_cjk^2500
+        title_addl_t_cjk^2500
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t_cjk^500
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t_cjk^100
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t_cjk^100
+        author_addl_t_cjk^50
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t_cjk^50
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t_cjk^10
+        isbn_unstemC               isbn_unstemP
+        issn_unstemC               issn_unstemP
+        isbn_t_cjk
+        issn_t_cjk
+        donor_s
+        donor_unstemC              donor_unstemP
+        donor_t_cjk
+        pubplace_unstemC           pubplace_unstemP
+        pubplace_t_cjk
+        eightninenine_unstemC      eightninenine_unstemP
+        eightninenine_t_cjk
+        notes_unstemC              notes_unstemP
+        notes_t_cjk
+        summary_unstemC            summary_unstemP
+        summary_t_cjk
+        toc_unstemC                toc_unstemP
+        toc_t_cjk
+        author_245c_unstemC        author_245c_unstemP
+        author_245c_t_cjk
+        barcode_unstemC            barcode_unstemP
+      </str>
+      
       <str name="author_qf">
-        author_unstem_search^200
-        author_t^50
-        author_t_cjk^50
-        author_addl_unstem_search^20
-        author_addl_t^10
-        author_addl_t_cjk^10
-        author_245c_t
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^100
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^50
+        author_245c_t              author_245c_tP
         author_245c_t_cjk
       </str>
       <str name="author_pf">
-        author_unstem_search^2000
-        author_t^500
-        author_t_cjk^500
-        author_addl_unstem_search^200
-        author_addl_t^50
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^100
+        author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^50
-        author_245c_t
+        author_245c_t              author_245c_tP
         author_245c_t_cjk
       </str>
+      <str name="author_quot_qf">
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t_cjk^100
+        author_addl_t_cjk^50
+        author_245c_unstemC        author_245c_unstemP
+        author_245c_t_cjk
+      </str>
+      <str name="author_quot_pf">
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t_cjk^100
+        author_addl_t_cjk^50
+        author_245c_unstemC        author_245c_unstemP
+        author_245c_t_cjk
+      </str>
+
+
       <str name="title_qf">
-        title_unstem_search^50000
-        subtitle_unstem_search^25000
-        title_uniform_unstem_search^10000
-        title_addl_unstem_search^10000
-        title_ngram^6000
-        title_t^5000
-        title_t_cjk^5000
-        subtitle_t^2500
-        subtitle_t_cjk^2500
-        title_uniform_t^100
-        title_uniform_t_cjk^100
-        title_addl_t^100
-        title_addl_t_cjk^100
-        title_added_entry_unstem_search^50
-        title_added_entry_t^10
-        title_added_entry_t_cjk^10
-        title_series_unstem_search^5
-        title_series_t
-        title_series_t_cjk
+        title_unstemC^250          title_unstemP^250
+        subtitle_unstemC^125       subtitle_unstemP^125
+        title_t^125                title_tP^125   
+        title_t_cjk^250 
+        subtitle_t^50              subtitle_tP^50
+        subtitle_t_cjk^100
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_uniform_t^12         title_uniform_tP^12
+        title_uniform_t_cjk^25
+        title_addl_t^12            title_addl_tP^12
+        title_addl_t_cjk^25
+        title_ngram^10
+        title_series_unstemC^3     title_series_unstemP^3
+        title_series_t             title_series_t
+        title_series_t_cjk   
       </str>
       <str name="title_pf">
-        title_unstem_search^500000
-        subtitle_unstem_search^250000
-        title_uniform_unstem_search^100000
-        title_addl_unstem_search^100000
-        title_ngram^6000
-        title_t^50000
-        title_t_cjk^50000
-        subtitle_t^25000
-        subtitle_t_cjk^25000
-        title_uniform_t^1000
-        title_uniform_t_cjk^1000
-        title_addl_t^1000
-        title_addl_t_cjk^1000
-        title_added_entry_unstem_search^500
-        title_added_entry_t^100
-        title_added_entry_t_cjk^100
-        title_series_t^50
-        title_series_t_cjk^50
-        title_series_unstem_search^10
+        title_unstemC^250          title_unstemP^250
+        subtitle_unstemC^125       subtitle_unstemP^125
+        title_t^125                title_tP^125   
+        title_t_cjk^250 
+        subtitle_t^50              subtitle_tP^50
+        subtitle_t_cjk^100
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_uniform_t^12         title_uniform_tP^12
+        title_uniform_t_cjk^25
+        title_addl_t^12            title_addl_tP^12
+        title_addl_t_cjk^25
+        title_ngram^10
+        title_series_unstemC^3     title_series_unstemP^3
+        title_series_t             title_series_t
+        title_series_t_cjk   
       </str>
+      <str name="title_quot_qf">
+        title_unstemC^250          title_unstemP^250
+        subtitle_unstemC^125       subtitle_unstemP^125
+        title_t_cjk^250 
+        subtitle_t_cjk^100
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_uniform_t_cjk^25
+        title_addl_t_cjk^25
+        title_series_unstemC^3     title_series_unstemP^3
+        title_series_t_cjk   
+      </str>
+      <str name="title_quot_pf">
+        title_unstemC^250          title_unstemP^250
+        subtitle_unstemC^125       subtitle_unstemP^125
+        title_t_cjk^250 
+        subtitle_t_cjk^100
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_uniform_t_cjk^25
+        title_addl_t_cjk^25
+        title_series_unstemC^3     title_series_unstemP^3
+        title_series_t_cjk   
+      </str>
+
       <str name="subject_qf">
-        subject_unstem_search^125
-        subject_t^50
+        subject_unstemC^200        subject_unstemP^200
+        subject_t^25               subject_tP^25
         subject_t_cjk^50
-        subject_addl_unstem_search^10
-        subject_addl_t
-        subject_addl_t_cjk
+        subject_addl_unstemC^50    subject_addl_unstemP^50
+        subject_addl_t             subject_addl_tP
+        subject_addl_t_cjk^2
       </str>
       <str name="subject_pf">
-        subject_unstem_search^1250
-        subject_t^1000
-        subject_t_cjk^1000
-        subject_addl_unstem_search^100
-        subject_addl_t^10
-        subject_addl_t_cjk^10
+        subject_unstemC^200        subject_unstemP^200
+        subject_t^25               subject_tP^25
+        subject_t_cjk^50
+        subject_addl_unstemC^50    subject_addl_unstemP^50
+        subject_addl_t             subject_addl_tP
+        subject_addl_t_cjk^2
+      </str>
+      <str name="subject_quot_qf">
+        subject_unstemC^200        subject_unstemP^200
+        subject_t_cjk^50
+        subject_addl_unstemC^50    subject_addl_unstemP^50
+        subject_addl_t_cjk^2
+      </str>
+      <str name="subject_quot_pf">
+        subject_unstemC^200        subject_unstemP^200
+        subject_t_cjk^50
+        subject_addl_unstemC^50    subject_addl_unstemP^50
+        subject_addl_t_cjk^2
       </str>
       
-      <str name="publisher_qf"> publisher_unstem_search publisher_t publisher_t_cjk </str>
-      <str name="publisher_pf"> publisher_unstem_search publisher_t publisher_t_cjk </str>
-      <str name="publisher_quot_qf"> publisher_unstem_search publisher_t_cjk </str>
-      <str name="publisher_quot_pf"> publisher_unstem_search publisher_t_cjk </str>
+      <str name="publisher_qf">
+        publisher_unstemC^10       publisher_unstemP^10
+        publisher_t                publisher_tP
+        publisher_t_cjk^2
+      </str>
+      <str name="publisher_pf">
+        publisher_unstemC^10       publisher_unstemP^10
+        publisher_t                publisher_tP
+        publisher_t_cjk^2
+      </str>
+      <str name="publisher_quot_qf">
+        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk^2
+      </str>
+      <str name="publisher_quot_pf">
+        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk^2
+      </str>
 
       <str name="pubplace_qf">
-        pubplace_t
+        pubplace_t                 pubplace_tP
         pubplace_t_cjk
       </str>
       <str name="pubplace_pf">
-        pubplace_t
+        pubplace_t                 pubplace_tP
+        pubplace_t_cjk
+      </str>
+      <str name="pubplace_quot_qf">
+        pubplace_unstemC           pubplace_unstemP
+        pubplace_t_cjk
+      </str>
+      <str name="pubplace_quot_pf">
+        pubplace_unstemC           pubplace_unstemP
         pubplace_t_cjk
       </str>
       
@@ -901,65 +999,106 @@
         lc_callnum_full
       </str>
 
-      <str name="donor_pf">
-        donor_s
-        donor_t
-        donor_t_cjk
-      </str>
       <str name="donor_qf">
         donor_s
-        donor_t
+        donor_t                    donor_tP
+        donor_t_cjk
+      </str>
+      <str name="donor_pf">
+        donor_s
+        donor_t                    donor_tP
+        donor_t_cjk
+      </str>
+      <str name="donor_quot_qf">
+        donor_s
+        donor_unstemC              donor_unstemP
+        donor_t_cjk
+      </str>
+      <str name="donor_quot_pf">
+        donor_s
+        donor_unstemC              donor_unstemP
         donor_t_cjk
       </str>
 
       <str name="isbnissn_qf">
-       isbnissn_s
-       isbn_t
-       issn_t
-       isbn_t_cjk
-       issn_t_cjk
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
+        isbn_t_cjk
+        issn_t_cjk
       </str>
       <str name="isbnissn_pf">
-       isbnissn_s
-       isbn_t
-       issn_t
-       isbn_t_cjk
-       issn_t_cjk
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
+        isbn_t_cjk
+        issn_t_cjk
       </str>
+      <str name="isbnissn_quot_qf">
+        isbn_unstemC               isbn_unstemP
+        issn_unstemC               issn_unstemP
+        isbn_t_cjk
+        issn_t_cjk
+      </str>
+      <str name="isbnissn_quot_pf">
+        isbn_unstemC               isbn_unstemP
+        issn_unstemC               issn_unstemP
+        isbn_t_cjk
+        issn_t_cjk
+      </str>
+      
 
       <str name="number_qf">
-        id_t
+        id_t                       id_tP
         id_t_cjk
         id
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        barcode_t
+        barcode_t                  barcode_tP
       </str>
       <str name="number_pf">
-        id_t
+        id_t                       id_tP
         id_t_cjk
         id
-        eightninenine_t
+        eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        barcode_t
+        barcode_t                  barcode_tP
       </str>
-
-      <str name="notes_qf"> notes notes_t notes_t_cjk </str>
-      <str name="notes_pf"> notes notes_t notes_t_cjk </str>
+      <str name="number_quot_qf">
+        id_unstemC                 id_unstemP
+        id_t_cjk
+        id
+        eightninenine_unstemC      eightninenine_unstemP
+        eightninenine_t_cjk
+        barcode_unstemC            barcode_unstemP
+      </str>
+      <str name="number_quot_pf">
+        id_unstemC                 id_unstemP
+        id_t_cjk
+        id
+        eightninenine_unstemC      eightninenine_unstemP
+        eightninenine_t_cjk
+        barcode_unstemC            barcode_unstemP
+      </str>
 
       <str name="series_qf">
-        title_series_unstem_search^25
-        title_series_t
-        title_series_t_cjk
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk^10
       </str>
       <str name="series_pf">
-        title_series_unstem_search^25
-        title_series_t
-        title_series_t_cjk
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk^10
       </str>
-
+      <str name="series_quot_qf">
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t_cjk^10
+      </str>
+      <str name="series_quot_pf">
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t_cjk^10
+      </str>
             
-      <int name="ps">3</int>
+      <int name="ps">2</int>
       <float name="tie">0.01</float>
 
       <!-- NOT using marc_display because it is large and will slow things down for search results -->
@@ -1045,155 +1184,7 @@
       <str>terms</str>
     </arr>
   </requestHandler>
-  
-  <!--  For Advanced Search  -->
-  <requestHandler name="advanced" class="solr.SearchHandler" >
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="sort">score desc, pub_date_sort desc, title_sort asc</str>   
-      <str name="df">text</str> 
-      <str name="q.op">AND</str> 
-      <str name="qs">1</str>
 
-      <!-- used for dismax query parser -->
-      <str name="mm">1</str> 
-      <str name="ps">3</str> 
-      <float name="tie">0.01</float>
-      
-      <!-- for user query terms in author text box -->
-      <str name="qf_author">
-        author_unstem_search^200
-        author_addl_unstem_search^50
-        author_t^20
-        author_addl_t
-      </str>
-      <str name="pf_author">
-        author_unstem_search^2000
-        author_addl_unstem_search^500
-        author_t^200
-        author_addl_t^10
-      </str>
-      
-      <!-- for user query terms in title text box -->
-      <str name="qf_title">
-        title_unstem_search^50000
-        subtitle_unstem_search^25000
-        title_uniform_unstem_search^10000
-        title_addl_unstem_search^10000
-        title_ngram^6000
-        title_t^5000        
-        subtitle_t^2500
-        title_uniform_t^100
-        title_addl_t^100
-        title_added_entry_unstem_search^50
-        title_added_entry_t^10
-        title_series_unstem_search^5
-        title_series_t
-      </str>
-      <str name="pf_title">
-        title_unstem_search^500000
-        subtitle_unstem_search^250000
-        title_uniform_unstem_search^100000
-        title_addl_unstem_search^100000
-        title_ngram^60000
-        title_t^50000
-        subtitle_t^25000
-        title_uniform_t^1000
-        title_addl_t^1000
-        title_added_entry_unstem_search^500
-        title_added_entry_t^100
-        title_series_t^50
-        title_series_unstem_search^10
-      </str>
-      
-      <!-- for user query terms in subject text box -->
-      <str name="qf_subject">
-        subject_topic_unstem_search^200
-        subject_unstem_search^125
-        subject_topic_facet^100
-        subject_t^50
-        subject_addl_unstem_search^10
-        subject_addl_t
-      </str>
-      <str name="pf_subject">
-        subject_topic_unstem_search^2000
-        subject_unstem_search^1250
-        subject_t^1000
-        subject_topic_facet^500
-        subject_addl_unstem_search^100
-        subject_addl_t^10
-      </str>
-      
-      <!-- for user query terms in donor text box -->
-      <str name="donor_pf"> donor_s donor_t </str>
-      <str name="donor_qf"> donor_s donor_t </str>
-
-      <!-- for user query terms in number text box -->
-      <str name="qf_number">isbn_t issn_t</str>
-      
-      <!-- for user query terms in keyword text box -->
-      <str name="qf_keyword">text</str>
-      <str name="pf_keyword">text^10</str>
-      
-      <!-- NOT using marc_display because it is large and will slow things down for search results -->
-      <str name="fl">
-        id, 
-        score,
-        author_display,
-        author_vern_display, 
-        format, 
-        online, 
-        isbn_t, 
-        issn_t,
-        language_facet, 
-        location_facet, 
-        material_type_display, 
-        published_display,
-        published_vern_display, 
-        pub_date_facet, 
-        author_facet,
-        title_display,
-        title_vern_display,
-        subject_topic_facet,
-        subject_content_facet, 
-        subject_geo_facet,
-        subject_era_facet,
-        subtitle_display,
-        subtitle_vern_display,
-        url_fulltext_display,
-        url_suppl_display,
-      </str>
-      
-      <str name="facet">true</str>
-      <str name="facet.mincount">1</str>
-      <str name="facet.limit">10</str>
-      <str name="facet.field">format</str>
-      <str name="facet.field">online</str>
-      <str name="facet.field">lc_1letter_facet</str>
-      <str name="facet.field">lc_alpha_facet</str>
-      <str name="facet.field">lc_b4cutter_facet</str>
-      <str name="facet.field">language_facet</str>
-      <str name="facet.field">location_facet</str>
-      <str name="facet.field">pub_date_facet</str>
-      <str name="facet.field">author_facet</str>
-      <str name="facet.field">subject_era_facet</str>
-      <str name="facet.field">subject_geo_facet</str>
-      <str name="facet.field">subject_topic_facet</str>
-      <str name="facet.field">subject_content_facet</str>
-      
-      <str name="spellcheck">true</str>
-      <str name="spellcheck.dictionary">subject</str>
-      <str name="spellcheck.onlyMorePopular">true</str>
-      <str name="spellcheck.extendedResults">true</str>
-      <str name="spellcheck.collate">false</str>
-      <str name="spellcheck.count">5</str>
-    </lst>
-    <arr name="last-components">
-      <str>spellcheck</str>
-    </arr>
-  </requestHandler>
-  
   <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
     <str name="queryAnalyzerFieldType">textSpell</str>
     <lst name="spellchecker">

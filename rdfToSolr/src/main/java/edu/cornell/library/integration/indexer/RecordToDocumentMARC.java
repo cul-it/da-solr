@@ -101,7 +101,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
 				new StandardMARCFieldMaker("other_id_display","035","a"),
-				new StandardMARCFieldMaker("other_id_s","035","a"),
+				new StandardMARCFieldMaker("id_t","035","a"),
 				
 
 				new SPARQLFieldMakerImpl().
