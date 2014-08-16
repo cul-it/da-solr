@@ -127,7 +127,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "continued_by";
 					} else if (f.ind2.equals('1')) {
 						relation = "continued_in_part_by";
-					} else if (f.ind2.equals('2') || f.ind2.equals('0')) {
+					} else if (f.ind2.equals('2') || f.ind2.equals('3')) {
 						relation = "superseded_by";
 					} else if (f.ind2.equals('4'))  {
 						relation = "absorbed_by";

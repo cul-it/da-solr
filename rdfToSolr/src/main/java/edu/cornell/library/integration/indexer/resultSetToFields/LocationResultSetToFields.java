@@ -40,10 +40,8 @@ public class LocationResultSetToFields implements ResultSetToFields {
 					QuerySolution sol = rs.nextSolution();
 					displays.add(nodeToString(sol.get("location_name")));
 					String libname = nodeToString(sol.get("library_name"));
-					if (libname.contains("L")) {
-						facets.add(libname);
-						addField(fields,"online","At the Library");
-					}
+					facets.add(libname);
+					addField(fields,"online","At the Library");
 //					facets.add(nodeToString(sol.get("group_name")));
 				}
 			}

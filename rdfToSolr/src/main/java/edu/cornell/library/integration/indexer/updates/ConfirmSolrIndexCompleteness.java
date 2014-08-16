@@ -156,13 +156,16 @@ public class ConfirmSolrIndexCompleteness  {
             System.out.println("");
 		}		           
 		
+		idMap.clear();
+
 		// Save file on WEBDAV		 
 		try {
-			getDavService().saveFile( url,
-					new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));			
+			ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
+			getDavService().saveFile( url,is);
+			is.close();
 		} catch (Exception e) {
 		    throw new Exception("Problem saving report " + url ,e);
-		}				
+		}
 	}
 
 	

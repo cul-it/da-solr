@@ -28,12 +28,36 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class StandardMARCFieldMaker implements FieldMaker {
 		
 	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag,
+			IndicatorReq ir, String marcSubfieldCodes, String unwantedChars){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.unwantedChars = unwantedChars;
+		this.indicatorReq = ir;
+	}
+
+	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag,
 			String marcSubfieldCodes, String unwantedChars){ 			
 		super(); 		
 		this.marcSubfieldCodes = marcSubfieldCodes;
 		this.marcFieldTag = marcFieldTag;
 		this.solrFieldName = solrFieldName;
 		this.unwantedChars = unwantedChars;
+	}
+
+	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
+			IndicatorReq ir, String marcSubfieldCodes, VernMode vernMode, String unwantedChars){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.unwantedChars = unwantedChars;
+		this.vernMode = vernMode;
+		if (this.vernMode.equals(VernMode.VERNACULAR) 
+				|| this.vernMode.equals(VernMode.SING_VERN))
+			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
+		this.indicatorReq = ir;
 	}
 
 	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
@@ -50,6 +74,19 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	}
 
 	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
+			IndicatorReq ir, String marcSubfieldCodes, VernMode vernMode){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.vernMode = vernMode;
+		if (this.vernMode.equals(VernMode.VERNACULAR)
+				|| this.vernMode.equals(VernMode.SING_VERN))
+			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
+		this.indicatorReq = ir;
+	}
+
+	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
 			String marcSubfieldCodes, VernMode vernMode){ 			
 		super(); 		
 		this.marcSubfieldCodes = marcSubfieldCodes;
@@ -59,6 +96,15 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		if (this.vernMode.equals(VernMode.VERNACULAR)
 				|| this.vernMode.equals(VernMode.SING_VERN))
 			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
+	}
+
+	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
+			IndicatorReq ir, String marcSubfieldCodes){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.indicatorReq = ir;
 	}
 
 	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
@@ -74,6 +120,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	String solrFieldName = null;
 	String solrVernFieldName = null;
 	String unwantedChars = null;
+	IndicatorReq indicatorReq = null;
 	VernMode vernMode = VernMode.ADAPTIVE;
 
 	public String getName() {
@@ -96,20 +143,31 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			RDFService localStore) throws Exception {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
-		String query = 
+		StringBuilder sb = new StringBuilder();
+		if (indicatorReq == null) indicatorReq = new IndicatorReq();
+		sb.append(
 				"SELECT (str(?f) as ?field) (str(?sf) as ?sfield) ?tag ?code ?value ?ind1 ?ind2 WHERE { \n"+
 				"<"+recordURI+"> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField" + marcFieldTag + "> ?f . \n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/hasSubfield> ?sf .\n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> ?tag .\n"+
-				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> ?ind1 .\n"+
-				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> ?ind2 .\n"+
+				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> ?ind1 .\n");
+		if (indicatorReq.equals1 != null)
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals1+ "\".\n");
+		sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> ?ind2 .\n");
+		if (indicatorReq.equals2 != null)
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals2+ "\".\n");
+		sb.append(
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
-				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n"+
-				"FILTER( CONTAINS( \"6" + marcSubfieldCodes + "\" , ?code) )\n"+
-				"} ";
-										
+				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n");
+		sb.append( "FILTER( " );
+		if (indicatorReq.in1 != null)
+			sb.append("      CONTAINS( \"" +indicatorReq.in1+ "\" , ?ind1) && \n");
+		if (indicatorReq.in2 != null)
+			sb.append("      CONTAINS( \"" +indicatorReq.in2+ "\" , ?ind2) && \n");
+		sb.append( "         CONTAINS( \"6" + marcSubfieldCodes + "\" , ?code) )\n"
+				+ "} ");
 		SPARQLFieldMakerImpl impl = new SPARQLFieldMakerImpl()
-			.addMainStoreQuery(queryKey, query)			
+			.addMainStoreQuery(queryKey, sb.toString())			
 			.addResultSetToFields(new SubfieldsRStoFields());
 		
 		return impl.buildFields(recordURI, mainStore, localStore);		
