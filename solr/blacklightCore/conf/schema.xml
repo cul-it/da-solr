@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<schema name="Cornell Blacklight Index" version="Aug2014">
+<schema name="Cornell Blacklight Index" version="201408">
   <types>
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -346,7 +346,6 @@
   </fields>
 
   <uniqueKey>id</uniqueKey>
-  <defaultSearchField>text</defaultSearchField>
   <solrQueryParser defaultOperator="AND"/>
 
   <!-- Copy Fields -->
