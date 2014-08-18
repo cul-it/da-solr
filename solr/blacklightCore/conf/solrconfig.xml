@@ -463,35 +463,35 @@
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
         title_t^12500              title_tP^12500     
-        title_t_cjk^25000  
+        title_t_cjk^2500 
         subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^10000
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^2500
+        title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^2500
+        title_addl_t_cjk^250
         title_ngram^1000
         subject_unstemC^375        subject_unstemP^375
         subject_t^250              subject_tP^250
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
-        publisher_t_cjk^100
+        publisher_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_t                     isbn_tP
         issn_t                     issn_tP
         isbn_t_cjk
@@ -517,35 +517,35 @@
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
         title_t^12500              title_tP^12500     
-        title_t_cjk^25000  
+        title_t_cjk^2500
         subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^10000
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^2500
+        title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^2500
+        title_addl_t_cjk^250
         title_ngram^1000
         subject_unstemC^375        subject_unstemP^375
         subject_t^250              subject_tP^250
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
-        publisher_t_cjk^100
+        publisher_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_t                     isbn_tP
         issn_t                     issn_tP
         isbn_t_cjk
@@ -633,39 +633,40 @@
       <str name="echoParams">explicit</str>      
       <str name="q.alt">*:*</str>      
       <str name="mm">100%</str>
+      <str name="df">title_t</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
         title_t^12500              title_tP^12500     
-        title_t_cjk^25000  
+        title_t_cjk^2500 
         subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^10000
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^2500
+        title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^2500
+        title_addl_t_cjk^250
         title_ngram^1000
         subject_unstemC^375        subject_unstemP^375
         subject_t^250              subject_tP^250
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
-        publisher_t_cjk^100
+        publisher_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_t                     isbn_tP
         issn_t                     issn_tP
         isbn_t_cjk
@@ -690,26 +691,26 @@
       <str name="quot_qf">
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t_cjk^25000  
-        subtitle_t_cjk^10000
+        title_t_cjk^2500
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t_cjk^2500
-        title_addl_t_cjk^2500
+        title_uniform_t_cjk^250
+        title_addl_t_cjk^250
         title_ngram^1000
         subject_unstemC^375        subject_unstemP^375
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
-        publisher_t_cjk^100
-        author_addl_t_cjk^50
+        publisher_t_cjk^10
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_unstemC               isbn_unstemP
         issn_unstemC               issn_unstemP
         isbn_t_cjk
@@ -735,35 +736,35 @@
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
         title_t^12500              title_tP^12500     
-        title_t_cjk^25000  
+        title_t_cjk^2500
         subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^10000
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^2500
+        title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^2500
+        title_addl_t_cjk^250
         title_ngram^1000
         subject_unstemC^375        subject_unstemP^375
         subject_t^250              subject_tP^250
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
-        publisher_t_cjk^100
+        publisher_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_t                     isbn_tP
         issn_t                     issn_tP
         isbn_t_cjk
@@ -788,26 +789,25 @@
       <str name="quot_pf">
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t_cjk^25000  
-        subtitle_t_cjk^10000
+        title_t_cjk^2500
+        subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t_cjk^2500
-        title_addl_t_cjk^2500
-        title_ngram^1000
+        title_uniform_t_cjk^250
+        title_addl_t_cjk^250
         subject_unstemC^375        subject_unstemP^375
-        subject_t_cjk^500
+        subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^100
+        author_t_cjk^10
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
-        publisher_t_cjk^100
-        author_addl_t_cjk^50
+        publisher_t_cjk^10
+        author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t_cjk^50
+        subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk^10
+        title_series_t_cjk
         isbn_unstemC               isbn_unstemP
         issn_unstemC               issn_unstemP
         isbn_t_cjk
@@ -834,9 +834,9 @@
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         author_245c_t              author_245c_tP
         author_245c_t_cjk
       </str>
@@ -844,25 +844,25 @@
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
         author_t^50                author_tP^50
-        author_t_cjk^100
+        author_t_cjk^10
         author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^50
+        author_addl_t_cjk^5
         author_245c_t              author_245c_tP
         author_245c_t_cjk
       </str>
       <str name="author_quot_qf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^100
-        author_addl_t_cjk^50
+        author_t_cjk^10
+        author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
       </str>
       <str name="author_quot_pf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^100
-        author_addl_t_cjk^50
+        author_t_cjk^10
+        author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
       </str>
@@ -872,15 +872,15 @@
         title_unstemC^250          title_unstemP^250
         subtitle_unstemC^125       subtitle_unstemP^125
         title_t^125                title_tP^125   
-        title_t_cjk^250 
+        title_t_cjk^25
         subtitle_t^50              subtitle_tP^50
-        subtitle_t_cjk^100
+        subtitle_t_cjk^10
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_unstemC^25      title_addl_unstemP^25
         title_uniform_t^12         title_uniform_tP^12
-        title_uniform_t_cjk^25
+        title_uniform_t_cjk^3
         title_addl_t^12            title_addl_tP^12
-        title_addl_t_cjk^25
+        title_addl_t_cjk^3
         title_ngram^10
         title_series_unstemC^3     title_series_unstemP^3
         title_series_t             title_series_t
@@ -890,15 +890,15 @@
         title_unstemC^250          title_unstemP^250
         subtitle_unstemC^125       subtitle_unstemP^125
         title_t^125                title_tP^125   
-        title_t_cjk^250 
+        title_t_cjk^25
         subtitle_t^50              subtitle_tP^50
-        subtitle_t_cjk^100
+        subtitle_t_cjk^10
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_unstemC^25      title_addl_unstemP^25
         title_uniform_t^12         title_uniform_tP^12
-        title_uniform_t_cjk^25
+        title_uniform_t_cjk^3
         title_addl_t^12            title_addl_tP^12
-        title_addl_t_cjk^25
+        title_addl_t_cjk^3
         title_ngram^10
         title_series_unstemC^3     title_series_unstemP^3
         title_series_t             title_series_t
@@ -907,24 +907,24 @@
       <str name="title_quot_qf">
         title_unstemC^250          title_unstemP^250
         subtitle_unstemC^125       subtitle_unstemP^125
-        title_t_cjk^250 
-        subtitle_t_cjk^100
+        title_t_cjk^25
+        subtitle_t_cjk^10
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_unstemC^25      title_addl_unstemP^25
-        title_uniform_t_cjk^25
-        title_addl_t_cjk^25
+        title_uniform_t_cjk^3
+        title_addl_t_cjk^3
         title_series_unstemC^3     title_series_unstemP^3
         title_series_t_cjk   
       </str>
       <str name="title_quot_pf">
         title_unstemC^250          title_unstemP^250
         subtitle_unstemC^125       subtitle_unstemP^125
-        title_t_cjk^250 
-        subtitle_t_cjk^100
+        title_t_cjk^25
+        subtitle_t_cjk^10
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_unstemC^25      title_addl_unstemP^25
-        title_uniform_t_cjk^25
-        title_addl_t_cjk^25
+        title_uniform_t_cjk^3
+        title_addl_t_cjk^3
         title_series_unstemC^3     title_series_unstemP^3
         title_series_t_cjk   
       </str>
@@ -932,47 +932,47 @@
       <str name="subject_qf">
         subject_unstemC^200        subject_unstemP^200
         subject_t^25               subject_tP^25
-        subject_t_cjk^50
+        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t             subject_addl_tP
-        subject_addl_t_cjk^2
+        subject_addl_t_cjk
       </str>
       <str name="subject_pf">
         subject_unstemC^200        subject_unstemP^200
         subject_t^25               subject_tP^25
-        subject_t_cjk^50
+        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t             subject_addl_tP
-        subject_addl_t_cjk^2
+        subject_addl_t_cjk
       </str>
       <str name="subject_quot_qf">
         subject_unstemC^200        subject_unstemP^200
-        subject_t_cjk^50
+        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t_cjk^2
+        subject_addl_t_cjk
       </str>
       <str name="subject_quot_pf">
         subject_unstemC^200        subject_unstemP^200
-        subject_t_cjk^50
+        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t_cjk^2
+        subject_addl_t_cjk
       </str>
       
       <str name="publisher_qf">
         publisher_unstemC^10       publisher_unstemP^10
         publisher_t                publisher_tP
-        publisher_t_cjk^2
+        publisher_t_cjk
       </str>
       <str name="publisher_pf">
         publisher_unstemC^10       publisher_unstemP^10
         publisher_t                publisher_tP
-        publisher_t_cjk^2
+        publisher_t_cjk
       </str>
       <str name="publisher_quot_qf">
-        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk^2
+        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk
       </str>
       <str name="publisher_quot_pf">
-        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk^2
+        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk
       </str>
 
       <str name="pubplace_qf">
@@ -1082,20 +1082,20 @@
       <str name="series_qf">
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
       </str>
       <str name="series_pf">
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t^5           title_series_t^5
-        title_series_t_cjk^10
+        title_series_t_cjk
       </str>
       <str name="series_quot_qf">
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk^10
+        title_series_t_cjk
       </str>
       <str name="series_quot_pf">
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk^10
+        title_series_t_cjk
       </str>
             
       <int name="ps">2</int>
