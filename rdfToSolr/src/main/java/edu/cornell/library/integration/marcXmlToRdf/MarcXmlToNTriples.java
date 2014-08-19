@@ -64,10 +64,8 @@ public class MarcXmlToNTriples {
 			 							 String mfhdSrcDir,
 			 							 File target) throws Exception {
 
-//		if (! target.isDirectory()) {
 		BufferedOutputStream out =  new BufferedOutputStream(new GZIPOutputStream(
 						new FileOutputStream(target, true)));
-//		}
 		
 		RecordType type = RecordType.BIBLIOGRAPHIC;
 		List<String> bibSrcFiles = davService.getFileUrlList(bibSrcDir);
@@ -99,7 +97,19 @@ public class MarcXmlToNTriples {
 
 	}
 
-	
+	/**
+	 * Organize bibs in bibSrcDir and mfhds in mfhdSrcDir into nt.gz files in targetDir. The records
+	 * will be sorted by bibiographic id and grouped into nt.gz files of groupsize records. Records
+	 * not on the list of unsuppressedBibs or unsuppressedMfhds, as appropriate, will be discarded.
+	 * 
+	 * @param unsuppressedBibs
+	 * @param unsuppressedMfhds
+	 * @param davService
+	 * @param bibSrcDir
+	 * @param mfhdSrcDir
+	 * @param targetDir
+	 * @throws Exception
+	 */
 	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
 			 Collection<Integer> unsuppressedMfhds,
 			 DavService davService,
@@ -423,23 +433,9 @@ public class MarcXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/suppressed.txt";
 		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/unsuppressed.txt";
-//		String suppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/suppressedBibId.txt";
-//		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/bibs/unsuppressedBibId.txt";
-		Path path = Paths.get(suppressedFile);
-		
-		try {
-			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
-			while (scanner.hasNextLine()) {
-				String id = scanner.nextLine();
-				suppressedRecs.add(Integer.valueOf(id));
-			}
-			scanner.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		path = Paths.get(unsuppressedFile);
+
+		Path path = Paths.get(unsuppressedFile);
 		try {
 			Scanner scanner = new Scanner(path,StandardCharsets.UTF_8.name());
 			while (scanner.hasNextLine()) {
