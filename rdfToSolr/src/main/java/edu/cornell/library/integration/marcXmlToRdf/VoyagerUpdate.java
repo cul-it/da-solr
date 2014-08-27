@@ -1,10 +1,6 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -16,6 +12,7 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Mode;
 
 public class VoyagerUpdate {
 	
@@ -31,8 +28,13 @@ public class VoyagerUpdate {
 	
 	public VoyagerUpdate(String[] args) throws Exception {
 		
+		Collection<String> requiredFields = new HashSet<String>();
+		requiredFields.add("dailyBibMrcXmlDir");
+		requiredFields.add("dailyMfhdMrcXmlDir");
+		requiredFields.add("dailyMrcNtDir");
+		requiredFields.add("dailyMrcNtFilenamePrefix");
 		VoyagerToSolrConfiguration config =
-				VoyagerToSolrConfiguration.loadConfig( args );
+				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);				
 		
@@ -55,37 +57,16 @@ public class VoyagerUpdate {
 		}			
 		
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-				
-//		File tempFile = File.createTempFile("VoyagerDaily_"+currentDate+"_", ".nt.gz");
-//		tempFile.deleteOnExit();
-//		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
-	    Path tempDir = Files.createTempDirectory("IL-build_nt");
-	    
-		
-		try{
-		    MarcXmlToNTriples.marcXmlToNTriples(unsuppressedBibs,
-				                            unsuppressedMfhds, 
-											davService, 
-											config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(),
-											config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(),
-											tempDir);
-		}catch (Exception e){
-		    throw new Exception("Problems while converting to N-Triples",e);
-		}
-			
-		// Upload N-Triples files
-		int fileCount=0;
-		DirectoryStream<Path> stream = Files.newDirectoryStream(tempDir);
-		for (Path file: stream) {
-			System.out.println(file.getFileName());
-			String targetNTFile = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir()  
-					+ "/" + config.getDailyMrcNtFilenamePrefix() + "-" + currentDate+"."+ String.valueOf(++fileCount)  +".nt.gz";
-			InputStream is = new FileInputStream(file.toString());
-			davService.saveFile(targetNTFile, is);						
-			System.out.println("MARC N-Triples file saved to " + targetNTFile);
-			Files.delete(file);
-		}
-		Files.delete(tempDir);
+					    
+		MarcXmlToNTriples converter = new MarcXmlToNTriples(Mode.RECORD_COUNT_BATCHES);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
+		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
+		converter.setUnsuppressedBibs(unsuppressedBibs, true, false);
+		converter.setUnsuppressedMfhds(unsuppressedMfhds, true, false);
+		converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() + "-" + currentDate );
+		converter.run();
+
 	}
 	
 

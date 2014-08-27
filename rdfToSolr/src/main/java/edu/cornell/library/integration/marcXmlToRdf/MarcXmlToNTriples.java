@@ -1,5 +1,8 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,16 +23,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
+import org.apache.commons.io.FileUtils;
+
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
@@ -38,25 +41,649 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
-
+//TODO: The coding for individual files as src or dest material is 
+// incomplete and untested where it exists.
 public class MarcXmlToNTriples {
+	
+	private static Boolean debug = true;
 	
 	private static String logfile = "xmltordf.log";
 	private static String extractfile = "extract.tdf";
 	private static BufferedWriter logout;
 	private static BufferedWriter extractout;
 	public static Collection<Integer> foundRecs = new HashSet<Integer>();
-	public static Collection<Integer> suppressedRecs = new HashSet<Integer>();
 	public static Collection<Integer> unsuppressedRecs = new HashSet<Integer>();
 	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	public static Long recordCount = new Long(0);
 	public static Collection<Integer> no245a = new HashSet<Integer>();
 	private static Integer groupsize = 1000;
 	
+	private Mode mode;
+	private Boolean isUnsuppressedBibListFiltered = false;
+	private Boolean isUnsuppressedBibListFlagged = false;
+	private Collection<Integer> unsuppressedBibs = null;
+	private Boolean isUnsuppressedMfhdListFiltered = false;
+	private Boolean isUnsuppressedMfhdListFlagged = false;
+	private Collection<Integer> unsuppressedMfhds = null;
+	private Boolean isBibSrcDav = null;
+	private Boolean isMfhdSrcDav = null;
+	private Boolean isDestDav = null;
+	private String bibSrcDir = null;
+	private String bibSrcFile = null;
+	private String mfhdSrcDir = null;
+	private String mfhdSrcFile = null;
+	private String destDir = null;
+	private String destFile = null;
+	private String destFilenamePrefix = null;
+	private DavService bibSrcDav = null;
+	private DavService mfhdSrcDav = null;
+	private DavService destDav = null;
+	private String tempBibSrcDir = null;
+	private String tempDestDir = null;
+	private String currentFileName = null;
+	private Collection<Report> reports = new HashSet<Report>();
+	private Map<Report,String> reportResults = new HashMap<Report,String>();
+	private Map<Integer, BufferedOutputStream> outsById = null;
+	private Map<String, BufferedOutputStream> outsByName = null;
+	private Boolean processingBibs = null;
+	private Boolean processingMfhds = null;
+	private String uriPrefix = null;
+	
+	
+	public MarcXmlToNTriples(MarcXmlToNTriples.Mode m) {
+		mode = m;
+	}
+
+
+	/**
+	 * @param Collection<Integer> ids : Collection of Integer record IDs for unsuppressed Bibs.
+	 * @param Boolean filter : Should suppressed records be filtered out?
+	 * @param Boolean flag : Should suppressed/unsuppressed status be reflected in N-Triples?
+	 */
+	public void setUnsuppressedBibs( Collection<Integer> ids, Boolean filter, Boolean flag ) {
+		if ( ! filter && ! flag )
+			throw new IllegalArgumentException("At least one of filter and flag must be true.");
+		isUnsuppressedBibListFiltered = filter;
+		isUnsuppressedBibListFlagged = flag;
+		unsuppressedBibs = ids;
+	}
+	/**
+	 * @param Collection<Integer> ids : Collection of Integer record IDs for unsuppressed Mfhds.
+	 * @param Boolean filter : Should suppressed records be filtered out?
+	 * @param Boolean flag : Should suppressed/unsuppressed status be reflected in N-Triples?
+	 */
+	public void setUnsuppressedMfhds( Collection<Integer> ids, Boolean filter, Boolean flag ) {
+		if ( ! filter && ! flag )
+			throw new IllegalArgumentException("At least one of filter and flag must be true.");
+ 		isUnsuppressedMfhdListFiltered = filter;
+		isUnsuppressedMfhdListFlagged = flag;
+		unsuppressedMfhds = ids;
+	}
+	/**
+	 * Set local directory as source of XML bib records.
+	 * @param dir : path name (relative or absolute)
+	 */
+	public void setBibSrcDir( String dir ) {
+		if (dir.startsWith("http")) {
+			System.out.println("Error: If bibSrcDir is a URL, use setBibSrcDavDir(String, DavService).");
+			throw new IllegalArgumentException("If bibSrcDir is a URL, use setBibSrcDavDir(String, DavService).");
+		}
+		bibSrcDir = dir;
+		isBibSrcDav = false;
+	}
+	/**
+	 * Set webdav directory of XML bib records.
+	 * @param dir : Directory location as full URL.
+	 * @param d : DavService instance with appropriate credentials loaded.
+	 */
+	public void setBibSrcDavDir( String dir, DavService d ) {
+		if (! dir.startsWith("http")) {
+			System.out.println("Error: A webdav source directory must start with \"http\".");
+			throw new IllegalArgumentException("A webdav source directory must start with \"http\".");
+		}
+		bibSrcDir = dir;
+		isBibSrcDav = true;
+		bibSrcDav = d;
+	}
+
+
+	/**
+	 * Set local directory as source of XML mfhd records.
+	 * @param dir : path name (relative or absolute)
+	 */
+	public void setMfhdSrcDir( String dir ) {
+		if (dir.startsWith("http")) {
+			System.out.println("Error: If mfhdSrcDir is a URL, use setMfhdSrcDavDir(String, DavService).");
+			throw new IllegalArgumentException("If mfhdSrcDir is a URL, use setMfhdSrcDavDir(String, DavService).");
+		}
+		mfhdSrcDir = dir;
+		isMfhdSrcDav = false;
+	}
+	/**
+	 * Set webdav directory of XML mfhd records.
+	 * @param dir : Directory location as full URL.
+	 * @param d : DavService instance with appropriate credentials loaded.
+	 */
+	public void setMfhdSrcDavDir( String dir, DavService d ) {
+		if (! dir.startsWith("http")) {
+			System.out.println("Error: A webdav source directory must start with \"http\".");
+			throw new IllegalArgumentException("A webdav source directory must start with \"http\".");
+		}
+		mfhdSrcDir = dir;
+		isMfhdSrcDav = true;
+		mfhdSrcDav = d;
+	}
+
+	
+	/**
+	 * Set local directory as destination for N-Triples (nt.gz) files.
+	 * @param dir : path name (relative or absolute)
+	 */
+	public void setDestDir( String dir ) {
+		if (dir.startsWith("http")) {
+			System.out.println("Error: If destDir is a URL, use setDestDavDir(String, DavService).");
+			throw new IllegalArgumentException("If destDir is a URL, use setDestDavDir(String, DavService).");
+		}
+		destDir = dir;
+		isDestDav = false;
+	}
+	/**
+	 * Set webdav directory for N-Triples files to go.
+	 * @param dir : Directory location as full URL.
+	 * @param d : DavService instance with appropriate credentials loaded.
+	 */
+	public void setDestDavDir( String dir, DavService d ) {
+		if (! dir.startsWith("http")) {
+			System.out.println("Error: A webdav source directory must start with \"http\".");
+			throw new IllegalArgumentException("A webdav source directory must start with \"http\".");
+		}
+		destDir = dir;
+		isDestDav = true;
+		destDav = d;
+	}
+	
+	/**
+	 * Set prefix for filenames in the destination directory.
+	 * after prefix will appear ".N.nt.gz" where N is a batch id.
+	 * @param pref : Filename prefix
+	 */
+	public void setDestFilenamePrefix( String pref ) {
+		destFilenamePrefix = pref;
+	}
+	
+	public void setUriPrefix( String p ) {
+		if (! p.endsWith("/"))
+			p += "/";
+		uriPrefix = p;
+	}
+	
+	/**
+	 * add report to desired reports
+	 * @param r
+	 */
+	public void addReport( Report r ) {
+		reports.add(r);
+	}
+	
+	public String getReport( Report r ) {
+		if (reportResults.containsKey(r)) 
+			return reportResults.get(r);
+		return null;
+	}
+	
+	public void run() throws Exception {
+
+		validateRun();
+		
+		if (mode.equals(Mode.NAME_AS_SOURCE))
+			outsByName = new HashMap<String,BufferedOutputStream>();
+		else
+			outsById = new HashMap<Integer, BufferedOutputStream>();
+		
+		// If the destination is local, we can build N-Triples directly to there.
+		// Otherwise, we need a temporary build directory.
+		if (isDestDav) {
+			tempDestDir = Files.createTempDirectory("IL-xml2NT-").toString();
+			if (debug) System.out.println(tempDestDir);
+		}
+		
+		// If we want RECORD_COUNT_BATCHES, we will need to process bibs twice,
+		// so downloading in advance will help.
+		if (mode.equals(Mode.RECORD_COUNT_BATCHES) && isBibSrcDav)
+			tempBibSrcDir = downloadBibsToTempDir();
+		
+		// ID_RANGE_BATCHES don't require precalculated ranges, but RECORD_COUNT_BATCHES do.
+		if (mode.equals(Mode.RECORD_COUNT_BATCHES))
+			determineTargetBatches();
+		
+		if (processingBibs) processBibs();
+		if (reports.contains(Report.GEN_FREQ_BIB))
+			reportResults.put(Report.GEN_FREQ_BIB,buildGenFreqReport());
+
+		if (processingMfhds) processMfhds();
+		if (reports.contains(Report.GEN_FREQ_MFHD))
+			reportResults.put(Report.GEN_FREQ_MFHD,buildGenFreqReport());
+		
+		if (outsByName != null)
+			for (BufferedOutputStream out : outsByName.values())
+				out.close();
+		if (outsById != null)
+			for (BufferedOutputStream out : outsById.values())
+				out.close();
+
+		if (isDestDav) uploadNT();
+		
+		if (tempDestDir != null)
+			FileUtils.deleteDirectory(new File(tempDestDir));
+		if (tempBibSrcDir != null)
+			FileUtils.deleteDirectory(new File(tempBibSrcDir));
+		
+	}
+	
+	private void uploadNT() throws Exception {
+		
+		DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
+		for (Path file: stream) {
+			System.out.println(file.getFileName());
+			String targetNTFile = 
+					(destDir != null) ? destDir +"/"+file.getFileName()
+							: destFile;
+			InputStream is = new FileInputStream(file.toString());
+			destDav.saveFile(targetNTFile, is);						
+			System.out.println("MARC N-Triples file saved to " + targetNTFile);
+		}
+
+	}
+
+	private void sortNt( String bibid, String nt ) throws Exception {
+		BufferedOutputStream out = null;
+		String dirToProcessInto = null;
+		
+		if (tempDestDir != null)
+			dirToProcessInto = tempDestDir;
+		else if (destDir != null && isDestDav.equals(false))
+			dirToProcessInto = destDir;
+		
+		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
+			Integer batchid = Integer.valueOf(bibid) / groupsize;
+			if ( ! outsById.containsKey(batchid)) {
+				out =  new BufferedOutputStream(new GZIPOutputStream(
+						new FileOutputStream(dirToProcessInto+"/"+
+								destFilenamePrefix+"."+batchid+".nt.gz", true)));
+				outsById.put(batchid, out);
+			} else 
+				out = outsById.get(batchid);
+
+		} else if (mode.equals(Mode.RECORD_COUNT_BATCHES)) {
+			Integer outputBatch = 100_000_000;
+			Iterator<Integer> i = outsById.keySet().iterator();
+			Integer id = Integer.valueOf(bibid);
+			while (i.hasNext()) {
+				Integer batch = i.next();
+				if ((id <= batch) && (outputBatch > batch))
+					outputBatch = batch;
+			}
+			if (outputBatch == 100_000_000) {
+				System.out.println("Failed to identify output batch for bib "+bibid
+						+". Not writing record to N-Triples.");
+			}
+			out = outsById.get(outputBatch);
+
+		} else { //Mode.NAME_AS_SOURCE
+			if (outsByName.containsKey(currentFileName)) {
+				out = outsByName.get(currentFileName);
+			} else {
+				if (dirToProcessInto != null) {
+					String targetFile = dirToProcessInto+"/"+swapFileExt(currentFileName);
+					if (debug)
+						System.out.println("Opening output handle for "+targetFile);
+					out = new BufferedOutputStream(new GZIPOutputStream(
+							new FileOutputStream(targetFile)));
+				} else {
+					// dest is a file, and not on dav
+					out = new BufferedOutputStream(new GZIPOutputStream(
+							new FileOutputStream(dirToProcessInto+"/"+
+									swapFileExt(currentFileName))));
+				}
+				outsByName.put(currentFileName, out);
+			}
+		}
+		
+		if (out != null) {
+			out.write( nt.getBytes() );
+		} else {
+			System.out.println("N-Triples not written to file. Bibid: "+bibid);
+		}
+	}
+	
+	public String swapFileExt ( String xml ) {
+		String nt;
+		if (xml.endsWith(".xml"))
+			nt = xml.substring(0,xml.length()-4)+".nt.gz";
+		else
+			nt = xml + ".nt.gz";
+		return nt;
+	}
+	
+	private void readXml( InputStream xmlstream, RecordType type ) throws XMLStreamException, Exception {
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = 
+				input_factory.createXMLStreamReader(xmlstream);
+		while (r.hasNext()) {
+			String event = getEventTypeString(r.next());
+			if (event.equals("START_ELEMENT"))
+				if (r.getLocalName().equals("record")) {
+					MarcRecord rec = processRecord(r);
+					rec.type = type;
+
+					if (isSuppressionBlocked(rec.id, type))
+						continue;
+
+					mapNonRomanFieldsToRomanizedFields(rec);
+					if (reports.contains(Report.QC_CJK_LABELING))
+						surveyForCJKValues(rec);
+					if ((type.equals(RecordType.BIBLIOGRAPHIC) && reports.contains(Report.GEN_FREQ_BIB))
+							|| (type.equals(RecordType.HOLDINGS) && reports.contains(Report.GEN_FREQ_MFHD))) {
+						tabulateFieldData(rec);
+					}
+					String ntriples = generateNTriples( rec, type );
+					if (type.equals(RecordType.BIBLIOGRAPHIC))
+						sortNt(rec.id,ntriples);
+					else if (type.equals(RecordType.HOLDINGS))
+						sortNt(rec.bib_id,ntriples);
+				}
+		}
+		r.close();
+		xmlstream.close();
+	}
+	
+	private Boolean isSuppressionBlocked(String id, RecordType type) {
+		if (type.equals(RecordType.BIBLIOGRAPHIC)
+				&& isUnsuppressedBibListFiltered
+				&& ! unsuppressedBibs.contains(Integer.valueOf(id)))
+			return true;
+		if (type.equals(RecordType.HOLDINGS)
+				&& isUnsuppressedMfhdListFiltered
+				&& ! unsuppressedMfhds.contains(Integer.valueOf(id)))
+			return true;
+		return false;
+	}
+	
+	public static String escapeForNTriples( String s ) {
+		s = s.replaceAll("\\\\", "\\\\\\\\");
+		s = s.replaceAll("\"", "\\\\\\\"");
+		s = s.replaceAll("[\n\r]+", "\\\\n");
+		s = s.replaceAll("\t","\\\\t");
+		return s;
+	}
+	
+	private void processBibs(  ) throws Exception {
+		
+		String localProcessDir = null;
+		String localProcessFile = null;
+		if (tempBibSrcDir != null)
+			localProcessDir = tempBibSrcDir;
+		if ( ! isBibSrcDav )
+			if ( bibSrcDir != null ) 
+				localProcessDir = bibSrcDir;
+			else
+				localProcessFile = bibSrcFile;
+		
+		if (localProcessDir != null) {
+			DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir));
+			for (Path file: stream) {
+				currentFileName = file.toString().substring(
+						file.toString().lastIndexOf(File.separator)+1);
+				if (debug) System.out.println(file + " ("+currentFileName+")");
+				readXml(new FileInputStream(file.toString()),
+						RecordType.BIBLIOGRAPHIC );
+			}
+			return;
+		}
+		
+		if (localProcessFile != null) {
+			currentFileName = localProcessFile.substring(
+					localProcessFile.lastIndexOf(File.separator)+1);
+			if (debug) System.out.println(localProcessFile + " ("+currentFileName+")");
+			readXml(new FileInputStream(localProcessFile),
+					RecordType.BIBLIOGRAPHIC );
+			return;
+		}
+		
+		// At this point we're looking for Dav sources
+		if (bibSrcDir != null) {
+			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
+			for ( String file : files) {
+				currentFileName = file.substring(file.lastIndexOf('/')+1);
+				if (debug) System.out.println(file + " ("+currentFileName+")");
+				readXml(bibSrcDav.getFileAsInputStream(file),
+						RecordType.BIBLIOGRAPHIC );
+			}
+			return;
+		}
+		
+		if (bibSrcFile != null) {
+			currentFileName = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
+			if (debug) System.out.println(bibSrcFile + " ("+currentFileName+")");
+			readXml(bibSrcDav.getFileAsInputStream(bibSrcFile),
+					RecordType.BIBLIOGRAPHIC );
+			return;
+		}		
+		
+	}
+	
+	private void processMfhds( ) throws Exception {
+		String localProcessDir = null;
+		String localProcessFile = null;
+
+		if ( ! isMfhdSrcDav )
+			if ( mfhdSrcDir != null ) 
+				localProcessDir = mfhdSrcDir;
+			else
+				localProcessFile = mfhdSrcFile;
+		
+		if (localProcessDir != null) {
+			DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir));
+			for (Path file: stream) {
+				currentFileName = file.toString().substring(
+						file.toString().lastIndexOf(File.separator)+1);
+				readXml(new FileInputStream(file.toString()),
+						RecordType.HOLDINGS );
+			}
+			return;
+		}
+		
+		if (localProcessFile != null) {
+			currentFileName = localProcessFile.substring(
+					localProcessFile.lastIndexOf(File.separator)+1);
+			readXml(new FileInputStream(localProcessFile),
+					RecordType.HOLDINGS );
+			return;
+		}
+
+		// At this point we're looking for Dav sources
+		if (mfhdSrcDir != null) {
+			List<String> files = mfhdSrcDav.getFileUrlList(mfhdSrcDir);
+			for ( String file : files) {
+				currentFileName = file.substring(file.lastIndexOf('/')+1);
+				readXml(mfhdSrcDav.getFileAsInputStream(file),
+						RecordType.HOLDINGS );
+			}
+			return;
+		}
+		
+		if (mfhdSrcFile != null) {
+			currentFileName = mfhdSrcFile.substring(mfhdSrcFile.lastIndexOf('/')+1);
+			readXml(mfhdSrcDav.getFileAsInputStream(mfhdSrcFile),
+					RecordType.HOLDINGS );
+			return;
+		}
+	}
+
+	private void determineTargetBatches() throws IOException, XMLStreamException {
+		String dirToProcess = null;
+		String dirToProcessInto = null;
+		
+		if (tempDestDir != null)
+			dirToProcessInto = tempDestDir;
+		else if (destDir != null && isDestDav.equals(false))
+			dirToProcessInto = destDir;
+		else
+			throw new IllegalArgumentException("Don't know where to put files!");
+
+		Collection<Integer> bibids = new HashSet<Integer>();
+
+		if (tempBibSrcDir != null)
+			dirToProcess = tempBibSrcDir;
+		else if (bibSrcDir != null && isBibSrcDav.equals(false))
+			dirToProcess = bibSrcDir;
+		if (dirToProcess != null) {
+			System.out.println(dirToProcess);
+			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirToProcess));
+			for (Path file: stream)
+				bibids.addAll(collectBibidsFromXmlFile(file));
+		} else {
+			bibids.addAll(collectBibidsFromXmlFile(Paths.get(bibSrcFile)));
+		}
+		
+		// Sort list of bib record IDs and determine ranges for batches of size groupsize.
+		System.out.println(bibids.size() + " bibids in set.\n");
+		Integer[] bibs = bibids.toArray(new Integer[ bibids.size() ]);
+		bibids.clear();
+		Arrays.sort( bibs );
+		int batchCount = (bibs.length / groupsize) + 1;
+		for (int i3 = 1; i3 <= batchCount; i3++) {
+			Integer minBibid;
+			if (i3*groupsize <= bibs.length)
+				minBibid = bibs[(i3)*groupsize];
+			else
+				minBibid = bibs[bibs.length - 1];
+			System.out.println(i3+": "+minBibid);
+			BufferedOutputStream out =  new BufferedOutputStream(new GZIPOutputStream(
+					new FileOutputStream(dirToProcessInto+"/"+
+							destFilenamePrefix+"."+i3+".nt.gz", true)));
+			outsById.put(minBibid, out);
+			
+		}
+
+	}
+	
+	private Collection<Integer> collectBibidsFromXmlFile(Path file) throws XMLStreamException, IOException {
+		Collection<Integer> bibids = new HashSet<Integer>();
+		System.out.println(file.getFileName());
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		InputStream is = new FileInputStream(file.toString());
+		XMLStreamReader r = input_factory.createXMLStreamReader(is);
+		EVENT: while (r.hasNext()) {
+			String event = getEventTypeString(r.next());
+			if (event.equals("START_ELEMENT")) {
+				if (r.getLocalName().equals("controlfield")) {
+					for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
+						if (r.getAttributeLocalName(i1).equals("tag")) {
+							if (r.getAttributeValue(i1).equals("001")) 
+								bibids.add(Integer.valueOf(r.getElementText()));
+							continue EVENT;
+						}
+				}
+			}
+		}
+		is.close();
+		return bibids;
+	}
+
+	private String downloadBibsToTempDir() throws Exception {
+		Path tempLocalBibDir = Files.createTempDirectory("IL-xml2NT-");
+		if (bibSrcDir != null) {
+			List<String> bibSrcFiles = bibSrcDav.getFileUrlList(bibSrcDir);
+			Iterator<String> i = bibSrcFiles.iterator();
+			while (i.hasNext()) {
+				String srcFile = i.next();
+				String filename = srcFile.substring(srcFile.lastIndexOf('/') + 1);
+				System.out.println(filename);
+				bibSrcDav.getFile(srcFile, tempLocalBibDir + File.separator + filename);
+				System.out.println(srcFile + ": " + tempLocalBibDir + File.separator + filename);
+			}
+		} else {
+			bibSrcDav.getFile(bibSrcFile, tempLocalBibDir + File.separator + 
+					bibSrcFile.substring( bibSrcFile.lastIndexOf('/') + 1 ));
+		}
+		return tempLocalBibDir.toString();
+	}
+	
+	private void validateRun() {
+		processingBibs = ((bibSrcDir != null) || (bibSrcFile != null));
+		processingMfhds = ((mfhdSrcDir != null) || (mfhdSrcFile != null));
+		if ( ! processingBibs && ! processingMfhds ) {
+			System.out.println("At least one of bibs and mfhds must be configured for converstion.");
+			throw new IllegalArgumentException("At least one of bibs and mfhds must be configured for converstion.");
+		}
+		Boolean destinationSupplied = ((destDir != null) || (destFile != null));
+		if ( ! destinationSupplied ) {
+			System.out.println("Either a destination directory or destination file must be configured.");
+			throw new IllegalArgumentException("Either a destination directory or destination file must be configured.");
+		}
+		if ((bibSrcDir != null) && (bibSrcFile != null)) {
+			System.out.println("To avoid ambiguity, a bib source directory and bib source file may not both be configured.");
+			throw new IllegalArgumentException("To avoid ambiguity, a bib source directory and bib source file may not both be configured.");
+		}
+		if ((mfhdSrcDir != null) && (mfhdSrcFile != null)) {
+			System.out.println("To avoid ambiguity, a mfhd source directory and mfhd source file may not both be configured.");
+			throw new IllegalArgumentException("To avoid ambiguity, a mfhd source directory and mfhd source file may not both be configured.");
+		}
+		if ((destDir != null) && (destFile != null)) {
+			System.out.println("To avoid ambiguity, a destination directory and destination file may not both be configured.");
+			throw new IllegalArgumentException("To avoid ambiguity, a destination directory and destination file may not both be configured.");
+		}
+		if (destFilenamePrefix != null) {
+			if (destFile != null) {
+				System.out.println("When destination is a specific file, destination filename prefix may not be configured.");
+				throw new IllegalArgumentException("When destination is a specific file, destination filename prefix may not be configured.");
+			}
+			if (mode.equals(Mode.NAME_AS_SOURCE)) {
+				System.out.println("When processing in NAME_AS_SOURCE mode, destination filename prefix may not be configured.");
+				throw new IllegalArgumentException("When processing in NAME_AS_SOURCE mode, destination filename prefix may not be configured.");
+			}
+		}
+		if ( destDir != null && ! mode.equals(Mode.NAME_AS_SOURCE) && destFilenamePrefix == null) {
+			System.out.println("When destination is a directory and not processing in NAME_AS_SOURCE mode, destination filename prefix must be configured.");
+			throw new IllegalArgumentException("When destination is a directory and not processing in NAME_AS_SOURCE mode, destination filename prefix must be configured.");
+		}
+		if ( ! mode.equals(Mode.NAME_AS_SOURCE) && (destDir == null)) {
+			System.out.println("When processing in RECORD_COUNT_BATCHES or ID_RANGE_BATCHES mode, a destination directory must be configured.");
+			throw new IllegalArgumentException("When processing in RECORD_COUNT_BATCHES or ID_RANGE_BATCHES mode, a destination directory must be configured.");
+		}
+		if ((destFile != null) && ((bibSrcDir != null) || (mfhdSrcDir != null))) {
+			System.out.println("When into a single destination file, source XML must be specified as files rather than directories.");
+			throw new IllegalArgumentException("When into a single destination file, source XML must be specified as files rather than directories.");
+		}
+		if (destFile != null) {
+			String dest = destFile.substring( destFile.lastIndexOf( isDestDav ? '/' : File.separatorChar) );
+			if (processingBibs) {
+				String bibFile = bibSrcFile.substring( bibSrcFile.lastIndexOf( isBibSrcDav ? '/' : File.separatorChar) );
+				if ( ! bibFile.equals(dest)) {
+					System.out.println("When processing bib and/or mfhd files into a single dest file, file names must match.");
+					throw new IllegalArgumentException("When processing bib and/or mfhd files into a single dest file, file names must match.");
+				}
+			}
+			if (processingBibs) {
+				String mfhdFile = mfhdSrcFile.substring( mfhdSrcFile.lastIndexOf( isMfhdSrcDav ? '/' : File.separatorChar) );
+				if ( ! mfhdFile.equals(dest)) {
+					System.out.println("When processing bib and/or mfhd files into a single dest file, file names must match.");
+					throw new IllegalArgumentException("When processing bib and/or mfhd files into a single dest file, file names must match.");
+				}
+			}
+		}
+
+	}
+	
+	
 	private static Pattern shadowLinkPattern 
 	   = Pattern.compile("https?://catalog.library.cornell.edu/cgi-bin/Pwebrecon.cgi\\?BBID=([0-9]+)&DB=local");
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
-	
+	/*
+@Deprecated
 	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
 			 							 Collection<Integer> unsuppressedMfhds,
 			 							 DavService davService,
@@ -96,7 +723,7 @@ public class MarcXmlToNTriples {
 		out.close();
 
 	}
-
+*/
 	/**
 	 * Organize bibs in bibSrcDir and mfhds in mfhdSrcDir into nt.gz files in targetDir. The records
 	 * will be sorted by bibiographic id and grouped into nt.gz files of groupsize records. Records
@@ -110,6 +737,8 @@ public class MarcXmlToNTriples {
 	 * @param targetDir
 	 * @throws Exception
 	 */
+/*
+@Deprecated
 	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
 			 Collection<Integer> unsuppressedMfhds,
 			 DavService davService,
@@ -213,7 +842,7 @@ public class MarcXmlToNTriples {
 
 	}
 
-	
+@Deprecated	
 	private static void processRecords (XMLStreamReader r,
 										RecordType type,
 										Collection<Integer> unsuppressedList,
@@ -239,7 +868,7 @@ public class MarcXmlToNTriples {
 //					tabulateFieldData(rec);
 					identifyShadowRecordTargets(rec);
 //					extractData(rec);
-					mapNonRomanFieldsToRomanizedFields(rec);
+//					mapNonRomanFieldsToRomanizedFields(rec);
 //					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 //						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
@@ -268,6 +897,7 @@ public class MarcXmlToNTriples {
 		
 	}
 
+@Deprecated
 	private static void processRecords (XMLStreamReader r,
 										RecordType type,
 										Collection<Integer> unsuppressedList,
@@ -293,7 +923,7 @@ public class MarcXmlToNTriples {
 //					tabulateFieldData(rec);
 					identifyShadowRecordTargets(rec);
 //					extractData(rec);
-					mapNonRomanFieldsToRomanizedFields(rec);
+//					mapNonRomanFieldsToRomanizedFields(rec);
 //					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 //						attemptToConfirmDateValues(rec);
 					String ntriples = generateNTriples( rec, type );
@@ -302,9 +932,10 @@ public class MarcXmlToNTriples {
 		}
 		
 	}
-
+*/
+	/*
 	
-	
+@Deprecated
 	public static void marcXmlToNTriples(File xmlfile, File targetfile) throws Exception {
 		RecordType type ;
 		if (xmlfile.getName().startsWith("mfhd"))
@@ -320,6 +951,7 @@ public class MarcXmlToNTriples {
 		marcXmlToNTriples( xmlfile, targetfile, type );
 	}
 	
+@Deprecated
 	public static void marcXmlToNTriples(File xmlfile, File target, RecordType type) throws Exception {
 		FileInputStream xmlstream = new FileInputStream( xmlfile );
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
@@ -340,11 +972,6 @@ public class MarcXmlToNTriples {
 					rec.type = type;
 					
 					Integer id = Integer.valueOf(rec.id);
-					if (suppressedRecs.contains(id)) {
-						suppressedRecs.remove(id);
-//						System.out.println("Suppressed record in dump, "+id+" - skipping.");
-						continue;
-					}
 					if (unsuppressedRecs.contains(id)) {
 						unsuppressedRecs.remove(id);
 					} else {
@@ -359,10 +986,10 @@ public class MarcXmlToNTriples {
 					if (foundRecs.contains(Integer.valueOf(rec.id))) continue;
 					else foundRecs.add(Integer.valueOf(rec.id));
 
-					tabulateFieldData(rec);
+		//			tabulateFieldData(rec);
 					identifyShadowRecordTargets(rec);
 					extractData(rec);
-					mapNonRomanFieldsToRomanizedFields(rec);
+		//			mapNonRomanFieldsToRomanizedFields(rec);
 					surveyForCJKValues(rec);
 					if (rec.type == RecordType.BIBLIOGRAPHIC) 
 						attemptToConfirmDateValues(rec);
@@ -399,7 +1026,7 @@ public class MarcXmlToNTriples {
 			out.close();
 		}
 	}
-
+*/
 	public static void surveyForCJKValues( MarcRecord rec ) throws IOException {
 		if (logout == null) {
 			FileWriter logstream = new FileWriter(logfile);
@@ -430,7 +1057,8 @@ public class MarcXmlToNTriples {
 	
 	/**
 	 * @param args
-	 */
+	 *//*
+@Deprecated
 	public static void main(String[] args) {
 		
 		String unsuppressedFile = "/users/fbw4/voyager-harvest/data/fulldump/unsuppressed.txt";
@@ -446,8 +1074,7 @@ public class MarcXmlToNTriples {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		System.out.println("Expecting " + suppressedRecs.size() + " suppressed records, "
-				+ unsuppressedRecs.size() + " unsuppressed records.");
+		System.out.println("Expecting " + unsuppressedRecs.size() + " unsuppressed records.");
 		String destdir = "/users/fbw4/voyager-harvest/data/clean";
 		File file = new File( "/users/fbw4/voyager-harvest/data/fulldump" );
 		File[] files = file.listFiles();
@@ -472,13 +1099,6 @@ public class MarcXmlToNTriples {
 			}
 			System.out.println();
 		}
-		if (suppressedRecs.size() > 0) {
-			System.out.println("Suppressed records expected but not found:");
-			for (Integer id: suppressedRecs) {
-				System.out.print(id+", ");
-			}
-			System.out.println();
-		}
 		try {
 			if (shadowLinkedRecs.size() > 0) {
 				BufferedOutputStream shadowOut =  new BufferedOutputStream(new GZIPOutputStream(
@@ -499,6 +1119,7 @@ public class MarcXmlToNTriples {
 	}
 	
 	
+@Deprecated
 	private static void identifyShadowRecordTargets(MarcRecord rec) {
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
@@ -518,8 +1139,9 @@ public class MarcXmlToNTriples {
 			}
 		}
 	}
+	*/
 	
-	
+@Deprecated
 	private static void extractData( MarcRecord rec ) throws Exception {
 
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
@@ -631,8 +1253,22 @@ public class MarcXmlToNTriples {
 			extractout = null;
 		}
 	}
+
+	private String buildGenFreqReport() {
+		String[] tags = fieldStatsByTag.keySet().toArray(new String[ fieldStatsByTag.keySet().size() ]);
+		Arrays.sort( tags );
+		StringBuilder sb = new StringBuilder();
+		Boolean first = true;
+		for( String tag: tags) {
+			if (first) first = false;
+			else sb.append("-------------------------------\n");
+			sb.append(fieldStatsByTag.get(tag).toString());
+		}
+		fieldStatsByTag.clear();
+		return sb.toString();
+	}
 	
-	private static void tabulateFieldData( MarcRecord rec ) throws Exception {
+	private void tabulateFieldData( MarcRecord rec ) throws Exception {
 		
 		Map<String,Integer> fieldtagcounts = new HashMap<String,Integer>();
 		Map<String,HashMap<Character,Integer>> codeCounts = 
@@ -706,14 +1342,17 @@ public class MarcXmlToNTriples {
 				}
 				if (f.tag.equals("245") && sf.code.equals('a')) {
 					if (sf.value.length() <= 1)
+						if (reports.contains(Report.QC_245))
 						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
 							") 245 subfield a has length of "+ sf.value.length()+ ": "+ f.toString() + "\n");
 					else if (sf.value.trim().length() < 1)
+						if (reports.contains(Report.QC_245))
 						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
 							") 245 subfield a contains only whitespace: "+ f.toString() + "\n");
 					
 				}
 				if (! (Character.isLowerCase(sf.code) || Character.isDigit(sf.code))) {
+					if (reports.contains(Report.QC_SUBFIELD_CODES))
 					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
 							") Field has subfield code \""+sf.code+"\" which is neither lower case nor a digit: "+ f.toString() +  "\n");
 				}
@@ -727,6 +1366,7 @@ public class MarcXmlToNTriples {
 			}
 			if (f.tag.equals("245") && ! sfpattern.contains("a")) {
 				no245a.add(rec_id);
+				if (reports.contains(Report.QC_245))
 				logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
 						") 245 field has no subfield a: "+ f.toString() +  "\n");
 			}
@@ -770,11 +1410,13 @@ public class MarcXmlToNTriples {
 		recordCount++;
 	}
 
-	private static String generateNTriples ( MarcRecord rec, RecordType type ) {
+	private String generateNTriples ( MarcRecord rec, RecordType type ) {
 		StringBuilder sb = new StringBuilder();
 		String id = rec.control_fields.get(1).value;
 		rec.id = id;
 		String uri_host = "http://da-rdf.library.cornell.edu/individual/";
+		if (uriPrefix != null) 
+			uri_host = uriPrefix;
 		String id_pref;
 		String record_type_uri;
 		if (type == RecordType.BIBLIOGRAPHIC) {
@@ -790,6 +1432,12 @@ public class MarcXmlToNTriples {
 		String record_uri = "<"+uri_host+id_pref+id+">";
 		sb.append(record_uri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " + record_type_uri +" .\n");
 		sb.append(record_uri + " <http://www.w3.org/2000/01/rdf-schema#label> \""+id+"\".\n");
+		if (type.equals(RecordType.BIBLIOGRAPHIC) && isUnsuppressedBibListFlagged)
+			sb.append(record_uri + " <http://marcrdf.library.cornell.edu/canonical/0.1/status> \""
+					+((unsuppressedBibs.contains(id))?"unsuppressed":"suppressed")+  "\".\n");
+		if (type.equals(RecordType.HOLDINGS) && isUnsuppressedMfhdListFlagged)
+			sb.append(record_uri + " <http://marcrdf.library.cornell.edu/canonical/0.1/status> \""
+					+((unsuppressedMfhds.contains(id))?"unsuppressed":"suppressed")+  "\".\n");
 		sb.append(record_uri + " <http://marcrdf.library.cornell.edu/canonical/0.1/leader> \""+rec.leader+"\".\n");
 		int fid = 0;
 		while( rec.control_fields.containsKey(fid+1) ) {
@@ -831,15 +1479,8 @@ public class MarcXmlToNTriples {
 
 		return sb.toString();
 	}
-		
-	public static String escapeForNTriples( String s ) {
-		s = s.replaceAll("\\\\", "\\\\\\\\");
-		s = s.replaceAll("\"", "\\\\\\\"");
-		s = s.replaceAll("[\n\r]+", "\\\\n");
-		s = s.replaceAll("\t","\\\\t");
-		return s;
-	}
 	
+@Deprecated
 	private static void attemptToConfirmDateValues( MarcRecord rec ) throws Exception {
 		
 		Collection<String> humanDates = new HashSet<String>();
@@ -918,8 +1559,8 @@ public class MarcXmlToNTriples {
 			}
 		}
 	}
-	
-	private static void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
+
+	private void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
 //		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
 		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
@@ -945,19 +1586,22 @@ public class MarcXmlToNTriples {
 //								unlinkedeighteighties.put(id, sf.value.substring(0, 3));
 							} else {
 								if (linkedeighteighties.containsKey(n)) {
-									logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one 880 with the same link index.\n");
+									if (reports.contains(Report.QC_880))
+										logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one 880 with the same link index.\n");
 								}
 								linkedeighteighties.put(n, id);
 							}
 						} else {
 							if (others.containsKey(n)) {
+								if (reports.contains(Report.QC_880))
 								logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one field linking to 880s with the same link index.\n");
 							}
 							others.put(n, id);
 						}
 					} else {
+						if (reports.contains(Report.QC_880))
 						logout.write("Error: ("+rec.type.toString()+":" + rec_id +") "+
-								f.tag+" field has ���6 with unexpected format: \""+sf.value+"\".\n");
+								f.tag+" field has ‡6 with unexpected format: \""+sf.value+"\".\n");
 					}
 				}
 			}
@@ -971,6 +1615,7 @@ public class MarcXmlToNTriples {
 				// LINK FOUND
 //				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
 			} else {
+				if (reports.contains(Report.QC_880))
 				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") "+
 						rec.data_fields.get(others.get(link_id)).tag+
 						" field linking to non-existant 880.\n");
@@ -978,11 +1623,12 @@ public class MarcXmlToNTriples {
 		}
 		for ( int link_id: linkedeighteighties.keySet() )
 			if ( ! others.containsKey(link_id))
-				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") 880 field linking to non-existant main field.\n");
+				if (reports.contains(Report.QC_880))
+					logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") 880 field linking to non-existant main field.\n");
 			logout.flush();
 	}
 		
-	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
+	private MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
@@ -1024,7 +1670,7 @@ public class MarcXmlToNTriples {
 		return rec;
 	}
 	
-	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+	private Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
@@ -1076,6 +1722,8 @@ public class MarcXmlToNTriples {
 	          return "SPACE";
 	    }
 	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
+	  
+	  
 	}
 
 	static class FieldStats {
@@ -1167,6 +1815,7 @@ public class MarcXmlToNTriples {
 				sb.append(this.subfieldStatsByCode.get(code).toString());
 			} */
 			
+			sb.append('\n');
 			return sb.toString();
 		}
 		
@@ -1196,5 +1845,16 @@ public class MarcXmlToNTriples {
 			return sb.toString();
 		}
 	}
+	
+	public static enum Mode {
+		NAME_AS_SOURCE, RECORD_COUNT_BATCHES, ID_RANGE_BATCHES
+	}
 
+	public static enum Report {
+		GEN_FREQ_BIB, GEN_FREQ_MFHD, 
+		QC_880, QC_245, QC_SUBFIELD_CODES, QC_CJK_LABELING,
+		EXTRACT_LOC_CLUES
+	}
+
+	
 }

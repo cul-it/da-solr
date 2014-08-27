@@ -318,6 +318,7 @@
     <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="source" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
     <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="sixfivethree" type="string" indexed="true" stored="true" multiValued="true"/>
     <!-- format_main_facet is used for type-aggregated relevance sorting, so it must be single valued-->

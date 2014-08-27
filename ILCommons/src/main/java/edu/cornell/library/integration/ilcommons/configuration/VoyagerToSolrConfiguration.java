@@ -251,6 +251,46 @@ public class VoyagerToSolrConfiguration {
     	}
     }
     
+    public String getNonVoyXmlDir() throws IOException {
+    	if (values.containsKey("nonVoyXmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyXmlDir"));
+    		return values.get("nonVoyXmlDir");
+    	} else {
+    		return null;
+    	}
+    }
+    
+    public String getNonVoyNtDir() throws IOException {
+    	if (values.containsKey("nonVoyNtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyNtDir"));
+    		return values.get("nonVoyNtDir");
+    	} else {
+    		return null;
+    	}
+    }
+   
+    public String getNonVoyUriPrefix() {
+    	if (values.containsKey("nonVoyUriPrefix")) {
+    		return values.get("nonVoyUriPrefix");
+    	} else {
+    		return null;
+    	}
+    }
+    public String getNonVoyIdPrefix() {
+    	if (values.containsKey("nonVoyIdPrefix")) {
+    		return values.get("nonVoyIdPrefix");
+    	} else {
+    		return null;
+    	}
+    }
+    public String getReportList() {
+    	if (values.containsKey("reportList")) {
+    		return values.get("reportList");
+    	} else {
+    		return null;
+    	}
+    }
+
     public String getSolrUrl() {
     	if (values.containsKey("solrUrl")) {
     		return values.get("solrUrl");
@@ -306,16 +346,37 @@ public class VoyagerToSolrConfiguration {
      *  
      * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
      * 
-     *  @param requiredFields is an optional, task-specific Collection of field names required for the task.
      *  argv may be null to force use of the environment variable. Should be 
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
+    @Deprecated
     public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
     	Collection<String> requiredFields = new HashSet<String>();
         return loadConfig(argv,requiredFields);        
     }
     
+    /**
+     * A utility method to load properties from command line or environment.
+     * 
+     * Configured jobs on integration servers or automation systems are
+     * expected to use the environment variable VOYAGER_TO_SOLR_CONFIG to indicate the property
+     * file to use.
+     * 
+     * Development jobs are expected to use command line arguments.
+     *  
+     * If properties files exist on the command line use those, 
+     * If the environment variable VOYAGER_TO_SOLR_CONFIG exists use those,
+     * If both environment variable VOYAGER_TO_SOLR_CONFIG and command line arguments exist, 
+     * throw an error because that is a confused state and likely a problem.
+     *  
+     * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
+     * 
+     *  @param requiredFields is a task-specific Collection of field names required for the task.
+     *  argv may be null to force use of the environment variable. Should be 
+     *  argv from main().
+     * @throws Exception if no configuration is found or if there are problems with the configuration.
+     */
     public static VoyagerToSolrConfiguration loadConfig( String[] argv, Collection<String> requiredFields ) {
         
         String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
@@ -456,28 +517,44 @@ public class VoyagerToSolrConfiguration {
         errMsgs += checkWebdavUrl( checkMe.values.get("webdavBaseUrl"));
         errMsgs += checkExists( checkMe.values.get("webdavUser") , "webdavUser");
         errMsgs += checkExists( checkMe.values.get("webdavPassword") , "webdavPassword");
-        errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
+
+        // fields required for select processes
+        if (requiredArgs.contains("solrUrl"))
+        	errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
         if (requiredArgs.contains("blacklightSolrUrl")) {
             errMsgs += checkSolrUrl( checkMe.values.get("blacklightSolrUrl") );
         }
         if (requiredArgs.contains("fullAuthXmlDir")) {
         	errMsgs += checkDir( checkMe.values.get("fullAuthXmlDir"), "fullAuthXmlDir");
         }
+        if (requiredArgs.contains("nonVoyXmlDir")) {
+        	errMsgs += checkDir( checkMe.values.get("nonVoyXmlDir"), "nonVoyXmlDir");
+        }
+        if (requiredArgs.contains("nonVoyNtDir")) {
+        	errMsgs += checkDir( checkMe.values.get("nonVoyNtDir"), "nonVoyNtDir");
+        }
+        if (requiredArgs.contains("nonVoyUriPrefix")) {
+        	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
+        }
+        if (requiredArgs.contains("nonVoyIdPrefix")) {
+        	errMsgs += checkExists( checkMe.values.get("nonVoyIdPrefix"), "nonVoyIdPrefix");
+        }
         
         
 
         return errMsgs;        
     }
-    
-    
-    
-    private static String checkDir(String value, String propName) {
+
+
+    private static String checkUriPrefix(String value, String propName) {
         if( value == null || value.trim().isEmpty() ){
             return "The property " + propName + " must not be empty or null.\n";
         }
+        if ( ! value.startsWith("http") ) {
+        	return "The property " + propName + " must start with \"http\".\n";
+        }
         return "";
     }
-
     private static String checkExists(String value , String propName) {
        if( value == null || value.trim().isEmpty() )
            return "The property " + propName + " must not be empty or null.\n";
@@ -504,7 +581,7 @@ public class VoyagerToSolrConfiguration {
             return "";     
     }
     
-    private static String checkWebdavDir( String dir, String propName ){
+    private static String checkDir( String dir, String propName ){
         String partEx = " It should be a directory part with no leading or trailing slash ex. voyager/bib.nt.daily \n";
         if( dir == null || dir.trim().isEmpty() )
             return "The property " + propName + " must not be empty." + partEx ;
