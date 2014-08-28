@@ -14,7 +14,7 @@ import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Report;
 
-public class NonVoyagerToTxt {
+public class RunExtractReport {
 	
 	DavService davService;
 	
@@ -23,25 +23,27 @@ public class NonVoyagerToTxt {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToTxt(args);			
+	    new RunExtractReport(args);			
 	}
 	
-	public NonVoyagerToTxt(String[] args) throws Exception {
+	public RunExtractReport(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("nonVoyXmlDir");
-		requiredFields.add("nonVoyTxtDir");
-		// optionalField : reportList
+		requiredFields.add("nonVoyTdfDir");
+		requiredFields.add("reportList");  // Exactly ONE EXTRACT_* report expected; addl ok.
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);
 
 		MarcXmlToNTriples converter = new MarcXmlToNTriples(Mode.NAME_AS_SOURCE);
-		converter.setOutputFormat(OutputFormat.TXT_GZ);
+		converter.setOutputFormat(OutputFormat.TDF_GZ);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTxtDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTdfDir(), davService);
+		
+		String extractReport = null;
 		
 		String reportList = config.getReportList();
 		String[] reports = null;
@@ -49,9 +51,24 @@ public class NonVoyagerToTxt {
 			reports = reportList.split("\\s+");
 			for (String report : reports) {
 				converter.addReport(Report.valueOf(report.toUpperCase(Locale.ENGLISH)));
+				if (report.toUpperCase().startsWith("EXTRACT_")) {
+					if (extractReport == null)
+						extractReport = report.toUpperCase();
+					else {
+						System.out.println("Error: only one extract report may be specified.");
+						System.exit(1);
+					}
+				}
+					
 			}
 		}
 		
+		if (extractReport == null) {
+			System.out.println("Error: an extract report must be specified in properties file reportList directive.");
+			System.exit(1);
+		}
+		
+		converter.setDestFilenamePrefix(extractReport);
 		converter.run();
 	
 		if (reportList != null) {

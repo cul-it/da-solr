@@ -15,6 +15,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +33,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jsoup.helper.StringUtil;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.indexer.MarcRecord;
@@ -88,7 +91,9 @@ public class MarcXmlToNTriples {
 	private Map<Report,String> reportResults = new HashMap<Report,String>();
 	private Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
 	private static Long recordCount = new Long(0);
-	private Collection<Integer> no245a = new HashSet<Integer>();	
+	private Collection<Integer> no245a = new HashSet<Integer>();
+	private Map<String,String> extractVals = null;
+	private String extractHeaders = null;
 	
 	public MarcXmlToNTriples(MarcXmlToNTriples.Mode m) {
 		mode = m;
@@ -307,6 +312,7 @@ public class MarcXmlToNTriples {
 	private void sortOutput( String bibid, String output ) throws Exception {
 		BufferedOutputStream out = null;
 		String dirToProcessInto = null;
+		boolean newOut = false;
 		
 		if (tempDestDir != null)
 			dirToProcessInto = tempDestDir;
@@ -319,6 +325,7 @@ public class MarcXmlToNTriples {
 				out =  new BufferedOutputStream(new GZIPOutputStream(
 						new FileOutputStream(dirToProcessInto+"/"+
 								destFilenamePrefix+"."+batchid+outFileExt, true)));
+				newOut = true;
 				outsById.put(batchid, out);
 			} else 
 				out = outsById.get(batchid);
@@ -343,7 +350,9 @@ public class MarcXmlToNTriples {
 				out = outsByName.get(currentFileName);
 			} else {
 				if (dirToProcessInto != null) {
-					String targetFile = dirToProcessInto+"/"+swapFileExt(currentFileName);
+					String targetFile = (destFilenamePrefix != null) 
+							? destFilenamePrefix+"."+dirToProcessInto+"/"+swapFileExt(currentFileName)
+									: dirToProcessInto+"/"+swapFileExt(currentFileName);
 					if (debug)
 						System.out.println("Opening output handle for "+targetFile);
 					out = new BufferedOutputStream(new GZIPOutputStream(
@@ -354,11 +363,14 @@ public class MarcXmlToNTriples {
 							new FileOutputStream(dirToProcessInto+"/"+
 									swapFileExt(currentFileName))));
 				}
+				newOut = true;
 				outsByName.put(currentFileName, out);
 			}
 		}
 		
 		if (out != null) {
+			if (newOut && outFormat.equals(OutputFormat.TDF_GZ))
+				out.write( extractHeaders.getBytes() );
 			out.write( output.getBytes() );
 		} else {
 			System.out.println("N-Triples not written to file. Bibid: "+bibid);
@@ -401,6 +413,7 @@ public class MarcXmlToNTriples {
 						continue;
 
 					mapNonRomanFieldsToRomanizedFields(rec);
+					extractData(rec);
 					if (reports.contains(Report.QC_CJK_LABELING))
 						surveyForCJKValues(rec);
 					if ((type.equals(RecordType.BIBLIOGRAPHIC) && reports.contains(Report.GEN_FREQ_BIB))
@@ -412,6 +425,9 @@ public class MarcXmlToNTriples {
 						output = generateNTriples( rec, type );
 					else if (outFormat.equals(OutputFormat.TXT_GZ))
 						output = rec.toString() + "\n";
+					else if (outFormat.equals(OutputFormat.TDF_GZ))
+						output = compileExtractReport();
+
 					if (type.equals(RecordType.BIBLIOGRAPHIC))
 						sortOutput(rec.id,output);
 					else if (type.equals(RecordType.HOLDINGS))
@@ -665,10 +681,6 @@ public class MarcXmlToNTriples {
 			if (destFile != null) {
 				System.out.println("When destination is a specific file, destination filename prefix may not be configured.");
 				throw new IllegalArgumentException("When destination is a specific file, destination filename prefix may not be configured.");
-			}
-			if (mode.equals(Mode.NAME_AS_SOURCE)) {
-				System.out.println("When processing in NAME_AS_SOURCE mode, destination filename prefix may not be configured.");
-				throw new IllegalArgumentException("When processing in NAME_AS_SOURCE mode, destination filename prefix may not be configured.");
 			}
 		}
 		if ( destDir != null && ! mode.equals(Mode.NAME_AS_SOURCE) && destFilenamePrefix == null) {
@@ -1165,85 +1177,131 @@ public class MarcXmlToNTriples {
 		}
 	}
 	*/
-	/*
-@Deprecated
-	private static void extractData( MarcRecord rec ) throws Exception {
-
-		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
-	//	Pattern entity_p = Pattern.compile(".*&#?\\w+;.*");
-		
-		if ((extractout == null))  {
-			FileWriter logstream = new FileWriter(extractfile,true);
-			extractout = new BufferedWriter( logstream );
+	
+	private String compileExtractReport( ) {
+		List<String> values = new ArrayList<String>();
+		List<String> headers = new ArrayList<String>();
+		for (String key : extractVals.keySet()) {
+			String[] parts = key.split("-", 2);
+			Integer column = Integer.valueOf(parts[0])-1;
+			values.add(column, extractVals.get(key));
+			if (extractHeaders == null)
+				headers.add(column,parts[1]);
 		}
+		if (extractHeaders == null)
+			extractHeaders = StringUtil.join(headers, "\t")+"\n";
+		return StringUtil.join(values, "\t")+"\n";
+	}
+	
+	/**
+	 * Extract Data for reports of extract reports. (Extract reports must be run
+	 * in with OutputFormat.TDF_GZ rather than NT_GZ.)
+	 * @param rec
+	 * @throws Exception
+	 */
+	private void extractData( MarcRecord rec ) throws Exception {
+
+		Boolean isPubPlace = reports.contains(Report.EXTRACT_PUBPLACE);
+		Boolean isSubjPlace = reports.contains(Report.EXTRACT_SUBJPLACE);
+		Boolean isLanguage = reports.contains(Report.EXTRACT_LANGUAGE);
+		Boolean isTitleMatch = reports.contains(Report.EXTRACT_TITLE_MATCH);
 		
+		if ( ! isPubPlace
+				&& ! isTitleMatch
+				&& ! isSubjPlace
+				&& ! isLanguage)
+			return;
+
+		List<String> pubplaces = new ArrayList<String>();
+		
+		if (extractVals != null)
+			extractVals.clear();
+		else
+			extractVals = new HashMap<String,String>();
+			
+		if (isPubPlace || isSubjPlace || isLanguage)
+			extractVals.put("02-leader", rec.leader);
+		
+		for (Integer fid : rec.control_fields.keySet()) {
+			ControlField f = rec.control_fields.get(fid);
+			
+			if (f.tag.equals("001")) 
+				extractVals.put("01", f.value);
+			
+			if (f.tag.equals("008")) {
+
+				if (isPubPlace || isSubjPlace || isLanguage)
+					extractVals.put("03-008", f.value);
+				
+				if (isPubPlace)
+					if (f.value.length() >= 18)
+						extractVals.put("05-008/15-17", f.value.substring(15, 18));
+
+				if (isLanguage)
+					if (f.value.length() >= 38)
+						extractVals.put("05-008/35-37", f.value.substring(35,38));
+			}
+	
+		}
+				
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
+
 			
-			if (f.tag.equals("700")) {
-				Iterator<Subfield> i = f.subfields.values().iterator();
-				while (i.hasNext()) {
-					Subfield sf = i.next();
-					if (sf.code.equals('4')) {
-						extractout.write(rec_id + "\t" 
-			                     + f.toString() + "\n");
-					}
-				}
-			}
-			if (f.tag.equals("010")) {
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			}
-			if (f.tag.equals("020")) {
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			}
-			if (f.tag.equals("022")) {
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			}
-			if (f.tag.equals("035")) {
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			}
-			if (f.tag.equals("050")) {
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			}
+			if (isPubPlace)
+				if (f.tag.equals("020"))
+					for (Subfield sf : f.subfields.values()) 
+						if (sf.code.equals('a') || sf.code.equals('z') )
+							pae("06-020az", " ", sf.toString());
+
+			if (isPubPlace || isSubjPlace || isLanguage)
+				if (f.tag.equals("040"))
+					pae("04-040","; ",f.toString());
+
+			if (isLanguage)
+				if (f.tag.equals("041"))
+					pae("06-041", "; ", f.toString());
+
+			if (isSubjPlace)
+				if (f.tag.equals("043"))
+					pae("05-043a"," ",f.concatenateSpecificSubfields("a"));
 			
-			if (f.tag.equals("852"))
-				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			if (f.tag.equals("856")) {
-				extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");
-			}
-			if (f.tag.equals("948")) {
-				Iterator<Subfield> i = f.subfields.values().iterator();
-				while (i.hasNext()) {
-					Subfield sf = i.next();
-					if (sf.code.equals('f') && ! sf.value.equals("?")) {
-						extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + "948" + sf.toString() + "\n");
-					}					
-				}
-			}
-			if (f.tag.equals("245")) {
-				Iterator<Subfield> i = f.subfields.values().iterator();
-				while (i.hasNext()) {
-					Subfield sf = i.next();
-					if (sf.code.equals('h')) {
-						extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + "245" + sf.toString() + "\n");
-					} else if (sf.code.equals('k')) {
-						extractout.write(rec_id + "\t" 
-			                     + f.ind1 + "\t"
-			                     + f.ind2 + "\t"
-			                     + f.toString() + "\n");						
-					}
-				}
-			} 
-			// entity in any datafield value
+			if (isSubjPlace)
+				if (f.tag.equals("050") || f.tag.equals("090"))
+					pae("06-050a/090a","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
+			
+			if (isPubPlace)
+				if (f.tag.equals("260") || f.tag.equals("264"))
+					pubplaces.add(f.tag + " " + f.concatenateSpecificSubfields("a"));
+			
+			if (isLanguage)
+				if (f.tag.equals("500"))
+					pae("07-500a","; ",f.concatenateSpecificSubfields("a"));
+			
+			if (isSubjPlace)
+				if (f.tag.equals("505"))
+					pae("07-505a","; ",f.concatenateSpecificSubfields("a"));
+				
+			if (isSubjPlace)
+				if (f.tag.equals("520"))
+					pae("08-520a","; ",f.concatenateSpecificSubfields("a"));
+				
+			if (isLanguage)
+				if (f.tag.equals("546"))
+					pae("08-546a","; ",f.concatenateSpecificSubfields("a"));
+
+			if (isSubjPlace)
+				if (f.tag.startsWith("6"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('z'))
+							pae("09-6XXz","; ",f.tag+" "+sf.value);
+			
+			if (isSubjPlace)
+				if (f.tag.equals("651"))
+					pae("10-651a","; ",f.concatenateSpecificSubfields("a"));
+	
+			
+/*			// entity in any datafield value
 			Iterator<Subfield> i = f.subfields.values().iterator();
 			while (i.hasNext()) {
 				Subfield sf = i.next();
@@ -1268,17 +1326,27 @@ public class MarcXmlToNTriples {
 			                     + f.tag + sf.toString() + "\n");						
 					}
 				}
-			}
+			}*/
 			
 		}
-	
-		if (0 == (rec_id % 1000)) {
-			extractout.flush();
-			extractout.close();
-			extractout = null;
+		
+		if (pubplaces.size() > 0) {
+			extractVals.put("07-240/246",pubplaces.get(0));
+			if (pubplaces.size() > 1) {
+				pubplaces.remove(0);
+				extractVals.put("08-240/246", StringUtils.join(pubplaces,"; "));
+			}
 		}
+	
 	}
-*/
+	
+	private void pae(String key, String joinWith, String val) {
+		if (extractVals.containsKey(key))
+			extractVals.put(key, extractVals.get(key) + joinWith + val);
+		else 
+			extractVals.put(key,val);
+	}
+
 	private String buildGenFreqReport() {
 		String[] tags = fieldStatsByTag.keySet().toArray(new String[ fieldStatsByTag.keySet().size() ]);
 		Arrays.sort( tags );
@@ -1875,13 +1943,14 @@ public class MarcXmlToNTriples {
 	}
 
 	public static enum OutputFormat {
-		NT_GZ, TXT_GZ
+		NT_GZ, TXT_GZ, TDF_GZ
 	}
 
 	public static enum Report {
 		GEN_FREQ_BIB, GEN_FREQ_MFHD, 
 		QC_880, QC_245, QC_SUBFIELD_CODES, QC_CJK_LABELING,
-		EXTRACT_LOC_CLUES
+		EXTRACT_PUBPLACE, EXTRACT_SUBJPLACE, EXTRACT_LANGUAGE,
+		EXTRACT_TITLE_MATCH
 	}
 
 	
