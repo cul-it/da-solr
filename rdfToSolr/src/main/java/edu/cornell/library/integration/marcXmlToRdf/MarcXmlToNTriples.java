@@ -1184,13 +1184,13 @@ public class MarcXmlToNTriples {
 		for (int i = 0; i < 30; i++) values[i] = "";
 		if (extractHeaders == null)
 			for (int i = 0; i < 30; i++) headers[i] = "";
-		// dump extractVals
 		for (String key : extractVals.keySet()) {
 			String[] parts = key.split("-", 2);			
 			Integer column = Integer.valueOf(parts[0])-1;
 			values[column] = extractVals.get(key);
 			if (extractHeaders == null)
-				headers[column] = parts[1];
+				if (parts.length > 1)
+					headers[column] = parts[1];
 		}
 		if (extractHeaders == null)
 			extractHeaders = IndexingUtilities.join(headers, "\t")+"\n";
