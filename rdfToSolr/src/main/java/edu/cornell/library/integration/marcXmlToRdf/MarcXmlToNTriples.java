@@ -1190,7 +1190,7 @@ public class MarcXmlToNTriples {
 			Integer column = Integer.valueOf(parts[0])-1;
 			values[column] = extractVals.get(key);
 			if (extractHeaders == null)
-				headers[column] = extractVals.get(key);
+				headers[column] = parts[1];
 		}
 		if (extractHeaders == null)
 			extractHeaders = IndexingUtilities.join(headers, "\t")+"\n";
