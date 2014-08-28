@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,15 +47,10 @@ public class MarcXmlToNTriples {
 	private static Boolean debug = true;
 	
 	private static String logfile = "xmltordf.log";
-	private static String extractfile = "extract.tdf";
 	private static BufferedWriter logout;
-	private static BufferedWriter extractout;
-	public static Collection<Integer> foundRecs = new HashSet<Integer>();
-	public static Collection<Integer> unsuppressedRecs = new HashSet<Integer>();
-	public static Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
-	public static Long recordCount = new Long(0);
-	public static Collection<Integer> no245a = new HashSet<Integer>();
 	private static Integer groupsize = 1000;
+	private OutputFormat outFormat = OutputFormat.NT_GZ;
+	private String outFileExt = ".nt.gz";
 	
 	private Mode mode;
 	private Boolean isUnsuppressedBibListFiltered = false;
@@ -81,19 +75,34 @@ public class MarcXmlToNTriples {
 	private String tempBibSrcDir = null;
 	private String tempDestDir = null;
 	private String currentFileName = null;
-	private Collection<Report> reports = new HashSet<Report>();
-	private Map<Report,String> reportResults = new HashMap<Report,String>();
 	private Map<Integer, BufferedOutputStream> outsById = null;
 	private Map<String, BufferedOutputStream> outsByName = null;
+	private String uriPrefix = null;
 	private Boolean processingBibs = null;
 	private Boolean processingMfhds = null;
-	private String uriPrefix = null;
+	private Collection<Integer> foundBibs = new HashSet<Integer>();
+	private Collection<Integer> foundMfhds = new HashSet<Integer>();
 	
+	// Reports fields
+	private Collection<Report> reports = new HashSet<Report>();
+	private Map<Report,String> reportResults = new HashMap<Report,String>();
+	private Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
+	private static Long recordCount = new Long(0);
+	private Collection<Integer> no245a = new HashSet<Integer>();	
 	
 	public MarcXmlToNTriples(MarcXmlToNTriples.Mode m) {
 		mode = m;
 	}
 
+	/**
+	 * Default output format is gzipped N-Triples (.nt.gz). Also available is a simpler
+	 * text-formatted representation of the MARC records (.txt.gz).
+	 * @param f
+	 */
+	public void setOutputFormat( OutputFormat f ) {
+		outFormat = f;
+		outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".");
+	}
 
 	/**
 	 * @param Collection<Integer> ids : Collection of Integer record IDs for unsuppressed Bibs.
@@ -243,7 +252,7 @@ public class MarcXmlToNTriples {
 		// If the destination is local, we can build N-Triples directly to there.
 		// Otherwise, we need a temporary build directory.
 		if (isDestDav) {
-			tempDestDir = Files.createTempDirectory("IL-xml2NT-").toString();
+			tempDestDir = Files.createTempDirectory(Paths.get(""),"IL-xml2NT-").toString();
 			if (debug) System.out.println(tempDestDir);
 		}
 		
@@ -271,7 +280,7 @@ public class MarcXmlToNTriples {
 			for (BufferedOutputStream out : outsById.values())
 				out.close();
 
-		if (isDestDav) uploadNT();
+		if (isDestDav) uploadOutput();
 		
 		if (tempDestDir != null)
 			FileUtils.deleteDirectory(new File(tempDestDir));
@@ -280,7 +289,7 @@ public class MarcXmlToNTriples {
 		
 	}
 	
-	private void uploadNT() throws Exception {
+	private void uploadOutput() throws Exception {
 		
 		DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
 		for (Path file: stream) {
@@ -295,7 +304,7 @@ public class MarcXmlToNTriples {
 
 	}
 
-	private void sortNt( String bibid, String nt ) throws Exception {
+	private void sortOutput( String bibid, String output ) throws Exception {
 		BufferedOutputStream out = null;
 		String dirToProcessInto = null;
 		
@@ -309,7 +318,7 @@ public class MarcXmlToNTriples {
 			if ( ! outsById.containsKey(batchid)) {
 				out =  new BufferedOutputStream(new GZIPOutputStream(
 						new FileOutputStream(dirToProcessInto+"/"+
-								destFilenamePrefix+"."+batchid+".nt.gz", true)));
+								destFilenamePrefix+"."+batchid+outFileExt, true)));
 				outsById.put(batchid, out);
 			} else 
 				out = outsById.get(batchid);
@@ -350,7 +359,7 @@ public class MarcXmlToNTriples {
 		}
 		
 		if (out != null) {
-			out.write( nt.getBytes() );
+			out.write( output.getBytes() );
 		} else {
 			System.out.println("N-Triples not written to file. Bibid: "+bibid);
 		}
@@ -359,9 +368,9 @@ public class MarcXmlToNTriples {
 	public String swapFileExt ( String xml ) {
 		String nt;
 		if (xml.endsWith(".xml"))
-			nt = xml.substring(0,xml.length()-4)+".nt.gz";
+			nt = xml.substring(0,xml.length()-4)+outFileExt;
 		else
-			nt = xml + ".nt.gz";
+			nt = xml + outFileExt;
 		return nt;
 	}
 	
@@ -376,6 +385,18 @@ public class MarcXmlToNTriples {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
 
+					if (type.equals(RecordType.BIBLIOGRAPHIC)) {
+						if (foundBibs.contains(Integer.valueOf(rec.id))) {
+							System.out.println("Skipping duplicate bib record: "+rec.id);
+							continue;
+						} else foundBibs.add(Integer.valueOf(rec.id));
+					} else if (type.equals(RecordType.HOLDINGS)) {
+						if (foundMfhds.contains(Integer.valueOf(rec.id))) {
+							System.out.println("Skipping duplicate holding record: "+rec.id);
+							continue;
+						} else foundMfhds.add(Integer.valueOf(rec.id));
+					}
+					
 					if (isSuppressionBlocked(rec.id, type))
 						continue;
 
@@ -386,11 +407,15 @@ public class MarcXmlToNTriples {
 							|| (type.equals(RecordType.HOLDINGS) && reports.contains(Report.GEN_FREQ_MFHD))) {
 						tabulateFieldData(rec);
 					}
-					String ntriples = generateNTriples( rec, type );
+					String output = null;
+					if (outFormat.equals(OutputFormat.NT_GZ))
+						output = generateNTriples( rec, type );
+					else if (outFormat.equals(OutputFormat.TXT_GZ))
+						output = rec.toString();
 					if (type.equals(RecordType.BIBLIOGRAPHIC))
-						sortNt(rec.id,ntriples);
+						sortOutput(rec.id,output);
 					else if (type.equals(RecordType.HOLDINGS))
-						sortNt(rec.bib_id,ntriples);
+						sortOutput(rec.bib_id,output);
 				}
 		}
 		r.close();
@@ -563,7 +588,7 @@ public class MarcXmlToNTriples {
 			System.out.println(i3+": "+minBibid);
 			BufferedOutputStream out =  new BufferedOutputStream(new GZIPOutputStream(
 					new FileOutputStream(dirToProcessInto+"/"+
-							destFilenamePrefix+"."+i3+".nt.gz", true)));
+							destFilenamePrefix+"."+i3+outFileExt, true)));
 			outsById.put(minBibid, out);
 			
 		}
@@ -594,7 +619,7 @@ public class MarcXmlToNTriples {
 	}
 
 	private String downloadBibsToTempDir() throws Exception {
-		Path tempLocalBibDir = Files.createTempDirectory("IL-xml2NT-");
+		Path tempLocalBibDir = Files.createTempDirectory(Paths.get(""), "IL-xml2NT-");
 		if (bibSrcDir != null) {
 			List<String> bibSrcFiles = bibSrcDav.getFileUrlList(bibSrcDir);
 			Iterator<String> i = bibSrcFiles.iterator();
@@ -678,11 +703,11 @@ public class MarcXmlToNTriples {
 
 	}
 	
-	
+	/*
 	private static Pattern shadowLinkPattern 
 	   = Pattern.compile("https?://catalog.library.cornell.edu/cgi-bin/Pwebrecon.cgi\\?BBID=([0-9]+)&DB=local");
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
-	/*
+	
 @Deprecated
 	public static void marcXmlToNTriples(Collection<Integer> unsuppressedBibs,
 			 							 Collection<Integer> unsuppressedMfhds,
@@ -1140,7 +1165,7 @@ public class MarcXmlToNTriples {
 		}
 	}
 	*/
-	
+	/*
 @Deprecated
 	private static void extractData( MarcRecord rec ) throws Exception {
 
@@ -1154,7 +1179,7 @@ public class MarcXmlToNTriples {
 		
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
-			/*
+			
 			if (f.tag.equals("700")) {
 				Iterator<Subfield> i = f.subfields.values().iterator();
 				while (i.hasNext()) {
@@ -1180,10 +1205,10 @@ public class MarcXmlToNTriples {
 			if (f.tag.equals("050")) {
 				extractout.write(rec_id + "\t" + f.toString() + "\n");
 			}
-			*/
+			
 			if (f.tag.equals("852"))
 				extractout.write(rec_id + "\t" + f.toString() + "\n");
-			/*		if (f.tag.equals("856")) {
+			if (f.tag.equals("856")) {
 				extractout.write(rec_id + "\t" 
 			                     + f.ind1 + "\t"
 			                     + f.ind2 + "\t"
@@ -1217,8 +1242,8 @@ public class MarcXmlToNTriples {
 			                     + f.toString() + "\n");						
 					}
 				}
-			} */
-/*			// entity in any datafield value
+			} 
+			// entity in any datafield value
 			Iterator<Subfield> i = f.subfields.values().iterator();
 			while (i.hasNext()) {
 				Subfield sf = i.next();
@@ -1244,7 +1269,7 @@ public class MarcXmlToNTriples {
 					}
 				}
 			}
-			*/
+			
 		}
 	
 		if (0 == (rec_id % 1000)) {
@@ -1253,7 +1278,7 @@ public class MarcXmlToNTriples {
 			extractout = null;
 		}
 	}
-
+*/
 	private String buildGenFreqReport() {
 		String[] tags = fieldStatsByTag.keySet().toArray(new String[ fieldStatsByTag.keySet().size() ]);
 		Arrays.sort( tags );
@@ -1479,8 +1504,7 @@ public class MarcXmlToNTriples {
 
 		return sb.toString();
 	}
-	
-@Deprecated
+/*	
 	private static void attemptToConfirmDateValues( MarcRecord rec ) throws Exception {
 		
 		Collection<String> humanDates = new HashSet<String>();
@@ -1558,7 +1582,7 @@ public class MarcXmlToNTriples {
 				}
 			}
 		}
-	}
+	} */
 
 	private void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
@@ -1848,6 +1872,10 @@ public class MarcXmlToNTriples {
 	
 	public static enum Mode {
 		NAME_AS_SOURCE, RECORD_COUNT_BATCHES, ID_RANGE_BATCHES
+	}
+
+	public static enum OutputFormat {
+		NT_GZ, TXT_GZ
 	}
 
 	public static enum Report {

@@ -269,6 +269,15 @@ public class VoyagerToSolrConfiguration {
     	}
     }
    
+    public String getNonVoyTxtDir() throws IOException {
+    	if (values.containsKey("nonVoyTxtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyTxtDir"));
+    		return values.get("nonVoyTxtDir");
+    	} else {
+    		return null;
+    	}
+    }
+
     public String getNonVoyUriPrefix() {
     	if (values.containsKey("nonVoyUriPrefix")) {
     		return values.get("nonVoyUriPrefix");
@@ -532,6 +541,9 @@ public class VoyagerToSolrConfiguration {
         }
         if (requiredArgs.contains("nonVoyNtDir")) {
         	errMsgs += checkDir( checkMe.values.get("nonVoyNtDir"), "nonVoyNtDir");
+        }
+        if (requiredArgs.contains("nonVoyTxtDir")) {
+        	errMsgs += checkDir( checkMe.values.get("nonVoyTxtDir"), "nonVoyTxtDir");
         }
         if (requiredArgs.contains("nonVoyUriPrefix")) {
         	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
