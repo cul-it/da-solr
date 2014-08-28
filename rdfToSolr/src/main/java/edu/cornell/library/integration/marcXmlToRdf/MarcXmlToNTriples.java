@@ -411,7 +411,7 @@ public class MarcXmlToNTriples {
 					if (outFormat.equals(OutputFormat.NT_GZ))
 						output = generateNTriples( rec, type );
 					else if (outFormat.equals(OutputFormat.TXT_GZ))
-						output = rec.toString();
+						output = rec.toString() + "\n";
 					if (type.equals(RecordType.BIBLIOGRAPHIC))
 						sortOutput(rec.id,output);
 					else if (type.equals(RecordType.HOLDINGS))
