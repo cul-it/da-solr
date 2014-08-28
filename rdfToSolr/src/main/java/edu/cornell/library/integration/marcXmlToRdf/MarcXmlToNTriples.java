@@ -34,7 +34,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jsoup.helper.StringUtil;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.indexer.MarcRecord;
@@ -352,7 +351,7 @@ public class MarcXmlToNTriples {
 			} else {
 				if (dirToProcessInto != null) {
 					String targetFile = (destFilenamePrefix != null) 
-							? destFilenamePrefix+"."+dirToProcessInto+"/"+swapFileExt(currentFileName)
+							? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentFileName)
 									: dirToProcessInto+"/"+swapFileExt(currentFileName);
 					if (debug)
 						System.out.println("Opening output handle for "+targetFile);
