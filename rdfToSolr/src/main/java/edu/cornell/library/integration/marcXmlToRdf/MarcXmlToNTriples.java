@@ -42,6 +42,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.
@@ -1179,18 +1180,24 @@ public class MarcXmlToNTriples {
 	*/
 	
 	private String compileExtractReport( ) {
-		List<String> values = new ArrayList<String>();
-		List<String> headers = new ArrayList<String>();
+		String[] values = new String[30];
+		String[] headers = new String[30];
+		for (int i = 0; i < 30; i++) values[i] = "";
+		if (extractHeaders == null)
+			for (int i = 0; i < 30; i++) headers[i] = "";
+		// dump extractVals
 		for (String key : extractVals.keySet()) {
 			String[] parts = key.split("-", 2);
+			if (debug) System.out.println(key + " " + parts.length);
+			
 			Integer column = Integer.valueOf(parts[0])-1;
-			values.add(column, extractVals.get(key));
+			values[column] = extractVals.get(key);
 			if (extractHeaders == null)
-				headers.add(column,parts[1]);
+				headers[column] = extractVals.get(key);
 		}
 		if (extractHeaders == null)
-			extractHeaders = StringUtil.join(headers, "\t")+"\n";
-		return StringUtil.join(values, "\t")+"\n";
+			extractHeaders = IndexingUtilities.join(headers, "\t")+"\n";
+		return IndexingUtilities.join(values, "\t")+"\n";
 	}
 	
 	/**

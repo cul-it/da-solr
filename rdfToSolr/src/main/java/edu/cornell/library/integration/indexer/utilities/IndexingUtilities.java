@@ -97,6 +97,25 @@ public class IndexingUtilities {
 	}
 	
 	/**
+	 * It does what you think, but StringUtils.join only works on 
+	 * ArrayLists, not actual Arrays.
+	 * @param array
+	 * @param s
+	 * @return
+	 */
+	public static String join(String[] array, String s)
+	{
+	  int len = array.length;
+	  if ( len == 0 ) return null;
+	  StringBuilder sb = new StringBuilder();
+	  sb.append( array[0] );
+	  for ( int x=1; x < len; x++ )
+	    sb.append(s).append(array[x]);
+	  return sb.toString();
+	}
+
+	
+	/**
 	 * Any time a comma is followed by a character that is not a space, a
 	 * space will be inserted.
 	 */
