@@ -1186,9 +1186,7 @@ public class MarcXmlToNTriples {
 			for (int i = 0; i < 30; i++) headers[i] = "";
 		// dump extractVals
 		for (String key : extractVals.keySet()) {
-			String[] parts = key.split("-", 2);
-			if (debug) System.out.println(key + " " + parts.length);
-			
+			String[] parts = key.split("-", 2);			
 			Integer column = Integer.valueOf(parts[0])-1;
 			values[column] = extractVals.get(key);
 			if (extractHeaders == null)
@@ -1258,23 +1256,23 @@ public class MarcXmlToNTriples {
 				if (f.tag.equals("020"))
 					for (Subfield sf : f.subfields.values()) 
 						if (sf.code.equals('a') || sf.code.equals('z') )
-							pae("06-020az", " ", sf.toString());
+							putOrAppendToExtract("06-020az", " ", sf.toString('$'));
 
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("040"))
-					pae("04-040","; ",f.toString());
+					putOrAppendToExtract("04-040","; ",f.toString('$'));
 
 			if (isLanguage)
 				if (f.tag.equals("041"))
-					pae("06-041", "; ", f.toString());
+					putOrAppendToExtract("06-041", "; ", f.toString('$'));
 
 			if (isSubjPlace)
 				if (f.tag.equals("043"))
-					pae("05-043a"," ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("05-043a"," ",f.concatenateSpecificSubfields("a"));
 			
 			if (isSubjPlace)
 				if (f.tag.equals("050") || f.tag.equals("090"))
-					pae("06-050a/090a","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("06-050a/090a","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
 			
 			if (isPubPlace)
 				if (f.tag.equals("260") || f.tag.equals("264"))
@@ -1282,29 +1280,29 @@ public class MarcXmlToNTriples {
 			
 			if (isLanguage)
 				if (f.tag.equals("500"))
-					pae("07-500a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("07-500a","; ",f.concatenateSpecificSubfields("a"));
 			
 			if (isSubjPlace)
 				if (f.tag.equals("505"))
-					pae("07-505a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("07-505a","; ",f.concatenateSpecificSubfields("a"));
 				
 			if (isSubjPlace)
 				if (f.tag.equals("520"))
-					pae("08-520a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("08-520a","; ",f.concatenateSpecificSubfields("a"));
 				
 			if (isLanguage)
 				if (f.tag.equals("546"))
-					pae("08-546a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("08-546a","; ",f.concatenateSpecificSubfields("a"));
 
 			if (isSubjPlace)
 				if (f.tag.startsWith("6"))
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('z'))
-							pae("09-6XXz","; ",f.tag+" "+sf.value);
+							putOrAppendToExtract("09-6XXz","; ",f.tag+" "+sf.value);
 			
 			if (isSubjPlace)
 				if (f.tag.equals("651"))
-					pae("10-651a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("10-651a","; ",f.concatenateSpecificSubfields("a"));
 	
 			
 /*			// entity in any datafield value
@@ -1346,7 +1344,7 @@ public class MarcXmlToNTriples {
 	
 	}
 	
-	private void pae(String key, String joinWith, String val) {
+	private void putOrAppendToExtract(String key, String joinWith, String val) {
 		if (extractVals.containsKey(key))
 			extractVals.put(key, extractVals.get(key) + joinWith + val);
 		else 
