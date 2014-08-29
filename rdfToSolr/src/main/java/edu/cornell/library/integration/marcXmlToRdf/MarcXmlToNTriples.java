@@ -94,6 +94,7 @@ public class MarcXmlToNTriples {
 	private Collection<Integer> no245a = new HashSet<Integer>();
 	private Map<String,String> extractVals = null;
 	private String extractHeaders = null;
+	private int extractCols = 0;
 	
 	public MarcXmlToNTriples(MarcXmlToNTriples.Mode m) {
 		mode = m;
@@ -237,6 +238,8 @@ public class MarcXmlToNTriples {
 	 */
 	public void addReport( Report r ) {
 		reports.add(r);
+		if (r.toString().startsWith("EXTRACT_"))
+			populateExtractHeaders( r );
 	}
 	
 	public String getReport( Report r ) {
@@ -1179,22 +1182,47 @@ public class MarcXmlToNTriples {
 	*/
 	
 	private String compileExtractReport( ) {
-		String[] values = new String[30];
-		String[] headers = new String[30];
-		for (int i = 0; i < 30; i++) values[i] = "";
-		if (extractHeaders == null)
-			for (int i = 0; i < 30; i++) headers[i] = "";
-		for (String key : extractVals.keySet()) {
-			String[] parts = key.split("-", 2);			
-			Integer column = Integer.valueOf(parts[0])-1;
-			values[column] = extractVals.get(key);
-			if (extractHeaders == null)
-				if (parts.length > 1)
-					headers[column] = parts[1];
+		String[] values = new String[extractCols];
+		for (int i = 0; i < extractCols; i++) values[i] = "";
+		for (String key : extractVals.keySet())
+			values[Integer.valueOf(key)-1] = extractVals.get(key);
+		return StringUtils.join(values, '\t')+"\n";
+	}
+	
+	private void populateExtractHeaders( Report rep ) {
+		List<String> v = new ArrayList<String>();
+		if (rep.equals(Report.EXTRACT_LANGUAGE)) {
+			v.add("id");
+			v.add("leader");
+			v.add("008");
+			v.add("040");
+			v.add("008/35-37");
+			v.add("041");
+			v.add("500a");
+			v.add("546a");
+		} else if (rep.equals(Report.EXTRACT_PUBPLACE)) {
+			v.add("id");
+			v.add("leader");
+			v.add("008");
+			v.add("040");
+			v.add("008/15-17");
+			v.add("020az");
+			v.add("1st 260a/246a");
+			v.add("Other 260a/264a");
+		} else if (rep.equals(Report.EXTRACT_SUBJPLACE)) {
+			v.add("id");
+			v.add("leader");
+			v.add("008");
+			v.add("040");
+			v.add("043a");
+			v.add("050a/090a");
+			v.add("505a");
+			v.add("520a");
+			v.add("6XXz");
+			v.add("651a");
 		}
-		if (extractHeaders == null)
-			extractHeaders = IndexingUtilities.join(headers, "\t")+"\n";
-		return IndexingUtilities.join(values, "\t")+"\n";
+		extractHeaders = StringUtils.join(v,"\t");
+		extractCols = v.size();
 	}
 	
 	/**
@@ -1224,7 +1252,7 @@ public class MarcXmlToNTriples {
 			extractVals = new HashMap<String,String>();
 			
 		if (isPubPlace || isSubjPlace || isLanguage)
-			extractVals.put("02-leader", rec.leader);
+			extractVals.put("02", rec.leader);
 		
 		for (Integer fid : rec.control_fields.keySet()) {
 			ControlField f = rec.control_fields.get(fid);
@@ -1235,15 +1263,15 @@ public class MarcXmlToNTriples {
 			if (f.tag.equals("008")) {
 
 				if (isPubPlace || isSubjPlace || isLanguage)
-					extractVals.put("03-008", f.value);
+					extractVals.put("03", f.value);
 				
 				if (isPubPlace)
 					if (f.value.length() >= 18)
-						extractVals.put("05-008/15-17", f.value.substring(15, 18));
+						extractVals.put("05", f.value.substring(15, 18));
 
 				if (isLanguage)
 					if (f.value.length() >= 38)
-						extractVals.put("05-008/35-37", f.value.substring(35,38));
+						extractVals.put("05", f.value.substring(35,38));
 			}
 	
 		}
@@ -1256,23 +1284,23 @@ public class MarcXmlToNTriples {
 				if (f.tag.equals("020"))
 					for (Subfield sf : f.subfields.values()) 
 						if (sf.code.equals('a') || sf.code.equals('z') )
-							putOrAppendToExtract("06-020az", " ", sf.toString('$'));
+							putOrAppendToExtract("06", " ", sf.toString('$'));
 
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("040"))
-					putOrAppendToExtract("04-040","; ",f.toString('$'));
+					putOrAppendToExtract("04","; ",f.toString('$'));
 
 			if (isLanguage)
 				if (f.tag.equals("041"))
-					putOrAppendToExtract("06-041", "; ", f.toString('$'));
+					putOrAppendToExtract("06", "; ", f.toString('$'));
 
 			if (isSubjPlace)
 				if (f.tag.equals("043"))
-					putOrAppendToExtract("05-043a"," ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("05"," ",f.concatenateSpecificSubfields("a"));
 			
 			if (isSubjPlace)
 				if (f.tag.equals("050") || f.tag.equals("090"))
-					putOrAppendToExtract("06-050a/090a","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("06","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
 			
 			if (isPubPlace)
 				if (f.tag.equals("260") || f.tag.equals("264"))
@@ -1280,29 +1308,29 @@ public class MarcXmlToNTriples {
 			
 			if (isLanguage)
 				if (f.tag.equals("500"))
-					putOrAppendToExtract("07-500a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("07","; ",f.concatenateSpecificSubfields("a"));
 			
 			if (isSubjPlace)
 				if (f.tag.equals("505"))
-					putOrAppendToExtract("07-505a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("07","; ",f.concatenateSpecificSubfields("a"));
 				
 			if (isSubjPlace)
 				if (f.tag.equals("520"))
-					putOrAppendToExtract("08-520a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("08","; ",f.concatenateSpecificSubfields("a"));
 				
 			if (isLanguage)
 				if (f.tag.equals("546"))
-					putOrAppendToExtract("08-546a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("08","; ",f.concatenateSpecificSubfields("a"));
 
 			if (isSubjPlace)
 				if (f.tag.startsWith("6"))
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('z'))
-							putOrAppendToExtract("09-6XXz","; ",f.tag+" "+sf.value);
+							putOrAppendToExtract("09","; ",f.tag+" "+sf.value);
 			
 			if (isSubjPlace)
 				if (f.tag.equals("651"))
-					putOrAppendToExtract("10-651a","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("10","; ",f.concatenateSpecificSubfields("a"));
 	
 			
 /*			// entity in any datafield value
@@ -1335,10 +1363,10 @@ public class MarcXmlToNTriples {
 		}
 		
 		if (pubplaces.size() > 0) {
-			extractVals.put("07-240/246",pubplaces.get(0));
+			extractVals.put("07",pubplaces.get(0));
 			if (pubplaces.size() > 1) {
 				pubplaces.remove(0);
-				extractVals.put("08-240/246", StringUtils.join(pubplaces,"; "));
+				extractVals.put("08", StringUtils.join(pubplaces,"; "));
 			}
 		}
 	
