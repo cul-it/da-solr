@@ -1221,7 +1221,7 @@ public class MarcXmlToNTriples {
 			v.add("6XXz");
 			v.add("651a");
 		}
-		extractHeaders = StringUtils.join(v,"\t");
+		extractHeaders = StringUtils.join(v,"\t")+"\n";
 		extractCols = v.size();
 	}
 	
