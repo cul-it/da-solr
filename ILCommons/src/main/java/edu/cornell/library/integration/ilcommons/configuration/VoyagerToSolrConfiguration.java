@@ -103,28 +103,46 @@ public class VoyagerToSolrConfiguration {
     	}
     }
 
-    public String getFullMrc21Dir() throws IOException {
-    	if (values.containsKey("fullMrc21Dir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrc21Dir"));
-    		return values.get("fullMrc21Dir");
+    public String getFullMrcBibDir() throws IOException {
+    	if (values.containsKey("fullMrcBibDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcBibDir"));
+    		return values.get("fullMrcBibDir");
     	} else {
     		return null;
     	}
     }
 
-    public String getFullMrcXmlDir() throws IOException {
-    	if (values.containsKey("fullMrcXmlDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcXmlDir"));
-    		return values.get("fullMrcXmlDir");
+    public String getFullMrcMfhdDir() throws IOException {
+    	if (values.containsKey("fullMrcMfhdDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcMfhdDir"));
+    		return values.get("fullMrcMfhdDir");
     	} else {
     		return null;
     	}
     }
 
-    public String getFullMrcNtDir() throws IOException {
-    	if (values.containsKey("fullMrcNtDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcNtDir"));
-    		return values.get("fullMrcNtDir");
+    public String getFullXmlBibDir() throws IOException {
+    	if (values.containsKey("fullXmlBibDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullXmlBibDir"));
+    		return values.get("fullXmlBibDir");
+    	} else {
+    		return null;
+    	}
+    }
+
+    public String getFullXmlMfhdDir() throws IOException {
+    	if (values.containsKey("fullXmlMfhdDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullXmlMfhdDir"));
+    		return values.get("fullXmlMfhdDir");
+    	} else {
+    		return null;
+    	}
+    }
+
+    public String getFullNtBibDir() throws IOException {
+    	if (values.containsKey("fullNtBibDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullNtBibDir"));
+    		return values.get("fullNtBibDir");
     	} else {
     		return null;
     	}
@@ -539,30 +557,40 @@ public class VoyagerToSolrConfiguration {
         // fields required for select processes
         if (requiredArgs.contains("solrUrl"))
         	errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
-        if (requiredArgs.contains("blacklightSolrUrl")) {
+        if (requiredArgs.contains("blacklightSolrUrl"))
             errMsgs += checkSolrUrl( checkMe.values.get("blacklightSolrUrl") );
-        }
-        if (requiredArgs.contains("fullAuthXmlDir")) {
+        if (requiredArgs.contains("fullAuthXmlDir"))
         	errMsgs += checkDir( checkMe.values.get("fullAuthXmlDir"), "fullAuthXmlDir");
-        }
-        if (requiredArgs.contains("nonVoyXmlDir")) {
+        if (requiredArgs.contains("fullMrcBibDir"))
+        	errMsgs += checkDir( checkMe.values.get("fullMrcBibDir"), "fullMrcBibDir");
+        if (requiredArgs.contains("fullMrcMfhdDir"))
+        	errMsgs += checkDir( checkMe.values.get("fullMrcMfhdDir"), "fullMrcMfhdDir");
+        if (requiredArgs.contains("fullXmlBibDir"))
+        	errMsgs += checkDir( checkMe.values.get("fullXmlBibDir"), "fullXmlBibDir");
+        if (requiredArgs.contains("fullXmlMfhdDir"))
+        	errMsgs += checkDir( checkMe.values.get("fullXmlMfhdDir"), "fullXmlMfhdDir");
+        if (requiredArgs.contains("fullNtBibDir"))
+        	errMsgs += checkDir( checkMe.values.get("fullNtBibDir"), "fullNtBibDir");
+        if (requiredArgs.contains("nonVoyXmlDir"))
         	errMsgs += checkDir( checkMe.values.get("nonVoyXmlDir"), "nonVoyXmlDir");
-        }
-        if (requiredArgs.contains("nonVoyNtDir")) {
+        if (requiredArgs.contains("nonVoyNtDir"))
         	errMsgs += checkDir( checkMe.values.get("nonVoyNtDir"), "nonVoyNtDir");
-        }
-        if (requiredArgs.contains("nonVoyTxtDir")) {
+        if (requiredArgs.contains("nonVoyTxtDir"))
         	errMsgs += checkDir( checkMe.values.get("nonVoyTxtDir"), "nonVoyTxtDir");
-        }
-        if (requiredArgs.contains("nonVoyTdfDir")) {
+        if (requiredArgs.contains("nonVoyTdfDir"))
         	errMsgs += checkDir( checkMe.values.get("nonVoyTdfDir"), "nonVoyTdfDir");
-        }
-        if (requiredArgs.contains("nonVoyUriPrefix")) {
+        if (requiredArgs.contains("nonVoyUriPrefix"))
         	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
-        }
-        if (requiredArgs.contains("nonVoyIdPrefix")) {
+        if (requiredArgs.contains("nonVoyIdPrefix"))
         	errMsgs += checkExists( checkMe.values.get("nonVoyIdPrefix"), "nonVoyIdPrefix");
-        }
+        if (requiredArgs.contains("dailyBibUnsuppressedDir"))
+        	errMsgs += checkExists( checkMe.values.get("dailyBibUnsuppressedDir"), "dailyBibUnsuppressedDir");
+        if (requiredArgs.contains("dailyBibUnsuppressedFilenamePrefix"))
+        	errMsgs += checkExists( checkMe.values.get("dailyBibUnsuppressedFilenamePrefix"), "dailyBibUnsuppressedFilenamePrefix");
+        if (requiredArgs.contains("dailyMfhdUnsuppressedDir"))
+        	errMsgs += checkExists( checkMe.values.get("dailyMfhdUnsuppressedDir"), "dailyMfhdUnsuppressedDir");
+        if (requiredArgs.contains("dailyMfhdUnsuppressedFilenamePrefix"))
+        	errMsgs += checkExists( checkMe.values.get("dailyMfhdUnsuppressedFilenamePrefix"), "dailyMfhdUnsuppressedFilenamePrefix");
         return errMsgs;        
     }
 
