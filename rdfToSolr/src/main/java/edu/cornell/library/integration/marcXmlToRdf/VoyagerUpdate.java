@@ -12,7 +12,7 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 
 public class VoyagerUpdate {
 	
@@ -58,7 +58,7 @@ public class VoyagerUpdate {
 		
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 					    
-		MarcXmlToNTriples converter = new MarcXmlToNTriples(Mode.RECORD_COUNT_BATCHES);
+		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
 		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);

@@ -64,13 +64,19 @@ task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( nonVoyagerXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
+task( nonVoyagerXmlToNT, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to N-Triples"
  maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerRecords'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToNT'
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task( nonVoyagerXmlToN3, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to N3"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToN3'
+ classpath = sourceSets.main.runtimeClasspath
+}
 
 task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 

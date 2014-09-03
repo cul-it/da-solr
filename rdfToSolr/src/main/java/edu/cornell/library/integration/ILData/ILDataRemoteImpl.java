@@ -29,13 +29,16 @@ public class ILDataRemoteImpl implements ILData {
 	"CONSTRUCT { $URI$ ?p ?o }WHERE{ $URI$ ?p ?o }",
 	
 	"prefix marc: <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
+	"prefix marcrdf: <http://marcrdf.library.cornell.edu/canonical/0.1/> \n"+
     "CONSTRUCT { \n"+
-    "  $URI$ marc:hasField ?f . \n"+
+    "  $URI$ ?p ?f . \n"+
+    "  ?p rdfs:subPropertyOf marcrdf:ControlFields. \n" +
     "  ?f ?fp ?fo. \n"+
     "  ?f marc:hasSubfield ?sf . \n"+
     "  ?sf ?sfp ?sfo. \n"+    
     " } WHERE { \n"+
-    "  $URI$ marc:hasField ?f. \n"+
+    "  $URI$ ?p ?f. \n"+
+    "  ?p rdfs:subPropertyOf marcrdf:DataFields. " +
     "  ?f ?fp ?fo. \n"+    
     "    optional{ \n"+
     "      ?f marc:hasSubfield ?sf \n"+

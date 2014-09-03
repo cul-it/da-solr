@@ -104,8 +104,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	public void testLanguageSearchFacet() throws SolrServerException{
 
 		try {
-			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField> ?f." +
-					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> \"008\". " +
+			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> ?f." +
 					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
 					"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Language>. " +
 					"?l <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?langcode. " +

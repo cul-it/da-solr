@@ -66,14 +66,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"SELECT *\n" +
 				    		" WHERE {\n" +
 				    		"   ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
-				    		"   ?mfhd marcrdf:hasField ?field.\n" +
+				    		"   ?mfhd ?p ?field.\n" +
+				    		"   ?p rdfs:subPropertyOf marcrdf:ControlFields. \n"+
 				    		"   ?field marcrdf:tag ?tag.\n" +
 				    		"   ?field marcrdf:value ?value. }").
 			        addMainStoreQuery("holdings_data_fields",
 			        	"SELECT * \n"+
 			        	"WHERE {\n" +
 			        	"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
-			        	"  ?mfhd marcrdf:hasField ?field.\n" +
+			    		"  ?mfhd ?p ?field.\n" +
+			    		"  ?p rdfs:subPropertyOf marcrdf:DataFields. \n"+
 			        	"  ?field marcrdf:tag ?tag.\n" +
 			        	"  ?field marcrdf:ind1 ?ind1.\n" +
 			        	"  ?field marcrdf:ind2 ?ind2.\n" +
@@ -117,13 +119,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addMainStoreQuery("marc_control_fields",
 				    		"SELECT *\n" +
 				    		" WHERE {\n" +
-				    		"   $recordURI$ marcrdf:hasField ?field.\n" +
+				    		"   $recordURI$ ?p ?field.\n" +
+				    		"   ?p rdfs:subPropertyOf marcrdf:ControlFields. \n"+
 				    		"   ?field marcrdf:tag ?tag.\n" +
 				    		"   ?field marcrdf:value ?value. }").
 				    addMainStoreQuery("marc_data_fields",
 				    		"SELECT *\n" +
 				    		" WHERE {\n" +
-				    		"   $recordURI$ marcrdf:hasField ?field.\n" +
+				    		"   $recordURI$ ?p ?field.\n" +
+				    		"   ?p rdfs:subPropertyOf marcrdf:DataFields. \n"+
 				    		"   ?field marcrdf:tag ?tag.\n" +
 				    		"   ?field marcrdf:ind1 ?ind1.\n" +
 				    		"   ?field marcrdf:ind2 ?ind2.\n" +
@@ -177,8 +181,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("format_502",
 							"SELECT ?f502\n" +
-							" WHERE { $recordURI$ marcrdf:hasField ?f502.\n" +
-							"       ?f502 marcrdf:tag \"502\". }").
+							" WHERE { $recordURI$ marcrdf:hasField502 ?f502. }").
 					addMainStoreQuery("format_653",
 							"SELECT ?sf653a\n" +
 							" WHERE { $recordURI$ marcrdf:hasField653 ?f.\n" +
@@ -234,8 +237,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addMainStoreQuery("bib_callno",
 					    "SELECT ?part1 ?part2\n"+
 				    	"WHERE {\n"+
-		                "  $recordURI$ marcrdf:hasField ?f50.\n" +
-				    	"  ?f50 marcrdf:tag \"050\".\n" +
+		                "  $recordURI$ marcrdf:hasField050 ?f50.\n" +
 				    	"  ?f50 marcrdf:hasSubfield ?f50a.\n" +
 				      	"  ?f50a marcrdf:code \"a\".\n" +
 				      	"  ?f50a marcrdf:value ?part1.\n" +
@@ -250,13 +252,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
 				    		"SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2) \n" +
-				    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
-				    		"        ?f marcrdf:tag \"008\". \n" +
+				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 				    		"        ?f marcrdf:value ?val } \n" ).
-				    addMainStoreQuery("human_dates",
+				    addMainStoreQuery("human_dates",  //TODO: make sure publisher_display, pubdate_display etc still work
 				    		"SELECT ?date \n" +
-				    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
-				    		"        {?f marcrdf:tag \"260\"} UNION {?f marcrdf:tag \"264\"} \n" +
+				    		"WHERE { { $recordURI$ marcrdf:hasField260 ?f }" +
+				    		"         UNION { $recordURI$ marcrdf:hasField264 ?f } \n" +
 				    		"        ?f marcrdf:hasSubfield ?s. \n" +
 				    		"        ?s marcrdf:code \"c\". \n" +
 				    		"        ?s marcrdf:value ?date } ").
@@ -362,18 +363,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("titles").
 					addMainStoreQuery("title_main",
 						"SELECT ?code ?value\n" +
-						" WHERE { $recordURI$ marcrdf:hasField ?f245.\n" +
-			    		"        ?f245 marcrdf:tag \"245\". \n" +
+						" WHERE { $recordURI$ marcrdf:hasField245 ?f245.\n" +
 			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
 			    		"        ?f245sf marcrdf:code ?code.\n" +
 			    		"        ?f245sf marcrdf:value ?value.\n" +
-			    		" }").
-			    	addMainStoreQuery("title_sort_offset",
-					    "SELECT ?ind2 \n" +
-						"WHERE { $recordURI$ marcrdf:hasField ?f245. \n" +
-						"        ?f245 marcrdf:tag \"245\". \n" +
 					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
-			    		"      }\n").
+			    		" }").
 			    	addResultSetToFields( new TitleResultSetToFields()),
 			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:：/／= "),
 			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:：/／ "),
@@ -433,8 +428,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("urls", 
 			        	"SELECT *\n" +
 			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField ?f.\n" +
-			        	"  ?f marcrdf:tag \"856\".\n" +
+			        	"  $recordURI$ marcrdf:hasField856 ?f.\n" +
 			        	"  ?f marcrdf:ind1 ?i1.\n" +
 			        	"  ?f marcrdf:ind2 ?i2.\n" +
 			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
@@ -444,8 +438,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						"SELECT *\n" +
 				    	" WHERE {\n" +
 						"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
-			        	"  ?mfhd marcrdf:hasField ?f.\n" +
-			        	"  ?f marcrdf:tag \"856\".\n" +
+			        	"  ?mfhd marcrdf:hasField856 ?f.\n" +
 			        	"  ?f marcrdf:ind1 ?i1.\n" +
 			        	"  ?f marcrdf:ind2 ?i2.\n" +
 			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
@@ -595,8 +588,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					setName("fact_or_fiction").
 					addMainStoreQuery("fact_or_fiction",
 			    		"SELECT (SUBSTR(?val,34,1) as ?char33) \n" +
-			    		"WHERE { $recordURI$ marcrdf:hasField ?f. \n" +
-			    		"        ?f marcrdf:tag \"008\". \n" +
+			    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 			    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("record_type",
 				    	"SELECT (SUBSTR(?l,7,1) as ?char6) \n" +

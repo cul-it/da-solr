@@ -124,7 +124,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	VernMode vernMode = VernMode.ADAPTIVE;
 
 	public String getName() {
-		return SubfieldCodeMaker.class.getSimpleName() +
+		return StandardMARCFieldMaker.class.getSimpleName() +
 				" for MARC field " + marcFieldTag + 
 				" and codes " + marcSubfieldCodes;
 	}

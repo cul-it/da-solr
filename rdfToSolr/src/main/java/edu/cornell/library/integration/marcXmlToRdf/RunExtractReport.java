@@ -10,9 +10,9 @@ import org.apache.commons.io.FileUtils;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Mode;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.OutputFormat;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Report;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
 public class RunExtractReport {
 	
@@ -38,7 +38,7 @@ public class RunExtractReport {
 		
 		davService = DavServiceFactory.getDavService(config);
 
-		MarcXmlToNTriples converter = new MarcXmlToNTriples(Mode.NAME_AS_SOURCE);
+		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
 		converter.setOutputFormat(OutputFormat.TDF_GZ);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTdfDir(), davService);

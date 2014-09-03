@@ -10,7 +10,8 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 
 public class VoyagerFull {
 	
@@ -29,7 +30,7 @@ public class VoyagerFull {
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("fullXmlBibDir");
 		requiredFields.add("fullXmlMfhdDir");
-		requiredFields.add("fullNtBibDir");
+		requiredFields.add("N3Dir");
 		requiredFields.add("dailyBibUnsuppressedDir");
 		requiredFields.add("dailyBibUnsuppressedFilenamePrefix");
 		requiredFields.add("dailyMfhdUnsuppressedDir");
@@ -57,10 +58,11 @@ public class VoyagerFull {
 		    throw new Exception("Could not be the most recent MFHD ID file", e);
 		}			
 		
-		MarcXmlToNTriples converter = new MarcXmlToNTriples(Mode.ID_RANGE_BATCHES);
+		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.ID_RANGE_BATCHES);
+		converter.setOutputFormat(OutputFormat.N3);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlBibDir(), davService);
 		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlMfhdDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getFullNtBibDir(),davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getN3Dir(),davService);
 		converter.setUnsuppressedBibs(unsuppressedBibs, true, false);
 		converter.setUnsuppressedMfhds(unsuppressedMfhds, true, false);
 		converter.setDestFilenamePrefix( "voyager" );
