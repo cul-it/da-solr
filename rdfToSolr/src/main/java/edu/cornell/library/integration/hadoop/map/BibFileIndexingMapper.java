@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -156,28 +157,47 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				RDFService rdf = new RDFServiceModel(model);
                 int n = 0;
 
-				for( String bibUri: bibUris){	
+                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+                for( String bibUri: bibUris){	
                     n++;
                     System.out.println("indexing " + n + " out of " + total 
                                        + ". bib URI: " + bibUri );
 
-					try{
-						indexToSolr(bibUri, rdf);	
+                    //Create Solr Documents
+                    try{
+						SolrInputDocument doc = indexToSolr(bibUri, rdf);
+						docs.add(doc);
 						context.progress();
-						context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
-						context.write(new Text(bibUri), new Text("URI\tSuccess"));
 					}catch(Throwable ex ){
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
                         if( checkForOutOfSpace( ex ) ){
                             return;
                         }
 					}
-				}		
+                }
 				
 				try {
 					voyager.close();
 				}
 				catch (SQLException SQLEx) { /* ignore */ }
+				
+						
+				try{
+		            if( doSolrUpdate ){
+		                //in solr an update is a delete followed by an add
+		            	for (SolrInputDocument doc : docs)
+		            		solr.deleteById((String)doc.getFieldValue("id"));
+		            }
+					solr.add(docs);				
+
+		            context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+	            	for (SolrInputDocument doc : docs)
+	            		context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+
+				}catch (Throwable er) {			
+					throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
+				} 
+
 								
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
@@ -281,7 +301,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private void indexToSolr(String bibUri, RDFService rdf) throws Exception{
+	private SolrInputDocument indexToSolr(String bibUri, RDFService rdf) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
@@ -293,18 +313,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}catch(Throwable er){			
 			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
-					
-		try{
-            if( doSolrUpdate ){
-                //in solr an update is a delete followed by an add
-                solr.deleteById((String)doc.getFieldValue("id"));
-            }
-
-			solr.add(doc);				
-		}catch (Throwable er) {			
-			throw new Exception("Could not add document to index for " + bibUri +
-					" Check logs of solr server for details.", er );
-		}
+		return doc;
 	}
 	
 	
@@ -437,7 +446,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     // restart a job. 
     public final static String DO_NOT_MOVE_TO_DONE = "DO_NOT_MOVE_TO_DONE";
 
-    public Context testContext(Configuration configuration,
+    @SuppressWarnings("unchecked")
+	public Context testContext(Configuration configuration,
             TaskAttemptID taskAttemptID, RecordReader<Text, Text> recordReader,
             RecordWriter<Text, Text> recordWriter, OutputCommitter outputCommitter,
             StatusReporter statusReporter, InputSplit inputSplit) throws IOException, InterruptedException {
