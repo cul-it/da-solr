@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -63,6 +64,7 @@ public class MarcXmlToRdf {
 	private String outFileExt = ".nt.gz";
 	
 	private Mode mode;
+	private Boolean isSimultaneousWrite = true;
 	private Boolean isUnsuppressedBibListFiltered = false;
 	private Boolean isUnsuppressedBibListFlagged = false;
 	private Collection<Integer> unsuppressedBibs = null;
@@ -84,7 +86,9 @@ public class MarcXmlToRdf {
 	private DavService destDav = null;
 	private String tempBibSrcDir = null;
 	private String tempDestDir = null;
-	private String currentFileName = null;
+	private String currentInputFile = null;
+	private String currentOutputFile = null;
+	private BufferedOutputStream singleOut = null;
 	private Map<Integer, BufferedOutputStream> outsById = null;
 	private Map<String, BufferedOutputStream> outsByName = null;
 	private String uriPrefix = null;
@@ -116,6 +120,17 @@ public class MarcXmlToRdf {
 	public void setOutputFormat( OutputFormat f ) {
 		outFormat = f;
 		outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".");
+	}
+	
+	/**
+	 * Deactivate simultaneous output handlers for multi-file output. Not recommended
+	 * for gzipped output files, as re-opening and appending to an existing .gz file
+	 * may result in an encoding not supported by all readers (including Jena).
+	 * 
+	 * CURRENTLY ONLY SUPPORTED FOR Mode.ID_RANGE_BATCHES
+	 */
+	public void noSimultaneousWrite( ) {
+		isSimultaneousWrite = false;
 	}
 
 	/**
@@ -263,10 +278,11 @@ public class MarcXmlToRdf {
 
 		validateRun();
 		
-		if (mode.equals(Mode.NAME_AS_SOURCE))
-			outsByName = new HashMap<String,BufferedOutputStream>();
-		else
-			outsById = new HashMap<Integer, BufferedOutputStream>();
+		if (isSimultaneousWrite)
+			if (mode.equals(Mode.NAME_AS_SOURCE))
+				outsByName = new HashMap<String,BufferedOutputStream>();
+			else
+				outsById = new HashMap<Integer, BufferedOutputStream>();
 		
 		// If the destination is local, we can build N-Triples directly to there.
 		// Otherwise, we need a temporary build directory.
@@ -298,6 +314,8 @@ public class MarcXmlToRdf {
 		if (outsById != null)
 			for (BufferedOutputStream out : outsById.values())
 				out.close();
+		if (singleOut != null)
+			singleOut.close();
 
 		if (isDestDav) uploadOutput();
 		
@@ -322,6 +340,17 @@ public class MarcXmlToRdf {
 		}
 
 	}
+	
+	private BufferedOutputStream openFileForWrite( String f ) throws Exception {
+		BufferedOutputStream b = null;
+		if (outFormat.toString().endsWith("GZ")) 
+			b =  new BufferedOutputStream(new GZIPOutputStream(
+					new FileOutputStream(f,true)));
+		else {
+			b =  new BufferedOutputStream(new FileOutputStream(f,true));
+		}
+		return b;
+	}
 
 	private void sortOutput( String bibid, String output ) throws Exception {
 		BufferedOutputStream out = null;
@@ -335,18 +364,28 @@ public class MarcXmlToRdf {
 		
 		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
 			Integer batchid = Integer.valueOf(bibid) / groupsize;
-			if ( ! outsById.containsKey(batchid)) {
-				if (outFormat.toString().endsWith("GZ")) 
-					out =  new BufferedOutputStream(new GZIPOutputStream(
-							new FileOutputStream(dirToProcessInto+"/"+
-									destFilenamePrefix+"."+batchid+outFileExt, true)));
-				else 
-					out =  new BufferedOutputStream(new FileOutputStream(dirToProcessInto+"/"+
-									destFilenamePrefix+"."+batchid+outFileExt, true));
-				newOut = true;
-				outsById.put(batchid, out);
-			} else 
-				out = outsById.get(batchid);
+			String file = dirToProcessInto+"/"+destFilenamePrefix+"."+batchid+outFileExt;
+			if (isSimultaneousWrite) {
+				if ( ! outsById.containsKey(batchid)) {
+					out = openFileForWrite(file);
+					newOut = true;
+					outsById.put(batchid, out);
+				} else 
+					out = outsById.get(batchid);
+			} else {
+				if (file.equals(currentOutputFile)) {
+					out = singleOut;
+				} else {
+					if (singleOut != null)
+						singleOut.close();
+					File f = new File(file);
+					if (! f.exists())
+						newOut = true;
+					out = openFileForWrite(file);
+					singleOut = out;
+					currentOutputFile = file;
+				}
+			}
 
 		} else if (mode.equals(Mode.RECORD_COUNT_BATCHES)) {
 			Integer outputBatch = 100_000_000;
@@ -364,32 +403,22 @@ public class MarcXmlToRdf {
 			out = outsById.get(outputBatch);
 
 		} else { //Mode.NAME_AS_SOURCE
-			if (outsByName.containsKey(currentFileName)) {
-				out = outsByName.get(currentFileName);
+			if (outsByName.containsKey(currentInputFile)) {
+				out = outsByName.get(currentInputFile);
 			} else {
 				if (dirToProcessInto != null) {
 					String targetFile = (destFilenamePrefix != null) 
-							? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentFileName)
-									: dirToProcessInto+"/"+swapFileExt(currentFileName);
+							? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentInputFile)
+									: dirToProcessInto+"/"+swapFileExt(currentInputFile);
 					if (debug)
 						System.out.println("Opening output handle for "+targetFile);
-					if (outFormat.toString().endsWith("GZ"))
-						out = new BufferedOutputStream(new GZIPOutputStream(
-								new FileOutputStream(targetFile)));
-					else
-						out = new BufferedOutputStream(new FileOutputStream(targetFile));
+					out = openFileForWrite(targetFile);
 				} else {
 					// dest is a file, and not on dav
-					if (outFormat.toString().endsWith("GZ"))
-						out = new BufferedOutputStream(new GZIPOutputStream(
-								new FileOutputStream(dirToProcessInto+"/"+
-										swapFileExt(currentFileName))));
-					else
-						out = new BufferedOutputStream(new FileOutputStream(
-								dirToProcessInto+"/"+swapFileExt(currentFileName)));
+					out = openFileForWrite(dirToProcessInto+"/"+ swapFileExt(currentInputFile));
 				}
 				newOut = true;
-				outsByName.put(currentFileName, out);
+				outsByName.put(currentInputFile, out);
 			}
 		}
 		
@@ -505,9 +534,9 @@ public class MarcXmlToRdf {
 			DirectoryStream<Path> stream = Files.newDirectoryStream(
 					Paths.get(localProcessDir));
 			for (Path file: stream) {
-				currentFileName = file.toString().substring(
+				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
-				if (debug) System.out.println(file + " ("+currentFileName+")");
+				if (debug) System.out.println(file + " ("+currentInputFile+")");
 				readXml(new FileInputStream(file.toString()),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -515,9 +544,9 @@ public class MarcXmlToRdf {
 		}
 		
 		if (localProcessFile != null) {
-			currentFileName = localProcessFile.substring(
+			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
-			if (debug) System.out.println(localProcessFile + " ("+currentFileName+")");
+			if (debug) System.out.println(localProcessFile + " ("+currentInputFile+")");
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -527,8 +556,8 @@ public class MarcXmlToRdf {
 		if (bibSrcDir != null) {
 			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
 			for ( String file : files) {
-				currentFileName = file.substring(file.lastIndexOf('/')+1);
-				if (debug) System.out.println(file + " ("+currentFileName+")");
+				currentInputFile = file.substring(file.lastIndexOf('/')+1);
+				if (debug) System.out.println(file + " ("+currentInputFile+")");
 				readXml(bibSrcDav.getFileAsInputStream(file),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -536,8 +565,8 @@ public class MarcXmlToRdf {
 		}
 		
 		if (bibSrcFile != null) {
-			currentFileName = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
-			if (debug) System.out.println(bibSrcFile + " ("+currentFileName+")");
+			currentInputFile = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
+			if (debug) System.out.println(bibSrcFile + " ("+currentInputFile+")");
 			readXml(bibSrcDav.getFileAsInputStream(bibSrcFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -559,7 +588,7 @@ public class MarcXmlToRdf {
 			DirectoryStream<Path> stream = Files.newDirectoryStream(
 					Paths.get(localProcessDir));
 			for (Path file: stream) {
-				currentFileName = file.toString().substring(
+				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.HOLDINGS );
@@ -568,7 +597,7 @@ public class MarcXmlToRdf {
 		}
 		
 		if (localProcessFile != null) {
-			currentFileName = localProcessFile.substring(
+			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.HOLDINGS );
@@ -579,7 +608,7 @@ public class MarcXmlToRdf {
 		if (mfhdSrcDir != null) {
 			List<String> files = mfhdSrcDav.getFileUrlList(mfhdSrcDir);
 			for ( String file : files) {
-				currentFileName = file.substring(file.lastIndexOf('/')+1);
+				currentInputFile = file.substring(file.lastIndexOf('/')+1);
 				readXml(mfhdSrcDav.getFileAsInputStream(file),
 						RecordType.HOLDINGS );
 			}
@@ -587,14 +616,14 @@ public class MarcXmlToRdf {
 		}
 		
 		if (mfhdSrcFile != null) {
-			currentFileName = mfhdSrcFile.substring(mfhdSrcFile.lastIndexOf('/')+1);
+			currentInputFile = mfhdSrcFile.substring(mfhdSrcFile.lastIndexOf('/')+1);
 			readXml(mfhdSrcDav.getFileAsInputStream(mfhdSrcFile),
 					RecordType.HOLDINGS );
 			return;
 		}
 	}
 
-	private void determineTargetBatches() throws IOException, XMLStreamException {
+	private void determineTargetBatches() throws Exception {
 		String dirToProcess = null;
 		String dirToProcessInto = null;
 		
@@ -633,14 +662,8 @@ public class MarcXmlToRdf {
 			else
 				minBibid = bibs[bibs.length - 1];
 			System.out.println(i3+": "+minBibid);
-			BufferedOutputStream  out = null;
-			if (outFormat.toString().endsWith("GZ"))
-				out =  new BufferedOutputStream(new GZIPOutputStream(
-						new FileOutputStream(dirToProcessInto+"/"+
-								destFilenamePrefix+"."+i3+outFileExt)));
-			else
-				out =  new BufferedOutputStream(new FileOutputStream(
-						dirToProcessInto+"/"+ destFilenamePrefix+"."+i3+outFileExt));
+			BufferedOutputStream  out = openFileForWrite(dirToProcessInto+"/"+
+					destFilenamePrefix+"."+i3+outFileExt);
 			outsById.put(minBibid, out);
 			
 		}
