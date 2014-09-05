@@ -3,7 +3,6 @@ package edu.cornell.library.integration.service;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
@@ -13,7 +12,6 @@ import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.bo.MfhdMasterData;
 import edu.cornell.library.integration.dao.CatalogDao;
-import edu.cornell.library.integration.service.CatalogService;
 
 public class CatalogServiceImpl implements CatalogService {
     

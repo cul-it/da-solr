@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;

@@ -29,10 +29,12 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.StatusReporter;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
 import com.hp.hpl.jena.query.Dataset;
@@ -48,14 +50,11 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
-import edu.cornell.library.integration.indexer.RecordToDocument;
-import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
+import edu.cornell.library.integration.indexer.RecordToDocument;
+import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 

@@ -1,5 +1,5 @@
 package edu.cornell.library.integration.util;
-import java.io.UnsupportedEncodingException; 
+import java.io.UnsupportedEncodingException;
 
 /**
  * Information about one line in a MARC record's textual presentation: 

@@ -3,16 +3,44 @@ package edu.cornell.library.integration.indexer;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.documentPostProcess.*;
+import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
+import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
+import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
+import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
+import edu.cornell.library.integration.indexer.documentPostProcess.NoAccessUrlsUnlessOnline;
+import edu.cornell.library.integration.indexer.documentPostProcess.RecordBoost;
+import edu.cornell.library.integration.indexer.documentPostProcess.RemoveDuplicateTitleData;
+import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
+import edu.cornell.library.integration.indexer.documentPostProcess.SuppressUnwantedValues;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
+import edu.cornell.library.integration.indexer.fieldMaker.IndicatorReq;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
-import edu.cornell.library.integration.indexer.fieldMaker.IndicatorReq;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
-import edu.cornell.library.integration.indexer.resultSetToFields.*;
+import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
+import edu.cornell.library.integration.indexer.resultSetToFields.AuthorResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.CitationReferenceNoteResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.DBCodeRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.RecordTypeRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.Title240ResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
 
 /**
  * An example RecordToDocument implementation. 

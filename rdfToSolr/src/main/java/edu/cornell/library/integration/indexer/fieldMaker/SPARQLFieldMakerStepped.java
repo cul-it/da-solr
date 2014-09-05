@@ -2,14 +2,15 @@ package edu.cornell.library.integration.indexer.fieldMaker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.*;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.FieldMakerStep;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.ResultSetToFieldsStepped;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{

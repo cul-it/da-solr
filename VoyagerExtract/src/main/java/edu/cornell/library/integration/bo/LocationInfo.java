@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.bo;
 
 
-import java.util.List; 
+import java.util.List;
 public class LocationInfo  {
 
     private List<Location> locationList;

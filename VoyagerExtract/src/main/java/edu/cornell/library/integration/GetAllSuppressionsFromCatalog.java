@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
-import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {

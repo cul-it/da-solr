@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.combineFields;
 
 import java.sql.Connection;
 import java.util.Collections;

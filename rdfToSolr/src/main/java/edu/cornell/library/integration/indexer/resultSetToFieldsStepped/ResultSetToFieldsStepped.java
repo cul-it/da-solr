@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import java.util.Map;
+
 import com.hp.hpl.jena.query.ResultSet;
 
 /**

@@ -1,8 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.*;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +11,10 @@ import java.util.Set;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
  * Build Call number display and facet fields in two steps. 

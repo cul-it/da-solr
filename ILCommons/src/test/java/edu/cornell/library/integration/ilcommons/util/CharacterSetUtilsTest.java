@@ -1,9 +1,13 @@
 package edu.cornell.library.integration.ilcommons.util;
 
 
-import static org.junit.Assert.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
 
 public class CharacterSetUtilsTest {
 	

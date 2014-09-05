@@ -1,6 +1,9 @@
 package edu.cornell.library.integration.util; 
 
-import static edu.cornell.library.integration.util.MarcToXmlConstants.*;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.LN;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.MARC_8_ENCODING;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.WEIRD_CHARACTERS;
+import static edu.cornell.library.integration.util.MarcToXmlConstants.WEIRD_CHARACTERS_PATTERN;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

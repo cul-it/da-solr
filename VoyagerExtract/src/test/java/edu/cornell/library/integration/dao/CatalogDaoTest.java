@@ -10,7 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import edu.cornell.library.integration.bo.BibData;
-import edu.cornell.library.integration.bo.BibMasterData; 
+import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.util.ConvertUtils;
 import edu.cornell.library.integration.util.ObjectUtils;

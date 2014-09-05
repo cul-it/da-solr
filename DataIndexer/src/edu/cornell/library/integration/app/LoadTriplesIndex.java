@@ -6,16 +6,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
- 
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory; 
-import com.hp.hpl.jena.tdb.TDBFactory; 
+import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class LoadTriplesIndex {
    

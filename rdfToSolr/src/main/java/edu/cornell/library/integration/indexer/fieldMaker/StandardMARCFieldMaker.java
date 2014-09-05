@@ -1,7 +1,11 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,7 +20,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.*;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 

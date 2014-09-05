@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class MarcXmlToRdfTest {

@@ -2,16 +2,17 @@ package edu.cornell.library.integration.support;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException; 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
- 
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 import org.marc4j.marc.Record;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import edu.cornell.library.integration.bo.MfhdData; 
-import edu.cornell.library.integration.service.CatalogService; 
+
+import edu.cornell.library.integration.bo.MfhdData;
+import edu.cornell.library.integration.service.CatalogService;
 import edu.cornell.library.integration.util.ConvertUtils;
 
 public class ShowMfhdMrc {

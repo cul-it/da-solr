@@ -1,5 +1,9 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -12,7 +16,6 @@ import java.util.Set;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
