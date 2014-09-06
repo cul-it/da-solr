@@ -59,8 +59,7 @@ public class VoyagerFull {
 		}			
 		
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.ID_RANGE_BATCHES);
-		converter.noSimultaneousWrite();
-		converter.setOutputFormat(OutputFormat.N3);
+		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.N3_GZ);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlBibDir(), davService);
 		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlMfhdDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getN3Dir(),davService);

@@ -63,7 +63,7 @@ public class MarcXmlToRdf {
 	private String outFileExt = ".nt.gz";
 	
 	private Mode mode;
-	private Boolean isSimultaneousWrite = true;
+	private Boolean simultaneousWrite = true;
 	private Boolean isUnsuppressedBibListFiltered = false;
 	private Boolean isUnsuppressedBibListFlagged = false;
 	private Collection<Integer> unsuppressedBibs = null;
@@ -122,14 +122,23 @@ public class MarcXmlToRdf {
 	}
 	
 	/**
+	 * Default output format is gzipped N-Triples (.nt.gz). Also available is a simpler
+	 * text-formatted representation of the MARC records (.txt.gz).
+	 *
 	 * Deactivate simultaneous output handlers for multi-file output. Not recommended
 	 * for gzipped output files, as re-opening and appending to an existing .gz file
 	 * may result in an encoding not supported by all readers (including Jena).
 	 * 
 	 * CURRENTLY ONLY SUPPORTED FOR Mode.ID_RANGE_BATCHES
+	 * DEFINITELY NOT SUPPORTED FOR N-Triples OUTPUT!
 	 */
-	public void noSimultaneousWrite( ) {
-		isSimultaneousWrite = false;
+	public void setOutputFormatWithoutSimultaneousWrite( OutputFormat f ) {
+		simultaneousWrite = false;
+		outFormat = f;
+		if (f.toString().endsWith("GZ")) {
+			outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".").replaceAll(".gz$", "");
+		} else 
+			outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".");
 	}
 
 	/**
@@ -277,7 +286,7 @@ public class MarcXmlToRdf {
 
 		validateRun();
 		
-		if (isSimultaneousWrite)
+		if (simultaneousWrite)
 			if (mode.equals(Mode.NAME_AS_SOURCE))
 				outsByName = new HashMap<String,BufferedOutputStream>();
 			else
@@ -315,6 +324,9 @@ public class MarcXmlToRdf {
 				out.close();
 		if (singleOut != null)
 			singleOut.close();
+		
+		if (! simultaneousWrite && mode.toString().endsWith("GZ"))
+			Runtime.getRuntime().exec("gzip -1 "+tempDestDir).waitFor();
 
 		if (isDestDav) uploadOutput();
 		
@@ -342,7 +354,7 @@ public class MarcXmlToRdf {
 	
 	private BufferedOutputStream openFileForWrite( String f ) throws Exception {
 		BufferedOutputStream b = null;
-		if (outFormat.toString().endsWith("GZ")) 
+		if (outFileExt.endsWith(".gz")) 
 			b =  new BufferedOutputStream(new GZIPOutputStream(
 					new FileOutputStream(f,true)));
 		else {
@@ -364,7 +376,7 @@ public class MarcXmlToRdf {
 		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
 			Integer batchid = Integer.valueOf(bibid) / groupsize;
 			String file = dirToProcessInto+"/"+destFilenamePrefix+"."+batchid+outFileExt;
-			if (isSimultaneousWrite) {
+			if (simultaneousWrite) {
 				if ( ! outsById.containsKey(batchid)) {
 					out = openFileForWrite(file);
 					newOut = true;
@@ -535,7 +547,7 @@ public class MarcXmlToRdf {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
-				if (debug) System.out.println(file + " ("+currentInputFile+")");
+				if (debug) System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -545,7 +557,7 @@ public class MarcXmlToRdf {
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
-			if (debug) System.out.println(localProcessFile + " ("+currentInputFile+")");
+			if (debug) System.out.println(localProcessFile);
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -556,7 +568,7 @@ public class MarcXmlToRdf {
 			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
 			for ( String file : files) {
 				currentInputFile = file.substring(file.lastIndexOf('/')+1);
-				if (debug) System.out.println(file + " ("+currentInputFile+")");
+				if (debug) System.out.println(file);
 				readXml(bibSrcDav.getFileAsInputStream(file),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -565,7 +577,7 @@ public class MarcXmlToRdf {
 		
 		if (bibSrcFile != null) {
 			currentInputFile = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
-			if (debug) System.out.println(bibSrcFile + " ("+currentInputFile+")");
+			if (debug) System.out.println(bibSrcFile);
 			readXml(bibSrcDav.getFileAsInputStream(bibSrcFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -589,6 +601,7 @@ public class MarcXmlToRdf {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
+				if (debug) System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.HOLDINGS );
 			}
@@ -598,6 +611,7 @@ public class MarcXmlToRdf {
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
+			if (debug) System.out.println(localProcessFile);
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.HOLDINGS );
 			return;
@@ -608,6 +622,7 @@ public class MarcXmlToRdf {
 			List<String> files = mfhdSrcDav.getFileUrlList(mfhdSrcDir);
 			for ( String file : files) {
 				currentInputFile = file.substring(file.lastIndexOf('/')+1);
+				if (debug) System.out.println(file);
 				readXml(mfhdSrcDav.getFileAsInputStream(file),
 						RecordType.HOLDINGS );
 			}
@@ -616,6 +631,7 @@ public class MarcXmlToRdf {
 		
 		if (mfhdSrcFile != null) {
 			currentInputFile = mfhdSrcFile.substring(mfhdSrcFile.lastIndexOf('/')+1);
+			if (debug) System.out.println(mfhdSrcFile);
 			readXml(mfhdSrcDav.getFileAsInputStream(mfhdSrcFile),
 					RecordType.HOLDINGS );
 			return;
@@ -779,7 +795,7 @@ public class MarcXmlToRdf {
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
 	*/
 
-	public static void surveyForCJKValues( MarcRecord rec ) throws IOException {
+	private void surveyForCJKValues( MarcRecord rec ) throws IOException {
 		if (logout == null) {
 			FileWriter logstream = new FileWriter(logfile);
 			logout = new BufferedWriter( logstream );
