@@ -74,6 +74,7 @@ public class IncrementalBibFileToSolr {
 	            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
 	            
 	        }catch(Exception e){
+	        	e.printStackTrace();
 	            throw new Exception("Problem while indexing documents from '" + fileToIndex + "'", e);
 	        }
 	        
