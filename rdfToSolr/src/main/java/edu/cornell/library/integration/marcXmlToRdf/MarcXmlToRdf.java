@@ -332,9 +332,9 @@ public class MarcXmlToRdf {
 			if (debug) System.out.println(cmd);
 			Process p = Runtime.getRuntime().exec("gzip -1v "+tempDestDir+"/*");
 			p.waitFor();
-			ByteArrayOutputStream out = (ByteArrayOutputStream) p.getOutputStream();
-			if (debug) System.out.println(out.toByteArray());
-			out.close();
+			InputStream in = p.getInputStream();
+			if (debug) System.out.println(in.toByteArray());
+			in.close();
 		}
 
 		if (isDestDav) uploadOutput();
