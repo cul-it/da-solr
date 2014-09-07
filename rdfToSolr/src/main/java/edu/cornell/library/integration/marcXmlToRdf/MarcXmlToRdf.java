@@ -326,7 +326,7 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && mode.toString().endsWith("GZ"))
-			Runtime.getRuntime().exec("gzip -1 "+tempDestDir).waitFor();
+			Runtime.getRuntime().exec("gzip -1 "+tempDestDir+"/*").waitFor();
 
 		if (isDestDav) uploadOutput();
 		
