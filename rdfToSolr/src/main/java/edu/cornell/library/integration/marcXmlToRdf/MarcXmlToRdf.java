@@ -329,9 +329,9 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
-			String cmd = "gzip -1 "+tempDestDir+"/*";
+			String cmd = "gzip -1v "+tempDestDir+"/*";
 			if (debug) System.out.println(cmd);
-			Process p = Runtime.getRuntime().exec("gzip -1v "+tempDestDir+"/*");
+			Process p = Runtime.getRuntime().exec(cmd);
 			IOUtils.copy(p.getInputStream(), System.out);
 			p.waitFor();
 		}
