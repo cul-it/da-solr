@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -30,7 +29,6 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.StatusReporter;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -136,11 +134,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				//InputStream is = getUrl( urlText.toString()  );
 				//loader.loadGraph((GraphTDB)model.getGraph(), is);
 
-				InputStream is = getUrl( urlText.toString()  );
-                RDFDataMgr.read( model, is, Lang.NT);
+			//	InputStream is = getUrl( urlText.toString()  );
+				RDFDataMgr.read(model, urlText.toString());
 				context.progress();
 								
-				is.close();
+			//	is.close();
 				
 				TDB.sync( dataset );
 			
@@ -317,7 +315,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	}
 	
 	
-	
+/*	
 	private InputStream getUrl(String url) throws IOException {
 		InputStream is = null;
 		try {
@@ -329,7 +327,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		} catch (Exception e) {
 			throw new IOException("Could not get " + url , e);
 		}		
-	}
+	} */
 
 	/** Attempt to get all the bib record URIs from model. */
 	private Set<String> getURIsInModel(  Model model ) {
