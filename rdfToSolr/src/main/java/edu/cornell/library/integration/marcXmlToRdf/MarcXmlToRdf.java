@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -328,7 +329,11 @@ public class MarcXmlToRdf {
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
 			String cmd = "gzip -1 "+tempDestDir+"/*";
 			if (debug) System.out.println(cmd);
-			Runtime.getRuntime().exec("gzip -1 "+tempDestDir+"/*").waitFor();
+			Process p = Runtime.getRuntime().exec("gzip -1v "+tempDestDir+"/*");
+			p.waitFor();
+			OutputStream out = p.getOutputStream();
+			if (debug) System.out.println(out.toString());
+			out.close();
 		}
 
 		if (isDestDav) uploadOutput();
