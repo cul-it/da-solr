@@ -36,6 +36,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -331,10 +332,8 @@ public class MarcXmlToRdf {
 			String cmd = "gzip -1 "+tempDestDir+"/*";
 			if (debug) System.out.println(cmd);
 			Process p = Runtime.getRuntime().exec("gzip -1v "+tempDestDir+"/*");
+			IOUtils.copy(p.getInputStream(), System.out);
 			p.waitFor();
-			InputStream in = p.getInputStream();
-			if (debug) System.out.println(in.toByteArray());
-			in.close();
 		}
 
 		if (isDestDav) uploadOutput();
