@@ -1253,7 +1253,7 @@ public class MarcXmlToRdf {
 			}
 			if ((f.tag.contentEquals("004")) && (rec.type == RecordType.HOLDINGS)) {
 				rec.bib_id = f.value;
-				field_res.addProperty(model.createProperty(marcrdf,"hasBibliographicRecord"),
+				rec_res.addProperty(model.createProperty(marcrdf,"hasBibliographicRecord"),
 						model.createResource(uri_host+"b"+f.value));
 			}
 		}
