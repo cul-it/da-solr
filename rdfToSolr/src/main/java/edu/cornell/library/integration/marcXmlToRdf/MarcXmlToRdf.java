@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.i
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -331,8 +332,8 @@ public class MarcXmlToRdf {
 			if (debug) System.out.println(cmd);
 			Process p = Runtime.getRuntime().exec("gzip -1v "+tempDestDir+"/*");
 			p.waitFor();
-			OutputStream out = p.getOutputStream();
-			if (debug) System.out.println(out.toString());
+			ByteArrayOutputStream out = (ByteArrayOutputStream) p.getOutputStream();
+			if (debug) System.out.println(out.toByteArray());
 			out.close();
 		}
 
