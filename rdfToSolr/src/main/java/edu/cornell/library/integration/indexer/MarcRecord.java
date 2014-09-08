@@ -1,5 +1,9 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -12,7 +16,6 @@ import java.util.Set;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -244,6 +247,10 @@ public class MarcRecord {
 			public String mainTag = null;
 				
 			public String toString() {
+				return this.toString('\u2021');
+			}
+			
+			public String toString(Character subfieldSeparator) {
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.tag);
 				sb.append(" ");
@@ -258,12 +265,11 @@ public class MarcRecord {
 					Subfield sf = this.subfields.get(sf_id);					
 					if (first) first = false;
 					else sb.append(" ");
-					sb.append("\u2021");
+					sb.append(subfieldSeparator);
 					sb.append(sf.code);
 					sb.append(" ");
 					sb.append(sf.value.trim());
 				}
-				
 				return sb.toString();
 			}
 
@@ -356,13 +362,18 @@ public class MarcRecord {
 			public String value;
 
 			public String toString() {
+				return this.toString('\u2021');
+			}
+
+			public String toString(Character subFieldSeparator) {
 				StringBuilder sb = new StringBuilder();
-				sb.append("\u2021");
+				sb.append(subFieldSeparator);
 				sb.append(this.code);
 				sb.append(" ");
 				sb.append(this.value);
 				return sb.toString();
 			}
+
 		}
 		
 		public static class FieldSet {

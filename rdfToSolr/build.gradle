@@ -50,6 +50,34 @@ task( fullMarcXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to TXT representation of MARC"
+ maxHeapSize = '1500m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToTxt'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
+ description = "Generated a tab-delimited report of extracted values"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.RunExtractReport'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( nonVoyagerXmlToNT, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to N-Triples"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToNT'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( nonVoyagerXmlToN3, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to N3"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToN3'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 
  description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
@@ -72,6 +100,15 @@ task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
    description="Converts Voyager Updates MARC XML to MARC N-Triples." 
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
    maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
+ group="Full Build Steps"
+   description="Converts Voyager MARC XML to MARC N-Triples." 
+   jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
+   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
+   maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
 

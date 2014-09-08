@@ -82,6 +82,7 @@ public class RecordTypeRSTF implements ResultSetToFields {
 			addField(fields,"type","Catalog");
 		}
 
+		addField(fields,"source","Voyager");
 		return fields;
 
 	}

@@ -2,22 +2,12 @@ package edu.cornell.library.integration.ilcommons.service;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
 
-import static org.junit.Assert.*;
-
-import org.junit.Ignore;
-import org.junit.Test; 
- 
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import org.junit.Test;
 
  
 public class DavServiceNioTest {

@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.ilcommons.service;
  
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.Properties;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;

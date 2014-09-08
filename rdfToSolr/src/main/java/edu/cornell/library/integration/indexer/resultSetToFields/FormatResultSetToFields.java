@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;

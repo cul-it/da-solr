@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.*;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.substituteInRecordURI;
 
 import java.io.InputStream;
 import java.util.HashMap;

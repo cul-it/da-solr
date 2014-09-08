@@ -15,13 +15,8 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory; 
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.tdb.TDBFactory; 
+import com.hp.hpl.jena.tdb.TDBFactory;
 
-import edu.cornell.library.integration.bo.Triple; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
 public class LookupTest {

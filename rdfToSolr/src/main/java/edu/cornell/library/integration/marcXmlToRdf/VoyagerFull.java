@@ -2,9 +2,7 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -13,8 +11,9 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 
-public class VoyagerUpdate {
+public class VoyagerFull {
 	
 	DavService davService;
 	
@@ -23,16 +22,19 @@ public class VoyagerUpdate {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new VoyagerUpdate(args);			
+	    new VoyagerFull(args);			
 	}
 	
-	public VoyagerUpdate(String[] args) throws Exception {
+	public VoyagerFull(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
-		requiredFields.add("dailyBibMrcXmlDir");
-		requiredFields.add("dailyMfhdMrcXmlDir");
-		requiredFields.add("dailyMrcNtDir");
-		requiredFields.add("dailyMrcNtFilenamePrefix");
+		requiredFields.add("fullXmlBibDir");
+		requiredFields.add("fullXmlMfhdDir");
+		requiredFields.add("N3Dir");
+		requiredFields.add("dailyBibUnsuppressedDir");
+		requiredFields.add("dailyBibUnsuppressedFilenamePrefix");
+		requiredFields.add("dailyMfhdUnsuppressedDir");
+		requiredFields.add("dailyMfhdUnsuppressedFilenamePrefix");
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
 		
@@ -56,15 +58,14 @@ public class VoyagerUpdate {
 		    throw new Exception("Could not be the most recent MFHD ID file", e);
 		}			
 		
-		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-					    
-		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
-		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
+		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.ID_RANGE_BATCHES);
+		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.N3_GZ);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlBibDir(), davService);
+		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getFullXmlMfhdDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getN3Dir(),davService);
 		converter.setUnsuppressedBibs(unsuppressedBibs, true, false);
 		converter.setUnsuppressedMfhds(unsuppressedMfhds, true, false);
-		converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() + "-" + currentDate );
+		converter.setDestFilenamePrefix( "voyager" );
 		converter.run();
 
 	}

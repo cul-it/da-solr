@@ -12,8 +12,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.IndexDirectory;
 
 /**
@@ -33,12 +33,10 @@ public class IncrementalBibFileToSolr {
                                      
         /* Figure out the name of the most recent BIB MARC NT file. */
         List<String> filesToIndex;
+        DavService davService = DavServiceFactory.getDavService(config);
         String dirToLookIn = config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir() ; 
         try {
-            filesToIndex = FileNameUtils.findMostRecentFiles(
-                    DavServiceFactory.getDavService(config), 
-                    dirToLookIn,
-                    config.getDailyMrcNtFilenamePrefix(), ".nt.gz");
+            filesToIndex = davService.getFileUrlList(dirToLookIn);
         } catch (Exception e) {
             throw new Exception("Could not find most recent file in directory " 
                     + dirToLookIn, e);
@@ -76,6 +74,7 @@ public class IncrementalBibFileToSolr {
 	            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
 	            
 	        }catch(Exception e){
+	        	e.printStackTrace();
 	            throw new Exception("Problem while indexing documents from '" + fileToIndex + "'", e);
 	        }
 	        

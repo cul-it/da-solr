@@ -1,7 +1,11 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.*;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,7 +20,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.*;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
@@ -124,7 +129,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	VernMode vernMode = VernMode.ADAPTIVE;
 
 	public String getName() {
-		return SubfieldCodeMaker.class.getSimpleName() +
+		return StandardMARCFieldMaker.class.getSimpleName() +
 				" for MARC field " + marcFieldTag + 
 				" and codes " + marcSubfieldCodes;
 	}
@@ -152,10 +157,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> ?tag .\n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> ?ind1 .\n");
 		if (indicatorReq.equals1 != null)
-			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals1+ "\".\n");
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals1+ "\"^^<http://www.w3.org/2001/XMLSchema#string>.\n");
 		sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> ?ind2 .\n");
 		if (indicatorReq.equals2 != null)
-			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals2+ "\".\n");
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals2+ "\"^^<http://www.w3.org/2001/XMLSchema#string>.\n");
 		sb.append(
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n");

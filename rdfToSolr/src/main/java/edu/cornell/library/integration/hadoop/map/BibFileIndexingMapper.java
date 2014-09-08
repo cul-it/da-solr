@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,10 +30,12 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.StatusReporter;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
 import com.hp.hpl.jena.query.Dataset;
@@ -48,14 +51,11 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
-import edu.cornell.library.integration.indexer.RecordToDocument;
-import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
+import edu.cornell.library.integration.indexer.RecordToDocument;
+import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
@@ -136,8 +136,17 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				//InputStream is = getUrl( urlText.toString()  );
 				//loader.loadGraph((GraphTDB)model.getGraph(), is);
 
-				InputStream is = getUrl( urlText.toString()  );
-                RDFDataMgr.read( model, is, Lang.NT);
+				String urlString = urlText.toString();
+				InputStream is = getUrl( urlString  );
+
+				Lang l ;
+				if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+					l = Lang.NT;
+				else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+					l = Lang.N3;
+				else
+					throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+				RDFDataMgr.read(model, is, l);
 				context.progress();
 								
 				is.close();
@@ -157,28 +166,47 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				RDFService rdf = new RDFServiceModel(model);
                 int n = 0;
 
-				for( String bibUri: bibUris){	
+                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+                for( String bibUri: bibUris){	
                     n++;
                     System.out.println("indexing " + n + " out of " + total 
                                        + ". bib URI: " + bibUri );
 
-					try{
-						indexToSolr(bibUri, rdf);	
+                    //Create Solr Documents
+                    try{
+						SolrInputDocument doc = indexToSolr(bibUri, rdf);
+						docs.add(doc);
 						context.progress();
-						context.getCounter(getClass().getName(), "bib uris indexed").increment(1);
-						context.write(new Text(bibUri), new Text("URI\tSuccess"));
 					}catch(Throwable ex ){
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
                         if( checkForOutOfSpace( ex ) ){
                             return;
                         }
 					}
-				}		
+                }
 				
 				try {
 					voyager.close();
 				}
 				catch (SQLException SQLEx) { /* ignore */ }
+				
+						
+				try{
+		            if( doSolrUpdate ){
+		                //in solr an update is a delete followed by an add
+		            	for (SolrInputDocument doc : docs)
+		            		solr.deleteById((String)doc.getFieldValue("id"));
+		            }
+					solr.add(docs);				
+
+		            context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+	            	for (SolrInputDocument doc : docs)
+	            		context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+
+				}catch (Throwable er) {			
+					throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
+				} 
+
 								
 				//attempt to move file to done directory when completed
 				moveToDone( context , urlText.toString() );				
@@ -282,7 +310,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private void indexToSolr(String bibUri, RDFService rdf) throws Exception{
+	private SolrInputDocument indexToSolr(String bibUri, RDFService rdf) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
@@ -294,18 +322,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		}catch(Throwable er){			
 			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
-					
-		try{
-            if( doSolrUpdate ){
-                //in solr an update is a delete followed by an add
-                solr.deleteById((String)doc.getFieldValue("id"));
-            }
-
-			solr.add(doc);				
-		}catch (Throwable er) {			
-			throw new Exception("Could not add document to index for " + bibUri +
-					" Check logs of solr server for details.", er );
-		}
+		return doc;
 	}
 	
 	
@@ -321,7 +338,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		} catch (Exception e) {
 			throw new IOException("Could not get " + url , e);
 		}		
-	}
+	} 
 
 	/** Attempt to get all the bib record URIs from model. */
 	private Set<String> getURIsInModel(  Model model ) {
@@ -438,7 +455,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     // restart a job. 
     public final static String DO_NOT_MOVE_TO_DONE = "DO_NOT_MOVE_TO_DONE";
 
-    public Context testContext(Configuration configuration,
+    @SuppressWarnings("unchecked")
+	public Context testContext(Configuration configuration,
             TaskAttemptID taskAttemptID, RecordReader<Text, Text> recordReader,
             RecordWriter<Text, Text> recordWriter, OutputCommitter outputCommitter,
             StatusReporter statusReporter, InputSplit inputSplit) throws IOException, InterruptedException {

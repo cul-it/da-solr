@@ -1,5 +1,8 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /**

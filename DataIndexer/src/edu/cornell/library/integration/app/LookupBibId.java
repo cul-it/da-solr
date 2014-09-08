@@ -3,10 +3,9 @@ package edu.cornell.library.integration.app;
  
 
 import java.io.IOException;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;  
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext; 
+import org.apache.commons.logging.LogFactory;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -17,9 +16,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.tdb.TDBFactory;
- 
 
-import edu.cornell.library.integration.bo.Triple; 
 import edu.cornell.library.integration.util.IterableAdaptor;
 
 public class LookupBibId {

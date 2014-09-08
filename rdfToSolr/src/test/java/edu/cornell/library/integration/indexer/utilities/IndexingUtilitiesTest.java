@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.utilities;
 
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static junit.framework.Assert.assertTrue;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.*;
 
 import org.junit.Test;
 

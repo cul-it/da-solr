@@ -34,6 +34,8 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
  */
 public class HoldingsResultSetToFields implements ResultSetToFields {
 
+	private Boolean debug = false;
+	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
 			Map<String, ResultSet> results) throws Exception {
@@ -54,8 +56,8 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			while( rs.hasNext() ){
 				QuerySolution sol = rs.nextSolution();
 				
-				
 				if (resultKey.equals("location")) {
+					if (debug) System.out.println("**"+sol.toString());
 /*					StringBuilder sb = new StringBuilder();
 					Iterator<String> i = sol.varNames();
 					while (i.hasNext()) {

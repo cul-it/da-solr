@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.*;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import com.hp.hpl.jena.query.ResultSet;
  * specialized handling. 
  */
 public class TitleResultSetToFields implements ResultSetToFields {
+	
+	private Boolean debug = false;
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -29,39 +33,36 @@ public class TitleResultSetToFields implements ResultSetToFields {
 		
 		String title_a = null;
 		String title_b = "";
-		Integer ind2 = 0;
+		Integer ind2 = null;
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){
-				if (resultKey.equals("title_sort_offset")) {
-					if( rs.hasNext() ){
-						QuerySolution sol = rs.nextSolution();
+				while(rs.hasNext()){
+					QuerySolution sol = rs.nextSolution();
+					if (debug) System.out.println( sol.toString());
+					if ( ind2 == null ) {
 						String ind2string = nodeToString(sol.get("ind2"));
+						if (debug) System.out.println(ind2string);
 						if (Character.isDigit(ind2string.charAt(0))) {
 							Integer offset = Integer.valueOf(ind2string);
 							if (offset > 0) 
 								ind2 = offset;
 						}
-					}/*TODO: should problems here be ignored or are they errors?
-					  else{
-						throw new Exception("Expected title_sort_offset in ind2 but there were no results");
-					}*/
-				} else {
-					while(rs.hasNext()){
-						QuerySolution sol = rs.nextSolution();
-						String code = nodeToString(sol.get("code"));
-						String val = nodeToString(sol.get("value"));
-						if (val == null) continue;
-						if (code.equals("a") ) {
-							title_a = val;
-						} else if (code.equals("b")) {
-							title_b = val;
-						}
+					}
+					String code = nodeToString(sol.get("code"));
+					String val = nodeToString(sol.get("value"));
+					if (val == null) continue;
+					if (code.equals("a") ) {
+						title_a = val;
+					} else if (code.equals("b")) {
+						title_b = val;
 					}
 				}
 			}
 		}
+		
+		if ( ind2 == null ) ind2 = 0;
 		
 		if( title_a != null && title_b != null && title_a != null ){
 			String sort_title;

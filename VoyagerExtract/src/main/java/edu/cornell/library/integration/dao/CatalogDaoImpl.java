@@ -2,37 +2,38 @@ package edu.cornell.library.integration.dao;
 
 
  
-import java.io.Reader; 
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Clob; 
-import oracle.sql.CLOB; 
-import java.util.List; 
+import java.util.List;
 
-import javax.sql.DataSource; 
+import javax.sql.DataSource;
+
+import oracle.sql.CLOB;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
-import org.springframework.dao.EmptyResultDataAccessException; 
+import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper; 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
- 
+
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
+import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.BibMfhd;
 import edu.cornell.library.integration.bo.ItemMap;
-import edu.cornell.library.integration.bo.MfhdBlob;
-import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.Location;
+import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.bo.MfhdMasterData;
-import edu.cornell.library.integration.dao.CatalogDao; 
 
 public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
    /**

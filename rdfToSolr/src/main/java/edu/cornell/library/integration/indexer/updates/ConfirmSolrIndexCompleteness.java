@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.optimizeIndex;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +18,6 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.optimizeIndex;
 
 
 /**

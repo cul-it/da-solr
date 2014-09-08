@@ -1,14 +1,12 @@
 package edu.cornell.library.integration.ilcommons.service;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import org.junit.Test; 
-
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import org.junit.Test;
  
 
  
