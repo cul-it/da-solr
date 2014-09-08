@@ -4,6 +4,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
@@ -332,7 +334,15 @@ public class MarcXmlToRdf {
 			String cmd = "gzip -1v "+tempDestDir+"/*";
 			if (debug) System.out.println(cmd);
 			Process p = Runtime.getRuntime().exec(cmd);
-			IOUtils.copy(p.getInputStream(), System.out);
+			p.waitFor();
+			if (debug) {
+				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line = null;
+				while (( line = input.readLine()) != null) {
+					System.out.println(line);
+				}
+				input.close();
+			}
 			p.waitFor();
 		}
 
