@@ -38,6 +38,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		String typeOfContinuingResource = "";
 		Boolean isThesis = false;
 		Boolean isDatabase = false;
+		Boolean isMicroform = false;
 		Collection<String> sf653as = new HashSet<String>();
 		Collection<String> sf245hs = new HashSet<String>();
 		Collection<String> sf948fs = new HashSet<String>();
@@ -114,6 +115,11 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					}
 				}
 			}
+		}
+		
+		if (category.equals("h")) {
+			isMicroform = true;
+			if (debug) System.out.println("Microform due to category:h.");
 		}
 
 		Iterator<String> i = sf245hs.iterator();
@@ -221,6 +227,9 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				} else if (sf948fs.contains("escore")) {
 					format = "Musical Score";
 					if (debug) System.out.println("Musical Score due to record_type: m and 948f: escore.");
+				} else if (sf948fs.contains("emap")) {
+					format = "Map or Globe";
+					if (debug) System.out.println("Map or Globe due to record_type: m and 948f: emap.");
 				} else {
 					format = "Computer File";
 					if (debug) System.out.println("Computer File due to record_type: m and 948f not in: eaudio, evideo, escore.");
@@ -245,24 +254,21 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				format = "Object";
 				if (debug) System.out.println("Object due to record_type: r.");
 			}
-			if (format == null) {
-				if (record_type.equals("t")) {
-					format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
-												   //captured above. MANUSCRIPT
-					if (debug) System.out.println("Manuscript/Archive due to record_type: t.");
-				} else if (category.equals("h")) {
-					format = "Microform";
-					if (debug) System.out.println("Microform due to category:h.");
-				} else if (category.equals("q")) {
-					format = "Musical Score";
-					if (debug) System.out.println("Musical Score due to category:q.");
-				} else if (category.equals("v")) {
-					format = "Video";
-					if (debug) System.out.println("Video due to category:v.");
-				} else {
-					format = "Miscellaneous";
-					if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
-				}
+		}
+		if (format == null) {
+			if (record_type.equals("t")) {
+				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
+											   //captured above. MANUSCRIPT
+				if (debug) System.out.println("Manuscript/Archive due to record_type: t.");
+			} else if (category.equals("q")) {
+				format = "Musical Score";
+				if (debug) System.out.println("Musical Score due to category:q.");
+			} else if (category.equals("v")) {
+				format = "Video";
+				if (debug) System.out.println("Video due to category:v.");
+			} else {
+				format = "Miscellaneous";
+				if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
 			}
 		}
 		
@@ -278,13 +284,18 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				if (debug) System.out.println("Not Manuscript/Archive due to collision with format:Thesis.");				
 			}
 		}
+		if (isMicroform) {  //Microform is an "additional" format, and won't override main format entry.
+			addField(fields,"format","Microform");
+		}
+
 		if (format != null) {
 			addField(fields,"format",format);
 			addField(fields,"format_main_facet",format);
-		} else {
-			if (isThesis)
-				addField(fields,"format_main_facet","Thesis");
-		}
+		} else if (isThesis)
+			addField(fields,"format_main_facet","Thesis");
+		else if (isMicroform)
+			addField(fields,"format_main_facet","Microform");
+
 		if (online) {
 			addField(fields,"online","Online");
 		}
