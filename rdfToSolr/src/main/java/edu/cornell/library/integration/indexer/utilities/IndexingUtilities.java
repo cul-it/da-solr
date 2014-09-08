@@ -1,6 +1,9 @@
 package edu.cornell.library.integration.indexer.utilities;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -23,6 +27,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
+import org.apache.commons.io.FileUtils;
 
 public class IndexingUtilities {
 	
@@ -107,6 +112,28 @@ public class IndexingUtilities {
 		return commaFollowedByNonSpace.matcher(s).replaceAll(", $1");
 	}
 
+	/**
+	 * gzip a file on disk, deleting the original
+	 * @param s : source file
+	 * @param d : destination file
+	 * @throws IOException 
+	 */
+	public static void gzipFile(String s, String d) throws IOException  {
+			 
+		byte[] buffer = new byte[1024];
+		GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(d));
+		FileInputStream in = new FileInputStream(s);
+
+		int bytes_read;
+		while ((bytes_read = in.read(buffer)) > 0) {
+			out.write(buffer, 0, bytes_read);
+		}
+		in.close();
+		out.finish();
+		out.close();
+		FileUtils.deleteQuietly(new File(s));
+	}
+	
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
 	public static String prettyXMLFormat(String input, int indent) {
 	    try {

@@ -54,6 +54,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.
@@ -331,19 +332,14 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
-			String cmd = "gzip -1v "+tempDestDir+"/*";
-			if (debug) System.out.println(cmd);
-			Process p = Runtime.getRuntime().exec(cmd);
-			p.waitFor();
-			if (debug) {
-				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				String line = null;
-				while (( line = input.readLine()) != null) {
-					System.out.println(line);
-				}
-				input.close();
+			DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(tempDestDir));
+			for (Path file: stream) {
+				if (file.endsWith(".gz")) continue;
+				if (debug) System.out.println("gzipping "+file);
+				IndexingUtilities.gzipFile(file.toString(),file.toString()+".gz");
 			}
-			p.waitFor();
+
 		}
 
 		if (isDestDav) uploadOutput();
