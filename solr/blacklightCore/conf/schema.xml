@@ -215,12 +215,9 @@
              input string is preserved as a single token
           -->
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <!--<filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" />-->
+        <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
-<!-- 
-        <filter class="solr.PatternReplaceFilterFactory" pattern="([^a-z\d])" replacement="" replace="all" />
--->
       </analyzer>
     </fieldType>
     
