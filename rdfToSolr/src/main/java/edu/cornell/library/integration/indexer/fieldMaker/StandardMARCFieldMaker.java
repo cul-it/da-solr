@@ -157,10 +157,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/tag> ?tag .\n"+
 				"?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> ?ind1 .\n");
 		if (indicatorReq.equals1 != null)
-			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals1+ "\".\n");
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals1+ "\"^^http://www.w3.org/2001/XMLSchema#string.\n");
 		sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind2> ?ind2 .\n");
 		if (indicatorReq.equals2 != null)
-			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals2+ "\".\n");
+			sb.append("?f <http://marcrdf.library.cornell.edu/canonical/0.1/ind1> \"" +indicatorReq.equals2+ "\"^^http://www.w3.org/2001/XMLSchema#string.\n");
 		sb.append(
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?value .\n"+
 				"?sf <http://marcrdf.library.cornell.edu/canonical/0.1/code> ?code\n");

@@ -1306,7 +1306,7 @@ public class MarcXmlToRdf {
 			model.setNsPrefix(idPrefix, uri_host);
 		else 
 			model.setNsPrefix("voyager", uri_host);
-		model.setNsPrefix("xml", "http://www.w3.org/2001/XMLSchema#");
+		model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
 		return model;
 	}
 /*	

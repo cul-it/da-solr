@@ -111,14 +111,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
 			        addMainStoreQuery("location",
-					   	"SELECT DISTINCT ?locuri ?name ?library ?code \n"+
+					   	"SELECT DISTINCT ?code ?name ?library ?locuri \n"+
 					   	"WHERE {\n"+
 		                "  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"+
-					  	"  OPTIONAL {\n" +
-					   	"    ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
-					    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
-					    "    ?mfhd852b marcrdf:code \"b\".\n" +
-					    "    ?mfhd852b marcrdf:value ?code.\n" +
+					   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+					    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
+					    "  ?mfhd852b marcrdf:code \"b\"^^xsd:string.\n" +
+                        "  ?mfhd852b marcrdf:value ?code. \n" +
+					    "  OPTIONAL {\n" +
 					    "    ?locuri rdf:type intlayer:Location.\n" +
 					    "    ?locuri intlayer:code ?code.\n" +
 					    "    ?locuri rdfs:label ?name.\n" +
@@ -182,14 +182,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"SELECT ?sf948h\n" +
 							" WHERE { $recordURI$ marcrdf:hasField948 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf948.\n" +
-							"       ?sf948 marcrdf:code \"h\".\n" +
+							"       ?sf948 marcrdf:code \"h\"^^xsd:string.\n" +
 							"       ?sf948 marcrdf:value ?sf948h. }").
 					addMainStoreQuery("shadow_rec_mfhd",
 							"SELECT ?sf852x\n" +
 							" WHERE {?h marcrdf:hasBibliographicRecord $recordURI$.\n" +
 							"        ?h marcrdf:hasField852 ?f.\n" +
 							"        ?f marcrdf:hasSubfield ?sf.\n" +
-							"        ?sf marcrdf:code \"x\".\n" +
+							"        ?sf marcrdf:code \"x\"^^xsd:string.\n" +
 							"        ?sf marcrdf:value ?sf852x. }").
 				    addResultSetToFields( new RecordTypeRSTF() ),                  
 				    		
@@ -214,19 +214,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"SELECT ?sf653a\n" +
 							" WHERE { $recordURI$ marcrdf:hasField653 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf653.\n" +
-							"       ?sf653 marcrdf:code \"a\".\n" +
+							"       ?sf653 marcrdf:code \"a\"^^xsd:string.\n" +
 							"       ?sf653 marcrdf:value ?sf653a. }").
 					addMainStoreQuery("format_948",
 							"SELECT ?sf948f\n" +
 							" WHERE { $recordURI$ marcrdf:hasField948 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf948.\n" +
-							"       ?sf948 marcrdf:code \"f\".\n" +
+							"       ?sf948 marcrdf:code \"f\"^^xsd:string.\n" +
 							"       ?sf948 marcrdf:value ?sf948f. }").
 					addMainStoreQuery("format_245",
 							"SELECT ?sf245h\n" +
 							" WHERE { $recordURI$ marcrdf:hasField245 ?f.\n" +
 							"       ?f marcrdf:hasSubfield ?sf245.\n" +
-							"       ?sf245 marcrdf:code \"h\".\n" +
+							"       ?sf245 marcrdf:code \"h\"^^xsd:string.\n" +
 							"       ?sf245 marcrdf:value ?sf245h. }").
 					addMainStoreQuery("format_loccode",
 				        	"SELECT ?loccode \n"+
@@ -234,7 +234,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 				        	"  ?hold marcrdf:hasField852 ?hold852.\n" +
 				        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-				        	"  ?hold852b marcrdf:code \"b\".\n" +
+				        	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
 					    	"  ?hold852b marcrdf:value ?loccode.\n" +
 							"}").
 					addResultSetToFields( new FormatResultSetToFields() ),
@@ -251,15 +251,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?hold marcrdf:hasField852 ?hold852.\n" +
 			        	"  ?hold852 marcrdf:ind1 ?ind1." +
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
-			        	"  ?hold852h marcrdf:code \"h\".\n" +
+			        	"  ?hold852h marcrdf:code \"h\"^^xsd:string.\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
-			        	"    ?hold852i marcrdf:code \"i\".\n" +
+			        	"    ?hold852i marcrdf:code \"i\"^^xsd:string.\n" +
 			        	"    ?hold852i marcrdf:value ?part2. }\n" + 
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852k.\n" +
-			        	"    ?hold852k marcrdf:code \"k\".\n" +
+			        	"    ?hold852k marcrdf:code \"k\"^^xsd:string.\n" +
 			        	"    ?hold852k marcrdf:value ?prefix. }\n" + 
 			        	"}").
 				    addMainStoreQuery("bib_callno",
@@ -267,11 +267,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    	"WHERE {\n"+
 		                "  $recordURI$ marcrdf:hasField050 ?f50.\n" +
 				    	"  ?f50 marcrdf:hasSubfield ?f50a.\n" +
-				      	"  ?f50a marcrdf:code \"a\".\n" +
+				      	"  ?f50a marcrdf:code \"a\"^^xsd:string.\n" +
 				      	"  ?f50a marcrdf:value ?part1.\n" +
 					    "  OPTIONAL {\n" +
 					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
-					   	"    ?f50b marcrdf:code \"b\".\n" +
+					   	"    ?f50b marcrdf:code \"b\"^^xsd:string.\n" +
 					   	"    ?f50b marcrdf:value ?part2. }\n" +
 					    "}").
 			        addResultSetToFieldsStepped( new CallNumberResultSetToFields() ),
@@ -287,7 +287,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"WHERE { { $recordURI$ marcrdf:hasField260 ?f }" +
 				    		"         UNION { $recordURI$ marcrdf:hasField264 ?f } \n" +
 				    		"        ?f marcrdf:hasSubfield ?s. \n" +
-				    		"        ?s marcrdf:code \"c\". \n" +
+				    		"        ?s marcrdf:code \"c\"^^xsd:string. \n" +
 				    		"        ?s marcrdf:value ?date } ").
 				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
@@ -481,7 +481,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        		" WHERE {\n" +
 		        		"  $recordURI$ marcrdf:hasField856 ?f.\n" +
 		        		"  ?f marcrdf:hasSubfield ?sf.\n" +
-		        		"  ?sf marcrdf:code \"i\".\n" +
+		        		"  ?sf marcrdf:code \"i\"^^xsd:string.\n" +
 		        		"  ?sf marcrdf:value ?v. }").
 		        	addResultSetToFields( new DBCodeRSTF()),
 	        
@@ -494,7 +494,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                         "    ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"+
 			        	"    ?hold marcrdf:hasField852 ?hold852.\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-			        	"    ?hold852b marcrdf:code \"b\".\n" +
+			        	"    ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
 			        	"    ?hold852b marcrdf:value ?loccode.\n" +
 			        	"    ?location intlayer:code ?loccode.\n" +
 			        	"    ?location rdf:type intlayer:Location.\n" +

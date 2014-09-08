@@ -121,7 +121,7 @@ public class LibraryXmlToNTriples {
 		StringBuilder sb = new StringBuilder();
 
 		String location_uri = uri_host + "loc_" + l.locationId;
-		sb.append("<"+location_uri+"> <"+integration_prefix+"code> \""+escapeForNTriples(l.locationCode)+"\".\n");
+		sb.append("<"+location_uri+"> <"+integration_prefix+"code> \""+escapeForNTriples(l.locationCode)+"\"^^http://www.w3.org/2001/XMLSchema#string.\n");
 		sb.append("<"+location_uri+"> " + type_p +" <"+integration_prefix+"Location>.\n");
 		if (null != l.locationDisplayName) {
 			sb.append("<"+location_uri+"> " + label_p + " \"" + escapeForNTriples(l.locationDisplayName)+ "\".\n");
