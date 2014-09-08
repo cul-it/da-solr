@@ -34,7 +34,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
  */
 public class HoldingsResultSetToFields implements ResultSetToFields {
 
-	private Boolean debug = true;
+	private Boolean debug = false;
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
