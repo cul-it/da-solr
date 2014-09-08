@@ -108,7 +108,7 @@ task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
    description="Converts Voyager MARC XML to MARC N-Triples." 
    jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
-   maxHeapSize = '1500m'
+   maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
 
