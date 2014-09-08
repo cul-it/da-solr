@@ -282,7 +282,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2) \n" +
 				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 				    		"        ?f marcrdf:value ?val } \n" ).
-				    addMainStoreQuery("human_dates",  //TODO: make sure publisher_display, pubdate_display etc still work
+				    addMainStoreQuery("human_dates",
 				    		"SELECT ?date \n" +
 				    		"WHERE { { $recordURI$ marcrdf:hasField260 ?f }" +
 				    		"         UNION { $recordURI$ marcrdf:hasField264 ?f } \n" +

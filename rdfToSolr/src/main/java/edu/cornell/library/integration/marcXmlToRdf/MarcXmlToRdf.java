@@ -55,7 +55,7 @@ import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 // incomplete and untested where it exists.
 public class MarcXmlToRdf {
 	
-	private static Boolean debug = true;
+	private static Boolean debug = false;
 	
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
@@ -297,7 +297,7 @@ public class MarcXmlToRdf {
 		// Otherwise, we need a temporary build directory.
 		if (isDestDav) {
 			tempDestDir = Files.createTempDirectory(Paths.get(""),"IL-xml2NT-").toString();
-			if (debug) System.out.println(tempDestDir);
+			System.out.println(tempDestDir);
 		}
 		
 		// If we want RECORD_COUNT_BATCHES, we will need to process bibs twice,
@@ -555,7 +555,7 @@ public class MarcXmlToRdf {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
-				if (debug) System.out.println(file);
+				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -565,7 +565,7 @@ public class MarcXmlToRdf {
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
-			if (debug) System.out.println(localProcessFile);
+			System.out.println(localProcessFile);
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -576,7 +576,7 @@ public class MarcXmlToRdf {
 			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
 			for ( String file : files) {
 				currentInputFile = file.substring(file.lastIndexOf('/')+1);
-				if (debug) System.out.println(file);
+				System.out.println(file);
 				readXml(bibSrcDav.getFileAsInputStream(file),
 						RecordType.BIBLIOGRAPHIC );
 			}
@@ -585,7 +585,7 @@ public class MarcXmlToRdf {
 		
 		if (bibSrcFile != null) {
 			currentInputFile = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
-			if (debug) System.out.println(bibSrcFile);
+			System.out.println(bibSrcFile);
 			readXml(bibSrcDav.getFileAsInputStream(bibSrcFile),
 					RecordType.BIBLIOGRAPHIC );
 			return;
@@ -609,7 +609,7 @@ public class MarcXmlToRdf {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
-				if (debug) System.out.println(file);
+				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.HOLDINGS );
 			}
@@ -619,7 +619,7 @@ public class MarcXmlToRdf {
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
-			if (debug) System.out.println(localProcessFile);
+			System.out.println(localProcessFile);
 			readXml(new FileInputStream(localProcessFile),
 					RecordType.HOLDINGS );
 			return;
@@ -630,7 +630,7 @@ public class MarcXmlToRdf {
 			List<String> files = mfhdSrcDav.getFileUrlList(mfhdSrcDir);
 			for ( String file : files) {
 				currentInputFile = file.substring(file.lastIndexOf('/')+1);
-				if (debug) System.out.println(file);
+				System.out.println(file);
 				readXml(mfhdSrcDav.getFileAsInputStream(file),
 						RecordType.HOLDINGS );
 			}
@@ -639,7 +639,7 @@ public class MarcXmlToRdf {
 		
 		if (mfhdSrcFile != null) {
 			currentInputFile = mfhdSrcFile.substring(mfhdSrcFile.lastIndexOf('/')+1);
-			if (debug) System.out.println(mfhdSrcFile);
+			System.out.println(mfhdSrcFile);
 			readXml(mfhdSrcDav.getFileAsInputStream(mfhdSrcFile),
 					RecordType.HOLDINGS );
 			return;
