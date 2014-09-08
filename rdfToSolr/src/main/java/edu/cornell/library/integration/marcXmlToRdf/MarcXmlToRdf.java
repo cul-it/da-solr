@@ -332,8 +332,7 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(
-					Paths.get(tempDestDir));
+			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
 			for (Path file: stream) {
 				if (file.endsWith(".gz")) continue;
 				if (debug) System.out.println("gzipping "+file);

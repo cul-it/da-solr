@@ -114,6 +114,8 @@ public class IndexingUtilities {
 
 	/**
 	 * gzip a file on disk, deleting the original
+	 * note: unlike the command-line gzip application, no effort is made to 
+	 * preserve timestamps on the compressed file.
 	 * @param s : source file
 	 * @param d : destination file
 	 * @throws IOException 

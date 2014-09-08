@@ -18,6 +18,8 @@ import com.hp.hpl.jena.query.ResultSet;
  * specialized handling. 
  */
 public class TitleResultSetToFields implements ResultSetToFields {
+	
+	private Boolean debug = false;
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -38,8 +40,10 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			if( rs != null){
 				while(rs.hasNext()){
 					QuerySolution sol = rs.nextSolution();
+					if (debug) System.out.println( sol.toString());
 					if ( ind2 == null ) {
 						String ind2string = nodeToString(sol.get("ind2"));
+						if (debug) System.out.println(ind2string);
 						if (Character.isDigit(ind2string.charAt(0))) {
 							Integer offset = Integer.valueOf(ind2string);
 							if (offset > 0) 

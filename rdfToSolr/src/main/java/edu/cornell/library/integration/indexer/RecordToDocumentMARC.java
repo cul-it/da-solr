@@ -390,7 +390,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SPARQLFieldMakerImpl().
 					setName("titles").
 					addMainStoreQuery("title_main",
-						"SELECT ?code ?value\n" +
+						"SELECT ?code ?value ?ind2\n" +
 						" WHERE { $recordURI$ marcrdf:hasField245 ?f245.\n" +
 			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
 			    		"        ?f245sf marcrdf:code ?code.\n" +
