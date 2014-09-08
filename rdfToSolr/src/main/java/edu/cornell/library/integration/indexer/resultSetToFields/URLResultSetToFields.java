@@ -105,7 +105,6 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc.contains("beschreibung") // description
 					|| lc.contains("klappentext") // blurb
 					|| lc.contains("buchcover")
-					|| lc.contains("rezension") // review
 					|| lc.contains("publisher's summary")
 					|| lc.contains("executive summary")
 					|| lc.startsWith("summary")
@@ -113,12 +112,10 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc.contains("additional information")
 					|| lc.contains("'s website") // eg author's website, publisher's website
 					|| lc.startsWith("companion") // e.g. companion website
-					|| lc.contains("review") // eg book review, Connect to reviews of this title online
 					|| lc.contains("record available for display")
 					|| lc.startsWith("related") // related web site, related electronic resource...
 					|| lc.contains("Internet Movie Database")
-					|| lc.contains("more information")
-					|| lc.contains("sample text")) {
+					|| lc.contains("more information")) {
 				relation = "other";
 			}
 			if (lc.contains("inding aid"))
