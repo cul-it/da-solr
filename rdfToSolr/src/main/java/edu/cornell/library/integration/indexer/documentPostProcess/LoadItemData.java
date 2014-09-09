@@ -44,7 +44,7 @@ public class LoadItemData implements DocumentPostProcess{
 		}
 
 		String foundEnum = null;
-		Boolean blankEnum = null;
+		Boolean blankEnum = false;
 		Boolean diverseEnum = false;
 		
 		SolrInputField holdingsField = document.getField( "holdings_record_display" );
@@ -55,7 +55,7 @@ public class LoadItemData implements DocumentPostProcess{
 
 			@SuppressWarnings("unchecked")
 			Map<String,Object> holdRec = mapper.readValue(hold_obj.toString(),Map.class);
-			String mfhd_id = holdRec.get("mfhd_id").toString();
+			String mfhd_id = holdRec.get("id").toString();
 			
 			if (debug)
 				System.out.println(mfhd_id);
