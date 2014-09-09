@@ -8,9 +8,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -36,25 +34,35 @@ public class LoadItemData implements DocumentPostProcess{
 			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
 
 		Boolean multivol = false;
+
 		SolrInputField multivolField = new SolrInputField("multivol_b");
-		Collection<String> locsAndCopyNums = new HashSet<String>();
-		
+
 		if (! document.containsKey("holdings_display")) {
 			multivolField.setValue(multivol, 1.0f);
 			document.put("multivol_b", multivolField);
 			return;
 		}
+
+		String foundEnum = null;
+		Boolean blankEnum = null;
+		Boolean diverseEnum = false;
 		
-		SolrInputField field = document.getField( "holdings_display" );
+		SolrInputField holdingsField = document.getField( "holdings_record_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
-		for (Object mfhd_id_obj: field.getValues()) {
+		ObjectMapper mapper = new ObjectMapper();
+		for (Object hold_obj: holdingsField.getValues()) {
+
+			@SuppressWarnings("unchecked")
+			Map<String,Object> holdRec = mapper.readValue(hold_obj.toString(),Map.class);
+			String mfhd_id = holdRec.get("mfhd_id").toString();
+			
 			if (debug)
-				System.out.println(mfhd_id_obj.toString());
+				System.out.println(mfhd_id);
 			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
 					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID " +
-					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'" +
+					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id + "\'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" +
 					   " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'";
@@ -72,11 +80,11 @@ public class LoadItemData implements DocumentPostProcess{
 	        	int mdcolumnCount = rsmd.getColumnCount();
 	        	while (rs.next()) {
 		        	   
-	        		ObjectMapper mapper = new ObjectMapper();
 	        		Map<String,Object> record = new HashMap<String,Object>();
-	        		record.put("mfhd_id",mfhd_id_obj.toString());
-	        		int copyNumber = 0;
-	        		int locId = 0;
+	        		record.put("mfhd_id",mfhd_id);
+	        		String item_enum = "";
+	        		String chron = "";
+	        		String year = "";
 				
 	        		if (debug) 
 	        			System.out.println();
@@ -95,9 +103,6 @@ public class LoadItemData implements DocumentPostProcess{
 	       				if ((colname.equalsIgnoreCase("temp_location")
 	       						|| colname.equalsIgnoreCase("perm_location"))
 	       						&& ! value.equals("0")) {
-	       					if ((locId == 0) || colname.equalsIgnoreCase("temp_location")) {
-	       						locId = Integer.valueOf(value);
-	       					}
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
@@ -108,36 +113,31 @@ public class LoadItemData implements DocumentPostProcess{
 	       						System.out.println(colname+": "+value);
 	       				}
 	       				
-	       				if (colname.equalsIgnoreCase("copy_number")) {
-	       					copyNumber = Integer.valueOf(value);
-	       				}
-		        		
-		        		if (! multivol && colname.equalsIgnoreCase("item_enum")) {
-		        			String[] enums = value.split("[:;]\\s*");
-		        			for (String s : enums) {
-			        			if (debug) System.out.println("evaluating enum for multivol: "+s);
-		        				if (s.startsWith("v.")
-		        						|| s.startsWith("no.")
-		        						|| s.startsWith("th.")
-		        						|| s.startsWith("t.")
-		        						|| s.endsWith(" ser.")
-		        						|| s.endsWith(" ed."))
-		        					multivol = true;
-		        			}
-		        		}
+		        		if (colname.equals("item_enum"))
+		        			item_enum = value;
+		        		if (colname.equals("chron"))
+		        			chron = value;
+		        		if (colname.equals("year"))
+		        			year = value;
+	        		}
 
+	        		if (! diverseEnum && ! blankEnum) {
+	        			String enumeration = item_enum + chron + year;
+	        			if (foundEnum == null)
+	        				foundEnum = enumeration;
+	        			else if (! foundEnum.equals(enumeration)) {
+	        				diverseEnum = true;
+	        				multivol = true;
+	        			}
+
+	        			if (! blankEnum && enumeration.equals(""))
+	        				blankEnum = true;
 	        		}
 	        		
 	        		String json = mapper.writeValueAsString(record);
 	        		if (debug)
 	        			System.out.println(json);
 	        		itemField.addValue(json, 1);
-	        		
-	        		String locAndCopyNum = locId + "+" + copyNumber;
-	        		if (locsAndCopyNums.contains(locAndCopyNum)) 
-	        			multivol = true;
-	        		else
-	        			locsAndCopyNums.add(locAndCopyNum);
 	        	}
 	        } catch (SQLException ex) {
 	           System.out.println(query);
@@ -153,6 +153,14 @@ public class LoadItemData implements DocumentPostProcess{
 	        }
         
 		}
+		if (!diverseEnum)  multivol = false;
+		
+		if (blankEnum && multivol) {
+			SolrInputField multivolWithBlank = new SolrInputField("multivolwblank_b");
+			multivolWithBlank.setValue(true, 1.0f);
+			document.put("multivolwblank_b", multivolWithBlank);
+		}
+		
 		multivolField.setValue(multivol, 1.0f);
 		document.put("multivol_b", multivolField);
 		document.put("item_display", itemlist);
