@@ -83,7 +83,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		solr = new HttpSolrServer("http://da-dev-solr.library.cornell.edu/solr/testAug");
+		solr = new HttpSolrServer("http://da-dev-solr.library.cornell.edu/solr/test");
 //		solr = new 	HttpSolrServer( "http://fbw4-dev.library.cornell.edu:8080/solr/test" );
 		indexStandardTestRecords( solr, rdf );		
 	}
@@ -188,6 +188,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 				doc = r2d.buildDoc(uri, rdfService, voyager);
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
+				e.printStackTrace();
 				throw e;
 			}
 			System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
