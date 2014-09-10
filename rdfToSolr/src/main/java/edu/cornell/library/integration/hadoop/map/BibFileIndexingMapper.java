@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -194,8 +195,10 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				try{
 		            if( doSolrUpdate ){
 		                //in solr an update is a delete followed by an add
+		            	List<String> ids = new ArrayList<String>();
 		            	for (SolrInputDocument doc : docs)
-		            		solr.deleteById((String)doc.getFieldValue("id"));
+		            		ids.add((String)doc.getFieldValue("id"));
+		            	solr.deleteById(ids);
 		            }
 					solr.add(docs);				
 
