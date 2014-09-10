@@ -423,22 +423,40 @@ public class MarcXmlToRdf {
 			out = outsById.get(outputBatch);
 
 		} else { //Mode.NAME_AS_SOURCE
-			if (outsByName.containsKey(currentInputFile)) {
-				out = outsByName.get(currentInputFile);
-			} else {
-				if (dirToProcessInto != null) {
-					String targetFile = (destFilenamePrefix != null) 
-							? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentInputFile)
-									: dirToProcessInto+"/"+swapFileExt(currentInputFile);
-					if (debug)
-						System.out.println("Opening output handle for "+targetFile);
-					out = openFileForWrite(targetFile);
+			if (simultaneousWrite) {
+				if (outsByName.containsKey(currentInputFile)) {
+					out = outsByName.get(currentInputFile);
 				} else {
-					// dest is a file, and not on dav
-					out = openFileForWrite(dirToProcessInto+"/"+ swapFileExt(currentInputFile));
+					if (dirToProcessInto != null) {
+						String targetFile = (destFilenamePrefix != null) 
+								? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentInputFile)
+										: dirToProcessInto+"/"+swapFileExt(currentInputFile);
+						if (debug)
+							System.out.println("Opening output handle for "+targetFile);
+						out = openFileForWrite(targetFile);
+					} else {
+						// dest is a file, and not on dav
+						out = openFileForWrite(dirToProcessInto+"/"+ swapFileExt(currentInputFile));
+					}
+					newOut = true;
+					outsByName.put(currentInputFile, out);
 				}
-				newOut = true;
-				outsByName.put(currentInputFile, out);
+			} else {
+				String targetFile = (destFilenamePrefix != null) 
+						? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentInputFile)
+								: dirToProcessInto+"/"+swapFileExt(currentInputFile);
+				if (targetFile.equals(currentOutputFile)) {
+					out = singleOut;
+				} else {
+					if (singleOut != null)
+						singleOut.close();
+					File f = new File(targetFile);
+					if (! f.exists())
+						newOut = true;
+					out = openFileForWrite(targetFile);
+					singleOut = out;
+					currentOutputFile = targetFile;
+				}				
 			}
 		}
 		
@@ -895,6 +913,16 @@ public class MarcXmlToRdf {
 			v.add("520a");
 			v.add("6XXz");
 			v.add("651a");
+		} else if (rep.equals(Report.EXTRACT_TITLE_MATCH)) {
+			v.add("id");
+			v.add("008/7-10"); //2
+			v.add("010a");     //3
+			v.add("035a");
+			v.add("035z");
+			v.add("776w");     //6
+			v.add("245abnp");
+			v.add("26XcDate");
+			v.add("1XXauthor");//9
 		}
 		outputHeaders = StringUtils.join(v,"\t")+"\n";
 		extractCols = v.size();
@@ -940,6 +968,9 @@ public class MarcXmlToRdf {
 				if (isPubPlace || isSubjPlace || isLanguage)
 					extractVals.put("03", f.value);
 				
+				if (isTitleMatch)
+					extractVals.put("02",f.value.substring(7,11));
+					
 				if (isPubPlace)
 					if (f.value.length() >= 18)
 						extractVals.put("05", f.value.substring(15, 18));
@@ -954,12 +985,29 @@ public class MarcXmlToRdf {
 		for (Integer fid: rec.data_fields.keySet()) {
 			DataField f = rec.data_fields.get(fid);
 
+			if (isTitleMatch)
+				if (f.tag.equals("010"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							putOrAppendToExtract("03",";",sf.value);
 			
 			if (isPubPlace)
 				if (f.tag.equals("020"))
 					for (Subfield sf : f.subfields.values()) 
 						if (sf.code.equals('a') || sf.code.equals('z') )
 							putOrAppendToExtract("06", " ", sf.toString('$'));
+			
+			if (isTitleMatch)
+				if (f.tag.equals("035"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a') || sf.code.equals('z'))
+							if (sf.value.contains("(OCoLC)")) {
+								String oclcid = sf.value.substring(sf.value.lastIndexOf(')')+1);
+								if (sf.code.equals('a'))
+									putOrAppendToExtract("04",";",oclcid);
+								else
+									putOrAppendToExtract("05",";",oclcid);
+							}
 
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("040"))
@@ -977,9 +1025,31 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("050") || f.tag.equals("090"))
 					putOrAppendToExtract("06","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
 			
+			if (isTitleMatch)
+				if (f.tag.startsWith("1")) {
+					String subfields = null;
+					if (f.tag.equals("100")) subfields = "abcdq";
+					else if (f.tag.startsWith("11")) subfields = "ab";
+					if (subfields != null)
+						extractVals.put("09", f.concatenateSpecificSubfields(subfields)
+								.toLowerCase().replaceAll("\\s", ""));
+				}
+					
+			
+			if (isTitleMatch)
+				if (f.tag.equals("245"))
+					extractVals.put("07",f.concatenateSpecificSubfields("abnp").
+							toLowerCase().replaceAll("\\s", ""));
+			
 			if (isPubPlace)
 				if (f.tag.equals("260") || f.tag.equals("264"))
 					pubplaces.add(f.tag + " " + f.concatenateSpecificSubfields("a"));
+			
+			if (isTitleMatch)
+				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('c'))
+							putOrAppendToExtract("08",";",sf.value);
 			
 			if (isLanguage)
 				if (f.tag.equals("500"))
@@ -1006,6 +1076,15 @@ public class MarcXmlToRdf {
 			if (isSubjPlace)
 				if (f.tag.equals("651"))
 					putOrAppendToExtract("10","; ",f.concatenateSpecificSubfields("a"));
+			
+			if (isTitleMatch)
+				if (f.tag.equals("776"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('w'))
+							if (sf.value.contains("(OCoLC)")) {
+								String oclcid = sf.value.substring(sf.value.lastIndexOf(')')+1);
+								putOrAppendToExtract("06",";",oclcid);
+							}
 			
 		}
 		
