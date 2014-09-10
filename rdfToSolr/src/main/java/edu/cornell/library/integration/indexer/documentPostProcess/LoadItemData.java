@@ -89,7 +89,7 @@ public class LoadItemData implements DocumentPostProcess{
 	        		if (debug) 
 	        			System.out.println();
 	        		for (int i=1; i <= mdcolumnCount ; i++) {
-	        			String colname = rsmd.getColumnName(i);
+	        			String colname = rsmd.getColumnName(i).toLowerCase();
 	        			int coltype = rsmd.getColumnType(i);
 	        			String value = null;
 	       				if (coltype == java.sql.Types.CLOB) {
@@ -100,28 +100,28 @@ public class LoadItemData implements DocumentPostProcess{
 	       				}
 	       				if (value == null)
 	       					value = "";
-	       				if ((colname.equalsIgnoreCase("temp_location")
-	       						|| colname.equalsIgnoreCase("perm_location"))
+	       				if ((colname.equals("temp_location")
+	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
-	       					record.put(colname.toLowerCase(), l);
+	       					record.put(colname, l);
 	       				} else {
-	       					record.put(colname.toLowerCase(), value);
+	       					record.put(colname, value);
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       				}
 	       				
 		        		if (colname.equals("item_enum"))
-		        			item_enum = value;
+		        			item_enum = value.trim();
 		        		if (colname.equals("chron"))
-		        			chron = value;
+		        			chron = value.trim();
 		        		if (colname.equals("year"))
-		        			year = value;
+		        			year = value.trim();
 	        		}
 
-	        		if (! diverseEnum && ! blankEnum) {
+	        		if (! diverseEnum || ! blankEnum) {
 	        			String enumeration = item_enum + chron + year;
 	        			if (foundEnum == null)
 	        				foundEnum = enumeration;
@@ -130,7 +130,7 @@ public class LoadItemData implements DocumentPostProcess{
 	        				multivol = true;
 	        			}
 
-	        			if (! blankEnum && enumeration.equals(""))
+	        			if (enumeration.equals(""))
 	        				blankEnum = true;
 	        		}
 	        		
