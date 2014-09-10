@@ -201,7 +201,7 @@ public class LoadItemData implements DocumentPostProcess{
 		if (tempfields.containsKey("library"))
 			l.library = tempfields.get("library").getValue().toString();
 		else
-			if (debug) System.out.println("No location found for loc code "+l.code+".");
+			System.out.println("No location found for loc code "+l.code+".");
 		l.number = id;
 		locations.put(id, l);
 		return l;
