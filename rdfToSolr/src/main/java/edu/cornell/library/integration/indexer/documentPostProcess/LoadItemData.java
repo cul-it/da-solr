@@ -8,8 +8,12 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -18,6 +22,7 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
+import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.resultSetToFields.NameFieldsAsColumnsRSTF;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
@@ -43,10 +48,7 @@ public class LoadItemData implements DocumentPostProcess{
 			return;
 		}
 
-		String foundEnum = null;
-		Boolean blankEnum = false;
-		Boolean diverseEnum = false;
-		
+		Map<String,LocationEnumStats> enumStats = new HashMap<String,LocationEnumStats>();
 		SolrInputField holdingsField = document.getField( "holdings_record_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
@@ -82,10 +84,8 @@ public class LoadItemData implements DocumentPostProcess{
 		        	   
 	        		Map<String,Object> record = new HashMap<String,Object>();
 	        		record.put("mfhd_id",mfhd_id);
-	        		String item_enum = "";
-	        		String chron = "";
-	        		String year = "";
-				
+	        		String loc = null;
+	        		
 	        		if (debug) 
 	        			System.out.println();
 	        		for (int i=1; i <= mdcolumnCount ; i++) {
@@ -100,6 +100,7 @@ public class LoadItemData implements DocumentPostProcess{
 	       				}
 	       				if (value == null)
 	       					value = "";
+	       				value = value.trim();
 	       				if ((colname.equals("temp_location")
 	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
@@ -107,31 +108,37 @@ public class LoadItemData implements DocumentPostProcess{
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
 	       					record.put(colname, l);
+	       					if (colname.equals("perm_location")) loc = l.code;
 	       				} else {
 	       					record.put(colname, value);
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       				}
-	       				
-		        		if (colname.equals("item_enum"))
-		        			item_enum = value.trim();
-		        		if (colname.equals("chron"))
-		        			chron = value.trim();
-		        		if (colname.equals("year"))
-		        			year = value.trim();
 	        		}
-
-	        		if (! diverseEnum || ! blankEnum) {
-	        			String enumeration = item_enum + chron + year;
-	        			if (foundEnum == null)
-	        				foundEnum = enumeration;
-	        			else if (! foundEnum.equals(enumeration)) {
-	        				diverseEnum = true;
-	        				multivol = true;
-	        			}
-
-	        			if (enumeration.equals(""))
-	        				blankEnum = true;
+	        		
+	        		if (loc != null) {
+		        		LocationEnumStats stats = null;
+		        		if (enumStats.containsKey(loc))
+		        			stats = enumStats.get(loc);
+		        		else
+		        			stats = new LocationEnumStats();
+		        		
+		        		if (! stats.diverseEnumFound || ! stats.blankEnumFound ) {
+		        			String enumeration = record.get("item_enum").toString() + 
+		        					record.get("chron") + record.get("year");
+		        			enumeration.replaceAll("c\\.[\\d+]", "");
+		        			if (stats.aFoundEnum == null)
+		        				stats.aFoundEnum = enumeration;
+		        			if (! stats.aFoundEnum.equals(enumeration))
+		        				stats.diverseEnumFound = true;
+	
+		        			if (enumeration.equals(""))
+		        				stats.blankEnumFound = true;
+		        			else if (stats.aFoundEnum.equals(""))
+		        				stats.aFoundEnum = enumeration;
+		        			
+		        		}
+		        		enumStats.put(loc, stats);
 	        		}
 	        		
 	        		String json = mapper.writeValueAsString(record);
@@ -153,7 +160,85 @@ public class LoadItemData implements DocumentPostProcess{
 	        }
         
 		}
-		if (!diverseEnum)  multivol = false;
+		// if we have diverse enumeration within a single loc, it's a multivol
+		Boolean blankEnum = false;
+		Boolean nonBlankEnum = false;
+		for (String loc : enumStats.keySet()) {
+			LocationEnumStats l = enumStats.get(loc);
+			if (l.diverseEnumFound) multivol = true;
+			if (l.blankEnumFound) blankEnum = true;
+			if ( ! l.aFoundEnum.equals("")) nonBlankEnum = true;
+		}
+		
+		if (!multivol && enumStats.size() > 1) {
+			Collection<String> nonBlankEnums = new HashSet<String>();
+			for (LocationEnumStats stats : enumStats.values())
+				if (! stats.aFoundEnum.equals(""))
+					if ( ! nonBlankEnums.contains(stats.aFoundEnum))
+						nonBlankEnums.add(stats.aFoundEnum);
+			// nonBlankEnums differ between locations
+			if (nonBlankEnums.size() > 1)
+				multivol = true;
+			
+			// enumeration is consistent across locations
+			else if ( ! blankEnum )
+				multivol = false;
+		}
+
+		if (blankEnum && nonBlankEnum) {
+			// We want to separate the cases where:
+			//   1) this is a multivol where one item was accidentally not enumerated.
+			//   2) this is a single volume work which is enumerated in one location 
+			//               and not the other
+			//   3) this is a single volume work with supplementary material, and the
+			//               item lacking enumeration is the main item
+			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol(document);
+			Boolean descriptionHasE = doesDescriptionHaveE(recordURI,mainStore,localStore);
+			if (descriptionHasE) {
+				// this is strong evidence for case 3
+				if (descriptionLooksMultivol == null || ! descriptionLooksMultivol) {
+					// confirm case 3
+					multivol = true;
+				    SolrInputField t = new SolrInputField("mainitem_b");
+				    t.setValue(true, 1.0f);
+				    document.put("mainitem_b",t);
+				} else {
+					// multivol with an e? Not sure here, but concluding case 1
+					multivol = true;
+				    SolrInputField t = new SolrInputField("enumerror_b");
+				    t.setValue(true, 1.0f);
+				    document.put("enumerror_b",t);
+				}
+			} else {
+				SolrInputField f = document.get("format");
+				boolean solved = false;
+				for (Object o : f.getValues()) 
+					if (o.toString().equals("Journal")) {
+						//concluding case 1 for now
+						multivol = true;
+					    SolrInputField t = new SolrInputField("enumerror_b");
+					    t.setValue(true, 1.0f);
+					    document.put("enumerror_b",t);
+					    solved = true;
+					}
+				if (! solved && multivol) {
+					// if there's no e but we have identified the work as a multivol already
+					// (due to enumeration diversity), the conclude 3, but flag it.
+				    SolrInputField t = new SolrInputField("enumerror_b");
+				    t.setValue(true, 1.0f);
+				    document.put("enumerror_b",t);
+				    t = new SolrInputField("mainitem_b");
+				    t.setValue(true, 1.0f);
+				    document.put("mainitem_b",t);
+				    solved = true;
+				}
+				if (! solved) {
+					// not known to be a multivol, has no 300e, isn't a journal
+					// conclude 2 for now.
+				}
+			}
+		}
+
 		
 		if (blankEnum && multivol) {
 			SolrInputField multivolWithBlank = new SolrInputField("multivolwblank_b");
@@ -167,6 +252,39 @@ public class LoadItemData implements DocumentPostProcess{
 		document.put("item_record_display", itemField);
 	}
 	
+	private static Pattern multivolDesc = null;
+	private static Pattern singlevolDesc = null;
+	private Boolean doesDescriptionLookMultivol(SolrInputDocument document) {
+		if (! document.containsKey("description_display"))
+			return null;
+		SolrInputField f = document.getField("description_display");
+		if (f.getValueCount() == 0)
+			return null;
+		// The first value will be 300 field, so that's the only one we care about.
+		String desc = f.iterator().next().toString();
+		if (multivolDesc == null) multivolDesc = Pattern.compile("(.*\\d.*) v\\.");
+		Matcher m = multivolDesc.matcher(desc);
+		if (m.find()) {
+			int c = Integer.valueOf(m.group(1));
+			if (c > 1) return true;
+			if (c == 1) return false;
+		}
+		if (singlevolDesc == null) singlevolDesc = Pattern.compile("^([^0-9\\-\\[\\]  ] )?p\\.");
+		if (singlevolDesc.matcher(desc).find()) return false;
+
+		
+		return null;
+	}
+
+	private Boolean doesDescriptionHaveE(String recordURI,
+			RDFService mainStore, RDFService localStore) throws Exception {
+		
+		StandardMARCFieldMaker fm = new StandardMARCFieldMaker("supp","300","e");
+		Map<? extends String, ? extends SolrInputField> tempfields = 
+				fm.buildFields(recordURI, mainStore, localStore);
+		return (tempfields.containsKey("supp"));
+	}
+
 	private Location getLocation (String recordURI, RDFService mainStore,
 			RDFService localStore, Integer id) throws Exception{
 
@@ -231,6 +349,12 @@ public class LoadItemData implements DocumentPostProcess{
 			sb.append(this.library);
 			return sb.toString();
 		}
+	}
+	
+	private static class LocationEnumStats {
+		public String aFoundEnum = null;
+		public Boolean blankEnumFound = false;
+		public Boolean diverseEnumFound = false;
 	}
 
 
