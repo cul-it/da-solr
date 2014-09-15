@@ -116,6 +116,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			List<String> supplementalHoldings = new ArrayList<String>();
 			List<String> indexHoldings = new ArrayList<String>();
 			List<String> notes = new ArrayList<String>();
+			String copyNo = null;
 			
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 			
@@ -154,7 +155,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 								callno = f.concatenateSpecificSubfields("hijklm");
 							} else if (sf.code.equals('z')) {
 								notes.add(sf.value);
-							}		
+							} else if (sf.code.equals('t'))	{
+								copyNo = sf.value;
+							}
 						}
 					} else if (f.tag.equals("866")) {
 						if (f.ind1.equals(' ') && f.ind2.equals(' '))
@@ -173,7 +176,9 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 			
 			Holdings holding = new Holdings();
 			holding.id = rec.id;
-			holding.callnos = callnos.toArray(new String[ callnos.size() ]);
+			holding.copy_number = copyNo;
+			if ( ! loccodes.contains("serv,remo"))
+				holding.callnos = callnos.toArray(new String[ callnos.size() ]);
 			holding.notes = notes.toArray(new String[ notes.size() ]);
 			holding.holdings_desc = holdings.toArray(new String[ holdings.size() ]);
 			holding.recent_holdings_desc = recentHoldings.toArray(new String[ recentHoldings.size() ]);
@@ -221,6 +226,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 	
 	public static class Holdings {
 		public String id;
+		public String copy_number = null;
 		public String[] callnos;
 		public String[] notes;
 		public String[] holdings_desc;

@@ -33,7 +33,6 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		Collection<String> callnos = new HashSet<String>();
-		Collection<String> callno_1stblocks = new HashSet<String>();
 		Collection<String> letters = new HashSet<String>();
 		
 		/*
@@ -69,7 +68,6 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 							if (callno.length() >= 1)
 								letters.add( callno.substring(0,1) );
 						}
-						callno_1stblocks.add(callno);
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
 							if (! part2.equals("")) {
@@ -78,7 +76,9 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						}
 						if (debug)
 							System.out.println(callno);
-						if (resultKey.equals("holdings_callno")) {
+						if (resultKey.equals("holdings_callno") ) {
+//								&& sol.contains("loc")
+//								&& ! nodeToString( sol.get("loc")).equals("serv,remo")) {
 							callnos.add(callno);
 							if (callno.toLowerCase().startsWith("thesis ")) {
 								callno = callno.substring(7);
@@ -102,12 +102,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
  		Iterator<String> i = callnos.iterator();
 		while (i.hasNext())
 			addField(fields,"lc_callnum_full",i.next());
-		
-		// Turning off lc_callnum_main for now - left truncation makes this unnecessary
-		/*i = callno_1stblocks.iterator();
-		while (i.hasNext())
-			addField(fields,"lc_callnum_main",i.next()); */
-		
+				
 		i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();

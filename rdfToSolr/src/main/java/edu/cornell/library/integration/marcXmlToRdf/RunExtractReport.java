@@ -39,7 +39,7 @@ public class RunExtractReport {
 		davService = DavServiceFactory.getDavService(config);
 
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
-		converter.setOutputFormat(OutputFormat.TDF_GZ);
+		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.TDF);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTdfDir(), davService);
 		
