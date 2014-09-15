@@ -245,7 +245,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
 			        addMainStoreQuery("holdings_callno",
-			        	"SELECT ?part1 ?part2 ?prefix ?ind1\n"+
+			        	"SELECT ?part1 ?part2 ?prefix ?ind1 ?loc\n"+
 			        	"WHERE {\n"+
 			        	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
 			        	"  ?hold marcrdf:hasField852 ?hold852.\n" +
@@ -253,6 +253,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\"^^xsd:string.\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
+			        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
+			        	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
+                        "  ?hold852b marcrdf:value ?loc.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
 			        	"    ?hold852i marcrdf:code \"i\"^^xsd:string.\n" +
