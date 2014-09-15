@@ -630,7 +630,7 @@
   <requestHandler name="search" class="solr.SearchHandler" default="true" >
     <lst name="defaults">
       <str name="defType">edismax</str>
-      <str name="echoParams">explicit</str>      
+      <str name="echoParams">explicit</str>
       <str name="q.alt">*:*</str>      
       <str name="mm">100%</str>
       <str name="df">title_t</str>
@@ -1143,6 +1143,7 @@
     </lst>
     <lst name="appends">
       <str name="fq">type:Catalog</str>
+      <str name="boost">log(max(10,sub(pub_date_facet,1985)))</str>
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
