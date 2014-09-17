@@ -216,6 +216,7 @@
           -->
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
