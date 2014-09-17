@@ -262,7 +262,7 @@ public class LoadItemData implements DocumentPostProcess{
 			return null;
 		// The first value will be 300 field, so that's the only one we care about.
 		String desc = f.iterator().next().toString();
-		if (multivolDesc == null) multivolDesc = Pattern.compile("(.*\\d.*) v\\.");
+		if (multivolDesc == null) multivolDesc = Pattern.compile("(\\d)\\D* v\\.");
 		Matcher m = multivolDesc.matcher(desc);
 		if (m.find()) {
 			int c = Integer.valueOf(m.group(1).replaceAll("[^\\d\\-\\.]", ""));
