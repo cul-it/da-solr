@@ -265,7 +265,7 @@ public class LoadItemData implements DocumentPostProcess{
 		if (multivolDesc == null) multivolDesc = Pattern.compile("(.*\\d.*) v\\.");
 		Matcher m = multivolDesc.matcher(desc);
 		if (m.find()) {
-			int c = Integer.valueOf(m.group(1));
+			int c = Integer.valueOf(m.group(1).replaceAll("[^\\d\\-\\.]", ""));
 			if (c > 1) return true;
 			if (c == 1) return false;
 		}

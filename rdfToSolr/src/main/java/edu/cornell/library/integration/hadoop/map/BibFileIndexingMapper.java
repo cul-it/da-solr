@@ -179,6 +179,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						docs.add(doc);
 						context.progress();
 					}catch(Throwable ex ){
+						ex.printStackTrace();
 						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
                         if( checkForOutOfSpace( ex ) ){
                             return;
