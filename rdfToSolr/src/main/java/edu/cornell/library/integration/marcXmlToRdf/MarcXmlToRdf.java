@@ -1039,7 +1039,7 @@ public class MarcXmlToRdf {
 					else if (f.tag.startsWith("11")) subfields = "ab";
 					if (subfields != null)
 						extractVals.put("09", f.concatenateSpecificSubfields(subfields)
-								.toLowerCase().replaceAll("\\s", ""));
+								.toLowerCase().replaceAll("\\s", "").replaceAll("\\p{Punct}", ""));
 				}
 			if (isCitations)
 				if (f.tag.startsWith("1") ||
@@ -1055,7 +1055,7 @@ public class MarcXmlToRdf {
 			if (isTitleMatch)
 				if (f.tag.equals("245"))
 					extractVals.put("07",f.concatenateSpecificSubfields("abnp").
-							toLowerCase().replaceAll("\\s", ""));
+							toLowerCase().replaceAll("\\s", "").replaceAll("\\p{Punct}", ""));
 
 			if (isCitations)
 				if (f.tag.equals("245") ||
