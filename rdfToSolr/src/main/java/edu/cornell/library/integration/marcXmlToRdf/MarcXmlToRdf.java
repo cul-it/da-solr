@@ -1042,7 +1042,8 @@ public class MarcXmlToRdf {
 								.toLowerCase().replaceAll("\\s", ""));
 				}
 			if (isCitations)
-				if (f.tag.startsWith("1") || f.alttag.startsWith("1")) {
+				if (f.tag.startsWith("1") ||
+						(f.alttag != null && f.alttag.startsWith("1"))) {
 					String subfields = null;
 					if (f.tag.equals("100")) subfields = "abcdq";
 					else if (f.tag.startsWith("11")) subfields = "ab";
@@ -1057,7 +1058,8 @@ public class MarcXmlToRdf {
 							toLowerCase().replaceAll("\\s", ""));
 
 			if (isCitations)
-				if (f.tag.equals("245") || f.alttag.equals("245"))
+				if (f.tag.equals("245") ||
+						(f.alttag != null && f.alttag.equals("245")))
 					putOrAppendToExtract("02","; ",f.concatenateSpecificSubfields("abnp"));
 			
 			if (isPubPlace)
@@ -1100,7 +1102,8 @@ public class MarcXmlToRdf {
 					putOrAppendToExtract("10","; ",f.concatenateSpecificSubfields("a"));
 
 			if (isCitations)
-				if (f.tag.startsWith("7") || f.alttag.startsWith("7")) {
+				if (f.tag.startsWith("7") ||
+						(f.alttag != null && f.alttag.startsWith("7"))) {
 					String subfields = null;
 					if (f.tag.equals("700")) subfields = "abcdq";
 					else if (f.tag.startsWith("71")) subfields = "ab";
