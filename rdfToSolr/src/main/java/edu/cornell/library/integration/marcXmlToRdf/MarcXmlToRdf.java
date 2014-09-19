@@ -923,6 +923,11 @@ public class MarcXmlToRdf {
 			v.add("245abnp");
 			v.add("26XcDate");
 			v.add("1XXauthor");//9
+		} else if (rep.equals(Report.EXTRACT_CITATIONS)) {
+			v.add("id");
+			v.add("title");
+			v.add("authors");
+			v.add("pubinfo");
 		}
 		outputHeaders = StringUtils.join(v,"\t")+"\n";
 		extractCols = v.size();
@@ -940,11 +945,13 @@ public class MarcXmlToRdf {
 		Boolean isSubjPlace = reports.contains(Report.EXTRACT_SUBJPLACE);
 		Boolean isLanguage = reports.contains(Report.EXTRACT_LANGUAGE);
 		Boolean isTitleMatch = reports.contains(Report.EXTRACT_TITLE_MATCH);
+		Boolean isCitations = reports.contains(Report.EXTRACT_CITATIONS);
 		
 		if ( ! isPubPlace
 				&& ! isTitleMatch
 				&& ! isSubjPlace
-				&& ! isLanguage)
+				&& ! isLanguage
+				&& ! isCitations)
 			return;
 
 		List<String> pubplaces = new ArrayList<String>();
@@ -1034,12 +1041,24 @@ public class MarcXmlToRdf {
 						extractVals.put("09", f.concatenateSpecificSubfields(subfields)
 								.toLowerCase().replaceAll("\\s", ""));
 				}
-					
-			
+			if (isCitations)
+				if (f.tag.startsWith("1") || f.alttag.startsWith("1")) {
+					String subfields = null;
+					if (f.tag.equals("100")) subfields = "abcdq";
+					else if (f.tag.startsWith("11")) subfields = "ab";
+					if (subfields != null)
+						putOrAppendToExtract("03","; ",f.concatenateSpecificSubfields(subfields));
+				}
+
+
 			if (isTitleMatch)
 				if (f.tag.equals("245"))
 					extractVals.put("07",f.concatenateSpecificSubfields("abnp").
 							toLowerCase().replaceAll("\\s", ""));
+
+			if (isCitations)
+				if (f.tag.equals("245") || f.alttag.equals("245"))
+					putOrAppendToExtract("02","; ",f.concatenateSpecificSubfields("abnp"));
 			
 			if (isPubPlace)
 				if (f.tag.equals("260") || f.tag.equals("264"))
@@ -1050,6 +1069,9 @@ public class MarcXmlToRdf {
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('c'))
 							putOrAppendToExtract("08",";",sf.value);
+			if (isCitations)
+				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
+					putOrAppendToExtract("04","; ",f.concatenateSpecificSubfields("abc"));
 			
 			if (isLanguage)
 				if (f.tag.equals("500"))
@@ -1076,7 +1098,16 @@ public class MarcXmlToRdf {
 			if (isSubjPlace)
 				if (f.tag.equals("651"))
 					putOrAppendToExtract("10","; ",f.concatenateSpecificSubfields("a"));
-			
+
+			if (isCitations)
+				if (f.tag.startsWith("7") || f.alttag.startsWith("7")) {
+					String subfields = null;
+					if (f.tag.equals("700")) subfields = "abcdq";
+					else if (f.tag.startsWith("71")) subfields = "ab";
+					if (subfields != null)
+						putOrAppendToExtract("03","; ",f.concatenateSpecificSubfields(subfields));
+				}
+
 			if (isTitleMatch)
 				if (f.tag.equals("776"))
 					for (Subfield sf : f.subfields.values())
@@ -1762,7 +1793,7 @@ public class MarcXmlToRdf {
 		GEN_FREQ_BIB, GEN_FREQ_MFHD, 
 		QC_880, QC_245, QC_SUBFIELD_CODES, QC_CJK_LABELING,
 		EXTRACT_PUBPLACE, EXTRACT_SUBJPLACE, EXTRACT_LANGUAGE,
-		EXTRACT_TITLE_MATCH
+		EXTRACT_TITLE_MATCH, EXTRACT_CITATIONS
 	}
 
 	
