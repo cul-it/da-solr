@@ -878,7 +878,7 @@ public class MarcXmlToRdf {
 		String[] values = new String[extractCols];
 		for (int i = 0; i < extractCols; i++) values[i] = "";
 		for (String key : extractVals.keySet())
-			values[Integer.valueOf(key)-1] = extractVals.get(key);
+			values[Integer.valueOf(key)-1] = extractVals.get(key).replaceAll("\\t", " ");
 		return StringUtils.join(values, '\t')+"\n";
 	}
 	
