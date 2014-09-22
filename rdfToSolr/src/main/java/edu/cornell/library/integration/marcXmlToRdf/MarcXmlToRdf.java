@@ -929,6 +929,7 @@ public class MarcXmlToRdf {
 			v.add("authors");
 			v.add("pubinfo");
 			v.add("edition");
+			v.add("extent");
 		}
 		outputHeaders = StringUtils.join(v,"\t")+"\n";
 		extractCols = v.size();
@@ -1080,6 +1081,11 @@ public class MarcXmlToRdf {
 			if (isCitations)
 				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
 					putOrAppendToExtract("04","; ",f.concatenateSpecificSubfields("abc"));
+
+			if (isCitations)
+				if (f.tag.equals("300") ||
+						(f.alttag != null && f.alttag.equals("300")))
+					putOrAppendToExtract("06","; ",f.concatenateSpecificSubfields("abcefg"));
 			
 			if (isLanguage)
 				if (f.tag.equals("500"))
