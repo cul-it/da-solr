@@ -146,6 +146,7 @@
     <fieldType name="textP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\u02bb\u02be\u02bc\u02b9]" replacement="'" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -171,6 +172,7 @@
     <fieldType name="textNoStemP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\u02bb\u02be\u02bc\u02b9]" replacement="'" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
