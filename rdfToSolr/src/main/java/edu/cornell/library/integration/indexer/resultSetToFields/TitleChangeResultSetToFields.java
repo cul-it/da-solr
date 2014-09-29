@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
@@ -178,7 +179,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						) {
 					String subfields = "atbcdegkqrs";
 					String value = f.concatenateSpecificSubfields(subfields); 
-					addField(solrFields,"title_uniform_t",value);
+					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
 					if (f.tag.equals("880")) {
 						if (f.getScript().equals(MarcRecord.Script.CJK)) {
 							addField(solrFields,"title_uniform_t_cjk",value);

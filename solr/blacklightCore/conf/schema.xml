@@ -146,7 +146,6 @@
     <fieldType name="textP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\u02bb\u02be\u02bc\u02b9]" replacement="'" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -172,7 +171,6 @@
     <fieldType name="textNoStemP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\u02bb\u02be\u02bc\u02b9]" replacement="'" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -240,12 +238,18 @@
     
     <!-- field that can be used for left anchored search and auto complete -->
     <fieldType name="ngram" class="solr.TextField" >
-    <analyzer type="index">        
+    <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
     </analyzer>
-    <analyzer type="query">        
+    <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
     </analyzer>

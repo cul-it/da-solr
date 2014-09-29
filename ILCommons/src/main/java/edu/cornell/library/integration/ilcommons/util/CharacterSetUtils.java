@@ -7,11 +7,12 @@ public class CharacterSetUtils {
 	
 	static Pattern isCJK_pattern = null;
 	static Pattern isNotCJK_pattern = null;
+	static Pattern nonStandardApostrophes_pattern = null;
 	
 	public static final float MIN_RATIO = (float)0.15;
 	public static final int MIN_CHAR = 2;
 	
-	/*
+	/**
 	 * If CJK characters constitute a ratio of MIN_RATIO or a count of MIN_CHAR,
 	 * the string will be deemed to be CJK. (Primary consideration is whether the string 
 	 * warrants CJK search analysis.)
@@ -27,7 +28,7 @@ public class CharacterSetUtils {
 		return false;		
 	}
 	
-	/*
+	/**
 	 * Unlike isCJK(s), hasCJK(s) will return true if any CJK characters appear in String s.
 	 */
 	public static Boolean hasCJK( String s ) {
@@ -37,7 +38,7 @@ public class CharacterSetUtils {
 		return m.find();
 	}
 
-	/*
+	/**
 	 * Java's built-in String.trim() method trims leading and trailing whitespace, but only
 	 * looks for whitespace characters within ASCII ranges. Instead, we want to trim all the
 	 * whitespace from Unicode ranges.
@@ -55,6 +56,19 @@ public class CharacterSetUtils {
 		while (Character.isWhitespace(s.charAt(trailingOffset)))
 			trailingOffset--;
 		return s.substring(leadingOffset, trailingOffset + 1);
+	}
+
+	/**
+	 * Some of the Unicode apostrophe-like characters are not handled as expected by the
+	 * ICUFoldingFilter (they are removed rather than folded into standard apostrophes).
+	 * This causes search discrepancies. See DISCOVERYACCESS-1084, DISCOVERYACCESS-1408.
+	 * This method is only for values intended for searching and not display (incl. facets).
+	 */
+	public static String standardizeApostrophes( String s ) {
+		if (nonStandardApostrophes_pattern == null)
+			nonStandardApostrophes_pattern = Pattern.compile("[\u02bb\u02be\u02bc\u02b9\u02bf]");
+		if (s == null) return null;
+		return nonStandardApostrophes_pattern.matcher(s).replaceAll("'");
 	}
 
 }

@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer.fieldMaker;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
@@ -232,12 +233,12 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							else {
 								if (hasCJK(val))
 									fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
-								fieldmap.get(solrFieldName).addValue(val, 1.0f);
+								fieldmap.get(solrFieldName).addValue(standardizeApostrophes(val), 1.0f);
 							}							
 						} else {
 							if (isCJK(val))
 								fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
-							fieldmap.get(solrFieldName).addValue(val, 1.0f);
+							fieldmap.get(solrFieldName).addValue(standardizeApostrophes(val), 1.0f);
 						}
 					} else {
 						fieldmap.get(solrFieldName).addValue(val, 1.0f);
@@ -283,7 +284,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						String sMain = iMain.next();
 						if (s880.equals(sMain)) {
 							if (sMain.length() > 0)
-								fieldmap.get(solrFieldName).addValue(sMain,1.0f);
+								if (vernMode.equals(VernMode.SEARCH))
+									fieldmap.get(solrFieldName).addValue(standardizeApostrophes(sMain),1.0f);
+								else
+									fieldmap.get(solrFieldName).addValue(sMain,1.0f);
 						} else {
 							if ((vernMode == VernMode.COMBINED) || (vernMode == VernMode.SINGULAR)) {
 								fieldmap.get(solrFieldName).addValue(s880+" / " + sMain, 1.0f);
@@ -300,7 +304,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
 							} else { //VernMode.SEPARATE VernMode.SEARCH
 								fieldmap.get(solrFieldName).addValue(s880, 1.0f);
-								fieldmap.get(solrFieldName).addValue(sMain, 1.0f);
+								if (vernMode.equals(VernMode.SEARCH))
+									fieldmap.get(solrFieldName).addValue(standardizeApostrophes(sMain),1.0f);
+								else
+									fieldmap.get(solrFieldName).addValue(sMain,1.0f);
 							}
 						}
 					} else { // COMBINED and ADAPTIVE vernModes default to SEPARATE if
@@ -313,8 +320,12 @@ public class StandardMARCFieldMaker implements FieldMaker {
 								} else {
 									fieldmap.get(solrFieldName).addValue(i880.next(), 1.0f);
 								}
-							while (iMain.hasNext())
-								fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
+							if (vernMode.equals(VernMode.SEARCH))
+								while (iMain.hasNext())
+									fieldmap.get(solrFieldName).addValue(standardizeApostrophes(iMain.next()), 1.0f);
+							else
+								while (iMain.hasNext())
+									fieldmap.get(solrFieldName).addValue(iMain.next(), 1.0f);
 						} else {
 							StringBuilder sb = new StringBuilder();
 							while (i880.hasNext()) {
