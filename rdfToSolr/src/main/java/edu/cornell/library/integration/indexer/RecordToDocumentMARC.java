@@ -622,7 +622,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 			    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("record_type",
-				    	"SELECT (SUBSTR(?l,7,1) as ?char6) \n" +
+				    	"SELECT (SUBSTR(?l,7,2) as ?char67) \n" +
 				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
