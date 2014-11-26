@@ -199,6 +199,7 @@ task (GetLocations, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.GetLocations'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
+ args=['http://culdata.library.cornell.edu/data/voyager/locations']
 }
       
 task (step1GetAllSuppressionsFromCatalog, dependsOn:'assemble', type: JavaExec){

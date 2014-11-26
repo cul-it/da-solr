@@ -451,7 +451,7 @@
     <lst name="defaults">
       <str name="defType">dismax</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="sort">score desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
@@ -576,7 +576,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,title_other_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,title_other_display,dbcode,providercode</str>
       <str name="df">id</str>
       <str name="rows">1</str>
       <str name="wt">ruby</str>
@@ -592,7 +592,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="df">sixfivethree</str>
       <str name="sort">title_sort asc</str>
       <str name="rows">1000000</str>
@@ -609,7 +609,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="df">title_1letter_s</str>
       <str name="sort">title_sort asc</str>
       <str name="rows">1000000</str>

@@ -342,6 +342,8 @@
     <dynamicField name="*_exact" type="exact" indexed="true" stored="false"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
+    <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="alphaOnlySort" indexed="true" stored="false"/>
     <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />

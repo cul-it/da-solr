@@ -188,6 +188,16 @@ public class TitleMatchRSTF implements ResultSetToFields {
 						matchDescs.add("2906072|Reading, Mass. : 1996. 2nd ed., Instructors ed.|Print");
 						allIds.add("2889921");
 						matchDescs.add("2889921|Reading, Mass. : c1994. Instructor's ed.|Print");
+						
+						
+					} else if (id.equals("8128115")) {
+						allIds.add("8128115");
+						allIds.add("8185681");
+						matchDescs.add("8185681||Online");
+					} else if (id.equals("8185681")) {
+						allIds.add("8185681");
+						allIds.add("8128115");
+						matchDescs.add("8128115||Online");
 					}
 				}		
 			}
@@ -197,7 +207,7 @@ public class TitleMatchRSTF implements ResultSetToFields {
 				addField(solrFields,"title_match_t",s);	
 		}
 		for (String s: matchDescs) {
-			addField(solrFields,"title_match_inf",s);
+			addField(solrFields,"title_match_piped",s);
 		}
 		return solrFields;	
 	}	

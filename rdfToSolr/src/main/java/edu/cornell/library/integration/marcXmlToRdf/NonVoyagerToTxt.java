@@ -39,7 +39,7 @@ public class NonVoyagerToTxt {
 		davService = DavServiceFactory.getDavService(config);
 
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
-		converter.setOutputFormat(OutputFormat.TXT_GZ);
+		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.TXT_GZ);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTxtDir(), davService);
 		

@@ -298,12 +298,15 @@
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="collationText" indexed="true" stored="true" multiValued="false" required="true"/>
-	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="false"/>
+	<field name="preferedForm_piped" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="equivalentValues" type="string" indexed="false" stored="true" multiValued="true"/>
-	<field name="seeAlsos" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="seeAlsos_piped" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="headingTypeDesc" type="string" indexed="false" stored="true" multiValued="false" required="true"/> <!-- e.g. Personal Name -->
+	<field name="notes" type="string" indexed="false" stored="true" multivalued="true"/>
     
     <!-- filter fields -->
-    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
+    <field name="field" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="prefered_b" type="boolean" indexed="true" stored="true" multiValued="false"/>
     <field name="source" type="string" indexed="true" stored="true" multivalued="true" required="true"/>
 
