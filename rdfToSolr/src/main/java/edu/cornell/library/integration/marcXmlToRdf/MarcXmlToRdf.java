@@ -1973,6 +1973,8 @@ public class MarcXmlToRdf {
 	}
 	
 	private void putOrAppendToExtract(String key, String joinWith, String val) {
+		if (val == null)
+			val = "";
 		if (extractVals.containsKey(key))
 			extractVals.put(key, extractVals.get(key) + joinWith + val);
 		else 
