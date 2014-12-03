@@ -159,8 +159,12 @@ public class IdentifyDeletedRecords {
 				update_bibids.add(bibsWithDeletedMhds.next());
 			bibsWithDeletedMhds = update_bibids.iterator();
 			StringBuilder sb = new StringBuilder();
-			while (bibsWithDeletedMhds.hasNext()) {
+			UPD: while (bibsWithDeletedMhds.hasNext()) {
 				Integer bibid = bibsWithDeletedMhds.next();
+				for (Integer id : bibIdsInIndexNotInVoyager) 
+					if (id.equals(bibid))
+						continue UPD;
+					
 				sb.append(bibid);
 				sb.append("\n");
 			}
