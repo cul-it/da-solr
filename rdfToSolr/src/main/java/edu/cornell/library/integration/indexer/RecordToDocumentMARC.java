@@ -556,6 +556,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","508","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","510","abcux3"),
 				new StandardMARCFieldMaker("notes_t","510","abcux3",VernMode.SEARCH),
+				new StandardMARCFieldMaker("notes","511","a"),
+				new StandardMARCFieldMaker("notes_t","511","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","513","ab"),
 				new StandardMARCFieldMaker("notes_t","513","ab",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","518","adop"),
