@@ -30,8 +30,8 @@ public class RunExtractReport {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");
-		requiredFields.add("nonVoyXmlDir");
-		requiredFields.add("nonVoyTdfDir");
+		requiredFields.add("xmlDir");
+		requiredFields.add("tdfDir");
 		requiredFields.add("reportList");  // Exactly ONE EXTRACT_* report expected; addl ok.
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
@@ -40,8 +40,8 @@ public class RunExtractReport {
 
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
 		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.TDF);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTdfDir(), davService);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getTdfDir(), davService);
 		
 		String extractReport = null;
 		

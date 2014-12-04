@@ -29,9 +29,9 @@ public class NonVoyagerToTxt {
 	public NonVoyagerToTxt(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
-		requiredFields.add("nonVoyIdPrefix");
-		requiredFields.add("nonVoyXmlDir");
-		requiredFields.add("nonVoyTxtDir");
+	//	requiredFields.add("nonVoyIdPrefix"); only needed with reportlist
+		requiredFields.add("xmlDir");
+		requiredFields.add("txtDir");
 		// optionalField : reportList
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
@@ -40,8 +40,8 @@ public class NonVoyagerToTxt {
 
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
 		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.TXT_GZ);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyTxtDir(), davService);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getTxtDir(), davService);
 		
 		String reportList = config.getReportList();
 		String[] reports = null;

@@ -269,19 +269,19 @@ public class VoyagerToSolrConfiguration {
     	}
     }
     
-    public String getNonVoyXmlDir() throws IOException {
-    	if (values.containsKey("nonVoyXmlDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyXmlDir"));
-    		return values.get("nonVoyXmlDir");
+    public String getXmlDir() throws IOException {
+    	if (values.containsKey("xmlDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("xmlDir"));
+    		return values.get("xmlDir");
     	} else {
     		return null;
     	}
     }
     
-    public String getNonVoyNtDir() throws IOException {
-    	if (values.containsKey("nonVoyNtDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyNtDir"));
-    		return values.get("nonVoyNtDir");
+    public String getNtDir() throws IOException {
+    	if (values.containsKey("ntDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("ntDir"));
+    		return values.get("ntDir");
     	} else {
     		return null;
     	}
@@ -296,19 +296,19 @@ public class VoyagerToSolrConfiguration {
     	}
     }
 
-    public String getNonVoyTxtDir() throws IOException {
-    	if (values.containsKey("nonVoyTxtDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyTxtDir"));
-    		return values.get("nonVoyTxtDir");
+    public String getTxtDir() throws IOException {
+    	if (values.containsKey("txtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("txtDir"));
+    		return values.get("txtDir");
     	} else {
     		return null;
     	}
     }
 
-    public String getNonVoyTdfDir() throws IOException {
-    	if (values.containsKey("nonVoyTdfDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("nonVoyTdfDir"));
-    		return values.get("nonVoyTdfDir");
+    public String getTdfDir() throws IOException {
+    	if (values.containsKey("tdfDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("tdfDir"));
+    		return values.get("tdfDir");
     	} else {
     		return null;
     	}
@@ -580,16 +580,16 @@ public class VoyagerToSolrConfiguration {
         	errMsgs += checkDir( checkMe.values.get("fullXmlMfhdDir"), "fullXmlMfhdDir");
         if (requiredArgs.contains("fullNtBibDir"))
         	errMsgs += checkDir( checkMe.values.get("fullNtBibDir"), "fullNtBibDir");
-        if (requiredArgs.contains("nonVoyXmlDir"))
-        	errMsgs += checkDir( checkMe.values.get("nonVoyXmlDir"), "nonVoyXmlDir");
-        if (requiredArgs.contains("nonVoyNtDir"))
-        	errMsgs += checkDir( checkMe.values.get("nonVoyNtDir"), "nonVoyNtDir");
+        if (requiredArgs.contains("xmlDir"))
+        	errMsgs += checkDir( checkMe.values.get("xmlDir"), "xmlDir");
+        if (requiredArgs.contains("ntDir"))
+        	errMsgs += checkDir( checkMe.values.get("ntDir"), "ntDir");
         if (requiredArgs.contains("n3Dir"))
         	errMsgs += checkDir( checkMe.values.get("n3Dir"), "n3Dir");
-        if (requiredArgs.contains("nonVoyTxtDir"))
-        	errMsgs += checkDir( checkMe.values.get("nonVoyTxtDir"), "nonVoyTxtDir");
-        if (requiredArgs.contains("nonVoyTdfDir"))
-        	errMsgs += checkDir( checkMe.values.get("nonVoyTdfDir"), "nonVoyTdfDir");
+        if (requiredArgs.contains("txtDir"))
+        	errMsgs += checkDir( checkMe.values.get("txtDir"), "txtDir");
+        if (requiredArgs.contains("tdfDir"))
+        	errMsgs += checkDir( checkMe.values.get("tdfDir"), "tdfDir");
         if (requiredArgs.contains("nonVoyUriPrefix"))
         	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
         if (requiredArgs.contains("nonVoyIdPrefix"))

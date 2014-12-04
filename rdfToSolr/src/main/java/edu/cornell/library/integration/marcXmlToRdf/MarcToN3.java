@@ -11,9 +11,10 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
-public class NonVoyagerToNT {
+public class NonVoyagerToN3 {
 	
 	DavService davService;
 	
@@ -22,16 +23,16 @@ public class NonVoyagerToNT {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToNT(args);			
+	    new NonVoyagerToN3(args);			
 	}
 	
-	public NonVoyagerToNT(String[] args) throws Exception {
+	public NonVoyagerToN3(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("nonVoyUriPrefix");
-		requiredFields.add("nonVoyXmlDir");
-		requiredFields.add("nonVoyNtDir");
+		requiredFields.add("xmlDir");
+		requiredFields.add("n3Dir");
 		// optionalField : reportList
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
@@ -44,8 +45,9 @@ public class NonVoyagerToNT {
 		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
 	*/    
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyNtDir(), davService);
+		converter.setOutputFormat(OutputFormat.N3);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getN3Dir(), davService);
 		converter.setUriPrefix(config.getNonVoyUriPrefix());
 		converter.setIdPrefix(config.getNonVoyIdPrefix());
 		
