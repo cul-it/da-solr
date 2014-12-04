@@ -258,9 +258,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\"^^xsd:string.\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
-			        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-			        	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
-                        "  ?hold852b marcrdf:value ?loc.\n" +
+			        //	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
+			        //	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
+                    //  "  ?hold852b marcrdf:value ?loc.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
 			        	"    ?hold852i marcrdf:code \"i\"^^xsd:string.\n" +
@@ -281,7 +281,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
 					   	"    ?f50b marcrdf:code \"b\"^^xsd:string.\n" +
 					   	"    ?f50b marcrdf:value ?part2. }\n" +
-					    "}").
+				    	"}").
+				    addMainStoreQuery("bib_callno",
+				    		"SELECT ?part1 ?part2\n"+
+				    		"WHERE {\n"+
+				            "  $recordURI$ marcrdf:hasField950 ?f950.\n" +
+				            "  ?f950 marcrdf:hasSubfield ?f950a.\n" +
+				            "  ?f950a marcrdf:code \"a\"^^xsd:string.\n" +
+				            "  ?f950a marcrdf:value ?part1.\n" +
+				            "  OPTIONAL {\n" +
+				            "    ?f950 marcrdf:hasSubfield ?f950b.\n" +
+				            "    ?f950b marcrdf:code \"b\"^^xsd:string.\n" +
+				            "    ?f950b marcrdf:value ?part2. }\n" +
+				    		"}").
 			        addResultSetToFieldsStepped( new CallNumberResultSetToFields() ),
 			    	
 				new SPARQLFieldMakerImpl().
@@ -497,7 +509,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
 			        addMainStoreQuery("location",
-			        	"SELECT ?location_name ?library_name ?group_name \n"+
+			        	"SELECT ?loccode ?location_name ?library_name ?group_name \n"+
 			        	"WHERE {\n"+
                         "    ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"+
 			        	"    ?hold marcrdf:hasField852 ?hold852.\n" +
