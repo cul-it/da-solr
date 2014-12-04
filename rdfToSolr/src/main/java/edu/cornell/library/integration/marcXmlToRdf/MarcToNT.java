@@ -13,7 +13,7 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
-public class NonVoyagerToNT {
+public class MarcToNT {
 	
 	DavService davService;
 	
@@ -22,10 +22,10 @@ public class NonVoyagerToNT {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToNT(args);			
+	    new MarcToNT(args);			
 	}
 	
-	public NonVoyagerToNT(String[] args) throws Exception {
+	public MarcToNT(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");

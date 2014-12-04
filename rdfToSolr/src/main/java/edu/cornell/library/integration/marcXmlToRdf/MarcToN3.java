@@ -14,7 +14,7 @@ import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
-public class NonVoyagerToN3 {
+public class MarcToN3 {
 	
 	DavService davService;
 	
@@ -23,10 +23,10 @@ public class NonVoyagerToN3 {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToN3(args);			
+	    new MarcToN3(args);			
 	}
 	
-	public NonVoyagerToN3(String[] args) throws Exception {
+	public MarcToN3(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");
