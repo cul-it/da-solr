@@ -33,9 +33,6 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		Collection<String> facets = new HashSet<String>();
 		Collection<String> displays = new HashSet<String>();
 		
-		boolean ownedByLaw = false;
-		
-		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){
@@ -48,9 +45,6 @@ public class LocationResultSetToFields implements ResultSetToFields {
 						addField(fields,"online","At the Library");
 					}
 //					facets.add(nodeToString(sol.get("group_name")));
-					
-					if (nodeToString(sol.get("loccode")).startsWith("law"))
-						ownedByLaw = true;
 				}
 			}
 		}
@@ -59,8 +53,6 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		while (i.hasNext()) addField(fields,"location_facet",i.next());
 		i = displays.iterator();
 		while (i.hasNext()) addField(fields,"location_display",i.next());
-		if (ownedByLaw)
-			addField(fields,"collection","Law Library");
 		
 		return fields;
 	}

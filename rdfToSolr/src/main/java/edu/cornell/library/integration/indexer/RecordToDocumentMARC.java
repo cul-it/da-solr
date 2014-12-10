@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
+import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
@@ -65,7 +66,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new LoadItemData(),
 				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
-				new NoAccessUrlsUnlessOnline()
+				new NoAccessUrlsUnlessOnline(),
+				new Collections()
 		);
 	}
 

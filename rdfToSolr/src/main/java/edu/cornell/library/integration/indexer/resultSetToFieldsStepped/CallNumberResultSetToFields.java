@@ -141,8 +141,6 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						if (l.length() == 1)
 							addField(fields,"lc_1letter_facet",l+" - "+subject);
 						addField(fields,"lc_alpha_facet",l+" - "+subject);
-						if (l.equals("K"))
-							addField(fields,"collection","Law Library");
 					}
 				}
 			}
