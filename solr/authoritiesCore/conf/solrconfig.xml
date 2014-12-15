@@ -437,6 +437,13 @@
     <httpCaching lastModifiedFrom="openTime" etagSeed="Solr" />
   </requestDispatcher>
 
+  <requestHandler name="standard" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="echoParams">all</str>
+      <str name="q.op">AND</str>
+    </lst>
+  </requestHandler>
+
   <requestHandler name="/subjects" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>

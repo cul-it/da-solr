@@ -94,15 +94,6 @@ public class VoyagerToSolrConfiguration {
     	}
     }
 
-    public String getFullAuthXmlDir() throws IOException {
-    	if (values.containsKey("fullAuthXmlDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullAuthXmlDir"));
-    		return values.get("fullAuthXmlDir");
-    	} else {
-    		return null;
-    	}
-    }
-
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcBibDir"));
@@ -568,8 +559,6 @@ public class VoyagerToSolrConfiguration {
         	errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
         if (requiredArgs.contains("blacklightSolrUrl"))
             errMsgs += checkSolrUrl( checkMe.values.get("blacklightSolrUrl") );
-        if (requiredArgs.contains("fullAuthXmlDir"))
-        	errMsgs += checkDir( checkMe.values.get("fullAuthXmlDir"), "fullAuthXmlDir");
         if (requiredArgs.contains("fullMrcBibDir"))
         	errMsgs += checkDir( checkMe.values.get("fullMrcBibDir"), "fullMrcBibDir");
         if (requiredArgs.contains("fullMrcMfhdDir"))

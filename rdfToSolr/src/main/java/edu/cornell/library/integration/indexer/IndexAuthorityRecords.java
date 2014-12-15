@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class IndexAuthorityRecords {
 	private VoyagerToSolrConfiguration config;
 	private DavService davService;
 	private SolrServer solr = null;
-	private MessageDigest md = MessageDigest.getInstance("MD5");
+	private MessageDigest md = null;
 	
 	/**
 	 * @param args
@@ -41,8 +42,9 @@ public class IndexAuthorityRecords {
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = new HashSet<String>();
-		requiredArgs.add("fullAuthXmlDir");
-		requiredArgs.add("blacklightSolrUrl");
+		requiredArgs.add("xmlDir");
+//		requiredArgs.add("blacklightSolrUrl");
+		requiredArgs.add("solrUrl");
 		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
 		try {
   //  	   IndexAuthorityRecords iar =
@@ -57,7 +59,7 @@ public class IndexAuthorityRecords {
 	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
 		this.config = config;
         this.davService = DavServiceFactory.getDavService(config);
-        List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getFullAuthXmlDir());
+        List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getXmlDir());
         Iterator<String> i = authXmlFiles.iterator();
         while (i.hasNext()) {
 			String srcFile = i.next();
@@ -72,9 +74,23 @@ public class IndexAuthorityRecords {
 	
 	private SolrInputDocument getSolrDocument( String heading,String headingType, String headingTypeDesc ) throws SolrServerException {
 		String concat = heading + headingType + headingTypeDesc;
+		try {
+			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("MD5 is dead!!");
+			e.printStackTrace();
+			return null;
+		}
 		String id = null;
 		try {
-			id =  md.digest(concat.getBytes("UTF-8") ).toString();
+			md.update(concat.getBytes("UTF-8") );
+			byte[] digest = md.digest();
+
+			// Create Hex String
+	        StringBuffer hexString = new StringBuffer();
+	        for (int i=0; i<digest.length; i++)
+	            hexString.append(Integer.toHexString(0xFF & digest[i]));
+	        id = hexString.toString();
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UTF-8 is dead!!");
 			e.printStackTrace();
@@ -82,7 +98,8 @@ public class IndexAuthorityRecords {
 		}
 		
 		if (solr == null) solr = new HttpSolrServer(config.getSolrUrl());
-
+	//	solr.setParser(new XMLResponseParser());
+		
 		SolrQuery query = new SolrQuery();
 		query.addFilterQuery("id:"+id);
 		SolrDocumentList docs = solr.query(query).getResults();
@@ -98,6 +115,8 @@ public class IndexAuthorityRecords {
 			inputDoc.addField("headingType", headingType);
 			inputDoc.addField("headingTypeDesc", headingTypeDesc);
 			inputDoc.addField("id", id);
+		} else {
+			System.out.println("existing record found for "+id+" ("+heading+")");
 		}
 		return inputDoc;
 	}
@@ -184,7 +203,7 @@ public class IndexAuthorityRecords {
 
 		for (String val: sees) {
 			SolrInputDocument redir = getSolrDocument(val, headingType, headingTypeDesc);
-			redir.addField("preferedValue", heading,1.0f);
+			redir.addField("preferedForm", heading,1.0f);
 			redir.addField("marcId",rec.id,1.0f);
 			docs.add(redir);
 		}
@@ -205,6 +224,7 @@ public class IndexAuthorityRecords {
 			solr.deleteById((String)doc.getFieldValue("id"));
 			solr.add(doc);
 		}
+		solr.commit();
 	}
 	
 	// general MARC methods and classes start here
@@ -375,7 +395,7 @@ public class IndexAuthorityRecords {
 			int sf_id = 0;
 			while( this.subfields.containsKey(sf_id+1) ) {
 				Subfield sf = this.subfields.get(++sf_id);
-				sb.append(sf.toString());
+				sb.append(sf.value);
 				sb.append(" ");
 			}
 			return sb.toString().trim();			

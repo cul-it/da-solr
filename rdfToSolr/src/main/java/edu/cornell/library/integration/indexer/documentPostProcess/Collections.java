@@ -7,7 +7,9 @@ import java.util.Iterator;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
+import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
@@ -32,7 +34,10 @@ public class Collections implements DocumentPostProcess{
 			ObjectMapper mapper = new ObjectMapper();
 			for (Object hold_obj: holdingsField.getValues()) {
 
-				JsonNode rootNode = mapper.readTree(hold_obj.toString());
+				JsonFactory factory = mapper.getJsonFactory(); // since 2.1 use mapper.getFactory() instead
+				JsonParser jp = factory.createJsonParser(hold_obj.toString());
+				JsonNode rootNode = mapper.readTree(jp);
+//				JsonNode rootNode = mapper.readTree(hold_obj.toString());
 				Iterator<JsonNode> locs = rootNode.path("locations").getElements();
 				while (locs.hasNext()) {
 					JsonNode loc = locs.next();
