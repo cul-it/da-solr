@@ -63,6 +63,7 @@ public class IndexAuthorityRecords {
         Iterator<String> i = authXmlFiles.iterator();
         while (i.hasNext()) {
 			String srcFile = i.next();
+			System.out.println(srcFile);
 			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
 			XMLInputFactory input_factory = XMLInputFactory.newInstance();
 			XMLStreamReader r  = 
