@@ -1164,9 +1164,35 @@
   <!-- for docfreq term counts -->
   <searchComponent name="terms" class="solr.TermsComponent"/>  
   <requestHandler name="/terms" class="solr.SearchHandler" startup="lazy">
+  <lst name="defaults">
+    <bool name="terms">true</bool>
+    <bool name="distrib">false</bool>
+  </lst>
+  <arr name="components">
+    <str>terms</str>
+  </arr>
+  </requestHandler>
+  <requestHandler name="/author" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <bool name="terms">true</bool>
       <bool name="distrib">false</bool>
+      <str name="terms.sort">index</str>
+      <str name="terms.limit">60</str>
+      <bool name="terms.upper.incl">true</bool>
+      <str name="terms.fl">author_facet</str>
+    </lst>
+    <arr name="components">
+      <str>terms</str>
+    </arr>
+  </requestHandler>
+  <requestHandler name="/subject" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <bool name="terms">true</bool>
+      <bool name="distrib">false</bool>
+      <str name="terms.sort">index</str>
+      <str name="terms.limit">60</str>
+      <bool name="terms.upper.incl">true</bool>
+      <str name="terms.fl">subject_topic_facet</str>
     </lst>
     <arr name="components">
       <str>terms</str>

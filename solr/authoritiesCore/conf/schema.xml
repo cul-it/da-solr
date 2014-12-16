@@ -150,11 +150,6 @@
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <!-- custom filter from bob@umich -->
         <!-- <filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" /> -->
-        <!-- cusotm filter from bob@umich, tokenizes CJK char-by-char. Not
-             sure how good that is, but it's probably better than tokenizing
-             only at whitespace. -->
-        <!--<filter class="schema.CJKFilterFactory"  bigrams="false"/>-->
-        
         <filter class="solr.ICUFoldingFilterFactory"/>
         
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -184,11 +179,11 @@
   
   <fields>
   	<!-- The combination of heading, headingType and headingTypeDesc together form a unique key for each
-  	     record. --> 
+  	     record. The id is the md5 checksum of the concatenation of these three. --> 
     <field name="id" type="string" indexed="true" stored="true" required="true" />
-    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+<!--    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/> -->
     <!-- required for updateLog and NRT indexing -->
-    <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+<!--    <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/> -->
 
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -196,6 +191,8 @@
 	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. Personal Name -->
+	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
+	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
     
     <!-- filter fields -->
     <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->

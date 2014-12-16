@@ -28,6 +28,7 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 public class IndexAuthorityRecords {
 
@@ -102,12 +103,13 @@ public class IndexAuthorityRecords {
 	//	solr.setParser(new XMLResponseParser());
 		
 		SolrQuery query = new SolrQuery();
-		query.addFilterQuery("id:"+id);
+		query.setQuery("id:"+id);
 		SolrDocumentList docs = solr.query(query).getResults();
 		Iterator<SolrDocument> i = docs.iterator();
 		SolrInputDocument inputDoc = null;
 		while (i.hasNext()) {
 			SolrDocument doc = i.next();
+			doc.remove("_version_");
 			inputDoc = ClientUtils.toSolrInputDocument(doc);
 		}
 		if (inputDoc == null) {
@@ -139,16 +141,30 @@ public class IndexAuthorityRecords {
 		String heading = null;
 		String headingType = null;
 		String headingTypeDesc = null;
-		Collection<String> sees = new HashSet<String>();
-		Collection<String> seeAlsos = new HashSet<String>();
+		Collection<Relation> sees = new HashSet<Relation>();
+		Collection<Relation> seeAlsos = new HashSet<Relation>();
+		Collection<String> expectedNotes = new HashSet<String>();
+		Collection<String> foundNotes = new HashSet<String>();
+		Collection<String> notes = new HashSet<String>();
 		
+		for (ControlField f : rec.control_fields.values()) {
+			if (f.tag.equals("008")) {
+				if (f.value.length() >= 10) {
+					Character recordType = f.value.charAt(9);
+					if (recordType.equals('b')) 
+						expectedNotes.add("666");
+					else if (recordType.equals('c'))
+						expectedNotes.add("664");
+				}
+			}
+		}
 		// iterate through fields. Look for main heading and alternate forms.
 		Iterator<DataField> i = rec.data_fields.values().iterator();
 		while (i.hasNext()) {
 			DataField f = i.next();
 			if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatValue();
+				heading = f.concatValue("");
 				if (f.tag.equals("100") || f.tag.equals("110") || f.tag.equals("111")) {
 					headingType = "author";
 					Iterator<Subfield> j = f.subfields.values().iterator();
@@ -186,38 +202,205 @@ public class IndexAuthorityRecords {
 				} else if (f.tag.equals("162")) {
 					headingType = "subject";
 					headingTypeDesc = "Medium of Performance Term";
+				} else if (f.tag.equals("180")) {
+					headingType = "subject";
+					headingTypeDesc = "General Subdivision";
+				} else if (f.tag.equals("181")) {
+					headingType = "subject";
+					headingTypeDesc = "Geographic Subdivision";
+				} else if (f.tag.equals("182")) {
+					headingType = "subject";
+					headingTypeDesc = "Chronological Subdivision";
+				} else if (f.tag.equals("185")) {
+					headingType = "subject";
+					headingTypeDesc = "Genre/Form Subdivision";
 				}
+			} else if (f.tag.equals("260") || f.tag.equals("360")) {
+				notes.add("Search under: "+f.concatValue(""));
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
-				sees.add(f.concatValue());
+				Relation r = determineRelationship(f);
+				expectedNotes.addAll(r.expectedNotes);
+				r.heading = f.concatValue("iw");
+				sees.add(r);
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
-				seeAlsos.add(f.concatValue());
+				Relation r = determineRelationship(f);
+				expectedNotes.addAll(r.expectedNotes);
+				r.heading = f.concatValue("iw");
+				seeAlsos.add(r);
+			} else if (f.tag.equals("663")) {
+				foundNotes.add("663");
+				if (expectedNotes.contains("663")) {
+					notes.add(f.concatValue(""));
+				} else {
+					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
+				}
+			} else if (f.tag.equals("664")) {
+				foundNotes.add("664");
+				if (expectedNotes.contains("664")) {
+					notes.add(f.concatValue(""));
+				} else {
+					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
+				}
+			} else if (f.tag.equals("665")) {
+				foundNotes.add("665");
+				if (expectedNotes.contains("665")) {
+					notes.add(f.concatValue(""));
+				} else {
+					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
+				}
+			} else if (f.tag.equals("666")) {
+				foundNotes.add("666");
+				if (expectedNotes.contains("666")) {
+					notes.add(f.concatValue(""));
+				} else {
+					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
+				}
 			}
 		}
-		if ((heading == null) || (headingType == null) || (headingTypeDesc == null))
+		if (heading == null || headingType == null || headingTypeDesc == null) {
+			System.out.println("Not deriving heading browse entries from record. "+rec.id);
 			return docs; // empty collection
+		}
 		
 		SolrInputDocument main = getSolrDocument(heading, headingType, headingTypeDesc);
 		main.addField("marcId",rec.id,1.0f);
+		//Never setting mainEntry to false, so if mainEntry is populated it's already true.
+		if ( ! main.containsKey("mainEntry")) 
+			main.addField("mainEntry", true, 1.0f);
+		for (String note : notes)
+			main.addField("notes",note,1.0f);
 		docs.add(main);
+		
+		expectedNotes.removeAll(foundNotes);
+		if ( ! expectedNotes.isEmpty())
+			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
 
-		for (String val: sees) {
-			SolrInputDocument redir = getSolrDocument(val, headingType, headingTypeDesc);
-			redir.addField("preferedForm", heading,1.0f);
+		for (Relation r: sees) {
+			if ( ! r.display) continue;
+			SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
+			if (r.relationship == null)
+				redir.addField("preferedForm", heading,1.0f);
+			else 
+				redir.addField("preferedForm", heading + "|" + r.relationship, 1.0f);
 			redir.addField("marcId",rec.id,1.0f);
 			docs.add(redir);
 		}
 		
-		for (String val: seeAlsos) {
-			SolrInputDocument redir = getSolrDocument(val, headingType, headingTypeDesc);
-			redir.addField("seeAlso", heading,1.0f);
+		for (Relation r: seeAlsos) {
+			if ( ! r.display) continue;
+			SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
+			if (r.relationship == null)
+				redir.addField("seeAlso", heading,1.0f);
+			else 
+				redir.addField("seeAlso", heading + "|" + r.relationship, 1.0f);
 			redir.addField("marcId",rec.id,1.0f);
 			docs.add(redir);
 		}
 		
 		return docs;
 	}
+	
+	private Relation determineRelationship( DataField f ) {
+		// Is there a subfield w? The relationship note in subfield w
+		// describes the 4XX or 5XX heading, and must be reversed for the
+		// from tracing.
+		Relation r = new Relation();
+		for (Subfield sf : f.subfields.values()) {
+			if (sf.code.equals('w')) {
+				if (sf.value.startsWith("a")) {
+					//earlier heading
+					r.relationship = "Later Heading";
+				} else if (sf.value.startsWith("b")) {
+					//later heading
+					r.relationship = "Earlier Heading";
+				} else if (sf.value.startsWith("d")) {
+					//acronym
+					r.relationship = "Full Heading";
+				} else if (sf.value.startsWith("f")) {
+					//musical composition
+					r.relationship = "Musical Composition Based on this Work";
+				} else if (sf.value.startsWith("g")) {
+					//broader term
+					r.relationship = "Narrower Term";
+				} else if (sf.value.startsWith("h")) {
+					//narrower term
+					r.relationship = "Broader Term";
+				} else if (sf.value.startsWith("i")) {
+					// get relationship name from subfield i
+				} else if (sf.value.startsWith("r")) {
+					// get relationship name from subfield i
+					//  also something about subfield 4? Haven't seen one.
+				} else if (sf.value.startsWith("t")) {
+					//parent body
+					r.relationship = "Parent Body";
+				}
+				
+				if (sf.value.length() >= 2) {
+					Character offset1 = sf.value.charAt(1);
+					if (offset1.equals('a')) {
+						r.applicableContexts.add(Applicable.NAME);
+					} else if (offset1.equals('b')) {
+						r.applicableContexts.add(Applicable.SUBJECT);
+					} else if (offset1.equals('c')) {
+						r.applicableContexts.add(Applicable.SERIES);
+					} else if (offset1.equals('d')) {
+						r.applicableContexts.add(Applicable.NAME);
+						r.applicableContexts.add(Applicable.SUBJECT);
+					} else if (offset1.equals('e')) {
+						r.applicableContexts.add(Applicable.NAME);
+						r.applicableContexts.add(Applicable.SERIES);
+					} else if (offset1.equals('f')) {
+						r.applicableContexts.add(Applicable.SUBJECT);
+						r.applicableContexts.add(Applicable.SERIES);
+					} else if (offset1.equals('g')) {
+						r.applicableContexts.add(Applicable.NAME);
+						r.applicableContexts.add(Applicable.SUBJECT);
+						r.applicableContexts.add(Applicable.SERIES);
+					}
+				}
+				
+				if (sf.value.length() >= 3) {
+					Character offset2 = sf.value.charAt(2);
+					if (offset2.equals('a')) {
+						r.relationship = "Later Form of Heading";
+					}
+				}
+				
+				if (sf.value.length() >= 4) {
+					Character offset3 = sf.value.charAt(3);
+					if (offset3.equals('a')) {
+						r.display = false;
+					} else if (offset3.equals('b')) {
+						r.display = false;
+						r.expectedNotes.add("664");
+					} else if (offset3.equals('c')) {
+						r.display = false;
+						r.expectedNotes.add("663");
+					} else if (offset3.equals('d')) {
+						r.display = false;
+						r.expectedNotes.add("665");
+					}
+				}
+			} else if (sf.code.equals('i')) {
+				r.relationship = removeTrailingPunctuation(sf.value,": ");
+			}
+		}
+		return r;
+	}
+	
+	private static class Relation {	
+		public String relationship = null;
+		public String heading = null;
+		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
+		public Collection<String> expectedNotes = new HashSet<String>();
+		boolean display = true;
+	}
+	private static enum Applicable {
+		NAME, SUBJECT, SERIES /*Not currently implementing series header browse*/
+	}
+
 	
 	private void insertDocuments( Collection<SolrInputDocument> docs) throws IOException, SolrServerException {
 		if (solr == null) solr = new HttpSolrServer(config.getSolrUrl());
@@ -227,6 +410,7 @@ public class IndexAuthorityRecords {
 		}
 		solr.commit();
 	}
+
 	
 	// general MARC methods and classes start here
 	
@@ -391,11 +575,12 @@ public class IndexAuthorityRecords {
 			}
 			return sb.toString();
 		}
-		public String concatValue() {
+		public String concatValue(String excludes) {
 			StringBuilder sb = new StringBuilder();
 			int sf_id = 0;
 			while( this.subfields.containsKey(sf_id+1) ) {
 				Subfield sf = this.subfields.get(++sf_id);
+				if (excludes.contains(sf.code.toString())) continue;
 				sb.append(sf.value);
 				sb.append(" ");
 			}
