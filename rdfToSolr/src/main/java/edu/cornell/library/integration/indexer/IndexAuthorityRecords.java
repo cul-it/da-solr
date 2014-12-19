@@ -118,8 +118,8 @@ public class IndexAuthorityRecords {
 			inputDoc.addField("headingType", headingType);
 			inputDoc.addField("headingTypeDesc", headingTypeDesc);
 			inputDoc.addField("id", id);
-		} else {
-			System.out.println("existing record found for "+id+" ("+heading+")");
+//		} else {
+//			System.out.println("existing record found for "+id+" ("+heading+")");
 		}
 		return inputDoc;
 	}
