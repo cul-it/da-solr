@@ -273,33 +273,58 @@ public class IndexAuthorityRecords {
 			main.addField("notes",note,1.0f);
 		docs.add(main);
 		
+		if (headingType.equals("author")) {
+			main = getSolrDocument(heading, "subject", headingTypeDesc);
+			main.addField("marcId",rec.id,1.0f);
+			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
+			if ( ! main.containsKey("mainEntry")) 
+				main.addField("mainEntry", true, 1.0f);
+			for (String note : notes)
+				main.addField("notes",note,1.0f);
+			docs.add(main);
+		}
+		
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
 			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
 
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
-			SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
-			if (r.relationship == null)
-				redir.addField("preferedForm", heading,1.0f);
-			else 
-				redir.addField("preferedForm", heading + "|" + r.relationship, 1.0f);
-			redir.addField("marcId",rec.id,1.0f);
-			docs.add(redir);
+			if (headingType.equals("author")) {
+				if (r.applicableContexts.contains(Applicable.NAME))
+					docs.add(crossRef("preferedForm",r,heading,"author",headingTypeDesc,rec.id));
+				if (r.applicableContexts.contains(Applicable.SUBJECT))
+					docs.add(crossRef("preferedForm",r,heading,"subject",headingTypeDesc,rec.id));
+			} else {
+				docs.add(crossRef("preferedForm",r,heading,headingType,headingTypeDesc,rec.id));
+			}
 		}
 		
 		for (Relation r: seeAlsos) {
 			if ( ! r.display) continue;
-			SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
-			if (r.relationship == null)
-				redir.addField("seeAlso", heading,1.0f);
-			else 
-				redir.addField("seeAlso", heading + "|" + r.relationship, 1.0f);
-			redir.addField("marcId",rec.id,1.0f);
-			docs.add(redir);
+			if (headingType.equals("author")) {
+				if (r.applicableContexts.contains(Applicable.NAME))
+					docs.add(crossRef("seeAlso",r,heading,"author",headingTypeDesc,rec.id));
+				if (r.applicableContexts.contains(Applicable.SUBJECT))
+					docs.add(crossRef("seeAlso",r,heading,"subject",headingTypeDesc,rec.id));
+			} else {
+				docs.add(crossRef("seeAlso",r,heading,headingType,headingTypeDesc,rec.id));
+			}
 		}
 		
 		return docs;
+	}
+	
+	SolrInputDocument crossRef(String crossRefType, Relation r,
+			String heading, String headingType, String headingTypeDesc, String marcId) throws SolrServerException {
+		SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
+		if (r.relationship == null)
+			redir.addField(crossRefType, heading,1.0f);
+		else 
+			redir.addField(crossRefType, heading + "|" + r.relationship, 1.0f);
+		redir.addField("marcId",marcId,1.0f);
+		return redir;
+		
 	}
 	
 	private Relation determineRelationship( DataField f ) {
@@ -354,11 +379,15 @@ public class IndexAuthorityRecords {
 					} else if (offset1.equals('f')) {
 						r.applicableContexts.add(Applicable.SUBJECT);
 						r.applicableContexts.add(Applicable.SERIES);
-					} else if (offset1.equals('g')) {
+					} else { // g (or other)
 						r.applicableContexts.add(Applicable.NAME);
 						r.applicableContexts.add(Applicable.SUBJECT);
 						r.applicableContexts.add(Applicable.SERIES);
 					}
+				} else {
+					r.applicableContexts.add(Applicable.NAME);
+					r.applicableContexts.add(Applicable.SUBJECT);
+					r.applicableContexts.add(Applicable.SERIES);
 				}
 				
 				if (sf.value.length() >= 3) {
