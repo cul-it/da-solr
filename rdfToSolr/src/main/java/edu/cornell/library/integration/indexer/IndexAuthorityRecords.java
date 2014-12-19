@@ -332,8 +332,11 @@ public class IndexAuthorityRecords {
 		// describes the 4XX or 5XX heading, and must be reversed for the
 		// from tracing.
 		Relation r = new Relation();
+		boolean hasW = false;
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('w')) {
+				hasW = true;
+				
 				if (sf.value.startsWith("a")) {
 					//earlier heading
 					r.relationship = "Later Heading";
@@ -415,6 +418,11 @@ public class IndexAuthorityRecords {
 			} else if (sf.code.equals('i')) {
 				r.relationship = removeTrailingPunctuation(sf.value,": ");
 			}
+		}
+		if ( ! hasW ) {
+			r.applicableContexts.add(Applicable.NAME);
+			r.applicableContexts.add(Applicable.SUBJECT);
+			r.applicableContexts.add(Applicable.SERIES);
 		}
 		return r;
 	}
