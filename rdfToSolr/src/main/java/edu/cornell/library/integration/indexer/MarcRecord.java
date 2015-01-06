@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;
@@ -294,7 +294,7 @@ public class MarcRecord {
 				}
 				String val = sb.toString().trim();
 				if (rtl && (val.length() > 0)) {
-					return RTE_openRTL+val+PDF_closeRTL;
+					return RLE_openRTL+val+PDF_closeRTL;
 				} else {
 //					return "Roman";
 					return val;
@@ -325,7 +325,7 @@ public class MarcRecord {
 				
 				String val = sb.toString().trim();
 				if (rtl && (val.length() > 0)) {
-					return RTE_openRTL+val+PDF_closeRTL;
+					return RLE_openRTL+val+PDF_closeRTL;
 				} else {
 //					return "Roman";
 					return val;

@@ -4,7 +4,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
@@ -86,8 +86,8 @@ public class TOCResultSetToFields implements ResultSetToFields {
 					if (exactlyOne880) {
 						for(String item: s.split(" *-- *")) {
 							if (s.endsWith(PDF_closeRTL)) {
-								if (! item.startsWith(RTE_openRTL))
-									item = RTE_openRTL + item;
+								if (! item.startsWith(RLE_openRTL))
+									item = RLE_openRTL + item;
 								if (! item.endsWith(PDF_closeRTL))
 									item += PDF_closeRTL;
 							}

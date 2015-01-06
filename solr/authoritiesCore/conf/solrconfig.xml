@@ -449,7 +449,7 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,marcId,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
       </str>
       <str name="df">heading</str>
       <str name="sort">heading asc</str>
@@ -466,7 +466,7 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,marcId,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
       </str>
       <str name="df">heading</str>
       <str name="sort">heading asc</str>
@@ -483,7 +483,7 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,marcId,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,seeAlso,headingTypeDesc,mainEntry,notes
       </str>
       <str name="df">heading</str>
       <str name="sort">heading desc</str>

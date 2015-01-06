@@ -5,7 +5,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.i
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
@@ -292,7 +292,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 							if ((vernMode == VernMode.COMBINED) || (vernMode == VernMode.SINGULAR)) {
 								fieldmap.get(solrFieldName).addValue(s880+" / " + sMain, 1.0f);
 							} else if (vernMode == VernMode.ADAPTIVE) {
-								if (s880.length() <= (12 + RTE_openRTL.length() + PDF_closeRTL.length())) {
+								if (s880.length() <= (12 + RLE_openRTL.length() + PDF_closeRTL.length())) {
 									fieldmap.get(solrFieldName).addValue(s880+" / " + sMain, 1.0f);
 								} else {
 									fieldmap.get(solrFieldName).addValue(s880, 1.0f);

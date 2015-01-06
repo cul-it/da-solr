@@ -21,9 +21,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public class ResultSetUtilities {
 	
-//	public static String RTE = "RTE";
-//	public static String PDF = "PDF";
-	public static String RTE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+//	public static String RLE = "RLE"; //\u202b - Begin Right-to-left Embedding
+//	public static String PDF = "PDF"; //\u202c - Pop(End) Directional Formatting
+	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
 	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
 
 	
