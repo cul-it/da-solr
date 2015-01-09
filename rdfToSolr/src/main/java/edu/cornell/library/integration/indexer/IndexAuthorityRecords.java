@@ -146,6 +146,7 @@ public class IndexAuthorityRecords {
 		} catch (SolrServerException e) {
 			System.out.println("Failed to query Solr. Attempt to reestablish connection. " + id);
 			boolean failed = true;
+			int failcount = 0;
 			while (failed)
 				try {
 					solr = new HttpSolrServer(config.getSolrUrl());
@@ -153,14 +154,18 @@ public class IndexAuthorityRecords {
 					failed = false;
 				} catch (SolrServerException ex) {
 					System.out.println(".");
+					if ( ++failcount > 100)
+						break;
 				}
 		}
-		Iterator<SolrDocument> i = docs.iterator();
 		SolrInputDocument inputDoc = null;
-		while (i.hasNext()) {
-			SolrDocument doc = i.next();
-			doc.remove("_version_");
-			inputDoc = ClientUtils.toSolrInputDocument(doc);
+		if (docs != null) {
+			Iterator<SolrDocument> i = docs.iterator();
+			while (i.hasNext()) {
+				SolrDocument doc = i.next();
+				doc.remove("_version_");
+				inputDoc = ClientUtils.toSolrInputDocument(doc);
+			}
 		}
 		
 		// finally, create new doc if not found.
