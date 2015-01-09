@@ -149,6 +149,7 @@ public class IndexAuthorityRecords {
 			int failcount = 0;
 			while (failed)
 				try {
+					solr.shutdown();
 					solr = new HttpSolrServer(config.getSolrUrl());
 					docs = solr.query(query).getResults();
 					failed = false;
