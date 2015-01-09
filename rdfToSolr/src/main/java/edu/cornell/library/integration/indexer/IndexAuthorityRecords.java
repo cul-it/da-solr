@@ -144,9 +144,16 @@ public class IndexAuthorityRecords {
 		try {
 			docs = solr.query(query).getResults();
 		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr. Attempt to reestablish connection.");
-			solr = new HttpSolrServer(config.getSolrUrl());
-			docs = solr.query(query).getResults();
+			System.out.println("Failed to query Solr. Attempt to reestablish connection. " + id);
+			boolean failed = true;
+			while (failed)
+				try {
+					solr = new HttpSolrServer(config.getSolrUrl());
+					docs = solr.query(query).getResults();
+					failed = false;
+				} catch (SolrServerException ex) {
+					System.out.println(".");
+				}
 		}
 		Iterator<SolrDocument> i = docs.iterator();
 		SolrInputDocument inputDoc = null;
