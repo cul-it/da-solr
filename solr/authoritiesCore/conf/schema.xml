@@ -199,7 +199,7 @@
 	<field name="recordCount" type="tint" indexed="false" stored="true" multiValued="false"/>
     <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
 
-    <-- internal use fields to aid index building -->
+    <!-- internal use fields to aid index building -->
     <field name="formTracings" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="headingVariations" type="string" indexed="false" stored="true" multiValued="false"/>
 
