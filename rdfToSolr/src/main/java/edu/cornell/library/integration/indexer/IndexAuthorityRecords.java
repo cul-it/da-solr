@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -29,6 +31,7 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 
 public class IndexAuthorityRecords {
 
@@ -36,6 +39,17 @@ public class IndexAuthorityRecords {
 	private DavService davService;
 	private SolrServer solr = null;
 	private MessageDigest md = null;
+	private Map<String,SolrInputDocument> docs = new HashMap<String,SolrInputDocument>();
+	
+	private final String PERSNAME = "Personal Name";
+	private final String CORPNAME = "Corporate Name";
+	private final String EVENT = "Event";
+	private final String GENHEAD = "General Heading";
+	private final String TOPIC = "Topical Term";
+	private final String GEONAME = "Geographic Name";
+	private final String CHRONTERM = "Chronological Term";
+	private final String GENRE = "Genre/Form Term";
+	private final String MEDIUM = "Medium of Performance";
 	
 	/**
 	 * @param args
@@ -69,13 +83,29 @@ public class IndexAuthorityRecords {
 			XMLInputFactory input_factory = XMLInputFactory.newInstance();
 			XMLStreamReader r  = 
 					input_factory.createXMLStreamReader(xmlstream);
-			processRecords(r);
+			try {
+				processRecords(r);
+			} catch (ConnectionClosedException e) {
+				System.out.println("Lost access to xml file read. Waiting 2 minutes, and will try again.\n");
+				try {
+				    Thread.sleep(120 /* s */ * 1000 /* ms/s */);
+				} catch(InterruptedException ex) {
+				    Thread.currentThread().interrupt();
+				}
+				System.out.println("Attempting to re-open xml file input.");
+				docs.clear();
+				xmlstream = davService.getFileAsInputStream(srcFile);
+				input_factory = XMLInputFactory.newInstance();
+				r  = input_factory.createXMLStreamReader(xmlstream);
+				processRecords(r);
+			}
 			xmlstream.close();
+			insertDocuments();
         }
 	}
 	
-	private SolrInputDocument getSolrDocument( String heading,String headingType, String headingTypeDesc ) throws SolrServerException {
-		String concat = heading + headingType + headingTypeDesc;
+	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, String headingTypeDesc ) throws SolrServerException {
+		String concat = headingSort + headingType + headingTypeDesc;
 		try {
 			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
@@ -99,8 +129,12 @@ public class IndexAuthorityRecords {
 			return null;
 		}
 		
+		// first check for existing doc in memory
+		if (docs.containsKey(id))
+			return docs.get(id);
+		
+		// then check for existing doc in Solr
 		if (solr == null) solr = new HttpSolrServer(config.getSolrUrl());
-	//	solr.setParser(new XMLResponseParser());
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery("id:"+id);
@@ -112,14 +146,15 @@ public class IndexAuthorityRecords {
 			doc.remove("_version_");
 			inputDoc = ClientUtils.toSolrInputDocument(doc);
 		}
+		
+		// finally, create new doc if not found.
 		if (inputDoc == null) {
 			inputDoc = new SolrInputDocument();
 			inputDoc.addField("heading", heading);
+			inputDoc.addField("headingSort", headingSort);
 			inputDoc.addField("headingType", headingType);
 			inputDoc.addField("headingTypeDesc", headingTypeDesc);
 			inputDoc.addField("id", id);
-//		} else {
-//			System.out.println("existing record found for "+id+" ("+heading+")");
 		}
 		return inputDoc;
 	}
@@ -130,15 +165,14 @@ public class IndexAuthorityRecords {
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
-					Collection<SolrInputDocument> solrdocs = createSolrDocsFromAuthority(rec);
-					insertDocuments(solrdocs);
+					createSolrDocsFromAuthority(rec);
 				}
 		}
 	}
 	
-	private Collection<SolrInputDocument> createSolrDocsFromAuthority( MarcRecord rec ) throws SolrServerException {
-		Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+	private void createSolrDocsFromAuthority( MarcRecord rec ) throws SolrServerException {
 		String heading = null;
+		String headingSort = null;
 		String headingType = null;
 		String headingTypeDesc = null;
 		Collection<Relation> sees = new HashSet<Relation>();
@@ -176,59 +210,55 @@ public class IndexAuthorityRecords {
 						}
 					}
 					if (f.tag.equals("100")) {
-						headingTypeDesc = "Personal Name";
+						headingTypeDesc = PERSNAME;
 					} else if (f.tag.equals("110")) {
-						headingTypeDesc = "Corporate Name";
+						headingTypeDesc = CORPNAME;
 					} else {
-						headingTypeDesc = "Event";
+						headingTypeDesc = EVENT;
 					}
 				}
 				if (f.tag.equals("130")) {
 					headingType = "authortitle";
-					headingTypeDesc = "General Heading";
+					headingTypeDesc = GENHEAD;
 				}
 				if (f.tag.equals("150")) {
 					headingType = "subject";
-					headingTypeDesc = "Topical Term";
+					headingTypeDesc = TOPIC;
 				} else if (f.tag.equals("151")) {
 					headingType = "subject";
-					headingTypeDesc = "Geographic Name";
+					headingTypeDesc = GEONAME;
 				} else if (f.tag.equals("148")) {
 					headingType = "subject";
-					headingTypeDesc = "Chronological Term";
+					headingTypeDesc = CHRONTERM;
 				} else if (f.tag.equals("155")) {
 					headingType = "subject";
-					headingTypeDesc = "Genre/Form Term";
+					headingTypeDesc = GENRE;
 				} else if (f.tag.equals("162")) {
 					headingType = "subject";
-					headingTypeDesc = "Medium of Performance Term";
-				} else if (f.tag.equals("180")) {
-					headingType = "subject";
-					headingTypeDesc = "General Subdivision";
-				} else if (f.tag.equals("181")) {
-					headingType = "subject";
-					headingTypeDesc = "Geographic Subdivision";
-				} else if (f.tag.equals("182")) {
-					headingType = "subject";
-					headingTypeDesc = "Chronological Subdivision";
-				} else if (f.tag.equals("185")) {
-					headingType = "subject";
-					headingTypeDesc = "Genre/Form Subdivision";
+					headingTypeDesc = MEDIUM;
 				}
+				// If the record is for a subdivision (main entry >=180),
+				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatValue(""));
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
 				Relation r = determineRelationship(f);
-				expectedNotes.addAll(r.expectedNotes);
-				r.heading = f.concatValue("iw");
-				sees.add(r);
+				if (r != null) {
+					expectedNotes.addAll(r.expectedNotes);
+					r.heading = buildXRefHeading(f,heading);
+					r.headingSort = getSortHeading( r.heading );
+					sees.add(r);
+				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
 				Relation r = determineRelationship(f);
-				expectedNotes.addAll(r.expectedNotes);
-				r.heading = f.concatValue("iw");
-				seeAlsos.add(r);
+				if (r != null) {
+					expectedNotes.addAll(r.expectedNotes);
+					r.heading = buildXRefHeading(f,heading);
+					r.headingSort = getSortHeading( r.heading );
+					seeAlsos.add(r);
+				}
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
@@ -261,27 +291,36 @@ public class IndexAuthorityRecords {
 		}
 		if (heading == null || headingType == null || headingTypeDesc == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
-			return docs; // empty collection
+			return;
 		}
+		headingSort = getSortHeading(heading);
 		
-		SolrInputDocument main = getSolrDocument(heading, headingType, headingTypeDesc);
+		
+		SolrInputDocument main = getSolrDocument(heading, headingSort, headingType, headingTypeDesc);
 		main.addField("marcId",rec.id,1.0f);
 		//Never setting mainEntry to false, so if mainEntry is populated it's already true.
 		if ( ! main.containsKey("mainEntry")) 
 			main.addField("mainEntry", true, 1.0f);
 		for (String note : notes)
 			main.addField("notes",note,1.0f);
-		docs.add(main);
+		for (Relation r : sees )
+			if ( headingType.equals("subject") ||
+					(r.applicableContexts.contains(Applicable.NAME)))
+				main.addField("alternateForm",r.heading,1.0f);
+		saveDoc(main);
 		
 		if (headingType.equals("author")) {
-			main = getSolrDocument(heading, "subject", headingTypeDesc);
+			main = getSolrDocument(heading, headingSort, "subject", headingTypeDesc);
 			main.addField("marcId",rec.id,1.0f);
 			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
 			if ( ! main.containsKey("mainEntry")) 
 				main.addField("mainEntry", true, 1.0f);
 			for (String note : notes)
 				main.addField("notes",note,1.0f);
-			docs.add(main);
+			for (Relation r : sees )
+				if (r.applicableContexts.contains(Applicable.SUBJECT))
+					main.addField("alternateForm",r.heading,1.0f);
+			saveDoc(main);
 		}
 		
 		expectedNotes.removeAll(foundNotes);
@@ -290,39 +329,74 @@ public class IndexAuthorityRecords {
 
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
+			if ( r.headingSort.equals(headingSort)) continue;
 			if (headingType.equals("author")) {
 				if (r.applicableContexts.contains(Applicable.NAME))
-					docs.add(crossRef("preferedForm",r,heading,"author",headingTypeDesc,rec.id));
+					saveDoc(crossRef("preferedForm",r,heading,"author",r.headingTypeDesc,rec.id));
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					docs.add(crossRef("preferedForm",r,heading,"subject",headingTypeDesc,rec.id));
+					saveDoc(crossRef("preferedForm",r,heading,"subject",r.headingTypeDesc,rec.id));
 			} else {
-				docs.add(crossRef("preferedForm",r,heading,headingType,headingTypeDesc,rec.id));
+				saveDoc(crossRef("preferedForm",r,heading,headingType,r.headingTypeDesc,rec.id));
 			}
 		}
 		
 		for (Relation r: seeAlsos) {
 			if ( ! r.display) continue;
+			if ( r.headingSort.equals(headingSort)) continue;
 			if (headingType.equals("author")) {
 				if (r.applicableContexts.contains(Applicable.NAME))
-					docs.add(crossRef("seeAlso",r,heading,"author",headingTypeDesc,rec.id));
+					saveDoc(crossRef("seeAlso",r,heading,"author",r.headingTypeDesc,rec.id));
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					docs.add(crossRef("seeAlso",r,heading,"subject",headingTypeDesc,rec.id));
+					saveDoc(crossRef("seeAlso",r,heading,"subject",r.headingTypeDesc,rec.id));
 			} else {
-				docs.add(crossRef("seeAlso",r,heading,headingType,headingTypeDesc,rec.id));
+				saveDoc(crossRef("seeAlso",r,heading,headingType,r.headingTypeDesc,rec.id));
 			}
 		}
 		
-		return docs;
+		return;
 	}
 	
-	SolrInputDocument crossRef(String crossRefType, Relation r,
+	private void saveDoc( SolrInputDocument doc ) {
+		String id = doc.getFieldValue("id").toString();
+		docs.put(id, doc);
+	}
+	
+	private String getSortHeading(String heading) {
+		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
+		// first so hyphenated words will sort as though the space were present.
+		String sortHeading = removeAllPunctuation(heading.
+				replaceAll("\\p{InCombiningDiacritics}+", "").
+				toLowerCase().
+				replaceAll("-", " "));
+		return sortHeading.trim();
+	}
+	
+	private String buildXRefHeading( DataField f , String mainHeading ) {
+		String heading = f.concatValue("iw");
+		if (heading.length() > 4) return heading;
+		boolean upperCase = true;
+		for (char c : heading.toCharArray()) {
+			if ( ! Character.isUpperCase(c)) {
+				upperCase = false;
+				break;
+			}
+		}
+		if (upperCase)
+			return heading + " (" + mainHeading + ")";
+		else
+			return heading;
+
+	}
+	
+	private SolrInputDocument crossRef(String crossRefType, Relation r,
 			String heading, String headingType, String headingTypeDesc, String marcId) throws SolrServerException {
-		SolrInputDocument redir = getSolrDocument(r.heading, headingType, headingTypeDesc);
+		SolrInputDocument redir = getSolrDocument(r.heading,r.headingSort, headingType, headingTypeDesc);
 		if (r.relationship == null)
 			redir.addField(crossRefType, heading,1.0f);
 		else 
 			redir.addField(crossRefType, heading + "|" + r.relationship, 1.0f);
 		redir.addField("marcId",marcId,1.0f);
+		redir.addField("formTracings", heading, 1.0f);
 		return redir;
 		
 	}
@@ -333,6 +407,28 @@ public class IndexAuthorityRecords {
 		// from tracing.
 		Relation r = new Relation();
 		boolean hasW = false;
+		
+		if (f.tag.endsWith("00"))
+			r.headingTypeDesc = PERSNAME;
+		else if (f.tag.endsWith("10")) 
+			r.headingTypeDesc = CORPNAME;
+		else if (f.tag.endsWith("11"))
+			r.headingTypeDesc = EVENT;
+		else if (f.tag.endsWith("30"))
+			r.headingTypeDesc = GENHEAD;
+		else if (f.tag.endsWith("50"))
+			r.headingTypeDesc = TOPIC;
+		else if (f.tag.endsWith("48"))
+			r.headingTypeDesc = CHRONTERM;
+		else if (f.tag.endsWith("51"))
+			r.headingTypeDesc = GEONAME;
+		else if (f.tag.endsWith("55"))
+			r.headingTypeDesc = GENRE;
+		else if (f.tag.endsWith("62"))
+			r.headingTypeDesc = MEDIUM;
+		else return null;
+		
+		
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('w')) {
 				hasW = true;
@@ -430,6 +526,8 @@ public class IndexAuthorityRecords {
 	private static class Relation {	
 		public String relationship = null;
 		public String heading = null;
+		public String headingSort = null;
+		public String headingTypeDesc = null;
 		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
@@ -439,13 +537,12 @@ public class IndexAuthorityRecords {
 	}
 
 	
-	private void insertDocuments( Collection<SolrInputDocument> docs) throws IOException, SolrServerException {
+	private void insertDocuments() throws IOException, SolrServerException {
 		if (solr == null) solr = new HttpSolrServer(config.getSolrUrl());
-		for (SolrInputDocument doc : docs) {
-			solr.deleteById((String)doc.getFieldValue("id"));
-			solr.add(doc);
-		}
+		solr.deleteById(new ArrayList<String>(docs.keySet()));
+		solr.add(docs.values());
 		solr.commit();
+		docs.clear();
 	}
 
 	
