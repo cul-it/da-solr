@@ -539,9 +539,10 @@ public class IndexAuthorityRecords {
 	
 	private void insertDocuments() throws IOException, SolrServerException {
 //		if (solr == null) 
-			solr = new HttpSolrServer(config.getSolrUrl());
 //		if (solr.ping().)
-		System.out.println("committing "+docs.size()+" to Solr.");
+		System.out.println("committing "+docs.size()+" records to Solr.");
+		System.out.flush();
+		solr = new HttpSolrServer(config.getSolrUrl());
 		solr.deleteById(new ArrayList<String>(docs.keySet()));
 		solr.add(docs.values());
 		solr.commit();
