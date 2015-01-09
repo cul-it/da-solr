@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.NoRouteToHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -138,7 +140,14 @@ public class IndexAuthorityRecords {
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery("id:"+id);
-		SolrDocumentList docs = solr.query(query).getResults();
+		SolrDocumentList docs = null;
+		try {
+			docs = solr.query(query).getResults();
+		} catch (SolrServerException e) {
+			System.out.println("Failed to query Solr. Attempt to reestablish connection.");
+			solr = new HttpSolrServer(config.getSolrUrl());
+			docs = solr.query(query).getResults();
+		}
 		Iterator<SolrDocument> i = docs.iterator();
 		SolrInputDocument inputDoc = null;
 		while (i.hasNext()) {
