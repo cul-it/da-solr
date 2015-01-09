@@ -1,9 +1,11 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.NoRouteToHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -23,7 +25,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -32,8 +33,6 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 
 public class IndexAuthorityRecords {
 
@@ -106,8 +105,7 @@ public class IndexAuthorityRecords {
         }
 	}
 	
-	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, String headingTypeDesc ) throws SolrServerException {
-		String concat = headingSort + headingType + headingTypeDesc;
+	private String md5Checksum(String s) {
 		try {
 			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
@@ -115,21 +113,27 @@ public class IndexAuthorityRecords {
 			e.printStackTrace();
 			return null;
 		}
-		String id = null;
 		try {
-			md.update(concat.getBytes("UTF-8") );
+			md.update(s.getBytes("UTF-8") );
 			byte[] digest = md.digest();
 
 			// Create Hex String
 	        StringBuffer hexString = new StringBuffer();
 	        for (int i=0; i<digest.length; i++)
 	            hexString.append(Integer.toHexString(0xFF & digest[i]));
-	        id = hexString.toString();
+	        return hexString.toString();
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UTF-8 is dead!!");
 			e.printStackTrace();
 			return null;
 		}
+
+	}
+	
+	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, String headingTypeDesc ) throws SolrServerException {
+
+		// calculate id for Solr document
+		String id = md5Checksum(headingSort + headingType + headingTypeDesc);
 		
 		// first check for existing doc in memory
 		if (docs.containsKey(id))
@@ -140,9 +144,9 @@ public class IndexAuthorityRecords {
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery("id:"+id);
-		SolrDocumentList docs = null;
+		SolrDocumentList resultDocs = null;
 		try {
-			docs = solr.query(query).getResults();
+			resultDocs = solr.query(query).getResults();
 		} catch (SolrServerException e) {
 			System.out.println("Failed to query Solr. Attempt to reestablish connection. " + id);
 			boolean failed = true;
@@ -151,17 +155,19 @@ public class IndexAuthorityRecords {
 				try {
 					solr.shutdown();
 					solr = new HttpSolrServer(config.getSolrUrl());
-					docs = solr.query(query).getResults();
+					SolrQuery query2 = new SolrQuery();
+					query2.setQuery("id:"+id);
+					resultDocs = solr.query(query2).getResults();
 					failed = false;
 				} catch (SolrServerException ex) {
 					System.out.println(".");
-					if ( ++failcount > 100)
-						break;
+					if ( ++failcount > 10)
+						System.exit(1);;
 				}
 		}
 		SolrInputDocument inputDoc = null;
-		if (docs != null) {
-			Iterator<SolrDocument> i = docs.iterator();
+		if (resultDocs != null) {
+			Iterator<SolrDocument> i = resultDocs.iterator();
 			while (i.hasNext()) {
 				SolrDocument doc = i.next();
 				doc.remove("_version_");
