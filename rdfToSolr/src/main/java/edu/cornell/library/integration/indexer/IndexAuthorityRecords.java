@@ -6,6 +6,8 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -21,10 +23,12 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -61,6 +65,15 @@ public class IndexAuthorityRecords {
 		requiredArgs.add("xmlDir");
 //		requiredArgs.add("blacklightSolrUrl");
 		requiredArgs.add("solrUrl");
+		/*
+		try {
+			ServerSocketChannel ssc = ServerSocketChannel.open();
+			ssc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+		} catch (IOException e){
+			
+		}
+	      */      
+	            
 		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
 		try {
   //  	   IndexAuthorityRecords iar =
@@ -77,6 +90,10 @@ public class IndexAuthorityRecords {
         this.davService = DavServiceFactory.getDavService(config);
         List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getXmlDir());
         Iterator<String> i = authXmlFiles.iterator();
+        
+		solr = new HttpSolrServer(config.getSolrUrl());
+
+		
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
@@ -140,30 +157,15 @@ public class IndexAuthorityRecords {
 			return docs.get(id);
 		
 		// then check for existing doc in Solr
-		if (solr == null) solr = new HttpSolrServer(config.getSolrUrl());
-		
 		SolrQuery query = new SolrQuery();
 		query.setQuery("id:"+id);
 		SolrDocumentList resultDocs = null;
 		try {
-			resultDocs = solr.query(query).getResults();
+			QueryResponse qr = solr.query(query);
+			resultDocs = qr.getResults();
 		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr. Attempt to reestablish connection. " + id);
-			boolean failed = true;
-			int failcount = 0;
-			while (failed)
-				try {
-					solr.shutdown();
-					solr = new HttpSolrServer(config.getSolrUrl());
-					SolrQuery query2 = new SolrQuery();
-					query2.setQuery("id:"+id);
-					resultDocs = solr.query(query2).getResults();
-					failed = false;
-				} catch (SolrServerException ex) {
-					System.out.println(".");
-					if ( ++failcount > 10)
-						System.exit(1);;
-				}
+			System.out.println("Failed to query Solr." + id);
+			System.exit(1);
 		}
 		SolrInputDocument inputDoc = null;
 		if (resultDocs != null) {
@@ -566,11 +568,7 @@ public class IndexAuthorityRecords {
 
 	
 	private void insertDocuments() throws IOException, SolrServerException {
-//		if (solr == null) 
-//		if (solr.ping().)
 		System.out.println("committing "+docs.size()+" records to Solr.");
-		System.out.flush();
-		solr = new HttpSolrServer(config.getSolrUrl());
 		solr.deleteById(new ArrayList<String>(docs.keySet()));
 		solr.add(docs.values());
 		solr.commit();
