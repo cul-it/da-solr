@@ -176,10 +176,11 @@
 
 
     <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer type="query">
+      <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>

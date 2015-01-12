@@ -274,12 +274,10 @@ public class IndexAuthorityRecords {
 					r.heading = buildXRefHeading(f,heading);
 					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
-					boolean duplicate = false;
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
-							duplicate = true;
-					if ( ! duplicate)
-						sees.add(r);
+							r.display = false;
+					sees.add(r);
 				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
@@ -289,12 +287,10 @@ public class IndexAuthorityRecords {
 					r.heading = buildXRefHeading(f,heading);
 					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
-					boolean duplicate = false;
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
-							duplicate = true;
-					if ( ! duplicate)
-						seeAlsos.add(r);
+							r.display = false;
+					seeAlsos.add(r);
 				}
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
@@ -344,7 +340,7 @@ public class IndexAuthorityRecords {
 			if ( headingType.equals("subject") ||
 					(r.applicableContexts.contains(Applicable.NAME)))
 				main.addField("alternateForm",r.headingOrig,1.0f);
-		saveDoc(main);
+		fileDoc(main);
 		
 		if (headingType.equals("author")) {
 			main = getSolrDocument(heading, headingSort, "subject", headingTypeDesc);
@@ -360,7 +356,7 @@ public class IndexAuthorityRecords {
 			for (Relation r : sees )
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
 					main.addField("alternateForm",r.headingOrig,1.0f);
-			saveDoc(main);
+			fileDoc(main);
 		}
 		
 		expectedNotes.removeAll(foundNotes);
@@ -372,11 +368,11 @@ public class IndexAuthorityRecords {
 			if ( r.headingSort.equals(headingSort)) continue;
 			if (headingType.equals("author")) {
 				if (r.applicableContexts.contains(Applicable.NAME))
-					saveDoc(crossRef("preferedForm",r,heading,"author",r.headingTypeDesc,rec.id));
+					fileDoc(crossRef("preferedForm",r,heading,"author",r.headingTypeDesc,rec.id));
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					saveDoc(crossRef("preferedForm",r,heading,"subject",r.headingTypeDesc,rec.id));
+					fileDoc(crossRef("preferedForm",r,heading,"subject",r.headingTypeDesc,rec.id));
 			} else {
-				saveDoc(crossRef("preferedForm",r,heading,headingType,r.headingTypeDesc,rec.id));
+				fileDoc(crossRef("preferedForm",r,heading,headingType,r.headingTypeDesc,rec.id));
 			}
 		}
 		
@@ -385,18 +381,18 @@ public class IndexAuthorityRecords {
 			if ( r.headingSort.equals(headingSort)) continue;
 			if (headingType.equals("author")) {
 				if (r.applicableContexts.contains(Applicable.NAME))
-					saveDoc(crossRef("seeAlso",r,heading,"author",r.headingTypeDesc,rec.id));
+					fileDoc(crossRef("seeAlso",r,heading,"author",r.headingTypeDesc,rec.id));
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					saveDoc(crossRef("seeAlso",r,heading,"subject",r.headingTypeDesc,rec.id));
+					fileDoc(crossRef("seeAlso",r,heading,"subject",r.headingTypeDesc,rec.id));
 			} else {
-				saveDoc(crossRef("seeAlso",r,heading,headingType,r.headingTypeDesc,rec.id));
+				fileDoc(crossRef("seeAlso",r,heading,headingType,r.headingTypeDesc,rec.id));
 			}
 		}
 		
 		return;
 	}
 	
-	private void saveDoc( SolrInputDocument doc ) {
+	private void fileDoc( SolrInputDocument doc ) {
 		String id = doc.getFieldValue("id").toString();
 		docs.put(id, doc);
 	}
@@ -440,7 +436,7 @@ public class IndexAuthorityRecords {
 		else 
 			redir.addField(crossRefType, heading + "|" + r.relationship, 1.0f);
 		redir.addField("marcId",marcId,1.0f);
-		redir.addField("formTracings", heading, 1.0f);
+		redir.addField("formTracings", getSortHeading(heading), 1.0f);
 		return redir;
 		
 	}
