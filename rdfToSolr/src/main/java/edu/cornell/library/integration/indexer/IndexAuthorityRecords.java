@@ -6,8 +6,6 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.StandardSocketOptions;
-import java.nio.channels.ServerSocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -40,7 +37,6 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class IndexAuthorityRecords {
 
-	private VoyagerToSolrConfiguration config;
 	private DavService davService;
 	private SolrServer solr = null;
 	private MessageDigest md = null;
@@ -86,7 +82,6 @@ public class IndexAuthorityRecords {
 	
 	
 	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
-		this.config = config;
         this.davService = DavServiceFactory.getDavService(config);
         List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getXmlDir());
         Iterator<String> i = authXmlFiles.iterator();
