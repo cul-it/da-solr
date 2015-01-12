@@ -333,7 +333,7 @@ public class IndexAuthorityRecords {
 		for (Relation r : sees )
 			if ( headingType.equals("subject") ||
 					(r.applicableContexts.contains(Applicable.NAME)))
-				main.addField("alternateForm",r.heading,1.0f);
+				main.addField("alternateForm",r.headingOrig,1.0f);
 		saveDoc(main);
 		
 		if (headingType.equals("author")) {
@@ -401,13 +401,13 @@ public class IndexAuthorityRecords {
 		return sortHeading.trim();
 	}
 	
-	/* If there are no more than 4 non-period characters in the heading,
+	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
 		String heading = f.concatValue("iw");
 		String headingWOPeriods = heading.replaceAll("\\.", "");
-		if (headingWOPeriods.length() > 4) return heading;
+		if (headingWOPeriods.length() > 5) return heading;
 		boolean upperCase = true;
 		for (char c : headingWOPeriods.toCharArray()) {
 			if ( ! Character.isUpperCase(c)) {
