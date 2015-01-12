@@ -290,7 +290,7 @@ public class IndexAuthorityRecords {
 					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
 					boolean duplicate = false;
-					for (Relation s : seesAlsos) 
+					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
 							duplicate = true;
 					if ( ! duplicate)
