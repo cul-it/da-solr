@@ -274,7 +274,12 @@ public class IndexAuthorityRecords {
 					r.heading = buildXRefHeading(f,heading);
 					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
-					sees.add(r);
+					boolean duplicate = false;
+					for (Relation s : sees) 
+						if (s.headingSort.equals(r.headingSort))
+							duplicate = true;
+					if ( ! duplicate)
+						sees.add(r);
 				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
@@ -284,7 +289,12 @@ public class IndexAuthorityRecords {
 					r.heading = buildXRefHeading(f,heading);
 					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
-					seeAlsos.add(r);
+					boolean duplicate = false;
+					for (Relation s : seesAlsos) 
+						if (s.headingSort.equals(r.headingSort))
+							duplicate = true;
+					if ( ! duplicate)
+						seeAlsos.add(r);
 				}
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
