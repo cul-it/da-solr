@@ -272,6 +272,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
+					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
 					sees.add(r);
 				}
@@ -281,6 +282,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
+					r.headingOrig = f.concatValue("iw");
 					r.headingSort = getSortHeading( r.heading );
 					seeAlsos.add(r);
 				}
@@ -338,13 +340,16 @@ public class IndexAuthorityRecords {
 			main = getSolrDocument(heading, headingSort, "subject", headingTypeDesc);
 			main.addField("marcId",rec.id,1.0f);
 			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
-			if ( ! main.containsKey("mainEntry")) 
+			if ( ! main.containsKey("mainEntry")) {
 				main.addField("mainEntry", true, 1.0f);
+				main.removeField("heading");
+				main.addField("heading", heading, 1.0f);
+			}
 			for (String note : notes)
 				main.addField("notes",note,1.0f);
 			for (Relation r : sees )
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					main.addField("alternateForm",r.heading,1.0f);
+					main.addField("alternateForm",r.headingOrig,1.0f);
 			saveDoc(main);
 		}
 		
@@ -396,11 +401,15 @@ public class IndexAuthorityRecords {
 		return sortHeading.trim();
 	}
 	
+	/* If there are no more than 4 non-period characters in the heading,
+	 * and all of those are capital letters, then this is an acronym.
+	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
 		String heading = f.concatValue("iw");
-		if (heading.length() > 4) return heading;
+		String headingWOPeriods = heading.replaceAll("\\.", "");
+		if (headingWOPeriods.length() > 4) return heading;
 		boolean upperCase = true;
-		for (char c : heading.toCharArray()) {
+		for (char c : headingWOPeriods.toCharArray()) {
 			if ( ! Character.isUpperCase(c)) {
 				upperCase = false;
 				break;
@@ -551,6 +560,8 @@ public class IndexAuthorityRecords {
 	private static class Relation {	
 		public String relationship = null;
 		public String heading = null;
+		public String headingOrig = null; // access to original heading before
+		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
 		public String headingTypeDesc = null;
 		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
