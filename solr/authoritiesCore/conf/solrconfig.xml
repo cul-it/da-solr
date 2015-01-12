@@ -456,6 +456,7 @@
       <str name="rows">20</str>
       <str name="wt">ruby</str>
       <str name="q">[$from TO *]</str>
+      <str name="indent">true</str>
     </lst>
     <lst name="appends">
       <str name="fq">headingType:subject</str>
@@ -473,6 +474,7 @@
       <str name="rows">20</str>
       <str name="wt">ruby</str>
       <str name="q">[$from TO *]</str>
+      <str name="indent">true</str>
     </lst>
     <lst name="appends">
       <str name="fq">headingType:author</str>
@@ -490,6 +492,7 @@
       <str name="rows">20</str>
       <str name="wt">ruby</str>
       <str name="q">[* TO $to}</str>
+      <str name="indent">true</str>
     </lst>
     <lst name="appends">
       <str name="fq">headingType:author</str>
