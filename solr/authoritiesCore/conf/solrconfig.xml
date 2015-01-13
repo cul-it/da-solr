@@ -455,7 +455,7 @@
       <str name="sort">headingSort asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[$from TO *]</str>
+      <str name="q">["$from" TO *]</str>
       <str name="indent">true</str>
     </lst>
     <lst name="appends">
@@ -473,7 +473,7 @@
       <str name="sort">headingSort desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[* TO $to}</str>
+      <str name="q">[* TO "$to"}</str>
       <str name="indent">true</str>
     </lst>
     <lst name="appends">
@@ -492,7 +492,7 @@
       <str name="sort">headingSort asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[$from TO *]</str>
+      <str name="q">["$from" TO *]</str>
       <str name="indent">true</str>
     </lst>
     <lst name="appends">
@@ -510,7 +510,7 @@
       <str name="sort">headingSort desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[* TO $to}</str>
+      <str name="q">[* TO "$to"}</str>
       <str name="indent">true</str>
     </lst>
     <lst name="appends">
