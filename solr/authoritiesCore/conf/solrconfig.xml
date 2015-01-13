@@ -462,6 +462,25 @@
       <str name="fq">headingType:subject</str>
     </lst>
   </requestHandler>
+    <requestHandler name="/subjectsR" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
+      </str>
+      <str name="df">headingSort</str>
+      <str name="sort">headingSort desc</str>
+      <str name="rows">20</str>
+      <str name="wt">ruby</str>
+      <str name="q">[* TO $to}</str>
+      <str name="indent">true</str>
+    </lst>
+    <lst name="appends">
+      <str name="fq">headingType:subject</str>
+    </lst>
+  </requestHandler>
+  
   <requestHandler name="/authors" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
