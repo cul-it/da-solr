@@ -178,7 +178,7 @@
     <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\.\p{Punct}¿¡「」]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}" replacement=""/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
