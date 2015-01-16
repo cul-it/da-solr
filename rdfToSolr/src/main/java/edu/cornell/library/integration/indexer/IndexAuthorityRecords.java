@@ -340,6 +340,9 @@ public class IndexAuthorityRecords {
 			if ( headingType.equals("subject") ||
 					(r.applicableContexts.contains(Applicable.NAME)))
 				main.addField("alternateForm",r.headingOrig,1.0f);
+		for (Relation r : seeAlsos)
+			if (r.reciprocalRelationship != null)
+				directRef("seeAlso",r,main);
 		fileDoc(main);
 		
 		if (headingType.equals("author")) {
@@ -356,6 +359,9 @@ public class IndexAuthorityRecords {
 			for (Relation r : sees )
 				if (r.applicableContexts.contains(Applicable.SUBJECT))
 					main.addField("alternateForm",r.headingOrig,1.0f);
+			for (Relation r : seeAlsos)
+				if (r.reciprocalRelationship != null)
+					directRef("seeAlso",r,main);
 			fileDoc(main);
 		}
 		
@@ -439,6 +445,14 @@ public class IndexAuthorityRecords {
 		redir.addField("formTracings", getSortHeading(heading), 1.0f);
 		return redir;
 		
+	}
+	private void directRef(String crossRefType, Relation r,
+			SolrInputDocument doc) throws SolrServerException {
+		if (r.reciprocalRelationship == null)
+			doc.addField(crossRefType, r.heading,1.0f);
+		else 
+			doc.addField(crossRefType, r.heading + "|" + r.reciprocalRelationship, 1.0f);
+		doc.addField("formTracings", getSortHeading(r.heading), 1.0f);
 	}
 	
 	private Relation determineRelationship( DataField f ) {
@@ -552,7 +566,34 @@ public class IndexAuthorityRecords {
 					}
 				}
 			} else if (sf.code.equals('i')) {
-				r.relationship = removeTrailingPunctuation(sf.value,": ");
+				String rel = removeTrailingPunctuation(sf.value,": ").trim();
+				if (rel.equalsIgnoreCase("alternate identity"))
+					r.relationship = "Real Identity";
+				else if (rel.equalsIgnoreCase("real identity"))
+					r.relationship = "Alternate Identity";
+				else if (rel.equalsIgnoreCase("family member"))
+					r.relationship = "Family";
+				else if (rel.equalsIgnoreCase("family"))
+					r.relationship = "Family Member";
+				else if (rel.equalsIgnoreCase("progenitor"))
+					r.relationship = "Descendants";
+				else if (rel.equalsIgnoreCase("descendants"))
+					r.relationship = "Progenitor";
+				else if (rel.equalsIgnoreCase("employee"))
+					r.relationship = "Employer";
+				else if (rel.equalsIgnoreCase("employer")) {
+					r.relationship = "Employee";
+					r.reciprocalRelationship = "Employer";
+				// The reciprocal relationship to descendant family is missing
+				// from the RDA spec (appendix K), so it's unlikely that
+				// "Progenitive Family" will actually appear. Of the three
+				// adjective forms of "Progenitor" I found in the OED (progenital,
+				// progenitive, progenitorial), progenitive has the highest level
+				// of actual use according to my Google NGrams search
+				} else if (rel.equalsIgnoreCase("Descendant Family")) 
+					r.relationship = "Progenitive Family";
+				else if (rel.equalsIgnoreCase("Progenitive Family"))
+					r.relationship = "Descendant Family";
 			}
 		}
 		if ( ! hasW ) {
@@ -565,6 +606,7 @@ public class IndexAuthorityRecords {
 	
 	private static class Relation {	
 		public String relationship = null;
+		public String reciprocalRelationship = null;
 		public String heading = null;
 		public String headingOrig = null; // access to original heading before
 		                                  // parenthesized main heading optionally added.

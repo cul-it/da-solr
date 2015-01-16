@@ -178,7 +178,7 @@
     <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -211,7 +211,8 @@
 	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
 
-	<field name="recordCount" type="tint" indexed="false" stored="true" multiValued="false"/>
+	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
+	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
     <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
 
     <!-- internal use fields to aid index building -->

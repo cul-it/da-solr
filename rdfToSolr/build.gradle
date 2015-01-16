@@ -119,6 +119,13 @@ task (indexAuthority, dependsOn: 'assemble', type: JavaExec){
    maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
+task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
 
 
 task libJar(type: Jar){
