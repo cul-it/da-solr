@@ -163,7 +163,33 @@ public class IndexHeadings {
 				inputDoc = ClientUtils.toSolrInputDocument(doc);
 			}
 		}
+
+		String id2 = md5Checksum(headingSort + headingType + CORPNAME);
+
+		// first check for existing doc in memory
+		if (docs.containsKey(id2))
+			return docs.get(id2);
 		
+		// then check for existing doc in Solr
+		query = new SolrQuery();
+		query.setQuery("id:"+id2);
+		resultDocs = null;
+		try {
+			QueryResponse qr = solr.query(query);
+			resultDocs = qr.getResults();
+		} catch (SolrServerException e) {
+			System.out.println("Failed to query Solr." + id);
+			System.exit(1);
+		}
+		if (resultDocs != null) {
+			Iterator<SolrDocument> i = resultDocs.iterator();
+			while (i.hasNext()) {
+				SolrDocument doc = i.next();
+				doc.remove("_version_");
+				inputDoc = ClientUtils.toSolrInputDocument(doc);
+			}
+		}
+
 		
 		// finally, create new doc if not found.
 		if (inputDoc == null) {
