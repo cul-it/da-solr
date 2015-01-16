@@ -86,23 +86,19 @@ public class IndexHeadings {
 		FF: while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
-				System.out.println(event + r.getLocalName());
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name")) {
 							String name = r.getAttributeValue(i);
-							System.out.println(name);
-							if (name.equals("terms")) continue FF;
+							if (name.equals("terms")) break FF;
 						}
 			}
 		}
-		System.out.println("****");
 		
 		// process actual results
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
-				System.out.println(event + r.getLocalName());
 				if (r.getLocalName().equals("int")) {
 					String name = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
