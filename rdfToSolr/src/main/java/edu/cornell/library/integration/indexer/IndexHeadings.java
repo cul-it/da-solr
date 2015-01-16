@@ -71,7 +71,7 @@ public class IndexHeadings {
         
 		solr = new HttpSolrServer(config.getSolrUrl());
 		
-		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=10_000_000");
+		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=10000000");
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		InputStream in = queryUrl.openStream();
 		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
