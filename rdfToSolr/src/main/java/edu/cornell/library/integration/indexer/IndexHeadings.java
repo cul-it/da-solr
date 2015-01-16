@@ -85,21 +85,22 @@ public class IndexHeadings {
 		// fast forward to response body
 		FF: while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
-			System.out.println(event + r.getLocalName());
-			if (event.equals("START_ELEMENT"))
+			if (event.equals("START_ELEMENT")) {
+				System.out.println(event + r.getLocalName());
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
 							if (r.getAttributeValue(i).equals("terms"))
 								continue FF;
+			}
 		}
 		System.out.println("****");
 		
 		// process actual results
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
-			System.out.println(event + r.getLocalName());
-			if (event.equals("START_ELEMENT"))
+			if (event.equals("START_ELEMENT")) {
+				System.out.println(event + r.getLocalName());
 				if (r.getLocalName().equals("int")) {
 					String name = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
@@ -108,6 +109,7 @@ public class IndexHeadings {
 					Integer count = Integer.valueOf(r.getElementText());
 					System.out.println(name + " => "+count);
 				}
+			}
 		}
 		in.close();
 	}
