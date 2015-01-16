@@ -71,7 +71,7 @@ public class IndexHeadings {
         
 		solr = new HttpSolrServer(config.getSolrUrl());
 		
-		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=500&terms.lower=Beethoven");
+		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=10_000_000");
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		InputStream in = queryUrl.openStream();
 		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
@@ -90,20 +90,23 @@ public class IndexHeadings {
 		}
 		
 		// process actual results
+		String name = null;
+		Integer count = null;
 		while (r.hasNext()) {
 			String event = getEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
 				if (r.getLocalName().equals("int")) {
-					String name = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
 							name = r.getAttributeValue(i);
-					Integer count = Integer.valueOf(r.getElementText());
+					count = Integer.valueOf(r.getElementText());
 					recordCount("author",name,count);
 										
 					// insert Documents if critical mass
-					if (docs.size() > 10_000)
+					if (docs.size() > 10_000) {
+						System.out.println(name + " => " + count);
 						insertDocuments();
+					}
 
 				}
 			}
