@@ -91,8 +91,8 @@ task (ConvertAuthFullToXml, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
  args=['auth','full',
-  'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.full',
-  'http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.full' ]
+  'http://culdata.library.cornell.edu/data/voyager/source/auth.perm',
+  'http://culdata.library.cornell.edu/data/voyager/full/auth.xml' ]
 }
     
    
@@ -148,7 +148,7 @@ task (ConvertBibFullToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertBibFullToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
- args=[ 'http://da-data.library.cornell.edu/data/voyager/full/bib.perm',
+ args=[ 'http://da-data.library.cornell.edu/data/voyager/source/bib.perm',
     'http://da-data.library.cornell.edu/data/voyager/full/bib.xml' ]
 }
    
@@ -167,7 +167,7 @@ task (ConvertMfhdFullToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertMfhdFullToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
- args=[ 'http://da-data.library.cornell.edu/data/voyager/full/mfhd.perm',
+ args=[ 'http://da-data.library.cornell.edu/data/voyager/source/mfhd.perm',
     'http://da-data.library.cornell.edu/data/voyager/full/mfhd.xml' ]
 }
    
