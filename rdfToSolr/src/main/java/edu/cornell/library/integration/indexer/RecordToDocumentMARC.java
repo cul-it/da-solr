@@ -694,7 +694,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"SELECT (SUBSTR(?seven,1,1) as ?cat)\n" +
 							" WHERE { $recordURI$ marcrdf:hasField007 ?f.\n" +
 							"          ?f marcrdf:value ?seven. }").
-					addMainStoreQuery("newbooksMfhd",
+					addMainStoreQuery("k",
 						"SELECT ?callnumprefix\n" +
 						" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
 					   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
