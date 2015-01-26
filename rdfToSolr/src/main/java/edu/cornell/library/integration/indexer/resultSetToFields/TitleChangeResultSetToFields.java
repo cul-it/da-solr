@@ -203,13 +203,13 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (s.startsWith("author_")) {
 						StringBuilder sb = new StringBuilder();
 						String[] temp = s.split("Z",2);
-						String[] temp2 = temp[1].split("|",2);
+						String[] temp2 = temp[1].split("\\|",2);
 						String vernName = temp2[0];
 						String name = null;
 						sb.append(removeTrailingPunctuation(temp[1],","));
 						for (String t:valuesMain) {
 							String[] temp3 = t.split("Z",2);
-							String[] temp4 = temp3[1].split("|",2);
+							String[] temp4 = temp3[1].split("\\|",2);
 							name = temp4[0];
 							sb.append("|");
 							sb.append(temp3[1]);
@@ -226,7 +226,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				String[] temp = s.split("Z",2);
 				addField(solrFields,temp[0],temp[1]);
 				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("|",2);
+					String[] temp2 = temp[1].split("\\|",2);
 					addField(solrFields,"author_addl_display",temp2[0]);
 					addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(temp2[0]));
 				}
@@ -235,7 +235,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				String[] temp = s.split("Z",2);
 				addField(solrFields,temp[0],temp[1]);
 				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("|",2);
+					String[] temp2 = temp[1].split("\\|",2);
 					addField(solrFields,"author_addl_display",temp2[0]);
 					addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(temp2[0]));
 				}
