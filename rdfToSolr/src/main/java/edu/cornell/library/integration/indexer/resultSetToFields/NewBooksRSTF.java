@@ -20,6 +20,8 @@ import com.hp.hpl.jena.query.ResultSet;
  * 
  */
 public class NewBooksRSTF implements ResultSetToFields {
+	
+	final static Boolean debug = true;
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -41,8 +43,10 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		while (rs.hasNext()) {
 		  		QuerySolution sol = rs.nextSolution();
 		  		String k = nodeToString(sol.get("callnumprefix"));
-		  		if (k.trim().equalsIgnoreCase("new & noteworthy"))
+	  			if (debug) System.out.println("found a k: "+k);
+		  		if (k.trim().equalsIgnoreCase("new & noteworthy")) {
 		  			addField(fields,"new_shelf","Olin Library New & Noteworthy Books");
+		  		}
 	  		}
 	  	
 	  	
@@ -54,19 +58,28 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		String ind1 = nodeToString(sol.get("ind1"));
 	  		if ( ! ind1.equals("1")) continue;
 	  		String a = nodeToString(sol.get("a"));
+	  		if (debug) System.out.println(a);
 	  		if (Integer.valueOf(a) < twoYearsAgo) continue;
+	  		if (debug) System.out.println("948a value is recent enough to indicate recent acquisition.");
 	  		f948as.add(a);
 	  	}
-	  	if (f948as.size() == 0) return fields; //empty field set
+	  	if (f948as.size() == 0) {
+	  		if (debug) System.out.println("Not a new book due to no 948a with 1st indicator 1 and date within 2 years.");
+	  		return fields; //empty field set unless new books shelf flags found
+	  	}
 
 	  	Boolean isMicroform = false;
 	  	rs = results.get("seven");
 	  	while (rs.hasNext()) {
 	  		QuerySolution sol = rs.nextSolution();
 	  		String cat = nodeToString(sol.get("cat"));
+	  		if (debug) System.out.println("Category from 007 field found: "+cat);
 	  		if (cat.equals("h")) isMicroform = true;
 	  	}
-	  	if (isMicroform) return fields; //empty field set
+	  	if (isMicroform) {
+	  		if (debug) System.out.println("Not a new book due to being microform.");
+	  		return fields; //empty field set unless new books shelf flags found
+	  	}
 	  	
 	  	Boolean matchingMfhd = false;
 	  	rs = results.get("newbooksMfhd");
@@ -75,19 +88,29 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		String five = nodeToString(sol.get("five"));
 	  		if (five.length() < 6) continue;
 	  		String date = five.substring(0, 8);
+	  		if (Integer.valueOf(date) < twoYearsAgo) {
+	  			if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because the 005 is too old. "+five);
+	  			continue;
+	  		}
 	  		String x = null, code = null;
-	  		if (Integer.valueOf(date) < twoYearsAgo) continue;
 	  		if (sol.contains("x") && sol.get("x") != null) {
 	  			x = nodeToString(sol.get("x"));
 	  			if (x.contains("transfer")) {
 	  				code = nodeToString(sol.get("code"));
-	  				if (code.endsWith(",anx")) continue;
+	  				if (code.endsWith(",anx")) {
+	  					if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because it represents a tranfer to the annex. "+code+" "+x);
+	  					continue;
+	  				}
 	  			}
 	  		}
+	  		if (debug) System.out.println("This MFHD is recent enough to argue for recent acquisition and wasn't otherwise eliminated.");
 	  		matchingMfhd = true;
 	  		break;
 	  	}
-	  	if ( ! matchingMfhd ) return fields; //empty field set
+	  	if ( ! matchingMfhd ) {
+	  		if (debug) System.out.println("No MFHD is recent enough (and matching other criteria) to indicate a recent acquisition.");
+	  		return fields; //empty field set unless new books shelf flags found
+	  	}
 	  	
 	  	Integer acquiredDate = null;
 	  	for (String f948a : f948as) {
@@ -95,7 +118,7 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		if (acquiredDate == null || acquiredDate < date)
 	  			acquiredDate = date;
 	  	}
-	  	
+	  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
 	  	String date_s = acquiredDate.toString();
 		addField(fields,"acquired",date_s);
 		addField(fields,"acquired_month",date_s.substring(0,6));
