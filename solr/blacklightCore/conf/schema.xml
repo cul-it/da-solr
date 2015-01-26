@@ -272,6 +272,19 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
+    
+    <fieldType name="headingAccess" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
+    </fieldType>
+    
 
   </types>
 
@@ -315,6 +328,10 @@
     <field name="pub_date" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="pub_date_facet" type="tint" indexed="true" stored="true" multiValued="false"/>
     <field name="pub_date_sort" type="tint" indexed="true" stored="true" multiValued="false"/>
+    <field name="acquired" type="tint" indexed="true" stored="true" multiValued="false"/>
+    <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="title_exact" type="exact" indexed="true" stored="false"/>
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
@@ -340,9 +357,10 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_exact" type="exact" indexed="true" stored="false"/>
+    <dynamicField name="*_exact" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />

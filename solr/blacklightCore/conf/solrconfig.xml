@@ -1113,10 +1113,13 @@
         online, 
         language_display, 
         pub_info_display,
+		pub_date_display,
         pub_date_facet,
-	    url_access_display,
-	    holdings_record_display,
-	    item_record_display
+		url_access_display,
+    	holdings_record_display,
+		item_record_display,
+		edition_display,
+	    title_uniform_display
       </str>
      
       <str name="facet">true</str>
