@@ -31,6 +31,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsResultS
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.RecordTypeRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSetToFields;
@@ -665,7 +666,45 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    "        ?sfield marcrdf:value ?value.\n" +
 				    " }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
-				
+
+			  new SPARQLFieldMakerImpl().
+			    	setName("newbooks").
+			    	addMainStoreQuery("newbooks948",
+					"SELECT ?ind1 ?a\n" +
+					" WHERE { $recordURI$ marcrdf:hasField948 ?field.\n" +
+				    "        ?field marcrdf:ind1 ?ind1. \n" +
+				    "        ?field marcrdf:hasSubfield \"a\"^^xsd:string .\n" +
+				    "        ?sfield marcrdf:value ?a.\n" +
+				    " }").
+			    	addMainStoreQuery("newbooksMfhd",
+					"SELECT ?five ?code ?x\n" +
+					" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+				   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+				    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
+				    "  ?mfhd852b marcrdf:code \"b\"^^xsd:string.\n" +
+                    "  ?mfhd852b marcrdf:value ?code. \n" +
+				    "  ?mfhd marcrdf:hasField005 ?mfhd005.\n"+
+                    "  ?mfhd005 marcrdf:value ?five. \n" +
+				    "  OPTIONAL {\n" +
+				    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852x.\n" +
+				    "    ?mfhd852x marcrdf:code \"x\"^^xsd:string.\n" +
+                    "    ?mfhd852x marcrdf:value ?x. \n" +
+				    " }}").
+					addMainStoreQuery("seven",
+							"SELECT (SUBSTR(?seven,1,1) as ?cat)\n" +
+							" WHERE { $recordURI$ marcrdf:hasField007 ?f.\n" +
+							"          ?f marcrdf:value ?seven. }").
+					addMainStoreQuery("newbooksMfhd",
+						"SELECT ?callnumprefix\n" +
+						" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+					   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+					    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852k.\n" +
+					    "  ?mfhd852k marcrdf:code \"k\"^^xsd:string.\n" +
+				        "  ?mfhd852k marcrdf:value ?callnumprefix. \n" +
+						" }").
+		        	addResultSetToFields( new NewBooksRSTF()),
+
+		        	
 				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"a"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 				
