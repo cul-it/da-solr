@@ -93,7 +93,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						values880.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
 					} else {
 						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-						valuesMain.add("author_addl_ctsZ"+author_disp);
+						valuesMain.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
 					}
 				} else if (relation != null) {
 					String workField;
