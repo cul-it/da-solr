@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
@@ -198,16 +198,6 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		return solrFields;
 	}
 	
-	private String getSortHeading(String heading) {
-		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
-		// first so hyphenated words will sort as though the space were present.
-		String sortHeading = removeAllPunctuation(heading.
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
-				toLowerCase().
-				replaceAll("-", " "));
-		return sortHeading.trim();
-	}
-
 	
 	private class Heading {
 		boolean isFAST = false;
