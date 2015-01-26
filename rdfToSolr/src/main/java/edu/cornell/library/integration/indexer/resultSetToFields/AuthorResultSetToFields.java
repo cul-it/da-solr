@@ -106,7 +106,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 						sb_piped.append("|");
 						sb_piped.append(cts);
 						String author_display = sb_disp.toString();
-						addField(solrFields,"author_display",author_display);
+						addField(solrFields,"author_display",removeTrailingPunctuation(author_display,", "));
 						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(author_display));
 						addField(solrFields,"author_cts",sb_piped.toString());
 					}
@@ -114,21 +114,21 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 				for (String s: values880)
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts880);
-						addField(solrFields,"author_display",s);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
 						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts880);
-						addField(solrFields,"author_display",s+" "+dates);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
 						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
 					}
 				for (String s: valuesMain)
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts);
-						addField(solrFields,"author_display",s);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
 						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts);
-						addField(solrFields,"author_display",s+" "+dates);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
 						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
 					}
 			}
