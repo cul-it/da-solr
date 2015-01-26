@@ -148,8 +148,8 @@ task (ConvertBibFullToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertBibFullToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
- args=[ 'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full',
-    'http://culdata.library.cornell.edu/data/voyager/bib/bib.xml.full' ]
+ args=[ 'http://da-data.library.cornell.edu/data/voyager/full/bib.perm',
+    'http://da-data.library.cornell.edu/data/voyager/full/bib.xml' ]
 }
    
 task (ConvertMfhdDailyToXml, dependsOn:'assemble', type: JavaExec){
@@ -167,8 +167,8 @@ task (ConvertMfhdFullToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertMfhdFullToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1280m'
- args=[ 'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.full',
-    'http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.xml.full' ]
+ args=[ 'http://da-data.library.cornell.edu/data/voyager/full/mfhd.perm',
+    'http://da-data.library.cornell.edu/data/voyager/full/mfhd.xml' ]
 }
    
 task (GetRecentBibDataCount, dependsOn:'assemble', type: JavaExec){
