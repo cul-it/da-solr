@@ -1,14 +1,17 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -44,8 +47,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 		
-		Collection<String> allSubj = new HashSet<String>();
-		Collection<String> nonFASTSubj = new HashSet<String>();
+		Collection<Heading> taggedFields = new LinkedHashSet<Heading>();
 		
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -53,52 +55,68 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		Arrays.sort( ids );
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
-			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			Boolean fieldIsFAST = false;
+			// First DataField in each FieldSet should be representative, so we'll examine that.
+			Heading h = new Heading();
+			DataField f = fs.fields.iterator().next();
+			h.mainTag = f.mainTag;
+			if (f.ind2.equals('7')) {
+				for ( Subfield sf : f.subfields.values() )
+					if (sf.code.equals('2') 
+							&& (sf.value.equalsIgnoreCase("fast")
+									|| sf.value.equalsIgnoreCase("fast/NIC")
+									|| sf.value.equalsIgnoreCase("fast/NIC/NAC"))) {
+						recordHasFAST = true;
+						h.isFAST = true;
+						
+					}
+			} else if (f.ind2.equals('0')) {
+				recordHasLCSH = true;
+			}
+			h.fs = fs;
+			taggedFields.add(h);
+		}
+		for( Heading h : taggedFields) {
+			DataField[] dataFields = h.fs.fields.toArray( new DataField[ h.fs.fields.size() ]);
+			Set<String> values880_piped = new HashSet<String>();
+			Set<String> valuesMain_piped = new HashSet<String>();
+			Set<String> values880_breadcrumbed = new HashSet<String>();
+			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
 		
-			String main_fields = "", dashed_fields = "", facet_topic_fields = "";
+			String main_fields = "", dashed_fields = "", facet_type = "topic";
 			for (DataField f: dataFields) {
 				
 				if (f.mainTag.equals("600")) {
 					main_fields = "abcdefghkjlmnopqrstu";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "abcdq";
 				} else if (f.mainTag.equals("610")) {
 					main_fields = "abcdefghklmnoprstu";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("611")) {
 					main_fields = "acdefghklnpqstu";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("630")) {
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "ap";
 				} else if (f.mainTag.equals("648")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
+					facet_type = "era";
 				} else if (f.mainTag.equals("650")) {
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "a";
+					facet_type = "geo";
 				} else if (f.mainTag.equals("651")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("653")) {
 					// This field list is used for subject_display and sixfivethree.
 					main_fields = "a";
-					facet_topic_fields = "a";
 				} else if (f.mainTag.equals("654")) {
 					main_fields = "abe";
 					dashed_fields = "vyz";
-					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("655")) {
 					main_fields = "ab";
 					dashed_fields = "vxyz";
-					facet_topic_fields = "ab";
 				} else if (f.mainTag.equals("656")) {
 					main_fields = "ak";
 					dashed_fields = "vxyz";
@@ -120,49 +138,56 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 				}
 				if (! main_fields.equals("")) {
-					StringBuilder sb = new StringBuilder();
-					sb.append(f.concatenateSpecificSubfields(main_fields));
+					StringBuilder sb_piped = new StringBuilder();
+					StringBuilder sb_breadcrumbed = new StringBuilder();
+					String mainFields = f.concatenateSpecificSubfields(main_fields);
+					sb_piped.append(mainFields);
+					sb_breadcrumbed.append(mainFields);
 					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (f.mainTag.equals("653")) {
-						addField(solrFields,"sixfivethree",sb.toString());
+						addField(solrFields,"sixfivethree",sb_piped.toString());
 					}
 					if ((dashed_terms != null) && ! dashed_terms.equals("")) {
-						sb.append("|"+dashed_terms);
+						sb_piped.append("|"+dashed_terms);
+						sb_breadcrumbed.append(" > "+dashed_terms.replaceAll(Pattern.quote("|"), " > "));		
 					}
 					if (f.tag.equals("880")) {
-						values880.add(removeTrailingPunctuation(sb.toString(),"."));
+						values880_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
+						values880_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					} else {
-						valuesMain.add(removeTrailingPunctuation(sb.toString(),"."));
+						valuesMain_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
+						valuesMain_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					}
 				}
-				if (! facet_topic_fields.equals("")) {
-					String value = f.concatenateSpecificSubfields(facet_topic_fields);
-					addField(solrFields,"subject_topic_facet",removeTrailingPunctuation(value,"."));
-					if (f.ind2.equals('7')) {
-						for ( Subfield sf : f.subfields.values() )
-							if (sf.code.equals('2') 
-									&& (sf.value.equalsIgnoreCase("fast")
-											|| sf.value.equalsIgnoreCase("fast/NIC")
-											|| sf.value.equalsIgnoreCase("fast/NIC/NAC"))) {
-								recordHasFAST = true;
-								fieldIsFAST = true;
-							}
-					} else if (f.ind2.equals('0')) {
-						recordHasLCSH = true;
-					}
-					if (fieldIsFAST)
-						addField(solrFields,"fast_facet",removeTrailingPunctuation(value,"."));
-				}
 			}
-			for (String s: values880) {
-				allSubj.add(s);
-				if (! fieldIsFAST)
-					nonFASTSubj.add(s);
+
+			
+			for (String s: values880_breadcrumbed) {
+				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+				addField(solrFields,"subject_"+h.mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"subject_addl_t",s);
+				if (h.isFAST)
+					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+				if ( ! h.isFAST || ! recordHasLCSH)
+					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
 			}
-			for (String s: valuesMain) {
-				allSubj.add(s);
-				if (! fieldIsFAST)
-					nonFASTSubj.add(s);
+			for (String s: valuesMain_breadcrumbed) {
+				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));				
+				addField(solrFields,"subject_"+h.mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"subject_addl_t",s);
+				if (h.isFAST)
+					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+				if ( ! h.isFAST || ! recordHasLCSH)
+					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
+			}
+
+			for (String s: values880_piped) {
+				if ( ! h.isFAST || ! recordHasLCSH)
+					addField(solrFields,"subject_cts",s);
+			}
+			for (String s: valuesMain_piped) {
+				if ( ! h.isFAST || ! recordHasLCSH)
+					addField(solrFields,"subject_cts",s);
 			}
 		}
 		
@@ -170,14 +195,24 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		field.setValue(recordHasFAST, 1.0f);
 		solrFields.put("fast_b", field);
 		
-		if (recordHasLCSH)
-			for (String s : nonFASTSubj) 
-				addField(solrFields,"subject_display",s);
-		else
-			for (String s : allSubj)
-				addField(solrFields,"subject_display",s);
-		
 		return solrFields;
-	}	
+	}
+	
+	private String getSortHeading(String heading) {
+		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
+		// first so hyphenated words will sort as though the space were present.
+		String sortHeading = removeAllPunctuation(heading.
+				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
+				toLowerCase().
+				replaceAll("-", " "));
+		return sortHeading.trim();
+	}
+
+	
+	private class Heading {
+		boolean isFAST = false;
+		FieldSet fs = null;
+		String mainTag = null;
+	}
 
 }

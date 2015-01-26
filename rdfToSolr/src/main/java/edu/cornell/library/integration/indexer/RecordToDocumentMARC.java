@@ -627,14 +627,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
 				new StandardMARCFieldMaker("description_display","538","a"),
 				new StandardMARCFieldMaker("notes_t","538","a",VernMode.SEARCH),
-	
-				new StandardMARCFieldMaker("subject_era_facet","650","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","651","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","654","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","655","y",VernMode.SEPARATE,"."),
-
-				new StandardMARCFieldMaker("subject_geo_facet","651","a",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_geo_facet","650","z",VernMode.SEPARATE,"."),
 
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
@@ -647,6 +639,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
+		    	// subject_t is essentially a boost field. Should eventually be dropped or
+		    	// population moved to SubjectRSTF.
 				new StandardMARCFieldMaker("subject_t","600","abcdefghijklmnopqrstu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","610","abcdefghijklmnopqrstu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","611","abcdefghijklmnopqrstu",VernMode.SEARCH),
@@ -656,33 +650,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("subject_t","653","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","654","abcde",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","655","abc",VernMode.SEARCH),
-				
-				new StandardMARCFieldMaker("subject_addl_t","600","abcdefghkjlmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","610","abcdefghklmnoprstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","611","acdefghklnpqstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","630","adfghklmnoprstvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","648","avxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","650","abcdvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","651","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","653","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","654","abevwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","655","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","656","akvxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","657","avxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","658","abcd",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","662","abcdfgh",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","692","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","693","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","694","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","695","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","696","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","697","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","698","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","699","a",VernMode.SEARCH),
-				
+
 			    new SPARQLFieldMakerImpl().
-			    	setName("subject display").
-			    	addMainStoreQuery("subject display",
+			    	setName("subject").
+			    	addMainStoreQuery("subjects",
 					"SELECT *\n" +
 					" WHERE { $recordURI$ ?p ?field.\n" +
 					"        ?p rdfs:subPropertyOf marcrdf:SubjectTermEntry.\n"+
