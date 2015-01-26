@@ -55,8 +55,8 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	if (rs == null) return fields;
 	  	while (rs.hasNext()) {
 	  		QuerySolution sol = rs.nextSolution();
-	  		String ind1 = nodeToString(sol.get("ind1"));
-	  		if ( ! ind1.equals("1")) continue;
+//	  		String ind1 = nodeToString(sol.get("ind1"));
+//	  		if ( ! ind1.equals("1")) continue;
 	  		String a = nodeToString(sol.get("a"));
 	  		if (debug) System.out.println(a);
 	  		if (Integer.valueOf(a) < twoYearsAgo) continue;
