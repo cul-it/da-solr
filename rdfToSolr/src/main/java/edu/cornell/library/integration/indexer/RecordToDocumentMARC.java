@@ -673,7 +673,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					"SELECT ?ind1 ?a\n" +
 					" WHERE { $recordURI$ marcrdf:hasField948 ?field.\n" +
 				    "        ?field marcrdf:ind1 \"1\"^^xsd:string. \n" +
-				    "        ?field marcrdf:hasSubfield \"a\"^^xsd:string .\n" +
+				    "        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    "        ?sfield marcrdf:code \"a\"^^xsd:string .\n" +
 				    "        ?sfield marcrdf:value ?a.\n" +
 				    " }").
 			    	addMainStoreQuery("newbooksMfhd",
