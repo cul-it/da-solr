@@ -36,6 +36,7 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	Collection<String> f948as = new HashSet<String>();
 	  	
 	  	Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
+	  	if (debug) System.out.println("Two years ago was: "+twoYearsAgo.toString());
 	  	
 	  	// Begin New Book Shelf Logic
 	  	ResultSet rs = results.get("k");
@@ -44,7 +45,7 @@ public class NewBooksRSTF implements ResultSetToFields {
 		  		QuerySolution sol = rs.nextSolution();
 		  		String k = nodeToString(sol.get("callnumprefix"));
 	  			if (debug) System.out.println("found a k: "+k);
-		  		if (k.trim().equalsIgnoreCase("new & noteworthy")) {
+		  		if (k.trim().equalsIgnoreCase("new & noteworthy books")) {
 		  			addField(fields,"new_shelf","Olin Library New & Noteworthy Books");
 		  		}
 	  		}
