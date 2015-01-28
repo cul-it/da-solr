@@ -37,7 +37,6 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	Collection<String> loccodes = new HashSet<String>();
 	  	
 	  	Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
-	  	if (debug) System.out.println("Two years ago was: "+twoYearsAgo.toString());
 	  	
 	  	// Begin New Book Shelf Logic
 	  	ResultSet rs = results.get("k");
@@ -55,12 +54,15 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	rs = results.get("newbooksMfhd");
 	  	while (rs.hasNext()) {
 	  		QuerySolution sol = rs.nextSolution();
-	  		String x = null, code = null;
+	  		String code = nodeToString(sol.get("code"));
+	  		loccodes.add(code);
+				
+	  		// the rest of this MFHD while loop relates to determining whether
+	  		// the book will count as "new" (as opposed to being on a new book shelf).
+	  		String x = null;
 	  		if (sol.contains("x") && sol.get("x") != null) {
 	  			x = nodeToString(sol.get("x"));
 	  			if (x.contains("transfer")) {
-	  				code = nodeToString(sol.get("code"));
-	  				loccodes.add(code);
 	  				if (code.endsWith(",anx")) {
 	  					if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because it represents a tranfer to the annex. "+code+" "+x);
 	  					continue;
@@ -73,6 +75,7 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		if (debug) System.out.println(date);
 	  		if (Integer.valueOf(date) < twoYearsAgo) {
 	  			if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because the 005 is too old. "+five);
+	  			continue;
 	  		}
 	  		if (debug) System.out.println("This MFHD is recent enough to argue for recent acquisition and wasn't otherwise eliminated.");
 	  		matchingMfhd = true;
