@@ -678,7 +678,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    "        ?sfield marcrdf:value ?a.\n" +
 				    " }").
 			    	addMainStoreQuery("newbooksMfhd",
-					"SELECT ?five ?code ?x\n" +
+					"SELECT ?five ?code ?x ?z\n" +
 					" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
 				   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
 				    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
