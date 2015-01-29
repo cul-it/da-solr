@@ -11,9 +11,10 @@ import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConf
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
+import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
-public class NonVoyagerToNT {
+public class MarcToTxt {
 	
 	DavService davService;
 	
@@ -22,32 +23,25 @@ public class NonVoyagerToNT {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToNT(args);			
+	    new MarcToTxt(args);			
 	}
 	
-	public NonVoyagerToNT(String[] args) throws Exception {
+	public MarcToTxt(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
-		requiredFields.add("nonVoyIdPrefix");
-		requiredFields.add("nonVoyUriPrefix");
-		requiredFields.add("nonVoyXmlDir");
-		requiredFields.add("nonVoyNtDir");
+	//	requiredFields.add("nonVoyIdPrefix"); only needed with reportlist
+		requiredFields.add("xmlDir");
+		requiredFields.add("txtDir");
 		// optionalField : reportList
 		VoyagerToSolrConfiguration config =
 				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);
 
-/*		
-		File tempFile = File.createTempFile("NonVoyagerRecords_", ".nt.gz");
-		tempFile.deleteOnExit();
-		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
-	*/    
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyNtDir(), davService);
-		converter.setUriPrefix(config.getNonVoyUriPrefix());
-		converter.setIdPrefix(config.getNonVoyIdPrefix());
+		converter.setOutputFormatWithoutSimultaneousWrite(OutputFormat.TXT_GZ);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
+		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getTxtDir(), davService);
 		
 		String reportList = config.getReportList();
 		String[] reports = null;
@@ -67,7 +61,6 @@ public class NonVoyagerToNT {
 				FileUtils.writeStringToFile(
 						new File (config.getNonVoyIdPrefix() + "-"+ report + ".txt"),
 						reportResult, "UTF-8", false);
-				System.out.println(reportResult);
 			}
 		}
 		

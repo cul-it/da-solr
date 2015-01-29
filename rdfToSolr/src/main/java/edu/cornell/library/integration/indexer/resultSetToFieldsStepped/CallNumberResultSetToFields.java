@@ -65,8 +65,18 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 						if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
 							// Not an LOC call number (probably)
 						} else {
-							if (callno.length() >= 1)
-								letters.add( callno.substring(0,1) );
+							// How many letters at beginning of call number?
+							int i = 0;
+							while ( callno.length() > i) {
+								if ( Character.isLetter(callno.substring(i, i+1).charAt(0)) )
+									i++;
+								else
+									break;
+							}
+							if (i >= 1)
+								letters.add( callno.substring(0,1).toUpperCase() );
+							if (i > 1)
+								letters.add( callno.substring(0,i).toUpperCase() );
 						}
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
@@ -106,8 +116,6 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		i = letters.iterator();
 		while (i.hasNext()) {
 			String l = i.next();
-			if (! Character.isLetter(l.charAt(0)))
-				continue;
 			String query = 
 		    		"SELECT ?code ?subject\n" +
 		    		"WHERE {\n" +
@@ -128,9 +136,11 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 				if( rs != null){
 					while(rs.hasNext()){
 						QuerySolution sol = rs.nextSolution();
-						String letter = nodeToString( sol.get("code") );
+						String l = nodeToString( sol.get("code") );
 						String subject = nodeToString( sol.get("subject") );
-						addField(fields,"lc_1letter_facet",letter+" - "+subject);
+						if (l.length() == 1)
+							addField(fields,"lc_1letter_facet",l+" - "+subject);
+						addField(fields,"lc_alpha_facet",l+" - "+subject);
 					}
 				}
 			}

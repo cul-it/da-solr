@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+
 
 public class OracleTables {
 
@@ -30,6 +32,9 @@ public class OracleTables {
      * @param args
      */
     public static void main(String[] args) {
+    	
+    	VoyagerToSolrConfiguration config =
+    			VoyagerToSolrConfiguration.loadConfig(args );
 
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
         System.out.println("Got Connection");

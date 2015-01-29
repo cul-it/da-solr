@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
@@ -56,8 +57,10 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 			String dates = "";
 			String cts = "";
 			String cts880 = "";
+			String mainTag = null;
 		
 			for (DataField f: dataFields) {
+				mainTag = f.mainTag;
 				String subfields;
 				String ctsSubfields;
 				if (f.mainTag.equals("100")) {
@@ -83,29 +86,51 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 			if ((values880.size() == 1) && (valuesMain.size() == 1 )) {
 				for (String s: values880)
 					for (String t: valuesMain) {
-						StringBuilder sb = new StringBuilder();
-						sb.append(removeTrailingPunctuation(s,".,"));
-						sb.append("|");
-						sb.append(cts880);
-						sb.append("|");
-						sb.append(t);
+						StringBuilder sb_piped = new StringBuilder();
+						StringBuilder sb_disp = new StringBuilder();
+						String cleaned_s = removeTrailingPunctuation(s,".,");
+						sb_piped.append(cleaned_s);
+						sb_disp.append(cleaned_s);
+						sb_piped.append("|");
+						sb_piped.append(cts880);
+						sb_piped.append("|");
+						sb_disp.append(" / ");
+						sb_piped.append(t);
+						sb_disp.append(t);
 						if (! dates.isEmpty()) {
-							sb.append(" ");
-							sb.append(dates);
+							sb_piped.append(" ");
+							sb_piped.append(dates);
+							sb_disp.append(" ");
+							sb_disp.append(dates);
 						}
-						sb.append("|");
-						sb.append(cts);
-						addField(solrFields,"author_display",sb.toString());
+						sb_piped.append("|");
+						sb_piped.append(cts);
+						String author_display = sb_disp.toString();
+						addField(solrFields,"author_display",removeTrailingPunctuation(author_display,", "));
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(author_display));
+						addField(solrFields,"author_cts",sb_piped.toString());
 					}
 			} else {
 				for (String s: values880)
-					if (dates.isEmpty())
-						addField(solrFields,"author_display",s+"|"+cts880);
-					else addField(solrFields,"author_display",s+" "+dates+"|"+cts880);
+					if (dates.isEmpty()) {
+						addField(solrFields,"author_cts",s+"|"+cts880);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
+					} else {
+						addField(solrFields,"author_cts",s+" "+dates+"|"+cts880);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
+					}
 				for (String s: valuesMain)
-					if (dates.isEmpty())
-					addField(solrFields,"author_display",s+"|"+cts);
-					else addField(solrFields,"author_display",s+" "+dates+"|"+cts);
+					if (dates.isEmpty()) {
+						addField(solrFields,"author_cts",s+"|"+cts);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
+					} else {
+						addField(solrFields,"author_cts",s+" "+dates+"|"+cts);
+						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
+					}
 			}
 			if (valuesMain.size() > 0) {
 				String sort_author = removeAllPunctuation(valuesMain.iterator().next());

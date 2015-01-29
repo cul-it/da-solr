@@ -878,41 +878,208 @@ public class MarcXmlToRdf {
 		String[] values = new String[extractCols];
 		for (int i = 0; i < extractCols; i++) values[i] = "";
 		for (String key : extractVals.keySet())
-			values[Integer.valueOf(key)-1] = extractVals.get(key);
+			values[Integer.valueOf(key)-1] = extractVals.get(key).replaceAll("\\t", " ");
 		return StringUtils.join(values, '\t')+"\n";
 	}
 	
 	private void populateExtractHeaders( Report rep ) {
 		List<String> v = new ArrayList<String>();
 		if (rep.equals(Report.EXTRACT_LANGUAGE)) {
-			v.add("id");
+			v.add("f001");   //1
 			v.add("leader");
-			v.add("008");
-			v.add("040");
-			v.add("008/35-37");
-			v.add("041");
-			v.add("500a");
-			v.add("546a");
+			v.add("ldr05");
+			v.add("ldr06");
+			v.add("ldr07"); //5
+			v.add("ldr17");
+			v.add("ldr18");
+			v.add("f00600");
+			v.add("f00700");
+			v.add("f008all"); //10
+			v.add("f008foi");
+			v.add("f008foi2");
+			v.add("f008pubpl");
+			v.add("f008lng");
+			v.add("f008dt"); //15
+			v.add("f019");
+			v.add("f040a");
+			v.add("f040b");
+			v.add("f040c");
+			v.add("f040d"); //20
+			v.add("f040e");
+			v.add("f010a");
+			v.add("f041i1");
+			v.add("f041i2");
+			v.add("f041a"); //25
+			v.add("f041b");
+			v.add("f041c");
+			v.add("f041d");
+			v.add("f041e");
+			v.add("f041f"); //30
+			v.add("f041g");
+			v.add("f041h");
+			v.add("f041i");
+			v.add("f041j");
+			v.add("f041m"); //35
+			v.add("f041n");
+			v.add("f041src");
+			v.add("f240l");
+			v.add("f240l");
+			v.add("f337a"); //40
+			v.add("f500a");
+			v.add("v500a");
+			v.add("f546a");
+			v.add("v546a");
 		} else if (rep.equals(Report.EXTRACT_PUBPLACE)) {
-			v.add("id");
+			v.add("f001");   //1
 			v.add("leader");
-			v.add("008");
-			v.add("040");
-			v.add("008/15-17");
-			v.add("020az");
-			v.add("1st 260a/246a");
-			v.add("Other 260a/264a");
+			v.add("ldr05");
+			v.add("ldr06");
+			v.add("ldr07"); //5
+			v.add("ldr17");
+			v.add("ldr18");
+			v.add("f00600");
+			v.add("f00700");
+			v.add("f008all"); //10
+			v.add("f008foi");
+			v.add("f008foi2");
+			v.add("f008pubpl");
+			v.add("f008lng");
+			v.add("f008dt"); //15
+			v.add("f019");
+			v.add("f040a");
+			v.add("f040b");
+			v.add("f040c");
+			v.add("f040d"); //20
+			v.add("f040e");
+			v.add("f010a");
+			v.add("f020a");
+			v.add("f020z");
+			v.add("v020a"); //25
+			v.add("v020z");
+			v.add("f044a1");
+			v.add("f044c1");
+			v.add("f044a2");
+			v.add("f044c2"); //30
+			v.add("f066c");
+			v.add("f257a");
+			v.add("f260a1");
+			v.add("f260e1");
+			v.add("v260a1"); //35
+			v.add("v260e1");
+			v.add("f260a2");
+			v.add("v260a2");
+			v.add("f264i2");
+			v.add("f264a1"); //40
+			v.add("v264i2");
+			v.add("v264a1");
+			v.add("f264a2");
+			v.add("v264a2");
+			v.add("f337a");  //45
+			v.add("f533b1");
+			v.add("v533b1");
+			v.add("f533b2");
+			v.add("v533b2");
 		} else if (rep.equals(Report.EXTRACT_SUBJPLACE)) {
-			v.add("id");
+			v.add("f001");
 			v.add("leader");
-			v.add("008");
-			v.add("040");
-			v.add("043a");
-			v.add("050a/090a");
-			v.add("505a");
-			v.add("520a");
-			v.add("6XXz");
-			v.add("651a");
+			v.add("ldr05");
+			v.add("ldr06");
+			v.add("ldr07"); //5
+			v.add("ldr17");
+			v.add("ldr18");
+			v.add("f00600");
+			v.add("f00700");
+			v.add("f008all"); //10
+			v.add("f008foi");
+			v.add("f008foi2");
+			v.add("f008pubpl");
+			v.add("f008lng");
+			v.add("f008dt"); //15
+			v.add("f019");
+			v.add("f040a");
+			v.add("f040b");
+			v.add("f040c");
+			v.add("f040d"); //20
+			v.add("f040e");
+			v.add("f033i2");
+			v.add("f033b");
+			v.add("f033c");
+			v.add("f043a"); //25
+			v.add("f043c");
+			v.add("f043b");
+			v.add("f043src");
+			v.add("f050i1");
+			v.add("f050i2");  //30
+			v.add("f050a");
+			v.add("f052a");
+			v.add("f052b");
+			v.add("f052src");
+			v.add("f090a");  //35
+			v.add("f337a");
+			v.add("f505a");
+			v.add("v505a");
+			v.add("f518a");
+			v.add("f518p"); //40
+			v.add("v518a");
+			v.add("f520a");
+			v.add("v520a");
+			v.add("f522a");
+			v.add("f600i2"); //45
+			v.add("f600z");
+			v.add("f600src");
+			v.add("v600i2");
+			v.add("v600z");
+			v.add("v600src"); //50
+			v.add("f610i2");
+			v.add("f610z");
+			v.add("f610src");
+			v.add("v610i2");
+			v.add("v610z");  //55
+			v.add("v610src");
+			v.add("f611i2");
+			v.add("f611z");
+			v.add("f611src");
+			v.add("v611i2"); //60
+			v.add("v611z");
+			v.add("v611src");
+			v.add("f630i2");
+			v.add("f630z");
+			v.add("f630src"); //65
+			v.add("v630i2");
+			v.add("v630z");
+			v.add("v630src");
+			v.add("f650i1");
+			v.add("f650i2"); //70
+			v.add("f650z");
+			v.add("f650src");
+			v.add("v650i1");
+			v.add("v650i2");
+			v.add("v650z");  //75
+			v.add("v650src");
+			v.add("f651i2");
+			v.add("f651a");
+			v.add("f651z");
+			v.add("f651src"); //80
+			v.add("v651i2");
+			v.add("v651a");
+			v.add("v651z");
+			v.add("v651src");
+			v.add("f653a"); //85
+			v.add("v653a");
+			v.add("f655i1");
+			v.add("f655i2");
+			v.add("f655z");
+			v.add("f655src"); //90
+			v.add("v655i1");
+			v.add("v655i2");
+			v.add("v655z");
+			v.add("v655src");
+			v.add("f751a");  //95
+			v.add("f752a");
+			v.add("f752b");
+			v.add("f752c");
+			v.add("f752d");
+			v.add("f752src");
 		} else if (rep.equals(Report.EXTRACT_TITLE_MATCH)) {
 			v.add("id");
 			v.add("008/7-10"); //2
@@ -923,6 +1090,13 @@ public class MarcXmlToRdf {
 			v.add("245abnp");
 			v.add("26XcDate");
 			v.add("1XXauthor");//9
+		} else if (rep.equals(Report.EXTRACT_CITATIONS)) {
+			v.add("id");
+			v.add("title");
+			v.add("authors");
+			v.add("pubinfo");
+			v.add("edition");
+			v.add("extent");
 		}
 		outputHeaders = StringUtils.join(v,"\t")+"\n";
 		extractCols = v.size();
@@ -940,11 +1114,13 @@ public class MarcXmlToRdf {
 		Boolean isSubjPlace = reports.contains(Report.EXTRACT_SUBJPLACE);
 		Boolean isLanguage = reports.contains(Report.EXTRACT_LANGUAGE);
 		Boolean isTitleMatch = reports.contains(Report.EXTRACT_TITLE_MATCH);
+		Boolean isCitations = reports.contains(Report.EXTRACT_CITATIONS);
 		
 		if ( ! isPubPlace
 				&& ! isTitleMatch
 				&& ! isSubjPlace
-				&& ! isLanguage)
+				&& ! isLanguage
+				&& ! isCitations)
 			return;
 
 		List<String> pubplaces = new ArrayList<String>();
@@ -954,26 +1130,50 @@ public class MarcXmlToRdf {
 		else
 			extractVals = new HashMap<String,String>();
 			
-		if (isPubPlace || isSubjPlace || isLanguage)
+		if (isPubPlace || isSubjPlace || isLanguage) {
 			extractVals.put("02", rec.leader);
+
+			extractVals.put("03", rec.leader.substring(5, 6));
+			extractVals.put("04", rec.leader.substring(6, 7));
+			extractVals.put("05", rec.leader.substring(7, 8));
+			extractVals.put("06", rec.leader.substring(17, 18));
+			extractVals.put("07", rec.leader.substring(18, 19));
+		}
 		
 		for (Integer fid : rec.control_fields.keySet()) {
 			ControlField f = rec.control_fields.get(fid);
 			
-			if (f.tag.equals("001")) 
+			if (f.tag.equals("001")) {
 				extractVals.put("01", f.value);
+			}
+			
+			if (f.tag.equals("006")) {
+				if (isPubPlace || isSubjPlace || isLanguage)
+					putOrAppendToExtract("08","|",f.value.substring(0, 1));
+			}
+			
+			if (f.tag.equals("007")) {
+				if (isPubPlace || isSubjPlace || isLanguage)
+					putOrAppendToExtract("09","|",f.value.substring(0, 1));
+			}
 			
 			if (f.tag.equals("008")) {
-
-				if (isPubPlace || isSubjPlace || isLanguage)
-					extractVals.put("03", f.value);
+				
+				if (isPubPlace || isSubjPlace || isLanguage) {
+					extractVals.put("10", f.value);
+					extractVals.put("11", f.value.substring(23, 24));
+					extractVals.put("12", f.value.substring(24, 25));
+					extractVals.put("13", f.value.substring(15, 18));
+					extractVals.put("14", f.value.substring(35, 38));
+					extractVals.put("15", f.value.substring(07, 11));
+				}
 				
 				if (isTitleMatch)
 					extractVals.put("02",f.value.substring(7,11));
 					
-				if (isPubPlace)
+			/*	if (isPubPlace)
 					if (f.value.length() >= 18)
-						extractVals.put("05", f.value.substring(15, 18));
+						extractVals.put("05", f.value.substring(15, 18)); */
 
 				if (isLanguage)
 					if (f.value.length() >= 38)
@@ -990,12 +1190,73 @@ public class MarcXmlToRdf {
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("03",";",sf.value);
+
+			if (isPubPlace || isLanguage)
+				if (f.tag.equals("010"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							if (sf.value.contains("sa"))
+								putOrAppendToExtract("22","|",sf.value);
 			
-			if (isPubPlace)
+			if (isPubPlace || isSubjPlace || isLanguage)
+				if (f.tag.equals("019"))
+					for (Subfield sf : f.subfields.values()) 
+						if (sf.code.equals('a'))
+							putOrAppendToExtract("16", "|", sf.value);
+			
+			if (isPubPlace) {
 				if (f.tag.equals("020"))
 					for (Subfield sf : f.subfields.values()) 
-						if (sf.code.equals('a') || sf.code.equals('z') )
-							putOrAppendToExtract("06", " ", sf.toString('$'));
+						if (sf.code.equals('a'))
+							putOrAppendToExtract("23", "|", sf.value);
+						else if (sf.code.equals('z'))
+							putOrAppendToExtract("24", "|", sf.value);
+				if (f.alttag != null && f.alttag.equals("020"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("020-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("25", "|", sf.value);
+						else if (sf.code.equals('z'))
+							putOrAppendToExtract("26", "|", sf.value);
+			}
+			
+			if (isSubjPlace) 
+				if (f.tag.equals("033")) {
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("22","|",i2);
+					List<String> bs = new ArrayList<String>();
+					List<String> cs = new ArrayList<String>();
+					
+					String b = null;
+					List<String> c = new ArrayList<String>();
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('b')) {
+							if (b != null) {
+								bs.add(b);
+								if (c.isEmpty())
+									cs.add("<null>");
+								else 
+									cs.add(StringUtils.join(c, ";"));
+							}
+							b = sf.value;
+							c.clear();
+						} else if (sf.code.equals('c')) {
+							c.add(sf.value);
+						}
+					if (b != null) {
+						bs.add(b);
+						if (c.isEmpty())
+							cs.add("<null>");
+						else 
+							cs.add(StringUtils.join(c, ";"));
+					}
+					putOrAppendToExtract("23","|",StringUtils.join(bs,"~"));
+					putOrAppendToExtract("24","|",StringUtils.join(cs,"~"));
+				}
+							
 			
 			if (isTitleMatch)
 				if (f.tag.equals("035"))
@@ -1011,19 +1272,180 @@ public class MarcXmlToRdf {
 
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("040"))
-					putOrAppendToExtract("04","; ",f.toString('$'));
+					for (Subfield sf : f.subfields.values()) {
+						if (sf.code.equals('a'))
+							putOrAppendToExtract("17","|",sf.value);
+						else if (sf.code.equals('b'))
+							putOrAppendToExtract("18","|",sf.value);
+						else if (sf.code.equals('c'))
+							putOrAppendToExtract("19","|",sf.value);
+						else if (sf.code.equals('d'))
+							putOrAppendToExtract("20","|",sf.value);
+						else if (sf.code.equals('e'))
+							putOrAppendToExtract("21","|",sf.value);
+					}
 
 			if (isLanguage)
-				if (f.tag.equals("041"))
-					putOrAppendToExtract("06", "; ", f.toString('$'));
+				if (f.tag.equals("041")) {
+					
+					String i1 = f.ind1.toString();
+					if (i1.trim().isEmpty()) i1 = "<null>";
+					putOrAppendToExtract("23","|",i1);
+					
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("24","|",i2);
+					
+					String two = null;
+					HashMap<Character,List<String>> codes = new HashMap<Character,List<String>>();
+					
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else {
+							List<String> charCodes = null;
+							if (codes.containsKey(sf.code)) {
+								charCodes = codes.get(sf.code);
+							} else {
+								charCodes = new ArrayList<String>();
+							}
+							if (sf.value.length() == 3) {
+								charCodes.add(sf.value);
+							} else if (sf.value.length() % 3 == 0) {
+								//http://stackoverflow.com/questions/3760152/split-string-to-equal-length-substrings-in-java
+								String[] substrings = sf.value.split("(?<=\\G.{3})");
+								for (String substring : substrings) {
+									charCodes.add(substring);
+								}
+							} else {
+								charCodes.add(sf.value);
+							}
+							codes.put(sf.code, charCodes);
+						}
+					HashMap<Character,String> columns = new HashMap<Character,String>();
+					columns.put('a',"25");	columns.put('b',"26");
+					columns.put('c',"27");	columns.put('d',"28");
+					columns.put('e',"29");	columns.put('f',"30");
+					columns.put('g',"31");	columns.put('h',"32");
+					columns.put('i',"33");	columns.put('j',"34");
+					columns.put('m',"35");	columns.put('n',"36");
+					for (Character col : columns.keySet())
+						if (codes.containsKey(col))
+							putOrAppendToExtract(columns.get(col),"|",StringUtils.join(codes.get(col),'~'));
+					putOrAppendToExtract("37","|",two);
+				}
 
 			if (isSubjPlace)
-				if (f.tag.equals("043"))
-					putOrAppendToExtract("05"," ",f.concatenateSpecificSubfields("a"));
+				if (f.tag.equals("043")) {
+					String b = null;
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							putOrAppendToExtract("25","|",sf.value);
+						else if (sf.code.equals('c'))
+							putOrAppendToExtract("26","|",sf.value);
+						else if (sf.code.equals('b'))
+							b = sf.value;
+						else if (sf.code.equals('2'))
+							two = sf.value;
+					if (b != null) {
+						if (two != null) {
+							putOrAppendToExtract("27","|",b);
+							putOrAppendToExtract("28","|",two);
+						} else {
+							if (b.length() == 7)
+								putOrAppendToExtract("25","|",b);
+						}
+					}
+							
+				}
+			
+			if (isPubPlace)
+				if (f.tag.equals("044")) {
+					List<String> a = new ArrayList<String>();
+					List<String> c = new ArrayList<String>();
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							a.add(sf.value);
+						else if (sf.code.equals('c'))
+							c.add(sf.value);
+					if (! a.isEmpty()) {
+						putOrAppendToExtract("27","|",a.get(0));
+						a.remove(0);
+						if (! a.isEmpty())
+							putOrAppendToExtract("29","|",StringUtils.join(a,'~'));
+					}
+					if (! c.isEmpty()) {
+						putOrAppendToExtract("28","|",c.get(0));
+						c.remove(0);
+						if (! c.isEmpty())
+							putOrAppendToExtract("30","|",StringUtils.join(c,'~'));
+					}
+				}
 			
 			if (isSubjPlace)
-				if (f.tag.equals("050") || f.tag.equals("090"))
-					putOrAppendToExtract("06","; ",f.tag+" "+f.concatenateSpecificSubfields("a"));
+				if (f.tag.equals("050")) {
+					String i1 = f.ind1.toString();
+					if (i1.trim().isEmpty()) i1 = "<null>";
+					putOrAppendToExtract("29","|",i1);
+					
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("30","|",i2);
+
+					putOrAppendToExtract("31","|",f.concatenateSpecificSubfields("a"));
+				}
+
+			if (isSubjPlace) 
+				if (f.tag.equals("052") && ! f.ind1.equals('7')) {
+
+					List<String> as = new ArrayList<String>();
+					List<String> bs = new ArrayList<String>();
+					String src = null;
+					
+					String a = null;
+					List<String> b = new ArrayList<String>();
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a')) {
+							if (a != null) {
+								as.add(a);
+								if (b.isEmpty())
+									bs.add("<null>");
+								else 
+									bs.add(StringUtils.join(b, ";"));
+							}
+							a = sf.value;
+							b.clear();
+						} else if (sf.code.equals('c')) {
+							b.add(sf.value);
+						} else if (sf.code.equals('2')) {
+							src = sf.value;
+						}
+					if (a != null) {
+						as.add(a);
+						if (b.isEmpty())
+							bs.add("<null>");
+						else 
+							bs.add(StringUtils.join(b, ";"));
+					}
+					putOrAppendToExtract("32","|",StringUtils.join(as,"~"));
+					putOrAppendToExtract("33","|",StringUtils.join(bs,"~"));
+					if (src != null)
+						putOrAppendToExtract("34","|",src);
+					else 
+						putOrAppendToExtract("34","|","<null>");
+
+				}
+			if (isPubPlace)
+				if (f.tag.equals("066")) {
+					String c = f.concatenateSpecificSubfields("~", "c");
+					if (c != null && ! c.equals(""))
+						putOrAppendToExtract("31","|",c);
+				}
+			
+			if (isSubjPlace)
+				if (f.tag.equals("090")) 
+					putOrAppendToExtract("35","|",f.concatenateSpecificSubfields("~", "a"));
 			
 			if (isTitleMatch)
 				if (f.tag.startsWith("1")) {
@@ -1032,51 +1454,605 @@ public class MarcXmlToRdf {
 					else if (f.tag.startsWith("11")) subfields = "ab";
 					if (subfields != null)
 						extractVals.put("09", f.concatenateSpecificSubfields(subfields)
-								.toLowerCase().replaceAll("\\s", ""));
+								.toLowerCase().replaceAll("\\s", "").replaceAll("\\p{Punct}", ""));
 				}
-					
-			
+			if (isCitations)
+				if (f.tag.startsWith("1") ||
+						(f.alttag != null && f.alttag.startsWith("1"))) {
+					String subfields = null;
+					if (f.tag.equals("100")) subfields = "abcdq";
+					else if (f.tag.startsWith("11")) subfields = "ab";
+					if (subfields != null)
+						putOrAppendToExtract("03","; ",f.concatenateSpecificSubfields(subfields));
+				}
+
+			if (isLanguage) {
+				if (f.tag.equals("240"))
+					putOrAppendToExtract("38","; ",f.concatenateSpecificSubfields("l"));
+				if (f.alttag != null && f.alttag.equals("240")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("240-00"))
+								break;
+						} else if (sf.code.equals('l'))
+							putOrAppendToExtract("39","|",sf.value);
+				}
+			}
+
 			if (isTitleMatch)
 				if (f.tag.equals("245"))
 					extractVals.put("07",f.concatenateSpecificSubfields("abnp").
-							toLowerCase().replaceAll("\\s", ""));
+							toLowerCase().replaceAll("\\s", "").replaceAll("\\p{Punct}", ""));
+
+			if (isCitations)
+				if (f.tag.equals("245") ||
+						(f.alttag != null && f.alttag.equals("245")))
+					putOrAppendToExtract("02","; ",f.concatenateSpecificSubfields("abnp"));
 			
+			if (isCitations)
+				if (f.tag.equals("250") ||
+						(f.alttag != null && f.alttag.equals("250")))
+					putOrAppendToExtract("05","; ",f.concatenateSpecificSubfields("ab"));
+
 			if (isPubPlace)
-				if (f.tag.equals("260") || f.tag.equals("264"))
-					pubplaces.add(f.tag + " " + f.concatenateSpecificSubfields("a"));
+				if (f.tag.equals("257"))
+					for (Subfield sf : f.subfields.values()) 
+						if (sf.code.equals('a')) 
+							putOrAppendToExtract("32","|",f.concatenateSpecificSubfields("~","a"));
+
+			if (isPubPlace) {
+				if (f.tag.equals("260")) {
+					for (Subfield sf : f.subfields.values()) 
+						if (sf.code.equals('a')) {
+							if (extractVals.containsKey("33"))
+								putOrAppendToExtract("37","|",sf.value);
+							else extractVals.put("33", sf.value);
+						} else if (sf.code.equals('e')) {
+							if ( ! extractVals.containsKey("34"))
+								extractVals.put("34", sf.value);							
+						}
+				}
+				if (f.alttag != null && f.alttag.equals("260")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("260-00"))
+								break;
+						} else if (sf.code.equals('a')) {
+							if (extractVals.containsKey("35"))
+								putOrAppendToExtract("38","|",sf.value);
+							else extractVals.put("35", sf.value);
+						} else if (sf.code.equals('e')) {
+							if ( ! extractVals.containsKey("36"))
+								extractVals.put("36", sf.value);							
+						}
+				}
+			}
 			
+			if (isPubPlace) {
+				if (f.tag.equals("264")) {
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("39","|",i2);
+					for (Subfield sf : f.subfields.values()) 
+						if (sf.code.equals('a')) {
+							if (extractVals.containsKey("40"))
+								putOrAppendToExtract("43","|",sf.value);
+							else extractVals.put("40", sf.value);
+						}
+				}
+				if (f.alttag != null && f.alttag.equals("264")) {
+					boolean isInstanceMatched = false;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("264-00")) {
+								isInstanceMatched = true;
+								break;
+							}
+						} else if (sf.code.equals('a')) {
+							if (extractVals.containsKey("42"))
+								putOrAppendToExtract("44","|",sf.value);
+							else extractVals.put("42", sf.value);
+						}
+					if (! isInstanceMatched) {
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("41","|",i2);
+					}
+				}
+			}
+
 			if (isTitleMatch)
 				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('c'))
 							putOrAppendToExtract("08",";",sf.value);
+			if (isCitations)
+				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
+					putOrAppendToExtract("04","; ",f.concatenateSpecificSubfields("abc"));
+
+			if (isCitations)
+				if (f.tag.equals("300") ||
+						(f.alttag != null && f.alttag.equals("300")))
+					putOrAppendToExtract("06","; ",f.concatenateSpecificSubfields("abcefg"));
 			
-			if (isLanguage)
+			if (isPubPlace || isSubjPlace || isLanguage)
+				if (f.tag.equals("337"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a')) {
+							String a = sf.value;
+							if (a.length() > 3) a = a.substring(0,3);
+							putOrAppendToExtract((isPubPlace)?"45":(isSubjPlace)?"36":"40","|",a);
+						}
+
+			if (isLanguage) {
 				if (f.tag.equals("500"))
-					putOrAppendToExtract("07","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("41","; ",f.concatenateSpecificSubfields("a"));
+				if (f.alttag != null && f.alttag.equals("500")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("500-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("42","|",sf.value);
+				}
+			}
 			
-			if (isSubjPlace)
+			if (isSubjPlace) {
 				if (f.tag.equals("505"))
-					putOrAppendToExtract("07","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("37","|",f.concatenateSpecificSubfields("~","a"));
+				if (f.alttag != null && f.alttag.equals("505"))
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("505-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("38","|",sf.value);
+			}
 				
-			if (isSubjPlace)
+			if (isSubjPlace) {
+				if (f.tag.equals("518")) {
+					putOrAppendToExtract("39","|",f.concatenateSpecificSubfields("~","a"));
+					putOrAppendToExtract("40","|",f.concatenateSpecificSubfields("~","p"));
+				}
+				if (f.alttag != null && f.alttag.equals("518")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("518-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("41","|",sf.value);
+				}
+			}
+				
+			if (isSubjPlace) {
 				if (f.tag.equals("520"))
-					putOrAppendToExtract("08","; ",f.concatenateSpecificSubfields("a"));
-				
-			if (isLanguage)
-				if (f.tag.equals("546"))
-					putOrAppendToExtract("08","; ",f.concatenateSpecificSubfields("a"));
+					putOrAppendToExtract("42","; ",f.concatenateSpecificSubfields("a"));
+				if (f.alttag != null && f.alttag.equals("520")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("520-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("43","|",sf.value);
+				}
+			}
 
 			if (isSubjPlace)
-				if (f.tag.startsWith("6"))
+				if (f.tag.equals("522"))
+					putOrAppendToExtract("44","; ",f.concatenateSpecificSubfields("a"));
+		
+			if (isPubPlace) {
+				if (f.tag.equals("533"))
 					for (Subfield sf : f.subfields.values())
-						if (sf.code.equals('z'))
-							putOrAppendToExtract("09","; ",f.tag+" "+sf.value);
+						if (sf.code.equals('b')) {
+							if (extractVals.containsKey("46"))
+								putOrAppendToExtract("48","|",sf.value);
+							else extractVals.put("46", sf.value);
+						}
+				if (f.alttag != null && f.alttag.equals("533")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("533-00"))
+								break;
+						} else if (sf.code.equals('b')) {
+							if (extractVals.containsKey("47"))
+								putOrAppendToExtract("49","|",sf.value);
+							else extractVals.put("47", sf.value);
+						}
+				}
+
+			}
+			
+			if (isLanguage) {
+				if (f.tag.equals("546"))
+					putOrAppendToExtract("43","; ",f.concatenateSpecificSubfields("a"));
+				if (f.alttag != null && f.alttag.equals("546")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("546-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("44","|",sf.value);
+				}
+			}
+
+			if (isSubjPlace) {
+				if (f.tag.equals("600")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("45","|",i2);
+						
+						putOrAppendToExtract("46","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("47","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("600")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("600-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("48","|",i2);
+						
+						putOrAppendToExtract("49","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("50","|",two);
+					}
+				}
+			}
+
+
+			if (isSubjPlace) {
+				if (f.tag.equals("610")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("51","|",i2);
+						
+						putOrAppendToExtract("52","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("53","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("610")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("610-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("54","|",i2);
+						
+						putOrAppendToExtract("55","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("56","|",two);
+					}
+				}
+			}
+
+
+			if (isSubjPlace) {
+				if (f.tag.equals("611")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("57","|",i2);
+						
+						putOrAppendToExtract("58","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("59","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("611")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("611-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("60","|",i2);
+						
+						putOrAppendToExtract("61","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("62","|",two);
+					}
+				}
+			}
+
+
+			if (isSubjPlace) {
+				if (f.tag.equals("630")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("63","|",i2);
+						
+						putOrAppendToExtract("64","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("65","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("630")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("630-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("66","|",i2);
+						
+						putOrAppendToExtract("67","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("68","|",two);
+					}
+				}
+			}
+
+			if (isSubjPlace) {
+				if (f.tag.equals("650")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i1 = f.ind1.toString();
+						if (i1.trim().isEmpty()) i1 = "<null>";
+						putOrAppendToExtract("69","|",i1);
+
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("70","|",i2);
+						
+						putOrAppendToExtract("71","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("72","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("650")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("650-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i1 = f.ind1.toString();
+						if (i1.trim().isEmpty()) i1 = "<null>";
+						putOrAppendToExtract("73","|",i1);
+
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("74","|",i2);
+						
+						putOrAppendToExtract("75","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("76","|",two);
+					}
+				}
+			}
+
+			if (isSubjPlace) {
+				if (f.tag.equals("651")) {
+					List<String> a = new ArrayList<String>();
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('a'))
+							a.add(sf.value);
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+						
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("77","|",i2);
+					
+					putOrAppendToExtract("78","|",StringUtils.join(a,'~'));
+
+					putOrAppendToExtract("79","|",StringUtils.join(z,'~'));
+					
+					putOrAppendToExtract("80","|",two);
+				}
+				if (f.alttag != null && f.alttag.equals("651")) {
+					List<String> a = new ArrayList<String>();
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("651-00"))
+							break;
+						else if (sf.code.equals('a'))
+							a.add(sf.value);
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					String i2 = f.ind2.toString();
+					if (i2.trim().isEmpty()) i2 = "<null>";
+					putOrAppendToExtract("81","|",i2);
+						
+					putOrAppendToExtract("82","|",StringUtils.join(a,'~'));
+
+					putOrAppendToExtract("83","|",StringUtils.join(z,'~'));
+						
+					putOrAppendToExtract("84","|",two);
+				}
+			}
+
+			if (isSubjPlace) {
+				if (f.tag.equals("653"))
+					putOrAppendToExtract("85","; ",f.concatenateSpecificSubfields("a"));
+				if (f.alttag != null && f.alttag.equals("653")) {
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('6')) {
+							if ( ! sf.value.startsWith("653-00"))
+								break;
+						} else if (sf.code.equals('a'))
+							putOrAppendToExtract("86","|",sf.value);
+				}
+			}
+
+			if (isSubjPlace) {
+				if (f.tag.equals("655")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i1 = f.ind1.toString();
+						if (i1.trim().isEmpty()) i1 = "<null>";
+						putOrAppendToExtract("87","|",i1);
+
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("88","|",i2);
+						
+						putOrAppendToExtract("89","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("90","|",two);
+					}
+				}
+				if (f.alttag != null && f.alttag.equals("655")) {
+					List<String> z = new ArrayList<String>();
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('2'))
+							two = sf.value;
+						else if (sf.code.equals('6') && ! sf.value.startsWith("655-00"))
+							break;
+						else if (sf.code.equals('z'))
+							z.add(sf.value);
+					if ( ! z.isEmpty()) {
+						
+						String i1 = f.ind1.toString();
+						if (i1.trim().isEmpty()) i1 = "<null>";
+						putOrAppendToExtract("91","|",i1);
+
+						String i2 = f.ind2.toString();
+						if (i2.trim().isEmpty()) i2 = "<null>";
+						putOrAppendToExtract("92","|",i2);
+						
+						putOrAppendToExtract("93","|",StringUtils.join(z,'~'));
+						
+						putOrAppendToExtract("94","|",two);
+					}
+				}
+			}
+
+			if (isCitations)
+				if (f.tag.startsWith("7") ||
+						(f.alttag != null && f.alttag.startsWith("7"))) {
+					String subfields = null;
+					if (f.tag.equals("700")) subfields = "abcdq";
+					else if (f.tag.startsWith("71")) subfields = "ab";
+					if (subfields != null)
+						putOrAppendToExtract("03","; ",f.concatenateSpecificSubfields(subfields));
+				}
 			
 			if (isSubjPlace)
-				if (f.tag.equals("651"))
-					putOrAppendToExtract("10","; ",f.concatenateSpecificSubfields("a"));
+				if (f.tag.equals("751"))
+					putOrAppendToExtract("95","|",f.concatenateSpecificSubfields("~", "a"));
 			
+			if (isSubjPlace)
+				if (f.tag.equals("752")) {
+					String a = null;
+					String b = null;
+					String c = null;
+					String d = null;
+					String two = null;
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a')) {
+							if (a == null) a = sf.value;
+						} else if (sf.code.equals('b'))
+							b = sf.value;
+						else if (sf.code.equals('c'))
+							c = sf.value;
+						else if (sf.value.equals('d'))
+							d = sf.value;
+						else if (sf.value.equals('2'))
+							two = sf.value;
+					putOrAppendToExtract("96","|",(a == null)?"<null>":a);
+					putOrAppendToExtract("97","|",(b == null)?"<null>":b);
+					putOrAppendToExtract("98","|",(c == null)?"<null>":c);
+					putOrAppendToExtract("99","|",(d == null)?"<null>":d);
+					putOrAppendToExtract("100","|",(two == null)?"<null>":two);
+				}
+
 			if (isTitleMatch)
 				if (f.tag.equals("776"))
 					for (Subfield sf : f.subfields.values())
@@ -1099,6 +2075,8 @@ public class MarcXmlToRdf {
 	}
 	
 	private void putOrAppendToExtract(String key, String joinWith, String val) {
+		if (val == null)
+			val = "<null>";
 		if (extractVals.containsKey(key))
 			extractVals.put(key, extractVals.get(key) + joinWith + val);
 		else 
@@ -1762,7 +2740,7 @@ public class MarcXmlToRdf {
 		GEN_FREQ_BIB, GEN_FREQ_MFHD, 
 		QC_880, QC_245, QC_SUBFIELD_CODES, QC_CJK_LABELING,
 		EXTRACT_PUBPLACE, EXTRACT_SUBJPLACE, EXTRACT_LANGUAGE,
-		EXTRACT_TITLE_MATCH
+		EXTRACT_TITLE_MATCH, EXTRACT_CITATIONS
 	}
 
 	

@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 
 import java.sql.Connection;
 import java.util.Collection;
@@ -50,8 +50,8 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		String vernTitle = vern_field.getFirstValue().toString();
 		Boolean isRTL = false; //Right to left script
 		// If this is a RTL value, the RTL open and close markers will interfere with comparison.
-		if (vernTitle.startsWith(RTE_openRTL)) {
-			vernTitle = vernTitle.substring(RTE_openRTL.length(), vernTitle.length() - PDF_closeRTL.length());
+		if (vernTitle.startsWith(RLE_openRTL)) {
+			vernTitle = vernTitle.substring(RLE_openRTL.length(), vernTitle.length() - PDF_closeRTL.length());
 			isRTL = true;
 		}
 		String[] mainTitleParts = field.getFirstValue().toString().split(" *= *");
@@ -73,7 +73,7 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		if (newVernTitleParts.size() < vernTitleParts.length) {
 			String newVernTitle = null;
 			if (isRTL) {
-				newVernTitle = RTE_openRTL + StringUtils.join(newVernTitleParts," = ") + PDF_closeRTL;
+				newVernTitle = RLE_openRTL + StringUtils.join(newVernTitleParts," = ") + PDF_closeRTL;
 			} else {
 				newVernTitle = StringUtils.join(newVernTitleParts," = ");
 			}

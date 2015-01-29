@@ -33,7 +33,6 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		Collection<String> facets = new HashSet<String>();
 		Collection<String> displays = new HashSet<String>();
 		
-		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){

@@ -451,7 +451,7 @@
     <lst name="defaults">
       <str name="defType">dismax</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="sort">score desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
@@ -576,7 +576,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,title_other_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,title_other_display,dbcode,providercode</str>
       <str name="df">id</str>
       <str name="rows">1</str>
       <str name="wt">ruby</str>
@@ -592,7 +592,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="df">sixfivethree</str>
       <str name="sort">title_sort asc</str>
       <str name="rows">1000000</str>
@@ -609,7 +609,7 @@
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,dbcode,providercode</str>
       <str name="df">title_1letter_s</str>
       <str name="sort">title_sort asc</str>
       <str name="rows">1000000</str>
@@ -630,7 +630,7 @@
   <requestHandler name="search" class="solr.SearchHandler" default="true" >
     <lst name="defaults">
       <str name="defType">edismax</str>
-      <str name="echoParams">explicit</str>      
+      <str name="echoParams">explicit</str>
       <str name="q.alt">*:*</str>      
       <str name="mm">100%</str>
       <str name="df">title_t</str>
@@ -1113,10 +1113,13 @@
         online, 
         language_display, 
         pub_info_display,
+		pub_date_display,
         pub_date_facet,
-	    url_access_display,
-	    holdings_record_display,
-	    item_record_display
+		url_access_display,
+    	holdings_record_display,
+		item_record_display,
+		edition_display,
+	    title_uniform_display
       </str>
      
       <str name="facet">true</str>
@@ -1143,6 +1146,7 @@
     </lst>
     <lst name="appends">
       <str name="fq">type:Catalog</str>
+      <str name="boost">log(max(10,sub(pub_date_facet,1985)))</str>
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
@@ -1163,9 +1167,35 @@
   <!-- for docfreq term counts -->
   <searchComponent name="terms" class="solr.TermsComponent"/>  
   <requestHandler name="/terms" class="solr.SearchHandler" startup="lazy">
+  <lst name="defaults">
+    <bool name="terms">true</bool>
+    <bool name="distrib">false</bool>
+  </lst>
+  <arr name="components">
+    <str>terms</str>
+  </arr>
+  </requestHandler>
+  <requestHandler name="/author" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <bool name="terms">true</bool>
       <bool name="distrib">false</bool>
+      <str name="terms.sort">index</str>
+      <str name="terms.limit">60</str>
+      <bool name="terms.upper.incl">true</bool>
+      <str name="terms.fl">author_facet</str>
+    </lst>
+    <arr name="components">
+      <str>terms</str>
+    </arr>
+  </requestHandler>
+  <requestHandler name="/subject" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <bool name="terms">true</bool>
+      <bool name="distrib">false</bool>
+      <str name="terms.sort">index</str>
+      <str name="terms.limit">60</str>
+      <bool name="terms.upper.incl">true</bool>
+      <str name="terms.fl">subject_topic_facet</str>
     </lst>
     <arr name="components">
       <str>terms</str>

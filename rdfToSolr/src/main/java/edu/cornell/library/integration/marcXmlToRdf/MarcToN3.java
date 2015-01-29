@@ -14,7 +14,7 @@ import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
 
-public class NonVoyagerToN3 {
+public class MarcToN3 {
 	
 	DavService davService;
 	
@@ -23,15 +23,15 @@ public class NonVoyagerToN3 {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
-	    new NonVoyagerToN3(args);			
+	    new MarcToN3(args);			
 	}
 	
-	public NonVoyagerToN3(String[] args) throws Exception {
+	public MarcToN3(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("nonVoyUriPrefix");
-		requiredFields.add("nonVoyXmlDir");
+		requiredFields.add("xmlDir");
 		requiredFields.add("n3Dir");
 		// optionalField : reportList
 		VoyagerToSolrConfiguration config =
@@ -46,7 +46,7 @@ public class NonVoyagerToN3 {
 	*/    
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
 		converter.setOutputFormat(OutputFormat.N3);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getNonVoyXmlDir(), davService);
+		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
 		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getN3Dir(), davService);
 		converter.setUriPrefix(config.getNonVoyUriPrefix());
 		converter.setIdPrefix(config.getNonVoyIdPrefix());

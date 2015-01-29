@@ -216,6 +216,7 @@
           -->
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
@@ -237,12 +238,18 @@
     
     <!-- field that can be used for left anchored search and auto complete -->
     <fieldType name="ngram" class="solr.TextField" >
-    <analyzer type="index">        
+    <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
     </analyzer>
-    <analyzer type="query">        
+    <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
     </analyzer>
@@ -265,6 +272,19 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
+    
+    <fieldType name="headingAccess" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
+    </fieldType>
+    
 
   </types>
 
@@ -308,12 +328,17 @@
     <field name="pub_date" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="pub_date_facet" type="tint" indexed="true" stored="true" multiValued="false"/>
     <field name="pub_date_sort" type="tint" indexed="true" stored="true" multiValued="false"/>
+    <field name="acquired" type="tint" indexed="true" stored="true" multiValued="false"/>
+    <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="title_exact" type="exact" indexed="true" stored="false"/>
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
 
     <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="collection" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
     <field name="source" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
     <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -332,9 +357,12 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_exact" type="exact" indexed="true" stored="false"/>
+    <dynamicField name="*_exact" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
+    <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
+    <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="alphaOnlySort" indexed="true" stored="false"/>
     <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />

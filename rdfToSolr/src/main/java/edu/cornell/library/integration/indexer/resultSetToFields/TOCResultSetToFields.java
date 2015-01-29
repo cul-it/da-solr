@@ -2,8 +2,9 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RTE_openRTL;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
@@ -85,8 +86,8 @@ public class TOCResultSetToFields implements ResultSetToFields {
 					if (exactlyOne880) {
 						for(String item: s.split(" *-- *")) {
 							if (s.endsWith(PDF_closeRTL)) {
-								if (! item.startsWith(RTE_openRTL))
-									item = RTE_openRTL + item;
+								if (! item.startsWith(RLE_openRTL))
+									item = RLE_openRTL + item;
 								if (! item.endsWith(PDF_closeRTL))
 									item += PDF_closeRTL;
 							}
@@ -96,7 +97,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 							else {
 								if (hasCJK(item))
 									addField(solrFields,"toc_t_cjk",item);
-								addField(solrFields,"toc_t",item);
+								addField(solrFields,"toc_t",standardizeApostrophes(item));
 							}
 						}
 					} else {
@@ -106,7 +107,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 						else {
 							if (hasCJK(s))
 								addField(solrFields,"toc_t_cjk",s);
-							addField(solrFields,"toc_t",s);
+							addField(solrFields,"toc_t",standardizeApostrophes(s));
 						}
 					}
 				}
@@ -114,13 +115,13 @@ public class TOCResultSetToFields implements ResultSetToFields {
 					if (valuesMain.size() == 1) {
 						for (String item: s.split(" *-- *")) {
 							addField(solrFields,relation+"_display",item);
-							addField(solrFields,"toc_t",item);
+							addField(solrFields,"toc_t",standardizeApostrophes(item));
 							if (isCJK(item))
 								addField(solrFields,"toc_t_cjk",item);
 						}
 					} else {
 						addField(solrFields,relation+"_display",s);
-						addField(solrFields,"toc_t",s);
+						addField(solrFields,"toc_t",standardizeApostrophes(s));
 						if (isCJK(s))
 							addField(solrFields,"toc_t_cjk",s);
 					}

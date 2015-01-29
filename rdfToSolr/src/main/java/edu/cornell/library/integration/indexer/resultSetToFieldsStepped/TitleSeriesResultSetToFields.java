@@ -46,16 +46,24 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
+			String cts880 = null, ctsMain = null;
 			for (DataField f: dataFields)
-				if (f.tag.equals("880"))
+				if (f.tag.equals("880")) {
 					values880.add(f.concateSubfieldsOtherThan6());
-				else
+					cts880 = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
+				} else {
 					valuesMain.add(f.concateSubfieldsOtherThan6());
+					ctsMain = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
+				}
 			if ((values880.size() > 0) || (valuesMain.size() > 0)) {
-				for (String s: values880)
+				for (String s: values880) {
 					addField(solrFields,"title_series_display",s);
-				for (String s: valuesMain)
+					addField(solrFields,"title_series_cts",s+"|"+cts880);
+				}
+				for (String s: valuesMain) {
 					addField(solrFields,"title_series_display",s);
+					addField(solrFields,"title_series_cts",s+"|"+ctsMain);
+				}
 				step.setFields(solrFields);
 				return step;
 			}

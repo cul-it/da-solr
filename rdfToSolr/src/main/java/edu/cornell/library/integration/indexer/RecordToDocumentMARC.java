@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
+import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
@@ -30,12 +31,14 @@ import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsResultS
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.RecordTypeRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
@@ -64,7 +67,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new LoadItemData(),
 				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
-				new NoAccessUrlsUnlessOnline()
+				new NoAccessUrlsUnlessOnline(),
+				new Collections()
 		);
 	}
 
@@ -127,7 +131,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "      ?liburi rdfs:label ?library.\n" +
 					    "}}}").
 		        addResultSetToFields( new HoldingsResultSetToFields()),
-
+		        
+		        new SPARQLFieldMakerImpl().
+		        	addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
+		        	addResultSetToFields( new TitleMatchRSTF()),
+		        	
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
 				new StandardMARCFieldMaker("other_id_display","035","a"),
@@ -253,9 +261,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\"^^xsd:string.\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
-			        	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-			        	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
-                        "  ?hold852b marcrdf:value ?loc.\n" +
+			        //	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
+			        //	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
+                    //  "  ?hold852b marcrdf:value ?loc.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
 			        	"    ?hold852i marcrdf:code \"i\"^^xsd:string.\n" +
@@ -276,7 +284,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					  	"    ?f50 marcrdf:hasSubfield ?f50b.\n" +
 					   	"    ?f50b marcrdf:code \"b\"^^xsd:string.\n" +
 					   	"    ?f50b marcrdf:value ?part2. }\n" +
-					    "}").
+				    	"}").
+				    addMainStoreQuery("bib_callno",
+				    		"SELECT ?part1 ?part2\n"+
+				    		"WHERE {\n"+
+				            "  $recordURI$ marcrdf:hasField950 ?f950.\n" +
+				            "  ?f950 marcrdf:hasSubfield ?f950a.\n" +
+				            "  ?f950a marcrdf:code \"a\"^^xsd:string.\n" +
+				            "  ?f950a marcrdf:value ?part1.\n" +
+				            "  OPTIONAL {\n" +
+				            "    ?f950 marcrdf:hasSubfield ?f950b.\n" +
+				            "    ?f950b marcrdf:code \"b\"^^xsd:string.\n" +
+				            "    ?f950b marcrdf:value ?part2. }\n" +
+				    		"}").
 			        addResultSetToFieldsStepped( new CallNumberResultSetToFields() ),
 			    	
 				new SPARQLFieldMakerImpl().
@@ -492,7 +512,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			        setName("Locations").
 			        addMainStoreQuery("location",
-			        	"SELECT ?location_name ?library_name ?group_name \n"+
+			        	"SELECT ?loccode ?location_name ?library_name ?group_name \n"+
 			        	"WHERE {\n"+
                         "    ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"+
 			        	"    ?hold marcrdf:hasField852 ?hold852.\n" +
@@ -539,6 +559,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","508","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","510","abcux3"),
 				new StandardMARCFieldMaker("notes_t","510","abcux3",VernMode.SEARCH),
+				new StandardMARCFieldMaker("notes","511","a"),
+				new StandardMARCFieldMaker("notes_t","511","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","513","ab"),
 				new StandardMARCFieldMaker("notes_t","513","ab",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","518","adop"),
@@ -606,14 +628,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("description_display","300","abcefg"),
 				new StandardMARCFieldMaker("description_display","538","a"),
 				new StandardMARCFieldMaker("notes_t","538","a",VernMode.SEARCH),
-	
-				new StandardMARCFieldMaker("subject_era_facet","650","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","651","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","654","y",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_era_facet","655","y",VernMode.SEPARATE,"."),
-
-				new StandardMARCFieldMaker("subject_geo_facet","651","a",VernMode.SEPARATE,"."),
-				new StandardMARCFieldMaker("subject_geo_facet","650","z",VernMode.SEPARATE,"."),
 
 				new SPARQLFieldMakerImpl().
 					setName("fact_or_fiction").
@@ -622,10 +636,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 			    		"        ?f marcrdf:value ?val } \n" ).
 					addMainStoreQuery("record_type",
-				    	"SELECT (SUBSTR(?l,7,1) as ?char6) \n" +
+				    	"SELECT (SUBSTR(?l,7,2) as ?char67) \n" +
 				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
 			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
 
+		    	// subject_t is essentially a boost field. Should eventually be dropped or
+		    	// population moved to SubjectRSTF.
 				new StandardMARCFieldMaker("subject_t","600","abcdefghijklmnopqrstu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","610","abcdefghijklmnopqrstu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","611","abcdefghijklmnopqrstu",VernMode.SEARCH),
@@ -635,33 +651,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("subject_t","653","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","654","abcde",VernMode.SEARCH),
 				new StandardMARCFieldMaker("subject_t","655","abc",VernMode.SEARCH),
-				
-				new StandardMARCFieldMaker("subject_addl_t","600","abcdefghkjlmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","610","abcdefghklmnoprstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","611","acdefghklnpqstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","630","adfghklmnoprstvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","648","avxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","650","abcdvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","651","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","653","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","654","abevwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","655","avwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","656","akvxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","657","avxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","658","abcd",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","662","abcdfgh",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","692","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","693","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","694","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","695","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","696","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","697","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","698","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("subject_addl_t","699","a",VernMode.SEARCH),
-				
+
 			    new SPARQLFieldMakerImpl().
-			    	setName("subject display").
-			    	addMainStoreQuery("subject display",
+			    	setName("subject").
+			    	addMainStoreQuery("subjects",
 					"SELECT *\n" +
 					" WHERE { $recordURI$ ?p ?field.\n" +
 					"        ?p rdfs:subPropertyOf marcrdf:SubjectTermEntry.\n"+
@@ -673,7 +666,46 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    "        ?sfield marcrdf:value ?value.\n" +
 				    " }").
 		        	addResultSetToFields( new SubjectResultSetToFields()),
-				
+
+			  new SPARQLFieldMakerImpl().
+			    	setName("newbooks").
+			    	addMainStoreQuery("newbooks948",
+					"SELECT ?ind1 ?a\n" +
+					" WHERE { $recordURI$ marcrdf:hasField948 ?field.\n" +
+				    "        ?field marcrdf:ind1 \"1\"^^xsd:string. \n" +
+				    "        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    "        ?sfield marcrdf:code \"a\"^^xsd:string .\n" +
+				    "        ?sfield marcrdf:value ?a.\n" +
+				    " }").
+			    	addMainStoreQuery("newbooksMfhd",
+					"SELECT ?five ?code ?x\n" +
+					" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+				   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+				    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
+				    "  ?mfhd852b marcrdf:code \"b\"^^xsd:string.\n" +
+                    "  ?mfhd852b marcrdf:value ?code. \n" +
+				    "  ?mfhd marcrdf:hasField005 ?mfhd005.\n"+
+                    "  ?mfhd005 marcrdf:value ?five. \n" +
+				    "  OPTIONAL {\n" +
+				    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852x.\n" +
+				    "    ?mfhd852x marcrdf:code \"x\"^^xsd:string.\n" +
+                    "    ?mfhd852x marcrdf:value ?x. \n" +
+				    " }}").
+					addMainStoreQuery("seven",
+							"SELECT (SUBSTR(?seven,1,1) as ?cat)\n" +
+							" WHERE { $recordURI$ marcrdf:hasField007 ?f.\n" +
+							"          ?f marcrdf:value ?seven. }").
+					addMainStoreQuery("k",
+						"SELECT ?callnumprefix\n" +
+						" WHERE { ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+					   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
+					    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852k.\n" +
+					    "  ?mfhd852k marcrdf:code \"k\"^^xsd:string.\n" +
+				        "  ?mfhd852k marcrdf:value ?callnumprefix. \n" +
+						" }").
+		        	addResultSetToFields( new NewBooksRSTF()),
+
+		        	
 				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"a"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 				
@@ -681,8 +713,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("isbn_display","020","a"),				
 				new StandardMARCFieldMaker("issn_display","022","a"),
 
-				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),				
+				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","a",VernMode.SEARCH),
+				new StandardMARCFieldMaker("issn_t","022","l",VernMode.SEARCH),
 				
 			//	new StandardMARCFieldMaker("eightninenine_s","899","a"),
 				new StandardMARCFieldMaker("eightninenine_t","899","ab"),

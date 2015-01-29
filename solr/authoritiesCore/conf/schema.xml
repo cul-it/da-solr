@@ -150,11 +150,6 @@
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <!-- custom filter from bob@umich -->
         <!-- <filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" /> -->
-        <!-- cusotm filter from bob@umich, tokenizes CJK char-by-char. Not
-             sure how good that is, but it's probably better than tokenizing
-             only at whitespace. -->
-        <!--<filter class="schema.CJKFilterFactory"  bigrams="false"/>-->
-        
         <filter class="solr.ICUFoldingFilterFactory"/>
         
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -177,140 +172,57 @@
         <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
+ 
 
-    <!-- Analyzed Text, no Stemming or Synonyms -->
-    <fieldtype name="textNoStem" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <!--<filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" />-->
-        <!--<filter class="schema.CJKFilterFactory"  bigrams="false"/>-->
-<!--         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />         -->
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <!--<filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" />-->
-        <!--<filter class="schema.CJKFilterFactory"  bigrams="false"/>-->
-<!--         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />         -->
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
-      </analyzer>
-    </fieldtype>
 
-    <!-- Less flexible matching, but less false matches.  Probably not ideal for product names, but may be good for SKUs.  Can insert dashes in the wrong place and still match. -->
-    <fieldType name="textTight" class="solr.TextField" positionIncrementGap="100" >
+    <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-<!--         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/> -->
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
-        <!-- this filter can remove any duplicate tokens that appear at the same position - sometimes
-             possible with WordDelimiterFilter in conjuncton with stemming. -->
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <fieldType name="textSpell" class="solr.TextField" positionIncrementGap="100" >
-      <analyzer>
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-<!--         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/> -->
-        <filter class="solr.StandardFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <fieldType name="alphaOnlySort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <!-- KeywordTokenizer does no actual tokenizing, so the entire
-             input string is preserved as a single token
-          -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <!--<filter class="schema.UnicodeNormalizationFilterFactory" version="icu4j" composed="false" remove_diacritics="true" remove_modifiers="true" fold="true" />-->
+        <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.TrimFilterFactory" />
-<!-- 
-        <filter class="solr.PatternReplaceFilterFactory" pattern="([^a-z\d])" replacement="" replace="all" />
--->
-      </analyzer>
-    </fieldType>
-    
-    
-    <!-- attempt to do exact matches taking into account Unicode -->
-      <fieldType name="exact" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <!-- KeywordTokenizer does no actual tokenizing, so the entire
-             input string is preserved as a single token
-          -->
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>        
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
     </fieldType>
-    
-    
-    <!-- field that can be used for left anchored search and auto complete -->
-    <fieldType name="ngram" class="solr.TextField" >
-    <analyzer type="index">        
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
-    </analyzer>
-    <analyzer type="query">        
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-    </analyzer>
-    </fieldType>
 
-	<!-- While the primary target of this analysis is LC Call Numbers, 
-	other call numbers such as "1-1-1" and "Thesis 3" should be supported. -->
-    <fieldType name="callNumberNormalized" class="solr.TextField" omitNorms="true">
-      <analyzer>
-        <!-- replace any periods with spaces if they precede a letter -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.([a-zA-Z])" replacement=" $1" />
-        <!-- if a number follows directly after a letter, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
-        <!-- if a letter follows directly after a number, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
-        <!-- replace any leading whitespace with "lccncode." to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^\s*" replacement="lccncode." />
-        <!-- treat any sequences of characters that are not alphanumeric + periods as breaks between tokens -->
-        <tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-      </analyzer>
-    </fieldType>
-    
-	<fieldType name="collationText" class="solr.ICUCollationField" locale="">
-	</fieldType>    
+
 
   </types>
 
   
   <fields>
+  	<!-- The combination of headingSort, headingType and headingTypeDesc together form a unique key for each
+  	     record. The id is the md5 checksum of the concatenation of these three. --> 
     <field name="id" type="string" indexed="true" stored="true" required="true" />
-    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+<!--    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/> -->
     <!-- required for updateLog and NRT indexing -->
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
 
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="heading" type="collationText" indexed="true" stored="true" multiValued="false" required="true"/>
-	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="false"/>
-	<field name="equivalentValues" type="string" indexed="false" stored="true" multiValued="true"/>
-	<field name="seeAlsos" type="string" indexed="false" stored="true" multiValued="true"/>
-    
-    <!-- filter fields -->
-    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-    <field name="prefered_b" type="boolean" indexed="true" stored="true" multiValued="false"/>
-    <field name="source" type="string" indexed="true" stored="true" multivalued="true" required="true"/>
+    <field name="heading" type="string" indexed="false" stored="true" multiValued="false" required="true"/>
+    <field name="headingSort" type="sort" indexed="true" stored="true" multiValued="false" required="true"/>
+	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. Personal Name -->
+	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
+	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
+
+	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
+	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
+    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
+
+    <!-- internal use fields to aid index building -->
+    <field name="formTracings" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="headingVariations" type="string" indexed="false" stored="true" multiValued="false"/>
 
   </fields>
 
   <uniqueKey>id</uniqueKey>
-  <defaultSearchField>heading</defaultSearchField>
+  <defaultSearchField>headingSort</defaultSearchField>
   <solrQueryParser defaultOperator="AND"/>
 
 </schema>

@@ -128,8 +128,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 				Iterator<String> j = sf948fs.iterator();
 				while (j.hasNext())
 					if (j.next().toLowerCase().equals("j")) {
-						format = "Journal";
-						if (debug) System.out.println("Journal format due to 245h: [electronic resource] and 948f: j.");					
+						format = "Journal/Periodical";
+						if (debug) System.out.println("Journal/Periodical format due to 245h: [electronic resource] and 948f: j.");
 					}			
 			}
 
@@ -175,8 +175,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 					if (debug) System.out.println("Book due to record_type:a and bibliographic_level in: a,m,d,c.");
 				} else if ((bibliographic_level.equals("b"))
 						|| (bibliographic_level.equals("s"))) {
-					format = "Journal";
-					if (debug) System.out.println("Journal due to record_type:a and bibliographic_level in: b,s.");
+					format = "Journal/Periodical";
+					if (debug) System.out.println("Journal/Periodical due to record_type:a and bibliographic_level in: b,s.");
 				} else if (bibliographic_level.equals("i")) {
 					if (typeOfContinuingResource.equals("w")) {
 						format = "Website";
@@ -188,8 +188,8 @@ public class FormatResultSetToFields implements ResultSetToFields {
 						format = "Database";
 						if (debug) System.out.println("Database due to record_type:a, bibliographic_level:i and typeOfContinuingResource:d.");
 					} else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("p")) {
-						format = "Journal";
-						if (debug) System.out.println("Journal due to record_type:a, bibliographic_level:i and typeOfContinuingResource in:n,p.");
+						format = "Journal/Periodical";
+						if (debug) System.out.println("Journal/Periodical due to record_type:a, bibliographic_level:i and typeOfContinuingResource in:n,p.");
 					}
 				}
 			} else if (record_type.equals("t")) {

@@ -29,7 +29,7 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		String char6 = "";
+		String chars6and7 = "";
 		String char33 = "";
 
 		for( String resultKey: results.keySet()){
@@ -44,13 +44,18 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 						if (name.equals("char33")) 
 							char33 = nodeToString( node );
 						else
-							char6 = nodeToString( node );
+							chars6and7 = nodeToString( node );
 					}
 				}
 			}
 		}
 
-		if (char6.equalsIgnoreCase("a")) {
+		if (chars6and7.equalsIgnoreCase("aa") 
+			|| chars6and7.equalsIgnoreCase("ac")
+			|| chars6and7.equalsIgnoreCase("ad")
+			|| chars6and7.equalsIgnoreCase("am")
+			|| chars6and7.startsWith("t")
+			) {
 			if (char33.equals("0") ||
 					char33.equalsIgnoreCase("i")) {
 				addField(fields,"subject_content_facet","Non-Fiction (books)");

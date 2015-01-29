@@ -24,7 +24,7 @@ dependencies {
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
              
-   compile 'org.apache.solr:solr-solrj:4.2.1'
+   compile 'org.apache.solr:solr-solrj:4.9.1'
    
    compile 'com.google.guava:guava:14.0'            
 }
@@ -53,7 +53,7 @@ task( fullMarcXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
 task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to TXT representation of MARC"
  maxHeapSize = '1500m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToTxt'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToTxt'
  classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -64,17 +64,17 @@ task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( nonVoyagerXmlToNT, dependsOn: 'assemble', type: JavaExec) {
+task( marcXmlToNT, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to N-Triples"
  maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToNT'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToNT'
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( nonVoyagerXmlToN3, dependsOn: 'assemble', type: JavaExec) {
+task( marcXmlToN3, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to N3"
  maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.NonVoyagerToN3'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToN3'
  classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -108,6 +108,21 @@ task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
    description="Converts Voyager MARC XML to MARC N-Triples." 
    jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (indexAuthority, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes Authority Solr core from Authority MARC XML" 
+   main='edu.cornell.library.integration.indexer.IndexAuthorityRecords'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
    maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }

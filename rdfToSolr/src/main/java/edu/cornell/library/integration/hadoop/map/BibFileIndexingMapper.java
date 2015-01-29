@@ -192,24 +192,25 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				}
 				catch (SQLException SQLEx) { /* ignore */ }
 				
-						
 				try{
-		            if( doSolrUpdate ){
-		                //in solr an update is a delete followed by an add
-		            	List<String> ids = new ArrayList<String>();
-		            	for (SolrInputDocument doc : docs)
-		            		ids.add((String)doc.getFieldValue("id"));
-		            	solr.deleteById(ids);
-		            }
-					solr.add(docs);				
-
-		            context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
-	            	for (SolrInputDocument doc : docs)
-	            		context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
-
-				}catch (Throwable er) {			
+					if ( ! docs.isEmpty() ) {
+						if( doSolrUpdate ){
+							//in solr an update is a delete followed by an add
+			            	List<String> ids = new ArrayList<String>();
+			            	for (SolrInputDocument doc : docs)
+			            		ids.add((String)doc.getFieldValue("id"));
+			            	solr.deleteById(ids);
+			            }
+						solr.add(docs);				
+					}
+	
+					context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+					for (SolrInputDocument doc : docs)
+						context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+	
+				} catch (Throwable er) {			
 					throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
-				} 
+				}
 
 								
 				//attempt to move file to done directory when completed

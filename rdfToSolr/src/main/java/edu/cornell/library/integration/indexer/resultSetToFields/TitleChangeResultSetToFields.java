@@ -2,7 +2,9 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
@@ -52,7 +54,9 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
 			String relation = null;
+			String mainTag = null;
 			for (DataField f: dataFields) {
+				mainTag = f.mainTag;
 				String title_cts = f.concatenateSpecificSubfields("t");
 				String author_cts;
 				if (f.mainTag.equals("700")) {
@@ -86,10 +90,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if ((relation != null) && relation.equals("author_addl")) {
 					if (f.tag.equals("880")) {
 						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
-						values880.add("author_addl_displayZ"+author_disp + "|" + author_cts);
+						values880.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
 					} else {
 						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-						valuesMain.add("author_addl_displayZ"+author_disp + "|" + author_cts);
+						valuesMain.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
 					}
 				} else if (relation != null) {
 					String workField;
@@ -178,7 +182,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						) {
 					String subfields = "atbcdegkqrs";
 					String value = f.concatenateSpecificSubfields(subfields); 
-					addField(solrFields,"title_uniform_t",value);
+					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
 					if (f.tag.equals("880")) {
 						if (f.getScript().equals(MarcRecord.Script.CJK)) {
 							addField(solrFields,"title_uniform_t_cjk",value);
@@ -199,13 +203,20 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (s.startsWith("author_")) {
 						StringBuilder sb = new StringBuilder();
 						String[] temp = s.split("Z",2);
+						String[] temp2 = temp[1].split("\\|",2);
+						String vernName = temp2[0];
+						String name = null;
 						sb.append(removeTrailingPunctuation(temp[1],","));
 						for (String t:valuesMain) {
-							String[] temp2 = t.split("Z",2);
+							String[] temp3 = t.split("Z",2);
+							String[] temp4 = temp3[1].split("\\|",2);
+							name = temp4[0];
 							sb.append("|");
-							sb.append(temp2[1]);
+							sb.append(temp3[1]);
 						}
-						addField(solrFields,temp[0],sb.toString());
+						addField(solrFields,"author_addl_cts",sb.toString());
+						addField(solrFields,"author_addl_display",vernName+" / "+name);
+						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(vernName+" / "+name));
 						values880.clear();
 						valuesMain.clear();
 					}
@@ -213,11 +224,21 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			}
 			for (String s: values880) {
 				String[] temp = s.split("Z",2);
-				addField(solrFields,temp[0],temp[1]);	
+				addField(solrFields,temp[0],temp[1]);
+				if (temp[0].startsWith("author_")) {
+					String[] temp2 = temp[1].split("\\|",2);
+					addField(solrFields,"author_addl_display",temp2[0]);
+					addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(temp2[0]));
+				}
 			}
 			for (String s: valuesMain) {
 				String[] temp = s.split("Z",2);
 				addField(solrFields,temp[0],temp[1]);
+				if (temp[0].startsWith("author_")) {
+					String[] temp2 = temp[1].split("\\|",2);
+					addField(solrFields,"author_addl_display",temp2[0]);
+					addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(temp2[0]));
+				}
 			}
 		}
 		return solrFields;	
