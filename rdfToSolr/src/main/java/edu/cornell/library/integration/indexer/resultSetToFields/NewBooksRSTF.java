@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -55,13 +56,21 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	rs = results.get("newbooksMfhd");
 	  	while (rs.hasNext()) {
 	  		QuerySolution sol = rs.nextSolution();
+	  		if (debug) {
+	  			Iterator<String> i = sol.varNames();
+	  			while (i.hasNext()) System.out.println(i.next());
+	  		}
 	  		String code = nodeToString(sol.get("code"));
 	  		loccodes.add(code);
 	  		
+	  		
 	  		if (sol.contains("z") && sol.get("z") != null) {
 	  			String z = nodeToString(sol.get("z")).toLowerCase();
-	  			if (z.contains("new book") && z.contains("shelf"))
+	  			if (debug) System.out.println("z note: "+z);
+	  			if (z.contains("new book") && z.contains("shelf")) {
 	  				newBooksZNote = true;
+	  				if (debug) System.out.println("Looks like the book is on a new books shelf");
+	  			}
 	  		}
 				
 	  		// the rest of this MFHD while loop relates to determining whether
@@ -90,9 +99,11 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  	}
 	  	
 	  	if (newBooksZNote)
-	  		for (String loccode : loccodes)
+	  		for (String loccode : loccodes) {
+	  			if (debug) System.out.println(loccode);
 	  			if (loccode.startsWith("afr"))
 		  			addField(fields,"new_shelf","Africana Library New Books Shelf");
+	  		}
 
 	  	
 	  	// Begin New Books Logic
