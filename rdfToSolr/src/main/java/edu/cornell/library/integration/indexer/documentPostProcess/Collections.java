@@ -27,7 +27,7 @@ public class Collections implements DocumentPostProcess{
 
 		Collection<String> loccodes = new HashSet<String>();
 		Collection<String> lc_alphas = new HashSet<String>();
-		Collection<String> collections = new HashSet<String>();
+		SolrInputField collections = new SolrInputField("collection");
 
 		if (document.containsKey("holdings_record_display")) {
 			SolrInputField holdingsField = document.getField( "holdings_record_display" );
@@ -61,18 +61,15 @@ public class Collections implements DocumentPostProcess{
 		
 		for (String code : loccodes) {
 			if (code.startsWith("law"))
-				collections.add("Law Library");
+				collections.addValue("Law Library",1);
 			else if (code.equals("serv,remo")) {
 				if (lc_alphas.contains("K"))
-					collections.add("Law Library");
+					collections.addValue("Law Library",1);
 			}
 		}
 
-		if ( ! collections.isEmpty()) {
-			SolrInputField f = new SolrInputField("collection");
-			for (String collection : collections)
-				f.addValue(collection, 1.0f);
-			document.addField("collection", f);
+		if ( collections.getValueCount() > 0 ) {
+			document.addField("collection", collections);
 		}
 	}
 }
