@@ -285,9 +285,10 @@
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[^a-zA-Z\d\.]+" replacement=" "/>
 
         <!-- zero-pad numbers both before and after the decimal -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+)\b" replacement="$1.0" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+).(\d)\b" replacement="00000$1.$200000" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="0*(\d{6}).(\d{6})0*" replacement="$1.$2" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\." replacement="a" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+)\b" replacement="$1a0" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+)a(\d+)\b" replacement="00000$1a$200000" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="0*(\d{6})a(\d{6})0*" replacement="$1.$2" />
 
 	    <!-- strip leading spaces -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^\s*" replacement="" />
