@@ -51,11 +51,18 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		}
 	  	
 	  	Boolean matchingMfhd = false;
+	  	Boolean newBooksZNote = false;
 	  	rs = results.get("newbooksMfhd");
 	  	while (rs.hasNext()) {
 	  		QuerySolution sol = rs.nextSolution();
 	  		String code = nodeToString(sol.get("code"));
 	  		loccodes.add(code);
+	  		
+	  		if (sol.contains("z") && sol.get("z") != null) {
+	  			String z = nodeToString(sol.get("z")).toLowerCase();
+	  			if (z.contains("new book") && z.contains("shelf"))
+	  				newBooksZNote = true;
+	  		}
 				
 	  		// the rest of this MFHD while loop relates to determining whether
 	  		// the book will count as "new" (as opposed to being on a new book shelf).
@@ -81,6 +88,11 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		matchingMfhd = true;
 	  		continue;
 	  	}
+	  	
+	  	if (newBooksZNote)
+	  		for (String loccode : loccodes)
+	  			if (loccode.startsWith("afr"))
+		  			addField(fields,"new_shelf","Africana Library New Books Shelf");
 
 	  	
 	  	// Begin New Books Logic
