@@ -22,7 +22,7 @@ import com.hp.hpl.jena.query.ResultSet;
  */
 public class NewBooksRSTF implements ResultSetToFields {
 	
-	final static Boolean debug = true;
+	final static Boolean debug = false;
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
