@@ -104,10 +104,10 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				} else if (f.mainTag.equals("650")) {
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
-					facet_type = "geo";
 				} else if (f.mainTag.equals("651")) {
 					main_fields = "a";
 					dashed_fields = "vxyz";
+					facet_type = "geo";
 				} else if (f.mainTag.equals("653")) {
 					// This field list is used for subject_display and sixfivethree.
 					main_fields = "a";
