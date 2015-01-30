@@ -272,6 +272,30 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
+    <fieldType name="callNumberSort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <!-- replace any periods with spaces if they precede a letter -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.([^\d])" replacement=" $1" />
+        <!-- if a number follows directly after a letter, insert a space between them -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
+        <!-- if a letter follows directly after a number, insert a space between them -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
+
+		<!-- strip all non-alphanumeric characters sequences down to single spaces -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[^a-zA-Z\d\.]+" replacement=" "/>
+
+        <!-- zero-pad numbers both before and after the decimal -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+)\b" replacement="$1.0" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\b(\d+).(\d)\b" replacement="00000$1.$200000" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="0*(\d{6}).(\d{6})0*" replacement="$1.$2" />
+
+	    <!-- strip leading spaces -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^\s*" replacement="" />
+
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+    </fieldType>
     
     <fieldType name="headingAccess" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
@@ -335,6 +359,7 @@
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
+    <field name="callnum_sort" type="callNumberSort" indexed="true" stored="false" multiValued="false" />
 
     <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
