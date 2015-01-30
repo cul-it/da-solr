@@ -694,7 +694,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    "    ?mfhd852 marcrdf:hasSubfield ?mfhd852z.\n" +
 				    "    ?mfhd852z marcrdf:code \"z\"^^xsd:string.\n" +
                     "    ?mfhd852z marcrdf:value ?z.  }\n"+
-                    "}}").
+                    "}").
 					addMainStoreQuery("seven",
 							"SELECT (SUBSTR(?seven,1,1) as ?cat)\n" +
 							" WHERE { $recordURI$ marcrdf:hasField007 ?f.\n" +
