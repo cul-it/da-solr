@@ -63,6 +63,9 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 					else if (f.ind2.equals('3')) relation = "pub_manu";
 					else if (f.ind2.equals('4')) relation = "pub_copy";
 				}
+			}
+			if (relation == null) relation = "pub_info";
+			for (DataField f: dataFields) {
 				if (f.tag.equals("880")) {
 					values880.add(f.concateSubfieldsOtherThan6());
 					if (relation.equals("pub_info")) {
