@@ -76,34 +76,26 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         // Get additional BIB IDs for changed MFHD records 
 		System.out.println("Adding extra BIB IDs that need to be updated beacause "
 		        + "their MFHD records changed");				
-		Set<String> extraBibIds = getBibIdsWhosMfhdsChanged( updatedMfhdIds );
+		updatedBibIds.addAll(getBibIdsWhoseMfhdsChanged( updatedMfhdIds ));
 			
-		// Get additional BIB IDs that have deleted MFHDs from step 2
-		Calendar now = Calendar.getInstance();
-		List<String> bibListForUpdate = getBibIdsWithDeletedMfhd( config, getDateString(now) );					    
+		// Get additional BIB IDs that have been added or have deleted MFHDs from step 2
+		String date =  getDateString(Calendar.getInstance());
+		List<String> bibListForUpdate = getBibIdsWithDeletedMfhd( config, date );
 	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() + " (from deleted and suppressed mfhds)");
-	    extraBibIds.addAll( bibListForUpdate );	    
-		extraBibIds.removeAll( updatedBibIds ); 
+	    updatedBibIds.addAll( bibListForUpdate );
+		List<String> bibListForAdd = getBibIdsToAdd( config, date );
+	    System.out.println("bibListForAdd: " + bibListForAdd.size() + " (from new or unsuppressed bibs)");
+	    updatedBibIds.addAll( bibListForAdd );
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Adding extra holdings ids");		
-		Set<String> extraMfhdIds = getHoldingsForBibs( updatedBibIds ) ;
-		extraMfhdIds.addAll( getHoldingsForBibs( extraBibIds ) );								
-		extraMfhdIds.removeAll( updatedMfhdIds );
+		updatedMfhdIds.addAll( getHoldingsForBibs( updatedBibIds ) );
 		
-		System.out.println("ExtraMfhdIDList: " + extraMfhdIds.size());
-		System.out.println("Total BibIDList: " + (updatedBibIds.size() + extraBibIds.size() ));
-		System.out.println("Total MfhdIDList: " + (updatedMfhdIds.size() + extraMfhdIds.size() ));
+		System.out.println("Total BibIDList: " + updatedBibIds.size());
+		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
 
-		// get BIB MARC and save it
-		updatedBibIds.addAll( extraBibIds );		
 		saveBIBsToMARC(  updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
-		
-        // get MFHD MARC and save it
-		updatedMfhdIds.addAll( extraMfhdIds );
 		saveMFHDsToMARC( updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
-		
-		System.out.println("Done.");		
 	}
 
 	/**
@@ -112,7 +104,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * updated so the Sorl index will reflect the new MFHD records. 
 	 * @param updatedMfhdIds - MFHD IDs of records that have changed  
 	 */
-	 private Set<String> getBibIdsWhosMfhdsChanged( Collection<String> updatedMfhdIds  ) 
+	 private Set<String> getBibIdsWhoseMfhdsChanged( Collection<String> updatedMfhdIds  ) 
 	         throws Exception {	     
 	     try {
 	         Set<String> extraBibIds = new HashSet<String>();
@@ -273,6 +265,35 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     }
 
 
+    /**
+	 * Gets the list of BIB IDs that are new or newly unsuppressed (or otherwise missing
+	 * from the index). This list was generated in step 2.
+	 * @throws Exception 
+	 * 
+	 */
+	private List<String> getBibIdsToAdd( VoyagerToSolrConfiguration config, String today ) throws Exception {
+        
+        String tmpFilePath = config.getTmpDir() +"/"+ "bibListToAdd-"+ today +".txt";;
+        
+        String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
+                + "bibListToAdd-"+ today + ".txt";
+        System.out.println("Reading BIB ID needed to add to Voyager from " + fileName );
+        
+        List<String> bibListForAddList;
+        File localTmpBibListForAddFile = null;
+        try {
+            localTmpBibListForAddFile = getDavService().getFile(fileName, tmpFilePath);
+            bibListForAddList = FileUtils.readLines(localTmpBibListForAddFile);
+        } catch (Exception e1) {
+            throw new Exception("Failed reading: "+ fileName, e1);            
+        } finally {
+            if( localTmpBibListForAddFile != null)
+                localTmpBibListForAddFile.delete();  
+        }
+        return bibListForAddList;
+    }
+
+
     /** 
      * @param fromDate in format yyyy-MM-dd HH:mm:ss
      * @param toDate in format yyyy-MM-dd HH:mm:ss
@@ -377,12 +398,11 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	   return getDateTimeString(date);
    }
    
-   
    protected String getDateTimeString(Calendar cal) {
 	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 	   String ds = df.format(cal.getTime());
 	   return ds;
-   }
+   } 
    
    protected String getDateString(Calendar cal) {
 	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
