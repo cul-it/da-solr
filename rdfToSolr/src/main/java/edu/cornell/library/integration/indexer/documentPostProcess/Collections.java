@@ -69,7 +69,7 @@ public class Collections implements DocumentPostProcess{
 		}
 
 		if ( collections.getValueCount() > 0 ) {
-			document.addField("collection", collections);
+			document.put("collection", collections);
 		}
 	}
 }

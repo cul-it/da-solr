@@ -64,9 +64,17 @@ public class VoyagerToSolrConfiguration {
     		return null;
     	}
     }
-
     public void setDailyBibDeletes(String str) {
         values.put("dailyBibDeletes", insertDate(str));
+    }
+
+    public String getDailyBibAdds() throws IOException {
+    	if (values.containsKey("dailyBibAdds")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibAdds"));
+    		return values.get("dailyBibAdds");
+    	} else {
+    		return null;
+    	}
     }
 
     public String getWebdavBaseUrl() throws IOException {

@@ -109,10 +109,11 @@ public class IdentifyDeletedRecords {
 			
 			Integer[] bibsToDelete = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
 			Iterator<Integer> bibidsForDeletedMFHDs = c.mfhdsInIndexNotVoyager.values().iterator();
+			Integer[] bibsToAdd = c.bibsInVoyagerNotIndex.toArray(new Integer[ c.bibsInVoyagerNotIndex.size() ]);
 			
 			c = null; // to allow GC
 			
-			produceReport(bibsToDelete, bibidsForDeletedMFHDs);
+			produceReport(bibsToDelete, bibidsForDeletedMFHDs, bibsToAdd);
 		}
  	}
 
@@ -123,17 +124,18 @@ public class IdentifyDeletedRecords {
 	 *  to a files on the WEBDAV server.
 	 *  
 	 *  The report files have post-pended dates in their file names.
+     * @param bibsToAdd TODO
 	 *  
 	 */
-	private void produceReport( Integer[] bibIdsInIndexNotInVoyager,Iterator<Integer> bibsWithDeletedMhds) throws Exception {
+	private void produceReport( Integer[] bibsToDelete,Iterator<Integer> bibsWithDeletedMhds, Integer[] bibsToAdd) throws Exception {
 
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		
 		// Write a file of BIBIDs that are in the Solr index but not voyager
-		if ( bibIdsInIndexNotInVoyager != null && bibIdsInIndexNotInVoyager.length > 0) {						
-			Arrays.sort( bibIdsInIndexNotInVoyager );
+		if ( bibsToDelete != null && bibsToDelete.length > 0) {
+			Arrays.sort( bibsToDelete );
 			StringBuilder sb = new StringBuilder();
-			for( Integer id: bibIdsInIndexNotInVoyager ) {
+			for( Integer id: bibsToDelete ) {
 				sb.append(id);
 				sb.append("\n");
 			}
@@ -150,6 +152,26 @@ public class IdentifyDeletedRecords {
 			}		
 		}
 
+		// Write a file of BIBIDs that are in Voyager but not in the Solr index
+		if ( bibsToAdd != null && bibsToAdd.length > 0) {
+			Arrays.sort( bibsToAdd );
+			StringBuilder sb = new StringBuilder();
+			for( Integer id: bibsToAdd ) {
+				sb.append(id);
+				sb.append("\n");
+			}
+
+			String addReport = sb.toString();
+			String addReportFile =
+			        config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
+			        + "bibListToAdd-"+ currentDate + ".txt";
+			try {
+				davService.saveFile( addReportFile , new ByteArrayInputStream(addReport.getBytes("UTF-8")));
+				System.out.println("Wrote report to " + addReportFile);
+			} catch (Exception e) {
+				throw new Exception("Could not save report of deletes to '" + addReportFile + "'" , e);
+			}
+		}
 		
 		// CurrentIndexMfhdList should now only contain mfhds to be deleted.
 		if (bibsWithDeletedMhds != null ){			
@@ -161,7 +183,7 @@ public class IdentifyDeletedRecords {
 			StringBuilder sb = new StringBuilder();
 			UPD: while (bibsWithDeletedMhds.hasNext()) {
 				Integer bibid = bibsWithDeletedMhds.next();
-				for (Integer id : bibIdsInIndexNotInVoyager) 
+				for (Integer id : bibsToDelete) 
 					if (id.equals(bibid))
 						continue UPD;
 					
