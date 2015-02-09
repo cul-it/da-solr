@@ -1119,7 +1119,8 @@
     	holdings_record_display,
 		item_record_display,
 		edition_display,
-	    title_uniform_display
+	    title_uniform_display,
+	    other_id_display
       </str>
      
       <str name="facet">true</str>
