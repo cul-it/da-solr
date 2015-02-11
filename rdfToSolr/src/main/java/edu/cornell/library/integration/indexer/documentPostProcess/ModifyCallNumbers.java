@@ -88,7 +88,7 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 			author = author.substring(author.indexOf(" / ")+3);
 		// Shorten to 4 characters
 		if (author.length() > 4)
-			author = author.substring(0, 3);
+			author = author.substring(0, 4);
 		return author.toUpperCase();
 	}
 }
