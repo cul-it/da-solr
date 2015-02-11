@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
@@ -36,16 +37,16 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 				// modify
 				@SuppressWarnings("unchecked")
 				Map<String,Object> holdRec = mapper.readValue(o.toString(),Map.class);
-				Object[] callnos = (Object[]) holdRec.get("callnos");
-				for (int i = 0; i < callnos.length; i++) {
-					String call = callnos[i].toString();
+				List<Object> callnos = (List<Object>) holdRec.get("callnos");
+				for (int i = 0; i < callnos.size(); i++) {
+					String call = callnos.get(i).toString();
 					if (call.startsWith("New & Noteworthy Books")) {
 						boolean fiction = isFiction(document);
 						String author = getAuthorPrefix(document);
 						String newCall = "New & Noteworthy Books "+
 								((fiction) ? "Fiction " : "Non-Fiction ")+
 								author;
-						callnos[i] = newCall;
+						callnos.set(i, newCall);
 						foundSomethingToChange = true;
 					}
 				}
