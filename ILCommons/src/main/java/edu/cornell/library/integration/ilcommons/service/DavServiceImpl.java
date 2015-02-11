@@ -159,7 +159,7 @@ public class DavServiceImpl implements DavService {
             is.close();
             return file;
         } catch (SardineException e1) {
-        	if (e1.getMessage().contains("404 Not Found"))
+           	if (e1.getStatusCode() == 404)
         		return null;
         	else
                 throw new IOException("Problem while getting file : " 
