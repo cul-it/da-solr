@@ -37,13 +37,18 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 				// modify
 				@SuppressWarnings("unchecked")
 				Map<String,Object> holdRec = mapper.readValue(o.toString(),Map.class);
+				@SuppressWarnings("unchecked")
 				List<Object> callnos = (List<Object>) holdRec.get("callnos");
 				for (int i = 0; i < callnos.size(); i++) {
-					String call = callnos.get(i).toString();
+					String call = callnos.get(i).toString().trim();
 					if (call.startsWith("New & Noteworthy Books")) {
 						boolean fiction = isFiction(document);
 						String author = getAuthorPrefix(document);
-						String newCall = "New & Noteworthy Books "+
+						String newCall;
+						if (call.endsWith("++"))
+							newCall = "New & Noteworthy Books Oversize "+author+" ++";
+						else
+							newCall = "New & Noteworthy Books "+
 								((fiction) ? "Fiction " : "Non-Fiction ")+
 								author;
 						callnos.set(i, newCall);
