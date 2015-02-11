@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -279,11 +280,12 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
                 + "bibListToAdd-"+ today + ".txt";
         System.out.println("Reading BIB ID needed to add to Voyager from " + fileName );
         
-        List<String> bibListForAddList;
+        List<String> bibListForAddList = new ArrayList<String>();
         File localTmpBibListForAddFile = null;
         try {
             localTmpBibListForAddFile = getDavService().getFile(fileName, tmpFilePath);
-            bibListForAddList = FileUtils.readLines(localTmpBibListForAddFile);
+            if (localTmpBibListForAddFile  != null)	
+            	bibListForAddList.addAll( FileUtils.readLines(localTmpBibListForAddFile) );
         } catch (Exception e1) {
             throw new Exception("Failed reading: "+ fileName, e1);            
         } finally {

@@ -158,6 +158,12 @@ public class DavServiceImpl implements DavService {
             os.close(); 
             is.close();
             return file;
+        } catch (SardineException e1) {
+        	if (e1.getMessage().contains("404 Not Found"))
+        		return null;
+        	else
+                throw new IOException("Problem while getting file : " 
+                        + url + " to local file " + outFile ,e1 );
         }catch(IOException e){
             throw new IOException("Problem while getting file : " 
                     + url + " to local file " + outFile ,e );
