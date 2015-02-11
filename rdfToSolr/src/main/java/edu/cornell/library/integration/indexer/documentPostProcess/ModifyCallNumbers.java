@@ -45,7 +45,7 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 						boolean fiction = isFiction(document);
 						String author = getAuthorPrefix(document);
 						String newCall;
-						if (call.endsWith("++"))
+						if (call.endsWith("+"))
 							newCall = "New & Noteworthy Books Oversize "+author+" ++";
 						else
 							newCall = "New & Noteworthy Books "+
