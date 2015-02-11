@@ -8,6 +8,7 @@ import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
+import edu.cornell.library.integration.indexer.documentPostProcess.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.documentPostProcess.NoAccessUrlsUnlessOnline;
 import edu.cornell.library.integration.indexer.documentPostProcess.RecordBoost;
 import edu.cornell.library.integration.indexer.documentPostProcess.RemoveDuplicateTitleData;
@@ -65,6 +66,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new MissingTitleReport(),
 //				new SuppressShadowRecords(),
 				new LoadItemData(),
+				new ModifyCallNumbers(),
 				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
 				new NoAccessUrlsUnlessOnline(),
