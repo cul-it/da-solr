@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,23 +37,16 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.*;
+import static edu.cornell.library.integration.indexer.utilities.BrowseUtils.getSortHeading;
 
 public class IndexAuthorityRecords {
 
+	private Connection connection = null;
 	private DavService davService;
 	private SolrServer solr = null;
 	private MessageDigest md = null;
 	private Map<String,SolrInputDocument> docs = new HashMap<String,SolrInputDocument>();
-	
-	private final String PERSNAME = "Personal Name";
-	private final String CORPNAME = "Corporate Name";
-	private final String EVENT = "Event";
-	private final String GENHEAD = "General Heading";
-	private final String TOPIC = "Topical Term";
-	private final String GEONAME = "Geographic Name";
-	private final String CHRONTERM = "Chronological Term";
-	private final String GENRE = "Genre/Form Term";
-	private final String MEDIUM = "Medium of Performance";
 	
 	/**
 	 * @param args
@@ -61,14 +57,6 @@ public class IndexAuthorityRecords {
 		requiredArgs.add("xmlDir");
 //		requiredArgs.add("blacklightSolrUrl");
 		requiredArgs.add("solrUrl");
-		/*
-		try {
-			ServerSocketChannel ssc = ServerSocketChannel.open();
-			ssc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-		} catch (IOException e){
-			
-		}
-	      */      
 	            
 		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
 		try {
@@ -141,11 +129,12 @@ public class IndexAuthorityRecords {
 		}
 
 	}
-	
-	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, String headingTypeDesc ) throws SolrServerException {
+
+	/*
+	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, HeadTypeDesc htd ) throws SolrServerException {
 
 		// calculate id for Solr document
-		String id = md5Checksum(headingSort + headingType + headingTypeDesc);
+		String id = md5Checksum(headingSort + headingType + htd);
 		
 		// first check for existing doc in memory
 		if (docs.containsKey(id))
@@ -178,11 +167,12 @@ public class IndexAuthorityRecords {
 			inputDoc.addField("heading", heading);
 			inputDoc.addField("headingSort", headingSort);
 			inputDoc.addField("headingType", headingType);
-			inputDoc.addField("headingTypeDesc", headingTypeDesc);
+			inputDoc.addField("headingTypeDesc", htd);
 			inputDoc.addField("id", id);
 		}
 		return inputDoc;
 	}
+	*/
 
 	private void processRecords (XMLStreamReader r) throws Exception {
 		while (r.hasNext()) {
@@ -199,7 +189,7 @@ public class IndexAuthorityRecords {
 		String heading = null;
 		String headingSort = null;
 		String headingType = null;
-		String headingTypeDesc = null;
+		HeadTypeDesc htd = null;
 		Collection<Relation> sees = new HashSet<Relation>();
 		Collection<Relation> seeAlsos = new HashSet<Relation>();
 		Collection<String> expectedNotes = new HashSet<String>();
@@ -235,32 +225,32 @@ public class IndexAuthorityRecords {
 						}
 					}
 					if (f.tag.equals("100")) {
-						headingTypeDesc = PERSNAME;
+						htd = HeadTypeDesc.PERSNAME;
 					} else if (f.tag.equals("110")) {
-						headingTypeDesc = CORPNAME;
+						htd = HeadTypeDesc.CORPNAME;
 					} else {
-						headingTypeDesc = EVENT;
+						htd = HeadTypeDesc.EVENT;
 					}
 				}
 				if (f.tag.equals("130")) {
 					headingType = "authortitle";
-					headingTypeDesc = GENHEAD;
+					htd = HeadTypeDesc.GENHEAD;
 				}
 				if (f.tag.equals("150")) {
 					headingType = "subject";
-					headingTypeDesc = TOPIC;
+					htd = HeadTypeDesc.TOPIC;
 				} else if (f.tag.equals("151")) {
 					headingType = "subject";
-					headingTypeDesc = GEONAME;
+					htd = HeadTypeDesc.GEONAME;
 				} else if (f.tag.equals("148")) {
 					headingType = "subject";
-					headingTypeDesc = CHRONTERM;
+					htd = HeadTypeDesc.CHRONTERM;
 				} else if (f.tag.equals("155")) {
 					headingType = "subject";
-					headingTypeDesc = GENRE;
+					htd = HeadTypeDesc.GENRE;
 				} else if (f.tag.equals("162")) {
 					headingType = "subject";
-					headingTypeDesc = MEDIUM;
+					htd = HeadTypeDesc.MEDIUM;
 				}
 				// If the record is for a subdivision (main entry >=180),
 				// we won't do anything with it.
@@ -322,14 +312,14 @@ public class IndexAuthorityRecords {
 				}
 			}
 		}
-		if (heading == null || headingType == null || headingTypeDesc == null) {
+		if (heading == null || headingType == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
 			return;
 		}
 		headingSort = getSortHeading(heading);
 		
 		
-		SolrInputDocument main = getSolrDocument(heading, headingSort, headingType, headingTypeDesc);
+		SolrInputDocument main = getSolrDocument(heading, headingSort, headingType, htd);
 		main.addField("marcId",rec.id,1.0f);
 		//Never setting mainEntry to false, so if mainEntry is populated it's already true.
 		if ( ! main.containsKey("mainEntry")) 
@@ -346,7 +336,7 @@ public class IndexAuthorityRecords {
 		fileDoc(main);
 		
 		if (headingType.equals("author")) {
-			main = getSolrDocument(heading, headingSort, "subject", headingTypeDesc);
+			main = getSolrDocument(heading, headingSort, "subject", htd);
 			main.addField("marcId",rec.id,1.0f);
 			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
 			if ( ! main.containsKey("mainEntry")) {
@@ -403,16 +393,6 @@ public class IndexAuthorityRecords {
 		docs.put(id, doc);
 	}
 	
-	private String getSortHeading(String heading) {
-		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
-		// first so hyphenated words will sort as though the space were present.
-		String sortHeading = removeAllPunctuation(heading.
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
-				toLowerCase().
-				replaceAll("-", " "));
-		return sortHeading.trim();
-	}
-	
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
@@ -435,8 +415,8 @@ public class IndexAuthorityRecords {
 	}
 	
 	private SolrInputDocument crossRef(String crossRefType, Relation r,
-			String heading, String headingType, String headingTypeDesc, String marcId) throws SolrServerException {
-		SolrInputDocument redir = getSolrDocument(r.heading,r.headingSort, headingType, headingTypeDesc);
+			String heading, String headingType, HeadTypeDesc htd, String marcId) throws SolrServerException {
+		SolrInputDocument redir = getSolrDocument(r.heading,r.headingSort, headingType, htd);
 		if (r.relationship == null)
 			redir.addField(crossRefType, heading,1.0f);
 		else 
@@ -463,23 +443,23 @@ public class IndexAuthorityRecords {
 		boolean hasW = false;
 		
 		if (f.tag.endsWith("00"))
-			r.headingTypeDesc = PERSNAME;
+			r.headingTypeDesc = HeadTypeDesc.PERSNAME;
 		else if (f.tag.endsWith("10")) 
-			r.headingTypeDesc = CORPNAME;
+			r.headingTypeDesc = HeadTypeDesc.CORPNAME;
 		else if (f.tag.endsWith("11"))
-			r.headingTypeDesc = EVENT;
+			r.headingTypeDesc = HeadTypeDesc.EVENT;
 		else if (f.tag.endsWith("30"))
-			r.headingTypeDesc = GENHEAD;
+			r.headingTypeDesc = HeadTypeDesc.GENHEAD;
 		else if (f.tag.endsWith("50"))
-			r.headingTypeDesc = TOPIC;
+			r.headingTypeDesc = HeadTypeDesc.TOPIC;
 		else if (f.tag.endsWith("48"))
-			r.headingTypeDesc = CHRONTERM;
+			r.headingTypeDesc = HeadTypeDesc.CHRONTERM;
 		else if (f.tag.endsWith("51"))
-			r.headingTypeDesc = GEONAME;
+			r.headingTypeDesc = HeadTypeDesc.GEONAME;
 		else if (f.tag.endsWith("55"))
-			r.headingTypeDesc = GENRE;
+			r.headingTypeDesc = HeadTypeDesc.GENRE;
 		else if (f.tag.endsWith("62"))
-			r.headingTypeDesc = MEDIUM;
+			r.headingTypeDesc = HeadTypeDesc.MEDIUM;
 		else return null;
 		
 		
@@ -611,7 +591,7 @@ public class IndexAuthorityRecords {
 		public String headingOrig = null; // access to original heading before
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
-		public String headingTypeDesc = null;
+		public HeadTypeDesc headingTypeDesc = null;
 		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
@@ -825,6 +805,7 @@ public class IndexAuthorityRecords {
 	static enum RecordType {
 		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
 	}
+
 	
 
 }

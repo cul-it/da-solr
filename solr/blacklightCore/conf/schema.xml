@@ -215,8 +215,8 @@
              input string is preserved as a single token
           -->
         <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement="" replace="all"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>

@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,15 +38,6 @@ public class IndexHeadings {
 	private MessageDigest md = null;
 	private Map<String,SolrInputDocument> docs = new HashMap<String,SolrInputDocument>();
 	
-	private final String PERSNAME = "Personal Name";
-	private final String CORPNAME = "Corporate Name";
-	private final String EVENT = "Event";
-	private final String GENHEAD = "General Heading";
-	private final String TOPIC = "Topical Term";
-	private final String GEONAME = "Geographic Name";
-	private final String CHRONTERM = "Chronological Term";
-	private final String GENRE = "Genre/Form Term";
-	private final String MEDIUM = "Medium of Performance";
 	
 	/**
 	 * @param args
@@ -70,56 +62,69 @@ public class IndexHeadings {
 	public IndexHeadings(VoyagerToSolrConfiguration config) throws Exception {
         
 		solr = new HttpSolrServer(config.getSolrUrl());
+		Collection<BLField> blFields = new HashSet<BLField>();
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact" ));
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact" ));
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_exact" ));
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_exact" ));
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_exact" ));
+		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_exact" ));
 		
-		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=10000000");
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = queryUrl.openStream();
-		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
-
-		// fast forward to response body
-		FF: while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
-				if (r.getLocalName().equals("lst"))
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name")) {
-							String name = r.getAttributeValue(i);
-							if (name.equals("terms")) break FF;
-						}
-			}
-		}
+		for (BLField blf : blFields) {
 		
-		// process actual results
-		String name = null;
-		Integer count = null;
-		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
-				if (r.getLocalName().equals("int")) {
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name"))
-							name = r.getAttributeValue(i);
-					count = Integer.valueOf(r.getElementText());
-					recordCount("author",name,count);
-										
-					// insert Documents if critical mass
-					if (docs.size() > 10_000) {
-						System.out.println(name + " => " + count);
-						insertDocuments();
-					}
-
+			URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
+					blf.fieldName() + "&terms.sort=index&terms.limit=10000000");
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			InputStream in = queryUrl.openStream();
+			XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
+	
+			// fast forward to response body
+			FF: while (r.hasNext()) {
+				String event = getEventTypeString(r.next());
+				if (event.equals("START_ELEMENT")) {
+					if (r.getLocalName().equals("lst"))
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name")) {
+								String name = r.getAttributeValue(i);
+								if (name.equals("terms")) break FF;
+							}
 				}
 			}
+			
+			// process actual results
+			String name = null;
+			Integer count = null;
+			while (r.hasNext()) {
+				String event = getEventTypeString(r.next());
+				if (event.equals("START_ELEMENT")) {
+					if (r.getLocalName().equals("int")) {
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name"))
+								name = r.getAttributeValue(i);
+						count = Integer.valueOf(r.getElementText());
+						recordCount(blf,name,count);
+											
+						// insert Documents if critical mass
+						if (docs.size() > 10_000) {
+							System.out.println(name + " => " + count);
+							insertDocuments();
+						}
+	
+					}
+				}
+			}
+			in.close();
+			insertDocuments();
+		
 		}
-		in.close();
-		insertDocuments();
+
 	}
 
 	
-	private void recordCount(String context, String name, Integer count) throws SolrServerException {
+	private void recordCount(BLField pf, String name, Integer count) throws SolrServerException {
 		
 		// find or make record for heading
-		SolrInputDocument main = getMainSolrDocument(name, context, PERSNAME);
+		SolrInputDocument main = getMainSolrDocument(name, pf.headingType(), pf.headingTypeDesc());
 		// TODO: Actual headingTypeDesc needed.
 		if (main.containsKey("recordCount")) {
 			count += Integer.valueOf(main.getFieldValue("recordCount").toString());
@@ -133,11 +138,11 @@ public class IndexHeadings {
 		
 	}
 	
-	private SolrInputDocument getMainSolrDocument(String heading, String headingType, String headingTypeDesc) throws SolrServerException {
+	private SolrInputDocument getMainSolrDocument(String heading, HeadType ht, HeadTypeDesc htd) throws SolrServerException {
 
 		// calculate id for Solr document
 		String headingSort = getSortHeading(heading);
-		String id = md5Checksum(headingSort + headingType + headingTypeDesc);
+		String id = md5Checksum(headingSort + ht.toString() + htd.toString());
 
 		// first check for existing doc in memory
 		if (docs.containsKey(id))
@@ -163,41 +168,14 @@ public class IndexHeadings {
 				inputDoc = ClientUtils.toSolrInputDocument(doc);
 			}
 		}
-
-		String id2 = md5Checksum(headingSort + headingType + CORPNAME);
-
-		// first check for existing doc in memory
-		if (docs.containsKey(id2))
-			return docs.get(id2);
-		
-		// then check for existing doc in Solr
-		query = new SolrQuery();
-		query.setQuery("id:"+id2);
-		resultDocs = null;
-		try {
-			QueryResponse qr = solr.query(query);
-			resultDocs = qr.getResults();
-		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr." + id);
-			System.exit(1);
-		}
-		if (resultDocs != null) {
-			Iterator<SolrDocument> i = resultDocs.iterator();
-			while (i.hasNext()) {
-				SolrDocument doc = i.next();
-				doc.remove("_version_");
-				inputDoc = ClientUtils.toSolrInputDocument(doc);
-			}
-		}
-
 		
 		// finally, create new doc if not found.
 		if (inputDoc == null) {
 			inputDoc = new SolrInputDocument();
 			inputDoc.addField("heading", heading);
 			inputDoc.addField("headingSort", headingSort);
-			inputDoc.addField("headingType", headingType);
-			inputDoc.addField("headingTypeDesc", headingTypeDesc);
+			inputDoc.addField("headingType", ht.toString());
+			inputDoc.addField("headingTypeDesc", htd.toString());
 			inputDoc.addField("id", id);
 		}
 		return inputDoc;
@@ -284,6 +262,22 @@ public class IndexHeadings {
 	          return "SPACE";
 	    }
 	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
+	}
+	
+	static class BLField {
+		private HeadType _ht;
+		private HeadTypeDesc _htd;
+		private String _fieldName;
+		
+		public BLField(HeadType ht, HeadTypeDesc htd,String fieldName) {
+			_ht = ht;
+			_htd = htd;
+			_fieldName = fieldName;
+		}
+		public HeadType headingType() { return _ht; }
+		public HeadTypeDesc headingTypeDesc() { return _htd; }
+		public String fieldName() { return _fieldName; }
+		
 	}
 
 }
