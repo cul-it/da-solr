@@ -1,10 +1,14 @@
 package edu.cornell.library.integration.ilcommons.configuration;
 
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,6 +17,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -39,7 +45,10 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  */
 public class VoyagerToSolrConfiguration {
 
+	protected static boolean debug = false;
+
 	Map<String,String> values = new HashMap<String,String>();
+	Map<Integer,ComboPooledDataSource> databases = new HashMap<Integer,ComboPooledDataSource>();
     static DavService davService = null;
 
     
@@ -360,6 +369,61 @@ public class VoyagerToSolrConfiguration {
     		return null;
     	}
     }
+    
+    
+    /**
+     * 
+     * @return java.sql.Connection
+     * @throws ClassNotFoundException 
+     * @throws SQLException 
+     */
+/*    public Connection getDatabaseConnection(int i) throws SQLException {
+    	if ( ! databases.containsKey(i)) {
+	    	ComboPooledDataSource cpds = new ComboPooledDataSource(String.valueOf(i)); 
+	    	String driver =  values.get("databaseDriver"+i);
+	    	String url = values.get("databaseURL"+i);
+	    	String user = values.get("databaseUser"+i);
+	    	String pass = values.get("databasePass"+i);
+	    	try {
+				cpds.setDriverClass( driver );
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
+	    	cpds.setJdbcUrl( url );
+	    	cpds.setUser( user );
+	    	cpds.setPassword( pass );
+//	    	cpds.setMaxStatements(20);
+	    	cpds.setTestConnectionOnCheckout(true);
+	    	cpds.setTestConnectionOnCheckin(true);
+	    	// if we retry every thirty seconds for thirty attempts, we should be
+	    	// able to handle 15 minutes of database downtime or network interruption.
+	    	cpds.setAcquireRetryAttempts(30);
+	    	cpds.setAcquireRetryDelay(30  * 1000); // s * ms/s
+	    	cpds.setAcquireIncrement(1);
+	    	cpds.setMinPoolSize(1);
+	    	cpds.setMaxPoolSize(2);
+	    	cpds.setInitialPoolSize(1);
+	    	databases.put(i, cpds);
+    	}
+    	System.out.println("Connection pool established. Obtaining and returning connection.");
+		return databases.get(i).getConnection();
+    }
+*/
+    public Connection getDatabaseConnection( int i ) throws ClassNotFoundException, SQLException {
+
+    	String driver =  values.get("databaseDriver"+i);
+    	String url = values.get("databaseURL"+i);
+    	String user = values.get("databaseUser"+i);
+    	String pass = values.get("databasePass"+i);
+
+    	Class.forName(driver);
+		   
+    	if (debug) System.out.println("Establishing database connection.");
+    	Connection c = DriverManager.getConnection(url,user,pass);
+    	if (debug) System.out.println("database connection established.");
+    	return c;
+
+    }
 
     public String getDailyReports() throws IOException {
     	if (values.containsKey("dailyReports")) {
@@ -500,10 +564,12 @@ public class VoyagerToSolrConfiguration {
         
         Properties prop;
         
+        if (debug) System.out.println("Loading properties from file A.");
         Properties propA = new Properties();
         propA.load( inA );
         inA.close();
         
+        if (debug) System.out.println("Loading properties from file B.");
         Properties propB = null; 
         if( inB != null ){
             propB = new Properties( );
@@ -521,10 +587,16 @@ public class VoyagerToSolrConfiguration {
         
         VoyagerToSolrConfiguration conf = new VoyagerToSolrConfiguration();
 
-        Iterator<Object> i = prop.keySet().iterator();
+        if (debug) System.out.println("Adding all properties to program config.");
+        Iterator<String> i = prop.stringPropertyNames().iterator();
         while (i.hasNext()) {
-        	String field = i.next().toString();
-        	conf.values.put(field,insertDate(prop.getProperty(field)));
+        	String field = i.next();
+        	String value = prop.getProperty(field);
+        	if (debug) System.out.println(field+" => "+value);
+        	String valueWDate = insertDate(value);
+        	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
+        	conf.values.put(field,valueWDate);
+        	
         }
 
         return conf;

@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +35,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -58,7 +62,9 @@ public class IndexAuthorityRecords {
 //		requiredArgs.add("blacklightSolrUrl");
 		requiredArgs.add("solrUrl");
 	            
+		System.out.println("Loading config");
 		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
+		System.out.println("Config Loaded");
 		try {
   //  	   IndexAuthorityRecords iar =
     			   new IndexAuthorityRecords(config);
@@ -71,12 +77,16 @@ public class IndexAuthorityRecords {
 	
 	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
         this.davService = DavServiceFactory.getDavService(config);
+        		
+		System.out.println("requesting database connection");
+		connection = config.getDatabaseConnection(1);
+		//set up database (including populating description maps)
+		System.out.println("Populating type and type_desc tables");
+		setUpDatabaseTypeLists();
+		System.exit(0);
+		
         List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getXmlDir());
         Iterator<String> i = authXmlFiles.iterator();
-        
-		solr = new HttpSolrServer(config.getSolrUrl());
-
-		
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
@@ -103,8 +113,34 @@ public class IndexAuthorityRecords {
 			xmlstream.close();
 			insertDocuments();
         }
+        connection.close();
 	}
 	
+	private void setUpDatabaseTypeLists() throws SQLException {
+		Statement stmt = connection.createStatement();
+		stmt.executeUpdate("DELETE FROM type");
+		
+		PreparedStatement insertType = connection.prepareStatement("INSERT INTO type (id,name) VALUES (? , ?)");
+		for ( HeadType ht : HeadType.values()) {
+			insertType.setInt(1, ht.ordinal());
+			insertType.setString(2, ht.toString());
+			insertType.executeUpdate();
+		}
+		
+		stmt.executeUpdate("DELETE FROM type_desc");
+		PreparedStatement insertDesc = connection.prepareStatement("INSERT INTO type_desc (id,name) VALUES (? , ?)");
+		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
+			insertDesc.setInt(1, ht.ordinal());
+			insertDesc.setString(2, ht.toString());
+			insertDesc.executeUpdate();
+		}
+		
+		stmt.close();
+		insertType.close();
+		insertDesc.close();
+	}
+
+
 	private String md5Checksum(String s) {
 		try {
 			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
@@ -317,7 +353,7 @@ public class IndexAuthorityRecords {
 			return;
 		}
 		headingSort = getSortHeading(heading);
-		
+		/*
 		
 		SolrInputDocument main = getSolrDocument(heading, headingSort, headingType, htd);
 		main.addField("marcId",rec.id,1.0f);
@@ -384,7 +420,7 @@ public class IndexAuthorityRecords {
 				fileDoc(crossRef("seeAlso",r,heading,headingType,r.headingTypeDesc,rec.id));
 			}
 		}
-		
+		*/
 		return;
 	}
 	
@@ -416,6 +452,7 @@ public class IndexAuthorityRecords {
 	
 	private SolrInputDocument crossRef(String crossRefType, Relation r,
 			String heading, String headingType, HeadTypeDesc htd, String marcId) throws SolrServerException {
+		/*
 		SolrInputDocument redir = getSolrDocument(r.heading,r.headingSort, headingType, htd);
 		if (r.relationship == null)
 			redir.addField(crossRefType, heading,1.0f);
@@ -424,7 +461,8 @@ public class IndexAuthorityRecords {
 		redir.addField("marcId",marcId,1.0f);
 		redir.addField("formTracings", getSortHeading(heading), 1.0f);
 		return redir;
-		
+		*/
+		return null;
 	}
 	private void directRef(String crossRefType, Relation r,
 			SolrInputDocument doc) throws SolrServerException {
