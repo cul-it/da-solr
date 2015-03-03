@@ -377,53 +377,53 @@ public class VoyagerToSolrConfiguration {
      * @throws ClassNotFoundException 
      * @throws SQLException 
      */
-/*    public Connection getDatabaseConnection(int i) throws SQLException {
-    	if ( ! databases.containsKey(i)) {
-	    	ComboPooledDataSource cpds = new ComboPooledDataSource(String.valueOf(i)); 
-	    	String driver =  values.get("databaseDriver"+i);
-	    	String url = values.get("databaseURL"+i);
-	    	String user = values.get("databaseUser"+i);
-	    	String pass = values.get("databasePass"+i);
-	    	try {
-				cpds.setDriverClass( driver );
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
-			}
-	    	cpds.setJdbcUrl( url );
-	    	cpds.setUser( user );
-	    	cpds.setPassword( pass );
-//	    	cpds.setMaxStatements(20);
-	    	cpds.setTestConnectionOnCheckout(true);
-	    	cpds.setTestConnectionOnCheckin(true);
-	    	// if we retry every thirty seconds for thirty attempts, we should be
-	    	// able to handle 15 minutes of database downtime or network interruption.
-	    	cpds.setAcquireRetryAttempts(30);
-	    	cpds.setAcquireRetryDelay(30  * 1000); // s * ms/s
-	    	cpds.setAcquireIncrement(1);
-	    	cpds.setMinPoolSize(1);
-	    	cpds.setMaxPoolSize(2);
-	    	cpds.setInitialPoolSize(1);
-	    	databases.put(i, cpds);
-    	}
-    	System.out.println("Connection pool established. Obtaining and returning connection.");
-		return databases.get(i).getConnection();
-    }
-*/
-    public Connection getDatabaseConnection( int i ) throws ClassNotFoundException, SQLException {
-
+    public Connection getDatabaseConnection(int i) throws SQLException, ClassNotFoundException {
     	String driver =  values.get("databaseDriver"+i);
     	String url = values.get("databaseURL"+i);
     	String user = values.get("databaseUser"+i);
     	String pass = values.get("databasePass"+i);
-
-    	Class.forName(driver);
-		   
-    	if (debug) System.out.println("Establishing database connection.");
-    	Connection c = DriverManager.getConnection(url,user,pass);
-    	if (debug) System.out.println("database connection established.");
-    	return c;
-
+    	Boolean pooling = true; //default if not specified in config
+    	if (values.containsKey("databasePooling"+i))
+    		pooling = Boolean.valueOf( values.get("databasePooling"+i) );
+    	
+    	if (debug) System.out.println("Database connetion pooling: "+pooling);
+    	
+    	if ( pooling )  {
+	    	if ( ! databases.containsKey(i)) {
+		    	ComboPooledDataSource cpds = new ComboPooledDataSource(); 
+		    	try {
+					cpds.setDriverClass( driver );
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
+		    	cpds.setJdbcUrl( url );
+		    	cpds.setUser( user );
+		    	cpds.setPassword( pass );
+		    	cpds.setMaxStatements(15);
+		    	cpds.setTestConnectionOnCheckout(true);
+		    	cpds.setTestConnectionOnCheckin(true);
+		    	// if we retry every thirty seconds for thirty attempts, we should be
+		    	// able to handle 15 minutes of database downtime or network interruption.
+		    	cpds.setAcquireRetryAttempts(30);
+		    	cpds.setAcquireRetryDelay(30  * 1000); // s * ms/s
+		    	cpds.setAcquireIncrement(1);
+		    	cpds.setMinPoolSize(1);
+		    	cpds.setMaxPoolSize(2);
+		    	cpds.setInitialPoolSize(1);
+		    	databases.put(i, cpds);
+	    	}
+	    	System.out.println("Connection pool established. Obtaining and returning connection.");
+			return databases.get(i).getConnection();
+    	} else {
+        	Class.forName(driver);
+ 		   
+        	if (debug) System.out.println("Establishing database connection.");
+        	Connection c = DriverManager.getConnection(url,user,pass);
+        	if (debug) System.out.println("database connection established.");
+        	return c;    		
+    	}
     }
+
 
     public String getDailyReports() throws IOException {
     	if (values.containsKey("dailyReports")) {

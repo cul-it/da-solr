@@ -2,9 +2,6 @@ package edu.cornell.library.integration.indexer.utilities;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.text.Normalizer;
 
 public class BrowseUtils {
@@ -41,8 +38,7 @@ public class BrowseUtils {
 		}
 
 		public String toString() { return string; }
-	}
-	
+	}	
 	
 	public static String getSortHeading(String heading) {
 		
