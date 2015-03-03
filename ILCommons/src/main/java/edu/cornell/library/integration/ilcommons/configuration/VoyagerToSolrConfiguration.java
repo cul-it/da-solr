@@ -386,7 +386,7 @@ public class VoyagerToSolrConfiguration {
     	if (values.containsKey("databasePooling"+i))
     		pooling = Boolean.valueOf( values.get("databasePooling"+i) );
     	
-    	if (debug) System.out.println("Database connetion pooling: "+pooling);
+    	if (debug) System.out.println("Database connection pooling: "+pooling);
     	
     	if ( pooling )  {
 	    	if ( ! databases.containsKey(i)) {
