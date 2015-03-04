@@ -70,9 +70,11 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (title_cts.length() < 2) {
 						relation = "author_addl";
 					} else if (f.ind2.equals('2')) {
-						relation = "included_work";
+						if (relation == null)
+							relation = "included_work";
 					} else {
-						relation = "related_work";
+						if (relation == null)
+							relation = "related_work";
 					}
 				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
 					
