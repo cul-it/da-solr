@@ -40,6 +40,19 @@ public class BrowseUtils {
 		public String toString() { return string; }
 	}	
 
+	public static enum RecordSet {
+		NAME("name"),
+		SUBJECT("subject"),
+		SERIES("series"), /*Not currently implementing series header browse*/
+		NAMETITLE("nametitle");
+		private String string;
+		
+		private RecordSet(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
+	}
 
 
 	

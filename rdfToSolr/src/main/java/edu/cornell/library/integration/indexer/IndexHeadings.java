@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
 public class IndexHeadings {
 
@@ -27,12 +28,12 @@ public class IndexHeadings {
 	private PreparedStatement ps_recordsByQuery = null;
 	private PreparedStatement ps_recordsAboutQuery = null;
 	private PreparedStatement ps_recordsQuery = null;
-	private PreparedStatement ps_updateRecordsBy = null;
-	private PreparedStatement ps_updateRecordsAbout = null;
-	private PreparedStatement ps_updateRecords = null;
 	private PreparedStatement ps_createHeadingWBy = null;
 	private PreparedStatement ps_createHeadingWAbout = null;
 	private PreparedStatement ps_createHeadingWWorksCount = null;
+	private PreparedStatement ps_updateRecordsBy = null;
+	private PreparedStatement ps_updateRecordsAbout = null;
+	private PreparedStatement ps_updateRecords = null;
 	
 	/**
 	 * @param args
@@ -58,20 +59,20 @@ public class IndexHeadings {
         
 		connection = config.getDatabaseConnection(1);
 		Collection<BLField> blFields = new HashSet<BLField>();
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact" ));
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact" ));
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_exact" ));
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_exact" ));
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_exact" ));
-		blFields.add(new BLField( HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_exact" ));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_600_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_610_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_611_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_650_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_651_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_exact"));
-		blFields.add(new BLField( HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_exact"));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_exact" ));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_600_exact"));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_610_exact"));
+		blFields.add(new BLField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_611_exact"));
+		blFields.add(new BLField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_650_exact"));
+		blFields.add(new BLField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_651_exact"));
+		blFields.add(new BLField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_exact"));
+		blFields.add(new BLField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_exact"));
+		blFields.add(new BLField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_exact"));
 		
 		for (BLField blf : blFields) {
 		
@@ -162,25 +163,6 @@ public class IndexHeadings {
 
 		if (recordId != null) {
 			// Update record count
-			if (count_field.equals("works_by")) {
-				if (ps_updateRecordsBy == null)
-					ps_updateRecordsBy = connection.prepareStatement(
-							"UPDATE heading SET works_by = ? WHERE id = ?");
-				pstmt = ps_updateRecordsBy;
-			} else if (count_field.equals("works_about")) {
-				if (ps_updateRecordsAbout == null)
-					ps_updateRecordsAbout = connection.prepareStatement(
-							"UPDATE heading SET works_about = ? WHERE id = ?");
-				pstmt = ps_updateRecordsAbout;
-			} else {
-				if (ps_updateRecords == null)
-					ps_updateRecords = connection.prepareStatement(
-							"UPDATE heading SET works = ? WHERE id = ?");
-				pstmt = ps_updateRecords;
-			}
-			pstmt.setInt(1, oldCount + count);
-			pstmt.setInt(2, recordId);
-			pstmt.executeUpdate();
 		} else {
 			// create new record
 			if (count_field.equals("works_by")) {
@@ -257,15 +239,19 @@ public class IndexHeadings {
 	}
 	
 	static class BLField {
+		private RecordSet _rs;
 		private HeadType _ht;
 		private HeadTypeDesc _htd;
 		private String _fieldName;
 		
-		public BLField(HeadType ht, HeadTypeDesc htd,String fieldName) {
+		
+		public BLField(RecordSet rs, HeadType ht, HeadTypeDesc htd,String fieldName) {
 			_ht = ht;
 			_htd = htd;
 			_fieldName = fieldName;
+			_rs = rs;
 		}
+		public RecordSet recordSet() { return _rs; }
 		public HeadType headingType() { return _ht; }
 		public HeadTypeDesc headingTypeDesc() { return _htd; }
 		public String fieldName() { return _fieldName; }

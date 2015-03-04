@@ -25,8 +25,8 @@ import org.apache.http.ConnectionClosedException;
 import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
 public class IndexAuthorityRecords {
 
@@ -92,12 +92,12 @@ public class IndexAuthorityRecords {
 	
 	private void setUpDatabaseTypeLists() throws SQLException {
 		Statement stmt = connection.createStatement();
-		stmt.executeUpdate("DELETE FROM type");
+		stmt.executeUpdate("DELETE FROM record_set");
 		
-		PreparedStatement insertType = connection.prepareStatement("INSERT INTO type (id,name) VALUES (? , ?)");
-		for ( HeadType ht : HeadType.values()) {
-			insertType.setInt(1, ht.ordinal());
-			insertType.setString(2, ht.toString());
+		PreparedStatement insertType = connection.prepareStatement("INSERT INTO record_set (id,name) VALUES (? , ?)");
+		for ( RecordSet rs : RecordSet.values()) {
+			insertType.setInt(1, rs.ordinal());
+			insertType.setString(2, rs.toString());
 			insertType.executeUpdate();
 		}
 		
@@ -137,8 +137,8 @@ public class IndexAuthorityRecords {
 	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException  {
 		String heading = null;
 		String headingSort = null;
-		HeadType ht = null;
 		HeadTypeDesc htd = null;
+		RecordSet rs = null;
 		Collection<Relation> sees = new HashSet<Relation>();
 		Collection<Relation> seeAlsos = new HashSet<Relation>();
 		Collection<String> expectedNotes = new HashSet<String>();
@@ -164,12 +164,12 @@ public class IndexAuthorityRecords {
 				// main heading
 				heading = f.concatValue("");
 				if (f.tag.equals("100") || f.tag.equals("110") || f.tag.equals("111")) {
-					ht = HeadType.AUTHOR;
+					rs = RecordSet.NAME;
 					Iterator<Subfield> j = f.subfields.values().iterator();
 					while (j.hasNext()) {
 						Subfield sf = j.next();
 						if (sf.code.equals('t')) {
-							ht = HeadType.AUTHORTITLE;
+							rs = RecordSet.NAMETITLE;
 							break;
 						}
 					}
@@ -182,23 +182,23 @@ public class IndexAuthorityRecords {
 					}
 				}
 				if (f.tag.equals("130")) {
-					ht = HeadType.AUTHORTITLE;
 					htd = HeadTypeDesc.GENHEAD;
+					rs = RecordSet.SUBJECT;
 				}
 				if (f.tag.equals("150")) {
-					ht = HeadType.SUBJECT;
+					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.TOPIC;
 				} else if (f.tag.equals("151")) {
-					ht = HeadType.SUBJECT;
+					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.GEONAME;
 				} else if (f.tag.equals("148")) {
-					ht = HeadType.SUBJECT;
+					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.CHRONTERM;
 				} else if (f.tag.equals("155")) {
-					ht = HeadType.SUBJECT;
+					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.GENRE;
 				} else if (f.tag.equals("162")) {
-					ht = HeadType.SUBJECT;
+					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.MEDIUM;
 				}
 				// If the record is for a subdivision (main entry >=180),
@@ -261,38 +261,19 @@ public class IndexAuthorityRecords {
 				}
 			}
 		}
-		if (heading == null || ht == null || htd == null) {
+		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
 			return;
 		}
 		headingSort = getSortHeading(heading);
 
 		// Populate Main Entry Heading Record
-		Integer heading_id = getMainHeadingRecordId(heading,headingSort,ht, htd);
+		Integer heading_id = getMainHeadingRecordId(heading,headingSort,rs, htd);
 		for (String note : notes)
 			insertNote(heading_id, note);
 		for (Relation r : sees )
-			if ( ht.equals(HeadType.SUBJECT) ||
-					(r.applicableContexts.contains(Applicable.NAME))) {
-				insertAltForm(heading_id, r.headingOrig);
-			}
-		for (Relation r : seeAlsos)
-			if (r.reciprocalRelationship != null)
-				directRef(heading_id,ht,r,ReferenceType.TO5XX);
+			insertAltForm(heading_id, r.headingOrig);
 
-		// Populate Subject Main entry for author record
-		Integer heading_id_alt = null;
-		if (ht.equals(HeadType.AUTHOR)) {
-			heading_id_alt = getMainHeadingRecordId(heading,headingSort,HeadType.SUBJECT, htd);
-			for (String note : notes)
-				insertNote(heading_id_alt, note);
-			for (Relation r : sees )
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					insertAltForm(heading_id_alt, r.headingOrig);
-			for (Relation r : seeAlsos)
-				if (r.reciprocalRelationship != null)
-					directRef(heading_id_alt,HeadType.SUBJECT,r,ReferenceType.TO5XX);
-		}
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
 			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
@@ -302,28 +283,18 @@ public class IndexAuthorityRecords {
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			if (ht.equals(HeadType.AUTHOR)) {
-				if (r.applicableContexts.contains(Applicable.NAME))
-					crossRef(heading_id,HeadType.AUTHOR,r,ReferenceType.FROM4XX);
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					crossRef(heading_id_alt,HeadType.SUBJECT,r,ReferenceType.FROM4XX);
-			} else {
-				crossRef(heading_id,ht,r,ReferenceType.FROM4XX);
-			}
+			crossRef(heading_id,rs,r,ReferenceType.FROM4XX);
 		}
 		
-		// Populate incoming 5XX cross references
 		for (Relation r: seeAlsos) {
+			// Populate incoming 5XX cross references
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			if (ht.equals(HeadType.AUTHOR)) {
-				if (r.applicableContexts.contains(Applicable.NAME))
-					crossRef(heading_id,HeadType.AUTHOR,r,ReferenceType.FROM5XX);
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					crossRef(heading_id_alt,HeadType.SUBJECT,r,ReferenceType.FROM5XX);
-			} else {
-				crossRef(heading_id,ht,r,ReferenceType.FROM5XX);
-			}
+			crossRef(heading_id,rs,r,ReferenceType.FROM5XX);
+
+			// Where appropriate, populate outgoing 5XX cross references
+			if (r.reciprocalRelationship != null)
+				directRef(heading_id,rs,r,ReferenceType.TO5XX);
 		}
 
 		return;
@@ -350,17 +321,17 @@ public class IndexAuthorityRecords {
 	}
 
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
-			HeadType ht, HeadTypeDesc htd) throws SQLException {
+			RecordSet recordSet, HeadTypeDesc htd) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE type = ? AND type_desc = ? AND sort = ?");
-		pstmt.setInt(1, ht.ordinal());
+				"WHERE record_set = ? AND type_desc = ? AND sort = ?");
+		pstmt.setInt(1, recordSet.ordinal());
 		pstmt.setInt(2, htd.ordinal());
 		pstmt.setString(3, headingSort);
-		ResultSet rs = pstmt.executeQuery();
+		ResultSet resultSet = pstmt.executeQuery();
 		Integer recordId = null;
-		while (rs.next()) {
-			recordId = rs.getInt("id");
+		while (resultSet.next()) {
+			recordId = resultSet.getInt("id");
 		}
 		pstmt.close();
 		if (recordId != null) {
@@ -375,12 +346,12 @@ public class IndexAuthorityRecords {
 		} else {
 			// create new record
 			PreparedStatement pstmt1 = connection.prepareStatement(
-					"INSERT INTO heading (heading, sort, type, type_desc, authority, main_entry) " +
+					"INSERT INTO heading (heading, sort, record_set, type_desc, authority, main_entry) " +
 					"VALUES (?, ?, ?, ?, 1, 1)",
                     Statement.RETURN_GENERATED_KEYS);
 			pstmt1.setString(1, heading);
 			pstmt1.setString(2, headingSort);
-			pstmt1.setInt(3, ht.ordinal());
+			pstmt1.setInt(3, recordSet.ordinal());
 			pstmt1.setInt(4, htd.ordinal());
 			int affectedCount = pstmt1.executeUpdate();
 			if (affectedCount < 1) 
@@ -415,13 +386,13 @@ public class IndexAuthorityRecords {
 
 	}
 	
-	private void crossRef(Integer heading_id, HeadType ht, Relation r, ReferenceType rt) throws SQLException {
-		int from_heading_id = getRelationshipHeadingId( r, ht );
+	private void crossRef(Integer heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
+		int from_heading_id = getRelationshipHeadingId( r, rs );
 		insertRef(from_heading_id, heading_id, rt, r.relationship);
 	}
 
-	private void directRef(int heading_id, HeadType ht, Relation r, ReferenceType rt) throws SQLException {
-		int dest_heading_id = getRelationshipHeadingId( r, ht );
+	private void directRef(int heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
+		int dest_heading_id = getRelationshipHeadingId( r, rs );
 		insertRef(heading_id, dest_heading_id, rt, r.reciprocalRelationship );
 	}
 	
@@ -443,28 +414,28 @@ public class IndexAuthorityRecords {
 	}
 
 
-	private int getRelationshipHeadingId(Relation r, HeadType ht ) throws SQLException {
+	private int getRelationshipHeadingId(Relation r, RecordSet recordSet ) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE type = ? AND type_desc = ? and sort = ?");
-		pstmt.setInt(1, ht.ordinal());
+				"WHERE record_set = ? AND type_desc = ? and sort = ?");
+		pstmt.setInt(1, recordSet.ordinal());
 		pstmt.setInt(2, r.headingTypeDesc.ordinal());
 		pstmt.setString(3, r.headingSort);
-		ResultSet rs = pstmt.executeQuery();
+		ResultSet resultSet = pstmt.executeQuery();
 		Integer recordId = null;
-		while (rs.next()) {
-			recordId = rs.getInt("id");
+		while (resultSet.next()) {
+			recordId = resultSet.getInt("id");
 		}
 		pstmt.close();
 		if (recordId == null) {
 			// create new record
 			PreparedStatement pstmt1 = connection.prepareStatement(
-					"INSERT INTO heading (heading, sort, type, type_desc, authority) " +
+					"INSERT INTO heading (heading, sort, record_set, type_desc, authority) " +
 					"VALUES (?, ?, ?, ?, 1)",
                     Statement.RETURN_GENERATED_KEYS);
 			pstmt1.setString(1, r.heading);
 			pstmt1.setString(2, r.headingSort);
-			pstmt1.setInt(3, ht.ordinal());
+			pstmt1.setInt(3, recordSet.ordinal());
 			pstmt1.setInt(4, r.headingTypeDesc.ordinal());
 			int affectedCount = pstmt1.executeUpdate();
 			if (affectedCount < 1) 
@@ -542,29 +513,29 @@ public class IndexAuthorityRecords {
 				if (sf.value.length() >= 2) {
 					Character offset1 = sf.value.charAt(1);
 					if (offset1.equals('a')) {
-						r.applicableContexts.add(Applicable.NAME);
+						r.applicableContexts.add(RecordSet.NAME);
 					} else if (offset1.equals('b')) {
-						r.applicableContexts.add(Applicable.SUBJECT);
+						r.applicableContexts.add(RecordSet.SUBJECT);
 					} else if (offset1.equals('c')) {
-						r.applicableContexts.add(Applicable.SERIES);
+						r.applicableContexts.add(RecordSet.SERIES);
 					} else if (offset1.equals('d')) {
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SUBJECT);
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SUBJECT);
 					} else if (offset1.equals('e')) {
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SERIES);
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SERIES);
 					} else if (offset1.equals('f')) {
-						r.applicableContexts.add(Applicable.SUBJECT);
-						r.applicableContexts.add(Applicable.SERIES);
+						r.applicableContexts.add(RecordSet.SUBJECT);
+						r.applicableContexts.add(RecordSet.SERIES);
 					} else { // g (or other)
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SUBJECT);
-						r.applicableContexts.add(Applicable.SERIES);
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SUBJECT);
+						r.applicableContexts.add(RecordSet.SERIES);
 					}
 				} else {
-					r.applicableContexts.add(Applicable.NAME);
-					r.applicableContexts.add(Applicable.SUBJECT);
-					r.applicableContexts.add(Applicable.SERIES);
+					r.applicableContexts.add(RecordSet.NAME);
+					r.applicableContexts.add(RecordSet.SUBJECT);
+					r.applicableContexts.add(RecordSet.SERIES);
 				}
 				
 				if (sf.value.length() >= 3) {
@@ -621,9 +592,9 @@ public class IndexAuthorityRecords {
 			}
 		}
 		if ( ! hasW ) {
-			r.applicableContexts.add(Applicable.NAME);
-			r.applicableContexts.add(Applicable.SUBJECT);
-			r.applicableContexts.add(Applicable.SERIES);
+			r.applicableContexts.add(RecordSet.NAME);
+			r.applicableContexts.add(RecordSet.SUBJECT);
+			r.applicableContexts.add(RecordSet.SERIES);
 		}
 		return r;
 	}
@@ -636,12 +607,9 @@ public class IndexAuthorityRecords {
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
 		public HeadTypeDesc headingTypeDesc = null;
-		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
+		public Collection<RecordSet> applicableContexts = new HashSet<RecordSet>();
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
-	}
-	private static enum Applicable {
-		NAME, SUBJECT, SERIES /*Not currently implementing series header browse*/
 	}
 
 	
