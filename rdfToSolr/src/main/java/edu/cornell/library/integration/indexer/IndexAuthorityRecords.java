@@ -4,9 +4,6 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import static edu.cornell.library.integration.indexer.utilities.BrowseUtils.getSortHeading;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +32,6 @@ public class IndexAuthorityRecords {
 
 	private Connection connection = null;
 	private DavService davService;
-	private MessageDigest md = null;
 	
 	/**
 	 * @param args
@@ -54,8 +50,7 @@ public class IndexAuthorityRecords {
 			System.exit(1);
 		}
 	}
-	
-	
+
 	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
         this.davService = DavServiceFactory.getDavService(config);
         		
@@ -126,32 +121,6 @@ public class IndexAuthorityRecords {
 		insertType.close();
 		insertDesc.close();
 		insertRefType.close();
-	}
-
-
-	private String md5Checksum(String s) {
-		try {
-			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			System.out.println("MD5 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-		try {
-			md.update(s.getBytes("UTF-8") );
-			byte[] digest = md.digest();
-
-			// Create Hex String
-	        StringBuffer hexString = new StringBuffer();
-	        for (int i=0; i<digest.length; i++)
-	            hexString.append(Integer.toHexString(0xFF & digest[i]));
-	        return hexString.toString();
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("UTF-8 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-
 	}
 
 	private void processRecords (XMLStreamReader r) throws Exception {
@@ -299,7 +268,7 @@ public class IndexAuthorityRecords {
 		headingSort = getSortHeading(heading);
 
 		// Populate Main Entry Heading Record
-		Integer heading_id = getMainHeadingRecordId(heading,headingSort, ht, htd);
+		Integer heading_id = getMainHeadingRecordId(heading,headingSort,ht, htd);
 		for (String note : notes)
 			insertNote(heading_id, note);
 		for (Relation r : sees )
@@ -314,8 +283,7 @@ public class IndexAuthorityRecords {
 		// Populate Subject Main entry for author record
 		Integer heading_id_alt = null;
 		if (ht.equals(HeadType.AUTHOR)) {
-			heading_id_alt = getMainHeadingRecordId(heading,headingSort, HeadType.SUBJECT, htd);
-			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
+			heading_id_alt = getMainHeadingRecordId(heading,headingSort,HeadType.SUBJECT, htd);
 			for (String note : notes)
 				insertNote(heading_id_alt, note);
 			for (Relation r : sees )
@@ -381,7 +349,6 @@ public class IndexAuthorityRecords {
 		stmt.close();
 	}
 
-
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
 			HeadType ht, HeadTypeDesc htd) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
@@ -427,7 +394,6 @@ public class IndexAuthorityRecords {
 		return recordId;
 	}
 
-	
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
@@ -669,7 +635,6 @@ public class IndexAuthorityRecords {
 		public String headingOrig = null; // access to original heading before
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
-		public HeadType headingType = null;
 		public HeadTypeDesc headingTypeDesc = null;
 		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
 		public Collection<String> expectedNotes = new HashSet<String>();
