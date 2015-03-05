@@ -184,7 +184,9 @@ public class IndexHeadings {
 		solrArgs.add( "qt=standard" );
 		solrArgs.add( "q="+URLEncoder.encode("*:*","UTF-8") );
 		solrArgs.add( "fq="+
-				URLEncoder.encode(String.format("%s:\"%s\"",blf.fieldName(),headingSort),"UTF-8"));
+				URLEncoder.encode(String.format("%s:\"%s\"",
+						blf.fieldName(),
+						headingSort.replaceAll("\"", "\\\"")),"UTF-8"));
 		solrArgs.add( "rows=0" );
 		solrArgs.add( "echoParams=none" );
 		solrArgs.add( "facet=true" );
