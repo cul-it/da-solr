@@ -183,10 +183,8 @@ public class IndexHeadings {
 		Collection<String> solrArgs = new HashSet<String>();
 		solrArgs.add( "qt=standard" );
 		solrArgs.add( "q="+URLEncoder.encode("*:*","UTF-8") );
-		solrArgs.add( "fq="+
-				URLEncoder.encode(String.format("%s:\"%s\"",
-						blf.fieldName(),
-						headingSort.replaceAll("\"", "\\\"")),"UTF-8"));
+		solrArgs.add( "fq="+blf.fieldName()+"%22"+
+				URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")+"%22");
 		solrArgs.add( "rows=0" );
 		solrArgs.add( "echoParams=none" );
 		solrArgs.add( "facet=true" );
