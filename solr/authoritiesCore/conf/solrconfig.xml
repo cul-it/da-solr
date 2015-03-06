@@ -547,6 +547,13 @@
     </lst>
   </requestHandler>
 
+  <requestHandler name="/dataimport">
+    class="org.apache.solr.handler.dataimport.DataImportHandler">
+    <lst name="defaults">
+    <str name="config">dataConfig.xml</str>
+    </lst>
+  </requestHandler>
+  
   <requestHandler name="/update" class="solr.UpdateRequestHandler" />
   <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 
