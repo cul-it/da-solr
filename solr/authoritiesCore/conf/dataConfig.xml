@@ -16,7 +16,7 @@
            h.works_about as worksAbout,
            group_concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, h2.works_by, &quot;|&quot;, h2.works_about SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
            group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms,
-           type_desc
+           h.type_desc
       from heading as h
       
     left join (reference as r2, heading as h2, ref_type as rt2)
