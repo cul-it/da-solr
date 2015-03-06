@@ -11,30 +11,30 @@
 				       h.heading,
 				       h.sort as headingSort,
 				       type_desc.name as headingTypeDesc,
-				       \"author\" as headingType,
+				       &quot;author&quot; as headingType,
 				       h.works_by as worksBy,
 				       h.works_about as worksAbout,
-				       group_concat( h2.heading, \"|\", r2.ref_desc,\"|\", h2.works_by, \"|\", h2.works_about SEPARATOR \"YYYYY\") as seeAlsos,
-				       group_concat( h3.heading, \"|\", r3.ref_desc,\"|\", h3.works_by, \"|\", h3.works_about SEPARATOR \"YYYYY\") as preferedForms
+				       group_concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, h2.works_by, &quot;|&quot;, h2.works_about SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
+				       group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms
 				  from heading as h, type_desc
 				  
 			 left join (reference as r2, heading as h2, ref_type as rt2)
 				    on (r2.from_heading = h.id
 				        and h2.id = r2.to_heading
 				        and r2.ref_type = rt2.id
-				        and rt2.name = \"seeAlso\" )
+				        and rt2.name = &quot;seeAlso&quot; )
 				
 			 left join (reference as r3, heading as h3, ref_type as rt3)
 				    on (r3.from_heading = h.id
 				        and h3.id = r3.to_heading
 				        and r3.ref_type = rt3.id
-				        and rt3.name = \"preferedForm\" )
+				        and rt3.name = &quot;preferedForm&quot; )
 				
 				 where h.type_desc = type_desc.id
 				   and (h.works_by > 0
 				        or h2.works_by > 0
 				        or h3.works_by > 0)
-				 group by h.id"  >
+				 group by h.id">
  
  		<field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
  		<field column="preferedForm" splitBy="YYYYY" sourceColName="preferedForms"/>
