@@ -547,7 +547,7 @@
     </lst>
   </requestHandler>
 
-  <requestHandler name="/dataimport">
+  <requestHandler name="/dataimport"
     class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
     <str name="config">dataConfig.xml</str>
