@@ -15,7 +15,8 @@
            h.works_by as worksBy,
            h.works_about as worksAbout,
            group_concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, h2.works_by, &quot;|&quot;, h2.works_about SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
-           group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms
+           group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms,
+           type_desc
       from heading as h
       
     left join (reference as r2, heading as h2, ref_type as rt2)
@@ -53,7 +54,7 @@
    <entity name="typeDesc"
      query="select name as headingTypeDesc
               from type_desc
-       where heading_id = ${author.id}" />
+       where id = ${author.type_desc}" />
 </entity>
 </document>
 </dataConfig>
