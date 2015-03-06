@@ -7,16 +7,16 @@
 <document>
 <entity name="author"
   transformer="RegexTransformer"
-        query=" select h.id,
+        query=" 
+           select h.id,
            h.heading,
            h.sort as headingSort,
-           type_desc.name as headingTypeDesc,
            &quot;author&quot; as headingType,
            h.works_by as worksBy,
            h.works_about as worksAbout,
            group_concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, h2.works_by, &quot;|&quot;, h2.works_about SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
            group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms
-      from type_desc, heading as h
+      from heading as h
       
     left join (reference as r2, heading as h2, ref_type as rt2)
         on (r2.from_heading = h.id
@@ -30,10 +30,9 @@
             and r3.ref_type = rt3.id
             and rt3.name = &quot;preferedForm&quot; )
     
-     where h.type_desc = type_desc.id
-       and (h.works_by > 0
-            or h2.works_by > 0
-            or h3.works_by > 0)
+     where h.works_by > 0
+        or h2.works_by > 0
+        or h3.works_by > 0
      group by h.id">
  
    <field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
@@ -48,6 +47,12 @@
    <entity name="notes"
      query="select note as notes
               from note
+       where heading_id = ${author.id}" />
+       
+          
+   <entity name="typeDesc"
+     query="select name as headingTypeDesc
+              from type_desc
        where heading_id = ${author.id}" />
 </entity>
 </document>
