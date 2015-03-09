@@ -80,9 +80,6 @@ task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.ConvertMarcToXml'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
- args= [ 
-   'http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates',
-   'http://culdata.library.cornell.edu/data/voyager/auth/auth.xml.updates'] 
        }
    
 task (step4aConvertBibUpdatesToXml, dependsOn:'assemble', type: JavaExec){
