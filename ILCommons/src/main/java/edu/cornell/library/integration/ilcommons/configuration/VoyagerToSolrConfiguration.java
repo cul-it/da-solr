@@ -94,6 +94,13 @@ public class VoyagerToSolrConfiguration {
     		return null;
     	}
     }
+    public String getLocalBaseFilePath() {
+    	if (values.containsKey("localBaseFilePath")) {
+    		return values.get("localBaseFilePath");
+    	} else {
+    		return null;
+    	}
+    }
 
     public String getWebdavUser() {
     	if (values.containsKey("webdavUser")) {

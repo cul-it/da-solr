@@ -417,10 +417,21 @@
     </lst>
   </requestHandler>
 
+ <!-- http://stackoverflow.com/questions/24570545/ -->
+  <updateRequestProcessorChain name="skip-empty">
+    <!--  Next two processors affect all fields - default configuration -->
+    <processor class="TrimFieldUpdateProcessorFactory" /> <!--  Get rid of leading/trailing spaces. Also empties all-spaces fields for next filter-->
+    <processor class="RemoveBlankFieldUpdateProcessorFactory" /> <!--  Delete fields with no content. More efficient and allows to query for presence/absence of field -->
+
+    <processor class="solr.LogUpdateProcessorFactory" />
+    <processor class="solr.RunUpdateProcessorFactory" />
+  </updateRequestProcessorChain>
+
   <requestHandler name="/dataimport"
     class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
-    <str name="config">dataConfig.xml</str>
+      <str name="config">dataConfig.xml</str>
+      <str name="update.chain">skip-empty</str>
     </lst>
   </requestHandler>
   

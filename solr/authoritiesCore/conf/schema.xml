@@ -211,6 +211,7 @@
 	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
 
+	<field name="works" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
 

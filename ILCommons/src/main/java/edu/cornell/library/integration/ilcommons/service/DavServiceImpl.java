@@ -27,10 +27,8 @@ public class DavServiceImpl implements DavService {
 
     private String davUser;
     private String davPass;
-
-    public DavServiceImpl() {
-        // TODO Auto-generated constructor stub
-    }
+    private String davBaseWebURL;
+    private String localBaseFilePath;
 
     /**
      * @param davUser
@@ -39,6 +37,11 @@ public class DavServiceImpl implements DavService {
     public DavServiceImpl(String davUser, String davPass) {
         this.davUser = davUser;
         this.davPass = davPass;
+    }
+    
+    public void setDavUrlToLocalPathMapping( String davUrl, String localPath ){
+    	davBaseWebURL = davUrl;
+    	localBaseFilePath = localPath;
     }
 
     /**
@@ -134,6 +137,16 @@ public class DavServiceImpl implements DavService {
      * @see edu.cornell.library.integration.service.DavService#getFileAsInputStream(java.lang.String)
      */
     public InputStream getFileAsInputStream(String url) throws IOException {
+    	
+    	if (localBaseFilePath != null) {
+    		String path = url.replace(davBaseWebURL, localBaseFilePath);
+    		if ( ! path.equals(url)) {
+    			File initialFile = new File(path);
+    		    return new FileInputStream(initialFile);
+    		}
+    	}
+    	
+    	
         try{
             //System.out.println("Getting file: "+ url);
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
