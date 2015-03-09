@@ -49,7 +49,7 @@
    <field column="works_by" name="worksBy" />
    <field column="works_about" name="worksAbout" />
 
-   <!-- transformed fields -->
+   <!-- transformed fields --> 
    <field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
    <field column="preferedForm" splitBy="YYYYY" sourceColName="preferedForms"/>
 

@@ -144,6 +144,7 @@ public class IndexAuthorityRecords {
 		Collection<String> expectedNotes = new HashSet<String>();
 		Collection<String> foundNotes = new HashSet<String>();
 		Collection<String> notes = new HashSet<String>();
+		Boolean isUndifferentiated = false;
 		
 		for (ControlField f : rec.control_fields.values()) {
 			if (f.tag.equals("008")) {
@@ -153,6 +154,9 @@ public class IndexAuthorityRecords {
 						expectedNotes.add("666");
 					else if (recordType.equals('c'))
 						expectedNotes.add("664");
+					Character undifferentiated = f.value.charAt(32);
+					if (undifferentiated.equals('b'))
+						isUndifferentiated = true;
 				}
 			}
 		}
@@ -271,8 +275,13 @@ public class IndexAuthorityRecords {
 		Integer heading_id = getMainHeadingRecordId(heading,headingSort,rs, htd);
 		for (String note : notes)
 			insertNote(heading_id, note);
-		for (Relation r : sees )
-			insertAltForm(heading_id, r.headingOrig);
+		
+		// Populate alternate forms as direct references for see "from" tracings. 
+		// Records marked as undifferentiated will have see tracings that refer to different
+		// people. By not populating them here, we avoid cross populating them into bib records.
+		if ( ! isUndifferentiated ) 
+			for (Relation r : sees )
+				insertAltForm(heading_id, r.headingOrig);
 
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
