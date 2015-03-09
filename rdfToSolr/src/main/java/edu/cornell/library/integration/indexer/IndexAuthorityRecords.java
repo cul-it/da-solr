@@ -415,7 +415,7 @@ public class IndexAuthorityRecords {
 		pstmt.setInt(2, to_id);
 		pstmt.setInt(3, rt.ordinal());
 		if (relationshipDescription == null)
-			pstmt.setNull(4, java.sql.Types.VARCHAR);
+			pstmt.setString(4, "");
 		else
 			pstmt.setString(4, relationshipDescription);
 		pstmt.executeUpdate();
