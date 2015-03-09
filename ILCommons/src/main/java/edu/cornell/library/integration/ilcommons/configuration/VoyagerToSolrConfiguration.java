@@ -86,9 +86,8 @@ public class VoyagerToSolrConfiguration {
     	}
     }
 
-    public String getWebdavBaseUrl() throws IOException {
+    public String getWebdavBaseUrl() {
     	if (values.containsKey("webdavBaseUrl")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl"));
     		return values.get("webdavBaseUrl");
     	} else {
     		return null;
