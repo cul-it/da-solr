@@ -329,23 +329,6 @@
         <lst>
           <str name="rows">0</str> 
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
         <lst>
@@ -353,23 +336,6 @@
           <str name="qt">standard</str>
           <str name="rows">0</str>
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
     </listener>
@@ -383,23 +349,6 @@
         <lst>
           <str name="rows">0</str> 
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
         <lst>
@@ -407,23 +356,6 @@
           <str name="qt">standard</str>
           <str name="rows">0</str>
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
     </listener>
