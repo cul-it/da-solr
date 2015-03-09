@@ -51,9 +51,6 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         }
         
         MrcToXmlConverter converter = new MrcToXmlConverter();
-        converter.setSrcType("mfhd");
-        converter.setExtractType("updates");
-        converter.setSplitSize(0);
         converter.setDestDir( destDir );
         converter.setTmpDir( config.getTmpDir() );
                 

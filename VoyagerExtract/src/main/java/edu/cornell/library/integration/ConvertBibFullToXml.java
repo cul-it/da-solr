@@ -119,9 +119,6 @@ public class ConvertBibFullToXml {
  *		List<String> biblist = new ArrayList<String>();
  */
 		MrcToXmlConverter converter = new MrcToXmlConverter();
-		converter.setSrcType("bib");
-		converter.setExtractType("full");
-		converter.setSplitSize(10000);
 		converter.setDestDir(destDir);
 		// iterate over mrc files
 		if (srcList.size() == 0) {

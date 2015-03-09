@@ -52,9 +52,6 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
       }
       
       MrcToXmlConverter converter = new MrcToXmlConverter();
-      converter.setSrcType("bib");
-      converter.setExtractType("updates");
-      converter.setSplitSize(0);
       converter.setDestDir(destDir);
       converter.setTmpDir(config.getTmpDir());
       
@@ -79,25 +76,5 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      }
      System.out.println("\nTotal record count: "+totalRecordCount);
 
-   } 
-       
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];       
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getSeqnoFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[3];
-   }
-    
+   }     
 }

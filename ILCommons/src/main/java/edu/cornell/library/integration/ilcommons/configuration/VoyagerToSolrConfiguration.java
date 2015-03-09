@@ -283,6 +283,23 @@ public class VoyagerToSolrConfiguration {
     	}
     }
     
+    public String[] getMarc2XmlDirs() throws IOException {
+    	if (values.containsKey("marc2XmlDirs")) {
+    		String[] aliases = values.get("marc2XmlDirs").split(",");
+    		String[] paths = new String[ aliases.length ];
+    		for (int i = 0; i < aliases.length; i++) {
+    			if (values.containsKey(aliases[i])) 
+    				paths[i] = values.get("webdavBaseUrl") + "/" + values.get(aliases[i]);
+    			else {
+    				System.out.println("Path not found for config value: " +aliases[i]);
+    				return null;
+    			}
+    		}
+    		return paths;
+    	} 
+    	return null;
+    }
+    
     public String getXmlDir() throws IOException {
     	if (values.containsKey("xmlDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("xmlDir"));

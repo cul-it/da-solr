@@ -118,9 +118,6 @@ public class ConvertMfhdFullToXml {
  *		}
  *		List<String> mfhdlist = new ArrayList<String>();  */		
 		MrcToXmlConverter converter = new MrcToXmlConverter();
-		converter.setSrcType("mfhd");
-		converter.setExtractType("full");
-		converter.setSplitSize(10000);
 		converter.setDestDir(destDir);
 		// iterate over mrc files
 		if (srcList.size() == 0) {

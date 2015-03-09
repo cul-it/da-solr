@@ -41,9 +41,7 @@ public class IdentifyDeletedRecords {
 	
 	DavService davService;
 	VoyagerToSolrConfiguration config;
-	
-	public IdentifyDeletedRecords() {  }
-	
+
 	public static void main(String[] args)  {
 
          try{        
