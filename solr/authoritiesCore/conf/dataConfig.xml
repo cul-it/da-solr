@@ -10,63 +10,69 @@
         query=" 
            select h.id,
            h.heading,
-           h.sort as headingSort,
-           h.works_by as worksBy,
-           h.works_about as worksAbout,
-           h.type_desc
+           h.sort,
+           h.works,
+           h.works_by,
+           h.works_about,
+           h.type_desc,
+           group_concat(
+               concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
+	                         CAST(h2.works_about AS CHAR(8)),CAST(h2.works_by AS CHAR(8)))
+	           SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
+           group_concat(
+               concat_ws( &quot;|&quot;, h3.heading, r3.ref_desc,
+	                         CAST(h3.works_about AS CHAR(8)),CAST(h3.works_by AS CHAR(8)))
+	           SEPARATOR &quot;YYYYY&quot;) as preferedForms
       from heading as h
-      
+
     left join (reference as r2, heading as h2, ref_type as rt2)
         on (r2.from_heading = h.id
             and h2.id = r2.to_heading
             and r2.ref_type = rt2.id
             and rt2.name = &quot;seeAlso&quot; )
-    
+
     left join (reference as r3, heading as h3, ref_type as rt3)
         on (r3.from_heading = h.id
             and h3.id = r3.to_heading
             and r3.ref_type = rt3.id
             and rt3.name = &quot;preferedForm&quot; )
-    
+
      where h.works_by > 0
         or h2.works_by > 0
         or h3.works_by > 0
      group by h.id">
-   
+
+   <field column="id" name="id" />
+   <field column="heading" name="heading" />
+   <field column="sort" name="headingSort" />
+   <field column="works" name="works" />
+   <field column="works_by" name="worksBy" />
+   <field column="works_about" name="worksAbout" />
+
+   <!-- transformed fields -->
+   <field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
+   <field column="preferedForm" splitBy="YYYYY" sourceColName="preferedForms"/>
+
+
    <entity name="altForms"
-     query="select form as alternateForm
-              from alt_form
+     query="select form from alt_form
        where heading_id = ${author.id}
-       order by 1" />
-     
+       order by 1" >
+       <field column="form" name="alternateForm" />
+   </entity>
+
    <entity name="notes"
      query="select note as notes
               from note
-       where heading_id = ${author.id}" />
-       
-          
-   <entity name="typeDesc"
-     query="select name as headingTypeDesc
-              from type_desc
-       where id = ${author.type_desc}" />
-       
-   <entity name="seeAlso"
-	 query="select concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
-	                         h2.works_about,cast(h2.works_by AS CHAR(7))) as seeAlso
-              from heading as h2, reference as r2, ref_type as rt2
-             where r2.from_heading = ${author.id}
-               and h2.id = r2.to_heading
-               and r2.ref_type = rt2.id
-               and rt2.name = &quot;seeAlso&quot;" />
+       where heading_id = ${author.id}" >
+       <field column="note" name="notes" />
+   </entity>
 
-   <entity name="preferedForm"
-	 query="select concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
-	                         h2.works_about,cast(h2.works_by AS CHAR(7))) as preferedForm
-              from heading as h2, reference as r2, ref_type as rt2
-             where r2.from_heading = ${author.id}
-               and h2.id = r2.to_heading
-               and r2.ref_type = rt2.id
-               and rt2.name = &quot;preferedForm&quot;" />
+   <entity name="typeDesc"
+     query="select name from type_desc
+       where id = ${author.type_desc}" >
+       <field column="name" name="headingTypeDesc" />
+   </entity>
 
 </entity>
 </document>
