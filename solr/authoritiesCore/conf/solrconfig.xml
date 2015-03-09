@@ -444,96 +444,34 @@
     </lst>
   </requestHandler>
 
-  <requestHandler name="/subjects" class="solr.SearchHandler">
+  <requestHandler name="/browse" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">["$from" TO *]</str>
+      <str name="q">[&quot;$from&quot; TO *]</str>
       <str name="indent">true</str>
     </lst>
-    <lst name="appends">
-      <str name="fq">headingType:subject</str>
-    </lst>
   </requestHandler>
-    <requestHandler name="/subjectsR" class="solr.SearchHandler">
+  <requestHandler name="/reverse" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[* TO "$to"}</str>
+      <str name="q">[* TO &quot;$to&quot;}</str>
       <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:subject</str>
-    </lst>
-  </requestHandler>
-  
-  <requestHandler name="/authors" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
-      </str>
-      <str name="df">headingSort</str>
-      <str name="sort">headingSort asc</str>
-      <str name="rows">20</str>
-      <str name="wt">ruby</str>
-      <str name="q">["$from" TO *]</str>
-      <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:author</str>
-    </lst>
-  </requestHandler>
-  <requestHandler name="/authorsR" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
-      </str>
-      <str name="df">headingSort</str>
-      <str name="sort">headingSort desc</str>
-      <str name="rows">20</str>
-      <str name="wt">ruby</str>
-      <str name="q">[* TO "$to"}</str>
-      <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:author</str>
-    </lst>
-  </requestHandler>
-
-  
-  <!-- search handler to support database ERM interface -->
-  <requestHandler name="/databases" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,summary_display,sixfivethree,url_access_display</str>
-      <str name="df">sixfivethree</str>
-      <str name="sort">title_sort asc</str>
-      <str name="rows">1000000</str>
-      <str name="wt">ruby</str>
-      <str name="q">*</str>
-      <str name="q.alt">*</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">database_b:true</str>
     </lst>
   </requestHandler>
   

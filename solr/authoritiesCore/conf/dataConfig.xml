@@ -11,11 +11,8 @@
            select h.id,
            h.heading,
            h.sort as headingSort,
-           &quot;author&quot; as headingType,
            h.works_by as worksBy,
            h.works_about as worksAbout,
-           group_concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, h2.works_by, &quot;|&quot;, h2.works_about SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
-           group_concat( h3.heading, &quot;|&quot;, r3.ref_desc,&quot;|&quot;, h3.works_by, &quot;|&quot;, h3.works_about SEPARATOR &quot;YYYYY&quot;) as preferedForms,
            h.type_desc
       from heading as h
       
@@ -35,9 +32,6 @@
         or h2.works_by > 0
         or h3.works_by > 0
      group by h.id">
- 
-   <field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
-   <field column="preferedForm" splitBy="YYYYY" sourceColName="preferedForms"/>
    
    <entity name="altForms"
      query="select form as alternateForm
@@ -55,6 +49,25 @@
      query="select name as headingTypeDesc
               from type_desc
        where id = ${author.type_desc}" />
+       
+   <entity name="seeAlso"
+	 query="select concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, 
+	                       h2.works_about, &quot;|&quot;, h2.works_by) as seeAlso
+              from heading as h2, reference as r2, ref_type as rt2
+             where r2.from_heading = ${author.id}
+               and h2.id = r2.to_heading
+               and r2.ref_type = rt2.id
+               and rt2.name = &quot;seeAlso&quot;" />
+
+   <entity name="preferedForm"
+	 query="select concat( h2.heading, &quot;|&quot;, r2.ref_desc,&quot;|&quot;, 
+	                       h2.works_about, &quot;|&quot;, h2.works_by) as preferedForm
+              from heading as h2, reference as r2, ref_type as rt2
+             where r2.from_heading = ${author.id}
+               and h2.id = r2.to_heading
+               and r2.ref_type = rt2.id
+               and rt2.name = &quot;preferedForm&quot;" />
+
 </entity>
 </document>
 </dataConfig>

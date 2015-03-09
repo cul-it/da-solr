@@ -213,8 +213,6 @@
 
 	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
-    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
-
 
   </fields>
 
