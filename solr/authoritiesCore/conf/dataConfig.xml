@@ -52,7 +52,7 @@
        
    <entity name="seeAlso"
 	 query="select concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
-	                         h2.works_about,cast(h2.works_by AS CHAR(50)) as seeAlso
+	                         h2.works_about,cast(h2.works_by AS CHAR(7))) as seeAlso
               from heading as h2, reference as r2, ref_type as rt2
              where r2.from_heading = ${author.id}
                and h2.id = r2.to_heading
@@ -61,7 +61,7 @@
 
    <entity name="preferedForm"
 	 query="select concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
-	                         h2.works_about,cast(h2.works_by AS CHAR(50)) as preferedForm
+	                         h2.works_about,cast(h2.works_by AS CHAR(7))) as preferedForm
               from heading as h2, reference as r2, ref_type as rt2
              where r2.from_heading = ${author.id}
                and h2.id = r2.to_heading
