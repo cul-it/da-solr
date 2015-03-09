@@ -142,6 +142,7 @@ public class DavServiceImpl implements DavService {
     		String path = url.replace(davBaseWebURL, localBaseFilePath);
     		if ( ! path.equals(url)) {
     			File initialFile = new File(path);
+    			System.out.println("Reading file from local filesystem: "+path);
     		    return new FileInputStream(initialFile);
     		}
     	}
