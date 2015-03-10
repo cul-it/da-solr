@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -443,6 +444,8 @@ public class VoyagerToSolrConfiguration {
         	if (debug) System.out.println("Establishing database connection.");
         	Connection c = DriverManager.getConnection(url,user,pass);
         	if (debug) System.out.println("database connection established.");
+        	Statement stmt = c.createStatement();
+        	stmt.executeUpdate("SET NAMES utf8");
         	return c;    		
     	}
     }
