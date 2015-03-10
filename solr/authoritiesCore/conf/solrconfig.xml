@@ -381,7 +381,9 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
+        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        authority,mainEntry
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort asc</str>
@@ -396,7 +398,9 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
+        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        authority,mainEntry
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort desc</str>

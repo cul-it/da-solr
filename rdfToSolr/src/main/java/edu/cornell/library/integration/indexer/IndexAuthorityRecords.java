@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.Normalizer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,6 +145,8 @@ public class IndexAuthorityRecords {
 		Collection<String> expectedNotes = new HashSet<String>();
 		Collection<String> foundNotes = new HashSet<String>();
 		Collection<String> notes = new HashSet<String>();
+		Map<String,Collection<String>> rdaData = new HashMap<String,Collection<String>>();
+		
 		Boolean isUndifferentiated = false;
 		
 		for (ControlField f : rec.control_fields.values()) {
@@ -209,6 +212,25 @@ public class IndexAuthorityRecords {
 				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatValue(""));
+			} else if (f.tag.startsWith("3")) {
+				String fieldName = null;
+				switch (f.tag) {
+				case "370": fieldName = "place";			break;
+				case "372": fieldName = "field";			break;
+				case "373": fieldName = "group_or_org";		break;
+				case "374": fieldName = "occupation";		break;
+				case "375": fieldName = "gender";			break;
+				case "380": fieldName = "form_of_work";		break;
+				case "382": fieldName = "perform_medium";	break;
+				}
+				if (fieldName != null) {
+					if ( ! rdaData.containsKey(fieldName))
+						rdaData.put(fieldName, new HashSet<String>());
+					Collection<String> values = rdaData.get(fieldName);
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							values.add(sf.value);
+				}
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
 				Relation r = determineRelationship(f);
@@ -306,9 +328,26 @@ public class IndexAuthorityRecords {
 				directRef(heading_id,rs,r,ReferenceType.TO5XX);
 		}
 
+		if (rdaData.size() >= 1)
+			populateRdaInfo(heading_id, rdaData);
+
 		return;
 	}
 
+
+	private void populateRdaInfo(Integer heading_id, Map<String,Collection<String>> rdaData) throws SQLException {
+		for (String rdaField : rdaData.keySet() ) {
+			PreparedStatement stmt = connection.prepareStatement(
+					"INSERT INTO rda_"+rdaField+" (heading_id, val) VALUES (?, ?)");
+			stmt.setInt(1, heading_id);
+			for ( String val: rdaData.get(rdaField) ) {
+				stmt.setString(2, val);
+				stmt.addBatch();
+			}
+			stmt.executeBatch();
+			stmt.close();
+		}
+	}
 
 	private void insertAltForm(Integer heading_id, String form) throws SQLException {
 		PreparedStatement stmt = connection.prepareStatement(
@@ -358,7 +397,7 @@ public class IndexAuthorityRecords {
 					"INSERT INTO heading (heading, sort, record_set, type_desc, authority, main_entry) " +
 					"VALUES (?, ?, ?, ?, 1, 1)",
                     Statement.RETURN_GENERATED_KEYS);
-			pstmt1.setString(1, heading);
+			pstmt1.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
 			pstmt1.setString(2, headingSort);
 			pstmt1.setInt(3, recordSet.ordinal());
 			pstmt1.setInt(4, htd.ordinal());
@@ -621,7 +660,6 @@ public class IndexAuthorityRecords {
 		boolean display = true;
 	}
 
-	
 	public static enum ReferenceType {
 		TO4XX("alternateForm"),
 		FROM4XX("preferedForm"),

@@ -422,7 +422,7 @@ public class VoyagerToSolrConfiguration {
 		    	cpds.setJdbcUrl( url );
 		    	cpds.setUser( user );
 		    	cpds.setPassword( pass );
-		    	cpds.setMaxStatements(15);
+		    	cpds.setMaxStatements(25);
 		    	cpds.setTestConnectionOnCheckout(true);
 		    	cpds.setTestConnectionOnCheckin(true);
 		    	// if we retry every thirty seconds for thirty attempts, we should be
