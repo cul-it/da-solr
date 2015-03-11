@@ -167,44 +167,57 @@ public class IndexAuthorityRecords {
 		Iterator<DataField> i = rec.data_fields.values().iterator();
 		while (i.hasNext()) {
 			DataField f = i.next();
-			if (f.tag.startsWith("1")) {
+			if (f.tag.equals("010")) {
+				for (Subfield sf : f.subfields.values() ) 
+					if (sf.code.equals('a'))
+						if (sf.value.startsWith("sj")) {
+							// this is a Juvenile subject authority heading, which
+							// we will not represent in the headings browse.
+							System.out.println("Skipping Juvenile subject authority heading: "+rec.id);
+							return;
+						}
+			} else if (f.tag.startsWith("1")) {
 				// main heading
 				heading = f.concatValue("");
-				if (f.tag.equals("100") || f.tag.equals("110") || f.tag.equals("111")) {
+				switch (f.tag) {
+				case "100":
+				case "110":
+				case "111":
 					rs = RecordSet.NAME;
-					Iterator<Subfield> j = f.subfields.values().iterator();
-					while (j.hasNext()) {
-						Subfield sf = j.next();
+					SF: for (Subfield sf : f.subfields.values() ) {
 						if (sf.code.equals('t')) {
 							rs = RecordSet.NAMETITLE;
-							break;
+							break SF;
 						}
 					}
-					if (f.tag.equals("100")) {
+					if (f.tag.equals("100"))
 						htd = HeadTypeDesc.PERSNAME;
-					} else if (f.tag.equals("110")) {
+					else if (f.tag.equals("110"))
 						htd = HeadTypeDesc.CORPNAME;
-					} else {
+					else
 						htd = HeadTypeDesc.EVENT;
-					}
-				}
-				if (f.tag.equals("130")) {
+					break;
+				case "130":
 					htd = HeadTypeDesc.GENHEAD;
 					rs = RecordSet.SUBJECT;
-				}
-				if (f.tag.equals("150")) {
-					rs = RecordSet.SUBJECT;
-					htd = HeadTypeDesc.TOPIC;
-				} else if (f.tag.equals("151")) {
-					rs = RecordSet.SUBJECT;
-					htd = HeadTypeDesc.GEONAME;
-				} else if (f.tag.equals("148")) {
+					break;
+				case "148":
 					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.CHRONTERM;
-				} else if (f.tag.equals("155")) {
+					break;
+				case "150":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.TOPIC;
+					break;
+				case "151":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.GEONAME;
+					break;
+				case "155":
 					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.GENRE;
-				} else if (f.tag.equals("162")) {
+					break;
+				case "162":
 					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.MEDIUM;
 				}
@@ -505,80 +518,86 @@ public class IndexAuthorityRecords {
 		Relation r = new Relation();
 		boolean hasW = false;
 		
-		if (f.tag.endsWith("00"))
-			r.headingTypeDesc = HeadTypeDesc.PERSNAME;
-		else if (f.tag.endsWith("10")) 
-			r.headingTypeDesc = HeadTypeDesc.CORPNAME;
-		else if (f.tag.endsWith("11"))
-			r.headingTypeDesc = HeadTypeDesc.EVENT;
-		else if (f.tag.endsWith("30"))
-			r.headingTypeDesc = HeadTypeDesc.GENHEAD;
-		else if (f.tag.endsWith("50"))
-			r.headingTypeDesc = HeadTypeDesc.TOPIC;
-		else if (f.tag.endsWith("48"))
-			r.headingTypeDesc = HeadTypeDesc.CHRONTERM;
-		else if (f.tag.endsWith("51"))
-			r.headingTypeDesc = HeadTypeDesc.GEONAME;
-		else if (f.tag.endsWith("55"))
-			r.headingTypeDesc = HeadTypeDesc.GENRE;
-		else if (f.tag.endsWith("62"))
-			r.headingTypeDesc = HeadTypeDesc.MEDIUM;
-		else return null;
+		switch( f.tag.substring(1) ) {
+		case "00":
+			r.headingTypeDesc = HeadTypeDesc.PERSNAME;	break;
+		case "10":
+			r.headingTypeDesc = HeadTypeDesc.CORPNAME;	break;
+		case "11":
+			r.headingTypeDesc = HeadTypeDesc.EVENT;		break;
+		case "30":
+			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
+		case "50":
+			r.headingTypeDesc = HeadTypeDesc.TOPIC;		break;
+		case "48":
+			r.headingTypeDesc = HeadTypeDesc.CHRONTERM;	break;
+		case "51":
+			r.headingTypeDesc = HeadTypeDesc.GEONAME;	break;
+		case "55":
+			r.headingTypeDesc = HeadTypeDesc.GENRE;		break;
+		case "62":
+			r.headingTypeDesc = HeadTypeDesc.MEDIUM;	break;
+		default: return null;
+		}
 		
 		
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('w')) {
 				hasW = true;
 				
-				if (sf.value.startsWith("a")) {
+				switch (sf.value.charAt(0)) {
+				case 'a':
 					//earlier heading
-					r.relationship = "Later Heading";
-				} else if (sf.value.startsWith("b")) {
+					r.relationship = "Later Heading";	break;
+				case 'b':
 					//later heading
-					r.relationship = "Earlier Heading";
-				} else if (sf.value.startsWith("d")) {
+					r.relationship = "Earlier Heading";	break;
+				case 'd':
 					//acronym
-					r.relationship = "Full Heading";
-				} else if (sf.value.startsWith("f")) {
+					r.relationship = "Full Heading";	break;
+				case 'f':
 					//musical composition
 					r.relationship = "Musical Composition Based on this Work";
-				} else if (sf.value.startsWith("g")) {
+														break;
+				case 'g':
 					//broader term
-					r.relationship = "Narrower Term";
-				} else if (sf.value.startsWith("h")) {
+					r.relationship = "Narrower Term";	break;
+				case 'h':
 					//narrower term
-					r.relationship = "Broader Term";
-				} else if (sf.value.startsWith("i")) {
-					// get relationship name from subfield i
-				} else if (sf.value.startsWith("r")) {
-					// get relationship name from subfield i
-					//  also something about subfield 4? Haven't seen one.
-				} else if (sf.value.startsWith("t")) {
+					r.relationship = "Broader Term";	break;
+				case 'i':	
+				case 'r':
+					// get relationship name from subfield i 
+					break;
+				case 't':
 					//parent body
 					r.relationship = "Parent Body";
 				}
 				
 				if (sf.value.length() >= 2) {
-					Character offset1 = sf.value.charAt(1);
-					if (offset1.equals('a')) {
+					switch (sf.value.charAt(1)) {
+					case 'a':
+						r.applicableContexts.add(RecordSet.NAME);		break;
+					case 'b':
+						r.applicableContexts.add(RecordSet.SUBJECT);	break;
+					case 'c':
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'd':
 						r.applicableContexts.add(RecordSet.NAME);
-					} else if (offset1.equals('b')) {
-						r.applicableContexts.add(RecordSet.SUBJECT);
-					} else if (offset1.equals('c')) {
-						r.applicableContexts.add(RecordSet.SERIES);
-					} else if (offset1.equals('d')) {
+						r.applicableContexts.add(RecordSet.SUBJECT);	break;
+					case 'e':
 						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'f':
 						r.applicableContexts.add(RecordSet.SUBJECT);
-					} else if (offset1.equals('e')) {
-						r.applicableContexts.add(RecordSet.NAME);
-						r.applicableContexts.add(RecordSet.SERIES);
-					} else if (offset1.equals('f')) {
-						r.applicableContexts.add(RecordSet.SUBJECT);
-						r.applicableContexts.add(RecordSet.SERIES);
-					} else { // g (or other)
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'g':
+					default:
 						r.applicableContexts.add(RecordSet.NAME);
 						r.applicableContexts.add(RecordSet.SUBJECT);
 						r.applicableContexts.add(RecordSet.SERIES);
+						// 'g' refers to all three contexts. Any other values will not
+						// be interpreted as limiting to applicable contexts.
 					}
 				} else {
 					r.applicableContexts.add(RecordSet.NAME);
@@ -594,49 +613,52 @@ public class IndexAuthorityRecords {
 				}
 				
 				if (sf.value.length() >= 4) {
-					Character offset3 = sf.value.charAt(3);
-					if (offset3.equals('a')) {
+					switch (sf.value.charAt(3)) {
+					case 'a':
+						r.display = false;			break;
+					case 'b':
 						r.display = false;
-					} else if (offset3.equals('b')) {
+						r.expectedNotes.add("664");	break;
+					case 'c':
 						r.display = false;
-						r.expectedNotes.add("664");
-					} else if (offset3.equals('c')) {
+						r.expectedNotes.add("663");	break;
+					case 'd':
 						r.display = false;
-						r.expectedNotes.add("663");
-					} else if (offset3.equals('d')) {
-						r.display = false;
-						r.expectedNotes.add("665");
+						r.expectedNotes.add("665");	break;
 					}
 				}
 			} else if (sf.code.equals('i')) {
-				String rel = removeTrailingPunctuation(sf.value,": ").trim();
-				if (rel.equalsIgnoreCase("alternate identity"))
-					r.relationship = "Real Identity";
-				else if (rel.equalsIgnoreCase("real identity"))
-					r.relationship = "Alternate Identity";
-				else if (rel.equalsIgnoreCase("family member"))
-					r.relationship = "Family";
-				else if (rel.equalsIgnoreCase("family"))
-					r.relationship = "Family Member";
-				else if (rel.equalsIgnoreCase("progenitor"))
-					r.relationship = "Descendants";
-				else if (rel.equalsIgnoreCase("descendants"))
-					r.relationship = "Progenitor";
-				else if (rel.equalsIgnoreCase("employee"))
-					r.relationship = "Employer";
-				else if (rel.equalsIgnoreCase("employer")) {
+				String rel = removeTrailingPunctuation(sf.value,": ").trim().toLowerCase();
+				switch (rel) {
+				case "alternate identity":
+					r.relationship = "Real Identity";		break;
+				case "real identity":
+					r.relationship = "Alternate Identity";	break;
+				case "family member":
+					r.relationship = "Family";				break;
+				case "family":
+					r.relationship = "Family Member";		break;
+				case "progenitor":
+					r.relationship = "Descendants";			break;
+				case "descendants":
+					r.relationship = "Progenitor";			break;
+				case "employee": 
+					r.relationship = "Employer";			break;
+				case "employer":
 					r.relationship = "Employee";
-					r.reciprocalRelationship = "Employer";
+					r.reciprocalRelationship = "Employer";	break;
+
 				// The reciprocal relationship to descendant family is missing
 				// from the RDA spec (appendix K), so it's unlikely that
 				// "Progenitive Family" will actually appear. Of the three
 				// adjective forms of "Progenitor" I found in the OED (progenital,
 				// progenitive, progenitorial), progenitive has the highest level
 				// of actual use according to my Google NGrams search
-				} else if (rel.equalsIgnoreCase("Descendant Family")) 
-					r.relationship = "Progenitive Family";
-				else if (rel.equalsIgnoreCase("Progenitive Family"))
+				case "descendant family": 
+					r.relationship = "Progenitive Family";	break;
+				case "progenitive family":
 					r.relationship = "Descendant Family";
+				}
 			}
 		}
 		if ( ! hasW ) {
@@ -690,30 +712,40 @@ public class IndexAuthorityRecords {
 					return rec;
 			}
 			if (event.equals("START_ELEMENT")) {
-				if (r.getLocalName().equals("leader")) {
+				String element = r.getLocalName();
+				switch (element) {
+				
+				case "leader":
 					rec.leader = r.getElementText();
-				} else if (r.getLocalName().equals("controlfield")) {
-					ControlField f = new ControlField();
-					f.id = ++id;
+					break;
+
+
+				case "controlfield":
+					ControlField cf = new ControlField();
+					cf.id = ++id;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							f.tag = r.getAttributeValue(i);
-					f.value = r.getElementText();
-					if (f.tag.equals("001"))
-						rec.id = f.value;
-					rec.control_fields.put(f.id, f);
-				} else if (r.getLocalName().equals("datafield")) {
-					DataField f = new DataField();
-					f.id = ++id;
+							cf.tag = r.getAttributeValue(i);
+					cf.value = r.getElementText();
+					if (cf.tag.equals("001"))
+						rec.id = cf.value;
+					rec.control_fields.put(cf.id, cf);
+					break;
+
+
+				case "datafield":
+					DataField df = new DataField();
+					df.id = ++id;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							f.tag = r.getAttributeValue(i);
+							df.tag = r.getAttributeValue(i);
 						else if (r.getAttributeLocalName(i).equals("ind1"))
-							f.ind1 = r.getAttributeValue(i).charAt(0);
+							df.ind1 = r.getAttributeValue(i).charAt(0);
 						else if (r.getAttributeLocalName(i).equals("ind2"))
-							f.ind2 = r.getAttributeValue(i).charAt(0);
-					f.subfields = processSubfields(r);
-					rec.data_fields.put(f.id, f);
+							df.ind2 = r.getAttributeValue(i).charAt(0);
+					df.subfields = processSubfields(r);
+					rec.data_fields.put(df.id, df); 
+					
 				}
 		
 			}
