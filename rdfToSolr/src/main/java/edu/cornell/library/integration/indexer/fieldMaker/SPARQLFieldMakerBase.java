@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public abstract class SPARQLFieldMakerBase implements FieldMaker{
@@ -68,17 +69,17 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	 * Substitute in recordURI to queries and run them against their stores, then
 	 * return all the result sets. This method works with the assumption that the 
 	 * query strings do not have the recordURI substituted in. 
+	 * @param config TODO
 	 * 
 	 */
 	protected Map<String,ResultSet> runQueries( 
 			String recordURI, 
-			RDFService mainStore,
-			RDFService localStore,
 			Map<String,String>localQueries,
-			Map<String,String>remoteQueries) throws Exception {
+			Map<String,String>remoteQueries, SolrBuildConfig config) throws Exception {
 		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
 
-		//run local queries		
+		//run local queries
+		RDFService localStore = config.getRDFService("local");
 		if( localStore != null ){
 			Map<String,String> queries = getLocalStoreQueries();
 			if( queries != null ){
@@ -93,6 +94,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		}
 		
 		//run remote queries
+		RDFService mainStore = config.getRDFService("main");
 		if( mainStore != null ){
 			Map<String,String> queries = getMainStoreQueries();
 			if( queries != null){
@@ -130,11 +132,9 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
 			String recordURI, 
-			RDFService mainStore,
-			RDFService localStore) throws Exception {
+			SolrBuildConfig config) throws Exception {
 		
-		Map<String, ResultSet> resultSets = runQueries(recordURI, mainStore, localStore, 
-				  getLocalStoreQueries(), getMainStoreQueries());  
+		Map<String, ResultSet> resultSets = runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);  
 
 		return resultSetsToSolrFields( resultSets );				  
 	}	

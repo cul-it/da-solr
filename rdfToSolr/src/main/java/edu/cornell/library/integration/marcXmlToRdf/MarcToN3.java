@@ -7,7 +7,7 @@ import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
@@ -34,8 +34,8 @@ public class MarcToN3 {
 		requiredFields.add("xmlDir");
 		requiredFields.add("n3Dir");
 		// optionalField : reportList
-		VoyagerToSolrConfiguration config =
-				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
+		SolrBuildConfig config =
+				SolrBuildConfig.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 
@@ -29,11 +29,11 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      
    public static void main(String[] args) throws Exception {        
-     VoyagerToSolrConfiguration config  = VoyagerToSolrConfiguration.loadConfig(args);
+     SolrBuildConfig config  = SolrBuildConfig.loadConfig(args);
      new ConvertBibUpdatesToXml().run(config);     
    }
          
-   public void run( VoyagerToSolrConfiguration config ) throws Exception{
+   public void run( SolrBuildConfig config ) throws Exception{
                  
       setDavService( DavServiceFactory.getDavService(config) );
       
@@ -52,9 +52,6 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
       }
       
       MrcToXmlConverter converter = new MrcToXmlConverter();
-      converter.setSrcType("bib");
-      converter.setExtractType("updates");
-      converter.setSplitSize(0);
       converter.setDestDir(destDir);
       converter.setTmpDir(config.getTmpDir());
       
@@ -79,25 +76,5 @@ public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      }
      System.out.println("\nTotal record count: "+totalRecordCount);
 
-   } 
-       
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getTimestampFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[2];       
-   }
-   
-   /**
-    * @param srcFile
-    * @return
-    */
-   public String getSeqnoFromFileName(String srcFile) {
-      String[] tokens = StringUtils.split(srcFile, ".");
-      return tokens[3];
-   }
-    
+   }     
 }

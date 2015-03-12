@@ -208,16 +208,15 @@
 	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. Personal Name -->
+	<field name="authority" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
+	<!-- rda fields are indexed for faceting, though we may not need it. -->
+	<dynamicField name="rda_*" type="string" indexed="true" stored="true" multiValued="true"/>
 
+	<field name="works" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
-    <field name="headingType" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. author -->
-
-    <!-- internal use fields to aid index building -->
-    <field name="formTracings" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="headingVariations" type="string" indexed="false" stored="true" multiValued="false"/>
 
   </fields>
 

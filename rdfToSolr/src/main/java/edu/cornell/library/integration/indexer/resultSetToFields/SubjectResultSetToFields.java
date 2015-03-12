@@ -127,6 +127,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "abcd";
 				} else if (f.mainTag.equals("662")) {
 					main_fields = "abcdfgh";
+					facet_type = "geo";
 				} else if (f.mainTag.equals("690")) {
 					main_fields = "abvxyz";
 				} else if (f.mainTag.equals("691")) {

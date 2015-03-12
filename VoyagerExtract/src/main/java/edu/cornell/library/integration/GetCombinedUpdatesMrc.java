@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 /**
@@ -52,11 +52,11 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     */
    public static void main(String[] args) throws Exception {                
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
-     app.getCombinedUpatedsAndSaveAsMARC( VoyagerToSolrConfiguration.loadConfig(args ), reportPeriod);     
+     app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args ), reportPeriod);     
    }
    
    
-	public void getCombinedUpatedsAndSaveAsMARC(VoyagerToSolrConfiguration config, Integer reportPeriod) 
+	public void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config, Integer reportPeriod) 
 	        throws Exception{
 
 		if ( getCatalogService() == null )
@@ -243,7 +243,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * @throws Exception 
 	 * 
 	 */
-	private List<String> getBibIdsWithDeletedMfhd( VoyagerToSolrConfiguration config, String today ) throws Exception {
+	private List<String> getBibIdsWithDeletedMfhd( SolrBuildConfig config, String today ) throws Exception {
         
         String tmpFilePath = config.getTmpDir() +"/"+ "bibListForUpdate-"+ today +".txt";;
         
@@ -272,7 +272,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * @throws Exception 
 	 * 
 	 */
-	private List<String> getBibIdsToAdd( VoyagerToSolrConfiguration config, String today ) throws Exception {
+	private List<String> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
         
         String tmpFilePath = config.getTmpDir() +"/"+ "bibListToAdd-"+ today +".txt";;
         

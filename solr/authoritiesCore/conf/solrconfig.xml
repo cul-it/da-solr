@@ -244,7 +244,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
      <autoCommit> 
-       <maxTime>120000</maxTime> 
+       <maxTime>1200000</maxTime> 
        <openSearcher>false</openSearcher> 
      </autoCommit>
 
@@ -329,23 +329,6 @@
         <lst>
           <str name="rows">0</str> 
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
         <lst>
@@ -353,23 +336,6 @@
           <str name="qt">standard</str>
           <str name="rows">0</str>
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
     </listener>
@@ -383,23 +349,6 @@
         <lst>
           <str name="rows">0</str> 
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
         <lst>
@@ -407,23 +356,6 @@
           <str name="qt">standard</str>
           <str name="rows">0</str>
           <str name="fl">score</str>
-          <str name="facet">true</str>
-          <str name="facet.mincount">1</str>
-          <str name="facet.limit">10</str>
-          <str name="facet.field">format</str>
-          <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
-          <str name="facet.field">language_facet</str>
-          <str name="facet.field">location_facet</str>
-          <str name="facet.field">pub_date_facet</str>
-          <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
-          <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
     </listener>
@@ -444,96 +376,38 @@
     </lst>
   </requestHandler>
 
-  <requestHandler name="/subjects" class="solr.SearchHandler">
+  <requestHandler name="/browse" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
+        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        authority,mainEntry
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">["$from" TO *]</str>
+      <str name="q">[&quot;$from&quot; TO *]</str>
       <str name="indent">true</str>
     </lst>
-    <lst name="appends">
-      <str name="fq">headingType:subject</str>
-    </lst>
   </requestHandler>
-    <requestHandler name="/subjectsR" class="solr.SearchHandler">
+  <requestHandler name="/reverse" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
+        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
+        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        authority,mainEntry
       </str>
       <str name="df">headingSort</str>
       <str name="sort">headingSort desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
-      <str name="q">[* TO "$to"}</str>
+      <str name="q">[* TO &quot;$to&quot;}</str>
       <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:subject</str>
-    </lst>
-  </requestHandler>
-  
-  <requestHandler name="/authors" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
-      </str>
-      <str name="df">headingSort</str>
-      <str name="sort">headingSort asc</str>
-      <str name="rows">20</str>
-      <str name="wt">ruby</str>
-      <str name="q">["$from" TO *]</str>
-      <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:author</str>
-    </lst>
-  </requestHandler>
-  <requestHandler name="/authorsR" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,mainEntry,notes
-      </str>
-      <str name="df">headingSort</str>
-      <str name="sort">headingSort desc</str>
-      <str name="rows">20</str>
-      <str name="wt">ruby</str>
-      <str name="q">[* TO "$to"}</str>
-      <str name="indent">true</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">headingType:author</str>
-    </lst>
-  </requestHandler>
-
-  
-  <!-- search handler to support database ERM interface -->
-  <requestHandler name="/databases" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="defType">lucene</str>
-      <str name="echoParams">explicit</str>
-      <str name="fl">id,fulltitle_display,summary_display,sixfivethree,url_access_display</str>
-      <str name="df">sixfivethree</str>
-      <str name="sort">title_sort asc</str>
-      <str name="rows">1000000</str>
-      <str name="wt">ruby</str>
-      <str name="q">*</str>
-      <str name="q.alt">*</str>
-    </lst>
-    <lst name="appends">
-      <str name="fq">database_b:true</str>
     </lst>
   </requestHandler>
   
@@ -547,6 +421,24 @@
     </lst>
   </requestHandler>
 
+ <!-- http://stackoverflow.com/questions/24570545/ -->
+  <updateRequestProcessorChain name="skip-empty">
+    <!--  Next two processors affect all fields - default configuration -->
+    <processor class="TrimFieldUpdateProcessorFactory" /> <!--  Get rid of leading/trailing spaces. Also empties all-spaces fields for next filter-->
+    <processor class="RemoveBlankFieldUpdateProcessorFactory" /> <!--  Delete fields with no content. More efficient and allows to query for presence/absence of field -->
+
+    <processor class="solr.LogUpdateProcessorFactory" />
+    <processor class="solr.RunUpdateProcessorFactory" />
+  </updateRequestProcessorChain>
+
+  <requestHandler name="/dataimport"
+    class="org.apache.solr.handler.dataimport.DataImportHandler">
+    <lst name="defaults">
+      <str name="config">dataConfig.xml</str>
+      <str name="update.chain">skip-empty</str>
+    </lst>
+  </requestHandler>
+  
   <requestHandler name="/update" class="solr.UpdateRequestHandler" />
   <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 

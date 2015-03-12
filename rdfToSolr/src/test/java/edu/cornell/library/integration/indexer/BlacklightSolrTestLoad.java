@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
@@ -178,14 +177,14 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		System.out.println(bib_xml);
 		Pattern p = Pattern.compile("<([^>]*)>");
 		Matcher m = p.matcher(bib_xml);
-		Connection voyager = BibFileIndexingMapper.openConnection();
+		SolrBuildConfig config = SolrBuildConfig.loadConfig( new String[2] );
 
 		while (m.find()) {
 			String uri = m.group(1);
 			System.out.println("*** " + uri + " ***");
 			SolrInputDocument doc;
 			try {
-				doc = r2d.buildDoc(uri, rdfService, voyager);
+				doc = r2d.buildDoc(uri, config);
 			} catch (Exception e) {
 				System.out.println("failed on uri:" + uri);
 				e.printStackTrace();
@@ -201,7 +200,6 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 			}
 		}
 		solr.commit();
-		voyager.close();
 	}
 	
 	

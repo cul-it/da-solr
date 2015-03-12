@@ -1,11 +1,9 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
-
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /** To boost shadow records, identify them, then set boost to X times current boost.
  *  We're currently boosting the whole record, but we may want to put a special boost
@@ -14,8 +12,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class MissingTitleReport implements DocumentPostProcess{
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 		
 		if (document.getFieldNames().contains("title_display")) {
 			SolrInputField titleField = document.getField("title_display");

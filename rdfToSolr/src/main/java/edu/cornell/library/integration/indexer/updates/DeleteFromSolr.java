@@ -11,7 +11,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -30,13 +30,13 @@ import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 public class DeleteFromSolr {
            
     public static void main(String[] argv) throws Exception{
-        VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(argv);
+        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv);
         
         DeleteFromSolr dfs = new DeleteFromSolr();        
         dfs.doTheDelete(config);        
     }
     
-    public void doTheDelete(VoyagerToSolrConfiguration config) throws Exception  {
+    public void doTheDelete(SolrBuildConfig config) throws Exception  {
             
             
         DavService davService = DavServiceFactory.getDavService( config );

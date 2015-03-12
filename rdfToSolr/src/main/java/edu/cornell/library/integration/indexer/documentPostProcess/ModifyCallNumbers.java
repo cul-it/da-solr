@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +8,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * If a work is on the New & Noteworthy Books shelf at Olin, the holdings call number
@@ -19,8 +18,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class ModifyCallNumbers implements DocumentPostProcess {
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 
 		final String holdingsField = "holdings_record_display";
 		
