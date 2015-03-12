@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 
 public class OracleTables {
@@ -33,8 +33,8 @@ public class OracleTables {
      */
     public static void main(String[] args) {
     	
-    	VoyagerToSolrConfiguration config =
-    			VoyagerToSolrConfiguration.loadConfig(args );
+    	SolrBuildConfig config =
+    			SolrBuildConfig.loadConfig(args );
 
         Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
         System.out.println("Got Connection");

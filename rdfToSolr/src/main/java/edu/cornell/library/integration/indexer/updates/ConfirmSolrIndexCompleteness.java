@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -33,11 +33,11 @@ public class ConfirmSolrIndexCompleteness  {
 
 	
 	private String davUrl;	
-	private VoyagerToSolrConfiguration config;
+	private SolrBuildConfig config;
 	private DavService davService;
     private String reportsUrl;
 	
-	public ConfirmSolrIndexCompleteness(VoyagerToSolrConfiguration config) throws IOException {
+	public ConfirmSolrIndexCompleteness(SolrBuildConfig config) throws IOException {
         this.config = config;
         this.davUrl = config.getWebdavBaseUrl();
         this.reportsUrl = davUrl + "/" + config.getDailyReports() + "/";
@@ -49,7 +49,7 @@ public class ConfirmSolrIndexCompleteness  {
 	 * for VoyagerToSolrConfiguration. 
 	 */
 	public static void main(String[] args) throws Exception  {
-        VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args);
+        SolrBuildConfig config = SolrBuildConfig.loadConfig(args);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
         if (numberOfMissingBibs == 0) 

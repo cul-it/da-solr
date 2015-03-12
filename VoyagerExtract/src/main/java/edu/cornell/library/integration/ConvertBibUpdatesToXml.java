@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 
@@ -29,11 +29,11 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 public class ConvertBibUpdatesToXml extends VoyagerToSolrStep{
      
    public static void main(String[] args) throws Exception {        
-     VoyagerToSolrConfiguration config  = VoyagerToSolrConfiguration.loadConfig(args);
+     SolrBuildConfig config  = SolrBuildConfig.loadConfig(args);
      new ConvertBibUpdatesToXml().run(config);     
    }
          
-   public void run( VoyagerToSolrConfiguration config ) throws Exception{
+   public void run( SolrBuildConfig config ) throws Exception{
                  
       setDavService( DavServiceFactory.getDavService(config) );
       

@@ -9,9 +9,9 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.FieldMakerStep;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.ResultSetToFieldsStepped;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 	
@@ -46,15 +46,13 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 			
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
-			String recordURI, RDFService mainStore, RDFService localStore)
+			String recordURI, SolrBuildConfig config)
 			throws Exception {	
 		Map<String,ResultSet> resultSet =
-				super.runQueries(recordURI, mainStore, localStore, 
-						getLocalStoreQueries(), getMainStoreQueries());
+				super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
 		fields.putAll(resultSetsToSolrFields( resultSet ));
 		while (( ! mainStoreQueries.isEmpty() ) || ( ! localStoreQueries.isEmpty())) {
-			resultSet =	super.runQueries(recordURI, mainStore, localStore, 
-					    	getLocalStoreQueries(), getMainStoreQueries());
+			resultSet =	super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
 			fields.putAll(resultSetsToSolrFields( resultSet ));
 		}
 		return fields;

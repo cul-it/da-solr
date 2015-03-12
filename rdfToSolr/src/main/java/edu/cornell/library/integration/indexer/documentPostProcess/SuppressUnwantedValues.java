@@ -1,12 +1,11 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
 import java.util.Iterator;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /** When field values are being generated in multiple places and/or with standard field
  *  building tools, it may be easier to remove values that should be suppressed during
@@ -15,8 +14,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class SuppressUnwantedValues implements DocumentPostProcess{
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 
 		String fieldName = "subject_topic_facet";
 		String value = "Electronic books";

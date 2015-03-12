@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +11,7 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 
-import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
@@ -49,20 +47,16 @@ public class CmdLineRecordToDocument extends CommandBase{
 			
 		//make the solr document
 		try{
-			Connection voyager = BibFileIndexingMapper.openConnection();
-
-			SolrInputDocument doc = r2d.buildDoc(recordURI, queryService, voyager);						
+			SolrBuildConfig config = new SolrBuildConfig();
+			config.loadConfig(args);
+			
+			SolrInputDocument doc = r2d.buildDoc(recordURI, config);						
 			System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
 			System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 			
 			//index the solr doc if a server was specified 
 			if( solrIndexURL != null )
 				indexDoc( solrIndexURL, doc );
-			
-			try {
-				voyager.close();
-			}
-			catch (SQLException SQLEx) { /* ignore */ }
 			
 		}catch(Exception ex){
 			System.err.println( ex.toString() );

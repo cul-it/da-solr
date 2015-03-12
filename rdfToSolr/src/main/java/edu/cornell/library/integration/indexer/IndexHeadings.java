@@ -2,12 +2,18 @@ package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.BrowseUtils.getSortHeading;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,7 +30,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
@@ -36,7 +42,7 @@ public class IndexHeadings {
 	// This structure should contain only up to six PreparedStatement objects at most.
 	private Map<HeadType,Map<String,PreparedStatement>> statements =
 			new HashMap<HeadType,Map<String,PreparedStatement>>();
-	VoyagerToSolrConfiguration config;
+	SolrBuildConfig config;
 	private Map<Integer,Integer> wrongHeadingCounts = new HashMap<Integer,Integer>();
 	
 	/**
@@ -60,9 +66,9 @@ public class IndexHeadings {
 		requiredArgs.add("blacklightSolrUrl");
 		requiredArgs.add("solrUrl");
 	            
-		config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);		
+		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
 		
-		connection = config.getDatabaseConnection(1);
+		connection = config.getDatabaseConnection("Headings");
 		Collection<BlacklightField> blFields = new HashSet<BlacklightField>();
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact","author_facet" ));
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact","author_facet" ));
@@ -87,11 +93,20 @@ public class IndexHeadings {
 			if ( ! statements.containsKey(blf.headingType()))
 				statements.put(blf.headingType(), new HashMap<String,PreparedStatement>());
 			
+			// save terms info for field to temporary file.
 			URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
 					blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
+			final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
+			tempPath.toFile().deleteOnExit();
+			FileOutputStream fos = new FileOutputStream(tempPath.toString());
+			ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
+			fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
+			fos.close();
+
+			// then read the file back in to process it.
+			FileInputStream fis = new FileInputStream(tempPath.toString());
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			InputStream in = queryUrl.openStream();
-			XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
+			XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
 	
 			// fast forward to response body
 			FF: while (r.hasNext()) {
@@ -124,7 +139,8 @@ public class IndexHeadings {
 					}
 				}
 			}
-			in.close();		
+			fis.close();
+			Files.delete(tempPath);
 		}
 
 	}

@@ -23,7 +23,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
@@ -42,7 +42,7 @@ public class IndexAuthorityRecords {
 		Collection<String> requiredArgs = new HashSet<String>();
 		requiredArgs.add("xmlDir");
 	            
-		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
+		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
   //  	   IndexAuthorityRecords iar =
     			   new IndexAuthorityRecords(config);
@@ -52,10 +52,10 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
+	public IndexAuthorityRecords(SolrBuildConfig config) throws Exception {
         this.davService = DavServiceFactory.getDavService(config);
         		
-		connection = config.getDatabaseConnection(1);
+		connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
 		setUpDatabaseTypeLists();
 		
@@ -227,6 +227,7 @@ public class IndexAuthorityRecords {
 				notes.add("Search under: "+f.concatValue(""));
 			} else if (f.tag.startsWith("3")) {
 				String fieldName = null;
+
 				switch (f.tag) {
 				case "370": fieldName = "place";			break;
 				case "372": fieldName = "field";			break;
@@ -234,15 +235,15 @@ public class IndexAuthorityRecords {
 				case "374": fieldName = "occupation";		break;
 				case "375": fieldName = "gender";			break;
 				case "380": fieldName = "form_of_work";		break;
-				case "382": fieldName = "perform_medium";	break;
-				}
-				if (fieldName != null) {
+				case "382": fieldName = "perform_medium";
+				
 					if ( ! rdaData.containsKey(fieldName))
 						rdaData.put(fieldName, new HashSet<String>());
 					Collection<String> values = rdaData.get(fieldName);
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
 							values.add(sf.value);
+
 				}
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values

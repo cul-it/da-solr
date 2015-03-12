@@ -2,7 +2,6 @@ package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.combineFields;
 
-import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import org.apache.solr.common.SolrInputDocument;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
@@ -75,10 +75,13 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			RDFService mainStoreQueryService, Connection voyager) throws Exception {	
+			SolrBuildConfig config) throws Exception {	
 						
 		if(debug)
 			System.out.println("building document for " + recordURI);
+		
+		RDFService mainStoreQueryService = config.getRDFService("main");
+		
 		
 		//construct local graph
 		RDFService localStore = null;
@@ -99,7 +102,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			
 			try {
 				//this needs to merge the values from fields with the same key
-				combineFields( doc, maker.buildFields(recordURI,mainStoreQueryService, localStore));
+				combineFields( doc, maker.buildFields(recordURI,config));
 				
 				//that might throw an error, let the error pass up the stack.
 				//but log exceptions.
@@ -112,7 +115,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		List<? extends DocumentPostProcess> dpps = getDocumentPostProcess();
 		if( dpps != null ){
 			for( DocumentPostProcess dpp : dpps){
-				dpp.p(recordURI, mainStoreQueryService, localStore, doc, voyager);
+				dpp.p(recordURI, config, doc);
 			}
 		}
 		

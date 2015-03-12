@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.documentPostProcess;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -11,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  *  Check that title data doesn't contain duplicate translations. This tends to happen in non-Roman script
@@ -26,8 +25,8 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 	}
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 		
 		removeDuplicates(document, "title_vern_display","title_display");
 		removeDuplicates(document, "subtitle_vern_display","subtitle_display");

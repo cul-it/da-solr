@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
@@ -41,7 +41,7 @@ public class ConvertMarcToXml {
 	   
 	   Collection<String> requiredFields = new HashSet<String>();
 	   requiredFields.add("marc2XmlDirs"); 
-	   VoyagerToSolrConfiguration config  = VoyagerToSolrConfiguration.loadConfig(args,requiredFields);
+	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
 	   davService = DavServiceFactory.getDavService(config);
 	   
 	   

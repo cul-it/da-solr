@@ -3,7 +3,7 @@ package edu.cornell.library.integration.ilcommons.service;
 import java.io.IOException;
 import java.util.Properties;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.util.ClassPathPropertyLoader;
 
 public class DavServiceFactory {
@@ -22,7 +22,7 @@ public class DavServiceFactory {
       return new DavServiceImpl(props.getProperty("dav_user"), props.getProperty("dav_pass"));
    } 
    
-   public static DavService getDavService(VoyagerToSolrConfiguration config){
+   public static DavService getDavService(SolrBuildConfig config){
        DavService srvc = new DavServiceImpl(config.getWebdavUser(), config.getWebdavPassword());
        String localPath = config.getLocalBaseFilePath();
        if (localPath != null) {

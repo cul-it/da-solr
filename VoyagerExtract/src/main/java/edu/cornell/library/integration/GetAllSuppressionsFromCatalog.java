@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
@@ -38,7 +38,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
           System.exit(-1);
        }            
        
-       VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig( args );
+       SolrBuildConfig config = SolrBuildConfig.loadConfig( args );
 
        setDavService(DavServiceFactory.getDavService(config));
        
@@ -51,7 +51,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
       
    }
    
-   private void getAllSuppressedBibId(VoyagerToSolrConfiguration config) throws Exception{
+   private void getAllSuppressedBibId(SolrBuildConfig config) throws Exception{
        List<Integer> ids;
        try {
           ids = getCatalogService().getAllSuppressedBibId();
@@ -73,7 +73,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
        }
    }
    
-   private void getAllSuppressedMfhdId( VoyagerToSolrConfiguration config) throws Exception{       
+   private void getAllSuppressedMfhdId( SolrBuildConfig config) throws Exception{       
        List<Integer> ids ;
        try {
           ids = getCatalogService().getAllSuppressedMfhdId();
@@ -96,7 +96,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
    }
    
    
-   private void getAllUnSuppressedBibId( VoyagerToSolrConfiguration config) throws Exception{       
+   private void getAllUnSuppressedBibId( SolrBuildConfig config) throws Exception{       
        List<Integer> ids;
        try {
           ids = getCatalogService().getAllUnSuppressedBibId();
@@ -119,7 +119,7 @@ public class GetAllSuppressionsFromCatalog extends VoyagerToSolrStep {
    }
    
    
-   private void getAllUnSuppressedMfhdId(VoyagerToSolrConfiguration config) throws Exception{       
+   private void getAllUnSuppressedMfhdId(SolrBuildConfig config) throws Exception{       
        List<Integer> ids;
        try {
           ids = getCatalogService().getAllUnSuppressedMfhdId();

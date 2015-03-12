@@ -19,10 +19,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 
 /**
@@ -34,7 +37,7 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  * configurations that can be called for from the command line of
  * the different steps of the conversion.
  * 
- * See the method loadConfig(String[]) for how the VoyagerToSolrConfiguration can
+ * See the method loadConfig(String[]) for how the SolrBuildConf can
  * be loaded. 
  * 
  * If you'd like to add a new configuration setting to this class,
@@ -44,12 +47,13 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  *  4 make sure your property is checked in checkConfiguration
  *  5 add your property to the example properties file at voyagerToSolrConfig.properties.example
  */
-public class VoyagerToSolrConfiguration {
+public class SolrBuildConfig {
 
 	protected static boolean debug = false;
 
-	Map<String,String> values = new HashMap<String,String>();
-	Map<Integer,ComboPooledDataSource> databases = new HashMap<Integer,ComboPooledDataSource>();
+	private Map<String,String> values = new HashMap<String,String>();
+	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
+	private Map<String,RDFService> rdfservices = new HashMap<String,RDFService>();
     static DavService davService = null;
 
     
@@ -395,25 +399,37 @@ public class VoyagerToSolrConfiguration {
     }
     
     
+   public RDFService getRDFService(String id) {
+	   if (rdfservices.containsKey(id))
+		   return rdfservices.get(id);
+	   return null;
+   }
+   
+   public void setRDFService( String id, RDFService rdf ) {
+	   rdfservices.put(id, rdf);
+   }
+    
+    
     /**
      * 
+     * @param id : database identifier used in config properties file
      * @return java.sql.Connection
      * @throws ClassNotFoundException 
      * @throws SQLException 
      */
-    public Connection getDatabaseConnection(int i) throws SQLException, ClassNotFoundException {
-    	String driver =  values.get("databaseDriver"+i);
-    	String url = values.get("databaseURL"+i);
-    	String user = values.get("databaseUser"+i);
-    	String pass = values.get("databasePass"+i);
+    public Connection getDatabaseConnection(String id) throws SQLException, ClassNotFoundException {
+    	String driver =  values.get("databaseDriver"+id);
+    	String url = values.get("databaseURL"+id);
+    	String user = values.get("databaseUser"+id);
+    	String pass = values.get("databasePass"+id);
     	Boolean pooling = true; //default if not specified in config
-    	if (values.containsKey("databasePooling"+i))
-    		pooling = Boolean.valueOf( values.get("databasePooling"+i) );
+    	if (values.containsKey("databasePooling"+id))
+    		pooling = Boolean.valueOf( values.get("databasePooling"+id) );
     	
     	if (debug) System.out.println("Database connection pooling: "+pooling);
     	
     	if ( pooling )  {
-	    	if ( ! databases.containsKey(i)) {
+	    	if ( ! databases.containsKey(id)) {
 		    	ComboPooledDataSource cpds = new ComboPooledDataSource(); 
 		    	try {
 					cpds.setDriverClass( driver );
@@ -434,10 +450,10 @@ public class VoyagerToSolrConfiguration {
 		    	cpds.setMinPoolSize(1);
 		    	cpds.setMaxPoolSize(2);
 		    	cpds.setInitialPoolSize(1);
-		    	databases.put(i, cpds);
+		    	databases.put(id, cpds);
 	    	}
 	    	System.out.println("Connection pool established. Obtaining and returning connection.");
-			return databases.get(i).getConnection();
+			return databases.get(id).getConnection();
     	} else {
         	Class.forName(driver);
  		   
@@ -464,6 +480,25 @@ public class VoyagerToSolrConfiguration {
         values.put("dailyReports", insertDate(reports));
     }
     
+    /*
+     * Convert Hadoop Configuration to SolrBuildConfig, inserting any dates into
+     * config values where XXXX appears.
+     */
+    public static SolrBuildConfig loadConfig( Configuration hadoopConf ) {
+        SolrBuildConfig solrBuildConfig = new SolrBuildConfig();
+        Iterator<Map.Entry<String, String>> i = hadoopConf.iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> entry = i.next();
+            String field = entry.getKey();
+            String value = entry.getValue();
+            if (debug) System.out.println(field+" => "+value);
+        	String valueWDate = insertDate(value);
+        	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
+        	solrBuildConfig.values.put(field,valueWDate);
+        }
+    	return solrBuildConfig;
+    }
+    
     /**
      * A utility method to load properties from command line or environment.
      * 
@@ -485,7 +520,7 @@ public class VoyagerToSolrConfiguration {
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
     @Deprecated
-    public static VoyagerToSolrConfiguration loadConfig( String[] argv ) {
+    public static SolrBuildConfig loadConfig( String[] argv ) {
     	Collection<String> requiredFields = new HashSet<String>();
         return loadConfig(argv,requiredFields);        
     }
@@ -511,7 +546,7 @@ public class VoyagerToSolrConfiguration {
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
-    public static VoyagerToSolrConfiguration loadConfig( String[] argv, Collection<String> requiredFields ) {
+    public static SolrBuildConfig loadConfig( String[] argv, Collection<String> requiredFields ) {
         
         String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
@@ -524,7 +559,7 @@ public class VoyagerToSolrConfiguration {
                     + "A configuration is expeced on the command line or in the environment variable "
                     + VOYAGER_TO_SOLR_CONFIG + ".\n" + HELP );        
         
-        VoyagerToSolrConfiguration config=null;
+        SolrBuildConfig config=null;
         try{
         if( v2bl_config != null )
             config = loadFromEnvVar( v2bl_config );
@@ -543,15 +578,12 @@ public class VoyagerToSolrConfiguration {
     }
 
 
-    private static VoyagerToSolrConfiguration loadFromArgv(
-            String[] argv) throws FileNotFoundException, IOException {
+    private static SolrBuildConfig loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
         if( argv.length > 1 ){   
-            System.out.println("loading from command line arg: \n" 
-                    + argv[0]);
+            System.out.println("loading from command line arg: \n" + argv[0]);
             return loadFromPropertiesFile( getFile( argv[0]), null );
         }else{
-            System.out.println("loading from command line arg: \n" 
-                    + argv[0] + "  " + argv[1] );
+            System.out.println("loading from command line arg: \n"+ argv[0] + "  " + argv[1] );
             return loadFromPropertiesFile( getFile(argv[0]), getFile(argv[1]));
         }            
     }
@@ -561,7 +593,7 @@ public class VoyagerToSolrConfiguration {
      * Load from the env var. It might be a single file name, or two file names seperated 
      * by a comma.  Also check the classpath.
      */
-    private static VoyagerToSolrConfiguration loadFromEnvVar( String value ) throws Exception {
+    private static SolrBuildConfig loadFromEnvVar( String value ) throws Exception {
         System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
         if( ! value.contains(",") ){
@@ -585,7 +617,7 @@ public class VoyagerToSolrConfiguration {
      * 
      * If inB is null, only inA will be loaded. 
      */
-    public static VoyagerToSolrConfiguration loadFromPropertiesFile(InputStream inA, InputStream inB) 
+    public static SolrBuildConfig loadFromPropertiesFile(InputStream inA, InputStream inB) 
             throws IOException{
         
         Properties prop;
@@ -611,7 +643,7 @@ public class VoyagerToSolrConfiguration {
             prop = propB;
         }
         
-        VoyagerToSolrConfiguration conf = new VoyagerToSolrConfiguration();
+        SolrBuildConfig conf = new SolrBuildConfig();
 
         if (debug) System.out.println("Adding all properties to program config.");
         Iterator<String> i = prop.stringPropertyNames().iterator();
@@ -652,7 +684,7 @@ public class VoyagerToSolrConfiguration {
      * Returns empty String if configuration is good.
      * Otherwise, it returns a message describing what is missing or problematic.
      */
-    public static String checkConfiguration( Collection<String> requiredArgs, VoyagerToSolrConfiguration checkMe){
+    public static String checkConfiguration( Collection<String> requiredArgs, SolrBuildConfig checkMe){
         String errMsgs = "";
 
         // universally required fields
@@ -764,7 +796,7 @@ public class VoyagerToSolrConfiguration {
         if( f.exists() ){
             return new FileInputStream(f);
         }else{
-            InputStream is = VoyagerToSolrConfiguration.class.getClassLoader().getResourceAsStream(name);
+            InputStream is = SolrBuildConfig.class.getClassLoader().getResourceAsStream(name);
             if( is == null )
                 throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
             else

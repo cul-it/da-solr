@@ -21,10 +21,10 @@ import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.resultSetToFields.NameFieldsAsColumnsRSTF;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 /** If holdings record ID(s) are identified in holdings_display, pull any matching
  *  item records from the voyager database and serialize them in json.
@@ -35,8 +35,8 @@ public class LoadItemData implements DocumentPostProcess{
 	Map<Integer,Location> locations = new HashMap<Integer,Location>();
 	
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 
 		Boolean multivol = false;
 
@@ -70,7 +70,8 @@ public class LoadItemData implements DocumentPostProcess{
 					   " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'";
 			if (debug)
 				System.out.println(query);
-	
+
+			Connection conn = config.getDatabaseConnection("Voy");
 	        Statement stmt = null;
 	        ResultSet rs = null;
 	        ResultSetMetaData rsmd = null;
@@ -106,7 +107,7 @@ public class LoadItemData implements DocumentPostProcess{
 	       						&& ! value.equals("0")) {
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
-	       					Location l = getLocation(recordURI,mainStore,localStore,Integer.valueOf(value));
+	       					Location l = getLocation(recordURI,config,Integer.valueOf(value));
 	       					record.put(colname, l);
 	       					if (colname.equals("perm_location")) loc = l.code;
 	       				} else {
@@ -193,7 +194,7 @@ public class LoadItemData implements DocumentPostProcess{
 			//   3) this is a single volume work with supplementary material, and the
 			//               item lacking enumeration is the main item
 			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol(document);
-			Boolean descriptionHasE = doesDescriptionHaveE(recordURI,mainStore,localStore);
+			Boolean descriptionHasE = doesDescriptionHaveE(recordURI,config);
 			if (descriptionHasE) {
 				// this is strong evidence for case 3
 				if (descriptionLooksMultivol == null || ! descriptionLooksMultivol) {
@@ -277,16 +278,16 @@ public class LoadItemData implements DocumentPostProcess{
 	}
 
 	private Boolean doesDescriptionHaveE(String recordURI,
-			RDFService mainStore, RDFService localStore) throws Exception {
+			SolrBuildConfig config) throws Exception {
 		
 		StandardMARCFieldMaker fm = new StandardMARCFieldMaker("supp","300","e");
 		Map<? extends String, ? extends SolrInputField> tempfields = 
-				fm.buildFields(recordURI, mainStore, localStore);
+				fm.buildFields(recordURI, config);
 		return (tempfields.containsKey("supp"));
 	}
 
-	private Location getLocation (String recordURI, RDFService mainStore,
-			RDFService localStore, Integer id) throws Exception{
+	private Location getLocation (String recordURI, SolrBuildConfig config,
+			Integer id) throws Exception{
 
 		if (locations.containsKey(id))
 			return locations.get(id);
@@ -308,7 +309,7 @@ public class LoadItemData implements DocumentPostProcess{
 		    "}}").
         addResultSetToFields( new NameFieldsAsColumnsRSTF());
 		Map<? extends String, ? extends SolrInputField> tempfields = 
-				fm.buildFields(recordURI, mainStore, localStore);
+				fm.buildFields(recordURI, config);
 		if (debug) {
 			System.out.println(tempfields.toString());
 			System.out.println(tempfields.get("name").getValue());

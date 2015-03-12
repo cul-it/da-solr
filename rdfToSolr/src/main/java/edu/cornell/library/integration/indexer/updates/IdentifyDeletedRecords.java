@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -40,12 +40,12 @@ import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparis
 public class IdentifyDeletedRecords {
 	
 	DavService davService;
-	VoyagerToSolrConfiguration config;
+	SolrBuildConfig config;
 
 	public static void main(String[] args)  {
 
          try{        
-             new IdentifyDeletedRecords( VoyagerToSolrConfiguration.loadConfig( args ));
+             new IdentifyDeletedRecords( SolrBuildConfig.loadConfig( args ));
          }catch( Exception e){
              e.printStackTrace();
              System.exit(1);
@@ -65,7 +65,7 @@ public class IdentifyDeletedRecords {
      * their holdings records exist in Solr but do not exist in
      * Voyager.
      */
-	public IdentifyDeletedRecords(VoyagerToSolrConfiguration config) throws Exception {
+	public IdentifyDeletedRecords(SolrBuildConfig config) throws Exception {
 	    this.config = config;
 		davService = DavServiceFactory.getDavService(config);
 		

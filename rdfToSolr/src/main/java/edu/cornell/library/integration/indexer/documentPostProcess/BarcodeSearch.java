@@ -15,7 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /** Pull any barcodes from the item_barcode table, and populate them into
  * barcode_t alongside any values that might already be there (from the 903‡p).
@@ -26,12 +26,14 @@ public class BarcodeSearch implements DocumentPostProcess{
 	Collection<String> barcodes = new HashSet<String>();
 	
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 		
 		if (! document.containsKey("holdings_display")) {
 			return;
 		}
+		
+		Connection conn = config.getDatabaseConnection("Voy");
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		for (Object mfhd_id_obj: field.getValues()) {
@@ -89,6 +91,8 @@ public class BarcodeSearch implements DocumentPostProcess{
 	        }
         
 		}
+		
+		conn.close();
 
 		if (barcodes.size() == 0)
 			return;
