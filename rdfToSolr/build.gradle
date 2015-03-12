@@ -5,12 +5,7 @@ apply plugin: 'eclipse'
 dependencies {
    compile project(':ILCommons')
 
-   compile 'org.apache.hadoop:hadoop-core:1.0.3'
-
    compile fileTree(dir: 'libs', include: '*.jar')   
-
-   //get us core, tdb, arq, and iri
-   compile 'org.apache.jena:apache-jena:2.11.1'
 
    //usually this is brought in by jena but I'm doing these odd tests 
    // with hand compiled jena from SVN
