@@ -182,7 +182,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 
 		@Override
 		public Map<? extends String, ? extends SolrInputField> toFields(
-				Map<String, ResultSet> results) throws Exception {
+				Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 			if( results == null || results.get(queryKey) == null )
 				throw new Exception( getName() + " did not get any result sets");
 				

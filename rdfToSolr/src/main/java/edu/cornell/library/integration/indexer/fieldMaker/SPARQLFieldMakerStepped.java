@@ -50,10 +50,10 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 			throws Exception {	
 		Map<String,ResultSet> resultSet =
 				super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
-		fields.putAll(resultSetsToSolrFields( resultSet ));
+		fields.putAll(resultSetsToSolrFields( resultSet, config ));
 		while (( ! mainStoreQueries.isEmpty() ) || ( ! localStoreQueries.isEmpty())) {
 			resultSet =	super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
-			fields.putAll(resultSetsToSolrFields( resultSet ));
+			fields.putAll(resultSetsToSolrFields( resultSet, config ));
 		}
 		return fields;
 	}
@@ -64,7 +64,7 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 	 */
 	@Override
 	protected Map<? extends String, ? extends SolrInputField> 
-		resultSetsToSolrFields( Map<String, ResultSet> results ) 
+		resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 		throws Exception {
 		
 		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();

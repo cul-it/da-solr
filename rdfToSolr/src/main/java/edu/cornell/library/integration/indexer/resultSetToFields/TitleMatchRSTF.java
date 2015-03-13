@@ -13,6 +13,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 /**
  * process the whole 7xx range into a wide variety of fields
  * 
@@ -21,7 +23,7 @@ public class TitleMatchRSTF implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.

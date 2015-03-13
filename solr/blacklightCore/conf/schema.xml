@@ -386,6 +386,7 @@
     <dynamicField name="*_exact" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />

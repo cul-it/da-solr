@@ -136,7 +136,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		
 		Map<String, ResultSet> resultSets = runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);  
 
-		return resultSetsToSolrFields( resultSets );				  
+		return resultSetsToSolrFields( resultSets, config );				  
 	}	
 	
 	
@@ -155,9 +155,10 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	/**
 	 * Convert the result sets generated from running the SPARQL queries to
 	 * SolrInputFields. 
+	 * @param config TODO
 	 */
 	protected abstract Map<? extends String, ? extends SolrInputField> 
-	    resultSetsToSolrFields( Map<String, ResultSet> results ) 
+	    resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 			throws Exception;
 	
 	

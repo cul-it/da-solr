@@ -28,6 +28,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.DBCodeRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
@@ -751,14 +752,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-
 				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
 				
-				new StandardMARCFieldMaker("author_facet","100","abcdq",VernMode.SEPARATE,".,"),
-				new StandardMARCFieldMaker("author_facet","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
-				new StandardMARCFieldMaker("author_facet","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
 				new StandardMARCFieldMaker("author_facet","700","abcdq",VernMode.SEPARATE,".,"),
 				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
 				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,")
@@ -766,6 +763,26 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 									
 		);
 	}
+	
+	public static SPARQLFieldMakerImpl getHathiLinks() {
+		return new SPARQLFieldMakerImpl().
+	    setName("hathi links").
+	    addMainStoreQuery("oclcid",
+	    		"SELECT ?thirtyfive \n" +
+	    		"WHERE { $recordURI$ marcrdf:hasField035 ?f. \n" +
+	    		"        ?f marcrdf:hasSubfield ?s."
+	    		+ "      ?s marcrdf:code \"a\"^^xsd:string."
+	    		+ "      ?s marcrdf:value ?thirtyfive } \n" ).
+	    addMainStoreQuery("human_dates",
+	    		"SELECT ?barcode \n" +
+	    		"WHERE { $recordURI$ marcrdf:hasField903 ?f. \n" +
+	    		"        ?f marcrdf:hasSubfield ?s."
+	    		+ "      ?s marcrdf:code \"p\"^^xsd:string."
+	    		+ "      ?s marcrdf:value ?barcode } \n" ).
+	    addResultSetToFields( new HathiLinksRSTF() );
+
+	}
+	
 	
 	public static SPARQLFieldMakerImpl getLanguageFieldMaker() {
 		

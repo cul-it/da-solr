@@ -11,6 +11,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 	
 	
 public class NameFieldsAsColumnsRSTF implements ResultSetToFields {
@@ -19,7 +21,7 @@ public class NameFieldsAsColumnsRSTF implements ResultSetToFields {
 		
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) {
+			Map<String, ResultSet> results, SolrBuildConfig config) {
 
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();

@@ -15,6 +15,8 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 /**
  * processing various query results into complicated determination of item format,
  * and "online" status.  
@@ -25,7 +27,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.

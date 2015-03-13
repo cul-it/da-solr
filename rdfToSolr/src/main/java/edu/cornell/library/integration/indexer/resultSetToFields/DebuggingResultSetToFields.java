@@ -8,6 +8,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 /**
  * Print result set to STDOUT and execute inner ResultSetToFields
  *
@@ -23,9 +25,9 @@ public class DebuggingResultSetToFields implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		System.out.print( makeDebugStr(results) );
-		return innerRstf.toFields(results);
+		return innerRstf.toFields(results, config);
 	}
 
 	String makeDebugStr(Map<String, ResultSet> results) {

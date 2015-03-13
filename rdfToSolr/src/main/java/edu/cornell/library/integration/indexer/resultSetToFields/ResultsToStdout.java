@@ -11,11 +11,13 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 public class ResultsToStdout implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) {		
+			Map<String, ResultSet> results, SolrBuildConfig config) {		
 		
 		for( String resultKey: results.keySet()){
 			System.out.println("result set for query '"+resultKey + "'");

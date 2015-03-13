@@ -17,6 +17,8 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
@@ -25,7 +27,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.

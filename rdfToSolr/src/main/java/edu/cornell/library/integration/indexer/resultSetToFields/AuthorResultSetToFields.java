@@ -15,6 +15,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
@@ -30,7 +31,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
@@ -54,6 +55,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
+			Set<String> valuesFacet = new HashSet<String>();
 			String dates = "";
 			String cts = "";
 			String cts880 = "";
@@ -63,25 +65,31 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 				mainTag = f.mainTag;
 				String subfields;
 				String ctsSubfields;
-				if (f.mainTag.equals("100")) {
+				String facetOrFileSubfields;
+				if (mainTag.equals("100")) {
 					subfields = "abcq";
 					ctsSubfields = "abcdq";
+					facetOrFileSubfields = "abcdq";
 				} else {
-					subfields = "abcefghijklmnopqrstuvwxyz";
+					subfields = "abcdefghijklmnopqrstuvwxyz";
 					ctsSubfields = "ab";
+					facetOrFileSubfields = "abcdefghijklmnopqrstuvwxyz";
 				}
-				if (! subfields.equals("")) {
-					String value = f.concatenateSpecificSubfields(subfields);
-					if (value.isEmpty()) continue;
+				String value = f.concatenateSpecificSubfields(subfields);
+				if ( ! value.isEmpty() ) {
 					if (f.tag.equals("880")) {
 						values880.add(value);
 						cts880 = f.concatenateSpecificSubfields(ctsSubfields);
 					} else {
-						dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
+						if (mainTag.equals("100"))
+							dates = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),".,");
 						valuesMain.add(value);
 						cts = f.concatenateSpecificSubfields(ctsSubfields);
 					}
 				}
+				value = f.concatenateSpecificSubfields(facetOrFileSubfields);
+				if ( ! value.isEmpty() )
+					valuesFacet.add(value);
 			}
 			if ((values880.size() == 1) && (valuesMain.size() == 1 )) {
 				for (String s: values880)
@@ -107,7 +115,6 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 						sb_piped.append(cts);
 						String author_display = sb_disp.toString();
 						addField(solrFields,"author_display",removeTrailingPunctuation(author_display,", "));
-						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(author_display));
 						addField(solrFields,"author_cts",sb_piped.toString());
 					}
 			} else {
@@ -115,23 +122,24 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
-						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
-						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
 					}
 				for (String s: valuesMain)
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
-						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
-						addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s+" "+dates));
 					}
 			}
+			for (String s : valuesFacet) {
+				addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"author_facet",removeTrailingPunctuation(s,"., "));
+			}
+				
 			if (valuesMain.size() > 0) {
 				String sort_author = removeAllPunctuation(valuesMain.iterator().next());
 				if (! dates.isEmpty())
