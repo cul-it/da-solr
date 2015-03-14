@@ -74,8 +74,7 @@
    </entity>
 
    <entity name="typeDesc"
-     query="select name from type_desc
-       where id = ${author.type_desc}" >
+     query="select name from type_desc" cacheKey="id" cacheLookup="author.type_desc" cacheImpl="SortedMapBackedCache" >
        <field column="name" name="headingTypeDesc" />
    </entity>
 

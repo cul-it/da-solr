@@ -136,7 +136,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 					}
 			}
 			for (String s : valuesFacet) {
-				addField(solrFields,"author_"+mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"author_"+mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,"., "));
 			}
 				

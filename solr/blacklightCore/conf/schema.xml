@@ -383,7 +383,7 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_exact" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_filing" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />

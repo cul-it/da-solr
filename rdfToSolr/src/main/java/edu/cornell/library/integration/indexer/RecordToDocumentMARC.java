@@ -754,13 +754,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				
-				new StandardMARCFieldMaker("author_facet","700","abcdq",VernMode.SEPARATE,".,"),
-				new StandardMARCFieldMaker("author_facet","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,"),
-				new StandardMARCFieldMaker("author_facet","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEPARATE,".,")
+				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH)
 
-									
 		);
 	}
 	
