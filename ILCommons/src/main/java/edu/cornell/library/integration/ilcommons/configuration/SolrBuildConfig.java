@@ -158,10 +158,10 @@ public class SolrBuildConfig {
     	}
     }
 
-    public String getFullNtBibDir() throws IOException {
-    	if (values.containsKey("fullNtBibDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullNtBibDir"));
-    		return values.get("fullNtBibDir");
+    public String getFullNtDir() throws IOException {
+    	if (values.containsKey("fullNtDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullNtDir"));
+    		return values.get("fullNtDir");
     	} else {
     		return null;
     	}

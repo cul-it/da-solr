@@ -37,14 +37,6 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) 
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( fullMarcXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
- group="Full Build Steps"
- description = "Convert all MARC XML to N-Triples"
- maxHeapSize = '1024m'  
- main = 'edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples'
- classpath = sourceSets.main.runtimeClasspath
-}
-
 task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to TXT representation of MARC"
  maxHeapSize = '1500m'
@@ -99,7 +91,7 @@ task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
 }
 
 task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
- group="Full Build Steps"
+   group="Full Build Steps"
    description="Converts Voyager MARC XML to MARC N-Triples." 
    jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
