@@ -99,26 +99,6 @@ task (step4bConvertMfhdUpdatesToXml, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '1024m'
 }
    
-task (ConvertBibFullToXml, dependsOn:'assemble', type: JavaExec){
- group="Full Build Steps"
- description='Run ConvertBibFullToXml'
- main='edu.cornell.library.integration.ConvertBibFullToXml'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1280m'
- args=[ 'http://da-data.library.cornell.edu/data/voyager/source/bib.perm',
-    'http://da-data.library.cornell.edu/data/voyager/full/bib.xml' ]
-}
-   
-task (ConvertMfhdFullToXml, dependsOn:'assemble', type: JavaExec){
- group="Full Build Steps"
- description='Run ConvertMfhdFullToXml'
- main='edu.cornell.library.integration.ConvertMfhdFullToXml'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1280m'
- args=[ 'http://da-data.library.cornell.edu/data/voyager/source/mfhd.perm',
-    'http://da-data.library.cornell.edu/data/voyager/full/mfhd.xml' ]
-}
-   
 task (GetRecentBibDataCount, dependsOn:'assemble', type: JavaExec){
  description='Run GetRecentBibDataCount'
  main='edu.cornell.library.integration.GetRecentBibDataCount'
