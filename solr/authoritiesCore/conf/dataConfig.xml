@@ -5,7 +5,7 @@
             user="dna_read"
             password="xyzzy"/>
 <document>
-<entity name="author"
+<entity name="heading"
   transformer="RegexTransformer"
         query=" 
            select SQL_BIG_RESULT
@@ -61,7 +61,7 @@
 
    <entity name="altForms"
      query="select form from alt_form
-       where heading_id = ${author.id}
+       where heading_id = ${heading.id}
        order by 1" >
        <field column="form" name="alternateForm" />
    </entity>
@@ -69,40 +69,40 @@
    <entity name="notes"
      query="select note as notes
               from note
-       where heading_id = ${author.id}" >
+       where heading_id = ${heading.id}" >
        <field column="note" name="notes" />
    </entity>
 
    <entity name="typeDesc"
-     query="select name from type_desc" cacheKey="id" cacheLookup="author.type_desc" cacheImpl="SortedMapBackedCache" >
+     query="select name from type_desc" cacheKey="id" cacheLookup="heading.type_desc" cacheImpl="SortedMapBackedCache" >
        <field column="name" name="headingTypeDesc" />
    </entity>
 
-	<entity name="field" query="select val from rda_field where heading_id = ${author.id}" >
+	<entity name="field" query="select val from rda_field where heading_id = ${heading.id}" >
 		<field column="val" name="rda_field"/>
 	</entity>
 
-	<entity name="form_of_work" query="select val from rda_form_of_work where heading_id = ${author.id}" >
+	<entity name="form_of_work" query="select val from rda_form_of_work where heading_id = ${heading.id}" >
 		<field column="val" name="rda_form_of_work"/>
 	</entity>
 
-	<entity name="gender" query="select val from rda_gender where heading_id = ${author.id}" >
+	<entity name="gender" query="select val from rda_gender where heading_id = ${heading.id}" >
 		<field column="val" name="rda_gender"/>
 	</entity>
 
-	<entity name="group_or_org" query="select val from rda_group_or_org where heading_id = ${author.id}" >
+	<entity name="group_or_org" query="select val from rda_group_or_org where heading_id = ${heading.id}" >
 		<field column="val" name="rda_group_or_org"/>
 	</entity>
 
-	<entity name="occupation" query="select val from rda_occupation where heading_id = ${author.id}" >
+	<entity name="occupation" query="select val from rda_occupation where heading_id = ${heading.id}" >
 		<field column="val" name="rda_occupation"/>
 	</entity>
 
-	<entity name="form_perform_medium" query="select val from rda_perform_medium where heading_id = ${author.id}" >
+	<entity name="form_perform_medium" query="select val from rda_perform_medium where heading_id = ${heading.id}" >
 		<field column="val" name="rda_perform_medium"/>
 	</entity>
 
-	<entity name="form_place" query="select val from rda_place where heading_id = ${author.id}" >
+	<entity name="form_place" query="select val from rda_place where heading_id = ${heading.id}" >
 		<field column="val" name="rda_place"/>
 	</entity>
 
