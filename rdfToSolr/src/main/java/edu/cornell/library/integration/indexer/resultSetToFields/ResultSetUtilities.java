@@ -56,16 +56,6 @@ public class ResultSetUtilities {
 //		}		 		
 	}
 	
-	public static String getSortHeading(String heading) {
-		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
-		// first so hyphenated words will sort as though the space were present.
-		String sortHeading = removeAllPunctuation(heading.
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
-				toLowerCase().
-				replaceAll("-", " "));
-		return sortHeading.trim();
-	}
-	
 	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {
 		if ((value == null) || (value.equals(""))) return;
 		value = value.trim();

@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
@@ -166,7 +166,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			
 			for (String s: values880_breadcrumbed) {
 				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
-				addField(solrFields,"subject_"+h.mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
@@ -175,7 +175,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			}
 			for (String s: valuesMain_breadcrumbed) {
 				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));				
-				addField(solrFields,"subject_"+h.mainTag+"_exact",getSortHeading(s));
+				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));

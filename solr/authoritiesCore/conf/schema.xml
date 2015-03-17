@@ -213,6 +213,7 @@
 	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
 	<!-- rda fields are indexed for faceting, though we may not need it. -->
 	<dynamicField name="rda_*" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="rda_json" type="string" indexed="false" stored="true" multiValued="false"/>
 
 	<field name="works" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>

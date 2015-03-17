@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.BrowseUtils.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 
 import java.io.InputStream;
 import java.sql.Connection;

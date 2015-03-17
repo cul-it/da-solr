@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.utilities;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +14,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
@@ -110,6 +113,38 @@ public class IndexingUtilities {
 		if (commaFollowedByNonSpace == null)
 			commaFollowedByNonSpace = Pattern.compile(",([^\\s])");
 		return commaFollowedByNonSpace.matcher(s).replaceAll(", $1");
+	}
+
+	
+	/**
+	 * Normalize value for sorting or filing. Normalized value is not a suitable
+	 * display string.
+	 * @param value
+	 * @return normalized value
+	 */
+	public static String getSortHeading(String value) {
+
+		/* We will first normalize the unicode. For sorting, we will use 
+		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
+		 * to match and remove diacritics, while compatibility form will further
+		 * drop encoding that are for use in formatting only and should not affect
+		 * sorting. For example, æ => ae
+		 * See http://unicode.org/reports/tr15/ Figure 6
+		 */
+		String step1 = Normalizer.normalize(value, Normalizer.Form.NFKD).
+				replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+		
+		/* removeAllPunctuation() will strip punctuation. We replace hyphens with spaces
+		 * first so hyphenated words will sort as though the space were present.
+		 * Greater-than (>) is a semantically important value in a subject heading,
+		 * so rather than remove it, we will replace it with an alphabetic value that will
+		 * enforce sorting above an equivalent value without the ">".
+		 */
+		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa");
+		String sortHeading = removeAllPunctuation(step2);
+		
+		// Finally, collapse sequences of spaces into single spaces:
+		return sortHeading.trim().replaceAll("\\s+", " ");
 	}
 
 	/**

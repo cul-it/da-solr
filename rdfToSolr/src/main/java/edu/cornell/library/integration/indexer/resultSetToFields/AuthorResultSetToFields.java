@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 
