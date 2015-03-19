@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -19,13 +20,15 @@ import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
@@ -126,7 +129,7 @@ public class IndexAuthorityRecords {
 
 	private void processRecords (XMLStreamReader r) throws Exception {
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
@@ -178,7 +181,7 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatValue("");
+				heading = f.concatenateSubfieldsOtherThanSpecified("");
 				switch (f.tag) {
 				case "100":
 				case "110":
@@ -224,7 +227,7 @@ public class IndexAuthorityRecords {
 				// If the record is for a subdivision (main entry >=180),
 				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
-				notes.add("Search under: "+f.concatValue(""));
+				notes.add("Search under: "+f.concatenateSubfieldsOtherThanSpecified(""));
 			} else if (f.tag.startsWith("3")) {
 				String fieldName = null;
 
@@ -251,7 +254,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatValue("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
@@ -264,7 +267,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatValue("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
@@ -274,28 +277,28 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("664")) {
 				foundNotes.add("664");
 				if (expectedNotes.contains("664")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
 				}
 			} else if (f.tag.equals("665")) {
 				foundNotes.add("665");
 				if (expectedNotes.contains("665")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("666")) {
 				foundNotes.add("666");
 				if (expectedNotes.contains("666")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
@@ -431,7 +434,7 @@ public class IndexAuthorityRecords {
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
-		String heading = f.concatValue("iw");
+		String heading = f.concatenateSubfieldsOtherThanSpecified("iw");
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) return heading;
 		boolean upperCase = true;
@@ -707,7 +710,7 @@ public class IndexAuthorityRecords {
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT")) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
@@ -758,7 +761,7 @@ public class IndexAuthorityRecords {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT"))
 				if (r.getLocalName().equals("datafield"))
 					return fields;
@@ -775,137 +778,5 @@ public class IndexAuthorityRecords {
 		}
 		return fields; // We should never reach this line.
 	}
-
-
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	}
-
-	
-	static class MarcRecord {
-		
-		public String leader;
-		public Map<Integer,ControlField> control_fields 
-									= new HashMap<Integer,ControlField>();
-		public Map<Integer,DataField> data_fields
-									= new HashMap<Integer,DataField>();
-		public RecordType type;
-		public String id;
-		public String bib_id;
-		
-		public String toString( ) {
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append("000    "+this.leader+"\n");
-			int id = 0;
-			while( this.control_fields.containsKey(id+1) ) {
-				ControlField f = this.control_fields.get(++id);
-				sb.append(f.tag + "    " + f.value+"\n");
-			}
-
-			while( this.data_fields.containsKey(id+1) ) {
-				DataField f = this.data_fields.get(++id);
-				sb.append(f.toString());
-				sb.append("\n");
-			}
-			return sb.toString();
-		}
-
-	}
-	
-	static class ControlField {
-		
-		public int id;
-		public String tag;
-		public String value;
-	}
-	
-	static class DataField {
-		
-		public int id;
-		public String tag;
-		public Character ind1;
-		public Character ind2;
-		public Map<Integer,Subfield> subfields;
-
-		// Linked field number if field is 880
-		public String alttag;
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.tag);
-			sb.append(" ");
-			sb.append(this.ind1);
-			sb.append(this.ind2);
-			sb.append(" ");
-			int sf_id = 0;
-			while( this.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = this.subfields.get(++sf_id);
-				sb.append(sf.toString());
-				sb.append(" ");
-			}
-			return sb.toString();
-		}
-		public String concatValue(String excludes) {
-			StringBuilder sb = new StringBuilder();
-			int sf_id = 0;
-			while( this.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = this.subfields.get(++sf_id);
-				if (excludes.contains(sf.code.toString())) continue;
-				sb.append(sf.value);
-				sb.append(" ");
-			}
-			return sb.toString().trim();			
-		}
-	}
-	
-	static class Subfield {
-		
-		public int id;
-		public Character code;
-		public String value;
-
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("\u2021");
-			sb.append(this.code);
-			sb.append(" ");
-			sb.append(this.value);
-			return sb.toString();
-		}
-	}
-	
-	static enum RecordType {
-		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
-	}
-
-	
 
 }

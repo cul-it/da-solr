@@ -82,6 +82,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> valuesMain_piped = new HashSet<String>();
 			Set<String> values880_breadcrumbed = new HashSet<String>();
 			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
+			Set<String> subdivisionsGeo = new HashSet<String>();
+			Set<String> subdivisionsEra = new HashSet<String>();
+			Set<String> subdivisionsGenre = new HashSet<String>();
 		
 			String main_fields = "", dashed_fields = "", facet_type = "topic";
 			for (DataField f: dataFields) {
@@ -116,7 +119,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "abe";
 					dashed_fields = "vyz";
 				} else if (f.mainTag.equals("655")) {
-					main_fields = "ab";
+					main_fields = "ab"; //655 facet_type over-riden for FAST facet
 					dashed_fields = "vxyz";
 				} else if (f.mainTag.equals("656")) {
 					main_fields = "ak";
@@ -160,6 +163,16 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						valuesMain_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						valuesMain_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					}
+					// look for subdivisions to add to facets
+					String subdivision = f.concatenateSpecificSubfields("v");
+					if ( ! subdivision.isEmpty() )
+						subdivisionsGenre.add(subdivision);
+					subdivision = f.concatenateSpecificSubfields("y");
+					if ( ! subdivision.isEmpty() )
+						subdivisionsEra.add(subdivision);
+					subdivision = f.concatenateSpecificSubfields("z");
+					if ( ! subdivision.isEmpty() )
+						subdivisionsGeo.add(subdivision);
 				}
 			}
 
@@ -169,7 +182,10 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
-					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+					if (h.mainTag.equals("655"))
+						addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
+					else
+						addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
 			}
@@ -177,7 +193,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));				
 				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
-				if (h.isFAST)
+				if (h.mainTag.equals("655"))
+					addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
+				else
 					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
@@ -191,6 +209,13 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_cts",s);
 			}
+			for (String s: subdivisionsGenre)
+				addField(solrFields,"subject_topic_facet",s);
+			for (String s: subdivisionsGeo)
+				addField(solrFields,"subject_geo_facet",s);
+			for (String s: subdivisionsEra)
+				addField(solrFields,"subject_era_facet",s);
+		
 		}
 		
 		SolrInputField field = new SolrInputField("fast_b");

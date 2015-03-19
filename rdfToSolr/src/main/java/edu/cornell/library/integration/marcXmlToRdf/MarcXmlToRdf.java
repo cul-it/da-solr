@@ -2,6 +2,7 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -31,7 +32,6 @@ import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -487,7 +487,7 @@ public class MarcXmlToRdf {
 		XMLStreamReader r  = 
 				input_factory.createXMLStreamReader(xmlstream);
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
@@ -719,7 +719,7 @@ public class MarcXmlToRdf {
 		InputStream is = new FileInputStream(file.toString());
 		XMLStreamReader r = input_factory.createXMLStreamReader(is);
 		EVENT: while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
 				if (r.getLocalName().equals("controlfield")) {
 					for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
@@ -830,7 +830,7 @@ public class MarcXmlToRdf {
 
 		Map<Integer,DataField> datafields = rec.data_fields;
 		for (DataField f : datafields.values() ) {
-			String text = f.concateSubfieldsOtherThan6();
+			String text = f.concatenateSubfieldsOtherThanSpecified("6");
 			if (f.tag.equals("880")) {
 				MarcRecord.Script script = f.getScript();
 				if (script.equals(MarcRecord.Script.CJK)) {
@@ -2515,7 +2515,7 @@ public class MarcXmlToRdf {
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT")) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
@@ -2556,7 +2556,7 @@ public class MarcXmlToRdf {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT"))
 				if (r.getLocalName().equals("datafield"))
 					return fields;
@@ -2572,40 +2572,6 @@ public class MarcXmlToRdf {
 				}
 		}
 		return fields; // We should never reach this line.
-	}
-	
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	  
-	  
 	}
 
 	static class FieldStats {

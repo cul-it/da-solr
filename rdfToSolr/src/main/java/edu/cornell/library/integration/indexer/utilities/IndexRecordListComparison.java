@@ -23,6 +23,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 
 /**
@@ -76,7 +77,7 @@ public class IndexRecordListComparison {
 			DecimalFormat formatter = new DecimalFormat("###,###,###");
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			while (reader.hasNext()) {
-				String event = getEventTypeString(reader.next());
+				String event = getXMLEventTypeString(reader.next());
 				if (event.equals("START_ELEMENT"))
 					if (reader.getLocalName().equals("doc")) {
 						if (0 == (solrIndexBibList.size() % 500_000)) {
@@ -227,39 +228,7 @@ public class IndexRecordListComparison {
 			e.printStackTrace();
 		}
 	}
-	
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	}
-	
+		
 	protected class Item {
 		Integer item_id;
 		Integer mfhd_id;

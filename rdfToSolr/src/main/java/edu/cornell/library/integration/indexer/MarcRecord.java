@@ -273,7 +273,11 @@ public class MarcRecord {
 				return sb.toString();
 			}
 
-			public String concateSubfieldsOtherThan6() {
+			public String concatenateSubfieldsOtherThan6() {
+				return concatenateSubfieldsOtherThanSpecified("6");
+			}
+
+			public String concatenateSubfieldsOtherThanSpecified(String unwantedSubfields) {
 				StringBuilder sb = new StringBuilder();
 				
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
@@ -282,11 +286,11 @@ public class MarcRecord {
 				Boolean rtl = false;
 				for(Integer sf_id: sf_ids) {
 					Subfield sf = this.subfields.get(sf_id);
-					if (sf.code.equals('6')) {
+					if (sf.code.equals('6'))
 						if (sf.value.endsWith("/r"))
 							rtl = true;
+					if (unwantedSubfields.contains(sf.code.toString()))
 						continue;
-					}
 					
 					if (first) first = false;
 					else sb.append(" ");
@@ -296,7 +300,6 @@ public class MarcRecord {
 				if (rtl && (val.length() > 0)) {
 					return RLE_openRTL+val+PDF_closeRTL;
 				} else {
-//					return "Roman";
 					return val;
 				}
 			}

@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,7 +26,6 @@ import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -110,7 +110,7 @@ public class IndexHeadings {
 	
 			// fast forward to response body
 			FF: while (r.hasNext()) {
-				String event = getEventTypeString(r.next());
+				String event = getXMLEventTypeString(r.next());
 				if (event.equals("START_ELEMENT")) {
 					if (r.getLocalName().equals("lst"))
 						for (int i = 0; i < r.getAttributeCount(); i++)
@@ -126,7 +126,7 @@ public class IndexHeadings {
 			Integer recordCount = null;
 			int headingCount = 0;
 			while (r.hasNext()) {
-				String event = getEventTypeString(r.next());
+				String event = getXMLEventTypeString(r.next());
 				if (event.equals("START_ELEMENT")) {
 					if (r.getLocalName().equals("int")) {
 						for (int i = 0; i < r.getAttributeCount(); i++)
@@ -219,7 +219,7 @@ public class IndexHeadings {
 
 		// fast forward to response body
 		FF: while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
@@ -231,7 +231,7 @@ public class IndexHeadings {
 		String heading = null;
 		int wrongHeadingCount = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
 				if (r.getLocalName().equals("int")) {
 					for (int i = 0; i < r.getAttributeCount(); i++)
@@ -263,38 +263,5 @@ public class IndexHeadings {
 		else
 			wrongHeadingCounts.put(c, 1);
 	}
-
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	}
-	
 
 }
