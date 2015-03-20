@@ -128,8 +128,8 @@ public class IndexingUtilities {
 		/* We will first normalize the unicode. For sorting, we will use 
 		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
 		 * to match and remove diacritics, while compatibility form will further
-		 * drop encoding that are for use in formatting only and should not affect
-		 * sorting. For example, æ => ae
+		 * drop encodings that are for use in display and should not affect sorting.
+		 * For example, æ => ae
 		 * See http://unicode.org/reports/tr15/ Figure 6
 		 */
 		String step1 = Normalizer.normalize(value, Normalizer.Form.NFKD).

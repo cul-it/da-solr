@@ -22,7 +22,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerSteppe
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
-import edu.cornell.library.integration.indexer.resultSetToFields.AuthorResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.AuthorTitleResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.CitationReferenceNoteResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.DBCodeRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
@@ -41,7 +41,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToF
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.TitleResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.Title240ResultSetToFields;
@@ -412,23 +411,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
 			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
-				
-				new SPARQLFieldMakerImpl().
-					setName("titles").
-					addMainStoreQuery("title_main",
-						"SELECT ?code ?value ?ind2\n" +
-						" WHERE { $recordURI$ marcrdf:hasField245 ?f245.\n" +
-			    		"        ?f245 marcrdf:hasSubfield ?f245sf .\n" +
-			    		"        ?f245sf marcrdf:code ?code.\n" +
-			    		"        ?f245sf marcrdf:value ?value.\n" +
-					    "        ?f245 marcrdf:ind2 ?ind2 . \n" +
-			    		" }").
-			    	addResultSetToFields( new TitleResultSetToFields()),
-			    new StandardMARCFieldMaker("title_display","245","a",VernMode.SING_VERN,".,;:：/／= "),
-			    new StandardMARCFieldMaker("subtitle_display","245","bdefgknpqsv",VernMode.SING_VERN,".,;:：/／ "),
-			    new StandardMARCFieldMaker("fulltitle_display","245","abdefgknpqsv",VernMode.SING_VERN,".,;:：/／ "),
-			    new StandardMARCFieldMaker("title_responsibility_display","245","c",VernMode.SINGULAR,".,;:：/／ "),
-			    new StandardMARCFieldMaker("title_t","245","abdefgknpqsv",VernMode.SEARCH),
 			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
@@ -451,7 +433,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        
 			    new SPARQLFieldMakerStepped().
 			        setName("title_series_display").
-			        addMainStoreQuery("title_series_830", 
+			        addMainStoreQuery("title_series_830",
 				    "SELECT *\n" +
 		        	" WHERE {\n" +
 		        	"  $recordURI$ marcrdf:hasField830 ?field.\n" +
@@ -463,6 +445,42 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				 	"  ?sfield marcrdf:value ?value. }").
 			        addResultSetToFieldsStepped( new TitleSeriesResultSetToFields()),
 			    	
+			    new StandardMARCFieldMaker("title_t","245","abdefgknpqsv",VernMode.SEARCH),
+
+
+			    new SPARQLFieldMakerImpl().
+			    	setName("author display").
+			        addMainStoreQuery("title",
+			        		"SELECT *\n" +
+			        		" WHERE {\n" +
+			        		"  $recordURI$ marcrdf:hasField245 ?field.\n" +
+			        		"  ?field marcrdf:tag ?tag.\n" +
+			        		"  ?field marcrdf:ind1 ?ind1.\n" +
+			        		"  ?field marcrdf:ind2 ?ind2.\n" +
+			        		"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			        		"  ?sfield marcrdf:code ?code.\n" +
+			        		"  ?sfield marcrdf:value ?value. }").
+				    addMainStoreQuery("main_entry", 
+							"SELECT *\n" +
+							" WHERE { $recordURI$ ?p ?field.\n" +
+							"        ?p rdfs:subPropertyOf marcrdf:MainEntryAuthor.\n"+
+				    		"        ?field marcrdf:tag ?tag. \n" +
+				    		"        ?field marcrdf:ind1 ?ind1. \n" +
+				    		"        ?field marcrdf:ind2 ?ind2. \n" +
+				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+				    		"        ?sfield marcrdf:code ?code.\n" +
+				    		"        ?sfield marcrdf:value ?value.\n" +
+				    		" }").
+			        addResultSetToFields( new AuthorTitleResultSetToFields()),
+
+			    new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
+				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
+				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
+				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu",VernMode.SEARCH),
+				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
+				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
+    
+			        
 			    new SPARQLFieldMakerImpl().
 			        setName("table of contents").
 			        addMainStoreQuery("table of contents",
@@ -732,29 +750,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("publisher_number_display","028","a"),
 				new StandardMARCFieldMaker("id_t","028","a",VernMode.SEARCH),
 				
-				new StandardMARCFieldMaker("barcode_t","903","p",VernMode.SEARCH),
+				new StandardMARCFieldMaker("barcode_t","903","p",VernMode.SEARCH)
  
-			    new SPARQLFieldMakerImpl().
-		    	setName("author display").
-			    addMainStoreQuery("main_entry", 
-						"SELECT *\n" +
-						" WHERE { $recordURI$ ?p ?field.\n" +
-						"        ?p rdfs:subPropertyOf marcrdf:MainEntryAuthor.\n"+
-			    		"        ?field marcrdf:tag ?tag. \n" +
-			    		"        ?field marcrdf:ind1 ?ind1. \n" +
-			    		"        ?field marcrdf:ind2 ?ind2. \n" +
-			    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-			    		"        ?sfield marcrdf:code ?code.\n" +
-			    		"        ?sfield marcrdf:value ?value.\n" +
-			    		" }").
-		        addResultSetToFields( new AuthorResultSetToFields()),
-
-				new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_t","111","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_addl_t","700","abcdqegu",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_addl_t","710","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("author_addl_t","711","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH)
 
 		);
 	}
