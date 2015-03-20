@@ -506,7 +506,7 @@ public class SolrBuildConfig {
      */
     public Mapper<Object,Text,Text,Text>.Context valuesToContext(Mapper<Object,Text,Text,Text>.Context context) {
     	for (String key : values.keySet()) 
-    		context.getConfiguration().set(key, values.get(key));
+    		context.getConfiguration().set("SolrBuildConf."+key, values.get(key));
     	return context;
     }
     
