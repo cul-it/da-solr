@@ -517,6 +517,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?sf marcrdf:code ?c.\n" +
 			        	"  ?sf marcrdf:value ?v. }").
 		        addResultSetToFields( new URLResultSetToFields()),
+
+		        getHathiLinks(),
+
 		        
 		        new SPARQLFieldMakerImpl().
 		        	setName("database codes").
