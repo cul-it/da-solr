@@ -182,7 +182,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				
 				// title alpha buckets
 				String alpha1Title = sortTitle.replaceAll("\\W", "").replaceAll("[^a-z]", "1");
-				switch (Math.max(2,alpha1Title.length())) {
+				switch (Math.min(2,alpha1Title.length())) {
 				case 2:
 					addField(solrFields,"title_2letter_s",alpha1Title.substring(0,2));
 					//NO break intended
@@ -191,8 +191,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					break;
 				case 0: break;
 				default:
-					System.out.println("The max of (2,length()) cannot be anything other than 0, 1, 2, and yet it's "+Math.max(2,alpha1Title.length()));
-					System.out.println("alpha1Title is "+alpha1Title);
+					System.out.println("The min of (2,length()) cannot be anything other than 0, 1, 2.");
 					System.exit(1);
 				}
 				
