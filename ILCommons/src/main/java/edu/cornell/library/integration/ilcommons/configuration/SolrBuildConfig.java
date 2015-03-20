@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -421,6 +423,8 @@ public class SolrBuildConfig {
     	String driver =  values.get("databaseDriver"+id);
     	if (driver == null) {
     		System.out.println("Value not found for databaseDriver"+id);
+    		for (String key : values.keySet())
+    			System.out.println( key +": "+values.get(key));
     		System.exit(1);
     	}
     	String url = values.get("databaseURL"+id);
@@ -495,6 +499,15 @@ public class SolrBuildConfig {
     
     public void setDailyReports(String reports){
         values.put("dailyReports", insertDate(reports));
+    }
+    
+    /* Populate SolrBuildConfig values into Hadoop context mapper
+     * 
+     */
+    public Mapper<Object,Text,Text,Text>.Context valuesToContext(Mapper<Object,Text,Text,Text>.Context context) {
+    	for (String key : values.keySet()) 
+    		context.getConfiguration().set(key, values.get(key));
+    	return context;
     }
     
     /*
