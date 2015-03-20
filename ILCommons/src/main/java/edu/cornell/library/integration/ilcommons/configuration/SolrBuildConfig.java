@@ -455,7 +455,8 @@ public class SolrBuildConfig {
 				} catch (PropertyVetoException e) {
 					e.printStackTrace();
 				}
-		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
+		    	cpds.setJdbcUrl( url );
+//		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
 		    	cpds.setUser( user );
 		    	cpds.setPassword( pass );
 		    	cpds.setMaxStatements(25);
