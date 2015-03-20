@@ -49,7 +49,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  */
 public class SolrBuildConfig {
 
-	protected static boolean debug = false;
+	protected static boolean debug = true;
 
 	private Map<String,String> values = new HashMap<String,String>();
 	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
