@@ -473,15 +473,22 @@ public class SolrBuildConfig {
 		    	databases.put(id, cpds);
 	    	}
 	    	System.out.println("Connection pool established. Obtaining and returning connection.");
-			return databases.get(id).getConnection();
+	    	Connection c = databases.get(id).getConnection();
+        	if (driver.contains("mysql")) {
+            	Statement stmt = c.createStatement();
+        		stmt.executeUpdate("SET NAMES utf8");
+        	}
+	    	return c;
     	} else {
         	Class.forName(driver);
  		   
         	if (debug) System.out.println("Establishing database connection.");
         	Connection c = DriverManager.getConnection(url,user,pass);
         	if (debug) System.out.println("database connection established.");
-        	Statement stmt = c.createStatement();
-        	stmt.executeUpdate("SET NAMES utf8");
+        	if (driver.contains("mysql")) {
+            	Statement stmt = c.createStatement();
+        		stmt.executeUpdate("SET NAMES utf8");
+        	}
         	return c;    		
     	}
     }
