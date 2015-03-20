@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -126,6 +127,10 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		}
 		if (availableHathiMaterials.size() > 0)
 			addField(fields,"online","Online");
+		
+		if (debug)
+			for (SolrInputField f : fields.values())
+				System.out.println( f.getName() +": "+StringUtils.join(f.getValues(), ", "));
 		
 		return fields;
 	}
