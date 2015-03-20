@@ -504,10 +504,13 @@ public class SolrBuildConfig {
     /* Populate SolrBuildConfig values into Hadoop context mapper
      * 
      */
-    public Mapper<Object,Text,Text,Text>.Context valuesToContext(Mapper<Object,Text,Text,Text>.Context context) {
-    	for (String key : values.keySet()) 
-    		context.getConfiguration().set("SolrBuildConf."+key, values.get(key));
-    	return context;
+    public Configuration valuesToHadoopConfig(Configuration hadoopConf) {
+    	for (String key : values.keySet())  {
+    		hadoopConf.set("SolrBuildConf."+key, values.get(key));
+    		if (debug)
+    			System.out.println("Copying "+key+" to hadoopConfig");
+    	}
+    	return hadoopConf;
     }
     
     /*

@@ -137,16 +137,17 @@ public class IndexDirectory {
             indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
                     recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
         
-        context.getConfiguration().set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
-        context.getConfiguration().set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
-        context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
-        context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
+        Configuration hadoopConfig = context.getConfiguration();
+        hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
+        hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
+        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
+        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
        	if (config != null) {
-       		context = config.valuesToContext(context);
+       		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
        	}
 
         if( tmpDir != null )
-            context.getConfiguration().set( BibFileToSolr.TMP_DIR, tmpDir);
+            hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
 
         indexingMapper.setup(context);
 
