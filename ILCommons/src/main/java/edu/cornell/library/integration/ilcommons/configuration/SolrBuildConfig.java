@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -506,7 +504,7 @@ public class SolrBuildConfig {
      */
     public Configuration valuesToHadoopConfig(Configuration hadoopConf) {
     	for (String key : values.keySet())  {
-    		hadoopConf.set("SolrBuildConf."+key, values.get(key));
+    		hadoopConf.set(key, values.get(key));
     		if (debug)
     			System.out.println("Copying "+key+" to hadoopConfig");
     	}

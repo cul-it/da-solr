@@ -142,6 +142,7 @@ public class IndexDirectory {
         hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
         hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
         hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
+        
        	if (config != null) {
        		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
        	}
