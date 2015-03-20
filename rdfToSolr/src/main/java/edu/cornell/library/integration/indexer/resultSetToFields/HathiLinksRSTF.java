@@ -27,7 +27,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  */
 public class HathiLinksRSTF implements ResultSetToFields {
 
-	protected boolean debug = false;
+	protected boolean debug = true;
 	Map<String,Collection<String>> availableHathiMaterials = new HashMap<String,Collection<String>>();
 	Collection<String> denyTitles = new HashSet<String>();
 
