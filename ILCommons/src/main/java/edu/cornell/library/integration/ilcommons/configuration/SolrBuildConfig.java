@@ -419,9 +419,26 @@ public class SolrBuildConfig {
      */
     public Connection getDatabaseConnection(String id) throws SQLException, ClassNotFoundException {
     	String driver =  values.get("databaseDriver"+id);
+    	if (driver == null) {
+    		System.out.println("Value not found for databaseDriver"+id);
+    		System.exit(1);
+    	}
     	String url = values.get("databaseURL"+id);
+    	if (url == null) {
+    		System.out.println("Value not found for databaseURL"+id);
+    		System.exit(1);
+    	}
     	String user = values.get("databaseUser"+id);
+    	if (user == null) {
+    		System.out.println("Value not found for databaseUser"+id);
+    		System.exit(1);
+    	}
     	String pass = values.get("databasePass"+id);
+    	if (pass == null) {
+    		System.out.println("Value not found for databasePass"+id);
+    		System.exit(1);
+    	}
+    	
     	Boolean pooling = true; //default if not specified in config
     	if (values.containsKey("databasePooling"+id))
     		pooling = Boolean.valueOf( values.get("databasePooling"+id) );

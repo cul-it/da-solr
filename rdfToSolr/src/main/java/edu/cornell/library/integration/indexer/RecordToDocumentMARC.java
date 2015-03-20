@@ -451,7 +451,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			    	setName("author display").
 			        addMainStoreQuery("title",
-			        		"SELECT *\n" +
+			        		"SELECT * (\"245\" as ?p) \n" +
 			        		" WHERE {\n" +
 			        		"  $recordURI$ marcrdf:hasField245 ?field.\n" +
 			        		"  ?field marcrdf:tag ?tag.\n" +
