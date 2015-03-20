@@ -191,7 +191,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					break;
 				case 0: break;
 				default:
-					System.out.println("The max of (2,length()) cannot be anything other than 0, 1, 2.");
+					System.out.println("The max of (2,length()) cannot be anything other than 0, 1, 2, and yet it's "+Math.max(2,alpha1Title.length()));
+					System.out.println("alpha1Title is "+alpha1Title);
 					System.exit(1);
 				}
 				
