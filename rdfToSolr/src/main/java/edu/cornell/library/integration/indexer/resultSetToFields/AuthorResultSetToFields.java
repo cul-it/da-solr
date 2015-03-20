@@ -1,9 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -141,7 +140,7 @@ public class AuthorResultSetToFields implements ResultSetToFields {
 			}
 				
 			if (valuesMain.size() > 0) {
-				String sort_author = removeAllPunctuation(valuesMain.iterator().next());
+				String sort_author = getSortHeading(valuesMain.iterator().next());
 				if (! dates.isEmpty())
 					sort_author += " " + dates;
 				addField(solrFields,"author_sort",sort_author);

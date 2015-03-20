@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,11 +73,9 @@ public class TitleResultSetToFields implements ResultSetToFields {
 			} else {
 				sort_title = title_a.substring(ind2);
 			}
-			String clean_title_a = removeAllPunctuation(sort_title.toLowerCase());
-			addField(fields,"title_sort", clean_title_a + " " + title_b.toLowerCase());
-			clean_title_a = clean_title_a.replaceAll("\\W", "")
-					.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-					.replaceAll("[^a-z]", "1");
+			String clean_title_a = getSortHeading(sort_title.toLowerCase());
+			addField(fields,"title_sort", clean_title_a + " " + getSortHeading(title_b));
+			clean_title_a = clean_title_a.replaceAll("\\W", "").replaceAll("[^a-z]", "1");
 			if (clean_title_a.length() >= 2) {
 				addField(fields,"title_1letter_s",clean_title_a.substring(0,1));
 				addField(fields,"title_2letter_s",clean_title_a.substring(0,2));
