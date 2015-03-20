@@ -453,7 +453,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("title",
 			        		"SELECT *\n" +
 			        		" WHERE {\n" +
-			        		"   { SELECT \"245\"^^xsd:string as ?p WHERE { } }\n" +
 			        		"  $recordURI$ marcrdf:hasField245 ?field.\n" +
 			        		"  ?field marcrdf:tag ?tag.\n" +
 			        		"  ?field marcrdf:ind1 ?ind1.\n" +

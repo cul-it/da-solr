@@ -92,7 +92,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 					if (resultKey.contains("control")) {
 						rec.addControlFieldQuerySolution(sol);
 					} else if (resultKey.contains("data")) {
-						rec.addDataFieldQuerySolution(sol);
+						rec.addDataFieldQuerySolution(sol, null);
 					}
 					recs.put(recordURI, rec);
 					

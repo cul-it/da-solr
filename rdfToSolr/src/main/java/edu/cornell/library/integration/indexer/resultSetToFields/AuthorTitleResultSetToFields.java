@@ -41,9 +41,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 
 		MarcRecord rec = new MarcRecord();
 
-		for( String resultKey: results.keySet()){
-			rec.addDataFieldResultSet(results.get(resultKey));
-		}
+		rec.addDataFieldResultSet(results.get("main_entry"));
+		rec.addDataFieldResultSet(results.get("title"),"245");
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 		
 		
@@ -66,8 +65,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 		
 			for (DataField f: dataFields) {
 				mainTag = f.mainTag;
-				if (f.tag.equals("245")) {
-					if (mainTag.equals("245"))
+				if (mainTag.equals("245")) {
+					if (f.tag.equals("245"))
 						title = f;
 					else
 						title_vern = f;
