@@ -472,7 +472,7 @@ public class SolrBuildConfig {
 		    	cpds.setInitialPoolSize(1);
 		    	databases.put(id, cpds);
 	    	}
-	    	System.out.println("Connection pool established. Obtaining and returning connection.");
+	    	if (debug) System.out.println("Connection pool established. Obtaining and returning connection.");
 	    	Connection c = databases.get(id).getConnection();
         	if (driver.contains("mysql")) {
             	Statement stmt = c.createStatement();
