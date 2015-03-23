@@ -1171,7 +1171,7 @@
   <lst name="defaults">
     <bool name="terms">true</bool>
     <bool name="distrib">false</bool>
-    <str name="terms.sort">index</bool>
+    <str name="terms.sort">index</str>
     <!-- We are using this handler to support building the headings index, and though
          the terms.limit=100000000 value is always set at query time, setting it here is
          likely to cause accidental effects -->
