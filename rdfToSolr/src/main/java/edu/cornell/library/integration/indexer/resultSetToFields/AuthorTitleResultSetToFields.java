@@ -167,79 +167,78 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					sort_author += " " + dates;
 				addField(solrFields,"author_sort",sort_author);
 			}
-			String responsibility = null, responsibility_vern = null;
-			if (title != null) {
-				
-				// sort title
-				String sortTitle = title.concatenateSpecificSubfields("ab");
-				if (Character.isDigit(title.ind2)) {
-					int nonFilingCharCount = Integer.valueOf(title.ind2.toString());
-					if (nonFilingCharCount > sortTitle.length())
-						sortTitle = sortTitle.substring(nonFilingCharCount);
-				}
-				sortTitle = getSortHeading(sortTitle);
-				addField(solrFields,"title_sort",sortTitle);
-				
-				// title alpha buckets
-				String alpha1Title = sortTitle.replaceAll("\\W", "").replaceAll("[^a-z]", "1");
-				switch (Math.min(2,alpha1Title.length())) {
-				case 2:
-					addField(solrFields,"title_2letter_s",alpha1Title.substring(0,2));
-					//NO break intended
-				case 1:
-					addField(solrFields,"title_1letter_s",alpha1Title.substring(0,1));
-					break;
-				case 0: break;
-				default:
-					System.out.println("The min of (2,length()) cannot be anything other than 0, 1, 2.");
-					System.exit(1);
-				}
-				
-				// main title display fields
-				for (Subfield sf : title.subfields.values())
-					if (sf.code.equals('h'))
-						sf.value = sf.value.replaceAll("\\[.*\\]", "");
-				addField(solrFields,"title_display",
-						removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= "));
-				addField(solrFields,"subtitle_display",
-						removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
-				addField(solrFields,"fulltitle_display",
-						removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
-				responsibility = title.concatenateSpecificSubfields("c");
-				
-				if (author != null) {
-					String authorTitle = author + " " + title.concatenateSpecificSubfields("abdefghknpqsv");
-					addField(solrFields,"authortitle_facet",authorTitle);
-					addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
-				}
+		}
+		String responsibility = null, responsibility_vern = null;
+		if (title != null) {
+		
+			// sort title
+			String sortTitle = title.concatenateSpecificSubfields("ab");
+			if (Character.isDigit(title.ind2)) {
+				int nonFilingCharCount = Integer.valueOf(title.ind2.toString());
+				if (nonFilingCharCount > sortTitle.length())
+					sortTitle = sortTitle.substring(nonFilingCharCount);
 			}
-			if (title_vern != null) {
-				for (Subfield sf : title_vern.subfields.values())
-					if (sf.code.equals('h'))
-						sf.value = sf.value.replaceAll("\\[.*\\]", "");
-				addField(solrFields,"title_vern_display",
-						removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:：/／= "));
-				addField(solrFields,"subtitle_vern_display",
-						removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
-				addField(solrFields,"fulltitle_vern_display",
-						removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
-				responsibility_vern = title_vern.concatenateSpecificSubfields("c");
+			sortTitle = getSortHeading(sortTitle);
+			addField(solrFields,"title_sort",sortTitle);
+	
+			// title alpha buckets
+			String alpha1Title = sortTitle.replaceAll("\\W", "").replaceAll("[^a-z]", "1");
+			switch (Math.min(2,alpha1Title.length())) {
+			case 2:
+				addField(solrFields,"title_2letter_s",alpha1Title.substring(0,2));
+				//NO break intended
+			case 1:
+				addField(solrFields,"title_1letter_s",alpha1Title.substring(0,1));
+				break;
+			case 0: break;
+			default:
+				System.out.println("The min of (2,length()) cannot be anything other than 0, 1, 2.");
+				System.exit(1);
+			}
+	
+			// main title display fields
+			for (Subfield sf : title.subfields.values())
+				if (sf.code.equals('h'))
+					sf.value = sf.value.replaceAll("\\[.*\\]", "");
+			addField(solrFields,"title_display",
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= "));
+			addField(solrFields,"subtitle_display",
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
+			addField(solrFields,"fulltitle_display",
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
+			responsibility = title.concatenateSpecificSubfields("c");
 
-				if (author_vern != null) {
-					String authorTitle = author_vern + title_vern.concatenateSpecificSubfields("abdefghknpqsv");
-					addField(solrFields,"authortitle_facet",authorTitle);
-					addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
-				}
-			}
-			if (responsibility != null) {
-				if (responsibility_vern != null)
-					addField(solrFields,"title_responsibility_display",
-							responsibility_vern + " / " + responsibility);
-				else 
-					addField(solrFields,"title_responsibility_display", responsibility);
+			if (author != null) {
+				String authorTitle = author + " " + title.concatenateSpecificSubfields("abdefghknpqsv");
+				addField(solrFields,"authortitle_facet",authorTitle);
+				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
 			}
 		}
-		
+		if (title_vern != null) {
+			for (Subfield sf : title_vern.subfields.values())
+				if (sf.code.equals('h'))
+					sf.value = sf.value.replaceAll("\\[.*\\]", "");
+			addField(solrFields,"title_vern_display",
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:：/／= "));
+			addField(solrFields,"subtitle_vern_display",
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
+			addField(solrFields,"fulltitle_vern_display",
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
+			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
+
+			if (author_vern != null) {
+				String authorTitle = author_vern + title_vern.concatenateSpecificSubfields("abdefghknpqsv");
+				addField(solrFields,"authortitle_facet",authorTitle);
+				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
+			}
+		}
+		if (responsibility != null) {
+			if (responsibility_vern != null)
+				addField(solrFields,"title_responsibility_display",
+						responsibility_vern + " / " + responsibility);
+			else 
+				addField(solrFields,"title_responsibility_display", responsibility);
+		}
 		return solrFields;
 	}	
 
