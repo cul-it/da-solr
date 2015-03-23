@@ -38,6 +38,17 @@ public class LoadItemData implements DocumentPostProcess{
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
+		Connection conn = null;
+		try {
+			conn = config.getDatabaseConnection("Voy");
+			loadItemData(document,conn, recordURI, config);
+		} finally {
+			if (conn != null) conn.close();
+		}
+	}
+	
+	private void loadItemData(SolrInputDocument document, Connection conn, String recordURI, SolrBuildConfig config) throws Exception {
+		
 		Boolean multivol = false;
 
 		SolrInputField multivolField = new SolrInputField("multivol_b");
@@ -47,7 +58,7 @@ public class LoadItemData implements DocumentPostProcess{
 			document.put("multivol_b", multivolField);
 			return;
 		}
-
+		
 		Map<String,LocationEnumStats> enumStats = new HashMap<String,LocationEnumStats>();
 		SolrInputField holdingsField = document.getField( "holdings_record_display" );
 		SolrInputField itemField = new SolrInputField("item_record_display");
@@ -71,7 +82,6 @@ public class LoadItemData implements DocumentPostProcess{
 			if (debug)
 				System.out.println(query);
 
-			Connection conn = config.getDatabaseConnection("Voy");
 	        Statement stmt = null;
 	        ResultSet rs = null;
 	        ResultSetMetaData rsmd = null;
@@ -252,7 +262,7 @@ public class LoadItemData implements DocumentPostProcess{
 		document.put("item_display", itemlist);
 		document.put("item_record_display", itemField);
 	}
-	
+
 	private static Pattern multivolDesc = null;
 	private static Pattern singlevolDesc = null;
 	private Boolean doesDescriptionLookMultivol(SolrInputDocument document) {

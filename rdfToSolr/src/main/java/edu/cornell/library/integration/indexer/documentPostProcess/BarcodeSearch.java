@@ -33,7 +33,17 @@ public class BarcodeSearch implements DocumentPostProcess{
 			return;
 		}
 		
-		Connection conn = config.getDatabaseConnection("Voy");
+		Connection conn = null;
+		try {
+			conn = config.getDatabaseConnection("Voy");
+			generateFields(document,conn);
+		} finally {
+			if (conn != null)
+				conn.close();			
+		}
+	}
+	
+    private void generateFields(SolrInputDocument document,Connection conn) {
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		for (Object mfhd_id_obj: field.getValues()) {
@@ -91,8 +101,6 @@ public class BarcodeSearch implements DocumentPostProcess{
 	        }
         
 		}
-		
-		conn.close();
 
 		if (barcodes.size() == 0)
 			return;
@@ -107,8 +115,8 @@ public class BarcodeSearch implements DocumentPostProcess{
 		}
 		document.put("barcode_t",newF);
 	}
-	
-    private static String convertClobToString(Clob clob) throws Exception {
+
+	private static String convertClobToString(Clob clob) throws Exception {
         InputStream inputStream = clob.getAsciiStream();
         StringWriter writer = new StringWriter();
         IOUtils.copy(inputStream, writer, "utf-8");

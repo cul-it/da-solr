@@ -468,7 +468,7 @@ public class SolrBuildConfig {
 		    	cpds.setAcquireRetryDelay(30  * 1000); // s * ms/s
 		    	cpds.setAcquireIncrement(1);
 		    	cpds.setMinPoolSize(1);
-		    	cpds.setMaxPoolSize(2);
+		    	cpds.setMaxPoolSize(1);
 		    	cpds.setInitialPoolSize(1);
 		    	databases.put(id, cpds);
 	    	}
@@ -491,6 +491,11 @@ public class SolrBuildConfig {
         	}
         	return c;    		
     	}
+    }
+    
+    public void closeDatabaseConnectionPools() {
+    	for (String dbid : databases.keySet())
+    		databases.get(dbid).close();
     }
 
 

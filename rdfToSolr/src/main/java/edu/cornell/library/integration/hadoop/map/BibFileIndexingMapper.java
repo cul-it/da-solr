@@ -105,124 +105,128 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
  
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(context.getConfiguration());
 
-        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
-
-        	File tmpDir = Files.createTempDir();
-			log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
-			
-			Dataset dataset = null;
-			Model model = null;
-			
-			try{			
+		try {
+	        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
+	
+	        	File tmpDir = Files.createTempDir();
+				log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
 				
-				context.progress();
-				
-				log.info("Starting to build model");			
-				//load the RDF to a triple store							
-				dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
-				model = dataset.getDefaultModel();
-
-				model.add(baseModel);
-
-				TDB.sync( dataset );
-
-				// We are using the TDBLoader directly because of the use of 
-				// zipped InputStream. It seems in the newer version of Jena (2.10)
-				// there might be a more standard way to do this
-				// see http://jena.apache.org/documentation/io/rdf-input.html
-				
-				//TDBLoader loader = new TDBLoader() ;
-				//InputStream is = getUrl( urlText.toString()  );
-				//loader.loadGraph((GraphTDB)model.getGraph(), is);
-
-				String urlString = urlText.toString();
-				InputStream is = getUrl( urlString  );
-
-				Lang l ;
-				if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
-					l = Lang.NT;
-				else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
-					l = Lang.N3;
-				else
-					throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
-				RDFDataMgr.read(model, is, l);
-				context.progress();
-								
-				is.close();
-				
-				TDB.sync( dataset );
-			
-				log.info("Model load completed. Starting query for all bib records in model. ");									
-				Set<String> bibUris = getURIsInModel( model);
-                int total = bibUris.size();
-
-				context.progress();										 
-				
-				log.info("Starting to index documents");
-				RDFService rdf = new RDFServiceModel(model);
-				config.setRDFService("main", rdf);
-                int n = 0;
-
-                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
-                for( String bibUri: bibUris){	
-                    n++;
-                    System.out.println("indexing " + n + " out of " + total 
-                                       + ". bib URI: " + bibUri );
-
-                    //Create Solr Documents
-                    try{
-						SolrInputDocument doc = indexToSolr(bibUri, config);
-						docs.add(doc);
-						context.progress();
-					}catch(Throwable ex ){
-						ex.printStackTrace();
-						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
-                        if( checkForOutOfSpace( ex ) ){
-                            return;
-                        }
-					}
-                }
+				Dataset dataset = null;
+				Model model = null;
 				
 				try{
-					if ( ! docs.isEmpty() ) {
-						if( doSolrUpdate ){
-							//in solr an update is a delete followed by an add
-			            	List<String> ids = new ArrayList<String>();
-			            	for (SolrInputDocument doc : docs)
-			            		ids.add((String)doc.getFieldValue("id"));
-			            	solr.deleteById(ids);
-			            }
-						solr.add(docs);				
+
+					context.progress();
+
+					log.info("Starting to build model");
+					//load the RDF to a triple store
+					dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
+					model = dataset.getDefaultModel();
+
+					model.add(baseModel);
+
+					TDB.sync( dataset );
+
+					// We are using the TDBLoader directly because of the use of 
+					// zipped InputStream. It seems in the newer version of Jena (2.10)
+					// there might be a more standard way to do this
+					// see http://jena.apache.org/documentation/io/rdf-input.html
+
+					//TDBLoader loader = new TDBLoader() ;
+					//InputStream is = getUrl( urlText.toString()  );
+					//loader.loadGraph((GraphTDB)model.getGraph(), is);
+	
+					String urlString = urlText.toString();
+					InputStream is = getUrl( urlString  );
+
+					Lang l ;
+					if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+						l = Lang.NT;
+					else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+						l = Lang.N3;
+					else
+						throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+					RDFDataMgr.read(model, is, l);
+					context.progress();
+
+					is.close();
+
+					TDB.sync( dataset );
+				
+					log.info("Model load completed. Starting query for all bib records in model. ");
+					Set<String> bibUris = getURIsInModel( model);
+	                int total = bibUris.size();
+
+					context.progress();
+					
+					log.info("Starting to index documents");
+					RDFService rdf = new RDFServiceModel(model);
+					config.setRDFService("main", rdf);
+	                int n = 0;
+	
+	                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+	                for( String bibUri: bibUris){	
+	                    n++;
+	                    System.out.println("indexing " + n + " out of " + total 
+	                                       + ". bib URI: " + bibUri );
+	
+	                    //Create Solr Documents
+	                    try{
+							SolrInputDocument doc = indexToSolr(bibUri, config);
+							docs.add(doc);
+							context.progress();
+						}catch(Throwable ex ){
+							ex.printStackTrace();
+							context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
+	                        if( checkForOutOfSpace( ex ) ){
+	                            return;
+	                        }
+						}
+	                }
+
+					try{
+						if ( ! docs.isEmpty() ) {
+							if( doSolrUpdate ){
+								//in solr an update is a delete followed by an add
+				            	List<String> ids = new ArrayList<String>();
+				            	for (SolrInputDocument doc : docs)
+				            		ids.add((String)doc.getFieldValue("id"));
+				            	solr.deleteById(ids);
+				            }
+							solr.add(docs);				
+						}
+		
+						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+						for (SolrInputDocument doc : docs)
+							context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+		
+					} catch (Throwable er) {			
+						throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
 					}
 	
-					context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
-					for (SolrInputDocument doc : docs)
-						context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+									
+					//attempt to move file to done directory when completed
+					moveToDone( context , urlText.toString() );				
 	
-				} catch (Throwable er) {			
-					throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
+				}catch(Throwable th){			
+					String filename = getSplitFileName(context);
+					String errorMsg = "could not process file URL " + urlText.toString() +
+							" due to " + th.toString() ;
+					log.error( errorMsg );
+					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+					continue; //failed... retry
+	
+				}finally{			
+					FileUtils.deleteDirectory( tmpDir );			
+					model.close();
+					dataset.close();
 				}
-
-								
-				//attempt to move file to done directory when completed
-				moveToDone( context , urlText.toString() );				
-
-			}catch(Throwable th){			
-				String filename = getSplitFileName(context);
-				String errorMsg = "could not process file URL " + urlText.toString() +
-						" due to " + th.toString() ;
-				log.error( errorMsg );
-				context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
-				continue; //failed... retry
-
-			}finally{			
-				FileUtils.deleteDirectory( tmpDir );			
-				model.close();
-				dataset.close();
-			}
-			
-			return; // success, break out of loop
-        }
+				
+				return; // success, break out of loop
+	        }
+		} finally {
+			config.closeDatabaseConnectionPools();
+		}
 	}
 
 	

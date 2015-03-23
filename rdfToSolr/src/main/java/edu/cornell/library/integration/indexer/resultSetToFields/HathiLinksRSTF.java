@@ -39,8 +39,6 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		Collection<String> oclcids = new HashSet<String>();
 		Collection<String> barcodes = new HashSet<String>();
 
@@ -54,7 +52,6 @@ public class HathiLinksRSTF implements ResultSetToFields {
 					while(names.hasNext() ){						
 						String name = names.next();
 						RDFNode node = sol.get(name);
-						if (debug) System.out.println("Field: "+name);
 						if (name.equals("thirtyfive")) {
 							String val = nodeToString( node );
 							if (val.trim().startsWith("(OCoLC)")) {
@@ -70,8 +67,22 @@ public class HathiLinksRSTF implements ResultSetToFields {
 					}
 				}
 		}
-		Connection conn = config.getDatabaseConnection("Hathi");
 		
+		Connection conn = null;
+		try {
+			conn = config.getDatabaseConnection("Hathi");
+			return generateFields(conn, oclcids, barcodes);
+		} finally {
+			if (conn != null)
+				conn.close();
+		}
+	}
+
+	private Map<String,SolrInputField> generateFields(Connection conn,
+			Collection<String> oclcids, Collection<String> barcodes ) throws SQLException {
+		
+		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+
 /*		if (oclcids.size() > 0) {
  			PreparedStatement pstmt = conn.prepareStatement
  					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"

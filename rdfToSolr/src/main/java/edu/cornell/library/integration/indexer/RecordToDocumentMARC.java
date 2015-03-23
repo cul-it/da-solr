@@ -768,7 +768,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	    		"        ?f marcrdf:hasSubfield ?s."
 	    		+ "      ?s marcrdf:code \"a\"^^xsd:string."
 	    		+ "      ?s marcrdf:value ?thirtyfive } \n" ).
-	    addMainStoreQuery("human_dates",
+	    addMainStoreQuery("903_barcode",
 	    		"SELECT ?barcode \n" +
 	    		"WHERE { $recordURI$ marcrdf:hasField903 ?f. \n" +
 	    		"        ?f marcrdf:hasSubfield ?s."
