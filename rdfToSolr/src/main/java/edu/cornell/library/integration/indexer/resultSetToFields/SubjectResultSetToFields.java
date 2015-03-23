@@ -210,11 +210,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"subject_cts",s);
 			}
 			for (String s: subdivisionsGenre)
-				addField(solrFields,"subject_topic_facet",s);
+				addField(solrFields,"subject_topic_facet",removeTrailingPunctuation(s,"."));
 			for (String s: subdivisionsGeo)
-				addField(solrFields,"subject_geo_facet",s);
+				addField(solrFields,"subject_geo_facet",removeTrailingPunctuation(s,"."));
 			for (String s: subdivisionsEra)
-				addField(solrFields,"subject_era_facet",s);
+				addField(solrFields,"subject_era_facet",removeTrailingPunctuation(s,"."));
 		
 		}
 		
