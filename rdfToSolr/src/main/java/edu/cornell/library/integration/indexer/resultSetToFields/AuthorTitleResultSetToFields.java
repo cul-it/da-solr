@@ -227,7 +227,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
 
 			if (author_vern != null) {
-				String authorTitle = author_vern + title_vern.concatenateSpecificSubfields("abdefghknpqsv");
+				String authorTitle = author_vern + " " + title_vern.concatenateSpecificSubfields("abdefghknpqsv");
 				addField(solrFields,"authortitle_facet",authorTitle);
 				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
 			}
