@@ -28,7 +28,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  */
 public class HathiLinksRSTF implements ResultSetToFields {
 
-	protected boolean debug = true;
+	protected boolean debug = false;
 	Map<String,Collection<String>> availableHathiMaterials = new HashMap<String,Collection<String>>();
 	Collection<String> denyTitles = new HashSet<String>();
 
@@ -139,7 +139,7 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		if (availableHathiMaterials.size() > 0)
 			addField(fields,"online","Online");
 		
-		if (debug)
+	//	if (debug)
 			for (SolrInputField f : fields.values())
 				System.out.println( f.getName() +": "+StringUtils.join(f.getValues(), ", "));
 		
