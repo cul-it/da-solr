@@ -211,7 +211,8 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				}catch(Throwable th){			
 					String filename = getSplitFileName(context);
 					String errorMsg = "could not process file URL " + urlText.toString() +
-							" due to " + th.toString() ;
+							" due to "+th.toString();
+					th.printStackTrace();
 					log.error( errorMsg );
 					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
 					continue; //failed... retry
