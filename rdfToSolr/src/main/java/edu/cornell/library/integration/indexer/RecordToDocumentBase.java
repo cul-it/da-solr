@@ -35,7 +35,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 		debug = d;
 		return this;
 	}
-	boolean debug = true;
+	boolean debug = false;
 	
 	/** Factory for empty local in-memory RDF stores. */
 	RDFServiceFactory getLocalStoreFactory(){		

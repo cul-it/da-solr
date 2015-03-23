@@ -1147,7 +1147,7 @@
     </lst>
     <lst name="appends">
       <str name="fq">type:Catalog</str>
-      <str name="boost">log(max(10,sub(pub_date_facet,1985)))</str>
+      <str name="boost">log(max(10,sub(pub_date_facet,1986)))</str>
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
