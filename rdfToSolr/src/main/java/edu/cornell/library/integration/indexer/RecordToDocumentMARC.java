@@ -449,7 +449,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 
 			    new SPARQLFieldMakerImpl().
-			    	setName("author display").
+			    	setName("author and main title").
 			        addMainStoreQuery("title",
 			        		"SELECT *\n" +
 			        		" WHERE {\n" +

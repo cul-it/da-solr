@@ -174,10 +174,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			// sort title
 			String sortTitle = title.concatenateSpecificSubfields("ab");
 			if (Character.isDigit(title.ind2)) {
-				int nonFilingCharCount = Integer.valueOf(title.ind2.toString());
+				int nonFilingCharCount = Character.digit(title.ind2, 10);
 				if (nonFilingCharCount > sortTitle.length())
 					sortTitle = sortTitle.substring(nonFilingCharCount);
 			}
+			System.out.println(sortTitle+" ("+title.ind2+")");
 			sortTitle = getSortHeading(sortTitle);
 			addField(solrFields,"title_sort",sortTitle);
 	
