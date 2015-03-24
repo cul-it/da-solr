@@ -139,7 +139,7 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		if (availableHathiMaterials.size() > 0)
 			addField(fields,"online","Online");
 		
-	//	if (debug)
+		if (debug)
 			for (SolrInputField f : fields.values())
 				System.out.println( f.getName() +": "+StringUtils.join(f.getValues(), ", "));
 		
