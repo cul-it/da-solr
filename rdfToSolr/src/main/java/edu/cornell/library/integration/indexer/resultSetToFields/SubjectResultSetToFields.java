@@ -193,10 +193,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));				
 				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
-				if (h.mainTag.equals("655"))
-					addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
-				else
-					addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+				if (h.isFAST)
+					if (h.mainTag.equals("655"))
+						addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
+					else
+						addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
 			}
