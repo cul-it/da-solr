@@ -203,7 +203,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			addField(solrFields,"title_display",
 					removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= "));
 			addField(solrFields,"subtitle_display",
-					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
 			addField(solrFields,"fulltitle_display",
 					removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
 			responsibility = title.concatenateSpecificSubfields("c");
@@ -221,7 +221,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			addField(solrFields,"title_vern_display",
 					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:：/／= "));
 			addField(solrFields,"subtitle_vern_display",
-					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefghknpqsv"),".,;:：/／= "));
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
 			addField(solrFields,"fulltitle_vern_display",
 					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
