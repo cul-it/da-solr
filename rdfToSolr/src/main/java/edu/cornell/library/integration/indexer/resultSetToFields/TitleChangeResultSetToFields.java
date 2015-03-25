@@ -70,15 +70,14 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
 						|| f.mainTag.equals("711")) {
 					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
-					if (title_cts.length() < 2) {
-						relation = "author_addl";
-					} else if (f.ind2.equals('2')) {
-						if (relation == null)
+					if (relation == null)
+						if (title_cts.length() < 2) {
+							relation = "author_addl";
+						} else if (f.ind2.equals('2')) {
 							relation = "included_work";
-					} else {
-						if (relation == null)
+						} else {
 							relation = "related_work";
-					}
+						}
 				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
 					
 					if (f.mainTag.equals("730")) {
