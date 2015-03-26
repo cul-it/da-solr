@@ -1,289 +1,267 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.util.ClientUtils;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
 public class IndexHeadings {
 
-	private SolrServer solr = null;
-	private MessageDigest md = null;
-	private Map<String,SolrInputDocument> docs = new HashMap<String,SolrInputDocument>();
-	
-	private final String PERSNAME = "Personal Name";
-	private final String CORPNAME = "Corporate Name";
-	private final String EVENT = "Event";
-	private final String GENHEAD = "General Heading";
-	private final String TOPIC = "Topical Term";
-	private final String GEONAME = "Geographic Name";
-	private final String CHRONTERM = "Chronological Term";
-	private final String GENRE = "Genre/Form Term";
-	private final String MEDIUM = "Medium of Performance";
+	private Connection connection = null;
+	// This structure should contain only up to six PreparedStatement objects at most.
+	private Map<HeadType,Map<String,PreparedStatement>> statements =
+			new HashMap<HeadType,Map<String,PreparedStatement>>();
+	SolrBuildConfig config;
+	private Map<Integer,Integer> wrongHeadingCounts = new HashMap<Integer,Integer>();
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		try {
+			new IndexHeadings(args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+	public IndexHeadings(String[] args) throws Exception {
+        
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = new HashSet<String>();
 		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
 		requiredArgs.add("solrUrl");
 	            
-		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
-		try {
-			new IndexHeadings(config);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-	
-	
-	public IndexHeadings(VoyagerToSolrConfiguration config) throws Exception {
-        
-		solr = new HttpSolrServer(config.getSolrUrl());
+		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
 		
-		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=author_facet&terms.sort=index&terms.limit=10000000");
+		connection = config.getDatabaseConnection("Headings");
+		Collection<BlacklightField> blFields = new HashSet<BlacklightField>();
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_exact","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_600_exact","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_610_exact","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_611_exact","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_650_exact","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_651_exact","subject_geo_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_exact","subject_era_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_exact","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_exact","subject_topic_facet"));//TODO: switch to geo after reindex
+		
+		for (BlacklightField blf : blFields) {
+		
+			System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
+						blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
+			
+			if ( ! statements.containsKey(blf.headingType()))
+				statements.put(blf.headingType(), new HashMap<String,PreparedStatement>());
+			
+			// save terms info for field to temporary file.
+			URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
+					blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
+			final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
+			tempPath.toFile().deleteOnExit();
+			FileOutputStream fos = new FileOutputStream(tempPath.toString());
+			ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
+			fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
+			fos.close();
+
+			// then read the file back in to process it.
+			FileInputStream fis = new FileInputStream(tempPath.toString());
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
+	
+			// fast forward to response body
+			FF: while (r.hasNext()) {
+				String event = getXMLEventTypeString(r.next());
+				if (event.equals("START_ELEMENT")) {
+					if (r.getLocalName().equals("lst"))
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name")) {
+								String name = r.getAttributeValue(i);
+								if (name.equals("terms")) break FF;
+							}
+				}
+			}
+			
+			// process actual results
+			String heading = null;
+			Integer recordCount = null;
+			int headingCount = 0;
+			while (r.hasNext()) {
+				String event = getXMLEventTypeString(r.next());
+				if (event.equals("START_ELEMENT")) {
+					if (r.getLocalName().equals("int")) {
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name"))
+								heading = r.getAttributeValue(i);
+						recordCount = Integer.valueOf(r.getElementText());
+						addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
+						if (++headingCount % 10_000 == 0)
+							System.out.printf("%s => %d\n",heading,recordCount);
+					}
+				}
+			}
+			fis.close();
+			Files.delete(tempPath);
+		}
+
+	}
+
+	
+	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count) throws SolrServerException, SQLException {
+
+		String count_field = blf.headingType().dbField();
+		// update record count in db
+		if ( ! stmts.containsKey("update")) {
+			String query = String.format( "UPDATE heading SET %s = %s + ? "
+					+ "WHERE record_set = ? AND type_desc = ? AND sort = ?", count_field, count_field);
+			stmts.put("update", connection.prepareStatement(query));
+		}
+		PreparedStatement stmt = stmts.get("update");
+		stmt.setInt(1, count);
+		stmt.setInt(2, blf.recordSet().ordinal());
+		stmt.setInt(3, blf.headingTypeDesc().ordinal());
+		stmt.setString(4, headingSort);
+		int rowsAffected = stmt.executeUpdate();
+		
+		// if no rows were affected, this heading is not yet in the database
+		if ( rowsAffected == 0 ) {
+			String headingDisplay;
+			try {
+				headingDisplay = getDisplayHeading( blf , headingSort );
+				if ( ! stmts.containsKey("insert")) {
+					String query = String.format(
+							"INSERT INTO heading (heading, sort, record_set, type_desc, %s) " +
+							"VALUES (?, ?, ?, ?, ?)", count_field);
+					stmts.put("insert", connection.prepareStatement(query));
+				}
+				stmt = stmts.get("insert");
+				stmt.setString(1, headingDisplay);
+				stmt.setString(2, headingSort);
+				stmt.setInt(3, blf.recordSet().ordinal());
+				stmt.setInt(4, blf.headingTypeDesc().ordinal());
+				stmt.setInt(5, count);
+				stmt.executeUpdate();
+			} catch (IOException | XMLStreamException | URISyntaxException e) {
+				System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+
+	}
+
+	
+	private String getDisplayHeading(BlacklightField blf, String headingSort) throws IOException, XMLStreamException, URISyntaxException {
+		
+		String facet = blf.facetField();
+		if (facet == null)
+			return headingSort;
+
+		Collection<String> solrArgs = new HashSet<String>();
+		solrArgs.add( "qt=standard" );
+		solrArgs.add( "q="+URLEncoder.encode("*:*","UTF-8") );
+		solrArgs.add( "fq="+blf.fieldName()+"%3A%22"+
+				URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")+"%22");
+		solrArgs.add( "rows=0" );
+		solrArgs.add( "echoParams=none" );
+		solrArgs.add( "facet=true" );
+		solrArgs.add( "facet.field="+facet );
+		solrArgs.add( "facet.limit=40" );
+		solrArgs.add( "facet.mincount=1" );
+		String query = config.getBlacklightSolrUrl() +"/select?" + StringUtils.join( solrArgs, "&");
+//		System.out.println("**** Looking for display value for: "+headingSort+"****");
+		
+
+		URI uri = new URI(query);
+		URL queryUrl = uri.toURL();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		InputStream in = queryUrl.openStream();
 		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
 
 		// fast forward to response body
 		FF: while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
+			String event = getXMLEventTypeString(r.next());
+			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name")) {
-							String name = r.getAttributeValue(i);
-							if (name.equals("terms")) break FF;
-						}
-			}
+						if (r.getAttributeLocalName(i).equals("name"))
+							if (r.getAttributeValue(i).equals(facet)) break FF;
 		}
 		
 		// process actual results
-		String name = null;
-		Integer count = null;
+		String heading = null;
+		int wrongHeadingCount = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT")) {
 				if (r.getLocalName().equals("int")) {
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
-							name = r.getAttributeValue(i);
-					count = Integer.valueOf(r.getElementText());
-					recordCount("author",name,count);
-										
-					// insert Documents if critical mass
-					if (docs.size() > 10_000) {
-						System.out.println(name + " => " + count);
-						insertDocuments();
+							heading = r.getAttributeValue(i);
+					String sort = getSortHeading(heading);
+//					System.out.println(heading + " => "+ sort);
+					if (sort.equals(headingSort)) {
+						in.close();
+						recordWrongHeadingCount(wrongHeadingCount);
+						return heading;
+					} else {
+						wrongHeadingCount++;
 					}
-
 				}
 			}
 		}
 		in.close();
-		insertDocuments();
-	}
-
-	
-	private void recordCount(String context, String name, Integer count) throws SolrServerException {
-		
-		// find or make record for heading
-		SolrInputDocument main = getMainSolrDocument(name, context, PERSNAME);
-		// TODO: Actual headingTypeDesc needed.
-		if (main.containsKey("recordCount")) {
-			count += Integer.valueOf(main.getFieldValue("recordCount").toString());
-			main.removeField("recordCount");
-		}
-		main.addField("recordCount", count, 1.0f);
-		fileDoc(main);
-		
-		// find any crossref headings
-		
-		
+		recordWrongHeadingCount(wrongHeadingCount);
+		System.out.println("Didn't find display form for: "+headingSort);
+		System.out.println(query);
+	//	System.exit(1);
+		return headingSort;
 	}
 	
-	private SolrInputDocument getMainSolrDocument(String heading, String headingType, String headingTypeDesc) throws SolrServerException {
-
-		// calculate id for Solr document
-		String headingSort = getSortHeading(heading);
-		String id = md5Checksum(headingSort + headingType + headingTypeDesc);
-
-		// first check for existing doc in memory
-		if (docs.containsKey(id))
-			return docs.get(id);
-		
-		// then check for existing doc in Solr
-		SolrQuery query = new SolrQuery();
-		query.setQuery("id:"+id);
-		SolrDocumentList resultDocs = null;
-		try {
-			QueryResponse qr = solr.query(query);
-			resultDocs = qr.getResults();
-		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr." + id);
-			System.exit(1);
-		}
-		SolrInputDocument inputDoc = null;
-		if (resultDocs != null) {
-			Iterator<SolrDocument> i = resultDocs.iterator();
-			while (i.hasNext()) {
-				SolrDocument doc = i.next();
-				doc.remove("_version_");
-				inputDoc = ClientUtils.toSolrInputDocument(doc);
-			}
-		}
-
-		String id2 = md5Checksum(headingSort + headingType + CORPNAME);
-
-		// first check for existing doc in memory
-		if (docs.containsKey(id2))
-			return docs.get(id2);
-		
-		// then check for existing doc in Solr
-		query = new SolrQuery();
-		query.setQuery("id:"+id2);
-		resultDocs = null;
-		try {
-			QueryResponse qr = solr.query(query);
-			resultDocs = qr.getResults();
-		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr." + id);
-			System.exit(1);
-		}
-		if (resultDocs != null) {
-			Iterator<SolrDocument> i = resultDocs.iterator();
-			while (i.hasNext()) {
-				SolrDocument doc = i.next();
-				doc.remove("_version_");
-				inputDoc = ClientUtils.toSolrInputDocument(doc);
-			}
-		}
-
-		
-		// finally, create new doc if not found.
-		if (inputDoc == null) {
-			inputDoc = new SolrInputDocument();
-			inputDoc.addField("heading", heading);
-			inputDoc.addField("headingSort", headingSort);
-			inputDoc.addField("headingType", headingType);
-			inputDoc.addField("headingTypeDesc", headingTypeDesc);
-			inputDoc.addField("id", id);
-		}
-		return inputDoc;
-	}
-	
-	
-	private void fileDoc( SolrInputDocument doc ) {
-		String id = doc.getFieldValue("id").toString();
-		docs.put(id, doc);
-	}
-	
-	private String getSortHeading(String heading) {
-		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
-		// first so hyphenated words will sort as though the space were present.
-		String sortHeading = removeAllPunctuation(heading.
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
-				toLowerCase().
-				replaceAll("-", " "));
-		return sortHeading.trim();
-	}
-	
-	
-	private void insertDocuments() throws IOException, SolrServerException {
-		System.out.println("committing "+docs.size()+" records to Solr.");
-		solr.deleteById(new ArrayList<String>(docs.keySet()));
-		solr.add(docs.values());
-		solr.commit();
-		docs.clear();
-	}
-
-	
-	private String md5Checksum(String s) {
-		try {
-			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			System.out.println("MD5 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-		try {
-			md.update(s.getBytes("UTF-8") );
-			byte[] digest = md.digest();
-
-			// Create Hex String
-	        StringBuffer hexString = new StringBuffer();
-	        for (int i=0; i<digest.length; i++)
-	            hexString.append(Integer.toHexString(0xFF & digest[i]));
-	        return hexString.toString();
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("UTF-8 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
+	private void recordWrongHeadingCount( int c ) {
+		if (wrongHeadingCounts.containsKey(c))
+			wrongHeadingCounts.put(c, wrongHeadingCounts.get(c)+1);
+		else
+			wrongHeadingCounts.put(c, 1);
 	}
 
 }

@@ -12,6 +12,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
@@ -24,7 +25,7 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
@@ -67,13 +68,13 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			if (relation == null) relation = "pub_info";
 			for (DataField f: dataFields) {
 				if (f.tag.equals("880")) {
-					values880.add(f.concateSubfieldsOtherThan6());
+					values880.add(f.concatenateSubfieldsOtherThanSpecified("6"));
 					if (relation.equals("pub_info")) {
 						publisherVern = f.concatenateSpecificSubfields("b");
 						pubplaceVern = f.concatenateSpecificSubfields("a");
 					}
 				} else {
-					valuesMain.add(f.concateSubfieldsOtherThan6());
+					valuesMain.add(f.concatenateSubfieldsOtherThanSpecified("6"));
 					if (relation.equals("pub_info")) {
 						publisher = f.concatenateSpecificSubfields("b");
 						pubplace = f.concatenateSpecificSubfields("a");

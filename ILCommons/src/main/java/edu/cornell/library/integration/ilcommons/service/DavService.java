@@ -14,6 +14,15 @@ import java.util.List;
  */
 public interface DavService {   
     
+	/**
+	 *
+	 * @param davUrl
+	 * @param localPath
+	 * Establishes an equivalence between a remote davUrl and a local file path. Some
+	 * dav methods may use the local file path instead of the webdav interface when available.
+	 */
+	public void setDavUrlToLocalPathMapping( String davUrl, String localPath );
+	
    /**
     * @param url
     * @return list of filenames

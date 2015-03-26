@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.utilities;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,12 +14,14 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -112,6 +116,38 @@ public class IndexingUtilities {
 		return commaFollowedByNonSpace.matcher(s).replaceAll(", $1");
 	}
 
+	
+	/**
+	 * Normalize value for sorting or filing. Normalized value is not a suitable
+	 * display string.
+	 * @param value
+	 * @return normalized value
+	 */
+	public static String getSortHeading(String value) {
+
+		/* We will first normalize the unicode. For sorting, we will use 
+		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
+		 * to match and remove diacritics, while compatibility form will further
+		 * drop encodings that are for use in display and should not affect sorting.
+		 * For example, æ => ae
+		 * See http://unicode.org/reports/tr15/ Figure 6
+		 */
+		String step1 = Normalizer.normalize(value, Normalizer.Form.NFKD).
+				replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+		
+		/* removeAllPunctuation() will strip punctuation. We replace hyphens with spaces
+		 * first so hyphenated words will sort as though the space were present.
+		 * Greater-than (>) is a semantically important value in a subject heading,
+		 * so rather than remove it, we will replace it with an alphabetic value that will
+		 * enforce sorting above an equivalent value without the ">".
+		 */
+		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa");
+		String sortHeading = removeAllPunctuation(step2);
+		
+		// Finally, collapse sequences of spaces into single spaces:
+		return sortHeading.trim().replaceAll("\\s+", " ");
+	}
+
 	/**
 	 * gzip a file on disk, deleting the original
 	 * note: unlike the command-line gzip application, no effort is made to 
@@ -157,6 +193,37 @@ public class IndexingUtilities {
 	    return prettyXMLFormat(input, 2);
 	}
 
-    
+	public final static String getXMLEventTypeString(int  eventType)
+	{
+	  switch  (eventType)
+	    {
+	        case XMLEvent.START_ELEMENT:
+	          return "START_ELEMENT";
+	        case XMLEvent.END_ELEMENT:
+	          return "END_ELEMENT";
+	        case XMLEvent.PROCESSING_INSTRUCTION:
+	          return "PROCESSING_INSTRUCTION";
+	        case XMLEvent.CHARACTERS:
+	          return "CHARACTERS";
+	        case XMLEvent.COMMENT:
+	          return "COMMENT";
+	        case XMLEvent.START_DOCUMENT:
+	          return "START_DOCUMENT";
+	        case XMLEvent.END_DOCUMENT:
+	          return "END_DOCUMENT";
+	        case XMLEvent.ENTITY_REFERENCE:
+	          return "ENTITY_REFERENCE";
+	        case XMLEvent.ATTRIBUTE:
+	          return "ATTRIBUTE";
+	        case XMLEvent.DTD:
+	          return "DTD";
+	        case XMLEvent.CDATA:
+	          return "CDATA";
+	        case XMLEvent.SPACE:
+	          return "SPACE";
+	    }
+	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
+	}
+
     
 }

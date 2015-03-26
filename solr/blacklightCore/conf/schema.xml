@@ -215,8 +215,8 @@
              input string is preserved as a single token
           -->
         <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement="" replace="all"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
         <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
@@ -383,9 +383,10 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_exact" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_filing" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />

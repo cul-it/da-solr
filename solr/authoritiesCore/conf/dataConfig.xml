@@ -1,0 +1,111 @@
+<dataConfig>
+<dataSource type="JdbcDataSource"
+            driver="com.mysql.jdbc.Driver"
+            url="jdbc:mysql://da-il.library.cornell.edu:3306/headings"
+            user="dna_read"
+            password="xyzzy"/>
+<document>
+<entity name="heading"
+  transformer="RegexTransformer"
+        query=" 
+           select SQL_BIG_RESULT
+           h.id,
+           h.heading,
+           h.sort,
+           h.works,
+           h.works_by,
+           h.works_about,
+           h.type_desc,
+           h.main_entry,
+           h.authority,
+           group_concat( distinct
+               concat_ws( &quot;|&quot;, h2.heading, r2.ref_desc,
+	                         CAST(h2.works_about AS CHAR(8)),CAST(h2.works_by AS CHAR(8)))
+	           SEPARATOR &quot;YYYYY&quot;) as seeAlsos,
+           group_concat( distinct
+               concat_ws( &quot;|&quot;, h3.heading, r3.ref_desc,
+	                         CAST(h3.works_about AS CHAR(8)),CAST(h3.works_by AS CHAR(8)))
+	           SEPARATOR &quot;YYYYY&quot;) as preferedForms
+      from heading as h
+
+    left join (reference as r2, heading as h2, ref_type as rt2)
+        on (r2.from_heading = h.id
+            and h2.id = r2.to_heading
+            and r2.ref_type = rt2.id
+            and rt2.name = &quot;seeAlso&quot; )
+
+    left join (reference as r3, heading as h3, ref_type as rt3)
+        on (r3.from_heading = h.id
+            and h3.id = r3.to_heading
+            and r3.ref_type = rt3.id
+            and rt3.name = &quot;preferedForm&quot; )
+
+     where h.works_by > 0
+        or h2.works_by > 0
+        or h3.works_by > 0
+     group by h.id">
+
+   <field column="id" name="id" />
+   <field column="heading" name="heading" />
+   <field column="sort" name="headingSort" />
+   <field column="main_entry" name="mainEntry" />
+   <field column="authority" name="authority" />
+   <field column="works" name="works" />
+   <field column="works_by" name="worksBy" />
+   <field column="works_about" name="worksAbout" />
+
+   <!-- transformed fields --> 
+   <field column="seeAlso" splitBy="YYYYY" sourceColName="seeAlsos"/>
+   <field column="preferedForm" splitBy="YYYYY" sourceColName="preferedForms"/>
+
+
+   <entity name="altForms"
+     query="select form from alt_form
+       where heading_id = ${heading.id}
+       order by 1" >
+       <field column="form" name="alternateForm" />
+   </entity>
+
+   <entity name="notes"
+     query="select note as notes
+              from note
+       where heading_id = ${heading.id}" >
+       <field column="note" name="notes" />
+   </entity>
+
+   <entity name="typeDesc"
+     query="select name from type_desc" cacheKey="id" cacheLookup="heading.type_desc" cacheImpl="SortedMapBackedCache" >
+       <field column="name" name="headingTypeDesc" />
+   </entity>
+
+	<entity name="field" query="select val from rda_field where heading_id = ${heading.id}" >
+		<field column="val" name="rda_field"/>
+	</entity>
+
+	<entity name="form_of_work" query="select val from rda_form_of_work where heading_id = ${heading.id}" >
+		<field column="val" name="rda_form_of_work"/>
+	</entity>
+
+	<entity name="gender" query="select val from rda_gender where heading_id = ${heading.id}" >
+		<field column="val" name="rda_gender"/>
+	</entity>
+
+	<entity name="group_or_org" query="select val from rda_group_or_org where heading_id = ${heading.id}" >
+		<field column="val" name="rda_group_or_org"/>
+	</entity>
+
+	<entity name="occupation" query="select val from rda_occupation where heading_id = ${heading.id}" >
+		<field column="val" name="rda_occupation"/>
+	</entity>
+
+	<entity name="form_perform_medium" query="select val from rda_perform_medium where heading_id = ${heading.id}" >
+		<field column="val" name="rda_perform_medium"/>
+	</entity>
+
+	<entity name="form_place" query="select val from rda_place where heading_id = ${heading.id}" >
+		<field column="val" name="rda_place"/>
+	</entity>
+
+</entity>
+</document>
+</dataConfig>

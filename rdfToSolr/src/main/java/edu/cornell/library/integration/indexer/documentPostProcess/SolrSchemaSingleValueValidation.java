@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Connection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,7 +16,7 @@ import org.apache.solr.common.SolrInputField;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * Get the solr schema.xml and check number of vlaues for non-multi-value fields.
@@ -35,8 +34,8 @@ public class SolrSchemaSingleValueValidation implements DocumentPostProcess {
 	}
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 				
 		solrSchemaUrl = solrUrl + "/admin/file/?contentType=text/xml;charset=utf-8&file=schema.xml";
 		Document schemaXml = getSchemaXml();

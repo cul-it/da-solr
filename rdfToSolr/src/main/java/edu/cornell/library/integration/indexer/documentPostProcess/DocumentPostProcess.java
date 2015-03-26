@@ -1,10 +1,8 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
-
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * Interface to represent objects that will have a 
@@ -15,15 +13,11 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public interface DocumentPostProcess {
 	 /**
 	 * @param recordURI
-	 * @param mainStore
-	 * @param localStore
 	 * @param document - may be modified by instances of this interface.
 	 * @param voyager TODO
 	 * @throws Exception 
 	 */
 	void p( String recordURI, 
-			RDFService mainStore, 
-			RDFService localStore, 
-			SolrInputDocument document,
-			Connection voyager) throws Exception;
+			SolrBuildConfig config, 
+			SolrInputDocument document) throws Exception;
 }

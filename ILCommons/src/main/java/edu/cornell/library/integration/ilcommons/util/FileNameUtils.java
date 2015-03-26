@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 
 public class FileNameUtils {
@@ -109,7 +109,7 @@ public class FileNameUtils {
      * Find the most recent unsuppressed BIB ID update file.
      */
     public static String findMostRecentUnsuppressedBibIdFile(
-            VoyagerToSolrConfiguration config, 
+            SolrBuildConfig config, 
             DavService davService) throws Exception {
         
         String dirToLookIn = 
@@ -130,7 +130,7 @@ public class FileNameUtils {
      * Find the most recent unsuppressed MFHD ID update file.
      */
     public static String findMostRecentUnsuppressedMfhdIdFile(
-            VoyagerToSolrConfiguration config, 
+            SolrBuildConfig config, 
             DavService davService) throws Exception {
         
         String dirToLookIn = 

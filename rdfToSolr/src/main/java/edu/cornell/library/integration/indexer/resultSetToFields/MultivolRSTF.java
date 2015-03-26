@@ -9,6 +9,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 	
 	
 	public class MultivolRSTF implements ResultSetToFields {
@@ -20,7 +22,7 @@ import com.hp.hpl.jena.query.ResultSet;
 		
 		@Override
 		public Map<? extends String, ? extends SolrInputField> toFields(
-				Map<String, ResultSet> results) {
+				Map<String, ResultSet> results, SolrBuildConfig config) {
 			
 			ALL: for( String resultKey: results.keySet()){
 				ResultSet rs = results.get(resultKey);

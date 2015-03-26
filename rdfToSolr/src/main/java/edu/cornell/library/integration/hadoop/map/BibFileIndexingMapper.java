@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +50,7 @@ import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 import edu.cornell.library.integration.indexer.RecordToDocument;
@@ -80,8 +78,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	String solrURL;
 	SolrServer solr;
 
-	Connection voyager;
-
     /** If true, attempt to delete the document from solr before adding them
         in order to do an update. */
     public boolean doSolrUpdate = false;
@@ -106,179 +102,133 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         String url = urlText.toString();
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
+ 
+		SolrBuildConfig config = SolrBuildConfig.loadConfig(context.getConfiguration());
 
-        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
-
-        	File tmpDir = Files.createTempDir();
-			log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
-			
-			Dataset dataset = null;
-			Model model = null;
-			
-			try{			
+		try {
+	        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
+	
+	        	File tmpDir = Files.createTempDir();
+				log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
 				
-				context.progress();
-				
-				log.info("Starting to build model");			
-				//load the RDF to a triple store							
-				dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
-				model = dataset.getDefaultModel();
-
-				model.add(baseModel);
-
-				TDB.sync( dataset );
-
-				// We are using the TDBLoader directly because of the use of 
-				// zipped InputStream. It seems in the newer version of Jena (2.10)
-				// there might be a more standard way to do this
-				// see http://jena.apache.org/documentation/io/rdf-input.html
-				
-				//TDBLoader loader = new TDBLoader() ;
-				//InputStream is = getUrl( urlText.toString()  );
-				//loader.loadGraph((GraphTDB)model.getGraph(), is);
-
-				String urlString = urlText.toString();
-				InputStream is = getUrl( urlString  );
-
-				Lang l ;
-				if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
-					l = Lang.NT;
-				else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
-					l = Lang.N3;
-				else
-					throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
-				RDFDataMgr.read(model, is, l);
-				context.progress();
-								
-				is.close();
-				
-				TDB.sync( dataset );
-			
-				log.info("Model load completed. Creating connection to Voyager Database.");
-				voyager = openConnection();
-				
-				log.info("Starting query for all bib records in model. ");									
-				Set<String> bibUris = getURIsInModel( model);
-                int total = bibUris.size();
-
-				context.progress();										 
-				
-				log.info("Starting to index documents");
-				RDFService rdf = new RDFServiceModel(model);
-                int n = 0;
-
-                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
-                for( String bibUri: bibUris){	
-                    n++;
-                    System.out.println("indexing " + n + " out of " + total 
-                                       + ". bib URI: " + bibUri );
-
-                    //Create Solr Documents
-                    try{
-						SolrInputDocument doc = indexToSolr(bibUri, rdf);
-						docs.add(doc);
-						context.progress();
-					}catch(Throwable ex ){
-						ex.printStackTrace();
-						context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
-                        if( checkForOutOfSpace( ex ) ){
-                            return;
-                        }
-					}
-                }
-				
-				try {
-					voyager.close();
-				}
-				catch (SQLException SQLEx) { /* ignore */ }
+				Dataset dataset = null;
+				Model model = null;
 				
 				try{
-					if ( ! docs.isEmpty() ) {
-						if( doSolrUpdate ){
-							//in solr an update is a delete followed by an add
-			            	List<String> ids = new ArrayList<String>();
-			            	for (SolrInputDocument doc : docs)
-			            		ids.add((String)doc.getFieldValue("id"));
-			            	solr.deleteById(ids);
-			            }
-						solr.add(docs);				
+
+					context.progress();
+
+					log.info("Starting to build model");
+					//load the RDF to a triple store
+					dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
+					model = dataset.getDefaultModel();
+
+					model.add(baseModel);
+
+					TDB.sync( dataset );
+
+					// We are using the TDBLoader directly because of the use of 
+					// zipped InputStream. It seems in the newer version of Jena (2.10)
+					// there might be a more standard way to do this
+					// see http://jena.apache.org/documentation/io/rdf-input.html
+
+					//TDBLoader loader = new TDBLoader() ;
+					//InputStream is = getUrl( urlText.toString()  );
+					//loader.loadGraph((GraphTDB)model.getGraph(), is);
+	
+					String urlString = urlText.toString();
+					InputStream is = getUrl( urlString  );
+
+					Lang l ;
+					if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+						l = Lang.NT;
+					else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+						l = Lang.N3;
+					else
+						throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+					RDFDataMgr.read(model, is, l);
+					context.progress();
+
+					is.close();
+
+					TDB.sync( dataset );
+				
+					log.info("Model load completed. Starting query for all bib records in model. ");
+					Set<String> bibUris = getURIsInModel( model);
+	                int total = bibUris.size();
+
+					context.progress();
+					
+					log.info("Starting to index documents");
+					RDFService rdf = new RDFServiceModel(model);
+					config.setRDFService("main", rdf);
+	                int n = 0;
+	
+	                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+	                for( String bibUri: bibUris){	
+	                    n++;
+	                    System.out.println("indexing " + n + " out of " + total 
+	                                       + ". bib URI: " + bibUri );
+	
+	                    //Create Solr Documents
+	                    try{
+							SolrInputDocument doc = indexToSolr(bibUri, config);
+							docs.add(doc);
+							context.progress();
+						}catch(Throwable ex ){
+							ex.printStackTrace();
+							context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
+	                        if( checkForOutOfSpace( ex ) ){
+	                            return;
+	                        }
+						}
+	                }
+
+					try{
+						if ( ! docs.isEmpty() ) {
+							if( doSolrUpdate ){
+								//in solr an update is a delete followed by an add
+				            	List<String> ids = new ArrayList<String>();
+				            	for (SolrInputDocument doc : docs)
+				            		ids.add((String)doc.getFieldValue("id"));
+				            	solr.deleteById(ids);
+				            }
+							solr.add(docs);				
+						}
+		
+						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+						for (SolrInputDocument doc : docs)
+							context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+		
+					} catch (Throwable er) {			
+						throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
 					}
 	
-					context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
-					for (SolrInputDocument doc : docs)
-						context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+									
+					//attempt to move file to done directory when completed
+					moveToDone( context , urlText.toString() );				
 	
-				} catch (Throwable er) {			
-					throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
+				}catch(Throwable th){			
+					String filename = getSplitFileName(context);
+					String errorMsg = "could not process file URL " + urlText.toString() +
+							" due to "+th.toString();
+					th.printStackTrace();
+					log.error( errorMsg );
+					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+					continue; //failed... retry
+	
+				}finally{			
+					FileUtils.deleteDirectory( tmpDir );			
+					model.close();
+					dataset.close();
 				}
-
-								
-				//attempt to move file to done directory when completed
-				moveToDone( context , urlText.toString() );				
-
-			}catch(Throwable th){			
-				String filename = getSplitFileName(context);
-				String errorMsg = "could not process file URL " + urlText.toString() +
-						" due to " + th.toString() ;
-				log.error( errorMsg );
-				context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
-				continue; //failed... retry
-
-			}finally{			
-				FileUtils.deleteDirectory( tmpDir );			
-				model.close();
-				dataset.close();
-			}
-			
-			return; // success, break out of loop
-        }
+				
+				return; // success, break out of loop
+	        }
+		} finally {
+			config.closeDatabaseConnectionPools();
+		}
 	}
-	
-
-	// Open Connection to the Voyager Oracle Database
-	@SuppressWarnings("unused")
-	public static Connection openConnection() {
-        Connection connection = null;
-        
-        String DBDriver = "oracle.jdbc.driver.OracleDriver";
- //       String DBUrl = "jdbc:oracle:thin:@database.library.cornell.edu:1521:VGER";
-        String DBProtocol = "jdbc:oracle:thin:@";
-        String DBServer = "database.library.cornell.edu:1521:VGER";
- //       String DBName = "CORNELLDB";
-        String DBUser = "login";
-        String DBPass = "login";
-        
-        if (false) {
-        	DBDriver = "com.mysql.jdbc.Driver";
-        	DBProtocol = "jdbc:mysql://";
-        	DBServer = "fbw4-dev.library.cornell.edu:3306/item_data";
-        	DBUser = "dna";
-        	DBPass = "dna password";
-        }
-        
-        
-        // actually connect to the database
-        try {
-
-           Class.forName(DBDriver);
-           String dburl = DBProtocol + DBServer;
-           // System.out.println("database connection url: "+dburl);
-           connection = DriverManager.getConnection(dburl , DBUser, DBPass);
-
-           if (connection == null) {
-              System.out.println("openconnection: no connection made");
-           }
-           // end alert if no connection made
-        } catch (SQLException sqlexception) {
-           System.out.println(sqlexception.getMessage());
-           sqlexception.printStackTrace();
-        } catch (Exception exception) {
-           //System.out.println(exception);
-           exception.printStackTrace();
-        }
-
-        return connection;
-     }
 
 	
     /**
@@ -315,11 +265,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private SolrInputDocument indexToSolr(String bibUri, RDFService rdf) throws Exception{
+	private SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
-			doc = r2d.buildDoc(bibUri, rdf, voyager);
+			doc = r2d.buildDoc(bibUri, config);
 			if( doc == null ){
 				throw new Exception("No document created for " + bibUri);				
 			}

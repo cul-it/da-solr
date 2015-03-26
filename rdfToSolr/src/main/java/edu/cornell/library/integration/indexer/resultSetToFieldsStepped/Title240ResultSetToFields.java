@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,6 +79,7 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<String>();
 			Set<String> valuesMain = new HashSet<String>();
+			Set<String> valuesFacet = new HashSet<String>();
 			for (DataField f: dataFields) {
 				String field = removeTrailingPunctuation(f.concatenateSpecificSubfields("adfgklmnoprs"),".,");
 				String cts = removeTrailingPunctuation(f.concatenateSpecificSubfields("adfgklmnoprs"),".,");
@@ -85,21 +87,28 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 					field += "|"+cts;
 				}
 				if (f.tag.equals("880")) {
-					if (mainEntryVern != null)
+					if (mainEntryVern != null) {
 						field += "|"+mainEntryVern;
-					else if (mainEntry != null)
+						valuesFacet.add(  mainEntryVern +" "+ cts );
+					} else if (mainEntry != null)
 						field += "|"+mainEntry;
 					values880.add(field);
 				} else {
-					if (mainEntry != null)
+					if (mainEntry != null) {
 						field += "|"+mainEntry;
+						valuesFacet.add( mainEntry +" "+ cts );
+					}
 					valuesMain.add(field);
 				}
 			}
 			for (String s: values880)
 				addField(solrFields,"title_uniform_display",s);	
 			for (String s: valuesMain)
-				addField(solrFields,"title_uniform_display",s);	
+				addField(solrFields,"title_uniform_display",s);
+			for (String s: valuesFacet) {
+				addField(solrFields,"authortitle_facet",s);
+				addField(solrFields,"authortitle_240_filing",getSortHeading(s));
+			}
 		}
 
 		step.setFields(solrFields);

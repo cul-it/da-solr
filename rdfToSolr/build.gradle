@@ -5,12 +5,7 @@ apply plugin: 'eclipse'
 dependencies {
    compile project(':ILCommons')
 
-   compile 'org.apache.hadoop:hadoop-core:1.0.3'
-
    compile fileTree(dir: 'libs', include: '*.jar')   
-
-   //get us core, tdb, arq, and iri
-   compile 'org.apache.jena:apache-jena:2.11.1'
 
    //usually this is brought in by jena but I'm doing these odd tests 
    // with hand compiled jena from SVN
@@ -39,14 +34,6 @@ task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) 
  from the Solr Index or are in the Solr index but not in Voyager."
  maxHeapSize = '2048m'  
  main = 'edu.cornell.library.integration.indexer.updates.ConfirmSolrIndexCompleteness'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task( fullMarcXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
- group="Full Build Steps"
- description = "Convert all MARC XML to N-Triples"
- maxHeapSize = '1024m'  
- main = 'edu.cornell.library.integration.marcXmlToRdf.MarcXmlToNTriples'
  classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -104,7 +91,7 @@ task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
 }
 
 task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
- group="Full Build Steps"
+   group="Full Build Steps"
    description="Converts Voyager MARC XML to MARC N-Triples." 
    jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
@@ -33,8 +33,8 @@ public class VoyagerUpdate {
 		requiredFields.add("dailyMfhdMrcXmlDir");
 		requiredFields.add("dailyMrcNtDir");
 		requiredFields.add("dailyMrcNtFilenamePrefix");
-		VoyagerToSolrConfiguration config =
-				VoyagerToSolrConfiguration.loadConfig( args, requiredFields );
+		SolrBuildConfig config =
+				SolrBuildConfig.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);				
 		

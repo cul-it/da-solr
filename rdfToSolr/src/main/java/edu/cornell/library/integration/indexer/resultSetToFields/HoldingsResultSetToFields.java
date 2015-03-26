@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
@@ -38,7 +39,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
 		
@@ -91,7 +92,7 @@ public class HoldingsResultSetToFields implements ResultSetToFields {
 					if (resultKey.contains("control")) {
 						rec.addControlFieldQuerySolution(sol);
 					} else if (resultKey.contains("data")) {
-						rec.addDataFieldQuerySolution(sol);
+						rec.addDataFieldQuerySolution(sol, null);
 					}
 					recs.put(recordURI, rec);
 					

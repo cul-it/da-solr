@@ -1,14 +1,16 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.Normalizer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,39 +20,22 @@ import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.util.ClientUtils;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
 public class IndexAuthorityRecords {
 
+	private Connection connection = null;
 	private DavService davService;
-	private SolrServer solr = null;
-	private MessageDigest md = null;
-	private Map<String,SolrInputDocument> docs = new HashMap<String,SolrInputDocument>();
-	
-	private final String PERSNAME = "Personal Name";
-	private final String CORPNAME = "Corporate Name";
-	private final String EVENT = "Event";
-	private final String GENHEAD = "General Heading";
-	private final String TOPIC = "Topical Term";
-	private final String GEONAME = "Geographic Name";
-	private final String CHRONTERM = "Chronological Term";
-	private final String GENRE = "Genre/Form Term";
-	private final String MEDIUM = "Medium of Performance";
 	
 	/**
 	 * @param args
@@ -59,18 +44,8 @@ public class IndexAuthorityRecords {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = new HashSet<String>();
 		requiredArgs.add("xmlDir");
-//		requiredArgs.add("blacklightSolrUrl");
-		requiredArgs.add("solrUrl");
-		/*
-		try {
-			ServerSocketChannel ssc = ServerSocketChannel.open();
-			ssc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-		} catch (IOException e){
-			
-		}
-	      */      
 	            
-		VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(args,requiredArgs);
+		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
   //  	   IndexAuthorityRecords iar =
     			   new IndexAuthorityRecords(config);
@@ -79,16 +54,19 @@ public class IndexAuthorityRecords {
 			System.exit(1);
 		}
 	}
-	
-	
-	public IndexAuthorityRecords(VoyagerToSolrConfiguration config) throws Exception {
-        this.davService = DavServiceFactory.getDavService(config);
-        List<String> authXmlFiles = davService.getFileUrlList(config.getWebdavBaseUrl() + "/" + config.getXmlDir());
-        Iterator<String> i = authXmlFiles.iterator();
-        
-		solr = new HttpSolrServer(config.getSolrUrl());
 
+	public IndexAuthorityRecords(SolrBuildConfig config) throws Exception {
+        this.davService = DavServiceFactory.getDavService(config);
+        		
+		connection = config.getDatabaseConnection("Headings");
+		//set up database (including populating description maps)
+		setUpDatabaseTypeLists();
 		
+		String xmlDir = config.getWebdavBaseUrl() + "/" + config.getXmlDir();
+		System.out.println("Looking for authority xml in directory: "+xmlDir);
+        List<String> authXmlFiles = davService.getFileUrlList(xmlDir);
+        System.out.println("Found: "+authXmlFiles.size());
+        Iterator<String> i = authXmlFiles.iterator();
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
@@ -106,105 +84,73 @@ public class IndexAuthorityRecords {
 				    Thread.currentThread().interrupt();
 				}
 				System.out.println("Attempting to re-open xml file input.");
-				docs.clear();
 				xmlstream = davService.getFileAsInputStream(srcFile);
 				input_factory = XMLInputFactory.newInstance();
 				r  = input_factory.createXMLStreamReader(xmlstream);
 				processRecords(r);
 			}
 			xmlstream.close();
-			insertDocuments();
         }
+        connection.close();
 	}
 	
-	private String md5Checksum(String s) {
-		try {
-			if (md == null) md = java.security.MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			System.out.println("MD5 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-		try {
-			md.update(s.getBytes("UTF-8") );
-			byte[] digest = md.digest();
-
-			// Create Hex String
-	        StringBuffer hexString = new StringBuffer();
-	        for (int i=0; i<digest.length; i++)
-	            hexString.append(Integer.toHexString(0xFF & digest[i]));
-	        return hexString.toString();
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("UTF-8 is dead!!");
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-	
-	private SolrInputDocument getSolrDocument( String heading, String headingSort,String headingType, String headingTypeDesc ) throws SolrServerException {
-
-		// calculate id for Solr document
-		String id = md5Checksum(headingSort + headingType + headingTypeDesc);
+	private void setUpDatabaseTypeLists() throws SQLException {
+		Statement stmt = connection.createStatement();
+		stmt.executeUpdate("DELETE FROM record_set");
 		
-		// first check for existing doc in memory
-		if (docs.containsKey(id))
-			return docs.get(id);
-		
-		// then check for existing doc in Solr
-		SolrQuery query = new SolrQuery();
-		query.setQuery("id:"+id);
-		SolrDocumentList resultDocs = null;
-		try {
-			QueryResponse qr = solr.query(query);
-			resultDocs = qr.getResults();
-		} catch (SolrServerException e) {
-			System.out.println("Failed to query Solr." + id);
-			System.exit(1);
-		}
-		SolrInputDocument inputDoc = null;
-		if (resultDocs != null) {
-			Iterator<SolrDocument> i = resultDocs.iterator();
-			while (i.hasNext()) {
-				SolrDocument doc = i.next();
-				doc.remove("_version_");
-				inputDoc = ClientUtils.toSolrInputDocument(doc);
-			}
+		PreparedStatement insertType = connection.prepareStatement("INSERT INTO record_set (id,name) VALUES (? , ?)");
+		for ( RecordSet rs : RecordSet.values()) {
+			insertType.setInt(1, rs.ordinal());
+			insertType.setString(2, rs.toString());
+			insertType.executeUpdate();
 		}
 		
-		// finally, create new doc if not found.
-		if (inputDoc == null) {
-			inputDoc = new SolrInputDocument();
-			inputDoc.addField("heading", heading);
-			inputDoc.addField("headingSort", headingSort);
-			inputDoc.addField("headingType", headingType);
-			inputDoc.addField("headingTypeDesc", headingTypeDesc);
-			inputDoc.addField("id", id);
+		stmt.executeUpdate("DELETE FROM type_desc");
+		PreparedStatement insertDesc = connection.prepareStatement("INSERT INTO type_desc (id,name) VALUES (? , ?)");
+		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
+			insertDesc.setInt(1, ht.ordinal());
+			insertDesc.setString(2, ht.toString());
+			insertDesc.executeUpdate();
 		}
-		return inputDoc;
+		
+		stmt.executeUpdate("DELETE FROM ref_type");
+		PreparedStatement insertRefType = connection.prepareStatement("INSERT INTO ref_type (id,name) VALUES (? , ?)");
+		for ( ReferenceType rt : ReferenceType.values()) {
+			insertRefType.setInt(1, rt.ordinal());
+			insertRefType.setString(2, rt.toString());
+			insertRefType.executeUpdate();
+		}
+
+		stmt.close();
+		insertType.close();
+		insertDesc.close();
+		insertRefType.close();
 	}
 
 	private void processRecords (XMLStreamReader r) throws Exception {
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("START_ELEMENT"))
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
-					createSolrDocsFromAuthority(rec);
+					createHeadingRecordsFromAuthority(rec);
 				}
 		}
 	}
-	
-	private void createSolrDocsFromAuthority( MarcRecord rec ) throws SolrServerException {
+
+	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException  {
 		String heading = null;
 		String headingSort = null;
-		String headingType = null;
-		String headingTypeDesc = null;
+		HeadTypeDesc htd = null;
+		RecordSet rs = null;
 		Collection<Relation> sees = new HashSet<Relation>();
 		Collection<Relation> seeAlsos = new HashSet<Relation>();
 		Collection<String> expectedNotes = new HashSet<String>();
 		Collection<String> foundNotes = new HashSet<String>();
 		Collection<String> notes = new HashSet<String>();
+		Map<String,Collection<String>> rdaData = new HashMap<String,Collection<String>>();
+		
+		Boolean isUndifferentiated = false;
 		
 		for (ControlField f : rec.control_fields.values()) {
 			if (f.tag.equals("008")) {
@@ -214,6 +160,9 @@ public class IndexAuthorityRecords {
 						expectedNotes.add("666");
 					else if (recordType.equals('c'))
 						expectedNotes.add("664");
+					Character undifferentiated = f.value.charAt(32);
+					if (undifferentiated.equals('b'))
+						isUndifferentiated = true;
 				}
 			}
 		}
@@ -221,58 +170,91 @@ public class IndexAuthorityRecords {
 		Iterator<DataField> i = rec.data_fields.values().iterator();
 		while (i.hasNext()) {
 			DataField f = i.next();
-			if (f.tag.startsWith("1")) {
+			if (f.tag.equals("010")) {
+				for (Subfield sf : f.subfields.values() ) 
+					if (sf.code.equals('a'))
+						if (sf.value.startsWith("sj")) {
+							// this is a Juvenile subject authority heading, which
+							// we will not represent in the headings browse.
+							System.out.println("Skipping Juvenile subject authority heading: "+rec.id);
+							return;
+						}
+			} else if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatValue("");
-				if (f.tag.equals("100") || f.tag.equals("110") || f.tag.equals("111")) {
-					headingType = "author";
-					Iterator<Subfield> j = f.subfields.values().iterator();
-					while (j.hasNext()) {
-						Subfield sf = j.next();
+				heading = f.concatenateSubfieldsOtherThanSpecified("");
+				switch (f.tag) {
+				case "100":
+				case "110":
+				case "111":
+					rs = RecordSet.NAME;
+					SF: for (Subfield sf : f.subfields.values() ) {
 						if (sf.code.equals('t')) {
-							headingType = "authortitle";
-							break;
+							rs = RecordSet.NAMETITLE;
+							break SF;
 						}
 					}
-					if (f.tag.equals("100")) {
-						headingTypeDesc = PERSNAME;
-					} else if (f.tag.equals("110")) {
-						headingTypeDesc = CORPNAME;
-					} else {
-						headingTypeDesc = EVENT;
-					}
-				}
-				if (f.tag.equals("130")) {
-					headingType = "authortitle";
-					headingTypeDesc = GENHEAD;
-				}
-				if (f.tag.equals("150")) {
-					headingType = "subject";
-					headingTypeDesc = TOPIC;
-				} else if (f.tag.equals("151")) {
-					headingType = "subject";
-					headingTypeDesc = GEONAME;
-				} else if (f.tag.equals("148")) {
-					headingType = "subject";
-					headingTypeDesc = CHRONTERM;
-				} else if (f.tag.equals("155")) {
-					headingType = "subject";
-					headingTypeDesc = GENRE;
-				} else if (f.tag.equals("162")) {
-					headingType = "subject";
-					headingTypeDesc = MEDIUM;
+					if (f.tag.equals("100"))
+						htd = HeadTypeDesc.PERSNAME;
+					else if (f.tag.equals("110"))
+						htd = HeadTypeDesc.CORPNAME;
+					else
+						htd = HeadTypeDesc.EVENT;
+					break;
+				case "130":
+					htd = HeadTypeDesc.GENHEAD;
+					rs = RecordSet.SUBJECT;
+					break;
+				case "148":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.CHRONTERM;
+					break;
+				case "150":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.TOPIC;
+					break;
+				case "151":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.GEONAME;
+					break;
+				case "155":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.GENRE;
+					break;
+				case "162":
+					rs = RecordSet.SUBJECT;
+					htd = HeadTypeDesc.MEDIUM;
 				}
 				// If the record is for a subdivision (main entry >=180),
 				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
-				notes.add("Search under: "+f.concatValue(""));
+				notes.add("Search under: "+f.concatenateSubfieldsOtherThanSpecified(""));
+			} else if (f.tag.startsWith("3")) {
+				String fieldName = null;
+
+				switch (f.tag) {
+				case "370": fieldName = "place";			break;
+				case "372": fieldName = "field";			break;
+				case "373": fieldName = "group_or_org";		break;
+				case "374": fieldName = "occupation";		break;
+				case "375": fieldName = "gender";			break;
+				case "380": fieldName = "form_of_work";		break;
+				case "382": fieldName = "perform_medium";
+				
+					if ( ! rdaData.containsKey(fieldName))
+						rdaData.put(fieldName, new HashSet<String>());
+					Collection<String> values = rdaData.get(fieldName);
+					for (Subfield sf : f.subfields.values())
+						if (sf.code.equals('a'))
+							values.add(sf.value);
+
+				}
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatValue("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
@@ -285,7 +267,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatValue("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
@@ -295,129 +277,164 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("664")) {
 				foundNotes.add("664");
 				if (expectedNotes.contains("664")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
 				}
 			} else if (f.tag.equals("665")) {
 				foundNotes.add("665");
 				if (expectedNotes.contains("665")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("666")) {
 				foundNotes.add("666");
 				if (expectedNotes.contains("666")) {
-					notes.add(f.concatValue(""));
+					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
 				} else {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
 		}
-		if (heading == null || headingType == null || headingTypeDesc == null) {
+		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
 			return;
 		}
 		headingSort = getSortHeading(heading);
-		
-		
-		SolrInputDocument main = getSolrDocument(heading, headingSort, headingType, headingTypeDesc);
-		main.addField("marcId",rec.id,1.0f);
-		//Never setting mainEntry to false, so if mainEntry is populated it's already true.
-		if ( ! main.containsKey("mainEntry")) 
-			main.addField("mainEntry", true, 1.0f);
+
+		// Populate Main Entry Heading Record
+		Integer heading_id = getMainHeadingRecordId(heading,headingSort,rs, htd);
 		for (String note : notes)
-			main.addField("notes",note,1.0f);
-		for (Relation r : sees )
-			if ( headingType.equals("subject") ||
-					(r.applicableContexts.contains(Applicable.NAME)))
-				main.addField("alternateForm",r.headingOrig,1.0f);
-		for (Relation r : seeAlsos)
-			if (r.reciprocalRelationship != null)
-				directRef("seeAlso",r,main);
-		fileDoc(main);
+			insertNote(heading_id, note);
 		
-		if (headingType.equals("author")) {
-			main = getSolrDocument(heading, headingSort, "subject", headingTypeDesc);
-			main.addField("marcId",rec.id,1.0f);
-			//Never setting mainEntry to false, so if mainEntry is populated it's already true.
-			if ( ! main.containsKey("mainEntry")) {
-				main.addField("mainEntry", true, 1.0f);
-				main.removeField("heading");
-				main.addField("heading", heading, 1.0f);
-			}
-			for (String note : notes)
-				main.addField("notes",note,1.0f);
+		// Populate alternate forms as direct references for see "from" tracings. 
+		// Records marked as undifferentiated will have see tracings that refer to different
+		// people. By not populating them here, we avoid cross populating them into bib records.
+		if ( ! isUndifferentiated ) 
 			for (Relation r : sees )
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					main.addField("alternateForm",r.headingOrig,1.0f);
-			for (Relation r : seeAlsos)
-				if (r.reciprocalRelationship != null)
-					directRef("seeAlso",r,main);
-			fileDoc(main);
-		}
-		
+				insertAltForm(heading_id, r.headingOrig);
+
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
 			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
-
+		
+		
+		// Populate incoming 4XX cross references
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			if (headingType.equals("author")) {
-				if (r.applicableContexts.contains(Applicable.NAME))
-					fileDoc(crossRef("preferedForm",r,heading,"author",r.headingTypeDesc,rec.id));
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					fileDoc(crossRef("preferedForm",r,heading,"subject",r.headingTypeDesc,rec.id));
-			} else {
-				fileDoc(crossRef("preferedForm",r,heading,headingType,r.headingTypeDesc,rec.id));
-			}
+			crossRef(heading_id,rs,r,ReferenceType.FROM4XX);
 		}
 		
 		for (Relation r: seeAlsos) {
+			// Populate incoming 5XX cross references
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			if (headingType.equals("author")) {
-				if (r.applicableContexts.contains(Applicable.NAME))
-					fileDoc(crossRef("seeAlso",r,heading,"author",r.headingTypeDesc,rec.id));
-				if (r.applicableContexts.contains(Applicable.SUBJECT))
-					fileDoc(crossRef("seeAlso",r,heading,"subject",r.headingTypeDesc,rec.id));
-			} else {
-				fileDoc(crossRef("seeAlso",r,heading,headingType,r.headingTypeDesc,rec.id));
-			}
+			crossRef(heading_id,rs,r,ReferenceType.FROM5XX);
+
+			// Where appropriate, populate outgoing 5XX cross references
+			if (r.reciprocalRelationship != null)
+				directRef(heading_id,rs,r,ReferenceType.TO5XX);
 		}
-		
+
+		if (rdaData.size() >= 1)
+			populateRdaInfo(heading_id, rdaData);
+
 		return;
 	}
-	
-	private void fileDoc( SolrInputDocument doc ) {
-		String id = doc.getFieldValue("id").toString();
-		docs.put(id, doc);
+
+
+	private void populateRdaInfo(Integer heading_id, Map<String,Collection<String>> rdaData) throws SQLException {
+		for (String rdaField : rdaData.keySet() ) {
+			PreparedStatement stmt = connection.prepareStatement(
+					"INSERT INTO rda_"+rdaField+" (heading_id, val) VALUES (?, ?)");
+			stmt.setInt(1, heading_id);
+			for ( String val: rdaData.get(rdaField) ) {
+				stmt.setString(2, val);
+				stmt.addBatch();
+			}
+			stmt.executeBatch();
+			stmt.close();
+		}
 	}
-	
-	private String getSortHeading(String heading) {
-		// Remove all punctuation will strip punctuation. We replace hyphens with spaces
-		// first so hyphenated words will sort as though the space were present.
-		String sortHeading = removeAllPunctuation(heading.
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "").
-				toLowerCase().
-				replaceAll("-", " "));
-		return sortHeading.trim();
+
+	private void insertAltForm(Integer heading_id, String form) throws SQLException {
+		PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO alt_form (heading_id, form) VALUES (?, ?)");
+		stmt.setInt(1, heading_id);
+		stmt.setString(2, form);
+		stmt.executeUpdate();
+		stmt.close();		
 	}
-	
+
+
+	private void insertNote(Integer heading_id, String note) throws SQLException {
+		PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO note (heading_id, note) VALUES (? , ?)");
+		stmt.setInt(1, heading_id);
+		stmt.setString(2, note);
+		stmt.executeUpdate();
+		stmt.close();
+	}
+
+	private Integer getMainHeadingRecordId(String heading, String headingSort,
+			RecordSet recordSet, HeadTypeDesc htd) throws SQLException {
+		PreparedStatement pstmt = connection.prepareStatement(
+				"SELECT id FROM heading " +
+				"WHERE record_set = ? AND type_desc = ? AND sort = ?");
+		pstmt.setInt(1, recordSet.ordinal());
+		pstmt.setInt(2, htd.ordinal());
+		pstmt.setString(3, headingSort);
+		ResultSet resultSet = pstmt.executeQuery();
+		Integer recordId = null;
+		while (resultSet.next()) {
+			recordId = resultSet.getInt("id");
+		}
+		pstmt.close();
+		if (recordId != null) {
+			// update sql record to make sure it's a main entry now; heading overrides
+			// possibly different heading form populated from xref
+			PreparedStatement pstmt1 = connection.prepareStatement(
+					"UPDATE heading SET main_entry = 1, heading = ? WHERE id = ?");
+			pstmt1.setString(1, heading); 
+			pstmt1.setInt(2, recordId);
+			pstmt1.executeUpdate();
+			pstmt1.close();
+		} else {
+			// create new record
+			PreparedStatement pstmt1 = connection.prepareStatement(
+					"INSERT INTO heading (heading, sort, record_set, type_desc, authority, main_entry) " +
+					"VALUES (?, ?, ?, ?, 1, 1)",
+                    Statement.RETURN_GENERATED_KEYS);
+			pstmt1.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
+			pstmt1.setString(2, headingSort);
+			pstmt1.setInt(3, recordSet.ordinal());
+			pstmt1.setInt(4, htd.ordinal());
+			int affectedCount = pstmt1.executeUpdate();
+			if (affectedCount < 1) 
+				throw new SQLException("Creating Heading Record Failed.");
+			ResultSet generatedKeys = pstmt1.getGeneratedKeys();
+			if (generatedKeys.next())
+				recordId = generatedKeys.getInt(1);
+			pstmt1.close();
+		}
+ 		
+		return recordId;
+	}
+
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
-		String heading = f.concatValue("iw");
+		String heading = f.concatenateSubfieldsOtherThanSpecified("iw");
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) return heading;
 		boolean upperCase = true;
@@ -434,27 +451,70 @@ public class IndexAuthorityRecords {
 
 	}
 	
-	private SolrInputDocument crossRef(String crossRefType, Relation r,
-			String heading, String headingType, String headingTypeDesc, String marcId) throws SolrServerException {
-		SolrInputDocument redir = getSolrDocument(r.heading,r.headingSort, headingType, headingTypeDesc);
-		if (r.relationship == null)
-			redir.addField(crossRefType, heading,1.0f);
-		else 
-			redir.addField(crossRefType, heading + "|" + r.relationship, 1.0f);
-		redir.addField("marcId",marcId,1.0f);
-		redir.addField("formTracings", getSortHeading(heading), 1.0f);
-		return redir;
-		
+	private void crossRef(Integer heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
+		int from_heading_id = getRelationshipHeadingId( r, rs );
+		insertRef(from_heading_id, heading_id, rt, r.relationship);
 	}
-	private void directRef(String crossRefType, Relation r,
-			SolrInputDocument doc) throws SolrServerException {
-		if (r.reciprocalRelationship == null)
-			doc.addField(crossRefType, r.heading,1.0f);
-		else 
-			doc.addField(crossRefType, r.heading + "|" + r.reciprocalRelationship, 1.0f);
-		doc.addField("formTracings", getSortHeading(r.heading), 1.0f);
+
+	private void directRef(int heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
+		int dest_heading_id = getRelationshipHeadingId( r, rs );
+		insertRef(heading_id, dest_heading_id, rt, r.reciprocalRelationship );
 	}
 	
+	private void insertRef(int from_id, int to_id,
+			ReferenceType rt, String relationshipDescription) throws SQLException {
+
+		PreparedStatement pstmt = connection.prepareStatement(
+				"INSERT INTO reference (from_heading, to_heading, ref_type, ref_desc)"
+				+ " VALUES (?, ?, ?, ?)");
+		pstmt.setInt(1, from_id);
+		pstmt.setInt(2, to_id);
+		pstmt.setInt(3, rt.ordinal());
+		if (relationshipDescription == null)
+			pstmt.setString(4, "");
+		else
+			pstmt.setString(4, relationshipDescription);
+		pstmt.executeUpdate();
+		pstmt.close();
+	}
+
+
+	private int getRelationshipHeadingId(Relation r, RecordSet recordSet ) throws SQLException {
+		PreparedStatement pstmt = connection.prepareStatement(
+				"SELECT id FROM heading " +
+				"WHERE record_set = ? AND type_desc = ? and sort = ?");
+		pstmt.setInt(1, recordSet.ordinal());
+		pstmt.setInt(2, r.headingTypeDesc.ordinal());
+		pstmt.setString(3, r.headingSort);
+		ResultSet resultSet = pstmt.executeQuery();
+		Integer recordId = null;
+		while (resultSet.next()) {
+			recordId = resultSet.getInt("id");
+		}
+		pstmt.close();
+		if (recordId == null) {
+			// create new record
+			PreparedStatement pstmt1 = connection.prepareStatement(
+					"INSERT INTO heading (heading, sort, record_set, type_desc, authority) " +
+					"VALUES (?, ?, ?, ?, 1)",
+                    Statement.RETURN_GENERATED_KEYS);
+			pstmt1.setString(1, r.heading);
+			pstmt1.setString(2, r.headingSort);
+			pstmt1.setInt(3, recordSet.ordinal());
+			pstmt1.setInt(4, r.headingTypeDesc.ordinal());
+			int affectedCount = pstmt1.executeUpdate();
+			if (affectedCount < 1) 
+				throw new SQLException("Creating Heading Record Failed.");
+			ResultSet generatedKeys = pstmt1.getGeneratedKeys();
+			if (generatedKeys.next())
+				recordId = generatedKeys.getInt(1);
+			pstmt1.close();
+		}
+ 		
+		return recordId;
+	}
+
+
 	private Relation determineRelationship( DataField f ) {
 		// Is there a subfield w? The relationship note in subfield w
 		// describes the 4XX or 5XX heading, and must be reversed for the
@@ -462,85 +522,91 @@ public class IndexAuthorityRecords {
 		Relation r = new Relation();
 		boolean hasW = false;
 		
-		if (f.tag.endsWith("00"))
-			r.headingTypeDesc = PERSNAME;
-		else if (f.tag.endsWith("10")) 
-			r.headingTypeDesc = CORPNAME;
-		else if (f.tag.endsWith("11"))
-			r.headingTypeDesc = EVENT;
-		else if (f.tag.endsWith("30"))
-			r.headingTypeDesc = GENHEAD;
-		else if (f.tag.endsWith("50"))
-			r.headingTypeDesc = TOPIC;
-		else if (f.tag.endsWith("48"))
-			r.headingTypeDesc = CHRONTERM;
-		else if (f.tag.endsWith("51"))
-			r.headingTypeDesc = GEONAME;
-		else if (f.tag.endsWith("55"))
-			r.headingTypeDesc = GENRE;
-		else if (f.tag.endsWith("62"))
-			r.headingTypeDesc = MEDIUM;
-		else return null;
+		switch( f.tag.substring(1) ) {
+		case "00":
+			r.headingTypeDesc = HeadTypeDesc.PERSNAME;	break;
+		case "10":
+			r.headingTypeDesc = HeadTypeDesc.CORPNAME;	break;
+		case "11":
+			r.headingTypeDesc = HeadTypeDesc.EVENT;		break;
+		case "30":
+			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
+		case "50":
+			r.headingTypeDesc = HeadTypeDesc.TOPIC;		break;
+		case "48":
+			r.headingTypeDesc = HeadTypeDesc.CHRONTERM;	break;
+		case "51":
+			r.headingTypeDesc = HeadTypeDesc.GEONAME;	break;
+		case "55":
+			r.headingTypeDesc = HeadTypeDesc.GENRE;		break;
+		case "62":
+			r.headingTypeDesc = HeadTypeDesc.MEDIUM;	break;
+		default: return null;
+		}
 		
 		
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('w')) {
 				hasW = true;
 				
-				if (sf.value.startsWith("a")) {
+				switch (sf.value.charAt(0)) {
+				case 'a':
 					//earlier heading
-					r.relationship = "Later Heading";
-				} else if (sf.value.startsWith("b")) {
+					r.relationship = "Later Heading";	break;
+				case 'b':
 					//later heading
-					r.relationship = "Earlier Heading";
-				} else if (sf.value.startsWith("d")) {
+					r.relationship = "Earlier Heading";	break;
+				case 'd':
 					//acronym
-					r.relationship = "Full Heading";
-				} else if (sf.value.startsWith("f")) {
+					r.relationship = "Full Heading";	break;
+				case 'f':
 					//musical composition
 					r.relationship = "Musical Composition Based on this Work";
-				} else if (sf.value.startsWith("g")) {
+														break;
+				case 'g':
 					//broader term
-					r.relationship = "Narrower Term";
-				} else if (sf.value.startsWith("h")) {
+					r.relationship = "Narrower Term";	break;
+				case 'h':
 					//narrower term
-					r.relationship = "Broader Term";
-				} else if (sf.value.startsWith("i")) {
-					// get relationship name from subfield i
-				} else if (sf.value.startsWith("r")) {
-					// get relationship name from subfield i
-					//  also something about subfield 4? Haven't seen one.
-				} else if (sf.value.startsWith("t")) {
+					r.relationship = "Broader Term";	break;
+				case 'i':	
+				case 'r':
+					// get relationship name from subfield i 
+					break;
+				case 't':
 					//parent body
 					r.relationship = "Parent Body";
 				}
 				
 				if (sf.value.length() >= 2) {
-					Character offset1 = sf.value.charAt(1);
-					if (offset1.equals('a')) {
-						r.applicableContexts.add(Applicable.NAME);
-					} else if (offset1.equals('b')) {
-						r.applicableContexts.add(Applicable.SUBJECT);
-					} else if (offset1.equals('c')) {
-						r.applicableContexts.add(Applicable.SERIES);
-					} else if (offset1.equals('d')) {
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SUBJECT);
-					} else if (offset1.equals('e')) {
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SERIES);
-					} else if (offset1.equals('f')) {
-						r.applicableContexts.add(Applicable.SUBJECT);
-						r.applicableContexts.add(Applicable.SERIES);
-					} else { // g (or other)
-						r.applicableContexts.add(Applicable.NAME);
-						r.applicableContexts.add(Applicable.SUBJECT);
-						r.applicableContexts.add(Applicable.SERIES);
+					switch (sf.value.charAt(1)) {
+					case 'a':
+						r.applicableContexts.add(RecordSet.NAME);		break;
+					case 'b':
+						r.applicableContexts.add(RecordSet.SUBJECT);	break;
+					case 'c':
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'd':
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SUBJECT);	break;
+					case 'e':
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'f':
+						r.applicableContexts.add(RecordSet.SUBJECT);
+						r.applicableContexts.add(RecordSet.SERIES);		break;
+					case 'g':
+					default:
+						r.applicableContexts.add(RecordSet.NAME);
+						r.applicableContexts.add(RecordSet.SUBJECT);
+						r.applicableContexts.add(RecordSet.SERIES);
+						// 'g' refers to all three contexts. Any other values will not
+						// be interpreted as limiting to applicable contexts.
 					}
 				} else {
-					r.applicableContexts.add(Applicable.NAME);
-					r.applicableContexts.add(Applicable.SUBJECT);
-					r.applicableContexts.add(Applicable.SERIES);
+					r.applicableContexts.add(RecordSet.NAME);
+					r.applicableContexts.add(RecordSet.SUBJECT);
+					r.applicableContexts.add(RecordSet.SERIES);
 				}
 				
 				if (sf.value.length() >= 3) {
@@ -551,55 +617,58 @@ public class IndexAuthorityRecords {
 				}
 				
 				if (sf.value.length() >= 4) {
-					Character offset3 = sf.value.charAt(3);
-					if (offset3.equals('a')) {
+					switch (sf.value.charAt(3)) {
+					case 'a':
+						r.display = false;			break;
+					case 'b':
 						r.display = false;
-					} else if (offset3.equals('b')) {
+						r.expectedNotes.add("664");	break;
+					case 'c':
 						r.display = false;
-						r.expectedNotes.add("664");
-					} else if (offset3.equals('c')) {
+						r.expectedNotes.add("663");	break;
+					case 'd':
 						r.display = false;
-						r.expectedNotes.add("663");
-					} else if (offset3.equals('d')) {
-						r.display = false;
-						r.expectedNotes.add("665");
+						r.expectedNotes.add("665");	break;
 					}
 				}
 			} else if (sf.code.equals('i')) {
-				String rel = removeTrailingPunctuation(sf.value,": ").trim();
-				if (rel.equalsIgnoreCase("alternate identity"))
-					r.relationship = "Real Identity";
-				else if (rel.equalsIgnoreCase("real identity"))
-					r.relationship = "Alternate Identity";
-				else if (rel.equalsIgnoreCase("family member"))
-					r.relationship = "Family";
-				else if (rel.equalsIgnoreCase("family"))
-					r.relationship = "Family Member";
-				else if (rel.equalsIgnoreCase("progenitor"))
-					r.relationship = "Descendants";
-				else if (rel.equalsIgnoreCase("descendants"))
-					r.relationship = "Progenitor";
-				else if (rel.equalsIgnoreCase("employee"))
-					r.relationship = "Employer";
-				else if (rel.equalsIgnoreCase("employer")) {
+				String rel = removeTrailingPunctuation(sf.value,": ").trim().toLowerCase();
+				switch (rel) {
+				case "alternate identity":
+					r.relationship = "Real Identity";		break;
+				case "real identity":
+					r.relationship = "Alternate Identity";	break;
+				case "family member":
+					r.relationship = "Family";				break;
+				case "family":
+					r.relationship = "Family Member";		break;
+				case "progenitor":
+					r.relationship = "Descendants";			break;
+				case "descendants":
+					r.relationship = "Progenitor";			break;
+				case "employee": 
+					r.relationship = "Employer";			break;
+				case "employer":
 					r.relationship = "Employee";
-					r.reciprocalRelationship = "Employer";
+					r.reciprocalRelationship = "Employer";	break;
+
 				// The reciprocal relationship to descendant family is missing
 				// from the RDA spec (appendix K), so it's unlikely that
 				// "Progenitive Family" will actually appear. Of the three
 				// adjective forms of "Progenitor" I found in the OED (progenital,
 				// progenitive, progenitorial), progenitive has the highest level
 				// of actual use according to my Google NGrams search
-				} else if (rel.equalsIgnoreCase("Descendant Family")) 
-					r.relationship = "Progenitive Family";
-				else if (rel.equalsIgnoreCase("Progenitive Family"))
+				case "descendant family": 
+					r.relationship = "Progenitive Family";	break;
+				case "progenitive family":
 					r.relationship = "Descendant Family";
+				}
 			}
 		}
 		if ( ! hasW ) {
-			r.applicableContexts.add(Applicable.NAME);
-			r.applicableContexts.add(Applicable.SUBJECT);
-			r.applicableContexts.add(Applicable.SERIES);
+			r.applicableContexts.add(RecordSet.NAME);
+			r.applicableContexts.add(RecordSet.SUBJECT);
+			r.applicableContexts.add(RecordSet.SERIES);
 		}
 		return r;
 	}
@@ -611,22 +680,26 @@ public class IndexAuthorityRecords {
 		public String headingOrig = null; // access to original heading before
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
-		public String headingTypeDesc = null;
-		public Collection<Applicable> applicableContexts = new HashSet<Applicable>();
+		public HeadTypeDesc headingTypeDesc = null;
+		public Collection<RecordSet> applicableContexts = new HashSet<RecordSet>();
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
 	}
-	private static enum Applicable {
-		NAME, SUBJECT, SERIES /*Not currently implementing series header browse*/
-	}
 
-	
-	private void insertDocuments() throws IOException, SolrServerException {
-		System.out.println("committing "+docs.size()+" records to Solr.");
-		solr.deleteById(new ArrayList<String>(docs.keySet()));
-		solr.add(docs.values());
-		solr.commit();
-		docs.clear();
+	public static enum ReferenceType {
+		TO4XX("alternateForm"),
+		FROM4XX("preferedForm"),
+		TO5XX("seeAlso"),
+		FROM5XX("seeAlso");
+		
+		private String string;
+		
+		private ReferenceType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
+		
 	}
 
 	
@@ -637,36 +710,46 @@ public class IndexAuthorityRecords {
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT")) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
 			}
 			if (event.equals("START_ELEMENT")) {
-				if (r.getLocalName().equals("leader")) {
+				String element = r.getLocalName();
+				switch (element) {
+				
+				case "leader":
 					rec.leader = r.getElementText();
-				} else if (r.getLocalName().equals("controlfield")) {
-					ControlField f = new ControlField();
-					f.id = ++id;
+					break;
+
+
+				case "controlfield":
+					ControlField cf = new ControlField();
+					cf.id = ++id;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							f.tag = r.getAttributeValue(i);
-					f.value = r.getElementText();
-					if (f.tag.equals("001"))
-						rec.id = f.value;
-					rec.control_fields.put(f.id, f);
-				} else if (r.getLocalName().equals("datafield")) {
-					DataField f = new DataField();
-					f.id = ++id;
+							cf.tag = r.getAttributeValue(i);
+					cf.value = r.getElementText();
+					if (cf.tag.equals("001"))
+						rec.id = cf.value;
+					rec.control_fields.put(cf.id, cf);
+					break;
+
+
+				case "datafield":
+					DataField df = new DataField();
+					df.id = ++id;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							f.tag = r.getAttributeValue(i);
+							df.tag = r.getAttributeValue(i);
 						else if (r.getAttributeLocalName(i).equals("ind1"))
-							f.ind1 = r.getAttributeValue(i).charAt(0);
+							df.ind1 = r.getAttributeValue(i).charAt(0);
 						else if (r.getAttributeLocalName(i).equals("ind2"))
-							f.ind2 = r.getAttributeValue(i).charAt(0);
-					f.subfields = processSubfields(r);
-					rec.data_fields.put(f.id, f);
+							df.ind2 = r.getAttributeValue(i).charAt(0);
+					df.subfields = processSubfields(r);
+					rec.data_fields.put(df.id, df); 
+					
 				}
 		
 			}
@@ -678,7 +761,7 @@ public class IndexAuthorityRecords {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
+			String event = getXMLEventTypeString(r.next());
 			if (event.equals("END_ELEMENT"))
 				if (r.getLocalName().equals("datafield"))
 					return fields;
@@ -695,136 +778,5 @@ public class IndexAuthorityRecords {
 		}
 		return fields; // We should never reach this line.
 	}
-
-
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	}
-
-	
-	static class MarcRecord {
-		
-		public String leader;
-		public Map<Integer,ControlField> control_fields 
-									= new HashMap<Integer,ControlField>();
-		public Map<Integer,DataField> data_fields
-									= new HashMap<Integer,DataField>();
-		public RecordType type;
-		public String id;
-		public String bib_id;
-		
-		public String toString( ) {
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append("000    "+this.leader+"\n");
-			int id = 0;
-			while( this.control_fields.containsKey(id+1) ) {
-				ControlField f = this.control_fields.get(++id);
-				sb.append(f.tag + "    " + f.value+"\n");
-			}
-
-			while( this.data_fields.containsKey(id+1) ) {
-				DataField f = this.data_fields.get(++id);
-				sb.append(f.toString());
-				sb.append("\n");
-			}
-			return sb.toString();
-		}
-
-	}
-	
-	static class ControlField {
-		
-		public int id;
-		public String tag;
-		public String value;
-	}
-	
-	static class DataField {
-		
-		public int id;
-		public String tag;
-		public Character ind1;
-		public Character ind2;
-		public Map<Integer,Subfield> subfields;
-
-		// Linked field number if field is 880
-		public String alttag;
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.tag);
-			sb.append(" ");
-			sb.append(this.ind1);
-			sb.append(this.ind2);
-			sb.append(" ");
-			int sf_id = 0;
-			while( this.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = this.subfields.get(++sf_id);
-				sb.append(sf.toString());
-				sb.append(" ");
-			}
-			return sb.toString();
-		}
-		public String concatValue(String excludes) {
-			StringBuilder sb = new StringBuilder();
-			int sf_id = 0;
-			while( this.subfields.containsKey(sf_id+1) ) {
-				Subfield sf = this.subfields.get(++sf_id);
-				if (excludes.contains(sf.code.toString())) continue;
-				sb.append(sf.value);
-				sb.append(" ");
-			}
-			return sb.toString().trim();			
-		}
-	}
-	
-	static class Subfield {
-		
-		public int id;
-		public Character code;
-		public String value;
-
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("\u2021");
-			sb.append(this.code);
-			sb.append(" ");
-			sb.append(this.value);
-			return sb.toString();
-		}
-	}
-	
-	static enum RecordType {
-		BIBLIOGRAPHIC, HOLDINGS, AUTHORITY
-	}
-	
 
 }

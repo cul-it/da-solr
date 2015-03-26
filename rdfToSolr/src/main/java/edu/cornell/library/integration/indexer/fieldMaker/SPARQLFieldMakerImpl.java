@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
 
 /**
@@ -64,7 +65,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	 */
 	@Override
 	protected Map<? extends String, ? extends SolrInputField> 
-		resultSetsToSolrFields( Map<String, ResultSet> results ) 
+		resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 		throws Exception {
 		
 		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
@@ -72,7 +73,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		if( resultSetToFields != null){
 			for( ResultSetToFields r2f : resultSetToFields ){
 				if( r2f != null ){					
-					Map<? extends String, ? extends SolrInputField> newFields =r2f.toFields( results ) ;
+					Map<? extends String, ? extends SolrInputField> newFields =r2f.toFields( results, config ) ;
 					if( newFields != null)
 						fields.putAll( newFields);
 				}

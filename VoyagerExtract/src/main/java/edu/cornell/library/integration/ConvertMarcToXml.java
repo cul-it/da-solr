@@ -1,22 +1,18 @@
 package edu.cornell.library.integration;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.service.CatalogService;
 
 public class ConvertMarcToXml {
    
@@ -24,142 +20,74 @@ public class ConvertMarcToXml {
    protected final Log logger = LogFactory.getLog(getClass()); 
 
    private DavService davService;
-   private CatalogService catalogService; 
-   
-
-   /**
-    * default constructor
-    */
-   public ConvertMarcToXml() { 
-       
-   }  
-   
-      
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
-
-   /**
-    * @return the catalogService
-    */
-   public CatalogService getCatalogService() {
-      return this.catalogService;
-   }
-
-   /**
-    * @param catalogService the catalogService to set
-    */
-   public void setCatalogService(CatalogService catalogService) {
-      this.catalogService = catalogService;
-   } 
-   
+ 
    /**
     * @param args
     */
    public static void main(String[] args) {
-     ConvertMarcToXml app = new ConvertMarcToXml();
-     if (args.length != 4 ) {
-        System.err.println("You must provide a src and destination Dir as arguments");
-        System.exit(-1);
-     }
-     String srcType = args[0];
-     String extractType = args[1];
-     String srcDir  = args[2]; 
-     String destDir  = args[3];
-     app.run(srcType, extractType, srcDir, destDir);
+	   try {
+		   new ConvertMarcToXml(args);
+	   } catch (IOException e) {
+		   e.printStackTrace();
+		   System.exit(1);
+	   }
    }
-   
 
    /**
-    * 
+    * default constructor
+ * @throws IOException 
     */
-   public void run(String srcType, String extractType, String srcDir, String destDir) {
-      
-      ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
-     
-      if (ctx.containsBean("catalogService")) {
-         setCatalogService((CatalogService) ctx.getBean("catalogService"));
-      } else {
-         System.err.println("Could not get catalogService");
-         System.exit(-1);
-      }
-
-      setDavService(DavServiceFactory.getDavService());
+   public ConvertMarcToXml(String[] args) throws IOException { 
+	   
+	   Collection<String> requiredFields = new HashSet<String>();
+	   requiredFields.add("marc2XmlDirs"); 
+	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
+	   davService = DavServiceFactory.getDavService(config);
+	   
+	   
+	   String[] dirs = null;
+	   try {
+		   dirs = config.getMarc2XmlDirs();
+	   } catch (IOException e) {
+		   e.printStackTrace();
+		   System.exit(1);
+	   }
+	   if (dirs == null) return;
+	   if (dirs.length % 2 != 0) { 
+		   System.out.println("marc2XmlDirs must be configured with an even number of paths in src/dest pairs.");
+		   return;
+	   }
+	   for (int i = 0; i < dirs.length; i += 2) {
+		   convertDir(dirs[i], dirs[i+1]);
+	   }
+   }
+	   
+   private void convertDir( String srcDir, String destDir) throws IOException {
       
       // get list of daily mrc files
       List<String> srcList = new ArrayList<String>();
-      try {
-         //System.out.println("Getting list of marc files");
-         srcList = davService.getFileList(srcDir);
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
+      //System.out.println("Getting list of marc files");
+      srcList = davService.getFileList(srcDir);
       MrcToXmlConverter converter = new MrcToXmlConverter();
-      converter.setSrcType(srcType);
-      converter.setExtractType(extractType);
-      if (extractType.equals("updates")) {
-         converter.setSplitSize(0);          
-      } else {
-         converter.setSplitSize(10000);
-      }
       converter.setDestDir(destDir);
+      
+      
       // iterate over mrc files
+      int totalRecordCount = 0;
       if (srcList.size() == 0) {
          System.out.println("No Marc files available to process");
       } else {
          for (String srcFile  : srcList) {
             System.out.println("Converting mrc file: "+ srcFile);
    			try {
-   				converter.convertMrcToXml(davService, srcDir, srcFile);
+   				totalRecordCount += converter.convertMrcToXml(davService, srcDir, srcFile).size();
    			} catch (Exception e) {
-   			   try {
-                  System.out.println("Exception thrown. Could not convert file: "+ srcFile);
-                  e.printStackTrace();
-               } catch (Exception e1) { 
-                  e1.printStackTrace();
-               } 
+   				System.out.println("Exception thrown. Could not convert file: "+ srcFile);
+   				e.printStackTrace();
    			}
    		}
       }
+      System.out.println("\nTotal record count for "+srcDir+": "+totalRecordCount);
       
    }
-   
-    
-   
-   /**
-    * @param str
-    * @return
-    * @throws UnsupportedEncodingException
-    */
-   protected  InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
-      return new ByteArrayInputStream(bytes);   
-   }
-      
-   
-   /**
-    * @return
-    */
-   protected String getDateString() {
-	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	   Calendar now = Calendar.getInstance();
-	   Calendar earlier = now;
-	   earlier.add(Calendar.HOUR, -3);
-	   String ds = df.format(earlier.getTime());
-	   return ds;
-   }
-   
-   
-    
 }

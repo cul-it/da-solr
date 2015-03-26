@@ -15,6 +15,8 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+
 /**
  * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
  * detected through a 948‡h note. Blacklight searches will be filtered to type:Catalog,
@@ -27,7 +29,7 @@ public class RecordTypeRSTF implements ResultSetToFields {
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.

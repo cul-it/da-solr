@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,7 +11,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /** Evaluate populated fields for conditions of membership for any collections.
  * (Currently only "Law Library".)
@@ -22,8 +21,8 @@ public class Collections implements DocumentPostProcess{
 	final static Boolean debug = false;
 	
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection conn) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 
 		Collection<String> loccodes = new HashSet<String>();
 		Collection<String> lc_alphas = new HashSet<String>();

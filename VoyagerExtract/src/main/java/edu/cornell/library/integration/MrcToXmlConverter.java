@@ -42,9 +42,6 @@ import edu.cornell.library.integration.util.ConvertUtils;
  * 
  */
 public class MrcToXmlConverter {
-        
-    
-    private  String controlNumberOfLastReadRecord = null;
     
     private String convertEncoding = null;
     
@@ -52,16 +49,7 @@ public class MrcToXmlConverter {
     private  boolean normalize = true;
     
     /** split output file into this many records. Set to 0 for no splits. */
-    private int splitSize = 10000;
-    
-    /** holds a bibid, mfid, or other unique id for single or updates conversions */
-    private String itemId = "";
-        
-    /** the type of marc21 records, typically bib or mfhd */
-    private String srcType;
-    
-    /** the type of extract: full, daily, or updates*/
-    private String extractType;
+    private int splitSize = 0;
     
     /** destination DAV directory to save XML */
     private String destDir;
@@ -82,80 +70,10 @@ public class MrcToXmlConverter {
     }
 
     /**
-     * @return
-     */
-    public int getSplitSize() {
-       return this.splitSize;
-    }
-
-    /**
-     * @param splitSize
-     */
-    public void setSplitSize(int splitSize) {
-       this.splitSize = splitSize;
-    } 
-    
-    /**
-     * @return the convertEncoding
-     */
-    public String getConvertEncoding() {
-       return this.convertEncoding;
-    }
-
-    /**
      * @param convertEncoding the convertEncoding to set
      */
     public void setConvertEncoding(String convertEncoding) {
        this.convertEncoding = convertEncoding;
-    }
-    
-    /**
-     * @return the itemId
-     */
-    public String getItemId() {
-       return this.itemId;
-    }
-
-    /**
-     * @param itemId the itemId to set
-     */
-    public void setItemId(String itemId) {
-       this.itemId = itemId;
-    }
-
-    /**
-     * @return the srcType
-     */
-    public String getSrcType() {
-       return this.srcType;
-    }
-
-    /**
-     * @param srcType the srcType to set
-     */
-    public void setSrcType(String srcType) {
-       this.srcType = srcType;
-    }
-
-    /**
-     * @return the extractType
-     */
-    public String getExtractType() {
-       return this.extractType;
-    }
-
-    /**
-     * @param extractType the extractType to set
-     */
-    public void setExtractType(String extractType) {
-       this.extractType = extractType;
-    }
-
-    /**
-     * @return the destDir
-     */
-    public String getDestDir() {
-       return this.destDir;
     }
 
     /**
@@ -163,14 +81,6 @@ public class MrcToXmlConverter {
      */
     public void setDestDir(String destDir) {
        this.destDir = destDir;
-    }
-
-    public String getControlNumberOfLastReadRecord() {
-       return this.controlNumberOfLastReadRecord;
-    }
-    
-    public void setControlNumberOfLastReadRecord(String controlNumberOfLastReadRecord) {
-        this.controlNumberOfLastReadRecord = controlNumberOfLastReadRecord;
     }
     
     /**
@@ -221,8 +131,7 @@ public class MrcToXmlConverter {
              counter++; 
              total++;
              String controlNum = record.getControlNumber();
-             setControlNumberOfLastReadRecord(controlNum);
-             if (MARC_8_ENCODING.equals(getConvertEncoding())) {
+             if (MARC_8_ENCODING.equals(convertEncoding)) {
                 record.getLeader().setCharCodingScheme('a');
              }
              
@@ -242,7 +151,7 @@ public class MrcToXmlConverter {
              }
              
              // check to see if we need to write out a batch of records
-             if (getSplitSize() > 0 && counter >= getSplitSize()) {               
+             if (splitSize > 0 && counter >= splitSize) {               
                 
                 try {
                    if (writer != null) writer.close();                   
@@ -287,13 +196,11 @@ public class MrcToXmlConverter {
     
     // this method figures out what the output file name should be
     private String getOutputFileName(int batch) {
-       
-       if (getExtractType().equals("updates") || getExtractType().equals("single")) {
+    	if (splitSize == 0) {
     	   return fileNameRoot + ".xml";
-       } else if (getExtractType().equals("full") || getExtractType().equals("daily")) {
+       } else {
     	   return fileNameRoot + "." + batch + ".xml";
        }
-       return null;
     } 
     
     /**
@@ -310,7 +217,7 @@ public class MrcToXmlConverter {
        //writer.setIndent(doIndentXml);
        //writer.setCreateXml11(createXml11);
        
-       writer.setConverter( setConverter( getConvertEncoding() ));
+       writer.setConverter( setConverter( convertEncoding ));
        
        if (normalize == true) {
           writer.setUnicodeNormalization(true);

@@ -19,6 +19,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * Index all the files in a given WEBDAV directory. It is intended as a simple way to 
@@ -61,8 +62,13 @@ public class IndexDirectory {
      * This could be used to get results about how each
      * record was processed.  
      */
-    MockRecordWriter recordWriter;     
+    MockRecordWriter recordWriter;   
+    
+    SolrBuildConfig config;
 
+    public void setSolrBuildConfig( SolrBuildConfig conf ) {
+    	config = conf;
+    }
     
  	public String getDavUser() {
         return davUser;
@@ -131,13 +137,18 @@ public class IndexDirectory {
             indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
                     recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
         
-        context.getConfiguration().set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
-        context.getConfiguration().set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
-        context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
-        context.getConfiguration().set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
+        Configuration hadoopConfig = context.getConfiguration();
+        hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
+        hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
+        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
+        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
+        
+       	if (config != null) {
+       		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
+       	}
 
         if( tmpDir != null )
-            context.getConfiguration().set( BibFileToSolr.TMP_DIR, tmpDir);
+            hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
 
         indexingMapper.setup(context);
 

@@ -1,12 +1,10 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * Enforce that a field is not multi-valued.
@@ -31,8 +29,8 @@ public class SingleValueField implements DocumentPostProcess {
 	}
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 		
 		if (! document.containsKey(fieldName)) {
 			return;

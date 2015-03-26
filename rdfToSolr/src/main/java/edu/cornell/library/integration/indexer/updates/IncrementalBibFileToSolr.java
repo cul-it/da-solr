@@ -11,7 +11,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.IndexDirectory;
@@ -29,7 +29,7 @@ public class IncrementalBibFileToSolr {
     
     public static void main(String[] argv) throws Exception{
         
-        VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration.loadConfig(argv);
+        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv);
                                      
         /* Figure out the name of the most recent BIB MARC NT file. */
         List<String> filesToIndex;
@@ -64,7 +64,8 @@ public class IncrementalBibFileToSolr {
 	            indexer.setTmpDir( config.getTmpDir() );
 	            indexer.setDavUser(config.getWebdavUser());
 	            indexer.setDavPass(config.getWebdavPassword());
-	            indexer.setSolrURL(config.getSolrUrl());     
+	            indexer.setSolrURL(config.getSolrUrl());
+	            indexer.setSolrBuildConfig(config);
 	            
 	            indexer.setInputsURL( fileToIndex );
 	

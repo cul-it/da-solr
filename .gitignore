@@ -22,6 +22,7 @@ rdf/*.nt
 *.DS_Store
 *.swp
 *.out
+*.properties
 
 ## tdbIndex created by DataIndexer app
 tdbIndex/

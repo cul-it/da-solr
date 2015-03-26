@@ -20,11 +20,11 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 
 /**
@@ -145,8 +145,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
-			String recordURI, RDFService mainStore,
-			RDFService localStore) throws Exception {
+			String recordURI, SolrBuildConfig config) throws Exception {
 		//need to setup query once the recordURI is known
 		//subfield values filtered to only the ones requested
 		StringBuilder sb = new StringBuilder();
@@ -176,14 +175,14 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			.addMainStoreQuery(queryKey, sb.toString())			
 			.addResultSetToFields(new SubfieldsRStoFields());
 		
-		return impl.buildFields(recordURI, mainStore, localStore);		
+		return impl.buildFields(recordURI, config);		
 	}
 
 	private class SubfieldsRStoFields implements ResultSetToFields{
 
 		@Override
 		public Map<? extends String, ? extends SolrInputField> toFields(
-				Map<String, ResultSet> results) throws Exception {
+				Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 			if( results == null || results.get(queryKey) == null )
 				throw new Exception( getName() + " did not get any result sets");
 				
@@ -383,7 +382,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		}
 
 		private String concatenateSubfields( DataField f ) {
-			String value = f.concateSubfieldsOtherThan6();
+			String value = f.concatenateSubfieldsOtherThanSpecified("6");
 			if (unwantedChars != null) {
 				return removeTrailingPunctuation(value,unwantedChars);
 			} else {

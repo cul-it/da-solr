@@ -1,11 +1,9 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.sql.Connection;
-
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * If a record isn't marked as an online resource, the any urls in that records that
@@ -14,8 +12,8 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 public class NoAccessUrlsUnlessOnline implements DocumentPostProcess {
 
 	@Override
-	public void p(String recordURI, RDFService mainStore,
-			RDFService localStore, SolrInputDocument document, Connection voyager) throws Exception {
+	public void p(String recordURI, SolrBuildConfig config,
+			SolrInputDocument document) throws Exception {
 
 		final String accessField = "url_access_display";
 		final String otherField = "url_other_display";

@@ -3,7 +3,7 @@ package edu.cornell.library.integration;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.VoyagerToSolrConfiguration;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 /**
@@ -26,14 +26,14 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
 
     public static void main(String[] args) throws Exception {
         
-        VoyagerToSolrConfiguration config = VoyagerToSolrConfiguration
+        SolrBuildConfig config = SolrBuildConfig
                 .loadConfig(args);
 
         ConvertMfhdUpdatesToXml app = new ConvertMfhdUpdatesToXml();        
         app.run( config );
     }
 
-    public void run(VoyagerToSolrConfiguration config) throws Exception {
+    public void run(SolrBuildConfig config) throws Exception {
         setDavService(DavServiceFactory.getDavService(config));                
         
         String srcDir = config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir();
@@ -51,9 +51,6 @@ public class ConvertMfhdUpdatesToXml extends VoyagerToSolrStep {
         }
         
         MrcToXmlConverter converter = new MrcToXmlConverter();
-        converter.setSrcType("mfhd");
-        converter.setExtractType("updates");
-        converter.setSplitSize(0);
         converter.setDestDir( destDir );
         converter.setTmpDir( config.getTmpDir() );
                 

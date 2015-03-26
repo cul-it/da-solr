@@ -17,7 +17,7 @@ public class SPARQLFieldMakerBaseTest {
 
     @Test
     public void testEmptyMaker() throws Exception{
-    	fMaker.buildFields("bogus", null, null);
+    	fMaker.buildFields("bogus", null);
     }
 
     @Parameterized.Parameters

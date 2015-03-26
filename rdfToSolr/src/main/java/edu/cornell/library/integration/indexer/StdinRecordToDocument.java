@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -13,7 +11,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.sparql.RDFServiceSparqlHttp;
@@ -51,15 +49,17 @@ public class StdinRecordToDocument extends CommandBase {
 		}
 		
 		try{	
+			SolrBuildConfig config = new SolrBuildConfig();
+			config.loadConfig(args);
+
 			int count =0;
 			BufferedReader in = new BufferedReader(new InputStreamReader( System.in ));
-			Connection voyager = BibFileIndexingMapper.openConnection();
 			String recordURI = in.readLine();
 			while(  recordURI != null ){
 				
 				System.err.println(recordURI);
 				try{
-					addToIndex( solrServer, r2d.buildDoc(recordURI, rdfService, voyager) );
+					addToIndex( solrServer, r2d.buildDoc(recordURI, config) );
 				}catch(Exception ex){
 					System.out.println("exception while working on " + recordURI + "\n" + ex.getMessage());
 					ex.printStackTrace(System.out);
@@ -70,10 +70,6 @@ public class StdinRecordToDocument extends CommandBase {
 				
 				recordURI = in.readLine();
 			}
-			try {
-				voyager.close();
-			}
-			catch (SQLException SQLEx) { /* ignore */ }
 			
 			solrServer.commit();
 		}catch(Exception ex){
