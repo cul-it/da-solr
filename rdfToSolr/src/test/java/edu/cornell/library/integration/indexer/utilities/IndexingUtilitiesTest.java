@@ -1,9 +1,9 @@
 package edu.cornell.library.integration.indexer.utilities;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
-import static junit.framework.Assert.assertTrue;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -31,6 +31,9 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
 				equals("abbasah ukht al rashid aww nakbat al baramikah"));
+		assertTrue(getSortHeading("’Abd al-Rraḥmān al-Kawākibī").
+				equals("abd al rrahman al kawakibi"));
+		assertTrue(getSortHeading(" ⁻Adh⁻i b⁻at : ḍr⁻ame").equals("adhi bat drame"));
 	}
 	
 }
