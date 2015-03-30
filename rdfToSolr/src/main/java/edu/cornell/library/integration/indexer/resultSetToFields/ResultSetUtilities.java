@@ -2,8 +2,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -20,12 +18,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * These are intended as publicly usable code.
  */
 public class ResultSetUtilities {
-	
-//	public static String RLE = "RLE"; //\u202b - Begin Right-to-left Embedding
-//	public static String PDF = "PDF"; //\u202c - Pop(End) Directional Formatting
-	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
-	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
-
 	
 	public static String nodeToString(RDFNode node){
 		if( node == null )
@@ -66,22 +58,6 @@ public class ResultSetUtilities {
 			fields.put(fieldName,field);
 		}
 		field.addValue(value,1.0f);				
-	}
-	
-	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
-		if (s == null) return null;
-		if (unwantedChars == null) return s;
-		if (s.equals("")) return s;
-		if (unwantedChars.equals("")) return s;
-		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
-		Matcher m = p.matcher(s);
-		return m.replaceAll("$1");
-	}
-	
-	public static String removeAllPunctuation( String s ) {
-		if (s == null) return null;
-		if (s.equals("")) return s;
-		return s.replaceAll("[\\p{Punct}¿¡「」‘]","");
 	}
 		
 	/** 
@@ -147,7 +123,7 @@ public class ResultSetUtilities {
 	}
 			
 		
-	/** Gets the var names for a QuerySolution seperated by spaces. */
+	/** Gets the var names for a QuerySolution separated by spaces. */
 	protected static String getVarNames( QuerySolution qs){
 		Iterator<String> it = qs.varNames();
 		String names = "";

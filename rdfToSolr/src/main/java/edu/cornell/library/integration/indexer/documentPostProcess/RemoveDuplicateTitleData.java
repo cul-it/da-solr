@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.RLE_openRTL;
 
 import java.util.Collection;
 import java.util.HashSet;

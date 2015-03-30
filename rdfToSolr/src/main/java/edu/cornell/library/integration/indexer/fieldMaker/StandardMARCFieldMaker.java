@@ -4,9 +4,9 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.RLE_openRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.PDF_closeRTL;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.RLE_openRTL;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collections;

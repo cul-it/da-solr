@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.utilities;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.removeAllPunctuation;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +16,7 @@ import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -35,6 +34,12 @@ import org.apache.commons.io.FileUtils;
 
 public class IndexingUtilities {
 	
+//	public static String RLE = "RLE"; //\u202b - Begin Right-to-left Embedding
+//	public static String PDF = "PDF"; //\u202c - Pop(End) Directional Formatting
+	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
+
+
 	public static void optimizeIndex( String solrCoreURL ) {
 		System.out.println("Optimizing index at: "+solrCoreURL+". This may take a while...");
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -146,6 +151,23 @@ public class IndexingUtilities {
 		
 		// Finally, collapse sequences of spaces into single spaces:
 		return sortHeading.trim().replaceAll("\\s+", " ");
+	}
+
+	
+	public static String removeAllPunctuation( String s ) {
+		if (s == null) return null;
+		if (s.equals("")) return s;
+		return s.replaceAll("[\\p{Punct}¿¡「」‘]","");
+	}
+	
+	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
+		if (s == null) return null;
+		if (unwantedChars == null) return s;
+		if (s.equals("")) return s;
+		if (unwantedChars.equals("")) return s;
+		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
+		Matcher m = p.matcher(s);
+		return m.replaceAll("$1");
 	}
 
 	/**
