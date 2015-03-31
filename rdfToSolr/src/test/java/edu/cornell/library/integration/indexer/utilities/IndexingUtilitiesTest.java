@@ -21,7 +21,7 @@ public class IndexingUtilitiesTest {
 	
 	@Test
 	public void getSortHeadingTest() {
-		assertTrue(getSortHeading("hello").equals("hello"));
+	assertTrue(getSortHeading("hello").equals("hello"));
 		assertTrue(getSortHeading("Hello").equals("hello"));
 		assertTrue(getSortHeading("Hello,").equals("hello"));
 		assertTrue(getSortHeading("  hello ").equals("hello"));
@@ -41,6 +41,10 @@ public class IndexingUtilitiesTest {
 				equals("0 de boll weevil convention new orleans nov"));
 		assertTrue(getSortHeading("°Cómo funciona el Mercado de Seguros Médicos?").
 				equals("como funciona el mercado de seguros medicos"));
+		assertTrue(getSortHeading("σ and π Electrons in Organic Compounds").
+				equals("sigma and pi electrons in organic compounds"));
+		assertTrue(getSortHeading("α- and β- modifications of benzene hexabromid").
+				equals("alpha and beta modifications of benzene hexabromid"));
 	}
 	
 }

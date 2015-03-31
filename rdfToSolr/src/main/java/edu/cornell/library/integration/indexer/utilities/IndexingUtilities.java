@@ -147,7 +147,7 @@ public class IndexingUtilities {
 		 * enforce sorting above an equivalent value without the ">".
 		 */
 		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa");
-		String sortHeading = removeAllPunctuation(step2);
+		String sortHeading = replaceGreekLettersWithNames(removeAllPunctuation(step2));
 		
 		// Finally, collapse sequences of spaces into single spaces:
 		return sortHeading.trim().replaceAll("\\s+", " ");
@@ -168,6 +168,46 @@ public class IndexingUtilities {
 		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
 		Matcher m = p.matcher(s);
 		return m.replaceAll("$1");
+	}
+	
+	/* This method only looks for lowercase greek letters without diacritics.
+	 * Running against decomposed Unicode will find and replace the letters while
+	 * leaving the diacritics around.
+	 */
+	public static String replaceGreekLettersWithNames ( String s ) {
+		if (s == null) return null;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			switch (c) {
+			case 'α': sb.append("alpha"); break;
+			case 'β': sb.append("beta"); break;
+			case 'γ': sb.append("gamma"); break;
+			case 'δ': sb.append("delta"); break;
+			case 'ε': sb.append("epsilon"); break;
+			case 'ζ': sb.append("zeta"); break;
+			case 'η': sb.append("eta"); break;
+			case 'ι': sb.append("iota"); break;
+			case 'κ': sb.append("zappa"); break;
+			case 'λ': sb.append("lamda"); break;
+			case 'μ': sb.append("mu"); break;
+			case 'ν': sb.append("nu"); break;
+			case 'ξ': sb.append("xi"); break;
+			case 'ο': sb.append("omicron"); break;
+			case 'π': sb.append("pi"); break;
+			case 'ρ': sb.append("rho"); break;
+			case 'ς':
+			case 'σ': sb.append("sigma"); break;
+			case 'τ': sb.append("tau"); break;
+			case 'υ': sb.append("upsilon"); break;
+			case 'φ': sb.append("phi"); break;
+			case 'χ': sb.append("chi"); break;
+			case 'ψ': sb.append("psi"); break;
+			case 'ω': sb.append("omega"); break;
+			default:  sb.append(c);
+			}
+ 		}
+		return sb.toString();
 	}
 
 	/**
