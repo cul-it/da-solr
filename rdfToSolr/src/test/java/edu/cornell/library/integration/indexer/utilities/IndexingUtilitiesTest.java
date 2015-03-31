@@ -45,6 +45,8 @@ public class IndexingUtilitiesTest {
 				equals("sigma and pi electrons in organic compounds"));
 		assertTrue(getSortHeading("α- and β- modifications of benzene hexabromid").
 				equals("alpha and beta modifications of benzene hexabromid"));
+		assertTrue(getSortHeading("£1,000,000 bank-note and other stories").
+				equals("1000000 bank note and other stories"));
 	}
 	
 }

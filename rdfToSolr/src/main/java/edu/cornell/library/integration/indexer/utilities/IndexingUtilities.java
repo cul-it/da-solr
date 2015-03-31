@@ -144,9 +144,10 @@ public class IndexingUtilities {
 		 * first so hyphenated words will sort as though the space were present.
 		 * Greater-than (>) is a semantically important value in a subject heading,
 		 * so rather than remove it, we will replace it with an alphabetic value that will
-		 * enforce sorting above an equivalent value without the ">".
+		 * enforce sorting above an equivalent value without the ">". © isn't used heavily
+		 * in headings, but seems to generally replace the letter 'c' when it does.
 		 */
-		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa");
+		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa").replaceAll("©","c");
 		String sortHeading = replaceGreekLettersWithNames(removeAllPunctuation(step2));
 		
 		// Finally, collapse sequences of spaces into single spaces:
@@ -156,8 +157,8 @@ public class IndexingUtilities {
 	
 	public static String removeAllPunctuation( String s ) {
 		if (s == null) return null;
-		if (s.equals("")) return s;
-		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°]","");
+		if (s.isEmpty()) return s;
+		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°£]","");
 	}
 	
 	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
