@@ -25,8 +25,10 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("Hello").equals("hello"));
 		assertTrue(getSortHeading("Hello,").equals("hello"));
 		assertTrue(getSortHeading("  hello ").equals("hello"));
-		assertFalse(getSortHeading("hello").equals("goodbye"));
 		assertTrue(getSortHeading("héllo!").equals("hello"));
+		assertTrue(getSortHeading("-- :::hello::: --").equals("hello"));
+		assertFalse(getSortHeading("hello").equals("goodbye"));
+		assertTrue(getSortHeading("hello- -- hello").equals("hello hello"));
 		assertTrue(getSortHeading("Hello > hello").equals("hello aaa hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
@@ -34,6 +36,11 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("’Abd al-Rraḥmān al-Kawākibī").
 				equals("abd al rrahman al kawakibi"));
 		assertTrue(getSortHeading(" ⁻Adh⁻i b⁻at : ḍr⁻ame").equals("adhi bat drame"));
+		assertTrue(getSortHeading("⁻Ac⁻arya, Pushpalat⁻a").equals("acarya pushpalata"));
+		assertTrue(getSortHeading("-0-De, Boll Weevil Convention. New Orleans. Nov.").
+				equals("0 de boll weevil convention new orleans nov"));
+		assertTrue(getSortHeading("°Cómo funciona el Mercado de Seguros Médicos?").
+				equals("como funciona el mercado de seguros medicos"));
 	}
 	
 }
