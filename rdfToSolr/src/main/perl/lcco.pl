@@ -68,7 +68,7 @@ sub process_line {
         $leftnumbers = $2;
         undef $right;
     } else {
-        print "$left todo\n";
+        print "$left todo $line\n";
         ################
         return;
     }
@@ -83,7 +83,7 @@ sub process_line {
             $rightletters = $leftletters;
             $rightnumbers = $right;
         } else {
-            print "$right todo\n";
+            print "$right todo $line\n";
             ##############
             return;
         }
