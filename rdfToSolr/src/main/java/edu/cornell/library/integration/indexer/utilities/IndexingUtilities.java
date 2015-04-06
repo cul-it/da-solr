@@ -147,7 +147,10 @@ public class IndexingUtilities {
 		 * enforce sorting above an equivalent value without the ">". © isn't used heavily
 		 * in headings, but seems to generally replace the letter 'c' when it does.
 		 */
-		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa").replaceAll("©","c");
+		String step2 = step1.toLowerCase().replaceAll("-", " ").
+				replaceAll(">", "aaa").replaceAll("©","c");
+//				replaceAll("\\$(?!\\s*[0-9])", "dollar").
+//				replaceAll("£(?!\\s*[E0-9])", "pound");
 		String sortHeading = replaceGreekLettersWithNames(removeAllPunctuation(step2));
 		
 		// Finally, collapse sequences of spaces into single spaces:

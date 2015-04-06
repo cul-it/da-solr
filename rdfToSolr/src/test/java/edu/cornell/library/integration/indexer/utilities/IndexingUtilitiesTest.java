@@ -47,6 +47,8 @@ public class IndexingUtilitiesTest {
 				equals("alpha and beta modifications of benzene hexabromid"));
 		assertTrue(getSortHeading("£1,000,000 bank-note and other stories").
 				equals("1000000 bank note and other stories"));
+//		assertTrue(getSortHeading("£ & the $; or, Gold debts & taxes").
+//				equals("pound the dollar or gold debts taxes"));
 	}
 	
 }

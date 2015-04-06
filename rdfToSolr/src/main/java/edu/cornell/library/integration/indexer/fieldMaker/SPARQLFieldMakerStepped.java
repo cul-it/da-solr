@@ -73,7 +73,7 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 		
 		for( ResultSetToFieldsStepped r2f : resultSetToFieldsStepped ){
 			
-			FieldMakerStep step =  r2f.toFields( results );
+			FieldMakerStep step =  r2f.toFields( results, config );
 			if (step.getFields() != null)
 				fields.putAll(step.getFields());
 			mainStoreQueries.putAll(step.getMainStoreQueries());			
