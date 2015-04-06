@@ -52,43 +52,48 @@ sub process_line {
     my $line = shift;
     my ($field, $value) = split /\s+/, $line, 2;
     $value =~ s/^- //;
+    $value =~ s/\s*$//;
     $field =~ s/[\(\)]//g;
     my ($left, $right) = split /-/, $field, 2;
     my ($leftletters, $rightletters, $leftnumbers, $rightnumbers);
     $rightnumbers = 0;
     if ($left =~ /^[A-Z]+$/) {
-	$leftletters = $left;
-	$leftnumbers = 0;
+        $leftletters = $left;
+        $leftnumbers = 0;
     } elsif ($left =~ /^([A-Z]{1,3})([0-9\.]+)$/) {
-	$leftletters = $1;
-	$leftnumbers = $2;
+        $leftletters = $1;
+        $leftnumbers = $2;
+    } elsif ($left =~ /^([A-Z]{1,3})([0-9\.]+)\.?A$/ and $right == 'Z') {
+        $leftletters = $1;
+        $leftnumbers = $2;
+        undef $right;
     } else {
-	print "$left todo\n";
-	################
-	return;
+        print "$left todo\n";
+        ################
+        return;
     }
     if (defined $right) {
-	if ($right =~ /^[A-Z]+$/) {
-	    $rightletters = $right;
-	    $rightnumbers = OTHER_MAX;
-	} elsif ($right =~ /^([A-Z]{1,3})([0-9\.]+)$/) {
-	    $rightletters = $1;
-	    $rightnumbers = $2;
-	} elsif ($right =~ /^[0-9\.]+$/) {
-	    $rightletters = $leftletters;
-	    $rightnumbers = $right;
-	} else {
-	    print "$right todo\n";
-	    ##############
-	    return;
-	}
+        if ($right =~ /^[A-Z]+$/) {
+            $rightletters = $right;
+            $rightnumbers = OTHER_MAX;
+        } elsif ($right =~ /^([A-Z]{1,3})([0-9\.]+)$/) {
+            $rightletters = $1;
+            $rightnumbers = $2;
+        } elsif ($right =~ /^[0-9\.]+$/) {
+            $rightletters = $leftletters;
+            $rightnumbers = $right;
+        } else {
+            print "$right todo\n";
+            ##############
+            return;
+        }
     } else {
-	$rightletters = $leftletters;
-	if ($leftnumbers == 0) {
-	    $rightnumbers = OTHER_MAX;
-	} else {
-	    $rightnumbers = $leftnumbers;
-	}
+        $rightletters = $leftletters;
+        if ($leftnumbers == 0) {
+            $rightnumbers = OTHER_MAX;
+        } else {
+            $rightnumbers = $leftnumbers;
+        }
     }
     if ($rightnumbers and $leftletters) {
 	if ($rightnumbers !~ /\./) {
