@@ -3663,7 +3663,7 @@ KD8850-9312            		Local laws of England
 KD9320-9355            		Local laws of Wales
 KD9400-9500            		Wales
 KDC51-990             		Scotland
-KDE 21-580             		Northern Ireland
+KDE21-580             		Northern Ireland
 KDG26-540             		Isle of Man.  Channel Islands
 KDK21-1950            		Ireland (Eire)
 Subclass KDZ - Law of North America
@@ -4630,7 +4630,7 @@ NA2000-2320		Study and teaching.  Research
 NA2335-2360		Competitions
 NA2400-2460		Museums.  Exhibitions
 NA2500-2599		General works
-NA 2599.5-2599.9		Architectural criticism
+NA2599.5-2599.9		Architectural criticism
 NA2695-2793		Architectural drawing and design
 NA2835-4050		Details and decoration
 NA4100-8480		Special classes of buildings
@@ -4701,7 +4701,7 @@ ND2889-3416		Illuminating of manuscripts and books
 Subclass NE - Print Media
 NE1-978		Printmaking and engraving
 NE1-90			General
-NE 218-(330)			Engraved portraits.  Self-portraits
+NE218-(330)			Engraved portraits.  Self-portraits
 NE380			Conservation and restoration of prints
 NE390-395			Collected works
 NE400-773			History of printmaking
@@ -4758,7 +4758,7 @@ NK2775-2898		Rugs and carpets
 NK2975-3049		Tapestries
 NK3175-3296.3		Upholstery.  Drapery
 NK3375-3496.3		Wallpapers
-NK 3600-(9990)		Other arts and art industries
+NK3600-(9990)		Other arts and art industries
 NK3700-4695			Ceramics
 NK4700-4890			Costume
 NK5100-5440			Glass
