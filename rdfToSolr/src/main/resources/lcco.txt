@@ -1142,8 +1142,7 @@ DG670-684.72			Venice
 DG691-817.3		Central Italy
 DG691-694			General
 DG731-759.3			Tuscany.  Florence
-DG791-800			Papal States (States of the Church).  Holy See.  Vatican
-DG				City
+DG791-800			Papal States (States of the Church).  Holy See.  Vatican City
 DG803-817.3			Rome (Modern city)
 DG819-875		Southern Italy
 DG819-829			General
@@ -2198,8 +2197,7 @@ F951				Bering Sea and Aleutian Islands
 F965		The territories of the United States (General)
 F970		Insular possessions of the United States (General)
 F975		Central American, West Indian, and other countries protected by and having close political affiliations with the United States (General)
-F1001-1145.2	British America
-F1001-1145.2		Canada
+F1001-1145.2	British America - Canada
 F1001-1035			General
 F1035.8			Maritime provinces.  Atlantic coast of Canada
 F1036-1040				Nova Scotia.  Acadia
@@ -2239,8 +2237,7 @@ F1141-1145.2			Nunavut
                                Dutch West Indies, see F2141
                                New Netherlands to 1664, see F122.1
                                New Sweden (Dutch possession, 1655-1664), see F167
-F1170	French America
-F1170		Saint Pierre and Miquelon
+F1170	French America - Saint Pierre and Miquelon
                                Other French America
                                   Colony in Brazil, 1555-1567, see F2529
                                   Colony in Florida, 1562-1565, see F314
@@ -3662,35 +3659,35 @@ KD51-9500            		England and Wales
 KD8850-9312            		Local laws of England
 KD9320-9355            		Local laws of Wales
 KD9400-9500            		Wales
-KDC51-990             		Scotland
-KDE21-580             		Northern Ireland
-KDG26-540             		Isle of Man.  Channel Islands
-KDK21-1950            		Ireland (Eire)
+KDC             		Scotland
+KDE             		Northern Ireland
+KDG             		Isle of Man.  Channel Islands
+KDK            		Ireland (Eire)
 Subclass KDZ - Law of North America
 KDZ1-4999           	America.  North America
 KDZ1101-1199          		Organization of American States (OAS)
 KDZ2001-2499.2		Bermuda
 KDZ3001-3499		Greenland
 KDZ4001-4499		St. Pierre and Miquelon
-Subclass KE - Law of Canada
+Subclasses KE-KEZ - Law of Canada
 KE1-9450             		Federal law.  Common and collective provincial law
 KEA-KEZ                   		Individual provinces and territories
-KEA1-599                			Alberta
-KEB1-599                			British Columbia
-KEM1-599                			Manitoba
+KEA                			Alberta
+KEB                			British Columbia
+KEM                			Manitoba
 KEN1-599                			New Brunswick
 KEN1201-1799            			Newfoundland
 KEN5401-5999            			Northwest Territories
 KEN7401-7999            			Nova Scotia
-KEO1-1199               			Ontario
-KEP1-599                			Prince Edward Island
-KEQ1-1199               			Quebec
-KES1-599                			Saskatchewan
-KEY1-599                			Yukon Territory
-KEZ1-9999             		Individual cities, A-Z
-Subclass KF - Law of the United States
-KF1-9827             		Federal law.  Common and collective state law
-KFA-KFZ                 	Individual states
+KEO             			Ontario
+KEP               			Prince Edward Island
+KEQ               			Quebec
+KES                			Saskatchewan
+KEY                			Yukon Territory
+KEZ             		Individual cities, A-Z
+Subclass KF-KFZ - Law of the United States
+KF            		Federal law.  Common and collective state law
+KFA-KFW					Individual States
 KFA1-599                			Alabama
 KFA1201-1799            			Alaska
 KFA2401-2999            			Arizona
@@ -3700,16 +3697,16 @@ KFC1801-2399            			Colorado
 KFC3601-4199            			Connecticut
 KFD1-599                			Delaware
 KFD1201-1799            			District of Columbia
-KFF1-599                			Florida
-KFG1-599                			Georgia
-KFH1-599                			Hawaii
+KFF               			Florida
+KFG                			Georgia
+KFH                			Hawaii
 KFI1-599                			Idaho
 KFI1201-1799            			Illinois
 KFI3001-3599            			Indiana
 KFI4201-4799            			Iowa
 KFK1-599                			Kansas
 KFK1201-1799            			Kentucky
-KFL1-599                			Louisiana
+KFL                			Louisiana
 KFM1-599                			Maine
 KFM1201-1799            			Maryland
 KFM2401-2999            			Massachusetts
@@ -3729,32 +3726,32 @@ KFN8601-9199            			North Dakota
 KFO1-599                			Ohio
 KFO1201-1799            			Oklahoma
 KFO2401-2999            			Oregon
-KFP1-599                			Pennsylvania
-KFR1-599                			Rhode Island
+KFP             			Pennsylvania
+KFR               			Rhode Island
 KFS1801-2399            			South Carolina
 KFS3001-3599            			South Dakota
 KFT1-599                			Tennessee
 KFT1201-1799            			Texas
-KFU1-599                			Utah
+KFU               			Utah
 KFV1-599                			Vermont
 KFV2401-2999            			Virginia
 KFW1-599                			Washington
 KFW1201-1799            			West Virginia
 KFW2401-2999            			Wisconsin
 KFW4201-4799            			Wyoming
-KFX1-9999             		Individual cities, A-Z
+KFX             		Individual cities, A-Z
 KFZ1801-2399          		Northwest Territory
 KFZ8601-9199          		Confederate States of America
 Subclasses KG-KGZ	Law of Latin and Central America & the Caribbean
 KG1-999            	Latin America (General)
 KG3001-3999        	Mexico and Central America (General)
-KGA1-9000             		Belize 
-KGB1-9000             		Costa Rica
-KGC1-9800             		El Salvador
-KGD1-9990             		Guatemala
-KGE1-9990             		Honduras
-KGF1-9900             		Mexico
-KGG1-9800             		Nicaragua
+KGA             		Belize 
+KGB             		Costa Rica
+KGC             		El Salvador
+KGD             		Guatemala
+KGE             		Honduras
+KGF             		Mexico
+KGG             		Nicaragua
 KGH1-8000             		Panama
 KGH9001-9499          		Panama Canal Zone
 KGJ-KGZ			West Indies. Caribbean area
@@ -3796,66 +3793,66 @@ KGX1-499             		Trinidad and Tobago
 KGY1-499              		Turks and Caicos Islands
 KGZ1-499              		Virgin Islands of the United States
 Subclasses KHA-KHW  Law of South America
-KHA1-9800             		Argentina
-KHC1-8200             		Bolivia
-KHD1-9900             		Brazil
-KHF1-9800             		Chile
-KHH1-9900             		Colombia
-KHK1-9990             		Ecuador
-KHL1-9000             		Falkland Islands
-KHM1-9000             		French Guiana
-KHN1-9000             		Guyana
-KHP1-9700             		Paraguay
-KHQ1-9800             		Peru
-KHS1-9000             		Surinam
-KHU1-9800             		Uruguay
-KHW1-9900             		Venezuela
+KHA             		Argentina
+KHC             		Bolivia
+KHD            		Brazil
+KHF             		Chile
+KHH             		Colombia
+KHK            		Ecuador
+KHL             		Falkland Islands
+KHM             		French Guiana
+KHN             		Guyana
+KHP             		Paraguay
+KHQ             		Peru
+KHS             		Surinam
+KHU             		Uruguay
+KHW             		Venezuela
 Subclasses KJ-KKZ - Law of Europe
 KJ History of Law
 KJ160-1040             		Germanic law
-KJA2-3660             		Roman law
-KJC2-9799             		Regional comparative and uniform law
-KJE5-7975             		Regional organization and integration.  Comparative law
-KJG1-4999             		Albania
-KJH1-499              		Andorra
-KJJ1-4999             		Austria
-KJK1-4999             		Belgium
-KJM1-4999             		Bulgaria
-KJN1-499              		Cyprus
-KJP1-4999             		Czechoslovakia
-KJR1-4999             		Denmark
-KJS1-4985             		Estonia
-KJT1-4999             		Finland
+KJA            		Roman law
+KJC             		Regional comparative and uniform law
+KJE           		Regional organization and integration.  Comparative law
+KJG             		Albania
+KJH             		Andorra
+KJJ           		Austria
+KJK            		Belgium
+KJM             		Bulgaria
+KJN             		Cyprus
+KJP            		Czechoslovakia
+KJR             		Denmark
+KJS             		Estonia
+KJT            		Finland
 KJV-KJW                   		France
-KJV2-9158               			National laws
+KJV              			National laws
 KJW51-4360              			Individual regions, provinces, departments, etc.
 KJW5201-9600            			Individual cities
 KK-KKC	        	Germany
 KK             			Germany and West Germany
 KKA               			East Germany 
 KKB-KKC                     			Individual states, provinces, and cities
-KKE1-4999             		Greece  
-KKF1-4999             		Hungary
-KKG1-499              		Iceland
-KKH1-4999             		Italy 
-KKI1-4890             		Latvia
+KKE             		Greece  
+KKF            		Hungary
+KKG             		Iceland
+KKH            		Italy 
+KKI             		Latvia
 KKJ1-499              		Liechtenstein
 KKJ501-9890           		Lithuania
 KKK1-499              		Luxembourg 
 KKK1001-1499          		Malta
-KKL1-499              		Monaco
-KKM1-4999             		Netherlands
-KKN1-4999             		Norway
-KKP1-4999             		Poland
-KKQ1-4999             		Portugal
-KKR1-4999             		Romania
-KKS1-499              		San Marino
-KKT1-4999             		Spain
-KKV1-4999		Sweden
-KKW1-4999             		Switzerland
-KKX1-4999             		Turkey
-KKY1-4999             		Ukraine (1991-    )
-KKZ1-4999             		Yugoslavia
+KKL             		Monaco
+KKM             		Netherlands
+KKN            		Norway
+KKP             		Poland
+KKQ             		Portugal
+KKR             		Romania
+KKS             		San Marino
+KKT             		Spain
+KKV		Sweden
+KKW             		Switzerland
+KKX             		Turkey
+KKY             		Ukraine (1991-    )
+KKZ            		Yugoslavia
 
 Subclass KL - History of Law in the Ancient Orient
 KL2-135                			General
@@ -3873,220 +3870,220 @@ KL5300-5599            			Persia
 KL5900-6199            			Phoenicia
 Subclasses KLA-KLW - Law of Eurasia
                      			Turkey, see KKX
-KLA1-9999               			Russia.  Soviet Union
-KLB1-6499               			Russia (Federation, 1992-    )
-KLD1-490                			Armenian S.S.R. (to 1991)
-KLE1-490                			Azerbaijan
-KLF1-490                			Belarus (Republic)
+KLA              			Russia.  Soviet Union
+KLB               			Russia (Federation, 1992-    )
+KLD               			Armenian S.S.R. (to 1991)
+KLE                			Azerbaijan
+KLF               			Belarus (Republic)
                      			Estonia, see KJS
-KLH1-490                			Georgia (Republic)
+KLH               			Georgia (Republic)
                      			Latvia, see KKI
                     			Lithuania, see KKJ
-KLM1-490                			Moldova
-KLN1-489                			Russian S.F.S.R. (to 1991)
+KLM               			Moldova
+KLN               			Russian S.F.S.R. (to 1991)
 KLP1-4989               			Ukraine (1919-1991)
 KLP9001-9499            			Zakavkazskaia Sotsialisticheskaia Federativnaia Sovetskaia
 KLQ-KLW                                 Respublika (to 1936)
-KLQ1-499                			Bukharskaia Narodnaia Sovetskaia Respublika (to 1924)
+KLQ                			Bukharskaia Narodnaia Sovetskaia Respublika (to 1924)
 KLR1-490                			Kazakhstan
 KLR1001-1499            			Khorezmskaia Sovetskaia Sotsialisticheskaia Respublika (to 1924)
-KLS1-490                			Kyrgyzstan
-KLT1-490                			Tadjikistan
-KLV1-490                			Turkmenistan
-KLW1-490                			Uzbekistan
+KLS               			Kyrgyzstan
+KLT               			Tadjikistan
+KLV               			Turkmenistan
+KLW              			Uzbekistan
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
 Subclasses KM-KPW - Law of Asia
-KM1-999                			General
+KM               			General
 KMC-KMY        			Middle East.  Southwest Asia
-KMC1-799                  				Regional comparative and uniform law
-KME10-799				Regional organization and integration
+KMC                  				Regional comparative and uniform law
+KME				Regional organization and integration
 KMF1-293.5                				Armenia (Republic)
 KMF1001-1490              				Bahrain
-KMG1-489                  				Gaza
-KMH1-4990                 				Iran
-KMJ1-4990                 				Iraq
-KMK1-4990                 				Israel
-KML1-490                  				Jerusalem
+KMG                 				Gaza
+KMH                				Iran
+KMJ                 				Iraq
+KMK                				Israel
+KML                  				Jerusalem
 KMM1-490                  				Jordan
 KMM501-994                				West Bank (Territory under Israeli occupation, 1967-    )
-KMN1-499                  				Kuwait
-KMP1-490                  				Lebanon
+KMN                  				Kuwait
+KMP                 				Lebanon
 KMQ1-490                  				Oman
 KMQ1001-1499              				Palestine (to 1948)
-KMS1-490                  				Qatar
-KMT1-4990                 				Saudi Arabia
+KMS                 				Qatar
+KMT                 				Saudi Arabia
                        				Southern Yemen, see KMY
-KMU1-490                  				Syria
-KMV1-9870                 				United Arab Emirates
-KMX1001-1526              				Yemen
-KMY1-489               				Yemen (People's Democratic Republic) (to 1990)
+KMU                  				Syria
+KMV                 				United Arab Emirates
+KMX              				Yemen
+KMY               				Yemen (People's Democratic Republic) (to 1990)
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Asia
 KN-KPW              			South Asia.  Southeast Asia.  East Asia
-KNC1-999                  				Regional comparative and uniform law
-KNE150-499                				Regional organization and integration
-KNF1-4990                 				Afghanistan
-KNG1-4990                 				Bangladesh
-KNH1-490                  				Bhutan
-KNK1-490                  				Brunei
-KNL1-4990                 				Burma
-KNM1-4990                 				Cambodia
-KNN1-9000                 				China
-KNP1-599                  				China (Republic, 1949-   ).  Taiwan
-KNQ1-9665                 				China (People's Republic, 1949-    )
-KNR1-489                  				Hong Kong
-KNS1-4999              	   			India
+KNC                  				Regional comparative and uniform law
+KNE                				Regional organization and integration
+KNF                				Afghanistan
+KNG                				Bangladesh
+KNH                  				Bhutan
+KNK                  				Brunei
+KNL                 				Burma
+KNM              				Cambodia
+KNN                 				China
+KNP                  				China (Republic, 1949-   ).  Taiwan
+KNQ                 				China (People's Republic, 1949-    )
+KNR                  				Hong Kong
+KNS              	   			India
 KNT-KNU                  					States, cities, etc.
-KNV1-489                  				French Indochina
-KNW1-4990                 				Indonesia
-KNX1-4999                 				Japan
-KNY10-220                   					Cities, etc.
+KNV                  				French Indochina
+KNW             				Indonesia
+KNX                 				Japan
+KNY                   					Cities, etc.
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Asia
                                   South Asia.  Southeast Asia.  East Asia
-KPA1-4990                 				Korea.  South Korea
-KPC1-4990                 				Democratic People's Republic of Korea.  North Korea
-KPE1-4990                 				Laos
-KPF1-489                  				Macao
+KPA                				Korea.  South Korea
+KPC                 				Democratic People's Republic of Korea.  North Korea
+KPE                 				Laos
+KPF                  				Macao
 KPG1-6999                 				Malaysia
 KPG7001-9999                					States of East and West Malaysia (1957-    ) (Part 1)
 KPH1-4990                   					States of East and West Malaysia (1957-    ) (Part 2)
 KPH5001-5490              				Maldives
-KPJ1-490                  				Mongolia
-KPK1-490                  				Nepal
-KPL1-4990                 				Pakistan
-KPM1-4990                 				Philippines
-KPP1-499                  				Singapore
-KPS1-4990                 				Sri Lanka
-KPT1-4990                 				Thailand
-KPV1-8094                 				Vietnam
-KPW1-489        				Vietnam.  South Vietnam
+KPJ                  				Mongolia
+KPK                  				Nepal
+KPL                 				Pakistan
+KPM                 				Philippines
+KPP                  				Singapore
+KPS                 				Sri Lanka
+KPT                 				Thailand
+KPV                 				Vietnam
+KPW        				Vietnam.  South Vietnam
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
 Subclasses KQ-KTZ - Law of Africa
 KQ2-197                			History of law
 KQ2010-9000            			Law of indigenous peoples
-KQC1-999                			Regional comparative and uniform law
-KQE10-1249              			Regional organization and integration
-KQG1-4990               			Algeria
-KQH1-4990               			Angola
-KQJ1-490                			Benin
-KQK1-490                			Botswana
-KQM1-499                			British Central Africa Protectorate
+KQC                			Regional comparative and uniform law
+KQE              			Regional organization and integration
+KQG               			Algeria
+KQH               			Angola
+KQJ                			Benin
+KQK                			Botswana
+KQM                			British Central Africa Protectorate
 KQP1-499                			British Indian Ocean Territory
 KQP1001-1499            			British Somaliland
-KQT1-490                			Burkina Faso
-KQV1-490                			Burundi
-KQW1-8020               			Cameroon
-KQX1-490                			Cape Verde
+KQT                			Burkina Faso
+KQV                			Burundi
+KQW               			Cameroon
+KQX                			Cape Verde
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Africa
-KRB1-490                			Central African Republic
-KRC1-490                			Chad
-KRE1-490                			Comoros
-KRG1-490                			Congo
-KRK1-490                			Djibouti
-KRL1-499                			East Africa Protectorate
-KRM1-4990               			Egypt
-KRN1-499			Eritrea
-KRP1-4990               			Ethiopia
-KRR1-499                			French Equatorial Africa
-KRS1-499                			French West Africa
-KRU1-490                			Gabon
-KRV1-489                			Gambia
-KRW1-499                			German East Africa
-KRX1-4990               			Ghana
-KRY1-499                			Gibraltar
+KRB                			Central African Republic
+KRC                			Chad
+KRE                			Comoros
+KRG                			Congo
+KRK               			Djibouti
+KRL               			East Africa Protectorate
+KRM               			Egypt
+KRN							Eritrea
+KRP               			Ethiopia
+KRR                			French Equatorial Africa
+KRS                			French West Africa
+KRU                			Gabon
+KRV                			Gambia
+KRW                			German East Africa
+KRX               			Ghana
+KRY               			Gibraltar
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Africa
-KSA1-490                			Guinea
-KSC1-490                			Guinea-Bissau
+KSA                			Guinea
+KSC                			Guinea-Bissau
 KSE1-490                			Equatorial Guinea
 KSE601-699              			Ifni
 KSG1-499                			Italian East Africa
 KSG1001-1499            			Italian Somaliland
-KSH1-4990               			Ivory Coast
-KSK1-4990               			Kenya
-KSL1-490                			Lesotho
-KSN1-490                			Liberia
-KSP1-4990               			Libya
-KSR1-490                			Madagascar
-KSS1-490                			Malawi
-KST1-490                			Mali
-KSU1-490                			Mauritania
+KSH               			Ivory Coast
+KSK               			Kenya
+KSL                			Lesotho
+KSN                			Liberia
+KSP               			Libya
+KSR                			Madagascar
+KSS                			Malawi
+KST                			Mali
+KSU               			Mauritania
 KSV1-490                			Mauritius
 KSV5001-5490            			Mayotte
-KSW1-4990               			Morocco
-KSX1-4990               			Mozambique
-KSY1-4990               			Namibia
-KSZ1-490                			Niger
+KSW               			Morocco
+KSX              			Mozambique
+KSY              			Namibia
+KSZ               			Niger
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Africa
-KTA1-9150               			Nigeria
-KTC1-499                			Réunion
-KTD1-490                			Rwanda
-KTE1-490                			Saint Helena
-KTF1-490                			São Tomé and Principe
-KTG1-4990               			Senegal
-KTH1-490                			Seychelles
-KTJ1-490                			Sierra Leone
-KTK1-490                			Somalia
-KTL1-9560               			South Africa, Republic of
+KTA               			Nigeria
+KTC                			Réunion
+KTD               			Rwanda
+KTE               			Saint Helena
+KTF                			São Tomé and Principe
+KTG               			Senegal
+KTH               			Seychelles
+KTJ                			Sierra Leone
+KTK                			Somalia
+KTL               			South Africa, Republic of
 KTN1-499                			Spanish West Africa (to 1958)
 KTN601-699              			Spanish Sahara (to 1975)
-KTQ1-4990               			Sudan
-KTR1-490                			Swaziland
-KTT1-9910               			Tanzania
-KTU1-490                			Togo
-KTV1-4990               			Tunisia
-KTW1-490                			Uganda
-KTX1-4990               			Zaire
+KTQ               			Sudan
+KTR                			Swaziland
+KTT               			Tanzania
+KTU                			Togo
+KTV               			Tunisia
+KTW                			Uganda
+KTX               			Zaire
 KTY1-490                			Zambia
 KTY1501-1599            			Zanzibar (to 1964)
-KTZ1-490                			Zimbabwe
+KTZ               			Zimbabwe
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
-Subclass KU - Law of Australia
+Subclass KU-KUN - Law of Australia
 KUA-KUH                				States and territories
 KUN499.2-999.24               				External territories
 KUN501-599                  					Norfolk Island
 KUN3001-3050              				Cities, communities, etc.
-KUQ1-4990               			New Zealand
+KUQ               			New Zealand
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Pacific Area
-Subclasses KV-KWW - Law of the Pacific Area
-KVB1-999					Australia and New Zealand
-KVC1-999					Other Pacific area jurisdictions
-KVE200-349                				Regional organization and integration
+Subclasses KV-KWW - Law of Pacific Area Jurisdictions
+KVB					Australia and New Zealand
+KVC					Other Pacific area jurisdictions
+KVE                				Regional organization and integration
 KVH1-490                  				American Samoa
 KVH1001-1499              				British New Guinea (Territory of Papua)
-KVL1-489                  				Cook Islands
-KVM1-489                  				Easter Island
-KVN1-490                  				Fiji
+KVL                  				Cook Islands
+KVM                  				Easter Island
+KVN                  				Fiji
 KVP1-100                  				French Polynesia
 KVP1001-1099              				German New Guinea (to 1914)
-KVQ1-490                  				Guam
-KVR1-490                  				Kiribati
+KVQ                  				Guam
+KVR                 				Kiribati
 KVS1-490                  				Marshall Islands
 KVS501-990                				Micronesia (Federated States)
 KVS2501-2999              				Midway Islands
 KVU1-499                  				Nauru
 KVU1001-1099              				Netherlands New Guinea (to 1963)
-KVW1-490                  				New Caledonia
+KVW                  				New Caledonia
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Pacific Area
                                   Pacific area jurisdictions
-KWA1-489                  				Niue
-KWC1-490                  				Northern Mariana Islands
-KWE1-499                  				Pacific Islands (Trust Territory)
-KWG1-490                  				Palau
-KWH1-490                  				Papua New Guinea
+KWA                  				Niue
+KWC                				Northern Mariana Islands
+KWE                				Pacific Islands (Trust Territory)
+KWG                 				Palau
+KWH                 				Papua New Guinea
 KWL1-499                  				Pitcairn Island
 KWL2001-2490              				Solomon Islands
-KWP1-490                  				Tonga
-KWQ1-490                  				Tuvalu
-KWR1-490                  				Vanuatu
+KWP                  				Tonga
+KWQ                 				Tuvalu
+KWR                 				Vanuatu
 KWT1-489                  				Wake Island
 KWT2001-2490              				Wallis and Futuna Islands
-KWW1-490                  				Western Samoa
+KWW                 				Western Samoa
 
 KWX        		Law of Antarctica
 Subclass KZ - Law of nations
@@ -5582,7 +5579,6 @@ PT6550-6575		Collections
 PT6580		Local
 PT6590-6593.36		Individual authors or works
 PT7001-7099	Scandinavian literature
-PT7001-7099		General
 PT7001-7087			Literary history and criticism
 PT(7088)-(7089)			Folk literature
 PT7090-7099			Collections
