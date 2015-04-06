@@ -1,4 +1,20 @@
 #! /bin/perl
+# Frances Webb (frances.webb@cornell.edu) April 2015, CUL
+#
+# This script populates a MySQL database table keyed for efficient hierarchical queries
+# with Library of Congress call number classification data as publicly published at:
+#  http://www.loc.gov/catdir/cpso/lcco/
+# The script should probably be able to create the table and/or empty is as needed.
+#
+#CREATE TABLE `classification` (
+#  `low_letters` char(3) NOT NULL,
+#  `high_letters` char(3) NOT NULL,
+#  `low_numbers` float(9,4) NOT NULL,
+#  `high_numbers` float(9,4) NOT NULL,
+#  `label` varchar(256) character set utf8 NOT NULL,
+#  KEY `low_letters` (`low_letters`,`high_letters`,`low_numbers`,`high_numbers`)
+#) ENGINE=MyISAM DEFAULT CHARSET=latin1
+
 
 use DBI();
 use strict;
