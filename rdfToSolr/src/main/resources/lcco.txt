@@ -2125,7 +2125,7 @@ E885-889			Clinton's administrations, 1993-2001
 E895-904		Twenty-first century
 E902-904			George W. Bush's administrations, 2001-2009
 E907-909			Barack Obama's administration, 2009-
-Subclass F - United States Local History
+F1-975 - United States Local History
 F1-15		New England
 F16-30			Maine
 F31-45			New Hampshire
