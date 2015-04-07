@@ -823,7 +823,8 @@ D890-893				Eastern Hemisphere
 D900-2009				Europe (General)
 D901-980					Description and travel
 D1050-2027					History
-Subclass DA - History of Great Britain
+Subclasses DA-DR Europe
+DA 			Great Britain
 DA10-18.2		British Empire.  Commonwealth of Nations.  The Commonwealth
 DA20-690		England
 DA20-27.5			General
@@ -886,10 +887,10 @@ DA966-966.2						21st century
 DA969-988			Description and travel
 DA990-995			Local history and description
 DA990.U45-U46				Northern Ireland (Ulster)
-Subclass DAW - History of Central Europe
+Subclass DAW - Central Europe
 DAW1001-1028		General
 DAW1031-1051		History
-Subclass DB - History of Austria, Liechtenstein, Hungary, Czechoslovakia
+Subclass DB - Austria, Liechtenstein, Hungary, Czechoslovakia
 DB1-879		Austria.  Austro-Hungarian Empire
 DB1-20.5			General
 DB21-27.5			Description and travel
@@ -946,7 +947,7 @@ DB2300-2421				Moravia
 DB2600-2649				Prague (Praha)
 DB2700-3150			Slovakia
 DB3100-3139				Bratislava (Pressburg)
-Subclass DC - History of France
+Subclass DC - France
 DC1-20.5		General
 DC21-29.3		Description and travel
 DC30-34.5		Antiquities.  Social life and customs.  Ethnography
@@ -985,7 +986,7 @@ DC701-790			Paris
 DC801			Other cities, towns, etc., A-Z
 DC921-930		Andorra
 DC941-947		Monaco
-Subclass DD - History of Germany
+Subclass DD - Germany
 DD1-21		General
 DD21.5-43   		Description and travel
 DD51-78		Antiquities.  Social life and customs.  Ethnography
@@ -1026,12 +1027,12 @@ DD801			States, provinces, regions, etc., A-Z
 DD851-900			Berlin
 DD900.2-900.76			Bonn
 DD901			Other cities, towns, etc., A-Z
-Subclass DE - History of the Greco-Roman World    
+Subclass DE - The Greco-Roman World
 DE1-15.5		General
 DE23-31		Geography
 DE46-73.2		Antiquities.  Civilization.  Culture.  Ethnography
 DE80-100		History
-Subclass DF - History of Greece
+Subclass DF - Greece
 DF10-289		Ancient Greece
 DF10-16			General
 DF27-41			Geography.  Travel
@@ -1080,7 +1081,7 @@ DF901			Regions, provinces, islands, etc., A-Z
 DF901.C78-C88				Crete
 DF915-936			Athens
 DF951			Other cities, towns, etc., A-Z
-Subclass DG - History of Italy
+Subclass DG - Italy
 DG11-365		Ancient Italy.  Rome to 476
 DG11-16			General
 DG27-41			Geography.  Description and travel
@@ -1151,7 +1152,7 @@ DG840-857.5			Naples.  Kingdom of the Two Sicilies
 DG861-875			Sicily
 DG975		Other cities (non-metropolitan), provinces, etc., A-Z
 DG987-999		Malta.  Maltese Islands
-Subclass DH - History of Low Countries, Benelux Countries
+Subclass DH - Low Countries, Benelux Countries
 DH1-23		General
 DH31-40		Description and travel
 DH51-92		Antiquities.  Social life and customs.  Ethnography
@@ -1182,7 +1183,7 @@ DH801				Provinces, regions, etc., A-Z
 DH802-809.95				Brussels
 DH811				Other cities, towns, etc., A-Z
 DH901-925		Luxembourg
-Subclass DJ - History of Netherlands (Holland)
+Subclass DJ - Netherlands (Holland)
 DJ1-30		General
 DJ33-41		Description and travel
 DJ51-92		Antiquities.  Social life and customs.  Ethnography
@@ -1202,7 +1203,7 @@ DJ211				1795-1806.  Batavian Republic
 DJ215-292				19th-20th centuries
 DJ401-411		Local history and description
 DJ411.A5-A59			Amsterdam
-Subclass DJK - History of Eastern Europe (General)
+Subclass DJK - Eastern Europe (General)
 DJK26-28		Ethnography
 DJK27			Slavic peoples (General)
 DJK30-51		History
@@ -1211,7 +1212,7 @@ DJK61-66			Black Sea region
 DJK71-76			Carpathian Mountain region
 DJK76.2-76.8  			Danube River Valley
 DJK77			Pannonia
-Subclass DK - History of Russia, Soviet Union, Former Soviet Republics
+Subclass DK - Russia, Soviet Union, Former Soviet Republics
 DK33-35.5		Ethnography
 DK36-293		History
 DK70-112.42			Early to 1613
@@ -1258,9 +1259,8 @@ DK931-939.5			Turkmenistan.  Turkmen S.S.R.  Turkmenia
 DK939.2-939.39				Ashkhabad
 DK941-949.5			Uzbekistan.  Uzbek S.S.R.
 DK949.2-949.39				Tashkent
-DK4010-4800	History of Poland
+DK4010-4800	Poland
 DK4120-4122		Ethnography
-DK4123-4452		History
 DK4186-4348			To 1795
 DK4348.5-4395   			1795-1918.  19th century (General)
 DK4397-4420			1918-1945
@@ -1270,14 +1270,13 @@ DK4600-4800		Local history and description
 DK4610-4645			Warsaw (Warszawa)
 DK4650-4685			Gdansk (Danzig)
 DK4700-4735			Krakow (Cracow)
-Subclass DL - History of Northern Europe, Scandinavia
+Subclass DL - Northern Europe, Scandinavia
 DL1-6.8		General
 DL7-11.5		Description and travel
 DL20-42.5		Antiquities.  Social life and customs.  Ethnography
 DL43-87		History
 DL43-49			General
 DL52-59			Military, naval, and political history.  Foreign relations
-DL61-87			By period
 DL61-65				Earliest to 1387.  Scandinavian Empire.  Northmen.  Vikings
 DL75-81				1387-1900
 DL83-87				1900-    .  Period of World War I, 1914-1918
@@ -1371,7 +1370,7 @@ DL1170-1180			Local history and description
 DL1170				Regions, provinces, historical regions, etc., A-Z
 DL1175-1175.95				Helsinki (Helsingfors)
 DL1180				Other cities, towns, etc., A-Z
-Subclass DP - History of Spain
+Subclass DP - Spain
 DP1-27		General
 DP27.5-43.2  		Description and travel
 DP44-53		Antiquities.  Social life and customs.  Ethnography
@@ -1408,7 +1407,7 @@ DP285-295			Northern, Northwestern, Southern Spain
 DP302			Provinces, regions, ets., A-Z
 DP350-374			Madrid
 DP402			Other cities, towns, etc., A-Z
-DP501-(900.22)	History of Portugal
+DP501-(900.22)	Portugal
 DP501-520		General
 DP521-526.5		Description and travel
 DP528-534.5		Antiquities.  Social life and customs.  Ethnography
@@ -1433,7 +1432,7 @@ DP702-802		Local history and description
 DP702			Provinces, regions, etc., A-Z
 DP752-776			Lisbon
 DP802			Other cities, towns, etc., A-Z
-Subclass DQ - History of Switzerland
+Subclass DQ - Switzerland
 DQ1-20		General
 DQ20.5-26  		Description and travel
 DQ30-49.5		Antiquities.  Social life and customs.  Ethnography
@@ -1456,7 +1455,7 @@ DQ301-800.35			Cantons (and cantonal capitals)
 DQ820-829			Alps
 DQ841			Regions, peaks, etc., A-Z
 DQ851			Cities, towns, etc., A-Z
-Subclass DR - History of Balkan Peninsula
+Subclass DR - Balkan Peninsula
 DR1-11		General
 DR11.5-16  		Description and travel
 DR20-27		Antiquities.  Social life and customs.  Ethnography
@@ -1562,7 +1561,7 @@ DR2075-2087.7					Kosovo
 DR2090-2101.5					Vojvodina
 DR2106-2124.5					Belgrade
 DR2152-2285				Macedonia
-Subclass DS - History of Asia
+Subclass DS - Asia
 DS5.95-10		Description and travel
 DS11		Antiquities
 DS13-28		Ethnography
@@ -1688,7 +1687,7 @@ DS904.8-922.4642			History
 DS918-921.8				War and intervention, 1950-1953
 DS924-925			Local history and description
 DS930-937			Democratic People's Republic, 1948-
-Subclass DT - History of Africa
+Subclass DT - Africa
 DT7-12.25		Description and travel
 DT15-16		Ethnography 
 DT17-39		History
@@ -1925,7 +1924,7 @@ DT3291-3415		Mozambique
 DT3324-3328			Ethnography
 DT3330-3398			History
 DT3410-3415			Local history and description
-Subclass DU - History of Oceania (South Seas)
+Subclass DU - Oceania (South Seas)
 DU28.11-68		History
 DU80-398		Australia
 DU108-117.2			History
@@ -1964,7 +1963,7 @@ DU520-950		Smaller island groups
 DU620-629			Hawaiian Islands.  Hawaii
 DU739-747			New Guinea
 DU810-819			Samoan Islands
-Subclass DX - History of Romanies
+Subclass DX - Romanies
 ﻿LIBRARY OF CONGRESS CLASSIFICATION OUTLINE
 CLASS E-F - History of the Americas
 E11-143	America
@@ -2125,7 +2124,7 @@ E885-889			Clinton's administrations, 1993-2001
 E895-904		Twenty-first century
 E902-904			George W. Bush's administrations, 2001-2009
 E907-909			Barack Obama's administration, 2009-
-F1-975 - United States Local History
+F1-975 - United States - Regional
 F1-15		New England
 F16-30			Maine
 F31-45			New Hampshire
@@ -2222,32 +2221,10 @@ F1121-1139			Newfoundland
 F1135-1139				Labrador
 F1140			The Labrador Peninsula
 F1141-1145.2			Nunavut
-                               Other than Canada
-                                  Bahamas, see F1650+
-                                  Bermudas, see F1630+
-                                  British East asnd West Florida, 1763-1783, see F301, F314
-                                  British Guiana, see F2361+
-                                  British Honduras (Belize), see F1441+
-                                  British West Indies, see F2131+
-                                  Falkland Islands, see F3031+
-                                  Thirteen North American Colonies before 1776, see E186+
-                           Dutch America
-                               Colony in Brazil, 1625-1661, see F2532
-                               Dutch Guinea, see F2401+
-                               Dutch West Indies, see F2141
-                               New Netherlands to 1664, see F122.1
-                               New Sweden (Dutch possession, 1655-1664), see F167
 F1170	French America - Saint Pierre and Miquelon
-                               Other French America
-                                  Colony in Brazil, 1555-1567, see F2529
-                                  Colony in Florida, 1562-1565, see F314
-                                  French Guinana, see F2441+
-                                  French West Indies, see F2151
-                                  Louisiana, 1698-1803, see F372
-                                  New France and Acadia, 1600-1763, see F1030, F1038
-F1201-3799	Latin America.  Spanish America
+F1201-3799	Latin America. Spanish America
 F1201-1392		Mexico
-F1218.5-1221			Antiquities.  Indians
+F1218.5-1221			Antiquities. Indians
 F1401-1419		Latin America (General)
 F1421-1440		Central America
 F1435-1435.3			Mayas
@@ -3654,7 +3631,7 @@ KBU3500-3774		Sanctions in the Church. Criminal law. De sanctionibus in Ecclesia
 KBU3780-3985		Courts and procedure. De processibus
 KBU4000-4097		Church and state relationships. De relationibus inter ecclesiam et status. Ius publicum ecclesiae
 KBU4112-4820		Local Church government
-Subclass KD - Law of the United Kingdom and Ireland
+Subclasses KD-KDK - The United Kingdom and Ireland
 KD51-9500            		England and Wales
 KD8850-9312            		Local laws of England
 KD9320-9355            		Local laws of Wales
@@ -3663,13 +3640,13 @@ KDC             		Scotland
 KDE             		Northern Ireland
 KDG             		Isle of Man.  Channel Islands
 KDK            		Ireland (Eire)
-Subclass KDZ - Law of North America
+Subclass KDZ - North America
 KDZ1-4999           	America.  North America
 KDZ1101-1199          		Organization of American States (OAS)
 KDZ2001-2499.2		Bermuda
 KDZ3001-3499		Greenland
 KDZ4001-4499		St. Pierre and Miquelon
-Subclasses KE-KEZ - Law of Canada
+Subclasses KE-KEZ - Canada
 KE1-9450             		Federal law.  Common and collective provincial law
 KEA-KEZ                   		Individual provinces and territories
 KEA                			Alberta
@@ -3685,7 +3662,7 @@ KEQ               			Quebec
 KES                			Saskatchewan
 KEY                			Yukon Territory
 KEZ             		Individual cities, A-Z
-Subclass KF-KFZ - Law of the United States
+Subclass KF-KFZ - The United States
 KF            		Federal law.  Common and collective state law
 KFA-KFW					Individual States
 KFA1-599                			Alabama
@@ -3742,7 +3719,7 @@ KFW4201-4799            			Wyoming
 KFX             		Individual cities, A-Z
 KFZ1801-2399          		Northwest Territory
 KFZ8601-9199          		Confederate States of America
-Subclasses KG-KGZ	Law of Latin and Central America & the Caribbean
+Subclasses KG-KGZ	Latin and Central America & the Caribbean
 KG1-999            	Latin America (General)
 KG3001-3999        	Mexico and Central America (General)
 KGA             		Belize 
@@ -3792,7 +3769,7 @@ KGW8001-8499          		Sint Maarten
 KGX1-499             		Trinidad and Tobago
 KGY1-499              		Turks and Caicos Islands
 KGZ1-499              		Virgin Islands of the United States
-Subclasses KHA-KHW  Law of South America
+Subclasses KHA-KHW  South America
 KHA             		Argentina
 KHC             		Bolivia
 KHD            		Brazil
@@ -3807,7 +3784,7 @@ KHQ             		Peru
 KHS             		Surinam
 KHU             		Uruguay
 KHW             		Venezuela
-Subclasses KJ-KKZ - Law of Europe
+Subclasses KJ-KKZ - Europe
 KJ History of Law
 KJ160-1040             		Germanic law
 KJA            		Roman law
@@ -3868,7 +3845,7 @@ KL4110-4399            			Greek law
 KL4700-4999            			Hittite law
 KL5300-5599            			Persia
 KL5900-6199            			Phoenicia
-Subclasses KLA-KLW - Law of Eurasia
+Subclasses KLA-KLW - Eurasia
                      			Turkey, see KKX
 KLA              			Russia.  Soviet Union
 KLB               			Russia (Federation, 1992-    )
@@ -3892,7 +3869,7 @@ KLT               			Tadjikistan
 KLV               			Turkmenistan
 KLW              			Uzbekistan
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
-Subclasses KM-KPW - Law of Asia
+Subclasses KM-KPW - Asia
 KM               			General
 KMC-KMY        			Middle East.  Southwest Asia
 KMC                  				Regional comparative and uniform law
@@ -3959,7 +3936,7 @@ KPT                 				Thailand
 KPV                 				Vietnam
 KPW        				Vietnam.  South Vietnam
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
-Subclasses KQ-KTZ - Law of Africa
+Subclasses KQ-KTZ - Africa
 KQ2-197                			History of law
 KQ2010-9000            			Law of indigenous peoples
 KQC                			Regional comparative and uniform law
@@ -4041,7 +4018,7 @@ KTY1-490                			Zambia
 KTY1501-1599            			Zanzibar (to 1964)
 KTZ               			Zimbabwe
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
-Subclass KU-KUN - Law of Australia
+Subclass KU-KUN - Australia
 KUA-KUH                				States and territories
 KUN499.2-999.24               				External territories
 KUN501-599                  					Norfolk Island
@@ -4049,7 +4026,7 @@ KUN3001-3050              				Cities, communities, etc.
 KUQ               			New Zealand
                            Asia and Eurasia, Africa, Pacific Area, and Antarctica
                                Pacific Area
-Subclasses KV-KWW - Law of Pacific Area Jurisdictions
+Subclasses KV-KWW - Pacific Area Jurisdictions
 KVB					Australia and New Zealand
 KVC					Other Pacific area jurisdictions
 KVE                				Regional organization and integration
@@ -4085,7 +4062,7 @@ KWT1-489                  				Wake Island
 KWT2001-2490              				Wallis and Futuna Islands
 KWW                 				Western Samoa
 
-KWX        		Law of Antarctica
+KWX        		Antarctica
 Subclass KZ - Law of nations
 KZ2-5.5                		Bibliography
 KZ24-38                		Societies, etc.
