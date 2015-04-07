@@ -75,8 +75,8 @@ public class DateResultSetToFields implements ResultSetToFields {
 						if (year > current_year + 1) {
 							// suppress future dates from facet and sort
 						} else if ((year > 0) && ! found_single_date) {
-							addField(fields,"pub_date_sort",value);
-							addField(fields,"pub_date_facet",value);
+							addField(fields,"pub_date_sort",date);
+							addField(fields,"pub_date_facet",date);
 							found_single_date = true;
 						}
 					}
