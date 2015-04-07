@@ -304,9 +304,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
 				    addMainStoreQuery("machine_dates",
-				    		"SELECT (SUBSTR(?val,8,4) as ?date1) (SUBSTR(?val,12,4) AS ?date2) \n" +
+				    		"SELECT ?eight \n" +
 				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
-				    		"        ?f marcrdf:value ?val } \n" ).
+				    		"        ?f marcrdf:value ?eight } \n" ).
 				    addMainStoreQuery("human_dates",
 				    		"SELECT ?date \n" +
 				    		"WHERE { { $recordURI$ marcrdf:hasField260 ?f }" +
