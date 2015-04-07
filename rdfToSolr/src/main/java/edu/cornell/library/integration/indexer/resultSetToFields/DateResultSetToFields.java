@@ -84,6 +84,8 @@ public class DateResultSetToFields implements ResultSetToFields {
 			}
 		}
 		pub_date_display = dedupe_pub_dates(pub_date_display);
+		for ( String date : pub_date_display) 
+			addField(fields,"pub_date_display",date);
 		return fields;
 	}
 
