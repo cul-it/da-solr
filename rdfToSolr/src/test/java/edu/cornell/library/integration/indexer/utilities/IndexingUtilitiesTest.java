@@ -49,6 +49,8 @@ public class IndexingUtilitiesTest {
 				equals("1000000 bank note and other stories"));
 //		assertTrue(getSortHeading("£ & the $; or, Gold debts & taxes").
 //				equals("pound the dollar or gold debts taxes"));
+		assertTrue(getSortHeading("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment").
+				equals("tudes de centre de dveloppement financer le dveloppment"));
 	}
 	
 }

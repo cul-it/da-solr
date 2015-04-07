@@ -161,7 +161,7 @@ public class IndexingUtilities {
 	public static String removeAllPunctuation( String s ) {
 		if (s == null) return null;
 		if (s.isEmpty()) return s;
-		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°£]","");
+		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°£€]","");
 	}
 	
 	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {

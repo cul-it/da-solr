@@ -6,7 +6,9 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -139,6 +141,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		
 		// new bl5-compatible hierarchical facet
 		int classCount = classes.size();
+		Collection<String> lc_callnum_facet = new HashSet<String>(); // hashset eliminates dupes
 		if ( classCount != 0 ) {
 			Connection conn = config.getDatabaseConnection("CallNos");
 			PreparedStatement pstmt = conn.prepareStatement
@@ -157,10 +160,12 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 					if (sb.length() > 0)
 						sb.append(":");
 					sb.append(rs.getString("label"));
-					addField(fields,"lc_callnum_facet",sb.toString());
+					lc_callnum_facet.add(sb.toString());
 				}
 			}
 			conn.close();
+			for (String facetVal : lc_callnum_facet )
+				addField(fields,"lc_callnum_facet",facetVal);
 		}
 		
 		/*
