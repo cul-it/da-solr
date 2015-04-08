@@ -135,55 +135,50 @@ public class IndexingUtilities {
 		 * to match and remove diacritics, while compatibility form will further
 		 * drop encodings that are for use in display and should not affect sorting.
 		 * For example, æ => ae
-		 * See http://unicode.org/reports/tr15/ Figure 6
+		 * See http://unicode.org/reports/tr15/   Figure 6
 		 */
-		String step1 = Normalizer.normalize(value, Normalizer.Form.NFKD).
+		String s = Normalizer.normalize(value, Normalizer.Form.NFKD).toLowerCase().
 				replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 		
-		/* removeAllPunctuation() will strip punctuation. We replace hyphens with spaces
-		 * first so hyphenated words will sort as though the space were present.
-		 * Greater-than (>) is a semantically important value in a subject heading,
-		 * so rather than remove it, we will replace it with an alphabetic value that will
-		 * enforce sorting above an equivalent value without the ">". © isn't used heavily
-		 * in headings, but seems to generally replace the letter 'c' when it does.
+		/* For efficiency in avoiding multiple passes and worse, extensive regex, in this
+		 * step, we will apply most of the remaining string modification by iterating through
+		 * the characters.
 		 */
-		String step2 = step1.toLowerCase().replaceAll("-", " ").
-				replaceAll(">", "aaa").replaceAll("©","c");
-//				replaceAll("\\$(?!\\s*[0-9])", "dollar").
-//				replaceAll("£(?!\\s*[E0-9])", "pound");
-		String sortHeading = replaceGreekLettersWithNames(removeAllPunctuation(step2));
-		
-		// Finally, collapse sequences of spaces into single spaces:
-		return sortHeading.trim().replaceAll("\\s+", " ");
-	}
-
-	
-	public static String removeAllPunctuation( String s ) {
-		if (s == null) return null;
-		if (s.isEmpty()) return s;
-		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°£€]","");
-	}
-	
-	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
-		if (s == null) return null;
-		if (unwantedChars == null) return s;
-		if (s.equals("")) return s;
-		if (unwantedChars.equals("")) return s;
-		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
-		Matcher m = p.matcher(s);
-		return m.replaceAll("$1");
-	}
-	
-	/* This method only looks for lowercase greek letters without diacritics.
-	 * Running against decomposed Unicode will find and replace the letters while
-	 * leaving the diacritics around.
-	 */
-	public static String replaceGreekLettersWithNames ( String s ) {
-		if (s == null) return null;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			switch (c) {
+
+			// Treat hyphens as spaces so hyphenated words will sort as though the space were present.
+			case '-':
+			case ' ':
+				// prevent sequential spaces, initial spaces
+				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' '); 
+				break;
+
+			// additional punctuation we'd like to treat differently
+			case '>': sb.append("aaa"); break; // control sorting and filing of hierarchical subject terms. 
+			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
+			case '©': sb.append('c');   break; // examples I found were "©opyright"
+
+			// Java \p{Punct} =>   !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+			// case '-': case '>': (see above for special treatment of hyphen and greater-than)
+			case '!': case '"': case '#': case '$': case '%': case '&':
+			case '\'':case '(': case ')': case '*': case '+': case ',':
+			case '.': case '/': case ':': case ';': case '<': case '=':
+			case '?': case '@': case '[': case '\\':case ']': case '^':
+			case '_': case '`': case '{': case '|': case '}': case '~':
+				break;
+
+			// supplementary punctuation we don't want to file on
+			case '¿': case '¡': case '「': case '」': case '‘':
+			case '’': case '−': case '°': case '£': case '€':
+			case '†':
+				break;
+
+			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear
+			// will generally represent constants, concepts, etc...
+			//      e.g. "σ and π Electrons in Organic Compounds"
 			case 'α': sb.append("alpha"); break;
 			case 'β': sb.append("beta"); break;
 			case 'γ': sb.append("gamma"); break;
@@ -208,10 +203,40 @@ public class IndexingUtilities {
 			case 'χ': sb.append("chi"); break;
 			case 'ψ': sb.append("psi"); break;
 			case 'ω': sb.append("omega"); break;
-			default:  sb.append(c);
+
+			// as an error-checking measure, determine what other characters
+			// beyond a-z0-9 appear.
+			case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+			case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+			case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+			case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+			case 'y': case 'z': case '0': case '1': case '2': case '3':
+			case '4': case '5': case '6': case '7': case '8': case '9':
+				sb.append(c); break;
+
+			default:
+				sb.append(c);
+				System.out.println("warning: unexpected character in sort string: '"+c+"' ("+s+").");
 			}
  		}
+
+		// trim trailing spaces
+		int i;
+		for (i = sb.length() ; i > 0 && sb.charAt(i-1) == ' '; i--);
+		if (i < sb.length()) sb.setLength(i);
+
+
 		return sb.toString();
+	}
+
+	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
+		if (s == null) return null;
+		if (unwantedChars == null) return s;
+		if (s.equals("")) return s;
+		if (unwantedChars.equals("")) return s;
+		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
+		Matcher m = p.matcher(s);
+		return m.replaceAll("$1");
 	}
 
 	/**

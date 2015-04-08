@@ -307,13 +307,21 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"SELECT ?eight \n" +
 				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
 				    		"        ?f marcrdf:value ?eight } \n" ).
-				    addMainStoreQuery("human_dates",
+				    addMainStoreQuery("human_dates_260",
 				    		"SELECT ?date \n" +
-				    		"WHERE { { $recordURI$ marcrdf:hasField260 ?f }" +
-				    		"         UNION { $recordURI$ marcrdf:hasField264 ?f } \n" +
+				    		"WHERE { $recordURI$ marcrdf:hasField260 ?f. \n" +
 				    		"        ?f marcrdf:hasSubfield ?s. \n" +
 				    		"        ?s marcrdf:code \"c\"^^xsd:string. \n" +
-				    		"        ?s marcrdf:value ?date } ").
+				    		"        ?s marcrdf:value ?date. \n" +
+				    		" } ").
+				    addMainStoreQuery("human_dates_264",
+				    		"SELECT ?date ?ind2 \n" +
+				    		"WHERE { $recordURI$ marcrdf:hasField264 ?f. \n" +
+				    		"        ?f marcrdf:hasSubfield ?s. \n" +
+				    		"        ?s marcrdf:code \"c\"^^xsd:string. \n" +
+				    		"        ?s marcrdf:value ?date. \n" +
+				    		"        ?f marcrdf:ind2 ?ind2. \n" +
+				    		" } ").
 				    addResultSetToFields( new DateResultSetToFields() ) ,
 				    
 				new StandardMARCFieldMaker("pub_info_display","260","abc"),

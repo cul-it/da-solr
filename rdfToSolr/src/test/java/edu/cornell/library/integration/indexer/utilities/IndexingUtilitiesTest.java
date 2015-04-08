@@ -28,7 +28,7 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("héllo!").equals("hello"));
 		assertTrue(getSortHeading("-- :::hello::: --").equals("hello"));
 		assertFalse(getSortHeading("hello").equals("goodbye"));
-		assertTrue(getSortHeading("hello- -- hello").equals("hello hello"));
+		assertTrue(getSortHeading("hello-  -- hello").equals("hello hello"));
 		assertTrue(getSortHeading("Hello > hello").equals("hello aaa hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
@@ -47,10 +47,12 @@ public class IndexingUtilitiesTest {
 				equals("alpha and beta modifications of benzene hexabromid"));
 		assertTrue(getSortHeading("£1,000,000 bank-note and other stories").
 				equals("1000000 bank note and other stories"));
-//		assertTrue(getSortHeading("£ & the $; or, Gold debts & taxes").
-//				equals("pound the dollar or gold debts taxes"));
 		assertTrue(getSortHeading("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment").
 				equals("tudes de centre de dveloppement financer le dveloppment"));
+		assertTrue(getSortHeading("†Wilhelm His").equals("wilhelm his"));
+		assertTrue(getSortHeading("").equals(""));
+		assertTrue(getSortHeading("         ").equals(""));
+		assertTrue(getSortHeading("     ").equals("")); // non-standard space characters
 	}
 	
 }
