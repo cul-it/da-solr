@@ -216,7 +216,7 @@ public class IndexingUtilities {
 
 			default:
 				sb.append(c);
-				System.out.println("warning: unexpected character in sort string: '"+c+"' ("+value+").");
+//				System.out.println("warning: unexpected character in sort string: '"+c+"' ("+value+").");
 			}
  		}
 
