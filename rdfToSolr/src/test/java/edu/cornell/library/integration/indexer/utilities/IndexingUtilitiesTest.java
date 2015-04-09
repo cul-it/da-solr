@@ -53,6 +53,8 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("").equals(""));
 		assertTrue(getSortHeading("         ").equals(""));
 		assertTrue(getSortHeading("     ").equals("")); // non-standard space characters
+		
+	    assertTrue(getSortHeading("sydsæter knut").equals("sydsaeter knut"));
 	}
 	
 }

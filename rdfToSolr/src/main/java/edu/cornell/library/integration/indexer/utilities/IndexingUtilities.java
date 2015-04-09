@@ -182,7 +182,7 @@ public class IndexingUtilities {
 			// supplementary punctuation we don't want to file on
 			case '¿': case '¡': case '「': case '」': case '‘':
 			case '’': case '−': case '°': case '£': case '€':
-			case '†': case 'ʻ':
+			case '†': case 'ʻ': case 'ʹ': case 'ʾ':
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear
@@ -214,6 +214,7 @@ public class IndexingUtilities {
 			case 'ω': sb.append("omega"); break;
 			
 			// alphabetic characters not normalized by unicode normalizer
+			case 'æ': sb.append("ae"); break;
 			case 'ȼ': sb.append('c'); break;
 			case 'đ': sb.append('d'); break;
 			case 'ǥ': sb.append('g'); break;
