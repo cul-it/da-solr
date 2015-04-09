@@ -138,7 +138,7 @@ public class IndexingUtilities {
 		 * See http://unicode.org/reports/tr15/   Figure 6
 		 */
 		String s = Normalizer.normalize(value, Normalizer.Form.NFKD).toLowerCase().
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+				replaceAll("[\\p{InCombiningDiacriticalMarks}\uFE20\uFE21]+", "");
 		
 		/* For efficiency in avoiding multiple passes and worse, extensive regex, in this
 		 * step, we will apply most of the remaining string modification by iterating through
@@ -173,7 +173,7 @@ public class IndexingUtilities {
 			// supplementary punctuation we don't want to file on
 			case '¿': case '¡': case '「': case '」': case '‘':
 			case '’': case '−': case '°': case '£': case '€':
-			case '†':
+			case '†': case 'ʻ':
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear
