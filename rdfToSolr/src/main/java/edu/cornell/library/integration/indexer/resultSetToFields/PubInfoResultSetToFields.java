@@ -70,13 +70,13 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			}
 			for (DataField f: dataFields) {
 				if (f.tag.equals("880")) {
-					values880.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {
 						publisherVern = f.concatenateSpecificSubfields("b");
 						pubplaceVern = f.concatenateSpecificSubfields("a");
 					}
 				} else {
-					valuesMain.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					valuesMain.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {
 						publisher = f.concatenateSpecificSubfields("b");
 						pubplace = f.concatenateSpecificSubfields("a");

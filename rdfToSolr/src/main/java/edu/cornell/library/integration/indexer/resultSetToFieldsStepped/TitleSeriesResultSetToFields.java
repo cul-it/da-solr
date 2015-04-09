@@ -50,10 +50,10 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			String cts880 = null, ctsMain = null;
 			for (DataField f: dataFields)
 				if (f.tag.equals("880")) {
-					values880.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					cts880 = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
 				} else {
-					valuesMain.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					valuesMain.add(f.concatenateSubfieldsOtherThan("6"));
 					ctsMain = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
 				}
 			if ((values880.size() > 0) || (valuesMain.size() > 0)) {

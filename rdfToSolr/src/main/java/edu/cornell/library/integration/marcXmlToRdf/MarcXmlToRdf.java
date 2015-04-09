@@ -830,7 +830,7 @@ public class MarcXmlToRdf {
 
 		Map<Integer,DataField> datafields = rec.data_fields;
 		for (DataField f : datafields.values() ) {
-			String text = f.concatenateSubfieldsOtherThanSpecified("6");
+			String text = f.concatenateSubfieldsOtherThan("6");
 			if (f.tag.equals("880")) {
 				MarcRecord.Script script = f.getScript();
 				if (script.equals(MarcRecord.Script.CJK)) {

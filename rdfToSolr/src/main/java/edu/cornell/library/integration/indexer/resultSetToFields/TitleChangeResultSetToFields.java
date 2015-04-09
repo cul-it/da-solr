@@ -81,7 +81,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
 					
 					if (f.mainTag.equals("730")) {
-						title_cts = f.concatenateSubfieldsOtherThanSpecified("6");
+						title_cts = f.concatenateSubfieldsOtherThan("6");
 					} else {
 						title_cts = author_cts;
 					}
@@ -117,7 +117,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					else 
 						valuesMain.add(relation+"_displayZ"+workField);
 					if (relation.equals("included_work") && author_cts.length() > 0) 
-						valuesATFacet.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+						valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
 				}
 				relation = "";
 				if (title_cts.equals("")) {

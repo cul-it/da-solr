@@ -23,6 +23,9 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.http.ConnectionClosedException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -138,7 +141,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException  {
+	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException, JsonProcessingException  {
 		String heading = null;
 		String headingSort = null;
 		HeadTypeDesc htd = null;
@@ -148,7 +151,7 @@ public class IndexAuthorityRecords {
 		Collection<String> expectedNotes = new HashSet<String>();
 		Collection<String> foundNotes = new HashSet<String>();
 		Collection<String> notes = new HashSet<String>();
-		Map<String,Collection<String>> rdaData = new HashMap<String,Collection<String>>();
+		RdaData rdaData = new RdaData();
 		
 		Boolean isUndifferentiated = false;
 		
@@ -181,7 +184,7 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatenateSubfieldsOtherThanSpecified("");
+				heading = f.concatenateSubfieldsOtherThan("");
 				switch (f.tag) {
 				case "100":
 				case "110":
@@ -227,34 +230,40 @@ public class IndexAuthorityRecords {
 				// If the record is for a subdivision (main entry >=180),
 				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
-				notes.add("Search under: "+f.concatenateSubfieldsOtherThanSpecified(""));
+				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
 			} else if (f.tag.startsWith("3")) {
 				String fieldName = null;
 
 				switch (f.tag) {
-				case "370": fieldName = "place";			break;
-				case "372": fieldName = "field";			break;
-				case "373": fieldName = "group_or_org";		break;
-				case "374": fieldName = "occupation";		break;
-				case "375": fieldName = "gender";			break;
-				case "380": fieldName = "form_of_work";		break;
-				case "382": fieldName = "perform_medium";
+				case "370":
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': rdaData.add("Birth Place", sf.value);		break;
+						case 'b': rdaData.add("Place of Death",sf.value);	break;
+						case 'c': rdaData.add("Country",sf.value);			break;
+						}
+					break;
+
+				case "372": fieldName = "Field";			break;
+				case "373": fieldName = "Group/Organization";break;
+				case "374": fieldName = "Occupation";		break;
+				case "375": fieldName = "Gender";			break;
+				case "380": fieldName = "Form of Work";		break;
+				case "382": fieldName = "Instrumentation";
+				}
 				
-					if ( ! rdaData.containsKey(fieldName))
-						rdaData.put(fieldName, new HashSet<String>());
-					Collection<String> values = rdaData.get(fieldName);
+				if (fieldName != null)
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
-							values.add(sf.value);
+							rdaData.add(fieldName, sf.value);
 
-				}
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThan("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
@@ -267,7 +276,7 @@ public class IndexAuthorityRecords {
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
 					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
+					r.headingOrig = f.concatenateSubfieldsOtherThan("iw");
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
@@ -277,28 +286,28 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(f.concatenateSubfieldsOtherThan(""));
 				} else {
 					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("664")) {
 				foundNotes.add("664");
 				if (expectedNotes.contains("664")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(f.concatenateSubfieldsOtherThan(""));
 				} else {
 					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
 				}
 			} else if (f.tag.equals("665")) {
 				foundNotes.add("665");
 				if (expectedNotes.contains("665")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(f.concatenateSubfieldsOtherThan(""));
 				} else {
 					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("666")) {
 				foundNotes.add("666");
 				if (expectedNotes.contains("666")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(f.concatenateSubfieldsOtherThan(""));
 				} else {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
@@ -345,25 +354,20 @@ public class IndexAuthorityRecords {
 				directRef(heading_id,rs,r,ReferenceType.TO5XX);
 		}
 
-		if (rdaData.size() >= 1)
-			populateRdaInfo(heading_id, rdaData);
+		populateRdaInfo(heading_id, rdaData);
 
 		return;
 	}
 
-
-	private void populateRdaInfo(Integer heading_id, Map<String,Collection<String>> rdaData) throws SQLException {
-		for (String rdaField : rdaData.keySet() ) {
-			PreparedStatement stmt = connection.prepareStatement(
-					"INSERT INTO rda_"+rdaField+" (heading_id, val) VALUES (?, ?)");
-			stmt.setInt(1, heading_id);
-			for ( String val: rdaData.get(rdaField) ) {
-				stmt.setString(2, val);
-				stmt.addBatch();
-			}
-			stmt.executeBatch();
-			stmt.close();
-		}
+	private void populateRdaInfo(Integer heading_id, RdaData data) throws SQLException, JsonProcessingException {
+		String json = data.json();
+		if (json == null) return;
+		PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO rda (heading_id, rda) VALUES (?, ?)");
+		stmt.setInt(1, heading_id);
+		stmt.setString(2, json);
+		stmt.executeUpdate();
+		stmt.close();
 	}
 
 	private void insertAltForm(Integer heading_id, String form) throws SQLException {
@@ -434,7 +438,7 @@ public class IndexAuthorityRecords {
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
-		String heading = f.concatenateSubfieldsOtherThanSpecified("iw");
+		String heading = f.concatenateSubfieldsOtherThan("iw");
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) return heading;
 		boolean upperCase = true;
@@ -671,6 +675,23 @@ public class IndexAuthorityRecords {
 			r.applicableContexts.add(RecordSet.SERIES);
 		}
 		return r;
+	}
+
+	static final ObjectMapper mapper = new ObjectMapper();
+	private static class RdaData {
+
+		Map<String,Collection<String>> data = new HashMap<String,Collection<String>>();
+
+		public void add(String field, String value) {
+			if ( ! data.containsKey(field))
+				data.put(field, new HashSet<String>());
+			data.get(field).add(value);
+		}
+
+		public String json() throws JsonProcessingException {
+			if (data.isEmpty()) return null;
+			return mapper.writeValueAsString(data);
+		}
 	}
 	
 	private static class Relation {	
