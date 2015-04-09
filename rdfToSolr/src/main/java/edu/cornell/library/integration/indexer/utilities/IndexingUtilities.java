@@ -155,6 +155,15 @@ public class IndexingUtilities {
 				// prevent sequential spaces, initial spaces
 				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' '); 
 				break;
+				
+			// short-circuit the loop by clearing common cases.
+			case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+			case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+			case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+			case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+			case 'y': case 'z': case '0': case '1': case '2': case '3':
+			case '4': case '5': case '6': case '7': case '8': case '9':
+				sb.append(c); break;
 
 			// additional punctuation we'd like to treat differently
 			case '>': sb.append("aaa"); break; // control sorting and filing of hierarchical subject terms. 
@@ -203,16 +212,18 @@ public class IndexingUtilities {
 			case 'χ': sb.append("chi"); break;
 			case 'ψ': sb.append("psi"); break;
 			case 'ω': sb.append("omega"); break;
-
-			// as an error-checking measure, determine what other characters
-			// beyond a-z0-9 appear.
-			case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-			case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
-			case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
-			case 's': case 't': case 'u': case 'v': case 'w': case 'x':
-			case 'y': case 'z': case '0': case '1': case '2': case '3':
-			case '4': case '5': case '6': case '7': case '8': case '9':
-				sb.append(c); break;
+			
+			// alphabetic characters not normalized by unicode normalizer
+			case 'ȼ': sb.append('c'); break;
+			case 'đ': sb.append('d'); break;
+			case 'ǥ': sb.append('g'); break;
+			case 'ħ': sb.append('h'); break;
+			case 'ɨ': sb.append('i'); break;
+			case 'ɟ': case 'ʄ': sb.append('j'); break;
+			case 'ł': sb.append('l'); break;
+			case 'ø': sb.append('o'); break;
+			case 'ŧ': sb.append('t'); break;
+			case 'ƶ': sb.append('z'); break;
 
 			default:
 				sb.append(c);
