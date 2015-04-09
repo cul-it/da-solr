@@ -220,11 +220,9 @@ public class IndexingUtilities {
 			}
  		}
 
-		// trim trailing spaces
-		int i;
-		for (i = sb.length() ; i > 0 && sb.charAt(i-1) == ' '; i--);
-		if (i < sb.length()) sb.setLength(i);
-
+		// trim trailing space - there can't be more than one.
+		if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ')
+			sb.setLength(sb.length() - 1);
 
 		return sb.toString();
 	}

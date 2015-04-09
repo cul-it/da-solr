@@ -24,7 +24,7 @@ public class IndexingUtilitiesTest {
 	assertTrue(getSortHeading("hello").equals("hello"));
 		assertTrue(getSortHeading("Hello").equals("hello"));
 		assertTrue(getSortHeading("Hello,").equals("hello"));
-		assertTrue(getSortHeading("  hello ").equals("hello"));
+		assertTrue(getSortHeading("  hello     ").equals("hello"));
 		assertTrue(getSortHeading("héllo!").equals("hello"));
 		assertTrue(getSortHeading("-- :::hello::: --").equals("hello"));
 		assertFalse(getSortHeading("hello").equals("goodbye"));
