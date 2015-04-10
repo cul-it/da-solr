@@ -6,7 +6,7 @@ import java.util.List;
 import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
 import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
-import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
+//import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
 import edu.cornell.library.integration.indexer.documentPostProcess.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.documentPostProcess.NoAccessUrlsUnlessOnline;
@@ -29,7 +29,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetTo
 import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
@@ -65,7 +65,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new SuppressUnwantedValues(),
 				new MissingTitleReport(),
 //				new SuppressShadowRecords(),
-				new LoadItemData(),
+//				new LoadItemData(),
 				new ModifyCallNumbers(),
 				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
@@ -83,7 +83,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 					addResultSetToFields( new AllResultsToField("id") ),
 					
-				new SPARQLFieldMakerImpl().
+/*				new SPARQLFieldMakerImpl().
 					setName("holdings ids").
 					addMainStoreQuery("hold_ids",
 							"SELECT ?id \n"+
@@ -93,7 +93,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				        	"  ?f marcrdf:value ?id.\n" +
 							"}").
 					addResultSetToFields( new AllResultsToField("holdings_display")),
-			        
+			        */
 			    new SPARQLFieldMakerImpl().
 			        setName("holdings_data").
 				    addMainStoreQuery("holdings_control_fields",
@@ -132,7 +132,20 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "      ?locuri intlayer:hasLibrary ?liburi.\n" +
 					    "      ?liburi rdfs:label ?library.\n" +
 					    "}}}").
-		        addResultSetToFields( new HoldingsResultSetToFields()),
+				    addMainStoreQuery("description",
+						"SELECT *\n" +
+						" WHERE { $recordURI$ marcrdf:hasField300 ?field.\n" +
+						"        ?field marcrdf:tag ?tag. \n" +
+						"        ?field marcrdf:ind1 ?ind1. \n" +
+						"        ?field marcrdf:ind2 ?ind2. \n" +
+						"        ?field marcrdf:hasSubfield ?sfield .\n" +
+						"        ?sfield marcrdf:code ?code.\n" +
+						"        ?sfield marcrdf:value ?value.\n" +
+						" }").
+				    addMainStoreQuery("rectypebiblvl",
+						"SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n" +
+						" WHERE { $recordURI$ marcrdf:leader ?leader. }").
+		            addResultSetToFields( new HoldingsAndItemsRSTF()),
 		        
 		        new SPARQLFieldMakerImpl().
 		        	addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
