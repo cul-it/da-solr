@@ -50,8 +50,7 @@ public class IndexAuthorityRecords {
 	            
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
-  //  	   IndexAuthorityRecords iar =
-    			   new IndexAuthorityRecords(config);
+			new IndexAuthorityRecords(config);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

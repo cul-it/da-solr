@@ -70,21 +70,22 @@ public class IndexHeadings {
 		
 		connection = config.getDatabaseConnection("Headings");
 		Collection<BlacklightField> blFields = new HashSet<BlacklightField>();
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_exact","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_600_exact","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_610_exact","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_611_exact","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_650_exact","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_651_exact","subject_geo_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_exact","subject_era_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_exact","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_exact","subject_topic_facet"));//TODO: switch to geo after reindex
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_700_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_710_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_711_filing","author_facet" ));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_600_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_610_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_611_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_650_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_651_filing","subject_geo_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_filing","subject_era_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_filing","subject_geo_facet"));
 		
+
 		for (BlacklightField blf : blFields) {
 		
 			System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
