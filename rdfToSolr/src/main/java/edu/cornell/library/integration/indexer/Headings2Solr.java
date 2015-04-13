@@ -37,6 +37,7 @@ public class Headings2Solr {
 			new Headings2Solr(args);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
