@@ -78,4 +78,20 @@ public class BrowseUtils {
 		public String toString() { return string; }
 	}
 
+	public static enum ReferenceType {
+		TO4XX("alternateForm"),
+		FROM4XX("preferedForm"),
+		TO5XX("seeAlso"),
+		FROM5XX("seeAlso");
+		
+		private String string;
+		
+		private ReferenceType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
+		
+	}
+
 }

@@ -34,6 +34,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
 
 public class IndexAuthorityRecords {
 
@@ -705,23 +706,6 @@ public class IndexAuthorityRecords {
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
 	}
-
-	public static enum ReferenceType {
-		TO4XX("alternateForm"),
-		FROM4XX("preferedForm"),
-		TO5XX("seeAlso"),
-		FROM5XX("seeAlso");
-		
-		private String string;
-		
-		private ReferenceType(String name) {
-			string = name;
-		}
-
-		public String toString() { return string; }
-		
-	}
-
 	
 	// general MARC methods and classes start here
 	
