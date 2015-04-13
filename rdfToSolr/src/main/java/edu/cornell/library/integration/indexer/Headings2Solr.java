@@ -30,7 +30,6 @@ public class Headings2Solr {
 	private ReferenceType[] referenceTypes = ReferenceType.values(); 
 	private HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
-	SolrServer solr = null;
 
 	public static void main(String[] args) {
 		try {
@@ -43,23 +42,24 @@ public class Headings2Solr {
 
 	public Headings2Solr(String[] args) throws Exception {
 		Collection<String> requiredArgs = new HashSet<String>();
-		requiredArgs.add("xmlDir");
-		requiredArgs.add("blacklightSolrUrl");
-		requiredArgs.add("solrUrl");
-	            
-		config = SolrBuildConfig.loadConfig(args,requiredArgs);	
-		solr = new HttpSolrServer(config.getSolrUrl());
+		requiredArgs.add("authorSolrUrl");
+		requiredArgs.add("suthorSolrUrl");
+
+		config = SolrBuildConfig.loadConfig(args,requiredArgs);
 
 		authorTypes.add(HeadTypeDesc.PERSNAME.ordinal());
 		authorTypes.add(HeadTypeDesc.CORPNAME.ordinal());
 		authorTypes.add(HeadTypeDesc.EVENT.ordinal());
 
 		connection = config.getDatabaseConnection("Headings");
-		findWorks(HeadType.AUTHOR);
 
+		findWorks(new HttpSolrServer(config.getSubjectSolrUrl()), HeadType.SUBJECT);
+		findWorks(new HttpSolrServer(config.getAuthorSolrUrl()), HeadType.AUTHOR);
+
+		connection.close();
 	}
 	
-	private void findWorks(HeadType ht) throws Exception  {
+	private void findWorks(SolrServer solr, HeadType ht) throws Exception  {
 		String query =
 			"SELECT h.* "
 			+ "FROM heading as h"
@@ -103,7 +103,7 @@ public class Headings2Solr {
 	//		System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 	//		if ( ++docCount == 20 )System.exit(0);
 			docs.add(doc);
-			if (docs.size() == 1000) {
+			if (docs.size() == 10_000) {
 				System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
 				solr.add(docs);
 				solr.commit();

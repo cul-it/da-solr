@@ -379,6 +379,20 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+    public String getAuthorSolrUrl() {
+    	if (values.containsKey("authorSolrUrl")) {
+    		return values.get("authorSolrUrl");
+    	} else {
+    		return null;
+    	}
+    }
+    public String getSubjectSolrUrl() {
+    	if (values.containsKey("subjectSolrUrl")) {
+    		return values.get("subjectSolrUrl");
+    	} else {
+    		return null;
+    	}
+    }
     public String getBlacklightSolrUrl() {
     	if (values.containsKey("blacklightSolrUrl")) {
     		return values.get("blacklightSolrUrl");
