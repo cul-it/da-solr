@@ -71,7 +71,13 @@ public class Headings2Solr {
 			+ " WHERE h."+ht.dbField()+" > 0"
 			+ "    OR h2."+ht.dbField()+" > 0"
 			+ " GROUP BY h.id";
-		Statement stmt = connection.createStatement();
+		/* This method requires its own connection to the database so it can buffer results
+		 * which keeps the connection used tied up and unavailable for other queries
+		 */
+		Connection connectionFindWorks = config.getDatabaseConnection("Headings");
+		Statement stmt = connectionFindWorks.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+				java.sql.ResultSet.CONCUR_READ_ONLY);
+		stmt.setFetchSize(Integer.MIN_VALUE);
 		stmt.execute(query);
 		ResultSet rs = stmt.getResultSet();
 //		int docCount = 0;
@@ -106,7 +112,8 @@ public class Headings2Solr {
 		}
 		solr.add(docs);
 		solr.commit();
-		rs.close();
+		stmt.close();
+		connectionFindWorks.close();
 	}
 	
 	private static PreparedStatement ref_pstmt = null;

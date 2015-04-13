@@ -440,6 +440,10 @@ public class SolrBuildConfig {
     		System.out.println("Value not found for databasePass"+id);
     		System.exit(1);
     	}
+    	String poolsize = values.get("databasePoolsize"+id);
+    	int pool = 1;
+    	if (poolsize != null)
+    		pool = Integer.valueOf(poolsize);
     	
     	Boolean pooling = true; //default if not specified in config
     	if (values.containsKey("databasePooling"+id))
@@ -468,7 +472,7 @@ public class SolrBuildConfig {
 		    	cpds.setAcquireRetryDelay(30  * 1000); // s * ms/s
 		    	cpds.setAcquireIncrement(1);
 		    	cpds.setMinPoolSize(1);
-		    	cpds.setMaxPoolSize(1);
+		    	cpds.setMaxPoolSize(pool);
 		    	cpds.setInitialPoolSize(1);
 		    	databases.put(id, cpds);
 	    	}
