@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +47,7 @@ public class Headings2Solr {
 		requiredArgs.add("solrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);	
-//		solr = new HttpSolrServer(config.getSolrUrl());
+		solr = new HttpSolrServer(config.getSolrUrl());
 
 		authorTypes.add(HeadTypeDesc.PERSNAME.ordinal());
 		authorTypes.add(HeadTypeDesc.CORPNAME.ordinal());
@@ -75,7 +76,6 @@ public class Headings2Solr {
 //		int docCount = 0;
 		Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
 		while (rs.next()) {
-			System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
 			int id = rs.getInt("id");
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("id", id);
@@ -97,6 +97,7 @@ public class Headings2Solr {
 	//		if ( ++docCount == 20 )System.exit(0);
 			docs.add(doc);
 			if (docs.size() == 1000) {
+				System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
 				solr.add(docs);
 				solr.commit();
 				docs.clear();
