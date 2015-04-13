@@ -106,9 +106,10 @@ public class Headings2Solr {
 		}
 		solr.add(docs);
 		solr.commit();
+		rs.close();
 	}
 	
-	private PreparedStatement ref_pstmt = null;
+	private static PreparedStatement ref_pstmt = null;
 	private Collection<Reference> getXRefs(int id) throws SQLException, JsonProcessingException {
 		Collection<Reference> refs = new HashSet<Reference>();
 		if (ref_pstmt == null)
@@ -120,8 +121,8 @@ public class Headings2Solr {
 		ref_pstmt.setInt(1, id);
 		ref_pstmt.execute();
 		ResultSet rs = ref_pstmt.getResultSet();
+		Map<String,Object> vals = new HashMap<String,Object>();
 		while (rs.next()) {
-			Map<String,Object> vals = new HashMap<String,Object>();
 			vals.put("worksAbout", rs.getInt("works_about"));
 			vals.put("heading", rs.getString("heading"));
 			if (authorTypes.contains(rs.getInt("type_desc")))
@@ -130,7 +131,9 @@ public class Headings2Solr {
 			Reference r = new Reference(referenceTypes[ rs.getInt("ref_type") ]);
 			r.json = mapper.writeValueAsString(vals);
 			refs.add(r);
+			vals.clear();
 		}
+		rs.close();
 		return refs;
 	}
 
@@ -141,7 +144,7 @@ public class Headings2Solr {
 		return String.format("{\"worksAbout\":\"%d\"}",rs.getInt("works_about"));
 	}
 	
-	private PreparedStatement note_pstmt = null;
+	private static PreparedStatement note_pstmt = null;
 	private Collection<String> getNotes( int id ) throws SQLException {
 		if (note_pstmt == null)
 			note_pstmt = connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
@@ -151,10 +154,11 @@ public class Headings2Solr {
 		Collection<String> notes = new HashSet<String>();
 		while (rs.next())
 			notes.add( rs.getString("note") );
+		rs.close();
 		return notes;
 	}
 
-	private PreparedStatement alt_pstmt = null;
+	private static PreparedStatement alt_pstmt = null;
 	private Collection<String> getAltForms( int id ) throws SQLException {
 		if (alt_pstmt == null)
 			alt_pstmt = connection.prepareStatement("SELECT form FROM alt_form WHERE heading_id = ?");
@@ -164,19 +168,22 @@ public class Headings2Solr {
 		Collection<String> forms = new HashSet<String>();
 		while (rs.next())
 			forms.add( rs.getString("form") );
+		rs.close();
 		return forms;
 	}
 
-	private PreparedStatement rda_pstmt = null;
+	private static PreparedStatement rda_pstmt = null;
 	private String getRda( int id ) throws SQLException {
 		if (rda_pstmt == null)
 			rda_pstmt = connection.prepareStatement("SELECT rda FROM rda WHERE heading_id = ?");
 		rda_pstmt.setInt(1, id);
 		rda_pstmt.execute();
 		ResultSet rs = rda_pstmt.getResultSet();
-		while (rs.next())
-			return rs.getString("rda");
-		return null;
+		String rda = null;
+		if (rs.next())
+			rda = rs.getString("rda");
+		rs.close();
+		return rda;
 	}
 	
 	private class Reference {
