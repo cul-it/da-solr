@@ -232,8 +232,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
 			}
 		}
-		if (responsibility != null) {
-			if (responsibility_vern != null)
+		if (responsibility != null && ! responsibility.isEmpty()) {
+			if (responsibility_vern != null && ! responsibility_vern.isEmpty())
 				addField(solrFields,"title_responsibility_display",
 						responsibility_vern + " / " + responsibility);
 			else 
