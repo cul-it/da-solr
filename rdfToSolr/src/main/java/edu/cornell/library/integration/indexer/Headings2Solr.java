@@ -103,7 +103,7 @@ public class Headings2Solr {
 	//		System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 	//		if ( ++docCount == 20 )System.exit(0);
 			docs.add(doc);
-			if (docs.size() == 10_000) {
+			if (docs.size() == 5_000) {
 				System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
 				solr.add(docs);
 				solr.commit();
