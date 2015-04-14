@@ -382,7 +382,7 @@
       <str name="echoParams">explicit</str>
       <str name="fl">
         heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,
-        rda_json,counts_json,count
+        rda_json,counts_json,count,
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>
@@ -399,7 +399,7 @@
       <str name="echoParams">explicit</str>
       <str name="fl">
         heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,
-        rda_json,counts_json,count
+        rda_json,counts_json,count,
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>
