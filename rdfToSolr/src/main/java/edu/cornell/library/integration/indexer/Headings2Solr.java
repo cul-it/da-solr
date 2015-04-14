@@ -88,7 +88,7 @@ public class Headings2Solr {
 			doc.addField("id", id);
 			doc.addField("heading", rs.getString("heading"));
 			doc.addField("headingSort", rs.getString("sort"));
-			Collection<Reference> xrefs = getXRefs(id);
+			Collection<Reference> xrefs = getXRefs(id, ht);
 			// preferedForm && seeAlso xrefs
 			for (Reference r : xrefs) doc.addField(r.type.toString(), r.json);
 			for (String alt : getAltForms(id)) doc.addField("alternateForm", alt);
@@ -117,7 +117,7 @@ public class Headings2Solr {
 	}
 	
 	private static PreparedStatement ref_pstmt = null;
-	private Collection<Reference> getXRefs(int id) throws SQLException, JsonProcessingException {
+	private Collection<Reference> getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
 		Collection<Reference> refs = new HashSet<Reference>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
@@ -130,6 +130,7 @@ public class Headings2Solr {
 		ResultSet rs = ref_pstmt.getResultSet();
 		Map<String,Object> vals = new HashMap<String,Object>();
 		while (rs.next()) {
+			vals.put("count", rs.getInt(ht.dbField()));
 			vals.put("worksAbout", rs.getInt("works_about"));
 			vals.put("heading", rs.getString("heading"));
 			if (authorTypes.contains(rs.getInt("type_desc")))
