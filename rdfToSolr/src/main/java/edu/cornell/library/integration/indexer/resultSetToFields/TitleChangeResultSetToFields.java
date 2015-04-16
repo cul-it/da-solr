@@ -63,62 +63,63 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				mainTag = f.mainTag;
 				String title_cts = f.concatenateSpecificSubfields("t");
 				String author_cts;
-				if (f.mainTag.equals("700")) {
-					author_cts = f.concatenateSpecificSubfields("abcdq");
-				} else {
-					author_cts = f.concatenateSpecificSubfields("ab");
-				}
-				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
-						|| f.mainTag.equals("711")) {
+				if (f.mainTag.equals("700") || 
+						f.mainTag.equals("710") ||
+						f.mainTag.equals("711")) {
+
 					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
-					if (relation == null)
-						if (title_cts.isEmpty()) {
-							relation = "author_addl";
-						} else if (f.ind2.equals('2')) {
+					if (f.mainTag.equals("700")) {
+						author_cts = f.concatenateSpecificSubfields("abcdq");
+					} else {
+						author_cts = f.concatenateSpecificSubfields("ab");
+					}
+
+					// no title - this is an added entry author/creator
+					if (title_cts.isEmpty()) {
+						relation = "author_addl";
+						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								"author_addl",author_disp,author_cts));
+						if (f.mainTag.equals("700"))
+							valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
+						else 
+							valuesAFacet.add(f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz"));
+
+					// with title, this is an included or related work
+					} else {
+						if (f.ind2.equals('2')) {
 							relation = "included_work";
+							valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
 						} else {
 							relation = "related_work";
 						}
-				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
+						String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",workField,title_cts,author_cts));
+					}
+					continue; //next datafield
+				}
+
+				// included or related work without author metadata
+				if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
 					
+					String workField;
 					if (f.mainTag.equals("730")) {
 						title_cts = f.concatenateSubfieldsOtherThan("6");
+						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
 					} else {
-						title_cts = author_cts;
+						title_cts = f.concatenateSpecificSubfields("ab");
+						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
 					}
-					author_cts = "";
 					if (f.ind2.equals('2'))
 						relation = "included_work";
 					else 
 						relation = "related_work";
-				}
-				if ((relation != null) && relation.equals("author_addl")) {
-					String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
 					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-							"author_addl",author_disp,author_cts));
-					if (f.mainTag.equals("700"))
-						valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
-					else 
-						valuesAFacet.add(f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz"));
-				} else if (relation != null) {
-					String workField;
-					if (f.mainTag.equals("730"))
-						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
-					else
-						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
-					if (author_cts.isEmpty())
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-								relation+"_display",workField,title_cts));
-					else 
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-								relation+"_display",workField,title_cts,author_cts));
-					if (relation.equals("included_work") && author_cts.length() > 0) 
-						valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
+							relation+"_display",workField,title_cts));
+					continue; //next datafield
 				}
-				relation = "";
-				if (title_cts.equals("")) {
-					continue;				
-				}
+
 				MAIN: switch (f.mainTag) {
 				case "780":
 					switch (f.ind2) {
@@ -174,7 +175,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				case "777":
 					relation = "issued_with";		break MAIN;
 				}
-				if (! relation.equals("")) {
+				if (relation != null) {
 					if (f.ind1.equals('0')) {
 						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
 						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
