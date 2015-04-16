@@ -7,7 +7,9 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,8 +54,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
+			Collection<CtsField> cts_fields = new ArrayList<CtsField>();
 			Set<String> valuesAFacet = new HashSet<String>();
 			Set<String> valuesATFacet = new HashSet<String>();
 			String relation = null;
@@ -71,7 +72,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						|| f.mainTag.equals("711")) {
 					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
 					if (relation == null)
-						if (title_cts.length() < 2) {
+						if (title_cts.isEmpty()) {
 							relation = "author_addl";
 						} else if (f.ind2.equals('2')) {
 							relation = "included_work";
@@ -92,13 +93,9 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "related_work";
 				}
 				if ((relation != null) && relation.equals("author_addl")) {
-					if (f.tag.equals("880")) {
-						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
-						values880.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
-					} else {
-						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-						valuesMain.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
-					}
+					String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
+					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+							"author_addl",author_disp,author_cts));
 					if (f.mainTag.equals("700"))
 						valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
 					else 
@@ -109,13 +106,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
 					else
 						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
-					workField += "|"+title_cts;
-					if (author_cts.length() > 0)
-						workField += "|"+author_cts;
-					if (f.tag.equals("880"))
-						values880.add(relation+"_displayZ"+workField);
+					if (author_cts.isEmpty())
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",workField,title_cts));
 					else 
-						valuesMain.add(relation+"_displayZ"+workField);
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",workField,title_cts,author_cts));
 					if (relation.equals("included_work") && author_cts.length() > 0) 
 						valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
 				}
@@ -180,11 +176,9 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				}
 				if (! relation.equals("")) {
 					if (f.ind1.equals('0')) {
-						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw")+'|'+ title_cts;
-						if (f.tag.equals("880"))
-							values880.add(relation+"_displayZ"+displaystring);
-						else
-							valuesMain.add(relation+"_displayZ"+displaystring);
+						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",displaystring,title_cts));
 					}
 				}
 
@@ -216,45 +210,31 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 
 
 			}
-			if ((values880.size() == 1) && (valuesMain.size() == 1)) {
-				for (String s:values880) {
-					if (s.startsWith("author_")) {
-						StringBuilder sb = new StringBuilder();
-						String[] temp = s.split("Z",2);
-						String[] temp2 = temp[1].split("\\|",2);
-						String vernName = temp2[0];
-						String name = null;
-						sb.append(removeTrailingPunctuation(temp[1],","));
-						for (String t:valuesMain) {
-							String[] temp3 = t.split("Z",2);
-							String[] temp4 = temp3[1].split("\\|",2);
-							name = temp4[0];
-							sb.append("|");
-							sb.append(temp3[1]);
-						}
-						addField(solrFields,"author_addl_cts",sb.toString());
-						addField(solrFields,"author_addl_display",vernName+" / "+name);
-						values880.clear();
-						valuesMain.clear();
-					}
+			// Iff these are an cleanly matched pair of author display fields, do combined encoding
+			if (cts_fields.size() == 2) {
+				boolean candidate = true;
+				CtsField vernField = null;
+				CtsField romanField = null;
+				for (CtsField f: cts_fields) {
+					if (! f.relation.equals("author_addl"))
+						candidate = false;
+					if (f.vern)
+						vernField = f;
+					else romanField = f;
+				}
+				if (candidate && vernField != null && romanField != null) {
+					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
+					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
+							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					cts_fields.clear();
 				}
 			}
-			for (String s: values880) {
-				String[] temp = s.split("Z",2);
-				addField(solrFields,temp[0],temp[1]);
-				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("\\|",2);
-					addField(solrFields,"author_addl_display",temp2[0]);
-				}
-			}
-			for (String s: valuesMain) {
-				String[] temp = s.split("Z",2);
-				addField(solrFields,temp[0],temp[1]);
-				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("\\|",2);
-					addField(solrFields,"author_addl_display",temp2[0]);
-				}
-			}
+			for (CtsField f : cts_fields)
+				if (f.vern)
+					addCtsField(solrFields,f);
+			for (CtsField f : cts_fields)
+				if ( ! f.vern)
+					addCtsField(solrFields,f);
 			for (String s : valuesAFacet) {
 				addField(solrFields,"author_"+mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
@@ -265,5 +245,41 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			}
 		}
 		return solrFields;	
-	}	
+	}
+	
+	public void addCtsField(Map<String,SolrInputField> solrFields, CtsField f) {
+		if (f.relation.equals("author_addl")) {
+			addField(solrFields,"author_addl_display",f.display);
+			addField(solrFields,"author_addl_cts",String.format("%s|%s",
+					f.display,f.cts1));
+		} else {
+			if (f.cts2 == null)
+				addField(solrFields,f.relation,String.format("%s|%s",f.display,f.cts1));
+			else 
+				addField(solrFields,f.relation,String.format("%s|%s|%s",f.display,f.cts1,f.cts2));
+		}
+	}
+
+	public class CtsField {
+		public String relation;
+		public String display;
+		public String cts1;
+		public String cts2;
+		public boolean vern;
+
+		public CtsField (boolean vernacular, String rel, String f, String click1) {
+			vern = vernacular;
+			relation = rel;
+			display = f;
+			cts1 = click1;
+			cts2 = null;
+		}
+		public CtsField (boolean vernacular, String rel, String f, String click1, String click2) {
+			vern = vernacular;
+			relation = rel;
+			display = f;
+			cts1 = click1;
+			cts2 = click2;
+		}
+	}
 }
