@@ -171,8 +171,20 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 		String responsibility = null, responsibility_vern = null;
 		if (title != null) {
 		
+			// main title display fields
+			for (Subfield sf : title.subfields.values())
+				if (sf.code.equals('h'))
+					sf.value = sf.value.replaceAll("\\[.*\\]", "");
+			addField(solrFields,"title_display",
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= "));
+			addField(solrFields,"subtitle_display",
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
+			String fulltitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
+			addField(solrFields,"fulltitle_display",fulltitle);
+			responsibility = title.concatenateSpecificSubfields("c");
+
 			// sort title
-			String sortTitle = title.concatenateSpecificSubfields("ab");
+			String sortTitle = fulltitle;
 			if (Character.isDigit(title.ind2)) {
 				int nonFilingCharCount = Character.digit(title.ind2, 10);
 				if (nonFilingCharCount < sortTitle.length())
@@ -195,18 +207,6 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				System.out.println("The min of (2,length()) cannot be anything other than 0, 1, 2.");
 				System.exit(1);
 			}
-	
-			// main title display fields
-			for (Subfield sf : title.subfields.values())
-				if (sf.code.equals('h'))
-					sf.value = sf.value.replaceAll("\\[.*\\]", "");
-			addField(solrFields,"title_display",
-					removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= "));
-			addField(solrFields,"subtitle_display",
-					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
-			addField(solrFields,"fulltitle_display",
-					removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
-			responsibility = title.concatenateSpecificSubfields("c");
 
 			if (author != null) {
 				String authorTitle = author + " " + title.concatenateSpecificSubfields("abdefghknpqsv");
