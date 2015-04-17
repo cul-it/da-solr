@@ -85,62 +85,86 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> subdivisionsGeo = new HashSet<String>();
 			Set<String> subdivisionsEra = new HashSet<String>();
 			Set<String> subdivisionsGenre = new HashSet<String>();
+			boolean isWork = false;
 		
 			String main_fields = "", dashed_fields = "", facet_type = "topic";
 			for (DataField f: dataFields) {
 				
-				if (f.mainTag.equals("600")) {
+				switch (f.mainTag) {
+				case "600":
 					main_fields = "abcdefghkjlmnopqrstu";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("610")) {
+					isWork = isWork(f);
+					break;
+				case "610":
 					main_fields = "abcdefghklmnoprstu";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("611")) {
+					isWork = isWork(f);
+					break;
+				case "611":
 					main_fields = "acdefghklnpqstu";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("630")) {
+					isWork = isWork(f);
+					break;
+				case "630":
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("648")) {
+					break;
+				case "648":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					facet_type = "era";
-				} else if (f.mainTag.equals("650")) {
+					break;
+				case "650":
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("651")) {
+					break;
+				case "651":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					facet_type = "geo";
-				} else if (f.mainTag.equals("653")) {
+					break;
+				case "653":
 					// This field list is used for subject_display and sixfivethree.
 					main_fields = "a";
-				} else if (f.mainTag.equals("654")) {
+					break;
+				case "654":
 					main_fields = "abe";
 					dashed_fields = "vyz";
-				} else if (f.mainTag.equals("655")) {
+					break;
+				case "655":
 					main_fields = "ab"; //655 facet_type over-riden for FAST facet
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("656")) {
+					break;
+				case "656":
 					main_fields = "ak";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("657")) {
+					break;
+				case "657":
 					main_fields = "a";
 					dashed_fields = "vxyz";
-				} else if (f.mainTag.equals("658")) {
+					break;
+				case "658":
 					main_fields = "abcd";
-				} else if (f.mainTag.equals("662")) {
+					break;
+				case "662":
 					main_fields = "abcdfgh";
 					facet_type = "geo";
-				} else if (f.mainTag.equals("690")) {
+					break;
+				case "690":
+				case "691":
 					main_fields = "abvxyz";
-				} else if (f.mainTag.equals("691")) {
-					main_fields = "abvxyz";
-				} else if ((f.mainTag.equals("692")) || (f.mainTag.equals("693")) ||
-						(f.mainTag.equals("694")) || (f.mainTag.equals("695")) ||
-						(f.mainTag.equals("696")) || (f.mainTag.equals("697")) ||
-						(f.mainTag.equals("698")) || (f.mainTag.equals("699"))) {
+					break;
+				case "692":
+				case "693":
+				case "694":
+				case "695":
+				case "696":
+				case "697":
+				case "698":
+				case "699":
 					main_fields = "a";
+					break;
 				}
 				if (! main_fields.equals("")) {
 					StringBuilder sb_piped = new StringBuilder();
@@ -179,7 +203,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			
 			for (String s: values880_breadcrumbed) {
 				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
-				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
+				addField(solrFields,(isWork?"authortitle_":"subject_")+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					if (h.mainTag.equals("655"))
@@ -190,8 +214,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
 			}
 			for (String s: valuesMain_breadcrumbed) {
-				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));				
-				addField(solrFields,"subject_"+h.mainTag+"_filing",getSortHeading(s));
+				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+				addField(solrFields,(isWork?"authortitle_":"subject_")+h.mainTag+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					if (h.mainTag.equals("655"))
@@ -227,6 +251,18 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 	}
 	
 	
+	private boolean isWork(DataField f) {
+		f.concatenateSpecificSubfields("tklfnpmors");
+		for (Subfield sf : f.subfields.values())
+			switch (sf.code) {
+			case 't': case 'k': case 'l': case 'f': case 'n':
+			case 'p': case 'm': case 'o': case 'r': case 's':
+				return true;
+			}
+		return false;
+	}
+
+
 	private class Heading {
 		boolean isFAST = false;
 		FieldSet fs = null;
