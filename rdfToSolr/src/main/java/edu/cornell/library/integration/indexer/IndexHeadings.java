@@ -64,7 +64,6 @@ public class IndexHeadings {
 		Collection<String> requiredArgs = new HashSet<String>();
 		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
-		requiredArgs.add("solrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
 		
