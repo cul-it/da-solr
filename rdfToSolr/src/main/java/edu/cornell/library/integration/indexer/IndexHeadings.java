@@ -89,10 +89,9 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_700_filing","authortitle_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_710_filing","authortitle_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_711_filing","authortitle_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_600_filing","subject_topic_facet"));
+/*		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_600_filing","subject_topic_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_610_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_611_filing","subject_topic_facet"));
-		
+		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_611_filing","subject_topic_facet")); */
 
 		for (BlacklightField blf : blFields) {
 		
