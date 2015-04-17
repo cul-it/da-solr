@@ -185,15 +185,16 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.startsWith("1")) {
 				// main heading
 				heading = f.concatenateSubfieldsOtherThan("");
-				switch (f.tag) {
+				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
 				case "111":
 					rs = RecordSet.NAME;
-					SF: for (Subfield sf : f.subfields.values() ) {
+					for (Subfield sf : f.subfields.values() ) {
 						if (sf.code.equals('t')) {
 							rs = RecordSet.NAMETITLE;
-							break SF;
+							htd = HeadTypeDesc.WORK;
+							break MAIN;
 						}
 					}
 					if (f.tag.equals("100"))

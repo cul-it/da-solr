@@ -12,7 +12,8 @@ public class BrowseUtils {
 		GEONAME("Geographic Name"),
 		CHRONTERM("Chronological Term"),
 		GENRE("Genre/Form Term"),
-		MEDIUM("Medium of Performance");
+		MEDIUM("Medium of Performance"),
+		WORK("Work");
 		
 		private String string;
 		
