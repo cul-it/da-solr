@@ -18,16 +18,15 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -62,14 +61,14 @@ public class IndexHeadings {
 	public IndexHeadings(String[] args) throws Exception {
         
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = new HashSet<String>();
+		Collection<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
 		
 		connection = config.getDatabaseConnection("Headings");
-		Collection<BlacklightField> blFields = new HashSet<BlacklightField>();
+		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
 /*		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_filing","author_facet" ));
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_filing","author_facet" ));
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_111_filing","author_facet" ));
@@ -204,20 +203,18 @@ public class IndexHeadings {
 		if (facet == null)
 			return headingSort;
 
-		Collection<String> solrArgs = new HashSet<String>();
-		solrArgs.add( "qt=standard" );
-		solrArgs.add( "q="+URLEncoder.encode("*:*","UTF-8") );
-		solrArgs.add( "fq="+blf.fieldName()+"%3A%22"+
-				URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")+"%22");
-		solrArgs.add( "rows=0" );
-		solrArgs.add( "echoParams=none" );
-		solrArgs.add( "facet=true" );
-		solrArgs.add( "facet.field="+facet );
-		solrArgs.add( "facet.limit=40" );
-		solrArgs.add( "facet.mincount=1" );
-		String query = config.getBlacklightSolrUrl() +"/select?" + StringUtils.join( solrArgs, "&");
-//		System.out.println("**** Looking for display value for: "+headingSort+"****");
-		
+		StringBuilder sb = new StringBuilder();
+		sb.append(config.getBlacklightSolrUrl());
+		sb.append("/select?&qt=standard&rows=0&echoParams=none" );
+		// all records
+		sb.append( "&q=" ); sb.append(URLEncoder.encode("*:*","UTF-8") );
+		// filtered by filing value
+		sb.append( "&fq=" ); sb.append(blf.fieldName() ); sb.append("%3A%22" ); // colon-start quotation
+		         sb.append( URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")); //escape quotes
+		         sb.append("%22"); // end quotation
+		// return display values from facet field
+		sb.append( "&facet=true&facet.limit=40&facet.mincount=1&facet.field="); sb.append( facet );
+		String query =  sb.toString();
 
 		URI uri = new URI(query);
 		URL queryUrl = uri.toURL();
