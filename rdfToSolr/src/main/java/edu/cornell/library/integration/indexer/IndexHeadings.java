@@ -53,6 +53,7 @@ public class IndexHeadings {
 			new IndexHeadings(args);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 	}
