@@ -182,7 +182,7 @@ public class IndexingUtilities {
 			// supplementary punctuation we don't want to file on
 			case '¿': case '¡': case '「': case '」': case '‘':
 			case '’': case '−': case '°': case '£': case '€':
-			case '†': case 'ʻ': case 'ʹ': case 'ʾ':
+			case '†': case 'ʻ': case 'ʹ': case 'ʾ': case '،':
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear

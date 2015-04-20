@@ -55,6 +55,9 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("     ").equals("")); // non-standard space characters
 		
 	    assertTrue(getSortHeading("sydsæter knut").equals("sydsaeter knut"));
+
+	    // non-Roman scripts are not fully or well supported in filing
+	    assertTrue(getSortHeading("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
 	}
 	
 }
