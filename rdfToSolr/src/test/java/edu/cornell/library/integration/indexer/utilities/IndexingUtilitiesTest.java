@@ -52,8 +52,8 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("†Wilhelm His").equals("wilhelm his"));
 		assertTrue(getSortHeading("").equals(""));
 		assertTrue(getSortHeading("         ").equals(""));
-		assertTrue(getSortHeading("     ").equals("")); // non-standard space characters
-		
+		// non-standard space characters \u3000 is common in CJK text
+		assertTrue(getSortHeading("\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u202F\u205F\u3000\uFEFF").equals(""));
 	    assertTrue(getSortHeading("sydsæter knut").equals("sydsaeter knut"));
 
 	    // non-Roman scripts are not fully or well supported in filing

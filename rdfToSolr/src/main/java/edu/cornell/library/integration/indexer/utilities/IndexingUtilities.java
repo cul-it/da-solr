@@ -183,6 +183,7 @@ public class IndexingUtilities {
 			case '¿': case '¡': case '「': case '」': case '‘':
 			case '’': case '−': case '°': case '£': case '€':
 			case '†': case 'ʻ': case 'ʹ': case 'ʾ': case '،':
+			case '\u200B': case '\uFEFF': //zero-width spaces
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear
