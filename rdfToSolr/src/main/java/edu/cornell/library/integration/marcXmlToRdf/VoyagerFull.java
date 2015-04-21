@@ -30,7 +30,7 @@ public class VoyagerFull {
 		Collection<String> requiredFields = new HashSet<String>();
 		requiredFields.add("fullXmlBibDir");
 		requiredFields.add("fullXmlMfhdDir");
-		requiredFields.add("N3Dir");
+		requiredFields.add("n3Dir");
 		requiredFields.add("dailyBibUnsuppressedDir");
 		requiredFields.add("dailyBibUnsuppressedFilenamePrefix");
 		requiredFields.add("dailyMfhdUnsuppressedDir");
