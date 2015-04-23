@@ -213,7 +213,7 @@ public class IndexHeadings {
 		ResultSet rs = stmt.getResultSet();
 		while (rs.next())
 			maxId = rs.getInt(1);
-		stmt.close();
+		System.out.println("Max header id in db: "+maxId);
 
 		PreparedStatement pstmt = connection.prepareStatement
 				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
