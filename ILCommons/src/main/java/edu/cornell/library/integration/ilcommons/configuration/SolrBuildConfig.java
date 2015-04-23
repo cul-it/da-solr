@@ -386,6 +386,13 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+    public String getAuthorTitleSolrUrl() {
+    	if (values.containsKey("authorTitleSolrUrl")) {
+    		return values.get("authorTitleSolrUrl");
+    	} else {
+    		return null;
+    	}
+    }
     public String getSubjectSolrUrl() {
     	if (values.containsKey("subjectSolrUrl")) {
     		return values.get("subjectSolrUrl");

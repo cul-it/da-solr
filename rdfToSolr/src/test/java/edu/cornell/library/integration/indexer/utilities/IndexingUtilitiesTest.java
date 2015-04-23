@@ -21,7 +21,7 @@ public class IndexingUtilitiesTest {
 	
 	@Test
 	public void getSortHeadingTest() {
-	assertTrue(getSortHeading("hello").equals("hello"));
+		assertTrue(getSortHeading("hello").equals("hello"));
 		assertTrue(getSortHeading("Hello").equals("hello"));
 		assertTrue(getSortHeading("Hello,").equals("hello"));
 		assertTrue(getSortHeading("  hello     ").equals("hello"));

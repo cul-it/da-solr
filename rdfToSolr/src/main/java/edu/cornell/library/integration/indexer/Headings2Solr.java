@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
 
 public class Headings2Solr {
@@ -27,8 +28,8 @@ public class Headings2Solr {
 	private Connection connection = null;
 	private SolrBuildConfig config;
 	private Collection<Integer> authorTypes = new HashSet<Integer>();
-	private ReferenceType[] referenceTypes = ReferenceType.values(); 
-	private HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
+	private final ReferenceType[] referenceTypes = ReferenceType.values();
+	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
 
 	public static void main(String[] args) {
@@ -43,7 +44,8 @@ public class Headings2Solr {
 	public Headings2Solr(String[] args) throws Exception {
 		Collection<String> requiredArgs = new HashSet<String>();
 		requiredArgs.add("authorSolrUrl");
-		requiredArgs.add("suthorSolrUrl");
+		requiredArgs.add("subjectSolrUrl");
+		requiredArgs.add("authorTitleSolrUrl");
 
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
 
@@ -55,6 +57,7 @@ public class Headings2Solr {
 
 		findWorks(new HttpSolrServer(config.getSubjectSolrUrl()), HeadType.SUBJECT);
 		findWorks(new HttpSolrServer(config.getAuthorSolrUrl()), HeadType.AUTHOR);
+		findWorks(new HttpSolrServer(config.getAuthorTitleSolrUrl()), HeadType.AUTHORTITLE);
 
 		connection.close();
 	}
@@ -92,7 +95,8 @@ public class Headings2Solr {
 			// preferedForm && seeAlso xrefs
 			for (Reference r : xrefs) doc.addField(r.type.toString(), r.json);
 			for (String alt : getAltForms(id)) doc.addField("alternateForm", alt);
-			doc.addField("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ]);
+			if (RecordSet.NAMETITLE.ordinal() != rs.getInt("record_set"))
+				doc.addField("headingTypeDesc", HeadTypeDescs[ rs.getInt("type_desc") ]);
 			doc.addField("authority", rs.getBoolean("authority"));
 			doc.addField("mainEntry", rs.getBoolean("main_entry"));
 			for (String note : getNotes(id)) doc.addField("notes", note);
@@ -103,7 +107,7 @@ public class Headings2Solr {
 	//		System.out.println( IndexingUtilities.prettyXMLFormat( ClientUtils.toXML( doc ) ) );
 	//		if ( ++docCount == 20 )System.exit(0);
 			docs.add(doc);
-			if (docs.size() == 5_000) {
+			if (docs.size() == 10_000) {
 				System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
 				solr.add(docs);
 				solr.commit();
@@ -133,8 +137,11 @@ public class Headings2Solr {
 			vals.put("count", rs.getInt(ht.dbField()));
 			vals.put("worksAbout", rs.getInt("works_about"));
 			vals.put("heading", rs.getString("heading"));
-			if (authorTypes.contains(rs.getInt("type_desc")))
+			int type_desc = rs.getInt("type_desc");
+			if (authorTypes.contains(type_desc))
 				vals.put("worksBy", rs.getInt("works_by"));
+			if (HeadTypeDesc.WORK.ordinal() == type_desc)
+				vals.put("works", rs.getInt("works"));
 			vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
 			Reference r = new Reference(referenceTypes[ rs.getInt("ref_type") ]);
 			r.json = mapper.writeValueAsString(vals);

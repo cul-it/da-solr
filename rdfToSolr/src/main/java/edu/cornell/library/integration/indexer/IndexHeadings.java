@@ -17,7 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,6 +70,9 @@ public class IndexHeadings {
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
 		
 		connection = config.getDatabaseConnection("Headings");
+		deleteCountsFromDB();
+		System.exit(0);
+
 		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_filing","author_facet" ));
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_110_filing","author_facet" ));
@@ -84,7 +89,7 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_648_filing","subject_era_facet"));
 		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_655_filing","subject_topic_facet"));
 		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_662_filing","subject_geo_facet"));
-/*		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_600_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_600_filing","subject_topic_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_610_filing","subject_topic_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "authortitle_611_filing","subject_topic_facet"));
 
@@ -92,7 +97,7 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_245_filing","authortitle_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_700_filing","authortitle_facet"));
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_710_filing","authortitle_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_711_filing","authortitle_facet")); */
+		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_711_filing","authortitle_facet"));
 
 		for (BlacklightField blf : blFields) {
 		
@@ -195,6 +200,30 @@ public class IndexHeadings {
 				System.exit(1);
 			}
 		}
+
+	}
+
+	private void deleteCountsFromDB() throws SQLException {
+
+		int batchsize = 10_000;
+
+		Statement stmt = connection.createStatement();
+		stmt.executeQuery("SELECT MAX(id) FROM heading");
+		int maxId = 0;
+		ResultSet rs = stmt.getResultSet();
+		while (rs.next())
+			maxId = rs.getInt(1);
+		stmt.close();
+
+		PreparedStatement pstmt = connection.prepareStatement
+				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
+						+ "WHERE id BETWEEN ? AND ?");
+		for (int left = 0; left < maxId; left += batchsize) {
+			pstmt.setInt(1, left + 1);
+			pstmt.setInt(2, left + batchsize);
+			pstmt.executeUpdate();
+		}
+		pstmt.close();
 
 	}
 
