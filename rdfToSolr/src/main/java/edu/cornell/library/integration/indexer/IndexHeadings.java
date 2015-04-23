@@ -71,7 +71,7 @@ public class IndexHeadings {
 		
 		connection = config.getDatabaseConnection("Headings");
 		deleteCountsFromDB();
-		System.exit(0);
+		connection.setAutoCommit(false);
 
 		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
 		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_100_filing","author_facet" ));
@@ -100,66 +100,73 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_711_filing","authortitle_facet"));
 
 		for (BlacklightField blf : blFields) {
-		
-			System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
-						blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
 			
-			if ( ! statements.containsKey(blf.headingType()))
-				statements.put(blf.headingType(), new HashMap<String,PreparedStatement>());
-			
-			// save terms info for field to temporary file.
-			URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
-					blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
-			final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
-			tempPath.toFile().deleteOnExit();
-			FileOutputStream fos = new FileOutputStream(tempPath.toString());
-			ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
-			fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
-			fos.close();
-
-			// then read the file back in to process it.
-			FileInputStream fis = new FileInputStream(tempPath.toString());
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
-	
-			// fast forward to response body
-			FF: while (r.hasNext()) {
-				String event = getXMLEventTypeString(r.next());
-				if (event.equals("START_ELEMENT")) {
-					if (r.getLocalName().equals("lst"))
-						for (int i = 0; i < r.getAttributeCount(); i++)
-							if (r.getAttributeLocalName(i).equals("name")) {
-								String name = r.getAttributeValue(i);
-								if (name.equals("terms")) break FF;
-							}
-				}
-			}
-			
-			// process actual results
-			String heading = null;
-			Integer recordCount = null;
-			int headingCount = 0;
-			while (r.hasNext()) {
-				String event = getXMLEventTypeString(r.next());
-				if (event.equals("START_ELEMENT")) {
-					if (r.getLocalName().equals("int")) {
-						for (int i = 0; i < r.getAttributeCount(); i++)
-							if (r.getAttributeLocalName(i).equals("name"))
-								heading = r.getAttributeValue(i);
-						recordCount = Integer.valueOf(r.getElementText());
-						addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
-						if (++headingCount % 10_000 == 0)
-							System.out.printf("%s => %d\n",heading,recordCount);
-					}
-				}
-			}
-			fis.close();
-			Files.delete(tempPath);
+			processBlacklightFieldHeaderData( blf );
+			connection.commit();
 		}
 
 	}
 
 	
+	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
+
+		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
+					blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
+
+		if ( ! statements.containsKey(blf.headingType()))
+			statements.put(blf.headingType(), new HashMap<String,PreparedStatement>());
+
+		// save terms info for field to temporary file.
+		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
+				blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
+		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
+		tempPath.toFile().deleteOnExit();
+		FileOutputStream fos = new FileOutputStream(tempPath.toString());
+		ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
+		fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
+		fos.close();
+
+		// then read the file back in to process it.
+		FileInputStream fis = new FileInputStream(tempPath.toString());
+		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
+
+		// fast forward to response body
+		FF: while (r.hasNext()) {
+			String event = getXMLEventTypeString(r.next());
+			if (event.equals("START_ELEMENT")) {
+				if (r.getLocalName().equals("lst"))
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("name")) {
+							String name = r.getAttributeValue(i);
+							if (name.equals("terms")) break FF;
+						}
+			}
+		}
+
+		// process actual results
+		String heading = null;
+		Integer recordCount = null;
+		int headingCount = 0;
+		while (r.hasNext()) {
+			String event = getXMLEventTypeString(r.next());
+			if (event.equals("START_ELEMENT")) {
+				if (r.getLocalName().equals("int")) {
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("name"))
+							heading = r.getAttributeValue(i);
+					recordCount = Integer.valueOf(r.getElementText());
+					addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
+					if (++headingCount % 10_000 == 0)
+						System.out.printf("%s => %d\n",heading,recordCount);
+				}
+			}
+		}
+		fis.close();
+		Files.delete(tempPath);
+	}
+
+
 	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count) throws SolrServerException, SQLException {
 
 		String count_field = blf.headingType().dbField();
@@ -213,7 +220,6 @@ public class IndexHeadings {
 		ResultSet rs = stmt.getResultSet();
 		while (rs.next())
 			maxId = rs.getInt(1);
-		System.out.println("Max header id in db: "+maxId);
 
 		PreparedStatement pstmt = connection.prepareStatement
 				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
