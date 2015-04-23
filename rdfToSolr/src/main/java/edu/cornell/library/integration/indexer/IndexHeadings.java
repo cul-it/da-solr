@@ -102,7 +102,6 @@ public class IndexHeadings {
 		for (BlacklightField blf : blFields) {
 			
 			processBlacklightFieldHeaderData( blf );
-			connection.commit();
 		}
 
 	}
@@ -157,8 +156,10 @@ public class IndexHeadings {
 							heading = r.getAttributeValue(i);
 					recordCount = Integer.valueOf(r.getElementText());
 					addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
-					if (++headingCount % 10_000 == 0)
+					if (++headingCount % 10_000 == 0) {
 						System.out.printf("%s => %d\n",heading,recordCount);
+						connection.commit();
+					}
 				}
 			}
 		}
