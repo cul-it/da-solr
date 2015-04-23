@@ -205,7 +205,7 @@ public class IndexHeadings {
 
 	private void deleteCountsFromDB() throws SQLException {
 
-		int batchsize = 50_000;
+		int batchsize = 10_000;
 
 		Statement stmt = connection.createStatement();
 		stmt.executeQuery("SELECT MAX(id) FROM heading");
