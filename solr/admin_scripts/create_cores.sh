@@ -106,16 +106,20 @@ readMasterCoreUrl()
 {
     masterCore=$1
     if [[ ! -z $masterCore ]]; then
-	if [[ ! $masterCore =~ $masterCoreUrlP ]]; then
-	    echo "masterCore url not in correct syntax"
-	    masterCore=""
-	else
-	    code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' $masterCore)
-	    if [ $code != 200 ]; then
-		echo "master core URL $masterCore doesn't appear to ba a valid core."
-		masterCore=""
-	    fi
-	fi
+        re='(.*)XXXX(.*)'
+        while [[ $masterCore =~ $re ]]; do
+            masterCore=${BASH_REMATCH[1]}${BUILD_NUMBER}${BASH_REMATCH[2]}
+        done
+        if [[ ! $masterCore =~ $masterCoreUrlP ]]; then
+            echo "masterCore url not in correct syntax"
+            masterCore=""
+        else
+            code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' $masterCore)
+            if [ $code != 200 ]; then
+                echo "master core URL $masterCore doesn't appear to ba a valid core."
+                masterCore=""
+            fi
+        fi
     fi;
 }
 

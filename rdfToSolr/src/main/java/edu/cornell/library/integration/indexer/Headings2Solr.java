@@ -108,7 +108,7 @@ public class Headings2Solr {
 	//		if ( ++docCount == 20 )System.exit(0);
 			docs.add(doc);
 			if (docs.size() == 5_000) {
-				System.out.printf("%d: %s (%s)\n", rs.getInt("id"),rs.getString("heading"),rs.getString("sort"));
+				System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
 				solr.add(docs);
 				solr.commit();
 				docs.clear();
