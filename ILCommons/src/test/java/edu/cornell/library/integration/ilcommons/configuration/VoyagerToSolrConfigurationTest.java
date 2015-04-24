@@ -10,12 +10,12 @@ public class VoyagerToSolrConfigurationTest {
 	@Test
 	public void testInsertDate() {
 		String test = "No replacement";
-		assertTrue(SolrBuildConfig.insertDate(test).equals(test));
+		assertTrue(SolrBuildConfig.insertIterationContext(test).equals(test));
 		test = "should/XXXX/replace";
-		assertFalse(SolrBuildConfig.insertDate(test).equals(test));
+		assertFalse(SolrBuildConfig.insertIterationContext(test).equals(test));
 		test = "Today is XXXX.";
-		assertFalse(SolrBuildConfig.insertDate(test).equals(test));
-		System.out.println(SolrBuildConfig.insertDate(test));
+		assertFalse(SolrBuildConfig.insertIterationContext(test).equals(test));
+		System.out.println(SolrBuildConfig.insertIterationContext(test));
 	}
 
 }

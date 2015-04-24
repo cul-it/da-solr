@@ -67,7 +67,7 @@ public class SolrBuildConfig {
     }
 
     public void setDailyBibUpdates(String str) {
-        values.put("dailyBibUpdates", insertDate(str)) ;
+        values.put("dailyBibUpdates", insertIterationContext(str)) ;
     }
 
     public String getDailyBibDeletes() throws IOException {
@@ -79,7 +79,7 @@ public class SolrBuildConfig {
     	}
     }
     public void setDailyBibDeletes(String str) {
-        values.put("dailyBibDeletes", insertDate(str));
+        values.put("dailyBibDeletes", insertIterationContext(str));
     }
 
     public String getDailyBibAdds() throws IOException {
@@ -534,7 +534,7 @@ public class SolrBuildConfig {
     }
     
     public void setDailyReports(String reports){
-        values.put("dailyReports", insertDate(reports));
+        values.put("dailyReports", insertIterationContext(reports));
     }
     
     /* Populate SolrBuildConfig values into Hadoop context mapper
@@ -561,7 +561,7 @@ public class SolrBuildConfig {
             String field = entry.getKey();
             String value = entry.getValue();
             if (debug) System.out.println(field+" => "+value);
-        	String valueWDate = insertDate(value);
+        	String valueWDate = insertIterationContext(value);
         	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
         	solrBuildConfig.values.put(field,valueWDate);
         }
@@ -720,7 +720,7 @@ public class SolrBuildConfig {
         	String field = i.next();
         	String value = prop.getProperty(field);
         	if (debug) System.out.println(field+" => "+value);
-        	String valueWDate = insertDate(value);
+        	String valueWDate = insertIterationContext(value);
         	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
         	conf.values.put(field,valueWDate);
         	
@@ -732,22 +732,29 @@ public class SolrBuildConfig {
     /**
      * 
      * @param String value - configuration value. 
-     * @return if value contains "XXXX", returns string with "XXXX" replaced with current date
+     * @return if value contains "XXXX", returns string with "XXXX" replaced with the BUILD_NUMBER
+     * environment variable (iff env variable ContextIsBuildNum=true) or current date
      * in YYYY-MM-DD format. If not, returns value unchanged.
      */
-    public static String insertDate( String value ) {
+    public static String insertIterationContext( String value ) {
     	if (value == null) {
     		// missing config value should be caught later.
     		return null;
     	}
     	if (value.contains("XXXX")) {
-    		Calendar now = Calendar.getInstance();
-    		String today = new SimpleDateFormat("yyyy-MM-dd").format(now.getTime());
+    		if (today == null)
+    			if (Boolean.valueOf(System.getenv("ContextIsBuildNum")))
+    				today = System.getenv("BUILD_NUMBER");
+    		if (today == null) {
+    			Calendar now = Calendar.getInstance();
+    			today = new SimpleDateFormat("yyyy-MM-dd").format(now.getTime());
+    		}
     		return value.replace("XXXX", today);
     	} else {
     		return value;
     	}
     }
+	static String today = null;
  
     /**
      * Returns empty String if configuration is good.

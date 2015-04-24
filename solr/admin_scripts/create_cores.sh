@@ -123,9 +123,13 @@ readCoreName()
 {
     coreName=$1
     if [[ ! -z $coreName ]]; then
-	if [[ ! $coreName =~ $solrCoreNameP ]]; then
-	    echo "CoreName is not in correct syntax. Though Solr doesn't impose this restriction so tightly, we are currently validating core names to alphanumeric characters, dashes, and underscores."
-	    coreName=""
+        re='(.*)XXXX(.*)'
+        while [[ $coreName =~ $re ]]; do
+            coreName=${BASH_REMATCH[1]}${BUILD_NUMBER}${BASH_REMATCH[2]}
+        done
+        if [[ ! $coreName =~ $solrCoreNameP ]]; then
+            echo "CoreName is not in correct syntax. Though Solr doesn't impose this restriction so tightly, we are currently validating core names to alphanumeric characters, dashes, and underscores."
+            coreName=""
         fi
     fi;
 }
@@ -141,20 +145,20 @@ readHostSolrUrl()
 	else
 	    code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' $solrUrl)
 	    if [ $code != 200 ]; then
-		echo "The solr server at $solrUrl appears to be unavailable"
-		solrUrl=""
+            echo "The solr server at $solrUrl appears to be unavailable"
+            solrUrl=""
 	    else
-		code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' "${solrUrl}/$coreName")
-		if [ $code == 200 ]; then
-		    echo "The solr server at $solrUrl appears to already have a core called $coreName"
-		    solrUrl=""
-		else
-		    checkTargetSystemSolrXmlForSpecificCoreDir "$solrUrl"
-		    if [ "$corePublicName" != "" ]; then
-			echo "The solr server at $solrUrl appears to already have a core in a directory called $coreName, but with the public name $corePublicName."
-			solrUrl=""
-		    fi
-		fi
+            code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' "${solrUrl}/$coreName")
+            if [ $code == 200 ]; then
+                echo "The solr server at $solrUrl appears to already have a core called $coreName"
+                solrUrl=""
+            else
+                checkTargetSystemSolrXmlForSpecificCoreDir "$solrUrl"
+                if [ "$corePublicName" != "" ]; then
+                    echo "The solr server at $solrUrl appears to already have a core in a directory called $coreName, but with the public name $corePublicName."
+                    solrUrl=""
+                fi
+            fi
 	    fi
 	fi
     fi
