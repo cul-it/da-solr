@@ -209,7 +209,6 @@
     <lst name="slave">
         <str name="enable">${enable.slave:false}</str>
         <str name="masterUrl">${master.url}</str>
-        <str name="pollInterval">01:00:00</str>
     </lst>
 </requestHandler>
 

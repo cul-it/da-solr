@@ -153,9 +153,13 @@ public class Headings2Solr {
 	}
 
 	private String countsJson( ResultSet rs ) throws SQLException {
-		if (authorTypes.contains(rs.getInt("type_desc")))
+		int type_desc = rs.getInt("type_desc");
+		if (authorTypes.contains(type_desc ))
 			return String.format("{\"worksBy\":\"%d\",\"worksAbout\":\"%d\"}",
 					rs.getInt("works_by"),rs.getInt("works_about"));
+		if (HeadTypeDesc.WORK.ordinal() == type_desc)
+			return String.format("{\"worksAbout\":\"%d\",\"works\":\"%d\"}",
+					rs.getInt("works_about"),rs.getInt("works_about"));
 		return String.format("{\"worksAbout\":\"%d\"}",rs.getInt("works_about"));
 	}
 	
