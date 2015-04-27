@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -27,7 +27,7 @@ public class Headings2Solr {
 
 	private Connection connection = null;
 	private SolrBuildConfig config;
-	private Collection<Integer> authorTypes = new HashSet<Integer>();
+	private Collection<Integer> authorTypes = new ArrayList<Integer>();
 	private final ReferenceType[] referenceTypes = ReferenceType.values();
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
@@ -42,7 +42,7 @@ public class Headings2Solr {
 	}
 
 	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = new HashSet<String>();
+		Collection<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.add("authorSolrUrl");
 		requiredArgs.add("subjectSolrUrl");
 		requiredArgs.add("authorTitleSolrUrl");
@@ -84,7 +84,7 @@ public class Headings2Solr {
 		stmt.execute(query);
 		ResultSet rs = stmt.getResultSet();
 //		int docCount = 0;
-		Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+		Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 		while (rs.next()) {
 			int id = rs.getInt("id");
 			SolrInputDocument doc = new SolrInputDocument();
@@ -122,7 +122,7 @@ public class Headings2Solr {
 	
 	private static PreparedStatement ref_pstmt = null;
 	private Collection<Reference> getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
-		Collection<Reference> refs = new HashSet<Reference>();
+		Collection<Reference> refs = new ArrayList<Reference>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
 					" SELECT r.ref_type, h.* "
@@ -134,7 +134,9 @@ public class Headings2Solr {
 		ResultSet rs = ref_pstmt.getResultSet();
 		Map<String,Object> vals = new HashMap<String,Object>();
 		while (rs.next()) {
-			vals.put("count", rs.getInt(ht.dbField()));
+			int count = rs.getInt(ht.dbField());
+			if (count == 0) continue;
+			vals.put("count", count);
 			vals.put("worksAbout", rs.getInt("works_about"));
 			vals.put("heading", rs.getString("heading"));
 			int type_desc = rs.getInt("type_desc");
@@ -155,12 +157,12 @@ public class Headings2Solr {
 	private String countsJson( ResultSet rs ) throws SQLException {
 		int type_desc = rs.getInt("type_desc");
 		if (authorTypes.contains(type_desc ))
-			return String.format("{\"worksBy\":\"%d\",\"worksAbout\":\"%d\"}",
+			return String.format("{\"worksBy\":%d,\"worksAbout\":%d}",
 					rs.getInt("works_by"),rs.getInt("works_about"));
 		if (HeadTypeDesc.WORK.ordinal() == type_desc)
-			return String.format("{\"worksAbout\":\"%d\",\"works\":\"%d\"}",
-					rs.getInt("works_about"),rs.getInt("works_about"));
-		return String.format("{\"worksAbout\":\"%d\"}",rs.getInt("works_about"));
+			return String.format("{\"worksAbout\":%d,\"works\":%d}",
+					rs.getInt("works_about"),rs.getInt("works"));
+		return String.format("{\"worksAbout\":%d}",rs.getInt("works_about"));
 	}
 	
 	private static PreparedStatement note_pstmt = null;
@@ -170,7 +172,7 @@ public class Headings2Solr {
 		note_pstmt.setInt(1, id);
 		note_pstmt.execute();
 		ResultSet rs = note_pstmt.getResultSet();
-		Collection<String> notes = new HashSet<String>();
+		Collection<String> notes = new ArrayList<String>();
 		while (rs.next())
 			notes.add( rs.getString("note") );
 		rs.close();
@@ -184,7 +186,7 @@ public class Headings2Solr {
 		alt_pstmt.setInt(1, id);
 		alt_pstmt.execute();
 		ResultSet rs = alt_pstmt.getResultSet();
-		Collection<String> forms = new HashSet<String>();
+		Collection<String> forms = new ArrayList<String>();
 		while (rs.next())
 			forms.add( rs.getString("form") );
 		rs.close();
