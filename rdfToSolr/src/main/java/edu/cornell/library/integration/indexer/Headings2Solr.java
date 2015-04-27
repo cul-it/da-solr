@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -27,7 +29,8 @@ public class Headings2Solr {
 
 	private Connection connection = null;
 	private SolrBuildConfig config;
-	private Collection<Integer> authorTypes = new ArrayList<Integer>();
+	private List<Integer> authorTypes = Arrays.asList(HeadTypeDesc.PERSNAME.ordinal(),
+			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
 	private final ReferenceType[] referenceTypes = ReferenceType.values();
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
@@ -46,12 +49,7 @@ public class Headings2Solr {
 		requiredArgs.add("authorSolrUrl");
 		requiredArgs.add("subjectSolrUrl");
 		requiredArgs.add("authorTitleSolrUrl");
-
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
-
-		authorTypes.add(HeadTypeDesc.PERSNAME.ordinal());
-		authorTypes.add(HeadTypeDesc.CORPNAME.ordinal());
-		authorTypes.add(HeadTypeDesc.EVENT.ordinal());
 
 		connection = config.getDatabaseConnection("Headings");
 
