@@ -102,8 +102,8 @@ public class IndexHeadings {
 		for (BlacklightField blf : blFields) {
 			
 			processBlacklightFieldHeaderData( blf );
+			connection.commit();
 		}
-
 	}
 
 	
