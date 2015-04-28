@@ -106,10 +106,6 @@ readMasterCoreUrl()
 {
     masterCore=$1
     if [[ ! -z $masterCore ]]; then
-        re='(.*)XXXX(.*)'
-        while [[ $masterCore =~ $re ]]; do
-            masterCore=${BASH_REMATCH[1]}${BUILD_NUMBER}${BASH_REMATCH[2]}
-        done
         if [[ ! $masterCore =~ $masterCoreUrlP ]]; then
             echo "masterCore url not in correct syntax"
             masterCore=""
@@ -127,10 +123,6 @@ readCoreName()
 {
     coreName=$1
     if [[ ! -z $coreName ]]; then
-        re='(.*)XXXX(.*)'
-        while [[ $coreName =~ $re ]]; do
-            coreName=${BASH_REMATCH[1]}${BUILD_NUMBER}${BASH_REMATCH[2]}
-        done
         if [[ ! $coreName =~ $solrCoreNameP ]]; then
             echo "CoreName is not in correct syntax. Though Solr doesn't impose this restriction so tightly, we are currently validating core names to alphanumeric characters, dashes, and underscores."
             coreName=""
