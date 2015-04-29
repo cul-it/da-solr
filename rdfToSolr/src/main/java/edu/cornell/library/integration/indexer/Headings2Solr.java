@@ -92,12 +92,12 @@ public class Headings2Solr {
 			Collection<Reference> xrefs = getXRefs(id, ht);
 			// preferedForm && seeAlso xrefs
 			for (Reference r : xrefs) doc.addField(r.type.toString(), r.json);
-			for (String alt : getAltForms(id)) doc.addField("alternateForm", alt);
+			doc.addField("alternateForm", getAltForms(id));
 			if (RecordSet.NAMETITLE.ordinal() != rs.getInt("record_set"))
 				doc.addField("headingTypeDesc", HeadTypeDescs[ rs.getInt("type_desc") ]);
 			doc.addField("authority", rs.getBoolean("authority"));
 			doc.addField("mainEntry", rs.getBoolean("main_entry"));
-			for (String note : getNotes(id)) doc.addField("notes", note);
+			doc.addField("notes", getNotes(id));
 			String rda = getRda(id);
 			if (rda != null) doc.addField("rda_json", rda);
 			doc.addField("count",rs.getInt(ht.dbField()));
