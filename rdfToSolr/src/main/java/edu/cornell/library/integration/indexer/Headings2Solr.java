@@ -123,10 +123,11 @@ public class Headings2Solr {
 		Collection<Reference> refs = new ArrayList<Reference>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
-					" SELECT r.ref_type, h.* "
+					" SELECT r.ref_type, r.ref_desc, h.* "
 					+ " FROM reference AS r, heading AS h "
 					+ "WHERE r.from_heading = ? "
-					+ "  AND r.to_heading = h.id"	);
+					+ "  AND r.to_heading = h.id "
+					+ "ORDER BY h.sort"	);
 		ref_pstmt.setInt(1, id);
 		ref_pstmt.execute();
 		ResultSet rs = ref_pstmt.getResultSet();
@@ -143,6 +144,9 @@ public class Headings2Solr {
 			if (HeadTypeDesc.WORK.ordinal() == type_desc)
 				vals.put("works", rs.getInt("works"));
 			vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
+			String ref_desc = rs.getString("ref_desc");
+			if (ref_desc != null && ! ref_desc.isEmpty())
+				vals.put("relatioship", ref_desc);
 			Reference r = new Reference(referenceTypes[ rs.getInt("ref_type") ]);
 			r.json = mapper.writeValueAsString(vals);
 			refs.add(r);
