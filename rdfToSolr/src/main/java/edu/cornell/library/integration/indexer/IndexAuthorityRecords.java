@@ -251,7 +251,6 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatenateSubfieldsOtherThan("");
 				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
@@ -418,6 +417,15 @@ public class IndexAuthorityRecords {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
+			if (rs != null)
+				if (rs == RecordSet.SUBJECT) {
+					String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
+					heading = f.concatenateSpecificSubfields("abcdefghijklmnopqrstu");
+					if ( ! heading.isEmpty() && ! dashed_terms.isEmpty() )
+						heading += " > "+dashed_terms;
+				} else {
+					heading = f.concatenateSubfieldsOtherThan("");
+				}
 		}
 		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
