@@ -101,14 +101,14 @@ public class IndexAuthorityRecords {
 	private void setUpDatabase() throws SQLException {
 		Statement stmt = connection.createStatement();
 
-		stmt.execute("DROP TABLE `alt_form` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `alt_form`");
 		stmt.execute("CREATE TABLE `alt_form` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`form` text NOT NULL, "
 				+ "KEY `heading_id` (`heading_id`,`form`(30))) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-		stmt.execute("DROP TABLE `heading` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `heading`");
 		stmt.execute("CREATE TABLE `heading` ("
 				+ "`id` int(10) unsigned NOT NULL auto_increment, "
 				+ "`heading` text,   `sort` mediumtext NOT NULL, "
@@ -123,28 +123,28 @@ public class IndexAuthorityRecords {
 				+ "KEY `uk` (`record_set`,`type_desc`,`sort`(100))) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-		stmt.execute("DROP TABLE `note` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `note`");
 		stmt.execute("CREATE TABLE `note` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`note` text NOT NULL, "
 				+ "KEY (`heading_id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-		stmt.execute("DROP TABLE `record_set` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `record_set`");
 		stmt.execute("CREATE TABLE `record_set` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
-		stmt.execute("DROP TABLE `ref_type` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `ref_type`");
 		stmt.execute("CREATE TABLE `ref_type` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
-		stmt.execute("DROP TABLE `reference` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `reference`");
 		stmt.execute("CREATE TABLE `reference` ( "
 				+ "`from_heading` int(10) unsigned NOT NULL, "
 				+ "`to_heading` int(10) unsigned NOT NULL, "
@@ -153,14 +153,14 @@ public class IndexAuthorityRecords {
 				+ "KEY (`from_heading`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
-		stmt.execute("DROP TABLE `type_desc` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
 		stmt.execute("CREATE TABLE `type_desc` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
-		stmt.execute("DROP TABLE `rda` IF EXISTS");
+		stmt.execute("DROP TABLE IF EXISTS `rda`");
 		stmt.execute("CREATE TABLE `rda` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`rda` text NOT NULL, "
