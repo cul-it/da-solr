@@ -417,7 +417,7 @@ public class IndexAuthorityRecords {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
-			if (rs != null)
+			if (rs != null && f.tag.startsWith("1"))
 				if (rs == RecordSet.SUBJECT) {
 					String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 					heading = f.concatenateSpecificSubfields("abcdefghijklmnopqrstu");
