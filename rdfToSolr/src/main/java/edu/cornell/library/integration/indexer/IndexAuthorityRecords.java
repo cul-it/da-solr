@@ -64,7 +64,7 @@ public class IndexAuthorityRecords {
         		
 		connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
-		setUpDatabaseTypeLists();
+		setUpDatabase();
 		
 		String xmlDir = config.getWebdavBaseUrl() + "/" + config.getXmlDir();
 		System.out.println("Looking for authority xml in directory: "+xmlDir);
@@ -98,27 +98,93 @@ public class IndexAuthorityRecords {
         connection.close();
 	}
 	
-	private void setUpDatabaseTypeLists() throws SQLException {
+	private void setUpDatabase() throws SQLException {
 		Statement stmt = connection.createStatement();
-		stmt.executeUpdate("DELETE FROM record_set");
-		
-		PreparedStatement insertType = connection.prepareStatement("INSERT INTO record_set (id,name) VALUES (? , ?)");
+
+		stmt.execute("DROP TABLE `alt_form` IF EXISTS");
+		stmt.execute("CREATE TABLE `alt_form` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`form` text NOT NULL, "
+				+ "KEY `heading_id` (`heading_id`,`form`(30))) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE `heading` IF EXISTS");
+		stmt.execute("CREATE TABLE `heading` ("
+				+ "`id` int(10) unsigned NOT NULL auto_increment, "
+				+ "`heading` text,   `sort` mediumtext NOT NULL, "
+				+ "`record_set` tinyint(3) unsigned NOT NULL, "
+				+ "`type_desc` tinyint(3) unsigned NOT NULL, "
+				+ "`authority` tinyint(1) NOT NULL default '0', "
+				+ "`main_entry` tinyint(1) NOT NULL default '0', "
+				+ "`works_by` mediumint(8) unsigned NOT NULL default '0', "
+				+ "`works_about` mediumint(8) unsigned NOT NULL default '0', "
+				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
+				+ "PRIMARY KEY  (`id`), "
+				+ "KEY `uk` (`record_set`,`type_desc`,`sort`(100))) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE `note` IF EXISTS");
+		stmt.execute("CREATE TABLE `note` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`note` text NOT NULL, "
+				+ "KEY (`heading_id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE `record_set` IF EXISTS");
+		stmt.execute("CREATE TABLE `record_set` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE `ref_type` IF EXISTS");
+		stmt.execute("CREATE TABLE `ref_type` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE `reference` IF EXISTS");
+		stmt.execute("CREATE TABLE `reference` ( "
+				+ "`from_heading` int(10) unsigned NOT NULL, "
+				+ "`to_heading` int(10) unsigned NOT NULL, "
+				+ "`ref_type` tinyint(3) unsigned NOT NULL, "
+				+ "`ref_desc` varchar(256) NOT NULL DEFAULT '', "
+				+ "KEY (`from_heading`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE `type_desc` IF EXISTS");
+		stmt.execute("CREATE TABLE `type_desc` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE `rda` IF EXISTS");
+		stmt.execute("CREATE TABLE `rda` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`rda` text NOT NULL, "
+				+ "KEY `heading_id` (`heading_id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		PreparedStatement insertType = connection.prepareStatement(
+				"INSERT INTO record_set (id,name) VALUES (? , ?)");
 		for ( RecordSet rs : RecordSet.values()) {
 			insertType.setInt(1, rs.ordinal());
 			insertType.setString(2, rs.toString());
 			insertType.executeUpdate();
 		}
-		
-		stmt.executeUpdate("DELETE FROM type_desc");
-		PreparedStatement insertDesc = connection.prepareStatement("INSERT INTO type_desc (id,name) VALUES (? , ?)");
+
+		PreparedStatement insertDesc = connection.prepareStatement(
+				"INSERT INTO type_desc (id,name) VALUES (? , ?)");
 		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
 			insertDesc.executeUpdate();
 		}
-		
-		stmt.executeUpdate("DELETE FROM ref_type");
-		PreparedStatement insertRefType = connection.prepareStatement("INSERT INTO ref_type (id,name) VALUES (? , ?)");
+
+		PreparedStatement insertRefType = connection.prepareStatement(
+				"INSERT INTO ref_type (id,name) VALUES (? , ?)");
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
 			insertRefType.setString(2, rt.toString());
