@@ -380,7 +380,7 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,
+        heading,see,alternateForm,seeAlso,headingTypeDesc,notes,
         rda_json,counts_json,count,
         authority,mainEntry
       </str>
@@ -397,7 +397,7 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,
+        heading,see,alternateForm,seeAlso,headingTypeDesc,notes,
         rda_json,counts_json,count,
         authority,mainEntry
       </str>
