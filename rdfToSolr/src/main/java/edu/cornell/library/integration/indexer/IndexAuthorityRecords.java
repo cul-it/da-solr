@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -233,9 +234,10 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
 			} else if (f.tag.startsWith("3")) {
+				
 				String fieldName = null;
 
-				switch (f.tag) {
+				MAIN: switch (f.tag) {
 				case "370":
 					for (Subfield sf : f.subfields.values())
 						switch (sf.code) {
@@ -243,16 +245,53 @@ public class IndexAuthorityRecords {
 						case 'b': rdaData.add("Place of Death",sf.value);	break;
 						case 'c': rdaData.add("Country",sf.value);			break;
 						}
-					break;
+					break MAIN;
 
-				case "372": fieldName = "Field";			break;
-				case "373": fieldName = "Group/Organization";break;
-				case "374": fieldName = "Occupation";		break;
-				case "375": fieldName = "Gender";			break;
-				case "380": fieldName = "Form of Work";		break;
-				case "382": fieldName = "Instrumentation";
+				case "372"://
+				case "373"://
+				case "374": {
+					String start = null, end = null, value = null, field = null;
+					switch (f.tag) {
+					case "372": field = "Field"; break;
+					case "373": field = "Group/Organization"; break;
+					case "374": field = "Occupation"; break;
+					}
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': value = sf.value; break;
+						case 's': start = sf.value; break;
+						case 't': end = sf.value; break;
+						}
+					if (value == null) break MAIN;
+					if (start != null) {
+						if (end != null)
+							rdaData.add(field, String.format("%s (%s-%s)", value,start,end));
+						else
+							rdaData.add(field, String.format("%s (starting %s)", value,start));
+					} else {
+						if (end != null)
+							rdaData.add(field, String.format("%s (until %s)", value,end));
+						else
+							rdaData.add(field, value);
+					} }
+					break MAIN;
+				case "375": { // Gender
+					String value = null;
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': value = sf.value; break;
+						case 't':
+							System.out.println("Blocking past gender information base on $t "+sf.value+". ("+heading+")");
+							break MAIN;
+						}
+					if (value != null)
+						rdaData.add("Gender", value);
 				}
-				
+					break MAIN;
+				case "380": fieldName = "Form of Work";		break MAIN;
+				case "382": fieldName = "Instrumentation";
+				} //end MAIN
+
 				if (fieldName != null)
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
@@ -287,28 +326,28 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
-					notes.add(f.concatenateSubfieldsOtherThan(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("664")) {
 				foundNotes.add("664");
 				if (expectedNotes.contains("664")) {
-					notes.add(f.concatenateSubfieldsOtherThan(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
 				}
 			} else if (f.tag.equals("665")) {
 				foundNotes.add("665");
 				if (expectedNotes.contains("665")) {
-					notes.add(f.concatenateSubfieldsOtherThan(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("666")) {
 				foundNotes.add("666");
 				if (expectedNotes.contains("666")) {
-					notes.add(f.concatenateSubfieldsOtherThan(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
@@ -358,6 +397,28 @@ public class IndexAuthorityRecords {
 		populateRdaInfo(heading_id, rdaData);
 
 		return;
+	}
+
+	private String buildJsonNote(DataField f) throws JsonProcessingException {
+		List<Object> textBlocks = new ArrayList<Object>();
+		StringBuilder sb = new StringBuilder();
+		for (Subfield sf : f.subfields.values()) {
+			if (sf.code.equals('b')) {
+				if (sb.length() > 0) {
+					textBlocks.add(sb.toString());
+					sb.setLength(0);
+				}
+				Map<String,String> header = new HashMap<String,String>();
+				header.put("header", sf.value);
+				textBlocks.add(header);
+			} else {
+				if (sb.length() > 0) sb.append(' ');
+				sb.append(sf.value);
+			}
+		}
+		if (sb.length() > 0)
+			textBlocks.add(sb.toString());
+		return mapper.writeValueAsString(textBlocks);
 	}
 
 	private void populateRdaInfo(Integer heading_id, RdaData data) throws SQLException, JsonProcessingException {

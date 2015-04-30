@@ -81,7 +81,7 @@ public class BrowseUtils {
 
 	public static enum ReferenceType {
 		TO4XX("alternateForm"),
-		FROM4XX("preferedForm"),
+		FROM4XX("see"),
 		TO5XX("seeAlso"),
 		FROM5XX("seeAlso");
 		

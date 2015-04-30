@@ -204,9 +204,9 @@
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="string" indexed="false" stored="true" multiValued="false" required="true"/>
     <field name="headingSort" type="sort" indexed="true" stored="true" multiValued="false" required="true"/>
-	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="see" type="string" indexed="false" stored="true" multiValued="false"/>
 	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
-	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="true"/>
+	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="false"/>
 	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false"/> <!-- e.g. Personal Name -->
 	<field name="authority" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>

@@ -89,9 +89,11 @@ public class Headings2Solr {
 			doc.addField("id", id);
 			doc.addField("heading", rs.getString("heading"));
 			doc.addField("headingSort", rs.getString("sort"));
-			Collection<Reference> xrefs = getXRefs(id, ht);
-			// preferedForm && seeAlso xrefs
-			for (Reference r : xrefs) doc.addField(r.type.toString(), r.json);
+			References xrefs = getXRefs(id, ht);
+			if (xrefs.seeJson != null)
+				doc.addField("see", xrefs.seeJson);
+			if (xrefs.seeAlsoJson != null)
+				doc.addField("seeAlso", xrefs.seeAlsoJson);
 			doc.addField("alternateForm", getAltForms(id));
 			if (RecordSet.NAMETITLE.ordinal() != rs.getInt("record_set"))
 				doc.addField("headingTypeDesc", HeadTypeDescs[ rs.getInt("type_desc") ]);
@@ -119,8 +121,9 @@ public class Headings2Solr {
 	}
 	
 	private static PreparedStatement ref_pstmt = null;
-	private Collection<Reference> getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
-		Collection<Reference> refs = new ArrayList<Reference>();
+	private References getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
+		Map<String,Collection<Object>> seeRefs = new HashMap<String,Collection<Object>>();
+		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<String,Collection<Object>>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
 					" SELECT r.ref_type, r.ref_desc, h.* "
@@ -131,10 +134,10 @@ public class Headings2Solr {
 		ref_pstmt.setInt(1, id);
 		ref_pstmt.execute();
 		ResultSet rs = ref_pstmt.getResultSet();
-		Map<String,Object> vals = new HashMap<String,Object>();
 		while (rs.next()) {
 			int count = rs.getInt(ht.dbField());
 			if (count == 0) continue;
+			Map<String,Object> vals = new HashMap<String,Object>();
 			vals.put("count", count);
 			vals.put("worksAbout", rs.getInt("works_about"));
 			vals.put("heading", rs.getString("heading"));
@@ -145,15 +148,38 @@ public class Headings2Solr {
 				vals.put("works", rs.getInt("works"));
 			vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
 			String ref_desc = rs.getString("ref_desc");
+			int ref_type = rs.getInt("ref_type");
+			String relationship = null;
 			if (ref_desc != null && ! ref_desc.isEmpty())
-				vals.put("relatioship", ref_desc);
-			Reference r = new Reference(referenceTypes[ rs.getInt("ref_type") ]);
-			r.json = mapper.writeValueAsString(vals);
-			refs.add(r);
-			vals.clear();
+				relationship = ref_desc;
+			else if (ReferenceType.FROM4XX.ordinal() == ref_type)
+				relationship = "See";
+			else
+				relationship = "See Also";
+			if (ReferenceType.FROM4XX.ordinal() == rs.getInt("ref_type"))
+				if (seeRefs.containsKey(relationship))
+					seeRefs.get(relationship).add(vals);
+				else {
+					Collection<Object> thisRel = new ArrayList<Object>();
+					thisRel.add(vals);
+					seeRefs.put(relationship, thisRel);
+				}
+			else
+				if (seeAlsoRefs.containsKey(relationship))
+					seeAlsoRefs.get(relationship).add(vals);
+				else {
+					Collection<Object> thisRel = new ArrayList<Object>();
+					thisRel.add(vals);
+					seeAlsoRefs.put(relationship, thisRel);
+				}
 		}
 		rs.close();
-		return refs;
+		References r = new References();
+		if ( ! seeRefs.isEmpty())
+			r.seeJson = mapper.writeValueAsString(seeRefs);
+		if ( ! seeAlsoRefs.isEmpty())
+			r.seeAlsoJson = mapper.writeValueAsString(seeAlsoRefs);
+		return r;
 	}
 
 	private String countsJson( ResultSet rs ) throws SQLException {
@@ -209,12 +235,8 @@ public class Headings2Solr {
 		return rda;
 	}
 	
-	private class Reference {
-		ReferenceType type = null;
-		String json = null;
-		
-		public Reference(ReferenceType refType) {
-			type = refType;
-		}
+	private class References {
+		public String seeAlsoJson = null;
+		public String seeJson = null;
 	}
 }
