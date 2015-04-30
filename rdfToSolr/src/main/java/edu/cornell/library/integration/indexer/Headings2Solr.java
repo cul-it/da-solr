@@ -31,7 +31,6 @@ public class Headings2Solr {
 	private SolrBuildConfig config;
 	private List<Integer> authorTypes = Arrays.asList(HeadTypeDesc.PERSNAME.ordinal(),
 			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
-	private final ReferenceType[] referenceTypes = ReferenceType.values();
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
 
@@ -122,7 +121,7 @@ public class Headings2Solr {
 	
 	private static PreparedStatement ref_pstmt = null;
 	private References getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
-		Map<String,Collection<Object>> seeRefs = new HashMap<String,Collection<Object>>();
+		Collection<String> seeRefs = new ArrayList<String>();
 		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<String,Collection<Object>>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
@@ -148,23 +147,16 @@ public class Headings2Solr {
 				vals.put("works", rs.getInt("works"));
 			vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
 			String ref_desc = rs.getString("ref_desc");
-			int ref_type = rs.getInt("ref_type");
 			String relationship = null;
 			if (ref_desc != null && ! ref_desc.isEmpty())
 				relationship = ref_desc;
-			else if (ReferenceType.FROM4XX.ordinal() == ref_type)
-				relationship = "See";
 			else
-				relationship = "See Also";
-			if (ReferenceType.FROM4XX.ordinal() == rs.getInt("ref_type"))
-				if (seeRefs.containsKey(relationship))
-					seeRefs.get(relationship).add(vals);
-				else {
-					Collection<Object> thisRel = new ArrayList<Object>();
-					thisRel.add(vals);
-					seeRefs.put(relationship, thisRel);
-				}
-			else
+				relationship = "";
+			if (ReferenceType.FROM4XX.ordinal() == rs.getInt("ref_type")) {
+				if (! relationship.isEmpty())
+					vals.put("relationship", relationship);
+				seeRefs.add(mapper.writeValueAsString(vals));
+			} else {
 				if (seeAlsoRefs.containsKey(relationship))
 					seeAlsoRefs.get(relationship).add(vals);
 				else {
@@ -172,11 +164,12 @@ public class Headings2Solr {
 					thisRel.add(vals);
 					seeAlsoRefs.put(relationship, thisRel);
 				}
+			}
 		}
 		rs.close();
 		References r = new References();
 		if ( ! seeRefs.isEmpty())
-			r.seeJson = mapper.writeValueAsString(seeRefs);
+			r.seeJson = seeRefs;
 		if ( ! seeAlsoRefs.isEmpty())
 			r.seeAlsoJson = mapper.writeValueAsString(seeAlsoRefs);
 		return r;
@@ -237,6 +230,6 @@ public class Headings2Solr {
 	
 	private class References {
 		public String seeAlsoJson = null;
-		public String seeJson = null;
+		public Collection<String> seeJson = null;
 	}
 }
