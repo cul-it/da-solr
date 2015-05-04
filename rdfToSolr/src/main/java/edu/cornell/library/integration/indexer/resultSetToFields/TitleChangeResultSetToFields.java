@@ -4,7 +4,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.ArrayList;

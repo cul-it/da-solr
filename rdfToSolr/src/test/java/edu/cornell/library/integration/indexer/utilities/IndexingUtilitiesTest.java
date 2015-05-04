@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.utilities;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
