@@ -176,14 +176,9 @@
 
 
     <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+      <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.TrimFilterFactory" />
+        <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
       </analyzer>
     </fieldType>
 
