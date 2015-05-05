@@ -114,7 +114,7 @@ public class Headings2Solr {
 				solr.add(docs);
 				docs.clear();
 				addsSinceCommit += 5_000;
-				if (addsSinceCommit > 200_000) {
+				if (addsSinceCommit >= 200_000) {
 					solr.commit();
 					addsSinceCommit = 0;
 				}
