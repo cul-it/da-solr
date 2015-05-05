@@ -92,7 +92,8 @@ public class Headings2Solr {
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("id", id);
 			doc.addField("heading", rs.getString("heading"));
-			doc.addField("headingSort", rs.getString("sort"));
+			doc.addField("headingSort", rs.getString("heading"));
+//			doc.addField("headingSort", rs.getString("sort"));
 			References xrefs = getXRefs(id, ht);
 			if (xrefs.seeJson != null)
 				doc.addField("see", xrefs.seeJson);
