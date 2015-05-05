@@ -4,19 +4,20 @@ import java.text.Normalizer;
 
 public class FilingNormalization {
 
+
 	/**
 	 * Normalize value for sorting or filing. Normalized value is not a suitable
 	 * display string.
 	 * @param value
 	 * @return normalized value
 	 */
-	public static String getSortHeading(String value) {
+	public static String getSortHeading(CharSequence value) {
 
 		/* We will first normalize the unicode. For sorting, we will use 
 		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
 		 * to match and remove diacritics, while compatibility form will further
 		 * drop encodings that are for use in display and should not affect sorting.
-		 * For example, æ => ae
+		 * For example, ﬁ => fi
 		 * See http://unicode.org/reports/tr15/   Figure 6
 		 */
 		String s = Normalizer.normalize(value, Normalizer.Form.NFKD).toLowerCase().
