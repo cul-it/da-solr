@@ -28,12 +28,21 @@ public class FilingNormalization {
 		 * the characters.
 		 */
 		StringBuilder sb = new StringBuilder();
+		int lastHyphenPosition = -2;
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			switch (c) {
 
-			// Treat hyphens as spaces so hyphenated words will sort as though the space were present.
+			// Treat hyphens as spaces so hyphenated words will sort as though the space were present,
+			// except in the case of consecutive hyphens, which are treated as subject heading subdivision
+			// dividers (a la " > ").
 			case '-':
+				if (lastHyphenPosition + 1 == i) {
+					sb.append("aaa ");
+					lastHyphenPosition = -2;
+					break;
+				}
+				lastHyphenPosition = i;
 			case ' ':
 				// prevent sequential spaces, initial spaces
 				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' '); 
@@ -49,7 +58,9 @@ public class FilingNormalization {
 				sb.append(c); break;
 
 			// additional punctuation we'd like to treat differently
-			case '>': sb.append("aaa"); break; // control sorting and filing of hierarchical subject terms. 
+			case '>': 
+				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' ');
+				sb.append("aaa "); break; // control sorting and filing of hierarchical subject terms. 
 			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
 			case '©': sb.append('c');   break; // examples I found were "©opyright"
 

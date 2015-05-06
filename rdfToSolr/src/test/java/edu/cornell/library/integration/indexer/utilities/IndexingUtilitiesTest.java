@@ -26,10 +26,12 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("Hello,").equals("hello"));
 		assertTrue(getSortHeading("  hello     ").equals("hello"));
 		assertTrue(getSortHeading("héllo!").equals("hello"));
-		assertTrue(getSortHeading("-- :::hello::: --").equals("hello"));
+		assertTrue(getSortHeading("!!- :::hello::: -!!").equals("hello"));
 		assertFalse(getSortHeading("hello").equals("goodbye"));
-		assertTrue(getSortHeading("hello-  -- hello").equals("hello hello"));
+		assertTrue(getSortHeading("hello-  -,:()@#$%^&* hello").equals("hello hello"));
 		assertTrue(getSortHeading("Hello > hello").equals("hello aaa hello"));
+		assertTrue(getSortHeading("Hello--Hello").equals("hello aaa hello"));
+		assertTrue(getSortHeading("Hello---Hello").equals("hello aaa hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
 				equals("abbasah ukht al rashid aww nakbat al baramikah"));
