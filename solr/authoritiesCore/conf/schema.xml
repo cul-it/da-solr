@@ -198,7 +198,7 @@
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="string" indexed="false" stored="true" multiValued="false" required="true"/>
-    <field name="headingSort" type="sort" indexed="true" stored="true" multiValued="false" required="true"/>
+    <field name="headingSort" type="sort" indexed="true" stored="false" multiValued="false" required="true"/>
 	<field name="see" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="false"/>
@@ -212,10 +212,6 @@
 
 	<field name="count" type="tint" indexed="false" stored="true" multiValued="false"/>
 	<field name="counts_json" type="string" indexed="false" stored="true" multiValued="false"/>
-
-	<field name="works" type="tint" indexed="false" stored="true" multiValued="false"/>
-	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
-	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
 
   </fields>
 
