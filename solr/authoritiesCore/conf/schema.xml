@@ -176,10 +176,9 @@
 
 
     <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
+      <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
-        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
