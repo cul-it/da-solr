@@ -82,7 +82,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					} else {
 						subfields = "abcdefghijklmnopqrstuvwxyz";
 						ctsSubfields = "ab";
-						facetOrFileSubfields = "abcdefghijklmnopqrstuvwxyz";
+						facetOrFileSubfields = "abcdfghijklmnopqrstuvwxyz";
 					}
 					String value = f.concatenateSpecificSubfields(subfields);
 					if ( ! value.isEmpty() ) {

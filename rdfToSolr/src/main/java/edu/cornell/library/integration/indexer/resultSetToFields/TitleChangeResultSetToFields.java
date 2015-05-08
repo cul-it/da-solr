@@ -83,7 +83,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						if (f.mainTag.equals("700"))
 							valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
 						else 
-							valuesAFacet.add(f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz"));
+							valuesAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
 
 					// with title, this is an included or related work
 					} else {
