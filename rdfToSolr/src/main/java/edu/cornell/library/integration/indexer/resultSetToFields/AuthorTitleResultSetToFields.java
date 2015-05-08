@@ -62,6 +62,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			String cts = "";
 			String cts880 = "";
 			String mainTag = null;
+			String filing_type = null;
 		
 			for (DataField f: dataFields) {
 				mainTag = f.mainTag;
@@ -79,10 +80,12 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						subfields = "abcq";
 						ctsSubfields = "abcdq";
 						facetOrFileSubfields = "abcdq";
+						filing_type = "pers";
 					} else {
 						subfields = "abcdefghijklmnopqrstuvwxyz";
 						ctsSubfields = "ab";
 						facetOrFileSubfields = "abcdfghijklmnopqrstuvwxyz";
+						filing_type = (mainTag.equals("110")) ? "corp" : "event";
 					}
 					String value = f.concatenateSpecificSubfields(subfields);
 					if ( ! value.isEmpty() ) {
@@ -157,7 +160,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					}
 			}
 			for (String s : valuesFacet) {
-				addField(solrFields,"author_"+mainTag+"_filing",getSortHeading(s));
+				String sort = getSortHeading(s);
+				addField(solrFields,"author_"+filing_type+"_filing",sort);
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,"., "));
 			}
 				
@@ -211,7 +215,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			if (author != null) {
 				String authorTitle = author + " " + fulltitle;
 				addField(solrFields,"authortitle_facet",authorTitle);
-				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
+				addField(solrFields,"authortitle_filing",getSortHeading(authorTitle));
 			}
 		}
 		if (title_vern != null) {
@@ -229,7 +233,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			if (author_vern != null) {
 				String authorTitle = author_vern + " " + fulltitle_vern;
 				addField(solrFields,"authortitle_facet",authorTitle);
-				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
+				addField(solrFields,"authortitle_filing",getSortHeading(authorTitle));
 			}
 		}
 		if (responsibility != null && ! responsibility.isEmpty()) {

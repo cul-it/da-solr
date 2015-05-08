@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -55,12 +53,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Collection<CtsField> cts_fields = new ArrayList<CtsField>();
-			Set<String> valuesAFacet = new HashSet<String>();
-			Set<String> valuesATFacet = new HashSet<String>();
+			Collection<String> valuesPersAFacet = new ArrayList<String>();
+			Collection<String> valuesCorpAFacet = new ArrayList<String>();
+			Collection<String> valuesEventAFacet = new ArrayList<String>();
+			Collection<String> valuesATFacet = new ArrayList<String>();
 			String relation = null;
-			String mainTag = null;
 			for (DataField f: dataFields) {
-				mainTag = f.mainTag;
 				String title_cts = f.concatenateSpecificSubfields("t");
 				String author_cts;
 				if (f.mainTag.equals("700") || 
@@ -81,10 +79,11 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 								"author_addl",author_disp,author_cts));
 						if (f.mainTag.equals("700"))
-							valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
-						else 
-							valuesAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
-
+							valuesPersAFacet.add(f.concatenateSpecificSubfields("abcdq"));
+						else if (f.mainTag.equals("710"))
+							valuesCorpAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+						else
+							valuesEventAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
 					// with title, this is an included or related work
 					} else {
 						if (f.ind2.equals('2')) {
@@ -236,12 +235,20 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			for (CtsField f : cts_fields)
 				if ( ! f.vern)
 					addCtsField(solrFields,f);
-			for (String s : valuesAFacet) {
-				addField(solrFields,"author_"+mainTag+"_filing",getSortHeading(s));
+			for (String s : valuesPersAFacet) {
+				addField(solrFields,"author_pers_filing",getSortHeading(s));
+				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
+			}
+			for (String s : valuesCorpAFacet) {
+				addField(solrFields,"author_corp_filing",getSortHeading(s));
+				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
+			}
+			for (String s : valuesEventAFacet) {
+				addField(solrFields,"author_event_filing",getSortHeading(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
 			for (String s : valuesATFacet) {
-				addField(solrFields,"authortitle_"+mainTag+"_filing",getSortHeading(s));
+				addField(solrFields,"authortitle_filing",getSortHeading(s));
 				addField(solrFields,"authortitle_facet",removeTrailingPunctuation(s,",. "));
 			}
 		}

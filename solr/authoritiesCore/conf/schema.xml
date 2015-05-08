@@ -175,7 +175,10 @@
  
 
 
-    <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+    <fieldType name="filing" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer type="index">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+      </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
@@ -198,7 +201,7 @@
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="string" indexed="false" stored="true" multiValued="false" required="true"/>
-    <field name="headingSort" type="sort" indexed="true" stored="false" multiValued="false" required="true"/>
+    <field name="headingSort" type="filing" indexed="true" stored="false" multiValued="false" required="true"/>
 	<field name="see" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="false"/>

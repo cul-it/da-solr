@@ -108,7 +108,7 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 				addField(solrFields,"title_uniform_display",s);
 			for (String s: valuesFacet) {
 				addField(solrFields,"authortitle_facet",s);
-				addField(solrFields,"authortitle_240_filing",getSortHeading(s));
+				addField(solrFields,"authortitle_filing",getSortHeading(s));
 			}
 		}
 

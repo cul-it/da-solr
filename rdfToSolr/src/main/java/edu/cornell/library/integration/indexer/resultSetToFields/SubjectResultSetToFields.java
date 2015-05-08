@@ -87,23 +87,26 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> subdivisionsGenre = new HashSet<String>();
 			boolean isWork = false;
 		
-			String main_fields = "", dashed_fields = "", facet_type = "topic";
+			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null;
 			for (DataField f: dataFields) {
 				
 				switch (f.mainTag) {
 				case "600":
 					main_fields = "abcdefghkjlmnopqrstu";
 					dashed_fields = "vxyz";
+					filing_type = "pers";
 					isWork = isWork(f);
 					break;
 				case "610":
 					main_fields = "abcdefghklmnoprstu";
 					dashed_fields = "vxyz";
+					filing_type = "corp";
 					isWork = isWork(f);
 					break;
 				case "611":
 					main_fields = "acdefghklnpqstu";
 					dashed_fields = "vxyz";
+					filing_type = "event";
 					isWork = isWork(f);
 					break;
 				case "630":
@@ -113,15 +116,18 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "648":
 					main_fields = "a";
 					dashed_fields = "vxyz";
+					filing_type = "era";
 					facet_type = "era";
 					break;
 				case "650":
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
+					filing_type = "topic";
 					break;
 				case "651":
 					main_fields = "a";
 					dashed_fields = "vxyz";
+					filing_type = "geo";
 					facet_type = "geo";
 					break;
 				case "653":
@@ -135,6 +141,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "655":
 					main_fields = "ab"; //655 facet_type over-riden for FAST facet
 					dashed_fields = "vxyz";
+					filing_type = "genr";
 					break;
 				case "656":
 					main_fields = "ak";
@@ -150,6 +157,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "662":
 					main_fields = "abcdfgh";
 					facet_type = "geo";
+					filing_type = "geo";
 					break;
 				case "690":
 				case "691":
@@ -166,6 +174,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
+				if (isWork) filing_type = "work";
 				if (! main_fields.equals("")) {
 					StringBuilder sb_piped = new StringBuilder();
 					StringBuilder sb_breadcrumbed = new StringBuilder();
@@ -202,28 +211,32 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 
 			
 			for (String s: values880_breadcrumbed) {
-				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
-				addField(solrFields,(isWork?"authortitle_":"subject_")+h.mainTag+"_filing",getSortHeading(s));
+				String disp = removeTrailingPunctuation(s,".");
+				addField(solrFields,"subject_"+facet_type+"_facet",disp);
+				if (filing_type != null)
+					addField(solrFields,"subject_"+filing_type+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					if (h.mainTag.equals("655"))
-						addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
+						addField(solrFields,"fast_genre_facet",disp);
 					else
-						addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+						addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
+					addField(solrFields,"subject_display",disp);
 			}
 			for (String s: valuesMain_breadcrumbed) {
-				addField(solrFields,"subject_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
-				addField(solrFields,(isWork?"authortitle_":"subject_")+h.mainTag+"_filing",getSortHeading(s));
+				String disp = removeTrailingPunctuation(s,".");
+				addField(solrFields,"subject_"+facet_type+"_facet",disp);
+				if (filing_type != null)
+					addField(solrFields,"subject_"+filing_type+"_filing",getSortHeading(s));
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					if (h.mainTag.equals("655"))
-						addField(solrFields,"fast_genre_facet",removeTrailingPunctuation(s,"."));
+						addField(solrFields,"fast_genre_facet",disp);
 					else
-						addField(solrFields,"fast_"+facet_type+"_facet",removeTrailingPunctuation(s,"."));
+						addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",removeTrailingPunctuation(s,"."));
+					addField(solrFields,"subject_display",disp);
 			}
 
 			for (String s: values880_piped) {
