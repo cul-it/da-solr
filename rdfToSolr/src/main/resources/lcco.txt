@@ -1370,7 +1370,8 @@ DL1170-1180			Local history and description
 DL1170				Regions, provinces, historical regions, etc., A-Z
 DL1175-1175.95				Helsinki (Helsingfors)
 DL1180				Other cities, towns, etc., A-Z
-Subclass DP - Spain
+Subclass DP	- Iberian Peninsula
+DP1-402  Spain
 DP1-27		General
 DP27.5-43.2  		Description and travel
 DP44-53		Antiquities.  Social life and customs.  Ethnography
@@ -2217,7 +2218,7 @@ F1091-1095.5				Yukon
 F1096-1100.5				Mackenzie
 F1101-1105.7				Franklin
 F1106-1110.5				Keewatin
-F1121-1139			Newfoundland
+F1121-1139			Newfoundland and Labrador
 F1135-1139				Labrador
 F1140			The Labrador Peninsula
 F1141-1145.2			Nunavut
