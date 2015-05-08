@@ -209,7 +209,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			}
 
 			if (author != null) {
-				String authorTitle = author + " " + title.concatenateSpecificSubfields("abdefghknpqsv");
+				String authorTitle = author + " " + fulltitle;
 				addField(solrFields,"authortitle_facet",authorTitle);
 				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
 			}
@@ -222,12 +222,12 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:：/／= "));
 			addField(solrFields,"subtitle_vern_display",
 					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
-			addField(solrFields,"fulltitle_vern_display",
-					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= "));
+			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
+			addField(solrFields,"fulltitle_vern_display",fulltitle_vern);
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
 
 			if (author_vern != null) {
-				String authorTitle = author_vern + " " + title_vern.concatenateSpecificSubfields("abdefghknpqsv");
+				String authorTitle = author_vern + " " + fulltitle_vern;
 				addField(solrFields,"authortitle_facet",authorTitle);
 				addField(solrFields,"authortitle_245_filing",getSortHeading(authorTitle));
 			}
