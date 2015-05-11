@@ -113,6 +113,13 @@ task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
    maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
+task (headings2Solr, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Pulls authorized and unauthorized headings with totals from Mysql database to Solr" 
+   main='edu.cornell.library.integration.indexer.Headings2Solr'
+   maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
 
 
 task libJar(type: Jar){

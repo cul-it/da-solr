@@ -12,7 +12,8 @@ public class BrowseUtils {
 		GEONAME("Geographic Name"),
 		CHRONTERM("Chronological Term"),
 		GENRE("Genre/Form Term"),
-		MEDIUM("Medium of Performance");
+		MEDIUM("Medium of Performance"),
+		WORK("Work");
 		
 		private String string;
 		
@@ -76,6 +77,22 @@ public class BrowseUtils {
 		}
 
 		public String toString() { return string; }
+	}
+
+	public static enum ReferenceType {
+		TO4XX("alternateForm"),
+		FROM4XX("see"),
+		TO5XX("seeAlso"),
+		FROM5XX("seeAlso");
+		
+		private String string;
+		
+		private ReferenceType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
+		
 	}
 
 }

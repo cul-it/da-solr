@@ -122,44 +122,7 @@ public class IndexingUtilities {
 	}
 
 	
-	/**
-	 * Normalize value for sorting or filing. Normalized value is not a suitable
-	 * display string.
-	 * @param value
-	 * @return normalized value
-	 */
-	public static String getSortHeading(String value) {
 
-		/* We will first normalize the unicode. For sorting, we will use 
-		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
-		 * to match and remove diacritics, while compatibility form will further
-		 * drop encodings that are for use in display and should not affect sorting.
-		 * For example, æ => ae
-		 * See http://unicode.org/reports/tr15/ Figure 6
-		 */
-		String step1 = Normalizer.normalize(value, Normalizer.Form.NFKD).
-				replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-		
-		/* removeAllPunctuation() will strip punctuation. We replace hyphens with spaces
-		 * first so hyphenated words will sort as though the space were present.
-		 * Greater-than (>) is a semantically important value in a subject heading,
-		 * so rather than remove it, we will replace it with an alphabetic value that will
-		 * enforce sorting above an equivalent value without the ">".
-		 */
-		String step2 = step1.toLowerCase().replaceAll("-", " ").replaceAll(">", "aaa");
-		String sortHeading = removeAllPunctuation(step2);
-		
-		// Finally, collapse sequences of spaces into single spaces:
-		return sortHeading.trim().replaceAll("\\s+", " ");
-	}
-
-	
-	public static String removeAllPunctuation( String s ) {
-		if (s == null) return null;
-		if (s.equals("")) return s;
-		return s.replaceAll("[\\p{Punct}¿¡「」‘’−°]","");
-	}
-	
 	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
 		if (s == null) return null;
 		if (unwantedChars == null) return s;

@@ -4,14 +4,14 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -52,77 +52,73 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			Set<String> valuesAFacet = new HashSet<String>();
-			Set<String> valuesATFacet = new HashSet<String>();
+			Collection<CtsField> cts_fields = new ArrayList<CtsField>();
+			Collection<String> valuesPersAFacet = new ArrayList<String>();
+			Collection<String> valuesCorpAFacet = new ArrayList<String>();
+			Collection<String> valuesEventAFacet = new ArrayList<String>();
+			Collection<String> valuesATFacet = new ArrayList<String>();
 			String relation = null;
-			String mainTag = null;
 			for (DataField f: dataFields) {
-				mainTag = f.mainTag;
 				String title_cts = f.concatenateSpecificSubfields("t");
 				String author_cts;
-				if (f.mainTag.equals("700")) {
-					author_cts = f.concatenateSpecificSubfields("abcdq");
-				} else {
-					author_cts = f.concatenateSpecificSubfields("ab");
-				}
-				if (f.mainTag.equals("700") || f.mainTag.equals("710") 
-						|| f.mainTag.equals("711")) {
+				if (f.mainTag.equals("700") || 
+						f.mainTag.equals("710") ||
+						f.mainTag.equals("711")) {
+
 					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
-					if (relation == null)
-						if (title_cts.length() < 2) {
-							relation = "author_addl";
-						} else if (f.ind2.equals('2')) {
+					if (f.mainTag.equals("700")) {
+						author_cts = f.concatenateSpecificSubfields("abcdq");
+					} else {
+						author_cts = f.concatenateSpecificSubfields("ab");
+					}
+
+					// no title - this is an added entry author/creator
+					if (title_cts.isEmpty()) {
+						relation = "author_addl";
+						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								"author_addl",author_disp,author_cts));
+						if (f.mainTag.equals("700"))
+							valuesPersAFacet.add(f.concatenateSpecificSubfields("abcdq"));
+						else if (f.mainTag.equals("710"))
+							valuesCorpAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+						else
+							valuesEventAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+					// with title, this is an included or related work
+					} else {
+						if (f.ind2.equals('2')) {
 							relation = "included_work";
+							valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
 						} else {
 							relation = "related_work";
 						}
-				} else if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
-					
-					if (f.mainTag.equals("730")) {
-						title_cts = f.concatenateSubfieldsOtherThanSpecified("6");
-					} else {
-						title_cts = author_cts;
+						String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",workField,title_cts,author_cts));
 					}
-					author_cts = "";
+					continue; //next datafield
+				}
+
+				// included or related work without author metadata
+				if (f.mainTag.equals("730") || f.mainTag.equals("740")) {
+					
+					String workField;
+					if (f.mainTag.equals("730")) {
+						title_cts = f.concatenateSubfieldsOtherThan("6");
+						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
+					} else {
+						title_cts = f.concatenateSpecificSubfields("ab");
+						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+					}
 					if (f.ind2.equals('2'))
 						relation = "included_work";
 					else 
 						relation = "related_work";
+					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+							relation+"_display",workField,title_cts));
+					continue; //next datafield
 				}
-				if ((relation != null) && relation.equals("author_addl")) {
-					if (f.tag.equals("880")) {
-						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
-						values880.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
-					} else {
-						String author_disp = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz");
-						valuesMain.add("author_addl_ctsZ"+author_disp + "|" + author_cts);
-					}
-					if (f.mainTag.equals("700"))
-						valuesAFacet.add(f.concatenateSpecificSubfields("abcdq"));
-					else 
-						valuesAFacet.add(f.concatenateSpecificSubfields("abcdefghijklmnopqrstuvwxyz"));
-				} else if (relation != null) {
-					String workField;
-					if (f.mainTag.equals("730"))
-						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
-					else
-						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
-					workField += "|"+title_cts;
-					if (author_cts.length() > 0)
-						workField += "|"+author_cts;
-					if (f.tag.equals("880"))
-						values880.add(relation+"_displayZ"+workField);
-					else 
-						valuesMain.add(relation+"_displayZ"+workField);
-					if (relation.equals("included_work") && author_cts.length() > 0) 
-						valuesATFacet.add(f.concatenateSubfieldsOtherThanSpecified("6"));
-				}
-				relation = "";
-				if (title_cts.equals("")) {
-					continue;				
-				}
+
 				MAIN: switch (f.mainTag) {
 				case "780":
 					switch (f.ind2) {
@@ -178,13 +174,11 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				case "777":
 					relation = "issued_with";		break MAIN;
 				}
-				if (! relation.equals("")) {
+				if (relation != null) {
 					if (f.ind1.equals('0')) {
-						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw")+'|'+ title_cts;
-						if (f.tag.equals("880"))
-							values880.add(relation+"_displayZ"+displaystring);
-						else
-							valuesMain.add(relation+"_displayZ"+displaystring);
+						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+								relation+"_display",displaystring,title_cts));
 					}
 				}
 
@@ -216,54 +210,84 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 
 
 			}
-			if ((values880.size() == 1) && (valuesMain.size() == 1)) {
-				for (String s:values880) {
-					if (s.startsWith("author_")) {
-						StringBuilder sb = new StringBuilder();
-						String[] temp = s.split("Z",2);
-						String[] temp2 = temp[1].split("\\|",2);
-						String vernName = temp2[0];
-						String name = null;
-						sb.append(removeTrailingPunctuation(temp[1],","));
-						for (String t:valuesMain) {
-							String[] temp3 = t.split("Z",2);
-							String[] temp4 = temp3[1].split("\\|",2);
-							name = temp4[0];
-							sb.append("|");
-							sb.append(temp3[1]);
-						}
-						addField(solrFields,"author_addl_cts",sb.toString());
-						addField(solrFields,"author_addl_display",vernName+" / "+name);
-						values880.clear();
-						valuesMain.clear();
-					}
+			// Iff these are an cleanly matched pair of author display fields, do combined encoding
+			if (cts_fields.size() == 2) {
+				boolean candidate = true;
+				CtsField vernField = null;
+				CtsField romanField = null;
+				for (CtsField f: cts_fields) {
+					if (! f.relation.equals("author_addl"))
+						candidate = false;
+					if (f.vern)
+						vernField = f;
+					else romanField = f;
+				}
+				if (candidate && vernField != null && romanField != null) {
+					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
+					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
+							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					cts_fields.clear();
 				}
 			}
-			for (String s: values880) {
-				String[] temp = s.split("Z",2);
-				addField(solrFields,temp[0],temp[1]);
-				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("\\|",2);
-					addField(solrFields,"author_addl_display",temp2[0]);
-				}
+			for (CtsField f : cts_fields)
+				if (f.vern)
+					addCtsField(solrFields,f);
+			for (CtsField f : cts_fields)
+				if ( ! f.vern)
+					addCtsField(solrFields,f);
+			for (String s : valuesPersAFacet) {
+				addField(solrFields,"author_pers_filing",getSortHeading(s));
+				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
-			for (String s: valuesMain) {
-				String[] temp = s.split("Z",2);
-				addField(solrFields,temp[0],temp[1]);
-				if (temp[0].startsWith("author_")) {
-					String[] temp2 = temp[1].split("\\|",2);
-					addField(solrFields,"author_addl_display",temp2[0]);
-				}
+			for (String s : valuesCorpAFacet) {
+				addField(solrFields,"author_corp_filing",getSortHeading(s));
+				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
-			for (String s : valuesAFacet) {
-				addField(solrFields,"author_"+mainTag+"_filing",getSortHeading(s));
+			for (String s : valuesEventAFacet) {
+				addField(solrFields,"author_event_filing",getSortHeading(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
 			for (String s : valuesATFacet) {
-				addField(solrFields,"authortitle_"+mainTag+"_filing",getSortHeading(s));
+				addField(solrFields,"authortitle_filing",getSortHeading(s));
 				addField(solrFields,"authortitle_facet",removeTrailingPunctuation(s,",. "));
 			}
 		}
 		return solrFields;	
-	}	
+	}
+	
+	public void addCtsField(Map<String,SolrInputField> solrFields, CtsField f) {
+		if (f.relation.equals("author_addl")) {
+			addField(solrFields,"author_addl_display",f.display);
+			addField(solrFields,"author_addl_cts",String.format("%s|%s",
+					f.display,f.cts1));
+		} else {
+			if (f.cts2 == null)
+				addField(solrFields,f.relation,String.format("%s|%s",f.display,f.cts1));
+			else 
+				addField(solrFields,f.relation,String.format("%s|%s|%s",f.display,f.cts1,f.cts2));
+		}
+	}
+
+	public class CtsField {
+		public String relation;
+		public String display;
+		public String cts1;
+		public String cts2;
+		public boolean vern;
+
+		public CtsField (boolean vernacular, String rel, String f, String click1) {
+			vern = vernacular;
+			relation = rel;
+			display = f;
+			cts1 = click1;
+			cts2 = null;
+		}
+		public CtsField (boolean vernacular, String rel, String f, String click1, String click2) {
+			vern = vernacular;
+			relation = rel;
+			display = f;
+			cts1 = click1;
+			cts2 = click2;
+		}
+	}
 }

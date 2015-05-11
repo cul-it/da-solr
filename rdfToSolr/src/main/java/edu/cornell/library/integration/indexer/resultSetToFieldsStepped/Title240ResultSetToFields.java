@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +14,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
@@ -26,7 +27,7 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 
 	@Override
 	public FieldMakerStep toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
@@ -107,7 +108,7 @@ public class Title240ResultSetToFields implements ResultSetToFieldsStepped {
 				addField(solrFields,"title_uniform_display",s);
 			for (String s: valuesFacet) {
 				addField(solrFields,"authortitle_facet",s);
-				addField(solrFields,"authortitle_240_filing",getSortHeading(s));
+				addField(solrFields,"authortitle_filing",getSortHeading(s));
 			}
 		}
 

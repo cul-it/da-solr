@@ -12,6 +12,7 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
@@ -24,7 +25,7 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 
 	@Override
 	public FieldMakerStep toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
@@ -49,10 +50,10 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			String cts880 = null, ctsMain = null;
 			for (DataField f: dataFields)
 				if (f.tag.equals("880")) {
-					values880.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					cts880 = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
 				} else {
-					valuesMain.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					valuesMain.add(f.concatenateSubfieldsOtherThan("6"));
 					ctsMain = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"
 				}
 			if ((values880.size() > 0) || (valuesMain.size() > 0)) {

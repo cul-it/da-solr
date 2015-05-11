@@ -297,19 +297,16 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
-    
-    <fieldType name="headingAccess" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+
+    <fieldType name="filing" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer type="index">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
       </analyzer>
     </fieldType>
-    
 
   </types>
 
@@ -383,7 +380,7 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_filing" type="headingAccess" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_filing" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
@@ -391,7 +388,8 @@
     <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
-    <dynamicField name="*_sort" type="alphaOnlySort" indexed="true" stored="false"/>
+    <dynamicField name="*_sort" type="filing" indexed="true" stored="false" multiValued="false"/>
+	<dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_unstemP" type="textNoStemP" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
@@ -406,6 +404,7 @@
   <copyField source="*_t" dest="*_tP"/>
   <copyField source="*_t" dest="*_unstemC"/>
   <copyField source="*_t" dest="*_unstemP"/>
+  <copyField source="*_filing" dest="*_browse"/>
   <copyField source="donor_display" dest="donor_t"/>
 
   <copyField source="title_t" dest="title_ngram"/>

@@ -58,23 +58,25 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			String pubplaceVern = null;
 			for (DataField f: dataFields) {
 				if (relation == null) {
-					if (f.ind2.equals('0')) relation = "pub_prod";
-					else if (f.ind2.equals('1')) relation = "pub_info";
-					else if (f.ind2.equals('2')) relation = "pub_dist";
-					else if (f.ind2.equals('3')) relation = "pub_manu";
-					else if (f.ind2.equals('4')) relation = "pub_copy";
+					switch (f.ind2) {
+					case '0': relation = "pub_prod"; break;
+					case '1': relation = "pub_info"; break;
+					case '2': relation = "pub_dist"; break;
+					case '3': relation = "pub_manu"; break;
+					case '4': relation = "pub_copy"; break;
+					default: relation = "pub_info";
+					}
 				}
 			}
-			if (relation == null) relation = "pub_info";
 			for (DataField f: dataFields) {
 				if (f.tag.equals("880")) {
-					values880.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {
 						publisherVern = f.concatenateSpecificSubfields("b");
 						pubplaceVern = f.concatenateSpecificSubfields("a");
 					}
 				} else {
-					valuesMain.add(f.concatenateSubfieldsOtherThanSpecified("6"));
+					valuesMain.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {
 						publisher = f.concatenateSpecificSubfields("b");
 						pubplace = f.concatenateSpecificSubfields("a");

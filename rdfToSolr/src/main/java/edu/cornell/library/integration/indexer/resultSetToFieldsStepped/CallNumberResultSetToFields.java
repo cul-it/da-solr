@@ -3,6 +3,9 @@ package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +15,8 @@ import java.util.Map;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
+
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
  * Build Call number display and facet fields in two steps. 
@@ -25,15 +29,16 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 	
 	@Override
 	public FieldMakerStep toFields(
-			Map<String, ResultSet> results) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 		
 		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		Collection<String> callnos = new HashSet<String>();
-		Collection<String> letters = new HashSet<String>();
+		ArrayList<String> callnos = new ArrayList<String>();
+		ArrayList<String> letters = new ArrayList<String>();
+		ArrayList<Classification> classes = new ArrayList<Classification>();
 		
 		/*
 		 * Step 1. 
@@ -42,7 +47,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		 */
 				
 		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
+			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
 			if (debug)
 				System.out.println(resultKey);
 			
@@ -68,7 +73,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 							// How many letters at beginning of call number?
 							int i = 0;
 							while ( callno.length() > i) {
-								if ( Character.isLetter(callno.substring(i, i+1).charAt(0)) )
+								if ( Character.isLetter(callno.charAt(i)) )
 									i++;
 								else
 									break;
@@ -77,6 +82,17 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 								letters.add( callno.substring(0,1).toUpperCase() );
 							if (i > 1)
 								letters.add( callno.substring(0,i).toUpperCase() );
+							if (i >= i) {
+								int j = i;
+								for ( ; j < callno.length() ; j++) {
+									Character c = callno.charAt(j);
+									if (! Character.isDigit(c) && ! c.equals('.'))
+										break;
+								}
+								classes.add(new Classification(
+										callno.substring(0,i).toUpperCase(),
+										callno.substring(i, j)));
+							}
 						}
 						if (sol.contains("part2")) {
 							String part2 = nodeToString( sol.get("part2") );
@@ -109,13 +125,11 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 
 		// It has been decided not to display call numbers in the item view,
         // only in the holdings data, but all call numbers are still populated in the call number search.
- 		Iterator<String> i = callnos.iterator();
-		while (i.hasNext())
-			addField(fields,"lc_callnum_full",i.next());
+		for (int i = 0; i < callnos.size(); i++)
+			addField(fields,"lc_callnum_full",callnos.get(i));
 				
-		i = letters.iterator();
-		while (i.hasNext()) {
-			String l = i.next();
+		for (int i = 0; i < letters.size(); i++) {
+			String l = letters.get(i);
 			String query = 
 		    		"SELECT ?code ?subject\n" +
 		    		"WHERE {\n" +
@@ -125,12 +139,41 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 			step.addMainStoreQuery("letter_subject_"+l,query );
 		}
 		
+		// new bl5-compatible hierarchical facet
+		int classCount = classes.size();
+		Collection<String> lc_callnum_facet = new HashSet<String>(); // hashset eliminates dupes
+		if ( classCount != 0 ) {
+			Connection conn = config.getDatabaseConnection("CallNos");
+			PreparedStatement pstmt = conn.prepareStatement
+					("SELECT label FROM classification"
+							+ " WHERE ? BETWEEN low_letters AND high_letters"
+							+ "   AND ? BETWEEN low_numbers AND high_numbers"
+							+ " ORDER BY high_letters DESC, high_numbers DESC");
+			for ( int i = 0; i < classCount; i++ ) {
+				Classification c = classes.get(i);
+				pstmt.setString(1, c.letters());
+				pstmt.setString(2, c.numbers());
+				pstmt.execute();
+				java.sql.ResultSet rs = pstmt.getResultSet();
+				StringBuilder sb = new StringBuilder();
+				while (rs.next()) {
+					if (sb.length() > 0)
+						sb.append(":");
+					sb.append(rs.getString("label"));
+					lc_callnum_facet.add(sb.toString());
+				}
+			}
+			conn.close();
+			for (String facetVal : lc_callnum_facet )
+				addField(fields,"lc_callnum_facet",facetVal);
+		}
+		
 		/*
 		 * Step 2
 		 * Add facet fields by concatenating initial letters with their subject names.
 		 */
 		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
+			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
 			
 			if ( resultKey.startsWith("letter_subject")) {
 				if( rs != null){
@@ -149,6 +192,17 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		
 		step.setFields(fields);
 		return step;
+	}
+	
+	private class Classification {
+		public Classification (String letters, String numbers) {
+			l = letters;
+			n = numbers;
+		}
+		public String letters() { return l; }
+		public String numbers() { return n; }
+		private String l = null;
+		private String n = null;
 	}
 
 

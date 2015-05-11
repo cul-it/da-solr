@@ -175,15 +175,13 @@
  
 
 
-    <fieldType name="sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement=""/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+    <fieldType name="filing" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer type="index">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
       </analyzer>
     </fieldType>
 
@@ -203,11 +201,11 @@
 	<!-- values directly from the records -->
 	<field name="marcId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="heading" type="string" indexed="false" stored="true" multiValued="false" required="true"/>
-    <field name="headingSort" type="sort" indexed="true" stored="true" multiValued="false" required="true"/>
-	<field name="preferedForm" type="string" indexed="false" stored="true" multiValued="true"/>
+    <field name="headingSort" type="filing" indexed="true" stored="false" multiValued="false" required="true"/>
+	<field name="see" type="string" indexed="false" stored="true" multiValued="true"/>
 	<field name="alternateForm" type="string" indexed="false" stored="true" multiValued="true"/>
-	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="true"/>
-	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false" required="true"/> <!-- e.g. Personal Name -->
+	<field name="seeAlso" type="string" indexed="false" stored="true" multiValued="false"/>
+	<field name="headingTypeDesc" type="string" indexed="true" stored="true" multiValued="false"/> <!-- e.g. Personal Name -->
 	<field name="authority" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="mainEntry" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
@@ -215,9 +213,8 @@
 	<dynamicField name="rda_*" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="rda_json" type="string" indexed="false" stored="true" multiValued="false"/>
 
-	<field name="works" type="tint" indexed="false" stored="true" multiValued="false"/>
-	<field name="worksBy" type="tint" indexed="false" stored="true" multiValued="false"/>
-	<field name="worksAbout" type="tint" indexed="false" stored="true" multiValued="false"/>
+	<field name="count" type="tint" indexed="false" stored="true" multiValued="false"/>
+	<field name="counts_json" type="string" indexed="false" stored="true" multiValued="false"/>
 
   </fields>
 

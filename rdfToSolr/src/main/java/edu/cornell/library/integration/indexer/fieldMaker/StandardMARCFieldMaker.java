@@ -382,7 +382,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 		}
 
 		private String concatenateSubfields( DataField f ) {
-			String value = f.concatenateSubfieldsOtherThanSpecified("6");
+			String value = f.concatenateSubfieldsOtherThan("6");
 			if (unwantedChars != null) {
 				return removeTrailingPunctuation(value,unwantedChars);
 			} else {

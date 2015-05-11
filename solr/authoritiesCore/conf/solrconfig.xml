@@ -209,7 +209,6 @@
     <lst name="slave">
         <str name="enable">${enable.slave:false}</str>
         <str name="masterUrl">${master.url}</str>
-        <str name="pollInterval">01:00:00</str>
     </lst>
 </requestHandler>
 
@@ -381,8 +380,8 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
-        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        heading,see,alternateForm,seeAlso,headingTypeDesc,notes,
+        rda_json,counts_json,count,
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>
@@ -398,8 +397,8 @@
       <str name="defType">lucene</str>
       <str name="echoParams">explicit</str>
       <str name="fl">
-        heading,preferedForm,alternateForm,seeAlso,headingTypeDesc,notes,works,worksBy,worksAbout,
-        rda_place,rda_field,rda_group_or_org,rda_occupation,rda_gender,rda_form_of_work,rda_perform_medium,
+        heading,see,alternateForm,seeAlso,headingTypeDesc,notes,
+        rda_json,counts_json,count,
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>

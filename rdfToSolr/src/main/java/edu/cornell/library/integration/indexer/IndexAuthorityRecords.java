@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 import java.io.InputStream;
@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,9 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.http.ConnectionClosedException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
@@ -31,6 +35,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
 
 public class IndexAuthorityRecords {
 
@@ -47,8 +52,7 @@ public class IndexAuthorityRecords {
 	            
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
-  //  	   IndexAuthorityRecords iar =
-    			   new IndexAuthorityRecords(config);
+			new IndexAuthorityRecords(config);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -60,7 +64,7 @@ public class IndexAuthorityRecords {
         		
 		connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
-		setUpDatabaseTypeLists();
+		setUpDatabase();
 		
 		String xmlDir = config.getWebdavBaseUrl() + "/" + config.getXmlDir();
 		System.out.println("Looking for authority xml in directory: "+xmlDir);
@@ -94,27 +98,93 @@ public class IndexAuthorityRecords {
         connection.close();
 	}
 	
-	private void setUpDatabaseTypeLists() throws SQLException {
+	private void setUpDatabase() throws SQLException {
 		Statement stmt = connection.createStatement();
-		stmt.executeUpdate("DELETE FROM record_set");
-		
-		PreparedStatement insertType = connection.prepareStatement("INSERT INTO record_set (id,name) VALUES (? , ?)");
+
+		stmt.execute("DROP TABLE IF EXISTS `alt_form`");
+		stmt.execute("CREATE TABLE `alt_form` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`form` text NOT NULL, "
+				+ "KEY `heading_id` (`heading_id`,`form`(30))) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE IF EXISTS `heading`");
+		stmt.execute("CREATE TABLE `heading` ("
+				+ "`id` int(10) unsigned NOT NULL auto_increment, "
+				+ "`heading` text,   `sort` mediumtext NOT NULL, "
+				+ "`record_set` tinyint(3) unsigned NOT NULL, "
+				+ "`type_desc` tinyint(3) unsigned NOT NULL, "
+				+ "`authority` tinyint(1) NOT NULL default '0', "
+				+ "`main_entry` tinyint(1) NOT NULL default '0', "
+				+ "`works_by` mediumint(8) unsigned NOT NULL default '0', "
+				+ "`works_about` mediumint(8) unsigned NOT NULL default '0', "
+				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
+				+ "PRIMARY KEY  (`id`), "
+				+ "KEY `uk` (`record_set`,`type_desc`,`sort`(100))) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE IF EXISTS `note`");
+		stmt.execute("CREATE TABLE `note` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`note` text NOT NULL, "
+				+ "KEY (`heading_id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE IF EXISTS `record_set`");
+		stmt.execute("CREATE TABLE `record_set` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE IF EXISTS `ref_type`");
+		stmt.execute("CREATE TABLE `ref_type` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE IF EXISTS `reference`");
+		stmt.execute("CREATE TABLE `reference` ( "
+				+ "`from_heading` int(10) unsigned NOT NULL, "
+				+ "`to_heading` int(10) unsigned NOT NULL, "
+				+ "`ref_type` tinyint(3) unsigned NOT NULL, "
+				+ "`ref_desc` varchar(256) NOT NULL DEFAULT '', "
+				+ "KEY (`from_heading`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
+		stmt.execute("CREATE TABLE `type_desc` ( "
+				+ "`id` tinyint(3) unsigned NOT NULL, "
+				+ "`name` varchar(256) NOT NULL, "
+				+ "PRIMARY KEY  (`id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+		stmt.execute("DROP TABLE IF EXISTS `rda`");
+		stmt.execute("CREATE TABLE `rda` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`rda` text NOT NULL, "
+				+ "KEY `heading_id` (`heading_id`)) "
+				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+		PreparedStatement insertType = connection.prepareStatement(
+				"INSERT INTO record_set (id,name) VALUES (? , ?)");
 		for ( RecordSet rs : RecordSet.values()) {
 			insertType.setInt(1, rs.ordinal());
 			insertType.setString(2, rs.toString());
 			insertType.executeUpdate();
 		}
-		
-		stmt.executeUpdate("DELETE FROM type_desc");
-		PreparedStatement insertDesc = connection.prepareStatement("INSERT INTO type_desc (id,name) VALUES (? , ?)");
+
+		PreparedStatement insertDesc = connection.prepareStatement(
+				"INSERT INTO type_desc (id,name) VALUES (? , ?)");
 		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
 			insertDesc.executeUpdate();
 		}
-		
-		stmt.executeUpdate("DELETE FROM ref_type");
-		PreparedStatement insertRefType = connection.prepareStatement("INSERT INTO ref_type (id,name) VALUES (? , ?)");
+
+		PreparedStatement insertRefType = connection.prepareStatement(
+				"INSERT INTO ref_type (id,name) VALUES (? , ?)");
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
 			insertRefType.setString(2, rt.toString());
@@ -138,7 +208,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException  {
+	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException, JsonProcessingException  {
 		String heading = null;
 		String headingSort = null;
 		HeadTypeDesc htd = null;
@@ -148,7 +218,7 @@ public class IndexAuthorityRecords {
 		Collection<String> expectedNotes = new HashSet<String>();
 		Collection<String> foundNotes = new HashSet<String>();
 		Collection<String> notes = new HashSet<String>();
-		Map<String,Collection<String>> rdaData = new HashMap<String,Collection<String>>();
+		RdaData rdaData = new RdaData();
 		
 		Boolean isUndifferentiated = false;
 		
@@ -181,16 +251,16 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
-				heading = f.concatenateSubfieldsOtherThanSpecified("");
-				switch (f.tag) {
+				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
 				case "111":
 					rs = RecordSet.NAME;
-					SF: for (Subfield sf : f.subfields.values() ) {
+					for (Subfield sf : f.subfields.values() ) {
 						if (sf.code.equals('t')) {
 							rs = RecordSet.NAMETITLE;
-							break SF;
+							htd = HeadTypeDesc.WORK;
+							break MAIN;
 						}
 					}
 					if (f.tag.equals("100"))
@@ -227,34 +297,77 @@ public class IndexAuthorityRecords {
 				// If the record is for a subdivision (main entry >=180),
 				// we won't do anything with it.
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
-				notes.add("Search under: "+f.concatenateSubfieldsOtherThanSpecified(""));
+				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
 			} else if (f.tag.startsWith("3")) {
+				
 				String fieldName = null;
 
-				switch (f.tag) {
-				case "370": fieldName = "place";			break;
-				case "372": fieldName = "field";			break;
-				case "373": fieldName = "group_or_org";		break;
-				case "374": fieldName = "occupation";		break;
-				case "375": fieldName = "gender";			break;
-				case "380": fieldName = "form_of_work";		break;
-				case "382": fieldName = "perform_medium";
-				
-					if ( ! rdaData.containsKey(fieldName))
-						rdaData.put(fieldName, new HashSet<String>());
-					Collection<String> values = rdaData.get(fieldName);
+				MAIN: switch (f.tag) {
+				case "370":
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': rdaData.add("Birth Place", sf.value);		break;
+						case 'b': rdaData.add("Place of Death",sf.value);	break;
+						case 'c': rdaData.add("Country",sf.value);			break;
+						}
+					break MAIN;
+
+				case "372"://
+				case "373"://
+				case "374": {
+					String start = null, end = null, value = null, field = null;
+					switch (f.tag) {
+					case "372": field = "Field"; break;
+					case "373": field = "Group/Organization"; break;
+					case "374": field = "Occupation"; break;
+					}
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': value = sf.value; break;
+						case 's': start = sf.value; break;
+						case 't': end = sf.value; break;
+						}
+					if (value == null) break MAIN;
+					if (start != null) {
+						if (end != null)
+							rdaData.add(field, String.format("%s (%s-%s)", value,start,end));
+						else
+							rdaData.add(field, String.format("%s (starting %s)", value,start));
+					} else {
+						if (end != null)
+							rdaData.add(field, String.format("%s (until %s)", value,end));
+						else
+							rdaData.add(field, value);
+					} }
+					break MAIN;
+				case "375": { // Gender
+					String value = null;
+					for (Subfield sf : f.subfields.values())
+						switch (sf.code) {
+						case 'a': value = sf.value; break;
+						case 't':
+							System.out.println("Blocking past gender information base on $t "+sf.value+". ("+heading+")");
+							break MAIN;
+						}
+					if (value != null)
+						rdaData.add("Gender", value);
+				}
+					break MAIN;
+				case "380": fieldName = "Form of Work";		break MAIN;
+				case "382": fieldName = "Instrumentation";
+				} //end MAIN
+
+				if (fieldName != null)
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
-							values.add(sf.value);
+							rdaData.add(fieldName, sf.value);
 
-				}
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
-					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
+					buildXRefHeading(r,f,heading);
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
@@ -266,8 +379,7 @@ public class IndexAuthorityRecords {
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
-					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThanSpecified("iw");
+					buildXRefHeading(r,f,heading);
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
@@ -277,32 +389,34 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("663")) {
 				foundNotes.add("663");
 				if (expectedNotes.contains("663")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 663 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("664")) {
 				foundNotes.add("664");
 				if (expectedNotes.contains("664")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 664 found, but no matching 4XX or 5XX subfield w or matching record type: c. "+rec.id);
 				}
 			} else if (f.tag.equals("665")) {
 				foundNotes.add("665");
 				if (expectedNotes.contains("665")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 665 found, but no matching 4XX or 5XX subfield w. "+rec.id);
 				}
 			} else if (f.tag.equals("666")) {
 				foundNotes.add("666");
 				if (expectedNotes.contains("666")) {
-					notes.add(f.concatenateSubfieldsOtherThanSpecified(""));
+					notes.add(buildJsonNote(f));
 				} else {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
+			if (rs != null && f.tag.startsWith("1"))
+				heading = dashedHeading(f);
 		}
 		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
@@ -345,25 +459,50 @@ public class IndexAuthorityRecords {
 				directRef(heading_id,rs,r,ReferenceType.TO5XX);
 		}
 
-		if (rdaData.size() >= 1)
-			populateRdaInfo(heading_id, rdaData);
+		populateRdaInfo(heading_id, rdaData);
 
 		return;
 	}
 
+	private String dashedHeading(DataField f) {
+		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
+		String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+		if ( ! heading.isEmpty() && ! dashed_terms.isEmpty() )
+			heading += " > "+dashed_terms;
+		return heading;
+	}
 
-	private void populateRdaInfo(Integer heading_id, Map<String,Collection<String>> rdaData) throws SQLException {
-		for (String rdaField : rdaData.keySet() ) {
-			PreparedStatement stmt = connection.prepareStatement(
-					"INSERT INTO rda_"+rdaField+" (heading_id, val) VALUES (?, ?)");
-			stmt.setInt(1, heading_id);
-			for ( String val: rdaData.get(rdaField) ) {
-				stmt.setString(2, val);
-				stmt.addBatch();
+	private String buildJsonNote(DataField f) throws JsonProcessingException {
+		List<Object> textBlocks = new ArrayList<Object>();
+		StringBuilder sb = new StringBuilder();
+		for (Subfield sf : f.subfields.values()) {
+			if (sf.code.equals('b')) {
+				if (sb.length() > 0) {
+					textBlocks.add(sb.toString());
+					sb.setLength(0);
+				}
+				Map<String,String> header = new HashMap<String,String>();
+				header.put("header", sf.value);
+				textBlocks.add(header);
+			} else {
+				if (sb.length() > 0) sb.append(' ');
+				sb.append(sf.value);
 			}
-			stmt.executeBatch();
-			stmt.close();
 		}
+		if (sb.length() > 0)
+			textBlocks.add(sb.toString());
+		return mapper.writeValueAsString(textBlocks);
+	}
+
+	private void populateRdaInfo(Integer heading_id, RdaData data) throws SQLException, JsonProcessingException {
+		String json = data.json();
+		if (json == null) return;
+		PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO rda (heading_id, rda) VALUES (?, ?)");
+		stmt.setInt(1, heading_id);
+		stmt.setString(2, json);
+		stmt.executeUpdate();
+		stmt.close();
 	}
 
 	private void insertAltForm(Integer heading_id, String form) throws SQLException {
@@ -433,10 +572,14 @@ public class IndexAuthorityRecords {
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
-	private String buildXRefHeading( DataField f , String mainHeading ) {
-		String heading = f.concatenateSubfieldsOtherThanSpecified("iw");
+	private void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
+		String heading = dashedHeading(f);
+		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
-		if (headingWOPeriods.length() > 5) return heading;
+		if (headingWOPeriods.length() > 5) {
+			r.heading = heading;
+			return;
+		}
 		boolean upperCase = true;
 		for (char c : headingWOPeriods.toCharArray()) {
 			if ( ! Character.isUpperCase(c)) {
@@ -445,9 +588,9 @@ public class IndexAuthorityRecords {
 			}
 		}
 		if (upperCase)
-			return heading + " (" + mainHeading + ")";
+			r.heading = heading + " (" + mainHeading + ")";
 		else
-			return heading;
+			r.heading = heading;
 
 	}
 	
@@ -524,11 +667,23 @@ public class IndexAuthorityRecords {
 		
 		switch( f.tag.substring(1) ) {
 		case "00":
-			r.headingTypeDesc = HeadTypeDesc.PERSNAME;	break;
+			r.headingTypeDesc = HeadTypeDesc.PERSNAME;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "10":
-			r.headingTypeDesc = HeadTypeDesc.CORPNAME;	break;
+			r.headingTypeDesc = HeadTypeDesc.CORPNAME;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "11":
-			r.headingTypeDesc = HeadTypeDesc.EVENT;		break;
+			r.headingTypeDesc = HeadTypeDesc.EVENT;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "30":
 			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
 		case "50":
@@ -672,6 +827,23 @@ public class IndexAuthorityRecords {
 		}
 		return r;
 	}
+
+	static final ObjectMapper mapper = new ObjectMapper();
+	private static class RdaData {
+
+		Map<String,Collection<String>> data = new HashMap<String,Collection<String>>();
+
+		public void add(String field, String value) {
+			if ( ! data.containsKey(field))
+				data.put(field, new HashSet<String>());
+			data.get(field).add(value);
+		}
+
+		public String json() throws JsonProcessingException {
+			if (data.isEmpty()) return null;
+			return mapper.writeValueAsString(data);
+		}
+	}
 	
 	private static class Relation {	
 		public String relationship = null;
@@ -685,23 +857,6 @@ public class IndexAuthorityRecords {
 		public Collection<String> expectedNotes = new HashSet<String>();
 		boolean display = true;
 	}
-
-	public static enum ReferenceType {
-		TO4XX("alternateForm"),
-		FROM4XX("preferedForm"),
-		TO5XX("seeAlso"),
-		FROM5XX("seeAlso");
-		
-		private String string;
-		
-		private ReferenceType(String name) {
-			string = name;
-		}
-
-		public String toString() { return string; }
-		
-	}
-
 	
 	// general MARC methods and classes start here
 	

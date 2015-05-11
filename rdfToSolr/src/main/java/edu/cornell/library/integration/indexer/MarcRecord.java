@@ -285,10 +285,10 @@ public class MarcRecord {
 			}
 
 			public String concatenateSubfieldsOtherThan6() {
-				return concatenateSubfieldsOtherThanSpecified("6");
+				return concatenateSubfieldsOtherThan("6");
 			}
 
-			public String concatenateSubfieldsOtherThanSpecified(String unwantedSubfields) {
+			public String concatenateSubfieldsOtherThan(String unwantedSubfields) {
 				StringBuilder sb = new StringBuilder();
 				
 				Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
