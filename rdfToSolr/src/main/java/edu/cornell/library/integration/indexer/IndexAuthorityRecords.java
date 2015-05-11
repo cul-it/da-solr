@@ -367,8 +367,7 @@ public class IndexAuthorityRecords {
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
-					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThan("iw");
+					buildXRefHeading(r,f,heading);
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : sees) 
 						if (s.headingSort.equals(r.headingSort))
@@ -380,8 +379,7 @@ public class IndexAuthorityRecords {
 				Relation r = determineRelationship(f);
 				if (r != null) {
 					expectedNotes.addAll(r.expectedNotes);
-					r.heading = buildXRefHeading(f,heading);
-					r.headingOrig = f.concatenateSubfieldsOtherThan("iw");
+					buildXRefHeading(r,f,heading);
 					r.headingSort = getSortHeading( r.heading );
 					for (Relation s : seeAlsos) 
 						if (s.headingSort.equals(r.headingSort))
@@ -574,10 +572,14 @@ public class IndexAuthorityRecords {
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
-	private String buildXRefHeading( DataField f , String mainHeading ) {
+	private void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
 		String heading = dashedHeading(f);
+		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
-		if (headingWOPeriods.length() > 5) return heading;
+		if (headingWOPeriods.length() > 5) {
+			r.heading = heading;
+			return;
+		}
 		boolean upperCase = true;
 		for (char c : headingWOPeriods.toCharArray()) {
 			if ( ! Character.isUpperCase(c)) {
@@ -586,9 +588,9 @@ public class IndexAuthorityRecords {
 			}
 		}
 		if (upperCase)
-			return heading + " (" + mainHeading + ")";
+			r.heading = heading + " (" + mainHeading + ")";
 		else
-			return heading;
+			r.heading = heading;
 
 	}
 	
@@ -665,11 +667,23 @@ public class IndexAuthorityRecords {
 		
 		switch( f.tag.substring(1) ) {
 		case "00":
-			r.headingTypeDesc = HeadTypeDesc.PERSNAME;	break;
+			r.headingTypeDesc = HeadTypeDesc.PERSNAME;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "10":
-			r.headingTypeDesc = HeadTypeDesc.CORPNAME;	break;
+			r.headingTypeDesc = HeadTypeDesc.CORPNAME;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "11":
-			r.headingTypeDesc = HeadTypeDesc.EVENT;		break;
+			r.headingTypeDesc = HeadTypeDesc.EVENT;
+			for (Subfield sf : f.subfields.values() )
+				if (sf.code.equals('t'))
+					r.headingTypeDesc = HeadTypeDesc.WORK;
+			break;
 		case "30":
 			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
 		case "50":

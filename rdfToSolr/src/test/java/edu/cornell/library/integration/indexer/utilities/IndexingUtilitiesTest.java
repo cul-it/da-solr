@@ -33,6 +33,7 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("Hello--Hello").equals("hello aaa hello"));
 		assertTrue(getSortHeading("Hello---Hello").equals("hello aaa hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
+		assertTrue(getSortHeading(" Alzheimer's disease ").equals("alzheimers disease"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
 				equals("abbasah ukht al rashid aww nakbat al baramikah"));
 		assertTrue(getSortHeading("’Abd al-Rraḥmān al-Kawākibī").
