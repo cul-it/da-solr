@@ -418,14 +418,7 @@ public class IndexAuthorityRecords {
 				}
 			}
 			if (rs != null && f.tag.startsWith("1"))
-				if (rs == RecordSet.SUBJECT) {
-					String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
-					heading = f.concatenateSpecificSubfields("abcdefghijklmnopqrstu");
-					if ( ! heading.isEmpty() && ! dashed_terms.isEmpty() )
-						heading += " > "+dashed_terms;
-				} else {
-					heading = f.concatenateSubfieldsOtherThan("");
-				}
+				heading = dashedHeading(f);
 		}
 		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
@@ -471,6 +464,14 @@ public class IndexAuthorityRecords {
 		populateRdaInfo(heading_id, rdaData);
 
 		return;
+	}
+
+	private String dashedHeading(DataField f) {
+		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
+		String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+		if ( ! heading.isEmpty() && ! dashed_terms.isEmpty() )
+			heading += " > "+dashed_terms;
+		return heading;
 	}
 
 	private String buildJsonNote(DataField f) throws JsonProcessingException {
@@ -574,7 +575,7 @@ public class IndexAuthorityRecords {
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private String buildXRefHeading( DataField f , String mainHeading ) {
-		String heading = f.concatenateSubfieldsOtherThan("iw");
+		String heading = dashedHeading(f);
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) return heading;
 		boolean upperCase = true;
