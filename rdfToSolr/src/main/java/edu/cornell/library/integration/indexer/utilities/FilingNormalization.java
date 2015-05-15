@@ -28,6 +28,7 @@ public class FilingNormalization {
 		 * the characters.
 		 */
 		StringBuilder sb = new StringBuilder();
+		StringBuilder sbEnd = new StringBuilder();
 		int lastHyphenPosition = -2;
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -63,10 +64,15 @@ public class FilingNormalization {
 				sb.append("0000 "); break; // control sorting and filing of hierarchical subject terms. 
 			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
 			case '©': sb.append('c');   break; // examples I found were "©opyright"
+			
+			// non-sorting but significant characters
+			case '&':  // a flag will be tacked to the end of the sort-normalized string
+				sbEnd.append(sb.length()).append(c);  break;
 
 			// Java \p{Punct} =>   !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 			// case '-': case '>': (see above for special treatment of hyphen and greater-than)
-			case '!': case '"': case '#': case '$': case '%': case '&':
+			//  case '&': (see above for non-sorting significant characters)
+			case '!': case '"': case '#': case '$': case '%':
 			case '\'':case '(': case ')': case '*': case '+': case ',':
 			case '.': case '/': case ':': case ';': case '<': case '=':
 			case '?': case '@': case '[': case '\\':case ']': case '^':
@@ -130,6 +136,10 @@ public class FilingNormalization {
 		// trim trailing space - there can't be more than one.
 		if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ')
 			sb.setLength(sb.length() - 1);
+		
+		// append any trailing flags
+		if (sbEnd.length() > 0)
+			sb.append(' ').append(sbEnd);
 
 		return sb.toString();
 	}
