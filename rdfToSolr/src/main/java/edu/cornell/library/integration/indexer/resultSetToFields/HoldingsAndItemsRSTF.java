@@ -44,7 +44,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
  */
 public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
-	private Boolean debug = true;
+	private Boolean debug = false;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");
 	LocationSet locations = new LocationSet();
 	Collection<String> holding_ids = new HashSet<String>();
