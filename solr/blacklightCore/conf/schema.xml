@@ -181,7 +181,7 @@
     </fieldType>
     
     
-    <!--  CJK field type for Chinese, Japanese & Korean text is care of Naomi Dushay and her work at Standford -->
+    <!--  CJK field type for Chinese, Japanese & Korean text is care of Naomi Dushay and her work at Stanford -->
     <fieldtype name="textCJK" class="solr.TextField" positionIncrementGap="10000" autoGeneratePhraseQueries="false">
      <analyzer>
         <!-- remove spaces among hangul and han chars if there is at least one hangul char -->

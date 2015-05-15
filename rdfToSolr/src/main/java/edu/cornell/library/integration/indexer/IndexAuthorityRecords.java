@@ -251,6 +251,8 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
+				heading = dashedHeading(f);
+
 				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
@@ -415,8 +417,6 @@ public class IndexAuthorityRecords {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
-			if (rs != null && f.tag.startsWith("1"))
-				heading = dashedHeading(f);
 		}
 		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);

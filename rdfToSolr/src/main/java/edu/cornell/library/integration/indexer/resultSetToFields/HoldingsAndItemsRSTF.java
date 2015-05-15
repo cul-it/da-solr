@@ -44,7 +44,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
  */
 public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
-	private Boolean debug = false;
+	private Boolean debug = true;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");
 	LocationSet locations = new LocationSet();
 	Collection<String> holding_ids = new HashSet<String>();
@@ -273,7 +273,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			
 			if (debug)
 				System.out.println(h.id);
-			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
+			String query = 
+					"SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
 					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID " +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + h.id + "\'" +
