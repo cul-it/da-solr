@@ -28,11 +28,12 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("héllo!").equals("hello"));
 		assertTrue(getSortHeading("!!- :::hello::: -!!").equals("hello"));
 		assertFalse(getSortHeading("hello").equals("goodbye"));
-		assertTrue(getSortHeading("hello-  -,:()@#$%^&* hello").equals("hello hello"));
-		assertTrue(getSortHeading("Hello > hello").equals("hello aaa hello"));
-		assertTrue(getSortHeading("Hello--Hello").equals("hello aaa hello"));
-		assertTrue(getSortHeading("Hello---Hello").equals("hello aaa hello"));
+		assertTrue(getSortHeading("hello-  -,:()@#$%^* hello").equals("hello hello"));
+		assertTrue(getSortHeading("Hello > hello").equals("hello 0000 hello"));
+		assertTrue(getSortHeading("Hello--Hello").equals("hello 0000 hello"));
+		assertTrue(getSortHeading("Hello---Hello").equals("hello 0000 hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
+		assertTrue(getSortHeading("Hello & Goodbye!").equals("hello goodbye 6&"));
 		assertTrue(getSortHeading(" Alzheimer's disease ").equals("alzheimers disease"));
 		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
 				equals("abbasah ukht al rashid aww nakbat al baramikah"));

@@ -126,7 +126,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 			Collection<String> loccodes = new HashSet<String>();
 			Collection<String> callnos = new HashSet<String>();
-			List<String> holdings = new ArrayList<String>();
+			List<String> holdingDescs = new ArrayList<String>();
 			List<String> recentHoldings = new ArrayList<String>();
 			List<String> supplementalHoldings = new ArrayList<String>();
 			List<String> indexHoldings = new ArrayList<String>();
@@ -186,7 +186,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 						if (f.ind1.equals(' ') && f.ind2.equals(' '))
 							recentHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						else
-							holdings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
+							holdingDescs.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						break;
 					case "867":
 						supplementalHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
@@ -211,7 +211,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				}
 			}
 			holding.notes = notes.toArray(new String[ notes.size() ]);
-			holding.holdings_desc = holdings.toArray(new String[ holdings.size() ]);
+			holding.holdings_desc = holdingDescs.toArray(new String[ holdingDescs.size() ]);
 			holding.recent_holdings_desc = recentHoldings.toArray(new String[ recentHoldings.size() ]);
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
@@ -228,11 +228,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
 			addField(fields,"holdings_record_display",json);
+			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
 			
 
 		}
-
+		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
 		
 		// ITEM DATA STARTS HERE
 		Connection conn = null;
@@ -242,15 +243,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		} finally {
 			if (conn != null) conn.close();
 		}
-
-		Boolean multivol = false;
-		SolrInputField multivolField = new SolrInputField("multivol_b");
-
-		if (holding_ids.isEmpty()) {
-			multivolField.setValue(multivol, 1.0f);
-			fields.put("multivol_b", multivolField);
-			return fields;
-		}		
 
 		return fields;
 	}
@@ -273,7 +265,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			
 			if (debug)
 				System.out.println(h.id);
-			String query = "SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
+			String query = 
+					"SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
 					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID " +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + h.id + "\'" +

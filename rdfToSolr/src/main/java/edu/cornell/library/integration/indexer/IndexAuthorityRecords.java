@@ -251,6 +251,8 @@ public class IndexAuthorityRecords {
 						}
 			} else if (f.tag.startsWith("1")) {
 				// main heading
+				heading = dashedHeading(f);
+
 				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
@@ -312,14 +314,16 @@ public class IndexAuthorityRecords {
 						}
 					break MAIN;
 
-				case "372"://
-				case "373"://
-				case "374": {
+				case "372":
+				case "373":
+				case "374":
+				case "375": {
 					String start = null, end = null, value = null, field = null;
 					switch (f.tag) {
 					case "372": field = "Field"; break;
 					case "373": field = "Group/Organization"; break;
 					case "374": field = "Occupation"; break;
+					case "375": field = "Gender"; break;
 					}
 					for (Subfield sf : f.subfields.values())
 						switch (sf.code) {
@@ -340,7 +344,7 @@ public class IndexAuthorityRecords {
 							rdaData.add(field, value);
 					} }
 					break MAIN;
-				case "375": { // Gender
+/*				case "375": { // Gender
 					String value = null;
 					for (Subfield sf : f.subfields.values())
 						switch (sf.code) {
@@ -352,7 +356,7 @@ public class IndexAuthorityRecords {
 					if (value != null)
 						rdaData.add("Gender", value);
 				}
-					break MAIN;
+					break MAIN; */
 				case "380": fieldName = "Form of Work";		break MAIN;
 				case "382": fieldName = "Instrumentation";
 				} //end MAIN
@@ -415,8 +419,6 @@ public class IndexAuthorityRecords {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
-			if (rs != null && f.tag.startsWith("1"))
-				heading = dashedHeading(f);
 		}
 		if (heading == null || rs == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
