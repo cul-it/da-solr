@@ -4,7 +4,6 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -88,9 +88,9 @@ public class MarcXmlToRdf {
 	private String tempDestDir = null;
 	private String currentInputFile = null;
 	private String currentOutputFile = null;
-	private BufferedOutputStream singleOut = null;
-	private Map<Integer, BufferedOutputStream> outsById = null;
-	private Map<String, BufferedOutputStream> outsByName = null;
+	private OutputStreamWriter singleOut = null;
+	private Map<Integer, OutputStreamWriter> outsById = null;
+	private Map<String, OutputStreamWriter> outsByName = null;
 	private String uriPrefix = null;
 	private String idPrefix = null;
 	private Boolean processingBibs = null;
@@ -289,9 +289,9 @@ public class MarcXmlToRdf {
 		
 		if (simultaneousWrite)
 			if (mode.equals(Mode.NAME_AS_SOURCE))
-				outsByName = new HashMap<String,BufferedOutputStream>();
+				outsByName = new HashMap<String,OutputStreamWriter>();
 			else
-				outsById = new HashMap<Integer, BufferedOutputStream>();
+				outsById = new HashMap<Integer, OutputStreamWriter>();
 		
 		// If the destination is local, we can build N-Triples directly to there.
 		// Otherwise, we need a temporary build directory.
@@ -318,10 +318,10 @@ public class MarcXmlToRdf {
 			reportResults.put(Report.GEN_FREQ_MFHD,buildGenFreqReport());
 		
 		if (outsByName != null)
-			for (BufferedOutputStream out : outsByName.values())
+			for (OutputStreamWriter out : outsByName.values())
 				out.close();
 		if (outsById != null)
-			for (BufferedOutputStream out : outsById.values())
+			for (OutputStreamWriter out : outsById.values())
 				out.close();
 		if (singleOut != null)
 			singleOut.close();
@@ -361,19 +361,19 @@ public class MarcXmlToRdf {
 
 	}
 	
-	private BufferedOutputStream openFileForWrite( String f ) throws Exception {
-		BufferedOutputStream b = null;
+	private OutputStreamWriter openFileForWrite( String f ) throws Exception {
+		OutputStreamWriter b = null;
 		if (outFileExt.endsWith(".gz")) 
-			b =  new BufferedOutputStream(new GZIPOutputStream(
-					new FileOutputStream(f,true)));
+			b =  new OutputStreamWriter(new GZIPOutputStream(
+					new FileOutputStream(f,true)),"UTF-8");
 		else {
-			b =  new BufferedOutputStream(new FileOutputStream(f,true));
+			b =  new OutputStreamWriter(new FileOutputStream(f,true),"UTF-8");
 		}
 		return b;
 	}
 
 	private void sortOutput( String bibid, String output ) throws Exception {
-		BufferedOutputStream out = null;
+		OutputStreamWriter out = null;
 		String dirToProcessInto = null;
 		boolean newOut = false;
 		
@@ -466,8 +466,8 @@ public class MarcXmlToRdf {
 					|| outFormat.equals(OutputFormat.N3)
 					|| outFormat.equals(OutputFormat.N3_GZ)
 					))
-				out.write( outputHeaders.getBytes() );
-			out.write( output.getBytes() );
+				out.write( outputHeaders );
+			out.write( output );
 		} else {
 			System.out.println("N-Triples not written to file. Bibid: "+bibid);
 		}
@@ -704,7 +704,7 @@ public class MarcXmlToRdf {
 			else
 				minBibid = bibs[bibs.length - 1];
 			System.out.println(i3+": "+minBibid);
-			BufferedOutputStream  out = openFileForWrite(dirToProcessInto+"/"+
+			OutputStreamWriter  out = openFileForWrite(dirToProcessInto+"/"+
 					destFilenamePrefix+"."+i3+outFileExt);
 			outsById.put(minBibid, out);
 			
