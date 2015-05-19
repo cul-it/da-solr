@@ -99,7 +99,7 @@ public class Headings2Solr {
 			if (xrefs.seeAlsoJson != null)
 				doc.addField("seeAlso", xrefs.seeAlsoJson);
 			doc.addField("alternateForm", getAltForms(id));
-			if (RecordSet.NAMETITLE.ordinal() != rs.getInt("record_set"))
+			if ( ! ht.equals(HeadType.AUTHORTITLE))
 				doc.addField("headingTypeDesc", HeadTypeDescs[ rs.getInt("type_desc") ]);
 			doc.addField("authority", rs.getBoolean("authority"));
 			doc.addField("mainEntry", rs.getBoolean("main_entry"));
