@@ -179,6 +179,7 @@ public class IndexHeadings {
 			String headingDisplay;
 			try {
 				headingDisplay = getDisplayHeading( blf , headingSort );
+				if (headingDisplay == null) return;
 				if ( ! stmts.containsKey("insert")) {
 					String query = String.format(
 							"INSERT INTO heading (heading, sort, record_set, type_desc, %s) " +
@@ -241,7 +242,7 @@ public class IndexHeadings {
 		         sb.append( URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")); //escape quotes
 		         sb.append("%22"); // end quotation
 		// return display values from facet field
-		sb.append( "&facet=true&facet.limit=40&facet.mincount=1&facet.field="); sb.append( facet );
+		sb.append( "&facet=true&facet.limit=400&facet.mincount=1&facet.field="); sb.append( facet );
 		String query =  sb.toString();
 
 		URI uri = new URI(query);
@@ -286,8 +287,7 @@ public class IndexHeadings {
 		recordWrongHeadingCount(wrongHeadingCount);
 		System.out.println("Didn't find display form for: "+headingSort);
 		System.out.println(query);
-	//	System.exit(1);
-		return headingSort;
+		return null;
 	}
 	
 	private void recordWrongHeadingCount( int c ) {
