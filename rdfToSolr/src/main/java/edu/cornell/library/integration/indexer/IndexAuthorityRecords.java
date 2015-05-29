@@ -1,8 +1,9 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -329,8 +330,8 @@ public class IndexAuthorityRecords {
 					for (Subfield sf : f.subfields.values())
 						switch (sf.code) {
 						case 'a': values.add( sf.value ); break;
-						case 's': start = sf.value; break;
-						case 't': end = sf.value; break;
+						case 's': start = addDashesTo_YYYYMMDD_Date(sf.value); break;
+						case 't': end = addDashesTo_YYYYMMDD_Date(sf.value); break;
 						}
 					if (values.isEmpty()) break MAIN;
 					for (String value : values)
