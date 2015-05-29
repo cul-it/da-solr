@@ -318,7 +318,8 @@ public class IndexAuthorityRecords {
 				case "373":
 				case "374":
 				case "375": {
-					String start = null, end = null, value = null, field = null;
+					String start = null, end = null, field = null;
+					List<String> values = new ArrayList<String>();
 					switch (f.tag) {
 					case "372": field = "Field"; break;
 					case "373": field = "Group/Organization"; break;
@@ -327,22 +328,24 @@ public class IndexAuthorityRecords {
 					}
 					for (Subfield sf : f.subfields.values())
 						switch (sf.code) {
-						case 'a': value = sf.value; break;
+						case 'a': values.add( sf.value ); break;
 						case 's': start = sf.value; break;
 						case 't': end = sf.value; break;
 						}
-					if (value == null) break MAIN;
-					if (start != null) {
-						if (end != null)
-							rdaData.add(field, String.format("%s (%s-%s)", value,start,end));
-						else
-							rdaData.add(field, String.format("%s (starting %s)", value,start));
-					} else {
-						if (end != null)
-							rdaData.add(field, String.format("%s (until %s)", value,end));
-						else
-							rdaData.add(field, value);
-					} }
+					if (values.isEmpty()) break MAIN;
+					for (String value : values)
+						if (start != null) {
+							if (end != null)
+								rdaData.add(field, String.format("%s (%s-%s)", value,start,end));
+							else
+								rdaData.add(field, String.format("%s (starting %s)", value,start));
+						} else {
+							if (end != null)
+								rdaData.add(field, String.format("%s (until %s)", value,end));
+							else
+								rdaData.add(field, value);
+						}
+					}
 					break MAIN;
 /*				case "375": { // Gender
 					String value = null;
