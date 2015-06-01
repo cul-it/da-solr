@@ -74,7 +74,7 @@ public class IndexingUtilities {
 			yyyymmdd = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
 		Matcher m = yyyymmdd.matcher(date);
 		if (m.find())
-			return m.group(1)+"-"+m.group(2)+"_"+m.group(3);
+			return m.group(1)+"-"+m.group(2)+"-"+m.group(3);
 		else
 			return date;
 	}
