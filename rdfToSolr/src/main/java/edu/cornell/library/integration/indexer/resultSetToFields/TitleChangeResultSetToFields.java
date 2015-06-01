@@ -77,8 +77,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "author_addl";
 						String author_disp = f.concatenateSpecificSubfields("abcfghijklmnopqrstuvwxyz");
 						String author_suffixes = f.concatenateSpecificSubfields("de");
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-								"author_addl",author_disp,author_cts,author_suffixes));
+						if (author_suffixes.isEmpty())
+							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+									"author_addl",author_disp,author_cts));
+						else
+							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+									"author_addl",author_disp,author_cts,author_suffixes));
 						if (f.mainTag.equals("700"))
 							valuesPersAFacet.add(f.concatenateSpecificSubfields("abcdq"));
 						else if (f.mainTag.equals("710"))
