@@ -337,7 +337,7 @@ public class IndexAuthorityRecords {
 					for (String value : values)
 						if (start != null) {
 							if (end != null)
-								rdaData.add(field, String.format("%s (%s-%s)", value,start,end));
+								rdaData.add(field, String.format("%s (%s through %s)", value,start,end));
 							else
 								rdaData.add(field, String.format("%s (starting %s)", value,start));
 						} else {
