@@ -226,12 +226,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if (candidate && vernField != null && romanField != null) {
 					if (romanField.suffixes != null) {
 						addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display+" "+romanField.suffixes);
-						addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
-								vernField.display,vernField.cts1,romanField.display,romanField.cts1));
-					} else {
-						addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
 						addField(solrFields,"author_addl_cts",String.format("%s|%s|%s %s|%s",
 								vernField.display,vernField.cts1,romanField.display,romanField.suffixes,romanField.cts1));
+					} else {
+						addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
+						addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
+								vernField.display,vernField.cts1,romanField.display,romanField.cts1));
 					}
 					cts_fields.clear();
 				}
