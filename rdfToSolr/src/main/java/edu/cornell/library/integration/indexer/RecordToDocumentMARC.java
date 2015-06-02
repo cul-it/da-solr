@@ -43,7 +43,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResu
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.Title240ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
 
 /**
@@ -407,32 +406,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							" }").
 					addResultSetToFields( new Title130ResultSetToFields()),
 
-				
-				new SPARQLFieldMakerStepped().
-				    setName("title240").
-					addMainStoreQuery("title_240",
-							"SELECT *\n" +
-							" WHERE { $recordURI$ marcrdf:hasField240 ?field.\n" +
-				    		"        ?field marcrdf:tag ?tag. \n" +
-				    		"        ?field marcrdf:ind1 ?ind1. \n" +
-				    		"        ?field marcrdf:ind2 ?ind2. \n" +
-				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-				    		"        ?sfield marcrdf:code ?code.\n" +
-				    		"        ?sfield marcrdf:value ?value.\n" +
-				    		" }").
-				    addMainStoreQuery("main_entry_a", 
-							"SELECT *\n" +
-							" WHERE { $recordURI$ ?p ?field.\n" +
-							"        ?p rdfs:subPropertyOf marcrdf:MainEntryAuthor.\n"+
-				    		"        ?field marcrdf:tag ?tag. \n" +
-				    		"        ?field marcrdf:ind1 ?ind1. \n" +
-				    		"        ?field marcrdf:ind2 ?ind2. \n" +
-				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-				    		"        ?sfield marcrdf:code ?code.\n" +
-				    		"        ?sfield marcrdf:value ?value.\n" +
-				    		" }").
-			        addResultSetToFieldsStepped( new Title240ResultSetToFields()),
-			    	
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
 			        addMainStoreQuery("title_changes", 
@@ -492,6 +465,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?sfield marcrdf:code ?code.\n" +
 				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
+					addMainStoreQuery("title_240",
+							"SELECT *\n" +
+							" WHERE { $recordURI$ marcrdf:hasField240 ?field.\n" +
+						    "        ?field marcrdf:tag ?tag. \n" +
+						    "        ?field marcrdf:ind1 ?ind1. \n" +
+						    "        ?field marcrdf:ind2 ?ind2. \n" +
+						    "        ?field marcrdf:hasSubfield ?sfield .\n" +
+						    "        ?sfield marcrdf:code ?code.\n" +
+						    "        ?sfield marcrdf:value ?value. }").
 			        addResultSetToFields( new AuthorTitleResultSetToFields()),
 
 			    new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),

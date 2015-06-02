@@ -12,7 +12,6 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
@@ -64,6 +63,23 @@ public class IndexingUtilities {
 		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
 	
+	/**
+	 *
+	 * @param date
+	 * @return If date consists of eight digits, then dashes are added to create a yyyy-mm-dd format.
+	 *      Otherwise, the date is returned unchanged.
+	 */
+	public static String addDashesTo_YYYYMMDD_Date(String date) {
+		if (yyyymmdd == null)
+			yyyymmdd = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
+		Matcher m = yyyymmdd.matcher(date);
+		if (m.find())
+			return m.group(1)+"-"+m.group(2)+"-"+m.group(3);
+		else
+			return date;
+	}
+	static Pattern yyyymmdd = null;
+
 	public static String substituteInRecordURI(String recordURI, String query) {
 		if( query == null )
 			return null;			

@@ -75,9 +75,14 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					// no title - this is an added entry author/creator
 					if (title_cts.isEmpty()) {
 						relation = "author_addl";
-						String author_disp = f.concatenateSpecificSubfields("abcefghijklmnopqrstuvwxyz");
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-								"author_addl",author_disp,author_cts));
+						String author_disp = f.concatenateSpecificSubfields("abcfghijklmnopqrstuvwxyz");
+						String author_suffixes = f.concatenateSpecificSubfields("de");
+						if (author_suffixes.isEmpty())
+							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+									"author_addl",author_disp,author_cts));
+						else
+							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+									"author_addl",author_disp,author_cts,author_suffixes));
 						if (f.mainTag.equals("700"))
 							valuesPersAFacet.add(f.concatenateSpecificSubfields("abcdq"));
 						else if (f.mainTag.equals("710"))
@@ -93,7 +98,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 							relation = "related_work";
 						}
 						String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,true,
 								relation+"_display",workField,title_cts,author_cts));
 					}
 					continue; //next datafield
@@ -223,9 +228,15 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					else romanField = f;
 				}
 				if (candidate && vernField != null && romanField != null) {
-					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
-					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
-							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					if (romanField.suffixes != null) {
+						addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display+" "+romanField.suffixes);
+						addField(solrFields,"author_addl_cts",String.format("%s|%s|%s %s|%s",
+								vernField.display,vernField.cts1,romanField.display,romanField.suffixes,romanField.cts1));
+					} else {
+						addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
+						addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
+								vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					}
 					cts_fields.clear();
 				}
 			}
@@ -257,9 +268,15 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 	
 	public void addCtsField(Map<String,SolrInputField> solrFields, CtsField f) {
 		if (f.relation.equals("author_addl")) {
-			addField(solrFields,"author_addl_display",f.display);
-			addField(solrFields,"author_addl_cts",String.format("%s|%s",
-					f.display,f.cts1));
+			if (f.suffixes != null) {
+				addField(solrFields,"author_addl_display",f.display+" "+f.suffixes);
+				addField(solrFields,"author_addl_cts",String.format("%s %s|%s",
+						f.display,f.suffixes,f.cts1));
+			} else {
+				addField(solrFields,"author_addl_display",f.display);
+				addField(solrFields,"author_addl_cts",String.format("%s|%s",
+						f.display,f.cts1));
+			}
 		} else {
 			if (f.cts2 == null)
 				addField(solrFields,f.relation,String.format("%s|%s",f.display,f.cts1));
@@ -272,7 +289,8 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		public String relation;
 		public String display;
 		public String cts1;
-		public String cts2;
+		public String cts2 = null;
+		public String suffixes = null;
 		public boolean vern;
 
 		public CtsField (boolean vernacular, String rel, String f, String click1) {
@@ -280,9 +298,16 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			relation = rel;
 			display = f;
 			cts1 = click1;
-			cts2 = null;
 		}
-		public CtsField (boolean vernacular, String rel, String f, String click1, String click2) {
+		public CtsField (boolean vernacular, String rel, String f, String click1, String suff) {
+			vern = vernacular;
+			relation = rel;
+			display = f;
+			cts1 = click1;
+			suffixes = suff;
+		}
+		public CtsField (boolean vernacular, boolean authortitle, String rel,
+				String f, String click1, String click2) {
 			vern = vernacular;
 			relation = rel;
 			display = f;
