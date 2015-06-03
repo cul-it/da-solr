@@ -336,10 +336,14 @@ public class IndexAuthorityRecords {
 					if (values.isEmpty()) break MAIN;
 					for (String value : values)
 						if (start != null) {
-							if (end != null)
-								rdaData.add(field, String.format("%s (%s through %s)", value,start,end));
-							else
+							if (end != null) {
+								if (start.equals(end))
+									rdaData.add(field, String.format("%s (%s)", value,start));
+								else
+									rdaData.add(field, String.format("%s (%s through %s)", value,start,end));
+							} else {
 								rdaData.add(field, String.format("%s (starting %s)", value,start));
+							}
 						} else {
 							if (end != null)
 								rdaData.add(field, String.format("%s (until %s)", value,end));
