@@ -69,7 +69,7 @@ public class TitleMatchRSTF implements ResultSetToFields {
 				int otherBib = bibResult.getInt("bibid");
 				if (otherBib == bibid) {
 					mainRecFormat = bibResult.getString("format");
-					break;
+					continue;
 				}
 				String format = bibResult.getString("format");
 				String online = bibResult.getString("online");
