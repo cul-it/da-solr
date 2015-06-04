@@ -192,5 +192,4 @@ public class IndexingUtilities {
 	public static String prettyXMLFormat(String input) {
 	    return prettyXMLFormat(input, 2);
 	}
-
 }

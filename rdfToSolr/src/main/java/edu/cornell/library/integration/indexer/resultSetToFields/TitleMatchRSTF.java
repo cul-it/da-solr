@@ -3,35 +3,104 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
-import java.util.Collection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
- * process the whole 7xx range into a wide variety of fields
+ * use OCLC Work IDs to map OCLC IDs against one another to identify matching titles
  * 
  */
 public class TitleMatchRSTF implements ResultSetToFields {
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:	  	
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+
 		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		int bibid = 0;
 		
-		Collection<String> allIds = new HashSet<String>();
+		com.hp.hpl.jena.query.ResultSet rs = results.get("bib_id");
+		if( rs != null){
+			while(rs.hasNext()){
+				QuerySolution sol = rs.nextSolution();
+				bibid = Integer.valueOf(nodeToString( sol.get("id")));
+			}
+		}
+		if (bibid == 0) return solrFields;
+		
+		Connection conn = null;
+		try {
+			conn = config.getDatabaseConnection("Workids");
+			PreparedStatement pstmt = conn.prepareStatement
+					("   SELECT workRecCount.* FROM voy2work" +
+					" LEFT JOIN workRecCount on (voy2work.workid = workRecCount.workid) "
+					+ "   WHERE bibid = ?");
+			pstmt.setInt(1, bibid);
+			java.sql.ResultSet workResult = pstmt.executeQuery();
+			int workid = 0, voyCount = 0;
+			while (workResult.next()) {
+				workid = workResult.getInt("workid");
+				voyCount = workResult.getInt("voyCount");
+			}
+			pstmt.close();
+			addField(solrFields,"workid_s",String.valueOf(workid));
+			addField(solrFields,"workid_display",String.valueOf(workid)+"|"+String.valueOf(voyCount));
+			if (workid == 0 || voyCount == 1) return solrFields;
+			
+			PreparedStatement pstmt2 = conn.prepareStatement
+					("SELECT voy2loc.* " +
+					   "FROM voy2work LEFT JOIN voy2loc ON (voy2loc.bibid = voy2work.bibid) " +
+					  "WHERE workid = ?");
+			pstmt2.setInt(1, workid);
+			java.sql.ResultSet bibResult = pstmt2.executeQuery();
+			List<BibRec> otherBibs = new ArrayList<BibRec>();
+			String mainRecFormat = null;
+			while (bibResult.next()) {
+				int otherBib = bibResult.getInt("bibid");
+				if (otherBib == bibid) {
+					mainRecFormat = bibResult.getString("format");
+					break;
+				}
+				String format = bibResult.getString("format");
+				String online = bibResult.getString("online");
+				String library = bibResult.getString("library");
+				if (online != null)
+					if (library != null)
+						otherBibs.add(new BibRec(otherBib,format,"Online/At the Library"));
+					else
+						otherBibs.add(new BibRec(otherBib,format,online));
+				else
+					if (library != null)
+						otherBibs.add(new BibRec(otherBib,format,library));
+					else
+						otherBibs.add(new BibRec(otherBib,format,"unavailable"));
+			}
+			for (int i = 0; i < otherBibs.size(); i++) {
+				BibRec bib = otherBibs.get(i);
+				if (bib.format.equals(mainRecFormat))
+					addField(solrFields,"other_availability_piped",String.valueOf(bib.bibid)+"|"+bib.location);
+				else
+					addField(solrFields,"other_availability_piped"
+							,String.valueOf(bib.bibid)+"|"+bib.format+": "+bib.location);
+			}
+			
+		} finally {
+			if (conn != null)
+				conn.close();
+		}
+		
+		
+/*		Collection<String> allIds = new HashSet<String>();
 		Collection<String> matchDescs = new HashSet<String>();
 		
 		for( String resultKey: results.keySet()){
@@ -203,14 +272,26 @@ public class TitleMatchRSTF implements ResultSetToFields {
 					}
 				}		
 			}
-		}
+		} 
 							
 		for (String s: allIds) {
 				addField(solrFields,"title_match_t",s);	
 		}
 		for (String s: matchDescs) {
 			addField(solrFields,"title_match_piped",s);
-		}
+		}*/
 		return solrFields;	
-	}	
+	}
+	
+	private class BibRec {
+		int bibid;
+		String format;
+		String location;
+		
+		public BibRec(int id, String form, String loc) {
+			bibid = id;
+			format = form;
+			location = loc;
+		}
+	}
 }
