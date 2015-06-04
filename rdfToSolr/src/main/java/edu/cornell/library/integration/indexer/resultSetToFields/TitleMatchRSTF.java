@@ -53,7 +53,7 @@ public class TitleMatchRSTF implements ResultSetToFields {
 				voyCount = workResult.getInt("voyCount");
 			}
 			pstmt.close();
-			addField(solrFields,"workid_s",String.valueOf(workid));
+			addField(solrFields,"workid_facet",String.valueOf(workid));
 			addField(solrFields,"workid_display",String.valueOf(workid)+"|"+String.valueOf(voyCount));
 			if (workid == 0 || voyCount == 1) return solrFields;
 			
