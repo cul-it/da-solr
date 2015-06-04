@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 
@@ -22,6 +21,7 @@ import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
 
@@ -200,8 +200,7 @@ public class IndexAuthorityRecords {
 
 	private void processRecords (XMLStreamReader r) throws Exception {
 		while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("START_ELEMENT"))
+			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					createHeadingRecordsFromAuthority(rec);
@@ -875,12 +874,12 @@ public class IndexAuthorityRecords {
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("END_ELEMENT")) {
+			int event = r.next();
+			if (event == XMLEvent.END_ELEMENT) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
 			}
-			if (event.equals("START_ELEMENT")) {
+			if (event == XMLEvent.START_ELEMENT) {
 				String element = r.getLocalName();
 				switch (element) {
 				
@@ -926,11 +925,11 @@ public class IndexAuthorityRecords {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("END_ELEMENT"))
+			int event = r.next();
+			if (event == XMLEvent.END_ELEMENT)
 				if (r.getLocalName().equals("datafield"))
 					return fields;
-			if (event.equals("START_ELEMENT"))
+			if (event == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("subfield")) {
 					Subfield f = new Subfield();
 					f.id = ++id;

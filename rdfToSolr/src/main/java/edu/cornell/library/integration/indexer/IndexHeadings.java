@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,6 +27,7 @@ import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 
 import org.apache.solr.client.solrj.SolrServerException;
 
@@ -121,25 +121,21 @@ public class IndexHeadings {
 		XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
 
 		// fast forward to response body
-		FF: while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
+		FF: while (r.hasNext())
+			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name")) {
 							String name = r.getAttributeValue(i);
 							if (name.equals("terms")) break FF;
 						}
-			}
-		}
 
 		// process actual results
 		String heading = null;
 		Integer recordCount = null;
 		int headingCount = 0;
-		while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
+		while (r.hasNext())
+			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("int")) {
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
@@ -151,8 +147,6 @@ public class IndexHeadings {
 						connection.commit();
 					}
 				}
-			}
-		}
 		fis.close();
 		Files.delete(tempPath);
 	}
@@ -252,27 +246,23 @@ public class IndexHeadings {
 		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
 
 		// fast forward to response body
-		FF: while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("START_ELEMENT"))
+		FF: while (r.hasNext())
+			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("lst"))
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
 							if (r.getAttributeValue(i).equals(facet)) break FF;
-		}
 		
 		// process actual results
 		String heading = null;
 		int wrongHeadingCount = 0;
-		while (r.hasNext()) {
-			String event = getXMLEventTypeString(r.next());
-			if (event.equals("START_ELEMENT")) {
+		while (r.hasNext())
+			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("int")) {
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
 							heading = r.getAttributeValue(i);
 					String sort = getSortHeading(heading);
-//					System.out.println(heading + " => "+ sort);
 					if (sort.equals(headingSort)) {
 						in.close();
 						recordWrongHeadingCount(wrongHeadingCount);
@@ -281,8 +271,6 @@ public class IndexHeadings {
 						wrongHeadingCount++;
 					}
 				}
-			}
-		}
 		in.close();
 		recordWrongHeadingCount(wrongHeadingCount);
 		System.out.println("Didn't find display form for: "+headingSort);
