@@ -113,7 +113,6 @@ public class IndexAuthorityRecords {
 		stmt.execute("CREATE TABLE `heading` ("
 				+ "`id` int(10) unsigned NOT NULL auto_increment, "
 				+ "`heading` text,   `sort` mediumtext NOT NULL, "
-				+ "`record_set` tinyint(3) unsigned NOT NULL, "
 				+ "`type_desc` tinyint(3) unsigned NOT NULL, "
 				+ "`authority` tinyint(1) NOT NULL default '0', "
 				+ "`main_entry` tinyint(1) NOT NULL default '0', "
@@ -121,7 +120,7 @@ public class IndexAuthorityRecords {
 				+ "`works_about` mediumint(8) unsigned NOT NULL default '0', "
 				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
 				+ "PRIMARY KEY  (`id`), "
-				+ "KEY `uk` (`record_set`,`type_desc`,`sort`(100))) "
+				+ "KEY `uk` (`type_desc`,`sort`(100))) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `note`");
@@ -130,13 +129,6 @@ public class IndexAuthorityRecords {
 				+ "`note` text NOT NULL, "
 				+ "KEY (`heading_id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
-		stmt.execute("DROP TABLE IF EXISTS `record_set`");
-		stmt.execute("CREATE TABLE `record_set` ( "
-				+ "`id` tinyint(3) unsigned NOT NULL, "
-				+ "`name` varchar(256) NOT NULL, "
-				+ "PRIMARY KEY  (`id`)) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `ref_type`");
 		stmt.execute("CREATE TABLE `ref_type` ( "
@@ -168,14 +160,6 @@ public class IndexAuthorityRecords {
 				+ "KEY `heading_id` (`heading_id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-		PreparedStatement insertType = connection.prepareStatement(
-				"INSERT INTO record_set (id,name) VALUES (? , ?)");
-		for ( RecordSet rs : RecordSet.values()) {
-			insertType.setInt(1, rs.ordinal());
-			insertType.setString(2, rs.toString());
-			insertType.executeUpdate();
-		}
-
 		PreparedStatement insertDesc = connection.prepareStatement(
 				"INSERT INTO type_desc (id,name) VALUES (? , ?)");
 		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
@@ -193,7 +177,6 @@ public class IndexAuthorityRecords {
 		}
 
 		stmt.close();
-		insertType.close();
 		insertDesc.close();
 		insertRefType.close();
 	}
@@ -212,7 +195,6 @@ public class IndexAuthorityRecords {
 		String heading = null;
 		String headingSort = null;
 		HeadTypeDesc htd = null;
-		RecordSet rs = null;
 		Collection<Relation> sees = new HashSet<Relation>();
 		Collection<Relation> seeAlsos = new HashSet<Relation>();
 		Collection<String> expectedNotes = new HashSet<String>();
@@ -257,10 +239,8 @@ public class IndexAuthorityRecords {
 				case "100":
 				case "110":
 				case "111":
-					rs = RecordSet.NAME;
 					for (Subfield sf : f.subfields.values() ) {
 						if (sf.code.equals('t')) {
-							rs = RecordSet.NAMETITLE;
 							htd = HeadTypeDesc.WORK;
 							break MAIN;
 						}
@@ -274,26 +254,20 @@ public class IndexAuthorityRecords {
 					break;
 				case "130":
 					htd = HeadTypeDesc.GENHEAD;
-					rs = RecordSet.SUBJECT;
 					break;
 				case "148":
-					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.CHRONTERM;
 					break;
 				case "150":
-					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.TOPIC;
 					break;
 				case "151":
-					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.GEONAME;
 					break;
 				case "155":
-					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.GENRE;
 					break;
 				case "162":
-					rs = RecordSet.SUBJECT;
 					htd = HeadTypeDesc.MEDIUM;
 				}
 				// If the record is for a subdivision (main entry >=180),
@@ -427,14 +401,14 @@ public class IndexAuthorityRecords {
 				}
 			}
 		}
-		if (heading == null || rs == null || htd == null) {
+		if (heading == null || htd == null) {
 			System.out.println("Not deriving heading browse entries from record. "+rec.id);
 			return;
 		}
 		headingSort = getSortHeading(heading);
 
 		// Populate Main Entry Heading Record
-		Integer heading_id = getMainHeadingRecordId(heading,headingSort,rs, htd);
+		Integer heading_id = getMainHeadingRecordId(heading,headingSort,htd);
 		for (String note : notes)
 			insertNote(heading_id, note);
 		
@@ -454,18 +428,18 @@ public class IndexAuthorityRecords {
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			crossRef(heading_id,rs,r,ReferenceType.FROM4XX);
+			crossRef(heading_id,r,ReferenceType.FROM4XX);
 		}
 		
 		for (Relation r: seeAlsos) {
 			// Populate incoming 5XX cross references
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
-			crossRef(heading_id,rs,r,ReferenceType.FROM5XX);
+			crossRef(heading_id,r,ReferenceType.FROM5XX);
 
 			// Where appropriate, populate outgoing 5XX cross references
 			if (r.reciprocalRelationship != null)
-				directRef(heading_id,rs,r,ReferenceType.TO5XX);
+				directRef(heading_id,r,ReferenceType.TO5XX);
 		}
 
 		populateRdaInfo(heading_id, rdaData);
@@ -534,13 +508,12 @@ public class IndexAuthorityRecords {
 	}
 
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
-			RecordSet recordSet, HeadTypeDesc htd) throws SQLException {
+			HeadTypeDesc htd) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE record_set = ? AND type_desc = ? AND sort = ?");
-		pstmt.setInt(1, recordSet.ordinal());
-		pstmt.setInt(2, htd.ordinal());
-		pstmt.setString(3, headingSort);
+				"WHERE type_desc = ? AND sort = ?");
+		pstmt.setInt(1, htd.ordinal());
+		pstmt.setString(2, headingSort);
 		ResultSet resultSet = pstmt.executeQuery();
 		Integer recordId = null;
 		while (resultSet.next()) {
@@ -559,13 +532,12 @@ public class IndexAuthorityRecords {
 		} else {
 			// create new record
 			PreparedStatement pstmt1 = connection.prepareStatement(
-					"INSERT INTO heading (heading, sort, record_set, type_desc, authority, main_entry) " +
-					"VALUES (?, ?, ?, ?, 1, 1)",
+					"INSERT INTO heading (heading, sort, type_desc, authority, main_entry) " +
+					"VALUES (?, ?, ?, 1, 1)",
                     Statement.RETURN_GENERATED_KEYS);
 			pstmt1.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
 			pstmt1.setString(2, headingSort);
-			pstmt1.setInt(3, recordSet.ordinal());
-			pstmt1.setInt(4, htd.ordinal());
+			pstmt1.setInt(3, htd.ordinal());
 			int affectedCount = pstmt1.executeUpdate();
 			if (affectedCount < 1) 
 				throw new SQLException("Creating Heading Record Failed.");
@@ -603,13 +575,13 @@ public class IndexAuthorityRecords {
 
 	}
 	
-	private void crossRef(Integer heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
-		int from_heading_id = getRelationshipHeadingId( r, rs );
+	private void crossRef(Integer heading_id, Relation r, ReferenceType rt) throws SQLException {
+		int from_heading_id = getRelationshipHeadingId( r );
 		insertRef(from_heading_id, heading_id, rt, r.relationship);
 	}
 
-	private void directRef(int heading_id, RecordSet rs, Relation r, ReferenceType rt) throws SQLException {
-		int dest_heading_id = getRelationshipHeadingId( r, rs );
+	private void directRef(int heading_id, Relation r, ReferenceType rt) throws SQLException {
+		int dest_heading_id = getRelationshipHeadingId( r );
 		insertRef(heading_id, dest_heading_id, rt, r.reciprocalRelationship );
 	}
 	
@@ -631,13 +603,12 @@ public class IndexAuthorityRecords {
 	}
 
 
-	private int getRelationshipHeadingId(Relation r, RecordSet recordSet ) throws SQLException {
+	private int getRelationshipHeadingId(Relation r ) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE record_set = ? AND type_desc = ? and sort = ?");
-		pstmt.setInt(1, recordSet.ordinal());
-		pstmt.setInt(2, r.headingTypeDesc.ordinal());
-		pstmt.setString(3, r.headingSort);
+				"WHERE type_desc = ? and sort = ?");
+		pstmt.setInt(1, r.headingTypeDesc.ordinal());
+		pstmt.setString(2, r.headingSort);
 		ResultSet resultSet = pstmt.executeQuery();
 		Integer recordId = null;
 		while (resultSet.next()) {
@@ -647,13 +618,12 @@ public class IndexAuthorityRecords {
 		if (recordId == null) {
 			// create new record
 			PreparedStatement pstmt1 = connection.prepareStatement(
-					"INSERT INTO heading (heading, sort, record_set, type_desc, authority) " +
-					"VALUES (?, ?, ?, ?, 1)",
+					"INSERT INTO heading (heading, sort, type_desc, authority) " +
+					"VALUES (?, ?, ?, 1)",
                     Statement.RETURN_GENERATED_KEYS);
 			pstmt1.setString(1, r.heading);
 			pstmt1.setString(2, r.headingSort);
-			pstmt1.setInt(3, recordSet.ordinal());
-			pstmt1.setInt(4, r.headingTypeDesc.ordinal());
+			pstmt1.setInt(3, r.headingTypeDesc.ordinal());
 			int affectedCount = pstmt1.executeUpdate();
 			if (affectedCount < 1) 
 				throw new SQLException("Creating Heading Record Failed.");

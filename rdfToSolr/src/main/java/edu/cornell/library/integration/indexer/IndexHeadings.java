@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,7 +36,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 
 public class IndexHeadings {
 
@@ -44,8 +44,7 @@ public class IndexHeadings {
 	private Map<HeadType,Map<String,PreparedStatement>> statements =
 			new HashMap<HeadType,Map<String,PreparedStatement>>();
 	SolrBuildConfig config;
-	private Map<Integer,Integer> wrongHeadingCounts = new HashMap<Integer,Integer>();
-	
+
 	/**
 	 * @param args
 	 */
@@ -74,20 +73,20 @@ public class IndexHeadings {
 		connection.setAutoCommit(false);
 
 		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_pers_filing","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_corp_filing","author_facet" ));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.AUTHOR, HeadTypeDesc.EVENT,    "author_event_filing","author_facet" ));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_pers_filing", "author_facet" ));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_corp_filing", "author_facet" ));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.EVENT, "author_event_filing",    "author_facet" ));
 
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_pers_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_corp_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAME, HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_event_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_topic_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_geo_filing","subject_geo_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_era_filing","subject_era_facet"));
-		blFields.add(new BlacklightField(RecordSet.SUBJECT, HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_genr_filing","subject_topic_facet"));
-		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.SUBJECT, HeadTypeDesc.WORK, "subject_work_filing","subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_pers_filing", "subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_corp_filing", "subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_event_filing", "subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_topic_filing", "subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_geo_filing", "subject_geo_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_era_filing", "subject_era_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_genr_filing", "subject_topic_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK, "subject_work_filing", "subject_topic_facet"));
 
-		blFields.add(new BlacklightField(RecordSet.NAMETITLE, HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_filing","authortitle_facet"));
+		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_filing", "authortitle_facet"));
 
 		for (BlacklightField blf : blFields) {
 			
@@ -158,14 +157,13 @@ public class IndexHeadings {
 		// update record count in db
 		if ( ! stmts.containsKey("update")) {
 			String query = String.format( "UPDATE heading SET %s = %s + ? "
-					+ "WHERE record_set = ? AND type_desc = ? AND sort = ?", count_field, count_field);
+					+ "WHERE type_desc = ? AND sort = ?", count_field, count_field);
 			stmts.put("update", connection.prepareStatement(query));
 		}
 		PreparedStatement stmt = stmts.get("update");
 		stmt.setInt(1, count);
-		stmt.setInt(2, blf.recordSet().ordinal());
-		stmt.setInt(3, blf.headingTypeDesc().ordinal());
-		stmt.setString(4, headingSort);
+		stmt.setInt(2, blf.headingTypeDesc().ordinal());
+		stmt.setString(3, headingSort);
 		int rowsAffected = stmt.executeUpdate();
 		
 		// if no rows were affected, this heading is not yet in the database
@@ -176,16 +174,15 @@ public class IndexHeadings {
 				if (headingDisplay == null) return;
 				if ( ! stmts.containsKey("insert")) {
 					String query = String.format(
-							"INSERT INTO heading (heading, sort, record_set, type_desc, %s) " +
-							"VALUES (?, ?, ?, ?, ?)", count_field);
+							"INSERT INTO heading (heading, sort, type_desc, %s) " +
+							"VALUES (?, ?, ?, ?)", count_field);
 					stmts.put("insert", connection.prepareStatement(query));
 				}
 				stmt = stmts.get("insert");
 				stmt.setString(1, headingDisplay);
 				stmt.setString(2, headingSort);
-				stmt.setInt(3, blf.recordSet().ordinal());
-				stmt.setInt(4, blf.headingTypeDesc().ordinal());
-				stmt.setInt(5, count);
+				stmt.setInt(3, blf.headingTypeDesc().ordinal());
+				stmt.setInt(4, count);
 				stmt.executeUpdate();
 			} catch (IOException | XMLStreamException | URISyntaxException e) {
 				System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
@@ -219,25 +216,39 @@ public class IndexHeadings {
 
 	}
 
-	
+
 	private String getDisplayHeading(BlacklightField blf, String headingSort) throws IOException, XMLStreamException, URISyntaxException {
-		
+
 		String facet = blf.facetField();
 		if (facet == null)
 			return headingSort;
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(config.getBlacklightSolrUrl());
-		sb.append("/select?&qt=standard&rows=0&echoParams=none" );
-		// all records
-		sb.append( "&q=" ); sb.append(URLEncoder.encode("*:*","UTF-8") );
-		// filtered by filing value
-		sb.append( "&fq=" ); sb.append(blf.fieldName() ); sb.append("%3A%22" ); // colon-start quotation
-		         sb.append( URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")); //escape quotes
-		         sb.append("%22"); // end quotation
-		// return display values from facet field
-		sb.append( "&facet=true&facet.limit=400&facet.mincount=1&facet.field="); sb.append( facet );
-		String query =  sb.toString();
+		// Get the top few facet values matching a search for headingSort
+		String query = buildBLDisplayHeadingQuery
+				(config.getBlacklightSolrUrl(),
+				 blf.fieldName(),
+				 headingSort,
+				 facet, false);
+
+		// Process top facet values, and identify one that matches sort heading.
+		String heading = findHeadingInSolrResponse(query, headingSort, facet);
+		if (heading != null) return heading;
+
+		// If nothing was found, try again with a larger facet response from Solr
+		query = buildBLDisplayHeadingQuery
+				(config.getBlacklightSolrUrl(),
+				 blf.fieldName(),
+				 headingSort,
+				 facet, true);
+		heading = findHeadingInSolrResponse(query, headingSort, facet);
+		if (heading != null) return heading;
+
+		// If that still didn't work, print an error message for future investigation.
+		System.out.println("Didn't find display form: "+query);
+		return null;
+	}
+
+	private String findHeadingInSolrResponse(String query, String headingSort, String facet) throws URISyntaxException, IOException, XMLStreamException {
 
 		URI uri = new URI(query);
 		URL queryUrl = uri.toURL();
@@ -255,7 +266,6 @@ public class IndexHeadings {
 		
 		// process actual results
 		String heading = null;
-		int wrongHeadingCount = 0;
 		while (r.hasNext())
 			if (r.next() == XMLEvent.START_ELEMENT)
 				if (r.getLocalName().equals("int")) {
@@ -265,24 +275,34 @@ public class IndexHeadings {
 					String sort = getSortHeading(heading);
 					if (sort.equals(headingSort)) {
 						in.close();
-						recordWrongHeadingCount(wrongHeadingCount);
 						return heading;
-					} else {
-						wrongHeadingCount++;
 					}
 				}
 		in.close();
-		recordWrongHeadingCount(wrongHeadingCount);
-		System.out.println("Didn't find display form for: "+headingSort);
-		System.out.println(query);
 		return null;
 	}
-	
-	private void recordWrongHeadingCount( int c ) {
-		if (wrongHeadingCounts.containsKey(c))
-			wrongHeadingCounts.put(c, wrongHeadingCounts.get(c)+1);
-		else
-			wrongHeadingCounts.put(c, 1);
-	}
 
+
+	private String buildBLDisplayHeadingQuery(String blacklightSolrUrl,
+			String fieldName, String headingSort, String facet, Boolean fullFacetList) throws UnsupportedEncodingException {
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(config.getBlacklightSolrUrl());
+		sb.append("/select?&qt=standard&rows=0&echoParams=none" );
+		// all records
+		sb.append( "&q=*%3A*" ); // q=*:*
+		// filtered by filing value
+		sb.append( "&fq=" );
+				sb.append(fieldName);
+				sb.append("%3A%22" ); // colon-start quotation
+				sb.append( URLEncoder.encode(headingSort,"UTF-8").replaceAll("%22", "%5C%22")); //escape quotes
+		        sb.append("%22"); // end quotation
+		// return display values from facet field
+		if (fullFacetList)
+			sb.append( "&facet=true&facet.limit=100000&facet.mincount=1&facet.field=");
+		else
+			sb.append( "&facet=true&facet.limit=4&facet.mincount=1&facet.field=");
+		sb.append( facet );
+		return sb.toString();
+	}
 }
