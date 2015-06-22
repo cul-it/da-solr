@@ -23,7 +23,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.getXMLEventTypeString;
 
 
 /**
@@ -77,8 +76,7 @@ public class IndexRecordListComparison {
 			DecimalFormat formatter = new DecimalFormat("###,###,###");
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			while (reader.hasNext()) {
-				String event = getXMLEventTypeString(reader.next());
-				if (event.equals("START_ELEMENT"))
+				if (reader.next() == XMLEvent.START_ELEMENT)
 					if (reader.getLocalName().equals("doc")) {
 						if (0 == (solrIndexBibList.size() % 500_000)) {
 							System.out.println(dateFormat.format(Calendar.getInstance().getTime()) + ": " +
