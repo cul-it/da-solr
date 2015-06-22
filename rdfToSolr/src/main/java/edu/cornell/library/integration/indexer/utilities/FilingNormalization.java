@@ -38,7 +38,9 @@ public class FilingNormalization {
 			// except in the case of consecutive hyphens, which are treated as subject heading subdivision
 			// dividers (a la " > ").
 			case '-':
-				if (lastHyphenPosition + 1 == i) {
+				if ((lastHyphenPosition + 1 == i) && sb.length() > 0) {
+					if (sb.charAt(sb.length()-1) != ' ')
+						sb.append(' ');
 					sb.append("0000 ");
 					lastHyphenPosition = -2;
 					break;
@@ -60,8 +62,12 @@ public class FilingNormalization {
 
 			// additional punctuation we'd like to treat differently
 			case '>': 
-				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' ');
-				sb.append("0000 "); break; // control sorting and filing of hierarchical subject terms. 
+				if (sb.length() > 0) {
+					if (sb.charAt(sb.length()-1) != ' ')
+						sb.append(' ');
+					sb.append("0000 ");
+				}
+				break; // control sorting and filing of hierarchical subject terms. 
 			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
 			case '©': sb.append('c');   break; // examples I found were "©opyright"
 			

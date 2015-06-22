@@ -29,8 +29,11 @@ public class IndexingUtilitiesTest {
 		assertTrue(getSortHeading("!!- :::hello::: -!!").equals("hello"));
 		assertFalse(getSortHeading("hello").equals("goodbye"));
 		assertTrue(getSortHeading("hello-  -,:()@#$%^* hello").equals("hello hello"));
+		assertTrue(getSortHeading("Hello>hello").equals("hello 0000 hello"));
 		assertTrue(getSortHeading("Hello > hello").equals("hello 0000 hello"));
 		assertTrue(getSortHeading("Hello--Hello").equals("hello 0000 hello"));
+		assertTrue(getSortHeading("Hello -- Hello").equals("hello 0000 hello"));
+		assertTrue(getSortHeading("--Hello").equals("hello"));
 		assertTrue(getSortHeading("Hello---Hello").equals("hello 0000 hello"));
 		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
 		assertTrue(getSortHeading("Hello & Goodbye!").equals("hello goodbye 6&"));
@@ -62,6 +65,7 @@ public class IndexingUtilitiesTest {
 
 	    // non-Roman scripts are not fully or well supported in filing
 	    assertTrue(getSortHeading("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
+//	    assertTrue(getSortHeading("‎‫‏شماخ بن ضرار،‏‬‎").equals("‎‫‏شماخ بن ضرار ‏‬‎"));
 	}
 	
 }
