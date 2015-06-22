@@ -65,7 +65,7 @@ public class IndexingUtilitiesTest {
 
 	    // non-Roman scripts are not fully or well supported in filing
 	    assertTrue(getSortHeading("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
-//	    assertTrue(getSortHeading("‎‫‏شماخ بن ضرار،‏‬‎").equals("‎‫‏شماخ بن ضرار ‏‬‎"));
+	    assertTrue(getSortHeading("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
 	}
 	
 }

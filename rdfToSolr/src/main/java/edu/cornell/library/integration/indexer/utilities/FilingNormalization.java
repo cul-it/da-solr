@@ -77,7 +77,7 @@ public class FilingNormalization {
 
 			// Java \p{Punct} =>   !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 			// case '-': case '>': (see above for special treatment of hyphen and greater-than)
-			//  case '&': (see above for non-sorting significant characters)
+			// case '&': (see above for non-sorting significant characters)
 			case '!': case '"': case '#': case '$': case '%':
 			case '\'':case '(': case ')': case '*': case '+': case ',':
 			case '.': case '/': case ':': case ';': case '<': case '=':
@@ -90,6 +90,11 @@ public class FilingNormalization {
 			case '’': case '−': case '°': case '£': case '€':
 			case '†': case 'ʻ': case 'ʹ': case 'ʾ': case '،':
 			case '\u200B': case '\uFEFF': //zero-width spaces
+				break;
+
+			// unicode control characters used for display control of
+			// right-to-left language data.
+			case '\u200E': case '\u200F': case '\u202C': case '\u202B':
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear
