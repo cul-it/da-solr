@@ -145,11 +145,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						"SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n" +
 						" WHERE { $recordURI$ marcrdf:leader ?leader. }").
 		            addResultSetToFields( new HoldingsAndItemsRSTF()),
-		        
+		        /*
 		        new SPARQLFieldMakerImpl().
 		        	addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 		        	addResultSetToFields( new TitleMatchRSTF()),
-		        	
+		        	*/
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
 				new StandardMARCFieldMaker("other_id_display","035","a"),
