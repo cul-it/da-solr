@@ -53,6 +53,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	Collection<String> descriptions = new HashSet<String>();
 	boolean description_with_e = false;
 	String rectypebiblvl = null;
+	Collection<Map<String,Object>> boundWiths = new ArrayList<Map<String,Object>>();
+	Connection conn = null;
+	ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -194,6 +197,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 					case "868":
 						indexHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						break;
+					case "876":
+						registerBoundWith(config, rec.id, f);
 					}
 					if (callno != null)
 						callnos.add(callno);
@@ -223,7 +228,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				holding.locations[i] = locations.getByCode(loccode);
 				i++;
 			}
-			ObjectMapper mapper = new ObjectMapper();
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
@@ -234,11 +238,19 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 		}
 		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
-		
+
+		for (Map<String,Object> boundWith : boundWiths) {
+			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+			mapper.writeValue(jsonstream, boundWith);
+			String json = jsonstream.toString("UTF-8");
+			addField(fields,"bound_with",json);
+			addField(fields,"barcode_addl_t",boundWith.get("barcode").toString());
+		}
+
 		// ITEM DATA STARTS HERE
-		Connection conn = null;
 		try {
-			conn = config.getDatabaseConnection("Voy");
+			if (conn == null)
+				conn = config.getDatabaseConnection("Voy");
 			loadItemData(conn,config);
 		} finally {
 			if (conn != null) conn.close();
@@ -247,6 +259,38 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		return fields;
 	}
 	
+	private void registerBoundWith(SolrBuildConfig config, String mfhd_id, DataField f) throws Exception {
+		String item_enum = "";
+		String barcode = null;
+		for (Subfield sf : f.subfields.values()) {
+			switch (sf.code) {
+			case 'p': barcode = sf.value; break;
+			case '3': item_enum = sf.value; break;
+			}
+		}
+		if (barcode == null) return;
+		if (conn == null)
+			conn = config.getDatabaseConnection("Voy");
+		// lookup item id here!!!
+		Statement stmt = conn.createStatement();
+		String query =
+				"SELECT CORNELLDB.ITEM_BARCODE.ITEM_ID "
+				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = '"+barcode+"'";
+		java.sql.ResultSet rs = stmt.executeQuery(query);
+		int item_id = 0;
+		while (rs.next()) {
+			item_id = rs.getInt(1);
+		}
+		if (item_id == 0) return;
+		stmt.close();
+		Map<String,Object> boundWith = new HashMap<String,Object>();
+		boundWith.put("item_id", item_id);
+		boundWith.put("mfhd_id", mfhd_id);
+		boundWith.put("item_enum", item_enum);
+		boundWith.put("barcode", barcode);
+		boundWiths.add(boundWith);
+	}
+
 	private void loadItemData(Connection conn, SolrBuildConfig config) throws Exception {
 		
 		Boolean multivol = false;
@@ -270,7 +314,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
 					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID "+
 					                                            " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'" +
-					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + h.id + "\'" +
+					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
 				//	   " "
