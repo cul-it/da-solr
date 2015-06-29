@@ -93,7 +93,7 @@ public class FilingNormalization {
 				break;
 
 			// unicode control characters used for display control of
-			// right-to-left language data.
+			// embedded right-to-left language data.
 			case '\u200E': case '\u200F': case '\u202C': case '\u202B':
 				break;
 

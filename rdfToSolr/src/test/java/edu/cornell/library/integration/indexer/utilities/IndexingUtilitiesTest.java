@@ -65,6 +65,7 @@ public class IndexingUtilitiesTest {
 
 	    // non-Roman scripts are not fully or well supported in filing
 	    assertTrue(getSortHeading("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
+	    // Orig. string has control characters (hex:200E,200F,202B,202C). Should be stripped.
 	    assertTrue(getSortHeading("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
 	}
 	
