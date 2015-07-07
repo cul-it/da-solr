@@ -7,6 +7,8 @@ import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
+import edu.cornell.library.integration.bo.IdWithDate;
+import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -52,6 +54,19 @@ public class CatalogServiceImpl implements CatalogService {
       return locationList;
 
    }
+   
+	public List<IdWithDate> getAllUnSuppressedBibsWithDates() throws Exception {
+		return catalogDao.getAllUnSuppressedBibsWithDates();
+	}
+
+	public List<IdWithDate> getAllUnSuppressedMfhdsWithDates() throws Exception {
+		return catalogDao.getAllUnSuppressedMfhdsWithDates();
+	}
+
+	public List<ItemMap> getAllItemMaps() throws Exception {
+		return catalogDao.getAllItemMaps();
+	}
+
 
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getRecentBibIds()

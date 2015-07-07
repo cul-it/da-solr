@@ -18,17 +18,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
 
 import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
-import edu.cornell.library.integration.bo.BibMfhd;
+import edu.cornell.library.integration.bo.IdWithDate;
 import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
@@ -41,22 +39,12 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
     */
    protected final Log logger = LogFactory.getLog(getClass());
    protected DataSource dataSource;
-   private SimpleJdbcTemplate simpleJdbcTemplate;
-   private JdbcTemplate jdbcTemplate;
    private OracleLobHandler oracleLobHandler; 
    
-   /**
-    *
-    */
    public CatalogDaoImpl() {
       super();
    }
-   
-   
 
-   /**
-    * @return the oracleLobHandler
-    */
    public OracleLobHandler getOracleLobHandler() {
            return oracleLobHandler;
    }
@@ -65,24 +53,6 @@ public class CatalogDaoImpl extends SimpleJdbcDaoSupport implements CatalogDao {
            this.oracleLobHandler = oracleLobHandler;
    }
 
-
-   /**
-    * @return
-    */
-   /*public DataSource getDataSource() {
-      return dataSource;
-   }*/
-
-   /**
-    * @param dataSource
-    */
-  /* public void setDataSource(DataSource dataSource) {
-      this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
-      this.jdbcTemplate = new JdbcTemplate(dataSource);
-   }*/
-
-   
- 
 
    /*
     * (non-Javadoc)
@@ -269,7 +239,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       String sql = ""
          +"SELECT BIB_ID, SUPPRESS_IN_OPAC, CREATE_DATE, UPDATE_DATE FROM CORNELLDB.MFHD_MASTER WHERE BIB_ID = '"+ mfhdid +"'";
       try {
-         MfhdMasterData mfhdMasterData =  (MfhdMasterData) getSimpleJdbcTemplate().queryForObject(sql, new BibMasterMapper());
+         MfhdMasterData mfhdMasterData =  (MfhdMasterData) getSimpleJdbcTemplate().queryForObject(sql, new MfhdMasterMapper());
          return mfhdMasterData;
       } catch (EmptyResultDataAccessException ex) {
          logger.warn("Empty result set");
@@ -528,9 +498,29 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       } 
    }
 
+	public List<IdWithDate> getAllUnSuppressedBibsWithDates() throws Exception {
+	      String sql = ""
+	              +" SELECT BIB_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') FROM BIB_MASTER"
+	              +" WHERE SUPPRESS_IN_OPAC = 'N'";
+	      return getSimpleJdbcTemplate().query(sql, new IdWithDateMapper());
+	}
 
+	public List<IdWithDate> getAllUnSuppressedMfhdsWithDates() throws Exception {
+	      String sql = ""
+	              +" SELECT MFHD_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') FROM MFHD_MASTER"
+	              +" WHERE SUPPRESS_IN_OPAC = 'N'";
+	      return getSimpleJdbcTemplate().query(sql, new IdWithDateMapper());
+	}
 
-
+	public List<ItemMap> getAllItemMaps() throws Exception {
+		String sql = ""
+				+"SELECT BIB_MFHD.BIB_ID, BIB_MFHD.MFHD_ID, ITEM.ITEM_ID,"
+				+ "         to_char(ITEM.MODIFY_DATE, 'yyyy-MM-dd HH:mm:ss') as MODIFY_DATE"
+				+"  FROM BIB_MFHD, MFHD_ITEM, ITEM"
+				+" WHERE BIB_MFHD.MFHD_ID = MFHD_ITEM.MFHD_ID"
+				+"   AND MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID";
+		return getSimpleJdbcTemplate().query(sql, new ItemMapper());
+	}
 
    public List<String> getSuppressedMfhdId(String fromDateString,
          String toDateString) throws Exception {
@@ -553,7 +543,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          throw ex;
       } 
    }
-   
    
 	public List<String> getBibIdsByMfhdId(String mfhdid) throws Exception {
 		String sql = "SELECT BIB_ID from BIB_MFHD WHERE MFHD_ID='" + mfhdid + "'";
@@ -606,7 +595,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
             logger.info("db column: "+ rsmeta.getColumnName(i));
          }
       } catch (SQLException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
 
@@ -633,12 +621,8 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       }   
       
    }
-   
-    
-   
-   
-   
-   private static final class LocationMapper implements RowMapper {
+
+   private static final class LocationMapper implements RowMapper<Location> {
       public Location mapRow(ResultSet rs, int rowNum) throws SQLException {
          Location location = new Location(); 
          location.setLocationId(rs.getString("LOCATION_ID"));
@@ -660,12 +644,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
 
-   private static final class ItemMapper implements RowMapper {
+   private static final class ItemMapper implements RowMapper<ItemMap> {
 	      public ItemMap mapRow(ResultSet rs, int rowNum) throws SQLException {
 	         ItemMap im = new ItemMap();
 	         im.setBibId(rs.getInt("BIB_ID"));
 	         im.setMfhdId(rs.getInt("MFHD_ID"));
 	         im.setItemId(rs.getInt("ITEM_ID"));
+	         im.setModifyDate(rs.getString("MODIFY_DATE"));
 	         return im;
 	       }
 	   }
@@ -674,7 +659,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
     * @author jaf30
     *
     */
-   private static final class BibDataMapper implements RowMapper {
+   private static final class BibDataMapper implements RowMapper<BibData> {
       public BibData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
          BibData bibData = new BibData(); 
          bibData.setBibId(rs.getString("BIB_ID"));
@@ -684,7 +669,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          try {
             record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
          } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
          } 
           
@@ -697,7 +681,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
     * @author jaf30
     *
     */
-   private static final class MfhdDataMapper implements RowMapper {
+   private static final class MfhdDataMapper implements RowMapper<MfhdData> {
       public MfhdData mapRow(ResultSet rs, int rowNum) throws  SQLException {
          MfhdData mfhdData = new MfhdData(); 
          mfhdData.setMfhdId(rs.getString("MFHD_ID"));
@@ -707,7 +691,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          try {
             record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
          } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
          }
           
@@ -720,7 +703,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
     * @author jaf30
     *
     */
-   private static final class AuthDataMapper implements RowMapper {
+   private static final class AuthDataMapper implements RowMapper<AuthData> {
       public AuthData mapRow(ResultSet rs, int rowNum) throws  SQLException  {
          AuthData authData = new AuthData(); 
          authData.setAuthId(rs.getString("AUTH_ID"));
@@ -730,7 +713,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          try {
             record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
          } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
          } 
           
@@ -739,7 +721,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
-   private static final class BibBlobMapper implements RowMapper {
+   private static final class BibBlobMapper implements RowMapper<BibBlob> {
       public BibBlob mapRow(ResultSet rs, int rowNum) throws  SQLException {
          BibBlob bibBlob = new BibBlob(); 
          bibBlob.setBibId(rs.getString("BIB_ID"));
@@ -748,7 +730,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
-   private static final class MfhdBlobMapper implements RowMapper {
+   private static final class MfhdBlobMapper implements RowMapper<MfhdBlob> {
       public MfhdBlob mapRow(ResultSet rs, int rowNum) throws  SQLException {
          MfhdBlob mfhdBlob = new MfhdBlob(); 
          mfhdBlob.setMfhdId(rs.getString("MFHD_ID"));
@@ -757,7 +739,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
-   private static final class BibMasterMapper implements RowMapper {
+   private static final class BibMasterMapper implements RowMapper<BibMasterData> {
       public BibMasterData mapRow(ResultSet rs, int rowNum) throws  SQLException {
          BibMasterData bibMasterData = new BibMasterData(); 
          bibMasterData.setBibId(rs.getString("BIB_ID"));
@@ -768,7 +750,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
-   private static final class MfhdMasterMapper implements RowMapper {
+   private static final class MfhdMasterMapper implements RowMapper<MfhdMasterData> {
       public MfhdMasterData mapRow(ResultSet rs, int rowNum) throws  SQLException {
          MfhdMasterData mfhdMasterData = new MfhdMasterData(); 
          mfhdMasterData.setMfhdId(rs.getString("MFHD_ID"));
@@ -779,20 +761,11 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
        }
    }
    
-   private static final class BibMfhdMapper implements RowMapper {
-	      public BibMfhd mapRow(ResultSet rs, int rowNum) throws  SQLException {
-	         BibMfhd bibMfhd = new BibMfhd(); 
-	         bibMfhd.setMfhdid(rs.getString("MFHD_ID"));
-	         bibMfhd.setBibId(rs.getString("BIB_ID"));	          
-	         return bibMfhd;
-	       }
-	   }
-   
    /**
     * @author jaf30
     *
     */
-   private static final class StringMapper implements RowMapper {
+   private static final class StringMapper implements RowMapper<String> {
       public String mapRow(ResultSet rs, int rowNum) throws SQLException {
          String s = new String();
          s = rs.getString(1);
@@ -800,13 +773,13 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       }
    }
    
-   private static final class IntegerMapper implements RowMapper{
+   private static final class IntegerMapper implements RowMapper<Integer>{
        public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {           
            return Integer.parseInt( rs.getString(1) );           
         }
    }
    
-   private static final class TabbedStringMapper implements RowMapper {
+   private static final class TabbedStringMapper implements RowMapper<String> {
       public String mapRow(ResultSet rs, int rowNum) throws SQLException {
          ResultSetMetaData rsmd = rs.getMetaData();
          StringBuilder sb = new StringBuilder();
@@ -821,8 +794,9 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       }
    }
 
-
-
-   
-
+   private static final class IdWithDateMapper implements RowMapper<IdWithDate>{
+       public IdWithDate mapRow(ResultSet rs, int rowNum) throws SQLException {           
+           return new IdWithDate( rs.getInt(1), rs.getString(2) );           
+        }
+   }
 }

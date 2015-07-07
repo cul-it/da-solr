@@ -6,6 +6,8 @@ import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
+import edu.cornell.library.integration.bo.IdWithDate;
+import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -115,6 +117,7 @@ public interface CatalogDao {
 	 */
 	public List<Integer> getAllSuppressedBibId() throws Exception;
 
+
 	/**
 	 * @return
 	 * @throws Exception
@@ -132,6 +135,13 @@ public interface CatalogDao {
 	 * @throws Exception
 	 */
 	public List<Integer> getAllUnSuppressedMfhdId() throws Exception;
+
+
+	public List<IdWithDate> getAllUnSuppressedBibsWithDates() throws Exception;
+
+	public List<IdWithDate> getAllUnSuppressedMfhdsWithDates() throws Exception;
+
+	public List<ItemMap> getAllItemMaps() throws Exception;
 
 	/**
 	 * @param fromDateString

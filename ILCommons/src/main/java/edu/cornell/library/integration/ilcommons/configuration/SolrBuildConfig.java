@@ -254,6 +254,23 @@ public class SolrBuildConfig {
     	}
     }
 
+    public String getDailyItemDir() throws IOException {
+    	if (values.containsKey("dailyItemDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyItemDir"));
+    		return values.get("dailyItemDir");
+    	} else {
+    		return null;
+    	}
+    }
+
+    public String getDailyItemFilenamePrefix() {
+    	if (values.containsKey("dailyItemFilenamePrefix")) {
+    		return values.get("dailyItemFilenamePrefix");
+    	} else {
+    		return null;
+    	}
+    }
+
     public String getDailyMfhdSuppressedDir() throws IOException {
     	if (values.containsKey("dailyMfhdSuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdSuppressedDir"));

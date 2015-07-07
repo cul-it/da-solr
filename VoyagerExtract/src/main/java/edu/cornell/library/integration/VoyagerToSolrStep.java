@@ -61,7 +61,7 @@ public class VoyagerToSolrStep {
           String ds = df.format(now.getTime());
           return ds;
        }
-    
+
     protected ApplicationContext getContext(){
         if( ctx == null ){
             ctx = new ClassPathXmlApplicationContext("spring.xml");
