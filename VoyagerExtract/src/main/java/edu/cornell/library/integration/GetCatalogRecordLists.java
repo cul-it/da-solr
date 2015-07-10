@@ -47,7 +47,7 @@ public class GetCatalogRecordLists extends VoyagerToSolrStep {
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyItemDir() + "/" +  
                config.getDailyItemFilenamePrefix() + "-" + getDateString() + ".txt";
 
-       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+       getDavService().saveFile(url, Files.newInputStream(tempFile) );
 
        System.out.println( "Saved item information to " + url );
        System.out.println( "item count: " + count );
@@ -62,7 +62,7 @@ public class GetCatalogRecordLists extends VoyagerToSolrStep {
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyBibUnsuppressedDir() + "/" +  
            config.getDailyBibUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
-       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+       getDavService().saveFile(url, Files.newInputStream(tempFile) );
 
        System.out.println( "Saved unsuppressed BIB IDs to " + url );
        System.out.println( "unsuppressed BIB ID count: " + count );
@@ -78,7 +78,7 @@ public class GetCatalogRecordLists extends VoyagerToSolrStep {
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyMfhdUnsuppressedDir() + "/" + 
             config.getDailyMfhdUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
-       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+       getDavService().saveFile(url, Files.newInputStream(tempFile) );
 
        System.out.println( "Saved unsuppressed MFHD IDs to " + url );
        System.out.println( "unsuppressed MFHD ID count: " + count);
