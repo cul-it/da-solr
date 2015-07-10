@@ -168,18 +168,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?sfield marcrdf:code ?code.\n" +
 				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
-				    
-				/*  The new logic for multivol uses item data not available in this step. Field
-				 * population moving to LoadItemData document post-processor.
-				new SPARQLFieldMakerImpl().
-				    setName("multivol").
-				    addMainStoreQuery("holdings_descr",
-				    		"SELECT ?f (SUBSTR(?leader,7,1) as ?rectype)\n"+
-				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
-				    				" ?h marcrdf:leader ?leader.\n"+
-				    				" OPTIONAL {?h ?p ?f.\n"+
-				                    "   ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }}").
-				    addResultSetToFields( new MultivolRSTF() ), */
 
 				new SPARQLFieldMakerImpl().
 				    setName("rec_type").
@@ -722,7 +710,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	
 				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"a"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
-				
+
 				new StandardMARCFieldMaker("frequency_display","310","a"),
 				new StandardMARCFieldMaker("isbn_display","020","a"),				
 				new StandardMARCFieldMaker("issn_display","022","a"),
@@ -730,10 +718,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","l",VernMode.SEARCH),
-				
-			//	new StandardMARCFieldMaker("eightninenine_s","899","a"),
+
 				new StandardMARCFieldMaker("eightninenine_t","899","ab"),
-				
+
 				new StandardMARCFieldMaker("other_identifier_display","024","a"),
 				new StandardMARCFieldMaker("id_t","024","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("publisher_number_display","028","a"),

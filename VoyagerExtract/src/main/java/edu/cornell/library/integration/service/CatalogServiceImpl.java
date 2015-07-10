@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.service;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,6 @@ import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
-import edu.cornell.library.integration.bo.IdWithDate;
-import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -55,16 +54,16 @@ public class CatalogServiceImpl implements CatalogService {
 
    }
    
-	public List<IdWithDate> getAllUnSuppressedBibsWithDates() throws Exception {
-		return catalogDao.getAllUnSuppressedBibsWithDates();
+	public int saveAllUnSuppressedBibsWithDates(Path outputFile) throws Exception {
+		return catalogDao.saveAllUnSuppressedBibsWithDates(outputFile);
 	}
 
-	public List<IdWithDate> getAllUnSuppressedMfhdsWithDates() throws Exception {
-		return catalogDao.getAllUnSuppressedMfhdsWithDates();
+	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception {
+		return catalogDao.saveAllUnSuppressedMfhdsWithDates(outputFile);
 	}
 
-	public List<ItemMap> getAllItemMaps() throws Exception {
-		return catalogDao.getAllItemMaps();
+	public int saveAllItemMaps(Path outputFile) throws Exception {
+		return catalogDao.saveAllItemMaps(outputFile);
 	}
 
 

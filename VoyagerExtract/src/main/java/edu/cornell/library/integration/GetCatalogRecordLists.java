@@ -1,18 +1,12 @@
 package edu.cornell.library.integration;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.cornell.library.integration.bo.IdWithDate;
-import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
@@ -45,45 +39,52 @@ public class GetCatalogRecordLists extends VoyagerToSolrStep {
    }
 
    private void getAllItems(SolrBuildConfig config) throws Exception {
-	   List<ItemMap> items = getCatalogService().getAllItemMaps();
+
+	   Path tempFile = getTempFile();
+
+	   int count = getCatalogService().saveAllItemMaps(tempFile);
+
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyItemDir() + "/" +  
                config.getDailyItemFilenamePrefix() + "-" + getDateString() + ".txt";
 
-       int size = items.size();
-       saveList(items, url);
-       items=null;
-       System.out.println( "Saved item IDs to " + url );
-       System.out.println( "item ID count: " + size );
+       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+
+       System.out.println( "Saved item information to " + url );
+       System.out.println( "item count: " + count );
    }
 
    private void getAllUnSuppressedBibs( SolrBuildConfig config) throws Exception {  
-	   List<IdWithDate> bibs = getCatalogService().getAllUnSuppressedBibsWithDates();
+
+	   Path tempFile = getTempFile();
+
+	   int count = getCatalogService().saveAllUnSuppressedBibsWithDates(tempFile);
 
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyBibUnsuppressedDir() + "/" +  
            config.getDailyBibUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
-       int size = bibs.size();
-       saveList(bibs, url);
-       bibs=null;
+       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+
        System.out.println( "Saved unsuppressed BIB IDs to " + url );
-       System.out.println( "unsuppressed BIB ID count: " + size );
+       System.out.println( "unsuppressed BIB ID count: " + count );
    }
    
    
    private void getAllUnSuppressedMfhds(SolrBuildConfig config) throws Exception{       
-	   List<IdWithDate> mfhds = getCatalogService().getAllUnSuppressedMfhdsWithDates();
+
+	   Path tempFile = getTempFile();
+
+	   int count = getCatalogService().saveAllUnSuppressedMfhdsWithDates(tempFile);
 
        String url = config.getWebdavBaseUrl() + "/" +config.getDailyMfhdUnsuppressedDir() + "/" + 
             config.getDailyMfhdUnsuppressedFilenamePrefix() + "-" + getDateString() + ".txt";
        
-       int size = mfhds.size();
-       saveList(mfhds, url);
-       mfhds=null;
+       getDavService().saveFile(tempFile.toString(), Files.newInputStream(tempFile) );
+
        System.out.println( "Saved unsuppressed MFHD IDs to " + url );
-       System.out.println( "unsuppressed MFHD ID count: " + size);
+       System.out.println( "unsuppressed MFHD ID count: " + count);
    }
 
-   private <T> void saveList(List<T> list, String destUrl ) throws Exception {
+   private Path getTempFile() throws Exception {
 
 	   final Path tempFile = Files.createTempFile("GetCatalogRecordLists-", ".tmp");                     
        tempFile.toFile().deleteOnExit();
@@ -99,14 +100,7 @@ public class GetCatalogRecordLists extends VoyagerToSolrStep {
          }
        });
 
-       BufferedWriter out = Files.newBufferedWriter(tempFile, Charset.forName("UTF-8"), new OpenOption[]{});
-       try{
-    	   for (Object s : list)
-    		   out.write( s.toString() + "\n");         
-       } finally{
-    	   out.close();
-       }
-       getDavService().saveFile(destUrl, Files.newInputStream(tempFile, new OpenOption[]{}) );            
+       return tempFile;
    }
 
 }

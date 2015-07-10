@@ -2,8 +2,13 @@ package edu.cornell.library.integration.dao;
 
 
  
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -18,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
@@ -26,8 +32,6 @@ import edu.cornell.library.integration.bo.AuthData;
 import edu.cornell.library.integration.bo.BibBlob;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.BibMasterData;
-import edu.cornell.library.integration.bo.IdWithDate;
-import edu.cornell.library.integration.bo.ItemMap;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.MfhdBlob;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -498,28 +502,80 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
       } 
    }
 
-	public List<IdWithDate> getAllUnSuppressedBibsWithDates() throws Exception {
+	public int saveAllUnSuppressedBibsWithDates(Path outputFile) throws Exception {
 	      String sql = ""
 	              +" SELECT BIB_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') FROM BIB_MASTER"
 	              +" WHERE SUPPRESS_IN_OPAC = 'N'";
-	      return getSimpleJdbcTemplate().query(sql, new IdWithDateMapper());
+	      final int bibCount[] ={ 0 };
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
+	    		    @Override public void processRow( ResultSet rs) throws SQLException {
+	    		      String id=rs.getString(1);
+	    		      String date=rs.getString(2);
+	    		      bibCount[0]++;
+	    		      try {
+	    		    	  out.write(id+"|"+date+"\n");
+	    		      } catch (IOException e) {
+	    		    	  e.printStackTrace();
+	    		      }
+	    		    }
+	    		  }
+	    		);
+	       }
+	       return bibCount[0];
 	}
 
-	public List<IdWithDate> getAllUnSuppressedMfhdsWithDates() throws Exception {
+	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception {
 	      String sql = ""
-	              +" SELECT MFHD_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') FROM MFHD_MASTER"
-	              +" WHERE SUPPRESS_IN_OPAC = 'N'";
-	      return getSimpleJdbcTemplate().query(sql, new IdWithDateMapper());
+	              +" select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss')"
+	    		  +"   from BIB_MFHD, MFHD_MASTER"
+	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.BIB_ID and SUPPRESS_IN_OPAC = 'N'";
+	      final int mfhdCount[] ={ 0 };
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
+	    		    @Override public void processRow( ResultSet rs) throws SQLException {
+	    		      String bib=rs.getString(1);
+	    		      String mfhd=rs.getString(2);
+	    		      String date=rs.getString(3);
+	    		      mfhdCount[0]++;
+	    		      try {
+	    		    	  out.write(bib+"|"+mfhd+"|"+date+"\n");
+	    		      } catch (IOException e) {
+	    		    	  e.printStackTrace();
+	    		      }
+	    		    }
+	    		  }
+	    		);
+	       }
+	       return mfhdCount[0];
 	}
 
-	public List<ItemMap> getAllItemMaps() throws Exception {
+	public int saveAllItemMaps(Path outputFile) throws Exception {
 		String sql = ""
 				+"SELECT BIB_MFHD.BIB_ID, BIB_MFHD.MFHD_ID, ITEM.ITEM_ID,"
 				+ "         to_char(ITEM.MODIFY_DATE, 'yyyy-MM-dd HH:mm:ss') as MODIFY_DATE"
 				+"  FROM BIB_MFHD, MFHD_ITEM, ITEM"
 				+" WHERE BIB_MFHD.MFHD_ID = MFHD_ITEM.MFHD_ID"
 				+"   AND MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID";
-		return getSimpleJdbcTemplate().query(sql, new ItemMapper());
+		final int itemCount[] ={ 0 };
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
+	    		    @Override public void processRow( ResultSet rs) throws SQLException {
+	    		      String bib=rs.getString(1);
+	    		      String mfhd=rs.getString(2);
+	    		      String item=rs.getString(3);
+	    		      String date=rs.getString(4);
+	    		      itemCount[0]++;
+	    		      try {
+	    		    	  out.write(bib+"|"+mfhd+"|"+item+"|"+date+"\n");
+	    		      } catch (IOException e) {
+	    		    	  e.printStackTrace();
+	    		      }
+	    		    }
+	    		  }
+	    		);
+	       }
+	       return itemCount[0];
 	}
 
    public List<String> getSuppressedMfhdId(String fromDateString,
@@ -643,17 +699,6 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          return location;
        }
    }
-
-   private static final class ItemMapper implements RowMapper<ItemMap> {
-	      public ItemMap mapRow(ResultSet rs, int rowNum) throws SQLException {
-	         ItemMap im = new ItemMap();
-	         im.setBibId(rs.getInt("BIB_ID"));
-	         im.setMfhdId(rs.getInt("MFHD_ID"));
-	         im.setItemId(rs.getInt("ITEM_ID"));
-	         im.setModifyDate(rs.getString("MODIFY_DATE"));
-	         return im;
-	       }
-	   }
 
    /**
     * @author jaf30
@@ -792,11 +837,5 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          }
          return sb.toString();
       }
-   }
-
-   private static final class IdWithDateMapper implements RowMapper<IdWithDate>{
-       public IdWithDate mapRow(ResultSet rs, int rowNum) throws SQLException {           
-           return new IdWithDate( rs.getInt(1), rs.getString(2) );           
-        }
    }
 }
