@@ -32,7 +32,6 @@ import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
@@ -120,12 +119,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Boolean callNumSortSupplied = false;
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
-						
-			for (ControlField f: rec.control_fields.values()) {
-				if (f.tag.equals("001")) {
-					rec.id = f.value;
-				}
-			}
 
 			Collection<String> loccodes = new HashSet<String>();
 			Collection<String> callnos = new HashSet<String>();
@@ -221,6 +214,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
 			holding.locations = new Location[loccodes.size()];
+			holding.modified_date = rec.modified_date;
 			Iterator<String> iter = loccodes.iterator();
 			int i = 0;
 			while (iter.hasNext()) {
@@ -231,6 +225,10 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
+			if (holding.modified_date != null)
+				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
+			else
+				addField(fields,"holdings_display",holding.id);
 			addField(fields,"holdings_record_display",json);
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
@@ -636,6 +634,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	
 	public static class Holdings {
 		public String id;
+		public String modified_date = null;
 		public String copy_number = null;
 		public String[] callnos;
 		public String[] notes;

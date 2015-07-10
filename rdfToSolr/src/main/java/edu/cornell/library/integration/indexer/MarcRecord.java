@@ -30,6 +30,7 @@ public class MarcRecord {
 
 		
 		public String leader = " ";
+		public String modified_date = null;
 		public Map<Integer,ControlField> control_fields 
 									= new HashMap<Integer,ControlField>();
 		public Map<Integer,DataField> data_fields
@@ -76,7 +77,10 @@ public class MarcRecord {
 			f.value = nodeToString(sol.get("value"));
 			f.id = field_no;
 			this.control_fields.put(field_no, f);
-			
+			if (f.tag.equals("001"))
+				this.id = f.value;
+			else if (f.tag.equals("005"))
+				this.modified_date = f.value;
 		}
 		
 		public void addDataFieldResultSet( ResultSet rs ) {

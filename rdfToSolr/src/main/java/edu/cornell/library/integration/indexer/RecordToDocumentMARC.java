@@ -6,7 +6,6 @@ import java.util.List;
 import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
 import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
-//import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
 import edu.cornell.library.integration.indexer.documentPostProcess.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.documentPostProcess.NoAccessUrlsUnlessOnline;
@@ -40,7 +39,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSe
 import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
+//import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
@@ -76,23 +75,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	@Override
 	List<? extends FieldMaker> getFieldMakers() {
 		return Arrays.asList(
-				 	
-				new SPARQLFieldMakerImpl().
-					setName("id").
-					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
-					addResultSetToFields( new AllResultsToField("id") ),
-					
-/*				new SPARQLFieldMakerImpl().
-					setName("holdings ids").
-					addMainStoreQuery("hold_ids",
-							"SELECT ?id \n"+
-				        	"WHERE {\n"+
-					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
-				        	"  ?hold marcrdf:hasField001 ?f.\n" +
-				        	"  ?f marcrdf:value ?id.\n" +
-							"}").
-					addResultSetToFields( new AllResultsToField("holdings_display")),
-			        */
+
 			    new SPARQLFieldMakerImpl().
 			        setName("holdings_data").
 				    addMainStoreQuery("holdings_control_fields",
