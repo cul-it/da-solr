@@ -504,8 +504,9 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 
 	public int saveAllUnSuppressedBibsWithDates(Path outputFile) throws Exception {
 	      String sql = ""
-	              +" SELECT BIB_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss') FROM BIB_MASTER"
-	              +" WHERE SUPPRESS_IN_OPAC = 'N'";
+	              +" SELECT BIB_ID, to_char(UPDATE_DATE, 'yyyyMMddHHmmss') FROM BIB_MASTER"
+	              +" WHERE SUPPRESS_IN_OPAC = 'N'"
+	              +" ORDER BY BIB_ID";
 	      final int bibCount[] ={ 0 };
 	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
@@ -527,9 +528,10 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 
 	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception {
 	      String sql = ""
-	              +" select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss')"
+	              +" select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, to_char(UPDATE_DATE, 'yyyyMMddHHmmss')"
 	    		  +"   from BIB_MFHD, MFHD_MASTER"
-	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID and SUPPRESS_IN_OPAC = 'N'";
+	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID and SUPPRESS_IN_OPAC = 'N'"
+	    		  +"  order by BIB_MFHD.MFHD_ID";
 	      final int mfhdCount[] ={ 0 };
 	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
@@ -552,10 +554,11 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	public int saveAllItemMaps(Path outputFile) throws Exception {
 		String sql = ""
 				+"SELECT BIB_MFHD.BIB_ID, BIB_MFHD.MFHD_ID, ITEM.ITEM_ID,"
-				+ "         to_char(ITEM.MODIFY_DATE, 'yyyy-MM-dd HH:mm:ss') as MODIFY_DATE"
+				+ "         to_char(ITEM.MODIFY_DATE, 'yyyyMMddHHmmss') as MODIFY_DATE"
 				+"  FROM BIB_MFHD, MFHD_ITEM, ITEM"
 				+" WHERE BIB_MFHD.MFHD_ID = MFHD_ITEM.MFHD_ID"
-				+"   AND MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID";
+				+"   AND MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
+				+" ORDER BY ITEM.ITEM_ID";
 		final int itemCount[] ={ 0 };
 	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
