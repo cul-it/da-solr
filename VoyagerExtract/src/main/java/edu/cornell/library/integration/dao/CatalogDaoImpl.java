@@ -529,7 +529,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	      String sql = ""
 	              +" select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, to_char(UPDATE_DATE, 'yyyy-MM-dd HH:mm:ss')"
 	    		  +"   from BIB_MFHD, MFHD_MASTER"
-	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.BIB_ID and SUPPRESS_IN_OPAC = 'N'";
+	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID and SUPPRESS_IN_OPAC = 'N'";
 	      final int mfhdCount[] ={ 0 };
 	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
