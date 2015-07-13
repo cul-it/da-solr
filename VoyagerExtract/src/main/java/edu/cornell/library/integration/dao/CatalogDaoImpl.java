@@ -514,7 +514,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	    		      String date=rs.getString(2);
 	    		      bibCount[0]++;
 	    		      try {
-	    		    	  out.write(id+"|"+date+"\n");
+	    		    	  out.write(id+"\t"+date+"\n");
 	    		      } catch (IOException e) {
 	    		    	  e.printStackTrace();
 	    		      }
@@ -533,19 +533,18 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	      final int mfhdCount[] ={ 0 };
 	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
-	    		    @Override public void processRow( ResultSet rs) throws SQLException {
-	    		      String bib=rs.getString(1);
-	    		      String mfhd=rs.getString(2);
-	    		      String date=rs.getString(3);
-	    		      mfhdCount[0]++;
-	    		      try {
-	    		    	  out.write(bib+"|"+mfhd+"|"+date+"\n");
-	    		      } catch (IOException e) {
-	    		    	  e.printStackTrace();
-	    		      }
-	    		    }
-	    		  }
-	    		);
+	    		   @Override public void processRow( ResultSet rs) throws SQLException {
+	    			   String bib=rs.getString(1);
+	    			   String mfhd=rs.getString(2);
+	    			   String date=rs.getString(3);
+	    			   mfhdCount[0]++;
+	    			   try {
+	    				   out.write(bib+"\t"+mfhd+"\t"+date+"\n");
+	    			   } catch (IOException e) {
+	    				   e.printStackTrace();
+	    			   }
+	    		   }
+	    	   });
 	       }
 	       return mfhdCount[0];
 	}
@@ -567,7 +566,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	    		      String date=rs.getString(4);
 	    		      itemCount[0]++;
 	    		      try {
-	    		    	  out.write(bib+"|"+mfhd+"|"+item+"|"+date+"\n");
+	    		    	  out.write(bib+"\t"+mfhd+"\t"+item+"\t"+date+"\n");
 	    		      } catch (IOException e) {
 	    		    	  e.printStackTrace();
 	    		      }
