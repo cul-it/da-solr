@@ -28,8 +28,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -210,10 +208,8 @@ public class IndexRecordListComparison {
 			}
 			pstmt.addBatch();
 			if (++i == 1000) {
-				System.out.println("executing batch");
 				pstmt.executeBatch();
 				i = 0;
-				System.exit(0);
 			}
 		}
 		if (i > 0)
