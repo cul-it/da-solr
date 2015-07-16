@@ -28,6 +28,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -178,22 +180,22 @@ public class IndexRecordListComparison {
 	}
 	
 	private String createItemtable(Connection connection, Path itemList) throws Exception {
-		String itemTable = "item-"+randomIdentifier(8);
+		String itemTable = "item_"+randomIdentifier(8);
 		Statement stmt = connection.createStatement();
 		stmt.execute("DROP TABLE IF EXISTS `"+itemTable+"`");
 		stmt.execute("CREATE TABLE `"+itemTable+"` ( "
 				+ "`bib_id` int(10) unsigned not null, "
 				+ "`mfhd_id` int(10) unsigned not null, "
 				+ "`item_id` int(10) unsigned not null primary key, "
-				+ "`voyager_date` timestamp, "
-				+ "`solr_date` timestamp, "
-				+ "`found_in_solr` int(1) default 0, "
-				+ "key `found_in_solr` (`found_in_solr`))");
+				+ "`voyager_date` timestamp null, "
+				+ "`solr_date` timestamp null, "
+				+ "`found_in_solr` int(1) default 0 )");
 		stmt.close();
 		PreparedStatement pstmt = connection.prepareStatement(
 				"INSERT INTO `"+itemTable+"` (bib_id, mfhd_id, item_id, voyager_date) VALUES (?, ?, ?, ?)");
 		String line;
 		BufferedReader reader = Files.newBufferedReader(itemList, Charset.forName("US-ASCII"));
+		int i = 0;
 		while ((line = reader.readLine()) != null) {
 			String[] vals = line.split("\t", 4);
 			if (vals.length < 3) continue;
@@ -206,9 +208,17 @@ public class IndexRecordListComparison {
 				Date date = dateFormat.parse(vals[3]);
 				pstmt.setTimestamp(4, new Timestamp(date.getTime()));
 			}
-			
+			pstmt.addBatch();
+			if (++i == 1000) {
+				System.out.println("executing batch");
+				pstmt.executeBatch();
+				i = 0;
+				System.exit(0);
+			}
 		}
-
+		if (i > 0)
+			pstmt.executeBatch();
+		pstmt.close();
 		return itemTable;
 	}
 
@@ -286,7 +296,7 @@ public class IndexRecordListComparison {
 		}
 	}
 
-	static String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345674890_$";
+	static String allowed = "abcdefghijklmnopqrstuvwxyz12345674890";
 	static java.util.Random rand = new java.util.Random();
 	private String randomIdentifier(int length) {
 	    StringBuilder builder = new StringBuilder();

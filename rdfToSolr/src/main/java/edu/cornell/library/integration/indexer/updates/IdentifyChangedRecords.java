@@ -48,7 +48,7 @@ public class IdentifyChangedRecords {
 	public static void main(String[] args)  {
 
          try{        
-             new IdentifyDeletedRecords( SolrBuildConfig.loadConfig( args ));
+             new IdentifyChangedRecords( SolrBuildConfig.loadConfig( args ));
          }catch( Exception e){
              e.printStackTrace();
              System.exit(1);
