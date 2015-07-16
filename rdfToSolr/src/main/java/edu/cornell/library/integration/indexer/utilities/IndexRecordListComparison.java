@@ -7,10 +7,16 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +29,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 
 /**
@@ -42,9 +50,16 @@ public class IndexRecordListComparison {
     
 	public Set<Integer> bibsInIndexNotVoyager = new HashSet<Integer>();
 	public Set<Integer> bibsInVoyagerNotIndex = new HashSet<Integer>();
+	public Set<Integer> bibsNewerInVoyagerThanIndex = new HashSet<Integer>();
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager = new HashMap<Integer,Integer>();
-	public Set<Integer> mfhdsInVoyagerNotIndex = new HashSet<Integer>();
+	public Map<Integer,Integer> mfhdsInVoyagerNotIndex = new HashMap<Integer,Integer>();
+	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex = new HashMap<Integer,Integer>();
+	public Map<Integer,Integer> itemsInIndexNotVoyager = new HashMap<Integer,Integer>();
+	public Map<Integer,Integer> itemsInVoyagerNotIndex = new HashMap<Integer,Integer>();
+	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex = new HashMap<Integer,Integer>();
+
 	private static ObjectMapper jsonMapper = new ObjectMapper();
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	/**
 	 * Query Solr service at coreUrl and create a list:
@@ -138,7 +153,8 @@ public class IndexRecordListComparison {
 					// mfhdid is on both lists.
 					solrIndexMfhdList.remove(mfhdid);
 				} else {
-					mfhdsInVoyagerNotIndex.add(mfhdid);
+					//TODO: Get bib id so this can be added to the map.
+//					mfhdsInVoyagerNotIndex.add(mfhdid);
 				}
 			}
 			System.out.println("unsuppressed mfhd record list contains: "+unsuppressedMfhdCount+" records");
@@ -153,6 +169,49 @@ public class IndexRecordListComparison {
 		
 	}
 	
+	public void compare(SolrBuildConfig config,
+			Path currentVoyagerBibList, Path currentVoyagerMfhdList, Path currentVoyagerItemList) throws Exception {
+
+		Connection connection = config.getDatabaseConnection("Process");
+		String itemTable = createItemtable(connection, currentVoyagerItemList);
+
+	}
+	
+	private String createItemtable(Connection connection, Path itemList) throws Exception {
+		String itemTable = "item-"+randomIdentifier(8);
+		Statement stmt = connection.createStatement();
+		stmt.execute("DROP TABLE IF EXISTS `"+itemTable+"`");
+		stmt.execute("CREATE TABLE `"+itemTable+"` ( "
+				+ "`bib_id` int(10) unsigned not null, "
+				+ "`mfhd_id` int(10) unsigned not null, "
+				+ "`item_id` int(10) unsigned not null primary key, "
+				+ "`voyager_date` timestamp, "
+				+ "`solr_date` timestamp, "
+				+ "`found_in_solr` int(1) default 0, "
+				+ "key `found_in_solr` (`found_in_solr`))");
+		stmt.close();
+		PreparedStatement pstmt = connection.prepareStatement(
+				"INSERT INTO `"+itemTable+"` (bib_id, mfhd_id, item_id, voyager_date) VALUES (?, ?, ?, ?)");
+		String line;
+		BufferedReader reader = Files.newBufferedReader(itemList, Charset.forName("US-ASCII"));
+		while ((line = reader.readLine()) != null) {
+			String[] vals = line.split("\t", 4);
+			if (vals.length < 3) continue;
+			pstmt.setInt(1, Integer.valueOf(vals[0]));
+			pstmt.setInt(2, Integer.valueOf(vals[1]));
+			pstmt.setInt(3, Integer.valueOf(vals[2]));
+			if (vals.length == 3 || vals[3].equals("null"))
+				pstmt.setNull(4, Types.TIMESTAMP);
+			else {
+				Date date = dateFormat.parse(vals[3]);
+				pstmt.setTimestamp(4, new Timestamp(date.getTime()));
+			}
+			
+		}
+
+		return itemTable;
+	}
+
 	/**
 	 * Process XML from solr and build solrIndexBibList
 	 * and solrIndexMfhdList.  
@@ -226,11 +285,28 @@ public class IndexRecordListComparison {
 			e.printStackTrace();
 		}
 	}
+
+	static String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345674890_$";
+	static java.util.Random rand = new java.util.Random();
+	private String randomIdentifier(int length) {
+	    StringBuilder builder = new StringBuilder();
+	    for(int i = 0; i < length; i++)
+	    	builder.append(allowed.charAt(rand.nextInt(allowed.length())));
+	    return builder.toString();
+	}
 		
 	protected class Item {
 		Integer item_id;
 		Integer mfhd_id;
 		Integer bibid;
+		long modify_date;
 	}
 	
+	protected class Mfhd {
+		Integer mfhd_id;
+		Integer bib_id;
+		long modify_date;
+	}
+
+
 }
