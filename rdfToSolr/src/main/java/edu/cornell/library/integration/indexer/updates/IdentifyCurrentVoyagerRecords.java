@@ -69,9 +69,9 @@ public class IdentifyCurrentVoyagerRecords {
 			pstmt.setInt(1, rs.getInt(1) );
 			pstmt.setTimestamp(2, rs.getTimestamp(2) );
 			pstmt.addBatch();
-	    	if ((++i % 1024) == 0) {
+	    	if ((++i % 2048) == 0) {
 	    		pstmt.executeBatch();
-	    		if ((i % 65_536) == 0) {
+	    		if ((i % 262_144) == 0) {
 	    			System.out.println(i +" bibs pulled.");
 	    			current.commit();
 				}
@@ -89,10 +89,11 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("drop table if exists "+mfhdTable);
 	    c_stmt.execute("create table "+mfhdTable+"( "
 	    		+ "bib_id int(10) unsigned not null, "
-	    		+ "mfhd_id int(10) unsigned not null primary key, "
+	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
 	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0 ) "
+	    		+ "found_in_solr int(1) default 0, "
+	    		+ "key (mfhd_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+mfhdTable+" disable keys");
 		current.commit();
@@ -111,9 +112,9 @@ public class IdentifyCurrentVoyagerRecords {
 	    	pstmt.setInt(2, rs.getInt(2));
 	    	pstmt.setTimestamp(3, rs.getTimestamp(3));
 	    	pstmt.addBatch();
-	    	if ((++i % 1024) == 0) {
+	    	if ((++i % 2048) == 0) {
 	    		pstmt.executeBatch();
-	    		if ((i % 65_536) == 0) {
+	    		if ((i % 262_144) == 0) {
 	    			System.out.println(i +" mfhds pulled.");
 					current.commit();
 	    		}
@@ -131,10 +132,11 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("drop table if exists "+itemTable);
 	    c_stmt.execute("create table "+itemTable+"( "
 	    		+ "mfhd_id int(10) unsigned not null, "
-	    		+ "item_id int(10) unsigned not null primary key, "
+	    		+ "item_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
 	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0 ) "
+	    		+ "found_in_solr int(1) default 0, "
+	    		+ "key (item_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+itemTable+" disable keys");
 		current.commit();
@@ -152,9 +154,9 @@ public class IdentifyCurrentVoyagerRecords {
 	    	pstmt.setInt(2, rs.getInt(2));
 	    	pstmt.setTimestamp(3, rs.getTimestamp(3));
 	    	pstmt.addBatch();
-	    	if ((++i % 1024) == 0) {
+	    	if ((++i % 2048) == 0) {
 	    		pstmt.executeBatch();
-	    		if ((i % 65_536) == 0) {
+	    		if ((i % 262_144) == 0) {
 	    			System.out.println(i +" items pulled.");
 					current.commit();
 	    		}
