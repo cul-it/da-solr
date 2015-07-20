@@ -212,8 +212,7 @@ public class IndexRecordListComparison {
 				i = 0;
 			}
 		}
-		if (i > 0)
-			pstmt.executeBatch();
+		pstmt.executeBatch();
 		pstmt.close();
 		return itemTable;
 	}

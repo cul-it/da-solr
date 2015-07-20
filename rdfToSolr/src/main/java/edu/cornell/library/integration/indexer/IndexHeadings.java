@@ -66,7 +66,7 @@ public class IndexHeadings {
 		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
 	            
-		config = SolrBuildConfig.loadConfig(args,requiredArgs);		
+		config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		
 		connection = config.getDatabaseConnection("Headings");
 		deleteCountsFromDB();

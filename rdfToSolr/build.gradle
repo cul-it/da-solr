@@ -162,6 +162,14 @@ task (step2IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
+task (IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets a list of BIB, MFHD and item records from the Voyager database"
+
+ main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentVoyagerRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 task (IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item\

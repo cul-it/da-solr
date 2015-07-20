@@ -11,11 +11,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -55,6 +57,17 @@ public class SolrBuildConfig {
 	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
 	private Map<String,RDFService> rdfservices = new HashMap<String,RDFService>();
     static DavService davService = null;
+    
+    public static List<String> getRequiredArgsForDB( String db ) {
+    	List<String> list = new ArrayList<String>();
+    	if (db == null) return null;
+    	if (db.isEmpty()) return null;
+    	list.add("DatabaseDriver"+db);
+    	list.add("DatabaseURL"+db);
+    	list.add("DatabaseUser"+db);
+    	list.add("DatabasePass"+db);
+    	return list;
+    }
 
     
     public String getDailyBibUpdates() throws IOException {
@@ -910,7 +923,5 @@ public class SolrBuildConfig {
             "Ex. VoyagerToSolrConfig=prod.properties,prodDav.properties java someClass\n" +
             "Do not use both a environment variable and command line parameters.\n" +
             "These files will be searched for first in the file system, then from the classpath/ClassLoader.\n";
-
-    
 }
 
