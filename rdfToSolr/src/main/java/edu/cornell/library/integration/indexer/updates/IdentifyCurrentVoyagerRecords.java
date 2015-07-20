@@ -147,7 +147,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID");
 	    pstmt = current.prepareStatement
 	    		("insert into "+itemTable+" (mfhd_id, item_id, voyager_date) "
-	    				+ "values (?, ?, ?");
+	    				+ "values (?, ?, ?)");
 	    i = 0;
 	    while (rs.next()) {
 	    	pstmt.setInt(1, rs.getInt(1));
