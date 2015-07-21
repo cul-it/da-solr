@@ -53,10 +53,11 @@ public class MARCResultSetToFields implements ResultSetToFields {
 			rec.addDataFieldResultSet( marc_data_fields );
 		}
 		addField(fields, "marc_display", rec.toString("xml"));
+		addField(fields, "id", rec.id);
 		if (rec.modified_date != null)
-			addField(fields, "id", rec.id+"|"+rec.modified_date);
+			addField(fields, "bibid_display", rec.id+"|"+rec.modified_date);
 		else
-			addField(fields, "id", rec.id);
+			addField(fields, "bibid_display", rec.id);
 		
 		return fields;
 	}	
