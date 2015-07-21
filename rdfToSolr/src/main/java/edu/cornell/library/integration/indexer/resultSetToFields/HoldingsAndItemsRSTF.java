@@ -214,7 +214,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
 			holding.locations = new Location[loccodes.size()];
-			holding.modified_date = rec.modified_date;
+			if (rec.modified_date != null) {
+				if (rec.modified_date.length() >= 14)
+					holding.modified_date = rec.modified_date.substring(0, 14);
+				else
+					holding.modified_date = rec.modified_date;
+			}
 			Iterator<String> iter = loccodes.iterator();
 			int i = 0;
 			while (iter.hasNext()) {
@@ -223,7 +228,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				i++;
 			}
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
 			if (holding.modified_date != null)
 				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
@@ -232,7 +236,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			addField(fields,"holdings_record_display",json);
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
-			
 
 		}
 		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
@@ -294,7 +297,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Boolean multivol = false;
 		SolrInputField multivolField = new SolrInputField("multivol_b");
 
-		if (holding_ids.isEmpty()) {
+		if (holdings.isEmpty()) {
 			multivolField.setValue(multivol, 1.0f);
 			fields.put("multivol_b", multivolField);
 			return;
@@ -304,7 +307,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Collection<Map<String,Object>> items = new HashSet<Map<String,Object>>();
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
-			
 			if (debug)
 				System.out.println(h.id);
 			String query = 
@@ -315,7 +317,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
-				//	   " "
 			if (debug)
 				System.out.println(query);
 
@@ -512,7 +513,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			String moddate = record.get("modify_date").toString();
 			if ( ! moddate.isEmpty()) {
 	    		item.append('|');
-				item.append(moddate.substring(0, 10));
+				item.append(moddate.substring(0, 14));
 			}
 			itemlist.addValue(item.toString(),1);
 		}
