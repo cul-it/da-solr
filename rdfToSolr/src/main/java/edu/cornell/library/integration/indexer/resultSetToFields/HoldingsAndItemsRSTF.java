@@ -244,7 +244,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, boundWith);
 			String json = jsonstream.toString("UTF-8");
-			addField(fields,"bound_with",json);
+			addField(fields,"bound_with_json",json);
 			addField(fields,"barcode_addl_t",boundWith.get("barcode").toString());
 		}
 

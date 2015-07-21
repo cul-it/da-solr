@@ -7,19 +7,15 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -169,52 +165,19 @@ public class IndexRecordListComparison {
 		
 	}
 	
-	public void compare(SolrBuildConfig config,
-			Path currentVoyagerBibList, Path currentVoyagerMfhdList, Path currentVoyagerItemList) throws Exception {
-
-		Connection connection = config.getDatabaseConnection("Process");
-		String itemTable = createItemtable(connection, currentVoyagerItemList);
-
+	public static List<String> requiredArgs() {
+		List<String> l = new ArrayList<String>();
+		l.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
+		l.add("solrUrl");
+		return l;
 	}
-	
-	private String createItemtable(Connection connection, Path itemList) throws Exception {
-		String itemTable = "item_"+randomIdentifier(8);
-		Statement stmt = connection.createStatement();
-		stmt.execute("DROP TABLE IF EXISTS `"+itemTable+"`");
-		stmt.execute("CREATE TABLE `"+itemTable+"` ( "
-				+ "`bib_id` int(10) unsigned not null, "
-				+ "`mfhd_id` int(10) unsigned not null, "
-				+ "`item_id` int(10) unsigned not null primary key, "
-				+ "`voyager_date` timestamp null, "
-				+ "`solr_date` timestamp null, "
-				+ "`found_in_solr` int(1) default 0 )");
-		stmt.close();
-		PreparedStatement pstmt = connection.prepareStatement(
-				"INSERT INTO `"+itemTable+"` (bib_id, mfhd_id, item_id, voyager_date) VALUES (?, ?, ?, ?)");
-		String line;
-		BufferedReader reader = Files.newBufferedReader(itemList, Charset.forName("US-ASCII"));
-		int i = 0;
-		while ((line = reader.readLine()) != null) {
-			String[] vals = line.split("\t", 4);
-			if (vals.length < 3) continue;
-			pstmt.setInt(1, Integer.valueOf(vals[0]));
-			pstmt.setInt(2, Integer.valueOf(vals[1]));
-			pstmt.setInt(3, Integer.valueOf(vals[2]));
-			if (vals.length == 3 || vals[3].equals("null"))
-				pstmt.setNull(4, Types.TIMESTAMP);
-			else {
-				Date date = dateFormat.parse(vals[3]);
-				pstmt.setTimestamp(4, new Timestamp(date.getTime()));
-			}
-			pstmt.addBatch();
-			if (++i == 1000) {
-				pstmt.executeBatch();
-				i = 0;
-			}
-		}
-		pstmt.executeBatch();
-		pstmt.close();
-		return itemTable;
+	public void compare(SolrBuildConfig config) throws Exception {
+
+		URL queryUrl = new URL(config.getSolrUrl() +
+				"/select?q=id%3A*&wt=xml&indent=false&qt=standard&fl=id,holdings_display,item_display&rows=100000000");
+		
+	    String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+
 	}
 
 	/**
@@ -291,27 +254,10 @@ public class IndexRecordListComparison {
 		}
 	}
 
-	static String allowed = "abcdefghijklmnopqrstuvwxyz12345674890";
-	static java.util.Random rand = new java.util.Random();
-	private String randomIdentifier(int length) {
-	    StringBuilder builder = new StringBuilder();
-	    for(int i = 0; i < length; i++)
-	    	builder.append(allowed.charAt(rand.nextInt(allowed.length())));
-	    return builder.toString();
-	}
-		
 	protected class Item {
 		Integer item_id;
 		Integer mfhd_id;
 		Integer bibid;
 		long modify_date;
 	}
-	
-	protected class Mfhd {
-		Integer mfhd_id;
-		Integer bib_id;
-		long modify_date;
-	}
-
-
 }

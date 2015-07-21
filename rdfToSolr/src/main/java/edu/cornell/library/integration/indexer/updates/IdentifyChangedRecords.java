@@ -3,9 +3,11 @@ package edu.cornell.library.integration.indexer.updates;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -46,13 +48,16 @@ public class IdentifyChangedRecords {
 	SolrBuildConfig config;
 
 	public static void main(String[] args)  {
+		
+		List<String> requiredArgs = new ArrayList<String>();
+		requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 
-         try{        
-             new IdentifyChangedRecords( SolrBuildConfig.loadConfig( args ));
-         }catch( Exception e){
-             e.printStackTrace();
-             System.exit(1);
-         }
+		try{        
+			new IdentifyChangedRecords( SolrBuildConfig.loadConfig( args, requiredArgs ));
+		}catch( Exception e){
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}	
 	
 	public IdentifyChangedRecords(SolrBuildConfig config) throws Exception {
@@ -108,7 +113,7 @@ public class IdentifyChangedRecords {
 			System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 			
 			IndexRecordListComparison c = new IndexRecordListComparison();
-			c.compare(config, currentVoyagerBibList, currentVoyagerMfhdList,currentVoyagerItemList);
+			c.compare(config);
 			
 /*			Integer[] bibsToDelete = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
 			Iterator<Integer> bibidsForDeletedMFHDs = c.mfhdsInIndexNotVoyager.values().iterator();
