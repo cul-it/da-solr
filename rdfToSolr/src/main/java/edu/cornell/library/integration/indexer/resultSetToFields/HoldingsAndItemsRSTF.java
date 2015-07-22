@@ -513,7 +513,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			String moddate = record.get("modify_date").toString();
 			if ( ! moddate.isEmpty()) {
 	    		item.append('|');
-				item.append(moddate);
+				item.append(moddate.replaceAll("[^0-9]", "").substring(0, 14));
 			}
 			itemlist.addValue(item.toString(),1);
 		}
