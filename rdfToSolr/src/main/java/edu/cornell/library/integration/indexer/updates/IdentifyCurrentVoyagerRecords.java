@@ -49,10 +49,12 @@ public class IdentifyCurrentVoyagerRecords {
 	    String bibTable = "bib_"+today;
 	    c_stmt.execute("drop table if exists "+bibTable);
 	    c_stmt.execute("create table "+bibTable+"( "
-	    		+ "bib_id int(10) unsigned not null primary key, "
+	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
+	    		+ "found_in_voyager int(1) default 1, "
 	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0 ) "
+	    		+ "found_in_solr int(1) default 0, "
+	    		+ "key (bib_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+bibTable+" disable keys");
 		current.commit();
@@ -91,6 +93,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
+	    		+ "found_in_voyager int(1) default 1, "
 	    		+ "solr_date timestamp null, "
 	    		+ "found_in_solr int(1) default 0, "
 	    		+ "key (mfhd_id) ) "
@@ -134,6 +137,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "item_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
+	    		+ "found_in_voyager int(1) default 1, "
 	    		+ "solr_date timestamp null, "
 	    		+ "found_in_solr int(1) default 0, "
 	    		+ "key (item_id) ) "
