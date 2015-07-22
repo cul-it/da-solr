@@ -511,6 +511,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));
 			String moddate = record.get("modify_date").toString();
+			item.append('|');
+			item.append(record.get("mfhd_id"));
 			if ( ! moddate.isEmpty()) {
 	    		item.append('|');
 				item.append(moddate.replaceAll("[^0-9]", "").substring(0, 14));
