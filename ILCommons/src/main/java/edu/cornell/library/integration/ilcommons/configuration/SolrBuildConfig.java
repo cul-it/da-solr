@@ -69,6 +69,13 @@ public class SolrBuildConfig {
     	return list;
     }
 
+    public static List<String> getRequiredArgsForWebdav() {
+    	List<String> list = new ArrayList<String>();
+    	list.add("webdavBaseUrl");
+    	list.add("webdavUser");
+    	list.add("webdavPassword");
+    	return list;
+    }
     
     public String getDailyBibUpdates() throws IOException {
     	if (values.containsKey("dailyBibUpdates")) {

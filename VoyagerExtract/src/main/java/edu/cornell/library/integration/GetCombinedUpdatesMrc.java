@@ -1,13 +1,13 @@
 package edu.cornell.library.integration;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,13 +15,12 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
 /**
  * This gets a list of BIB and MFHD records updates from the Voyager database for a
@@ -36,10 +35,6 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
  */
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    
-   protected final Log logger = LogFactory.getLog(getClass());
-   
-   protected static Integer reportPeriod = 1; //days
-   
    /**
     * default constructor
     */
@@ -52,40 +47,34 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     */
    public static void main(String[] args) throws Exception {                
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
-     app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args ), reportPeriod);     
+     List<String> requiredArgs = new ArrayList<String>();
+     requiredArgs.addAll(getRequiredArgsForWebdav());
+     requiredArgs.add("dailyMrcDir");
+     requiredArgs.add("dailyMfhdDir");
+     requiredArgs.add("dailyBibUpdates");
+     requiredArgs.add("dailyBibAdds");
+     
+     app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args, requiredArgs) );     
    }
    
    
-	public void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config, Integer reportPeriod) 
+	private void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config) 
 	        throws Exception{
 
 		if ( getCatalogService() == null )
 		    throw new Exception("Could not get catalogService");			
 		
 		setDavService(DavServiceFactory.getDavService( config ));
-                  	     	                 		
-		String toDate = midnightThisMorning();
-		String fromDate = daysEarlier(reportPeriod);		
- 
-		System.out.println("fromDate: "+ fromDate);
-        System.out.println("toDate: "+ toDate);        
-				        
-		// get BIB and MFHD ID of records updated in the report period        
-        Set<String> updatedBibIds = getUpdatedBibIdsFromCatalog( fromDate, toDate );        
-        Set<String> updatedMfhdIds = getUpdatedMfhdIdsFromCatalog( fromDate, toDate);		
-		
-        // Get additional BIB IDs for changed MFHD records 
-		System.out.println("Adding extra BIB IDs that need to be updated beacause "
-		        + "their MFHD records changed");				
-		updatedBibIds.addAll(getBibIdsWhoseMfhdsChanged( updatedMfhdIds ));
-			
-		// Get additional BIB IDs that have been added or have deleted MFHDs from step 2
+
+        Set<String> updatedBibIds = new HashSet<String>();
+        Set<String> updatedMfhdIds = new HashSet<String>();
+
 		String date =  getDateString(Calendar.getInstance());
-		List<String> bibListForUpdate = getBibIdsWithDeletedMfhd( config, date );
-	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() + " (from deleted and suppressed mfhds)");
-	    updatedBibIds.addAll( bibListForUpdate );
-		List<String> bibListForAdd = getBibIdsToAdd( config, date );
-	    System.out.println("bibListForAdd: " + bibListForAdd.size() + " (from new or unsuppressed bibs)");
+		Set<String> bibListForUpdate = getUpdatedBibs( config, date );
+	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() );
+	    updatedBibIds.addAll(bibListForUpdate);
+		Set<String> bibListForAdd = getBibIdsToAdd( config, date );
+	    System.out.println("bibListForAdd: " + bibListForAdd.size() );
 	    updatedBibIds.addAll( bibListForAdd );
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
@@ -98,28 +87,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		saveBIBsToMARC(  updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		saveMFHDsToMARC( updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
 	}
-
-	/**
-	 * Given a set of IDs of MFHD records that have changed, return a set of BIB IDs 
-	 * that are associated with those MFHD records. These BIB records will need to be
-	 * updated so the Sorl index will reflect the new MFHD records. 
-	 * @param updatedMfhdIds - MFHD IDs of records that have changed  
-	 */
-	 private Set<String> getBibIdsWhoseMfhdsChanged( Collection<String> updatedMfhdIds  ) 
-	         throws Exception {	     
-	     try {
-	         Set<String> extraBibIds = new HashSet<String>();
-	         for (String mfhdid : updatedMfhdIds) {            
-                extraBibIds.addAll( getCatalogService().getBibIdsByMfhdId(mfhdid) );
-            }
-            System.out.println("BIB IDs added due to MFHD updates "
-                    + "(extraBibIds): " + extraBibIds.size());        
-            return extraBibIds;
-         } catch (Exception e) {
-             throw new Exception("Problem while getting BIB IDs for "
-                     + "MFHDs from catalog", e);
-         }
-    }
 
 
     /**
@@ -238,31 +205,23 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
 
     /**
-	 * Gets the list of BIB IDs that have deleted MFHDs. This list
-	 * was generated in step 2.
+	 * Gets the list of BIB IDs require updating in Solr.
 	 * @throws Exception 
 	 * 
 	 */
-	private List<String> getBibIdsWithDeletedMfhd( SolrBuildConfig config, String today ) throws Exception {
-        
-        String tmpFilePath = config.getTmpDir() +"/"+ "bibListForUpdate-"+ today +".txt";;
-        
-        String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
-                + "bibListForUpdate-"+ today + ".txt";
-        System.out.println("Reading BIB ID with modified MHFDs from " + fileName );
-        
-        List<String> bibListForUpdateList;
-        File localTmpBibListForUpdateFile = null;
-        try {
-            localTmpBibListForUpdateFile = getDavService().getFile(fileName, tmpFilePath);
-            bibListForUpdateList = FileUtils.readLines(localTmpBibListForUpdateFile);
-        } catch (Exception e1) {
-            throw new Exception("Failed reading: "+ fileName, e1);            
-        } finally {
-            if( localTmpBibListForUpdateFile != null)
-                localTmpBibListForUpdateFile.delete();  
+	private Set<String> getUpdatedBibs( SolrBuildConfig config, String today ) throws Exception {
+
+        List<String> updateFiles = getDavService().getFileList(
+        		config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/");
+        Set<String> updatedBibs = new HashSet<String>();
+        for (String url : updateFiles) {
+    	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
+    		tempPath.toFile().deleteOnExit();
+            File localTmpFile = getDavService().getFile(url, tempPath.toString());
+            updatedBibs.addAll(FileUtils.readLines(localTmpFile));
+            localTmpFile.delete();
         }
-        return bibListForUpdateList;
+        return updatedBibs;
     }
 
 
@@ -272,71 +231,22 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * @throws Exception 
 	 * 
 	 */
-	private List<String> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
+	private Set<String> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
         
-        String tmpFilePath = config.getTmpDir() +"/"+ "bibListToAdd-"+ today +".txt";;
-        
-        String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
-                + "bibListToAdd-"+ today + ".txt";
-        System.out.println("Reading BIB ID needed to add to Voyager from " + fileName );
-        
-        List<String> bibListForAddList = new ArrayList<String>();
-        File localTmpBibListForAddFile = null;
-        try {
-            localTmpBibListForAddFile = getDavService().getFile(fileName, tmpFilePath);
-            if (localTmpBibListForAddFile  != null)	
-            	bibListForAddList.addAll( FileUtils.readLines(localTmpBibListForAddFile) );
-        } catch (Exception e1) {
-            throw new Exception("Failed reading: "+ fileName, e1);            
-        } finally {
-            if( localTmpBibListForAddFile != null)
-                localTmpBibListForAddFile.delete();  
+        List<String> addFiles = getDavService().getFileList(
+        		config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/");
+        Set<String> addedBibs = new HashSet<String>();
+        for (String url : addFiles) {
+    	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
+    		tempPath.toFile().deleteOnExit();
+            File localTmpFile = getDavService().getFile(url, tempPath.toString());
+            addedBibs.addAll(FileUtils.readLines(localTmpFile));
+            localTmpFile.delete();
         }
-        return bibListForAddList;
+        return addedBibs;
     }
 
-
-    /** 
-     * @param fromDate in format yyyy-MM-dd HH:mm:ss
-     * @param toDate in format yyyy-MM-dd HH:mm:ss
-     */
-	private Set<String> getUpdatedMfhdIdsFromCatalog(String fromDate, String toDate) 
-	        throws Exception {
-	    List<String> mfhdIdList;
-	    try {
-            System.out.println("Getting recently updated MFHD IDs from Catalog");
-            mfhdIdList = getCatalogService().getUpdatedMfhdIdsUsingDateRange(fromDate, toDate);
-            System.out.println("MfhdIDList size: " + mfhdIdList.size());
-        } catch (Exception e) {
-            throw new Exception("Problem while attempting to get the updated "
-                    + "MFHD IDs from the Catalog",e);
-        }
-        
-	    return new HashSet<String>(mfhdIdList);                
-    }
-
-
-	/** 
-	 * @param fromDate in format yyyy-MM-dd HH:mm:ss
-	 * @param toDate in format yyyy-MM-dd HH:mm:ss
-	 */
-    private Set<String> getUpdatedBibIdsFromCatalog(String fromDate, String toDate) 
-            throws Exception {
-        
-        List<String> bibIdList = null;        
-        try{
-            System.out.println("Getting recently updated BIB IDs from Catalog");
-            bibIdList = getCatalogService().getUpdatedBibIdsUsingDateRange(fromDate, toDate);
-            System.out.println("BibIDList size: "+ bibIdList.size());
-        } catch (Exception e) {
-            throw new Exception("Problem while attempting to get the updated "
-                    + "BIB IDs from the Catalog",e);
-        }
-        return new HashSet<String>(bibIdList);
-    }
-
-
-    public void saveBibMrc(String mrc, int seqno, String destDir)
+    private void saveBibMrc(String mrc, int seqno, String destDir)
 			throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/bib.update." + getDateString(now) + "."+ seqno +".mrc";
@@ -352,7 +262,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		}
 	}
 	
-	public void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
+	private void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/mfhd.update." + getDateString(now) + "."+ seqno +".mrc";
 		System.out.println("Saving MFHD mrc to: "+ url);
@@ -366,47 +276,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 			throw ex;
 		}
 	}
-       
    
-   /**
-    * @param str
-    * @return
-    * @throws UnsupportedEncodingException
-    */
-   protected InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
-      return new ByteArrayInputStream(bytes);	
-   }
-   
-   /**
-    * @return
-    */
-   protected String midnightThisMorning() {
-	   Calendar today = Calendar.getInstance();
-	   today.set(Calendar.HOUR_OF_DAY, 0);
-	   today.set(Calendar.MINUTE, 0);
-	   today.set(Calendar.SECOND, 0);
-	   today.set(Calendar.MILLISECOND, 0); 
-	   return getDateTimeString(today);
-   }
-   
-   protected String daysEarlier(Integer noDays) {
-	   Calendar date = Calendar.getInstance();
-	   date.set(Calendar.HOUR_OF_DAY, 0);
-	   date.set(Calendar.MINUTE, 0);
-	   date.set(Calendar.SECOND, 0);
-	   date.set(Calendar.MILLISECOND, 0);
-	   date.add(Calendar.DAY_OF_MONTH, - noDays);
-	   return getDateTimeString(date);
-   }
-   
-   protected String getDateTimeString(Calendar cal) {
-	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-	   String ds = df.format(cal.getTime());
-	   return ds;
-   } 
-   
-   protected String getDateString(Calendar cal) {
+   private String getDateString(Calendar cal) {
 	   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
 	   String ds = df.format(cal.getTime());
 	   return ds;
