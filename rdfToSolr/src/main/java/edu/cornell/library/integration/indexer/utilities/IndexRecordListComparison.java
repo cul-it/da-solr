@@ -94,7 +94,6 @@ public class IndexRecordListComparison {
 		while ((line = reader.readLine()) != null ) {
 			if (line.startsWith("bibid_display")) continue;
 			
-			System.out.println(line+ " ("+line.length()+")");
 			int holdings_index = line.indexOf(',');
 			int bibid = processSolrBibData(bibTable, line.substring(0, holdings_index));
 			if (holdings_index + 1 == line.length()) continue;
