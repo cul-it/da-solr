@@ -64,7 +64,7 @@ public class ConfirmSolrIndexCompleteness  {
 		        + "with contents of index at: " + coreUrl);
 
 		IndexRecordListComparison c = new IndexRecordListComparison();
-		c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+		c.compare(config);
 		produceReport(davUrl,c);
 		
 		return c.bibsInVoyagerNotIndex.size();
