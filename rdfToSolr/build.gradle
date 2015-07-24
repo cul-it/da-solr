@@ -170,6 +170,14 @@ task (IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
+task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets a list of BIB, MFHD and item records from the Solr index"
+
+ main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 task (IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item\
