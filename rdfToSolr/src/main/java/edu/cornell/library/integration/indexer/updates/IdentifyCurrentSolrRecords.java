@@ -179,15 +179,17 @@ public class IdentifyCurrentSolrRecords {
 		PreparedStatement pstmt = pstmts.get("mfhd_insert");
 		for (int i = 0; i < solrHoldingsList.length; i++) {
 			int holdingsId;
-			mfhdCount++;
 			Timestamp modified = null;
 			if (solrHoldingsList[i].contains("|")) {
 				String[] parts = solrHoldingsList[i].split("\\|",2);
 				holdingsId = Integer.valueOf(parts[0]);
 				modified = new Timestamp( dateFormat.parse(parts[1]).getTime() );
-			} else {
+			} else if (! solrHoldingsList[i].isEmpty()) {
 				holdingsId = Integer.valueOf(solrHoldingsList[i]);
+			} else {
+				continue;
 			}
+			mfhdCount++;
 			pstmt.setInt(1, bibid);
 			pstmt.setInt(2, holdingsId);
 			pstmt.setTimestamp(3, modified);
