@@ -63,11 +63,10 @@ public class ConfirmSolrIndexCompleteness  {
 		        + currentVoyagerMfhdList.toUri() + "\n"
 		        + "with contents of index at: " + coreUrl);
 
-		IndexRecordListComparison c = new IndexRecordListComparison();
-		c.compare(config);
+		IndexRecordListComparison c = new IndexRecordListComparison(config);
 		produceReport(davUrl,c);
 		
-		return c.bibsInVoyagerNotIndex.size();
+		return c.bibsInVoyagerNotIndex().size();
 	}	
     
 	public int  doCompletnessCheck(String coreUrl) throws Exception {
@@ -115,16 +114,16 @@ public class ConfirmSolrIndexCompleteness  {
 
 		System.out.println();
 		
-		reportList( c.bibsInIndexNotVoyager,"bibsInIndexNotVoyager.txt",
+		reportList( c.bibsInIndexNotVoyager(),"bibsInIndexNotVoyager.txt",
 				"Bib ids in the index but no longer unsuppressed in Voyager.");
 
-		reportList( c.bibsInVoyagerNotIndex,"bibsInVoyagerNotIndex.txt",
+		reportList( c.bibsInVoyagerNotIndex(),"bibsInVoyagerNotIndex.txt",
 				"Bib ids unsuppressed in Voyager but not in the index.");
 
-		reportList( c.mfhdsInIndexNotVoyager,"mfhdsInIndexNotVoyager.txt",
+		reportList( c.mfhdsInIndexNotVoyager(),"mfhdsInIndexNotVoyager.txt",
 				"Mfhd (holdings) ids in the index but no longer unsuppressed in Voyager - bib ids in parens.");
 
-		reportList( c.mfhdsInVoyagerNotIndex,"mfhdsInVoyagerNotIndex.txt",
+		reportList( c.mfhdsInVoyagerNotIndex(),"mfhdsInVoyagerNotIndex.txt",
 				"Mfhd (holdings) ids unsuppressed in Voyager but not in the index.");
 		
 	}
