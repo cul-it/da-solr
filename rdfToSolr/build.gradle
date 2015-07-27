@@ -185,6 +185,6 @@ task (IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
 
  main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
  classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1024m'
+ maxHeapSize = '2048m'
 }
 
