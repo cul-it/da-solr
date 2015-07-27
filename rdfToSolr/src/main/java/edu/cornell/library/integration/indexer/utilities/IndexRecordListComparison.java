@@ -109,7 +109,7 @@ public class IndexRecordListComparison {
 		rs.close();
 		// new holdings
 		rs = stmt.executeQuery(
-				"select v.mfhd_id from "+mfhdTableVoy+" as v "
+				"select v.mfhd_id, v.bib_id from "+mfhdTableVoy+" as v "
 				+ "left join "+mfhdTableSolr+" as s on s.mfhd_id = v.mfhd_id "
 				+ "where solr_date is null");
 		while (rs.next())
