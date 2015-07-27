@@ -211,7 +211,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 */
 	private Set<String> getUpdatedBibs( SolrBuildConfig config, String today ) throws Exception {
 
-        List<String> updateFiles = getDavService().getFileList(
+        List<String> updateFiles = getDavService().getFileUrlList(
         		config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/");
         Set<String> updatedBibs = new HashSet<String>();
         for (String url : updateFiles) {
@@ -233,7 +233,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 */
 	private Set<String> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
         
-        List<String> addFiles = getDavService().getFileList(
+        List<String> addFiles = getDavService().getFileUrlList(
         		config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/");
         Set<String> addedBibs = new HashSet<String>();
         for (String url : addFiles) {
