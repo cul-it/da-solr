@@ -11,6 +11,7 @@ import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 
@@ -61,6 +62,7 @@ public class IdentifyChangedRecords {
 	
 	public IdentifyChangedRecords(SolrBuildConfig config) throws Exception {
 	    this.config = config;
+	    this.davService = DavServiceFactory.getDavService( config );
 		System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 
 		IndexRecordListComparison c = new IndexRecordListComparison(config);
