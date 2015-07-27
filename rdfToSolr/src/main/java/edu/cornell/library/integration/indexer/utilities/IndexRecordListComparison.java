@@ -1,20 +1,10 @@
 package edu.cornell.library.integration.indexer.utilities;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,7 +46,6 @@ public class IndexRecordListComparison {
 	public int mfhdCount = 0;
 	public int itemCount = 0;
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 	private Connection conn = null;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
 
@@ -69,206 +58,112 @@ public class IndexRecordListComparison {
 	}
 
 	public void compare(SolrBuildConfig config) throws Exception {
-
-		URL queryUrl = new URL(config.getSolrUrl() +
-				"/select?qt=standard&q=id%3A*&wt=csv&fl=bibid_display,holdings_display,item_display&rows=50000000");
 		
 	    String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
 	    conn = config.getDatabaseConnection("Current");
-
-	    // Save Solr data to a temporary file
-	    final Path tempPath = Files.createTempFile("indexRecordListCompare-", ".csv");
-		tempPath.toFile().deleteOnExit();
-		FileOutputStream fos = new FileOutputStream(tempPath.toString());
-		ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
-		fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
-		fos.close();
+	    String solrUrl = config.getSolrUrl();
+	    String solrCore = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
 		
-		String bibTable = "bib_"+today;
-		String mfhdTable = "mfhd_"+today;
-		String itemTable = "item_"+today;
-		
-		// Then read the file back in to process it
-		BufferedReader reader = Files.newBufferedReader(tempPath , StandardCharsets.UTF_8);
-		String line = null;
-		while ((line = reader.readLine()) != null ) {
-			if (line.startsWith("bibid_display")) continue;
-			
-			int holdings_index = line.indexOf(',');
-			int bibid = processSolrBibData(bibTable, line.substring(0, holdings_index));
-			if (holdings_index + 1 == line.length()) continue;
-			
-			int item_index;
-			if (line.charAt(holdings_index + 1) == '"') {
-				item_index = line.indexOf('"', holdings_index+2)+1;
-				processSolrHoldingsData(mfhdTable, line.substring(holdings_index+2, item_index-1), bibid);
-			} else {
-				item_index = line.indexOf(',',holdings_index+1);
-				processSolrHoldingsData(mfhdTable, line.substring(holdings_index+1, item_index), bibid);
-			}
-			if (item_index + 1 == line.length()) continue;
-			if (line.charAt(item_index + 1) == '"') {
-				processSolrItemData(itemTable,mfhdTable,line.substring(item_index + 2, line.length()-1),bibid);
-			} else {
-				processSolrItemData(itemTable,mfhdTable,line.substring(item_index + 1),bibid);
-			}
-		}
+		String bibTableVoy = "bib_"+today;
+		String mfhdTableVoy = "mfhd_"+today;
+		String itemTableVoy = "item_"+today;
+		String bibTableSolr = "bib_solr_"+solrCore;
+		String mfhdTableSolr = "mfhd_solr_"+solrCore;
+		String itemTableSolr = "item_solr_"+solrCore;
 		
 		// Review database tables for certain conditions
 		Statement stmt = conn.createStatement();
 		// updated bibs
 		ResultSet rs = stmt.executeQuery(
-				"SELECT bib_id FROM "+bibTable+" WHERE found_in_solr = 1 AND voyager_date > date_add(solr_date,interval 15 second)");
+				"select v.bib_id from "+bibTableVoy+" as v, "+bibTableSolr+" as s "
+				+ "WHERE v.bib_id = s.bib_id "
+				+ "  AND voyager_date > date_add(solr_date,interval 15 second)");
 		while (rs.next()) bibsNewerInVoyagerThanIndex.add(rs.getInt(1));
 		rs.close();
 		// updated holdings
 		rs = stmt.executeQuery(
-				"SELECT mfhd_id,bib_id FROM "+mfhdTable+" WHERE found_in_solr = 1 AND voyager_date > date_add(solr_date,interval 15 second)");
+				"SELECT v.mfhd_id, v.bib_id "
+				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
+				+"WHERE v.mfhd_id = s.mfhd_id "
+				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
+				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
 		while (rs.next())
 			mfhdsNewerInVoyagerThanIndex.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
 		// updated items
 		rs = stmt.executeQuery(
-				"SELECT item_id,mfhd_id FROM "+itemTable+" WHERE found_in_solr = 1 AND voyager_date > date_add(solr_date,interval 15 second)");
+				"SELECT v.item_id, v.mfhd_id "
+				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
+				+"WHERE v.item_id = s.item_id "
+				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
+				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
 		while (rs.next())
-			itemsNewerInVoyagerThanIndex.put(rs.getInt(1),getBibForMfhd(mfhdTable,rs.getInt(2)));
+			itemsNewerInVoyagerThanIndex.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
 		// new bibs
 		rs = stmt.executeQuery(
-				"SELECT bib_id FROM "+bibTable+" WHERE found_in_solr = 0");
+				"select v.bib_id from "+bibTableVoy+" as v "
+				+ "left join "+bibTableSolr+" as s on s.bib_id = v.bib_id "
+				+ "where solr_date is null");
 		while (rs.next()) bibsInVoyagerNotIndex.add(rs.getInt(1));
 		rs.close();
 		// new holdings
 		rs = stmt.executeQuery(
-				"SELECT mfhd_id,bib_id FROM "+mfhdTable+" WHERE found_in_solr = 0");
+				"select v.mfhd_id from "+mfhdTableVoy+" as v "
+				+ "left join "+mfhdTableSolr+" as s on s.mfhd_id = v.mfhd_id "
+				+ "where solr_date is null");
 		while (rs.next())
 			mfhdsInVoyagerNotIndex.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
 		// new items
 		rs = stmt.executeQuery(
-				"SELECT item_id,mfhd_id FROM "+itemTable+" WHERE found_in_solr = 0");
+				"select v.item_id from "+itemTableVoy+" as v "
+				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
+				+ "where solr_date is null");
 		while (rs.next())
-			itemsInVoyagerNotIndex.put(rs.getInt(1),getBibForMfhd(mfhdTable,rs.getInt(2)));
+			itemsInVoyagerNotIndex.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
-	}
-
-	private int processSolrBibData(String bibTable, String solrBib) throws SQLException, ParseException {
-		bibCount++;
-		String[] parts = solrBib.split("\\|", 2);
-		int bibid = Integer.valueOf(parts[0]);
-		if ( ! pstmts.containsKey("bib_update"))
-			pstmts.put("bib_update",conn.prepareStatement(
-					"UPDATE "+bibTable+" SET solr_date = ? , found_in_solr = 1 "
-							+ "WHERE bib_id = ?"));
-		
-		// Attempt to reflect Solr date in table. If fails, record not in Voyager.
-		// note: date comparison comes later.
-		PreparedStatement pstmt = pstmts.get("bib_update");
-		pstmt.setTimestamp(1, new Timestamp( dateFormat.parse(parts[1]).getTime() ));
-		pstmt.setInt(2, bibid);
-		int rowCount = pstmt.executeUpdate();
-
-		// bib is in Solr & Voyager
-		if (rowCount == 1) return bibid;
-
-		// bib is in Solr, not Voyager
-		bibsInIndexNotVoyager.add(bibid);
-		return bibid;
-	}
-
-	private void processSolrHoldingsData(String holdingsTable, String solrHoldings, int bibid) throws SQLException, ParseException {
-		String[] solrHoldingsList = solrHoldings.split(",");
-		if ( ! pstmts.containsKey("mfhd_update"))
-			pstmts.put("mfhd_update",conn.prepareStatement(
-					"UPDATE "+holdingsTable+" SET solr_date = ? , found_in_solr = 1 "
-							+ "WHERE mfhd_id = ? AND bib_id = ? "));
-		PreparedStatement pstmt = pstmts.get("mfhd_update");
-		for (int i = 0; i < solrHoldingsList.length; i++) {
-			int holdingsId;
-			mfhdCount++;
-			Timestamp modified = null;
-			if (solrHoldingsList[i].contains("|")) {
-				String[] parts = solrHoldingsList[i].split("\\|",2);
-				holdingsId = Integer.valueOf(parts[0]);
-				modified = new Timestamp( dateFormat.parse(parts[1]).getTime() );
-			} else {
-				holdingsId = Integer.valueOf(solrHoldingsList[i]);
-			}
-			pstmt.setTimestamp(1, modified);
-			pstmt.setInt(2, holdingsId);
-			pstmt.setInt(3, bibid);
-			int rowCount = pstmt.executeUpdate();
-
-			// mfhd is in Solr & Voyager
-			if (rowCount == 1) continue;
-
-			// If query didn't affect any rows, the holding may be missing from Voyager, or
-			// it may have been reassigned to a different bib.
-			int oldBibid = getBibForMfhd( holdingsTable, holdingsId);
-			
-			if (oldBibid == 0) {
-				mfhdsInIndexNotVoyager.put(holdingsId, bibid);
-			} else {
-				mfhdsAttachedToDifferentBibs.put(holdingsId, new ChangedBib(oldBibid, bibid));
-			}
-			
-		}
-		
-	}
-
-	private void processSolrItemData(String itemTable, String holdingsTable, String solrItems, int bibid) throws SQLException, ParseException {
-		String[] solrItemList = solrItems.split(",");
-		if ( ! pstmts.containsKey("item_update"))
-			pstmts.put("item_update", conn.prepareStatement(
-					"UPDATE "+itemTable+" SET solr_date = ? , found_in_solr = 1 "
-							+ "WHERE item_id = ? AND mfhd_id = ? "));
-		PreparedStatement pstmt = pstmts.get("item_update");
-		for (int i = 0; i < solrItemList.length; i++) {
-			itemCount++;
-			Timestamp modified = null;
-			String[] parts = solrItemList[i].split("\\|");
-			int itemId = Integer.valueOf(parts[0]);
-			int mfhdId = Integer.valueOf(parts[1]);
-			if (parts.length > 2)
-				modified = new Timestamp( dateFormat.parse(parts[2]).getTime() );
-			pstmt.setTimestamp(1, modified);
-			pstmt.setInt(2, itemId);
-			pstmt.setInt(3, mfhdId);
-			int rowCount = pstmt.executeUpdate();
-
-			// item is in Solr & Voyager
-			if (rowCount == 1) continue;
-
-			// If query didn't affect any rows, the item may be missing from Voyager, or
-			// it may have been reassigned to a different holdings. In the latter case, it's
-			// more important to identify the old bib than the old holdings.
-			int oldBibid = getBibForItem( itemTable, holdingsTable, itemId );
-
-			if (oldBibid == 0) {
-				itemsInIndexNotVoyager.put(itemId, bibid);
-			} else {
-				// The item is attached to a different mfhd, but both mfhds may be attached
-				// to the same bib. In that case, we record the same bib as old and new bib
-				// which has the desired affect of triggering the bib for update in the index.
-				// If the bibs differ, both should be queued for update.
-				itemsAttachedToDifferentMfhds.put(itemId, new ChangedBib(oldBibid, bibid));
-			}
-
-		}
-	}
-
-	private int getBibForItem( String itemTable, String mfhdTable, int itemId ) throws SQLException {
-		if ( ! pstmts.containsKey("item2mfhd"))
-			pstmts.put("item2mfhd", conn.prepareStatement(
-					"SELECT mfhd_id FROM "+itemTable+" WHERE item_id = ?"));
-		PreparedStatement pstmt = pstmts.get("item2mfhd");
-		pstmt.setInt(1, itemId);
-		ResultSet rs = pstmt.executeQuery();
-		int mfhdId = 0;
+		// deleted bibs
+		rs = stmt.executeQuery(
+				"select s.bib_id from "+bibTableSolr+" as s "
+				+ "left join "+bibTableVoy+" as v on s.bib_id = v.bib_id "
+				+ "where voyager_date is null");
+		while (rs.next()) bibsInIndexNotVoyager.add(rs.getInt(1));
+		rs.close();
+		// deleted mfhds
+		rs = stmt.executeQuery(
+				"select s.mfhd_id, s.bib_id from "+mfhdTableSolr+" as s "
+				+ "left join "+mfhdTableVoy+" as v on s.mfhd_id = v.mfhd_id "
+				+ "where voyager_date is null");
+		while (rs.next()) mfhdsInIndexNotVoyager.put(rs.getInt(1),rs.getInt(2));
+		rs.close();
+		// deleted items
+		rs = stmt.executeQuery(
+				"select s.item_id, s.mfhd_id from "+itemTableSolr+" as s "
+				+ "left join "+itemTableVoy+" as v on s.item_id = v.item_id "
+				+ "where voyager_date is null");
+		while (rs.next()) mfhdsInIndexNotVoyager.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+		rs.close();
+		// reassigned holdings
+		rs = stmt.executeQuery(
+				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
+				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
+				+"WHERE v.mfhd_id = s.mfhd_id "
+				+ " AND v.bib_id != s.bib_id");
 		while (rs.next())
-			mfhdId = rs.getInt(1);
+			mfhdsAttachedToDifferentBibs.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
 		rs.close();
-		return getBibForMfhd(mfhdTable,mfhdId);
+		// reassigned items
+		rs = stmt.executeQuery(
+				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
+				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
+				+"WHERE v.item_id = s.item_id "
+				+ " AND v.mfhd_id != s.mfhd_id");
+		while (rs.next())
+			mfhdsAttachedToDifferentBibs.put(rs.getInt(1),
+					new ChangedBib(getBibForMfhd(mfhdTableSolr,rs.getInt(3)),
+							getBibForMfhd(mfhdTableVoy,rs.getInt(2))));
+		rs.close();
 	}
 
 	private int getBibForMfhd( String mfhdTable, int mfhdId ) throws SQLException {
