@@ -30,23 +30,17 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * 
  */
 public class IndexRecordListComparison {
-    
-	public Set<Integer> bibsInIndexNotVoyager = new HashSet<Integer>();
-	public Set<Integer> bibsInVoyagerNotIndex = new HashSet<Integer>();
-	public Set<Integer> bibsNewerInVoyagerThanIndex = new HashSet<Integer>();
-	public Map<Integer,Integer> mfhdsInIndexNotVoyager = new HashMap<Integer,Integer>();
-	public Map<Integer,Integer> mfhdsInVoyagerNotIndex = new HashMap<Integer,Integer>();
-	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex = new HashMap<Integer,Integer>();
-	public Map<Integer,ChangedBib> mfhdsAttachedToDifferentBibs = new HashMap<Integer,ChangedBib>();
-	public Map<Integer,Integer> itemsInIndexNotVoyager = new HashMap<Integer,Integer>();
-	public Map<Integer,Integer> itemsInVoyagerNotIndex = new HashMap<Integer,Integer>();
-	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex = new HashMap<Integer,Integer>();
-	public Map<Integer,ChangedBib> itemsAttachedToDifferentMfhds = new HashMap<Integer,ChangedBib>();
-	public int bibCount = 0;
-	public int mfhdCount = 0;
-	public int itemCount = 0;
+
+	private static String bibTableVoy;
+	private static String mfhdTableVoy;
+	private static String itemTableVoy;
+	private static String bibTableSolr;
+	private static String mfhdTableSolr;
+	private static String itemTableSolr;
+
 
 	private Connection conn = null;
+	private Statement stmt = null;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
 
 	
@@ -56,114 +50,168 @@ public class IndexRecordListComparison {
 		l.add("solrUrl");
 		return l;
 	}
+	
+	public IndexRecordListComparison(SolrBuildConfig config) throws ClassNotFoundException, SQLException {
 
-	public void compare(SolrBuildConfig config) throws Exception {
-		
-	    String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-	    conn = config.getDatabaseConnection("Current");
 	    String solrUrl = config.getSolrUrl();
 	    String solrCore = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
-		
-		String bibTableVoy = "bib_"+today;
-		String mfhdTableVoy = "mfhd_"+today;
-		String itemTableVoy = "item_"+today;
-		String bibTableSolr = "bib_solr_"+solrCore;
-		String mfhdTableSolr = "mfhd_solr_"+solrCore;
-		String itemTableSolr = "item_solr_"+solrCore;
-		
-		// Review database tables for certain conditions
-		Statement stmt = conn.createStatement();
-		// updated bibs
+		String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+
+		bibTableVoy = "bib_"+today;
+		mfhdTableVoy = "mfhd_"+today;
+		itemTableVoy = "item_"+today;
+		bibTableSolr = "bib_solr_"+solrCore;
+		mfhdTableSolr = "mfhd_solr_"+solrCore;
+		itemTableSolr = "item_solr_"+solrCore;
+
+		conn = config.getDatabaseConnection("Current");
+		stmt = conn.createStatement();
+
+	}
+
+	public Map<Integer,ChangedBib> mfhdsAttachedToDifferentBibs() throws SQLException {
+		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
 		ResultSet rs = stmt.executeQuery(
-				"select v.bib_id from "+bibTableVoy+" as v, "+bibTableSolr+" as s "
-				+ "WHERE v.bib_id = s.bib_id "
-				+ "  AND voyager_date > date_add(solr_date,interval 15 second)");
-		while (rs.next()) bibsNewerInVoyagerThanIndex.add(rs.getInt(1));
-		rs.close();
-		// updated holdings
-		rs = stmt.executeQuery(
-				"SELECT v.mfhd_id, v.bib_id "
+				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
 				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
-				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
-				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
+				+ " AND v.bib_id != s.bib_id");
 		while (rs.next())
-			mfhdsNewerInVoyagerThanIndex.put(rs.getInt(1),rs.getInt(2));
+			m.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
 		rs.close();
-		// updated items
-		rs = stmt.executeQuery(
+		return m;
+	}
+	
+	public Map<Integer,ChangedBib> itemsAttachedToDifferentMfhds() throws SQLException {
+		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
+		ResultSet rs = stmt.executeQuery(
+				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
+				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
+				+"WHERE v.item_id = s.item_id "
+				+ " AND v.mfhd_id != s.mfhd_id");
+		while (rs.next())
+			m.put(rs.getInt(1),
+					new ChangedBib(getBibForMfhd(mfhdTableSolr,rs.getInt(3)),
+							getBibForMfhd(mfhdTableVoy,rs.getInt(2))));
+		rs.close();
+		return m;
+	}
+
+	
+	public Map<Integer,Integer> itemsInVoyagerNotIndex() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		// new items
+		ResultSet rs = stmt.executeQuery(
+				"select v.item_id, v.mfhd_id from "+itemTableVoy+" as v "
+				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
+				+ "where solr_date is null");
+		while (rs.next())
+			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+		rs.close();
+		return m;
+	}
+
+	
+	public Map<Integer,Integer> itemsInIndexNotVoyager() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		// deleted items
+		ResultSet rs = stmt.executeQuery(
+				"select s.item_id, s.mfhd_id from "+itemTableSolr+" as s "
+				+ "left join "+itemTableVoy+" as v on s.item_id = v.item_id "
+				+ "where voyager_date is null");
+		while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+		rs.close();
+		return m;
+	}
+	
+	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
 				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
 				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
 		while (rs.next())
-			itemsNewerInVoyagerThanIndex.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
-		// new bibs
-		rs = stmt.executeQuery(
-				"select v.bib_id from "+bibTableVoy+" as v "
-				+ "left join "+bibTableSolr+" as s on s.bib_id = v.bib_id "
-				+ "where solr_date is null");
-		while (rs.next()) bibsInVoyagerNotIndex.add(rs.getInt(1));
-		rs.close();
-		// new holdings
-		rs = stmt.executeQuery(
+		return m;
+	}
+
+	
+	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id from "+mfhdTableVoy+" as v "
 				+ "left join "+mfhdTableSolr+" as s on s.mfhd_id = v.mfhd_id "
 				+ "where solr_date is null");
 		while (rs.next())
-			mfhdsInVoyagerNotIndex.put(rs.getInt(1),rs.getInt(2));
+			m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
-		// new items
-		rs = stmt.executeQuery(
-				"select v.item_id, v.mfhd_id from "+itemTableVoy+" as v "
-				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
-				+ "where solr_date is null");
-		while (rs.next())
-			itemsInVoyagerNotIndex.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
-		rs.close();
-		// deleted bibs
-		rs = stmt.executeQuery(
-				"select s.bib_id from "+bibTableSolr+" as s "
-				+ "left join "+bibTableVoy+" as v on s.bib_id = v.bib_id "
-				+ "where voyager_date is null");
-		while (rs.next()) bibsInIndexNotVoyager.add(rs.getInt(1));
-		rs.close();
+		return m;
+	}
+	
+	public Map<Integer,Integer> mfhdsInIndexNotVoyager() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// deleted mfhds
-		rs = stmt.executeQuery(
+		ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id from "+mfhdTableSolr+" as s "
 				+ "left join "+mfhdTableVoy+" as v on s.mfhd_id = v.mfhd_id "
 				+ "where voyager_date is null");
-		while (rs.next()) mfhdsInIndexNotVoyager.put(rs.getInt(1),rs.getInt(2));
+		while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
-		// deleted items
-		rs = stmt.executeQuery(
-				"select s.item_id, s.mfhd_id from "+itemTableSolr+" as s "
-				+ "left join "+itemTableVoy+" as v on s.item_id = v.item_id "
-				+ "where voyager_date is null");
-		while (rs.next()) mfhdsInIndexNotVoyager.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
-		rs.close();
-		// reassigned holdings
-		rs = stmt.executeQuery(
-				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
+		return m;
+	}
+	
+	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex() throws SQLException {
+		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		// updated holdings
+		ResultSet rs = stmt.executeQuery(
+				"SELECT v.mfhd_id, v.bib_id "
 				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
-				+ " AND v.bib_id != s.bib_id");
+				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
+				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
 		while (rs.next())
-			mfhdsAttachedToDifferentBibs.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
+			m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
-		// reassigned items
-		rs = stmt.executeQuery(
-				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
-				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
-				+"WHERE v.item_id = s.item_id "
-				+ " AND v.mfhd_id != s.mfhd_id");
-		while (rs.next())
-			mfhdsAttachedToDifferentBibs.put(rs.getInt(1),
-					new ChangedBib(getBibForMfhd(mfhdTableSolr,rs.getInt(3)),
-							getBibForMfhd(mfhdTableVoy,rs.getInt(2))));
+		return m;
+	}
+	
+	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
+		Set<Integer> l = new HashSet<Integer>();
+		ResultSet rs = stmt.executeQuery(
+				"select v.bib_id from "+bibTableVoy+" as v "
+				+ "left join "+bibTableSolr+" as s on s.bib_id = v.bib_id "
+				+ "where solr_date is null");
+		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
+		return l;
+	}
+	
+	public Set<Integer> bibsInIndexNotVoyager() throws SQLException {
+		
+		Set<Integer> l = new HashSet<Integer>();
+		ResultSet rs = stmt.executeQuery(
+				"select s.bib_id from "+bibTableSolr+" as s "
+				+ "left join "+bibTableVoy+" as v on s.bib_id = v.bib_id "
+				+ "where voyager_date is null");
+		while (rs.next()) l.add(rs.getInt(1));
+		rs.close();
+		return l;
+	}
+
+	public Set<Integer> bibsNewerInVoyagerThanIndex() throws SQLException {
+		Set<Integer> l = new HashSet<Integer>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(
+				"select v.bib_id from "+bibTableVoy+" as v, "+bibTableSolr+" as s "
+				+ "WHERE v.bib_id = s.bib_id "
+				+ "  AND voyager_date > date_add(solr_date,interval 15 second)");
+		while (rs.next()) l.add(rs.getInt(1));
+		rs.close();
+		stmt.close();
+		return l;
 	}
 
 	private int getBibForMfhd( String mfhdTable, int mfhdId ) throws SQLException {
@@ -177,6 +225,7 @@ public class IndexRecordListComparison {
 		while (rs.next())
 			bibid = rs.getInt(1);
 		rs.close();
+		pstmt = null;
 		return bibid;
 	}
 

@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
+import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -41,6 +43,8 @@ public class IdentifyChangedRecords {
 	
 	DavService davService;
 	SolrBuildConfig config;
+	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
 
 	public static void main(String[] args)  {
 		
@@ -59,69 +63,78 @@ public class IdentifyChangedRecords {
 	    this.config = config;
 		System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 
-		IndexRecordListComparison c = new IndexRecordListComparison();
-		c.compare(config);
+		IndexRecordListComparison c = new IndexRecordListComparison(config);
 
-/*		Integer[] bibsToDelete = c.bibsInIndexNotVoyager.toArray(new Integer[ c.bibsInIndexNotVoyager.size() ]);
-		Iterator<Integer> bibsToUpdate = c.mfhdsInIndexNotVoyager.values().iterator();
-		Integer[] bibsToAdd = c.bibsInVoyagerNotIndex.toArray(new Integer[ c.bibsInVoyagerNotIndex.size() ]);
-*/
-		
-		System.out.println("Total  Bibs in Solr: "+c.bibCount);
-		System.out.println("Total Mfhds in Solr: "+c.mfhdCount);
-		System.out.println("Total Items in Solr: "+c.itemCount);
-		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex;
+		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
-		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager;
+		produceAddFile( bibsToAdd );
+		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager();
 		System.out.println("Bibs To Delete from Solr: "+bibsToDelete.size());
+		produceDeleteFile( bibsToDelete );
+
+		System.out.println("Bibs To Update:");
+
+		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
+		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
+
+		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
+		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.itemsNewerInVoyagerThanIndex();
+		System.out.println("\titemsNewerInVoyagerThanIndex: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.mfhdsInIndexNotVoyager();
+		System.out.println("\tmfhdsInIndexNotVoyager: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.mfhdsInVoyagerNotIndex();
+		System.out.println("\tmfhdsInVoyagerNotIndex: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.itemsInIndexNotVoyager();
+		System.out.println("\titemsInIndexNotVoyager: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.itemsInVoyagerNotIndex();
+		System.out.println("\titemsInVoyagerNotIndex: "+tempMap.size());
+		bibsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
 		
-		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex;
-		bibsToUpdate.addAll(c.mfhdsNewerInVoyagerThanIndex.values());
-		bibsToUpdate.addAll(c.mfhdsInIndexNotVoyager.values());
-		bibsToUpdate.addAll(c.mfhdsInVoyagerNotIndex.values());
-		for ( IndexRecordListComparison.ChangedBib cb : c.mfhdsAttachedToDifferentBibs.values()) {
+		Map<Integer,ChangedBib> tempCBMap = c.mfhdsAttachedToDifferentBibs();
+		System.out.println("\tmfhdsAttachedToDifferentBibs: "+tempCBMap.size());
+		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
 			bibsToUpdate.add(cb.original);
 			bibsToUpdate.add(cb.changed);
 		}
-		bibsToUpdate.addAll(c.itemsNewerInVoyagerThanIndex.values());
-		bibsToUpdate.addAll(c.itemsInIndexNotVoyager.values());
-		bibsToUpdate.addAll(c.itemsInVoyagerNotIndex.values());
-		for ( IndexRecordListComparison.ChangedBib cb : c.itemsAttachedToDifferentMfhds.values()) {
+		tempCBMap.clear();
+
+		tempCBMap = c.itemsAttachedToDifferentMfhds();
+		System.out.println("\titemsAttachedToDifferentMfhds: "+tempCBMap.size());
+		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
 			bibsToUpdate.add(cb.original);
 			bibsToUpdate.add(cb.changed);
 		}
-		
-		
+		tempCBMap.clear();
+
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
-		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());
-		
-		System.out.println(String.format("\n%10d bibs updated.",c.bibsNewerInVoyagerThanIndex.size()));
-		System.out.println(String.format("%10d holdings updated.",c.mfhdsNewerInVoyagerThanIndex.size()));
-		System.out.println(String.format("%10d items updated.",c.itemsNewerInVoyagerThanIndex.size()));
-		System.out.println(String.format("%10d mfhds added.",c.mfhdsInVoyagerNotIndex.size()));
-		System.out.println(String.format("%10d items added.",c.itemsInVoyagerNotIndex.size()));
-		System.out.println(String.format("%10d mfhds dropped.",c.mfhdsInIndexNotVoyager.size()));
-		System.out.println(String.format("%10d items dropped.",c.itemsInIndexNotVoyager.size()));
-		System.out.println(String.format("%10d mfhds reassigned.",c.mfhdsAttachedToDifferentBibs.size()));
-		System.out.println(String.format("%10d mfhds reassigned.",c.itemsAttachedToDifferentMfhds.size()));
-		
+		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
 
 		c = null; // to allow GC
 	
-		produceReportFiles(bibsToDelete, bibsToUpdate, bibsToAdd); 
+		produceUpdateFile(bibsToUpdate); 
  	}
 
 	
+	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
 
-    /**
-	 *  Based on the IndexRecordListComparison, BIB records to be updated and deleted written 
-	 *  to a files on the WEBDAV server.
-	 */
-	private void produceReportFiles( Set<Integer> bibsToDelete,Set<Integer> bibsToUpdate, Set<Integer> bibsToAdd) throws Exception {
-
-		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		
 		// Write a file of BIBIDs that are in the Solr index but not voyager
 		if ( bibsToDelete != null && bibsToDelete.size() > 0) {
 			Integer[] arr = bibsToDelete.toArray(new Integer[ bibsToDelete.size() ]);
@@ -143,6 +156,10 @@ public class IdentifyChangedRecords {
 				throw new Exception("Could not save report of deletes to '" + deleteReportFile + "'" , e);
 			}		
 		}
+		
+	}
+	
+	private void produceAddFile(Set<Integer> bibsToAdd) throws Exception {
 
 		// Write a file of BIBIDs that are in Voyager but not in the Solr index
 		if ( bibsToAdd != null && bibsToAdd.size() > 0) {
@@ -165,8 +182,11 @@ public class IdentifyChangedRecords {
 				throw new Exception("Could not save report of adds to '" + addReportFile + "'" , e);
 			}
 		}
-		
-		// CurrentIndexMfhdList should now only contain mfhds to be deleted.
+
+	}
+
+	private void produceUpdateFile( Set<Integer> bibsToUpdate) throws Exception {
+
 		if (bibsToUpdate != null && bibsToUpdate.size() > 0){			
 			
 			Integer[] arr = bibsToUpdate.toArray(new Integer[ bibsToUpdate.size() ]);
@@ -189,8 +209,6 @@ public class IdentifyChangedRecords {
 			            + "BIB IDs that need update to file '" + fileName + "'",e);   
 			}
 		}
-
-		
 	}
 	
 }
