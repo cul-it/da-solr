@@ -51,8 +51,6 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("create table "+bibTable+"( "
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
-	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0, "
 	    		+ "key (bib_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+bibTable+" disable keys");
@@ -92,8 +90,6 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
-	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0, "
 	    		+ "key (mfhd_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+mfhdTable+" disable keys");
@@ -135,8 +131,6 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "item_id int(10) unsigned not null, "
 	    		+ "voyager_date timestamp null, "
-	    		+ "solr_date timestamp null, "
-	    		+ "found_in_solr int(1) default 0, "
 	    		+ "key (item_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+itemTable+" disable keys");
