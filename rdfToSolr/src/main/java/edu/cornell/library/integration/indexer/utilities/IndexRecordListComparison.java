@@ -104,7 +104,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select v.item_id, v.mfhd_id from "+itemTableVoy+" as v "
 				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
-				+ "where solr_date is null");
+				+ "where s.mfhd_id is null");
 		while (rs.next())
 			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
@@ -118,7 +118,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select s.item_id, s.mfhd_id from "+itemTableSolr+" as s "
 				+ "left join "+itemTableVoy+" as v on s.item_id = v.item_id "
-				+ "where voyager_date is null");
+				+ "where v.mfhd_id is null");
 		while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
 		return m;
@@ -144,7 +144,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id from "+mfhdTableVoy+" as v "
 				+ "left join "+mfhdTableSolr+" as s on s.mfhd_id = v.mfhd_id "
-				+ "where solr_date is null");
+				+ "where s.bib_id is null");
 		while (rs.next())
 			m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
@@ -157,7 +157,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id from "+mfhdTableSolr+" as s "
 				+ "left join "+mfhdTableVoy+" as v on s.mfhd_id = v.mfhd_id "
-				+ "where voyager_date is null");
+				+ "where v.bib_id is null");
 		while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
 		return m;
