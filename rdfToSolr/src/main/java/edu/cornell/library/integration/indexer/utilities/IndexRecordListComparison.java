@@ -117,7 +117,7 @@ public class IndexRecordListComparison {
 		rs.close();
 		// new items
 		rs = stmt.executeQuery(
-				"select v.item_id from "+itemTableVoy+" as v "
+				"select v.item_id, v.mfhd_id from "+itemTableVoy+" as v "
 				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
 				+ "where solr_date is null");
 		while (rs.next())
