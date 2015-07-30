@@ -356,8 +356,10 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(config,Integer.valueOf(value));
-	       					record.put(colname, l);
-	       					if (colname.equals("perm_location")) loc = l.code;
+	       					if (l != null) {
+		       					if (colname.equals("perm_location")) loc = l.code;
+	       						record.put(colname, l);
+	       					} else record.put(colname, value);
 	       				} else {
 	       					record.put(colname, value);
 	       					if (debug)
@@ -571,6 +573,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			System.out.println(tempfields.toString());
 			System.out.println(tempfields.get("name").getValue());
 		}
+		if (! tempfields.containsKey("code"))
+			return null;
 		l = new Location();
 		l.code = tempfields.get("code").getValue().toString();
 		l.name = tempfields.get("name").getValue().toString();
