@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer.updates;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -103,8 +104,13 @@ public class IdentifyCurrentVoyagerRecords {
 	    pstmt = current.prepareStatement
 	    		("insert into "+mfhdTable+" (bib_id, mfhd_id, voyager_date) "
 	    				+ "values (?, ?, ?)");
+	    PreparedStatement bibConfirm = current.prepareStatement(
+	    		"select bib_id from "+bibTable+" where bib_id = ?");
 	    i = 0;
 	    while (rs.next()) {
+	    	int bib_id = rs.getInt(1);
+	    	if ( ! isBibUnsuppressed(bibConfirm, bib_id) )
+	    		continue;
 	    	pstmt.setInt(1, rs.getInt(1));
 	    	pstmt.setInt(2, rs.getInt(2));
 	    	pstmt.setTimestamp(3, rs.getTimestamp(3));
@@ -169,6 +175,15 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.close();
 	    current.close();
 	    voyager.close();
+	}
+	private boolean isBibUnsuppressed(PreparedStatement pstmt, int bib_id) throws SQLException {
+		boolean bibInTable = false;
+		pstmt.setInt(1, bib_id);
+		ResultSet rs = pstmt.executeQuery();
+		while (rs.next())
+			bibInTable = true;
+		rs.close();
+		return bibInTable;
 	}
 	
 }
