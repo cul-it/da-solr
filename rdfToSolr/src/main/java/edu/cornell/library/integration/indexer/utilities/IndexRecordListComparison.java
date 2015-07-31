@@ -183,7 +183,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select v.bib_id from "+bibTableVoy+" as v "
 				+ "left join "+bibTableSolr+" as s on s.bib_id = v.bib_id "
-				+ "where solr_date is null");
+				+ "where s.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
@@ -195,7 +195,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select s.bib_id from "+bibTableSolr+" as s "
 				+ "left join "+bibTableVoy+" as v on s.bib_id = v.bib_id "
-				+ "where voyager_date is null");
+				+ "where v.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
