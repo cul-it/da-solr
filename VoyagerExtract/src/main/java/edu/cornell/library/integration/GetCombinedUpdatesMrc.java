@@ -71,6 +71,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		setDavService(DavServiceFactory.getDavService( config ));
 
         Set<String> updatedBibIds = new HashSet<String>();
+        String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+    	String bibTable = "bib_"+today;
+    	String mfhdTable = "mfhd_"+today;
+
 
 		String date =  getDateString(Calendar.getInstance());
 		Set<String> bibListForUpdate = getUpdatedBibs( config, date );
@@ -80,7 +84,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    System.out.println("bibListForAdd: " + bibListForAdd.size() );
 	    updatedBibIds.addAll( bibListForAdd );
 	    current = config.getDatabaseConnection("Current");
-	    Set<String> suppressedBibs = checkForSuppressedBibs(updatedBibIds);
+    	PreparedStatement pstmt = current.prepareStatement(
+    			"SELECT * FROM "+bibTable+" WHERE mfhd_id = ?");
+	    Set<String> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
+	    pstmt.close();
 	    if ( ! suppressedBibs.isEmpty()) {
 	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
 	    	updatedBibIds.removeAll(suppressedBibs);
@@ -89,7 +96,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<String> updatedMfhdIds =  getHoldingsForBibs( updatedBibIds );
-	    Set<String> suppressedMfhds = checkForSuppressedMfhds(updatedMfhdIds);
+    	pstmt = current.prepareStatement(
+    			"SELECT * FROM "+mfhdTable+" WHERE mfhd_id = ?");
+	    Set<String> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
+	    pstmt.close();
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
 	    }
@@ -102,40 +112,17 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	}
 
 
-    private Set<String> checkForSuppressedMfhds(Set<String> updatedMfhdIds) throws SQLException {
+    private Set<String> checkForSuppressedRecords(PreparedStatement pstmt, Set<String> updatedIds) throws SQLException {
     	Set<String> suppressed = new HashSet<String>();
-    	String mfhdTable = "mfhd_"+new SimpleDateFormat("yyyyMMdd").
-    			format(Calendar.getInstance().getTime());
-    	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+mfhdTable+" WHERE mfhd_id = ?");
-    	for (String mfhd_id : updatedMfhdIds) {
-    		pstmt.setInt(1, Integer.valueOf(mfhd_id));
+    	for (String id : updatedIds) {
+    		pstmt.setInt(1, Integer.valueOf(id));
     		ResultSet rs = pstmt.executeQuery();
-    		boolean mfhdSuppressed = true;
+    		boolean isSuppressed = true;
     		while (rs.next())
-    			mfhdSuppressed = false;
+    			isSuppressed = false;
     		rs.close();
-    		if (mfhdSuppressed)
-    			suppressed.add(mfhd_id);
-    	}
-    	return suppressed;
-	}
-
-	private Set<String> checkForSuppressedBibs(Set<String> updatedBibIds) throws SQLException {
-    	Set<String> suppressed = new HashSet<String>();
-    	String bibTable = "bib_"+new SimpleDateFormat("yyyyMMdd").
-    			format(Calendar.getInstance().getTime());
-    	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+bibTable+" WHERE bib_id = ?");
-    	for (String bib_id : updatedBibIds) {
-    		pstmt.setInt(1, Integer.valueOf(bib_id));
-    		ResultSet rs = pstmt.executeQuery();
-    		boolean bibSuppressed = true;
-    		while (rs.next())
-    			bibSuppressed = false;
-    		rs.close();
-    		if (bibSuppressed)
-    			suppressed.add(bib_id);
+    		if (isSuppressed)
+    			suppressed.add(id);
     	}
     	return suppressed;
 	}
