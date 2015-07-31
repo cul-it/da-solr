@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,7 +50,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     */
    public static void main(String[] args) throws Exception {                
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
-     List<String> requiredArgs = new ArrayList<String>();
+     List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
      requiredArgs.addAll(getRequiredArgsForWebdav());
      requiredArgs.add("dailyMrcDir");
      requiredArgs.add("dailyMfhdDir");
@@ -57,6 +60,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args, requiredArgs) );     
    }
    
+   private Connection current;
    
 	private void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config) 
 	        throws Exception{
@@ -67,7 +71,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		setDavService(DavServiceFactory.getDavService( config ));
 
         Set<String> updatedBibIds = new HashSet<String>();
-        Set<String> updatedMfhdIds = new HashSet<String>();
 
 		String date =  getDateString(Calendar.getInstance());
 		Set<String> bibListForUpdate = getUpdatedBibs( config, date );
@@ -76,10 +79,20 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		Set<String> bibListForAdd = getBibIdsToAdd( config, date );
 	    System.out.println("bibListForAdd: " + bibListForAdd.size() );
 	    updatedBibIds.addAll( bibListForAdd );
+	    current = config.getDatabaseConnection("Current");
+	    Set<String> suppressedBibs = checkForSuppressedBibs(updatedBibIds);
+	    if ( ! suppressedBibs.isEmpty()) {
+	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
+	    	updatedBibIds.removeAll(suppressedBibs);
+	    }
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
-		System.out.println("Adding extra holdings ids");		
-		updatedMfhdIds.addAll( getHoldingsForBibs( updatedBibIds ) );
+		System.out.println("Identifying holdings ids");
+		Set<String> updatedMfhdIds =  getHoldingsForBibs( updatedBibIds );
+	    Set<String> suppressedMfhds = checkForSuppressedMfhds(updatedMfhdIds);
+	    if ( ! suppressedMfhds.isEmpty()) {
+	    	updatedMfhdIds.removeAll(suppressedMfhds);
+	    }
 		
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
@@ -89,7 +102,45 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	}
 
 
-    /**
+    private Set<String> checkForSuppressedMfhds(Set<String> updatedMfhdIds) throws SQLException {
+    	Set<String> suppressed = new HashSet<String>();
+    	String mfhdTable = "mfhd_"+new SimpleDateFormat("yyyyMMdd").
+    			format(Calendar.getInstance().getTime());
+    	PreparedStatement pstmt = current.prepareStatement(
+    			"SELECT * FROM "+mfhdTable+" WHERE mfhd_id = ?");
+    	for (String mfhd_id : updatedMfhdIds) {
+    		pstmt.setInt(1, Integer.valueOf(mfhd_id));
+    		ResultSet rs = pstmt.executeQuery();
+    		boolean mfhdSuppressed = true;
+    		while (rs.next())
+    			mfhdSuppressed = false;
+    		rs.close();
+    		if (mfhdSuppressed)
+    			suppressed.add(mfhd_id);
+    	}
+    	return suppressed;
+	}
+
+	private Set<String> checkForSuppressedBibs(Set<String> updatedBibIds) throws SQLException {
+    	Set<String> suppressed = new HashSet<String>();
+    	String bibTable = "bib_"+new SimpleDateFormat("yyyyMMdd").
+    			format(Calendar.getInstance().getTime());
+    	PreparedStatement pstmt = current.prepareStatement(
+    			"SELECT * FROM "+bibTable+" WHERE bib_id = ?");
+    	for (String bib_id : updatedBibIds) {
+    		pstmt.setInt(1, Integer.valueOf(bib_id));
+    		ResultSet rs = pstmt.executeQuery();
+    		boolean bibSuppressed = true;
+    		while (rs.next())
+    			bibSuppressed = false;
+    		rs.close();
+    		if (bibSuppressed)
+    			suppressed.add(bib_id);
+    	}
+    	return suppressed;
+	}
+
+	/**
      * Get the MARC for each MFHD ID and concatenate data to create MARC files. 
      * Only put 10000 MARC records in a file.
      */
