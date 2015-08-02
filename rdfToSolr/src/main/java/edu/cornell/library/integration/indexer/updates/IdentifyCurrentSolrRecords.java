@@ -82,6 +82,10 @@ public class IdentifyCurrentSolrRecords {
 			if (line.startsWith("bibid_display")) continue;
 			
 			int holdings_index = line.indexOf(',');
+			if (holdings_index == -1) {
+				processSolrBibData(line.substring(0, holdings_index));
+				continue;
+			}
 			int bibid = processSolrBibData(line.substring(0, holdings_index));
 			if (holdings_index + 1 == line.length()) continue;
 			
