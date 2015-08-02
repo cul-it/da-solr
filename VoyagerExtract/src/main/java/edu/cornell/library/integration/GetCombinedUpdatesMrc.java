@@ -85,7 +85,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    updatedBibIds.addAll( bibListForAdd );
 	    current = config.getDatabaseConnection("Current");
     	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+bibTable+" WHERE mfhd_id = ?");
+    			"SELECT * FROM "+bibTable+" WHERE bib_id = ?");
 	    Set<String> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
 	    pstmt.close();
 	    if ( ! suppressedBibs.isEmpty()) {
