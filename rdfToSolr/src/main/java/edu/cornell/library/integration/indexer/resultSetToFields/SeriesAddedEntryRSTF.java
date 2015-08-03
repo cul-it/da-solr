@@ -35,14 +35,14 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 			if (f.mainTag.equals("800")) {
 				workFacet.add(f.concatenateSpecificSubfields("abcdq"));
 			} else {
-				workFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+				workFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuwxyz"));
 			}
 		}
 		
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		for (String s : workFacet) {
 			addField(fields,"authortitle_filing",getSortHeading(s));
-			addField(fields,"authortitle_facet",removeTrailingPunctuation(s,",. "));
+			addField(fields,"authortitle_facet",removeTrailingPunctuation(s,";,. "));
 		}
 		
 		return fields;
