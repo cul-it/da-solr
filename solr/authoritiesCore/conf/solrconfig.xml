@@ -429,7 +429,7 @@
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
-
+<!--
   <requestHandler name="/dataimport"
     class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
@@ -437,7 +437,7 @@
       <str name="update.chain">skip-empty</str>
     </lst>
   </requestHandler>
-  
+  -->
   <requestHandler name="/update" class="solr.UpdateRequestHandler" />
   <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 
