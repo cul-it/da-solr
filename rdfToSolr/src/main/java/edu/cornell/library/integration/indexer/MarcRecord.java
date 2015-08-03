@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.PDF_closeRTL;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.RLE_openRTL;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.PDF_closeRTL;
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +30,7 @@ public class MarcRecord {
 
 		
 		public String leader = " ";
+		public String modified_date = null;
 		public Map<Integer,ControlField> control_fields 
 									= new HashMap<Integer,ControlField>();
 		public Map<Integer,DataField> data_fields
@@ -76,7 +77,10 @@ public class MarcRecord {
 			f.value = nodeToString(sol.get("value"));
 			f.id = field_no;
 			this.control_fields.put(field_no, f);
-			
+			if (f.tag.equals("001"))
+				this.id = f.value;
+			else if (f.tag.equals("005"))
+				this.modified_date = f.value;
 		}
 		
 		public void addDataFieldResultSet( ResultSet rs ) {

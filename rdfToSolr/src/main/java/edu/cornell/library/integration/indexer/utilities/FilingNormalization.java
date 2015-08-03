@@ -38,7 +38,9 @@ public class FilingNormalization {
 			// except in the case of consecutive hyphens, which are treated as subject heading subdivision
 			// dividers (a la " > ").
 			case '-':
-				if (lastHyphenPosition + 1 == i) {
+				if ((lastHyphenPosition + 1 == i) && sb.length() > 0) {
+					if (sb.charAt(sb.length()-1) != ' ')
+						sb.append(' ');
 					sb.append("0000 ");
 					lastHyphenPosition = -2;
 					break;
@@ -60,8 +62,12 @@ public class FilingNormalization {
 
 			// additional punctuation we'd like to treat differently
 			case '>': 
-				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' ');
-				sb.append("0000 "); break; // control sorting and filing of hierarchical subject terms. 
+				if (sb.length() > 0) {
+					if (sb.charAt(sb.length()-1) != ' ')
+						sb.append(' ');
+					sb.append("0000 ");
+				}
+				break; // control sorting and filing of hierarchical subject terms. 
 			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
 			case '©': sb.append('c');   break; // examples I found were "©opyright"
 			
@@ -71,7 +77,7 @@ public class FilingNormalization {
 
 			// Java \p{Punct} =>   !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 			// case '-': case '>': (see above for special treatment of hyphen and greater-than)
-			//  case '&': (see above for non-sorting significant characters)
+			// case '&': (see above for non-sorting significant characters)
 			case '!': case '"': case '#': case '$': case '%':
 			case '\'':case '(': case ')': case '*': case '+': case ',':
 			case '.': case '/': case ':': case ';': case '<': case '=':
@@ -84,6 +90,11 @@ public class FilingNormalization {
 			case '’': case '−': case '°': case '£': case '€':
 			case '†': case 'ʻ': case 'ʹ': case 'ʾ': case '،':
 			case '\u200B': case '\uFEFF': //zero-width spaces
+				break;
+
+			// unicode control characters used for display control of
+			// embedded right-to-left language data.
+			case '\u200E': case '\u200F': case '\u202C': case '\u202B':
 				break;
 
 			// As the goal is to sort Roman alphabet text, not Greek, the Greek letters that appear

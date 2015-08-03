@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.service;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,19 @@ public class CatalogServiceImpl implements CatalogService {
       return locationList;
 
    }
+   
+	public int saveAllUnSuppressedBibsWithDates(Path outputFile) throws Exception {
+		return catalogDao.saveAllUnSuppressedBibsWithDates(outputFile);
+	}
+
+	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception {
+		return catalogDao.saveAllUnSuppressedMfhdsWithDates(outputFile);
+	}
+
+	public int saveAllItemMaps(Path outputFile) throws Exception {
+		return catalogDao.saveAllItemMaps(outputFile);
+	}
+
 
    /* (non-Javadoc)
     * @see edu.cornell.library.integration.service.CatalogService#getRecentBibIds()

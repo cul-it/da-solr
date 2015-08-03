@@ -146,4 +146,25 @@ public class FileNameUtils {
                     + " in WEBDAV directory " + dirToLookIn , e);
         }
     }
+
+    /**
+     * Find the most recent item list file.
+     */
+    public static String findMostRecentItemListFile(
+            SolrBuildConfig config, 
+            DavService davService) throws Exception {
+        
+        String dirToLookIn = 
+                config.getWebdavBaseUrl() + "/" + config.getDailyItemDir();
+        
+        try {
+            return FileNameUtils.findMostRecentFile(davService, 
+                    dirToLookIn,
+                    config.getDailyItemFilenamePrefix());
+        } catch (Exception e) {
+            throw new Exception("Could not get most recent item list file." 
+                    + " with prefix " + config.getDailyItemFilenamePrefix() 
+                    + " in WEBDAV directory " + dirToLookIn , e);
+        }
+    }
 }

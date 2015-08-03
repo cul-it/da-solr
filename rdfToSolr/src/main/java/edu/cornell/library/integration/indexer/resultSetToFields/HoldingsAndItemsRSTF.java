@@ -32,7 +32,6 @@ import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
@@ -53,6 +52,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	Collection<String> descriptions = new HashSet<String>();
 	boolean description_with_e = false;
 	String rectypebiblvl = null;
+	Collection<Map<String,Object>> boundWiths = new ArrayList<Map<String,Object>>();
+	Connection conn = null;
+	ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public Map<? extends String, ? extends SolrInputField> toFields(
@@ -117,12 +119,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Boolean callNumSortSupplied = false;
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
-						
-			for (ControlField f: rec.control_fields.values()) {
-				if (f.tag.equals("001")) {
-					rec.id = f.value;
-				}
-			}
 
 			Collection<String> loccodes = new HashSet<String>();
 			Collection<String> callnos = new HashSet<String>();
@@ -194,6 +190,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 					case "868":
 						indexHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						break;
+					case "876":
+						registerBoundWith(config, rec.id, f);
 					}
 					if (callno != null)
 						callnos.add(callno);
@@ -216,6 +214,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
 			holding.locations = new Location[loccodes.size()];
+			if (rec.modified_date != null) {
+				if (rec.modified_date.length() >= 14)
+					holding.modified_date = rec.modified_date.substring(0, 14);
+				else
+					holding.modified_date = rec.modified_date;
+			}
 			Iterator<String> iter = loccodes.iterator();
 			int i = 0;
 			while (iter.hasNext()) {
@@ -223,22 +227,31 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				holding.locations[i] = locations.getByCode(loccode);
 				i++;
 			}
-			ObjectMapper mapper = new ObjectMapper();
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-			mapper.writeValue(jsonstream, holding);
 			String json = jsonstream.toString("UTF-8");
+			if (holding.modified_date != null)
+				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
+			else
+				addField(fields,"holdings_display",holding.id);
 			addField(fields,"holdings_record_display",json);
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
-			
 
 		}
 		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
-		
+
+		for (Map<String,Object> boundWith : boundWiths) {
+			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+			mapper.writeValue(jsonstream, boundWith);
+			String json = jsonstream.toString("UTF-8");
+			addField(fields,"bound_with_json",json);
+			addField(fields,"barcode_addl_t",boundWith.get("barcode").toString());
+		}
+
 		// ITEM DATA STARTS HERE
-		Connection conn = null;
 		try {
-			conn = config.getDatabaseConnection("Voy");
+			if (conn == null)
+				conn = config.getDatabaseConnection("Voy");
 			loadItemData(conn,config);
 		} finally {
 			if (conn != null) conn.close();
@@ -247,12 +260,44 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		return fields;
 	}
 	
+	private void registerBoundWith(SolrBuildConfig config, String mfhd_id, DataField f) throws Exception {
+		String item_enum = "";
+		String barcode = null;
+		for (Subfield sf : f.subfields.values()) {
+			switch (sf.code) {
+			case 'p': barcode = sf.value; break;
+			case '3': item_enum = sf.value; break;
+			}
+		}
+		if (barcode == null) return;
+		if (conn == null)
+			conn = config.getDatabaseConnection("Voy");
+		// lookup item id here!!!
+		Statement stmt = conn.createStatement();
+		String query =
+				"SELECT CORNELLDB.ITEM_BARCODE.ITEM_ID "
+				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = '"+barcode+"'";
+		java.sql.ResultSet rs = stmt.executeQuery(query);
+		int item_id = 0;
+		while (rs.next()) {
+			item_id = rs.getInt(1);
+		}
+		if (item_id == 0) return;
+		stmt.close();
+		Map<String,Object> boundWith = new HashMap<String,Object>();
+		boundWith.put("item_id", item_id);
+		boundWith.put("mfhd_id", mfhd_id);
+		boundWith.put("item_enum", item_enum);
+		boundWith.put("barcode", barcode);
+		boundWiths.add(boundWith);
+	}
+
 	private void loadItemData(Connection conn, SolrBuildConfig config) throws Exception {
 		
 		Boolean multivol = false;
 		SolrInputField multivolField = new SolrInputField("multivol_b");
 
-		if (holding_ids.isEmpty()) {
+		if (holdings.isEmpty()) {
 			multivolField.setValue(multivol, 1.0f);
 			fields.put("multivol_b", multivolField);
 			return;
@@ -262,17 +307,16 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Collection<Map<String,Object>> items = new HashSet<Map<String,Object>>();
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
-			
 			if (debug)
 				System.out.println(h.id);
 			String query = 
 					"SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
-					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID " +
-					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + h.id + "\'" +
+					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID "+
+					                                            " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'" +
+					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
-					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" +
-					   " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'";
+					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
 			if (debug)
 				System.out.println(query);
 
@@ -312,8 +356,10 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
 	       					Location l = getLocation(config,Integer.valueOf(value));
-	       					record.put(colname, l);
-	       					if (colname.equals("perm_location")) loc = l.code;
+	       					if (l != null) {
+		       					if (colname.equals("perm_location")) loc = l.code;
+	       						record.put(colname, l);
+	       					} else record.put(colname, value);
 	       				} else {
 	       					record.put(colname, value);
 	       					if (debug)
@@ -467,9 +513,11 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));
 			String moddate = record.get("modify_date").toString();
+			item.append('|');
+			item.append(record.get("mfhd_id"));
 			if ( ! moddate.isEmpty()) {
 	    		item.append('|');
-				item.append(moddate.substring(0, 10));
+				item.append(moddate.replaceAll("[^0-9]", "").substring(0, 14));
 			}
 			itemlist.addValue(item.toString(),1);
 		}
@@ -525,6 +573,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			System.out.println(tempfields.toString());
 			System.out.println(tempfields.get("name").getValue());
 		}
+		if (! tempfields.containsKey("code"))
+			return null;
 		l = new Location();
 		l.code = tempfields.get("code").getValue().toString();
 		l.name = tempfields.get("name").getValue().toString();
@@ -591,6 +641,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	
 	public static class Holdings {
 		public String id;
+		public String modified_date = null;
 		public String copy_number = null;
 		public String[] callnos;
 		public String[] notes;

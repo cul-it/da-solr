@@ -4,7 +4,7 @@ import static edu.cornell.library.integration.indexer.utilities.IndexingUtilitie
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 
 
@@ -49,7 +48,9 @@ public class ConfirmSolrIndexCompleteness  {
 	 * for VoyagerToSolrConfiguration. 
 	 */
 	public static void main(String[] args) throws Exception  {
-        SolrBuildConfig config = SolrBuildConfig.loadConfig(args);
+		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
+		requiredArgs.add("solrUrl");
+        SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
         if (numberOfMissingBibs == 0) 
@@ -57,56 +58,15 @@ public class ConfirmSolrIndexCompleteness  {
         System.exit(numberOfMissingBibs);  //any bibs missing from index should cause failure status
 	}
 	
-	public int doCompletnessCheck(String coreUrl, Path currentVoyagerBibList, Path currentVoyagerMfhdList) throws Exception {
-		System.out.println("Comparing \n" 
-		        + currentVoyagerBibList.toUri()  + " and \n" 
-		        + currentVoyagerMfhdList.toUri() + "\n"
+	public int doCompletnessCheck(String coreUrl) throws Exception {
+		System.out.println("Comparing current Voyager record lists \n"
 		        + "with contents of index at: " + coreUrl);
 
-		IndexRecordListComparison c = new IndexRecordListComparison();
-		c.compare(coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
+		IndexRecordListComparison c = new IndexRecordListComparison(config);
 		produceReport(davUrl,c);
 		
-		return c.bibsInVoyagerNotIndex.size();
-	}	
-    
-	public int  doCompletnessCheck(String coreUrl) throws Exception {
-		
-		Path currentVoyagerBibList = null;
-		Path currentVoyagerMfhdList = null;
-		
-		String mostRecentBibFile =  
-		        FileNameUtils.findMostRecentUnsuppressedBibIdFile(config, getDavService());
-		
-		try{
-			if (mostRecentBibFile != null) {
-				System.out.println("Most recent bib file identified as: "+ mostRecentBibFile);
-				currentVoyagerBibList = getDavService().getNioPath( mostRecentBibFile );
-			}else{
-			    System.out.println("No recent bib file found.");
-			    System.exit(1);
-			}
-		} catch (Exception e) {
-		    throw new Exception( "Could not get most recent bib file from '" + mostRecentBibFile +"'", e);
-		}
-		
-		String mostRecentMfhdFile = 
-		        FileNameUtils.findMostRecentUnsuppressedMfhdIdFile(config, getDavService()); 
-		try {		
-			if (mostRecentMfhdFile != null) {
-				System.out.println("Most recent mfhd file identified as: " + mostRecentMfhdFile);
-				currentVoyagerMfhdList = getDavService().getNioPath( mostRecentMfhdFile);
-			}else{
-			    System.out.println("No recent Mfhd holdings file found.");
-                System.exit(1);
-			}
-		} catch (Exception e) {
-			throw new Exception( "Could not get most recent Mfhd holding file '" + mostRecentMfhdFile + "'" , e);
-		}		
-
-		int numberOfMissingBibs = doCompletnessCheck( coreUrl, currentVoyagerBibList, currentVoyagerMfhdList);
-        return numberOfMissingBibs;
- 	}
+		return c.bibsInVoyagerNotIndex().size();
+	}
 
 	// Based on the IndexRecordListComparison, bib records to be updated and deleted are printed to STDOUT
 	// and also written to report files on the webdav server in the /updates/bib.deletes and /updates/bibupdates
@@ -115,16 +75,16 @@ public class ConfirmSolrIndexCompleteness  {
 
 		System.out.println();
 		
-		reportList( c.bibsInIndexNotVoyager,"bibsInIndexNotVoyager.txt",
+		reportList( c.bibsInIndexNotVoyager(),"bibsInIndexNotVoyager.txt",
 				"Bib ids in the index but no longer unsuppressed in Voyager.");
 
-		reportList( c.bibsInVoyagerNotIndex,"bibsInVoyagerNotIndex.txt",
+		reportList( c.bibsInVoyagerNotIndex(),"bibsInVoyagerNotIndex.txt",
 				"Bib ids unsuppressed in Voyager but not in the index.");
 
-		reportList( c.mfhdsInIndexNotVoyager,"mfhdsInIndexNotVoyager.txt",
+		reportList( c.mfhdsInIndexNotVoyager(),"mfhdsInIndexNotVoyager.txt",
 				"Mfhd (holdings) ids in the index but no longer unsuppressed in Voyager - bib ids in parens.");
 
-		reportList( c.mfhdsInVoyagerNotIndex,"mfhdsInVoyagerNotIndex.txt",
+		reportList( c.mfhdsInVoyagerNotIndex(),"mfhdsInVoyagerNotIndex.txt",
 				"Mfhd (holdings) ids unsuppressed in Voyager but not in the index.");
 		
 	}
@@ -161,7 +121,7 @@ public class ConfirmSolrIndexCompleteness  {
 
 		// Save file on WEBDAV		 
 		try {
-			ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
+			ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
 			getDavService().saveFile( url,is);
 			is.close();
 		} catch (Exception e) {
@@ -197,7 +157,7 @@ public class ConfirmSolrIndexCompleteness  {
 		// Save file on WEBDAV
 		try {
 			getDavService().saveFile( url , 
-					new ByteArrayInputStream(sb.toString().getBytes("UTF-8")));
+					new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e) {
 		    throw new Exception("Problem saving report " + url, e);			
 		}

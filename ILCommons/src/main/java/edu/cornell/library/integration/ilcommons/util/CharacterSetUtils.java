@@ -4,14 +4,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CharacterSetUtils {
-	
+
+//	public static String RLE = "RLE"; //\u202b - Begin Right-to-left Embedding
+//	public static String PDF = "PDF"; //\u202c - Pop(End) Directional Formatting
+	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
+
 	static Pattern isCJK_pattern = null;
 	static Pattern isNotCJK_pattern = null;
 	static Pattern nonStandardApostrophes_pattern = null;
-	
+
 	public static final float MIN_RATIO = (float)0.15;
 	public static final int MIN_CHAR = 2;
-	
+
 	/**
 	 * If CJK characters constitute a ratio of MIN_RATIO or a count of MIN_CHAR,
 	 * the string will be deemed to be CJK. (Primary consideration is whether the string 

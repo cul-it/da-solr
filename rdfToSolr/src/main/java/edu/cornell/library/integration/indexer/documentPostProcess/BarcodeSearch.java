@@ -47,12 +47,16 @@ public class BarcodeSearch implements DocumentPostProcess{
 		
 		SolrInputField field = document.getField( "holdings_display" );
 		for (Object mfhd_id_obj: field.getValues()) {
+			String mfhd_id = mfhd_id_obj.toString();
+			if (mfhd_id.contains("|")) {
+				mfhd_id = mfhd_id.substring(0, mfhd_id.indexOf('|'));
+			}
 			if (debug)
-				System.out.println(mfhd_id_obj.toString());
+				System.out.println(mfhd_id);
 			String query = "SELECT CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_BARCODE " +
 					" WHERE CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM_BARCODE.ITEM_ID " +
-					"  AND CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id_obj.toString() + "\'";
+					"  AND CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id + "\'";
 			if (debug)
 				System.out.println(query);
 	

@@ -146,6 +146,14 @@ unsuppressed bib and holdings record IDs in Voyager."
  // no args, uses V2S_CONFIG env var.
  args=[  ]
 }
+task (GetCatalogRecordLists, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets lists of current bib, holdings, and item ids with necessary mappings and modified dates."
+ main='edu.cornell.library.integration.GetCatalogRecordLists'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
    
 task (GetBibMasterData, dependsOn:'assemble', type: JavaExec){
  description='Run GetBibMasterData'

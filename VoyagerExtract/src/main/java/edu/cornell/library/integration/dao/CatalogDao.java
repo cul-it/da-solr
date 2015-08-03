@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.dao;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import edu.cornell.library.integration.bo.AuthData;
@@ -115,6 +116,7 @@ public interface CatalogDao {
 	 */
 	public List<Integer> getAllSuppressedBibId() throws Exception;
 
+
 	/**
 	 * @return
 	 * @throws Exception
@@ -132,6 +134,13 @@ public interface CatalogDao {
 	 * @throws Exception
 	 */
 	public List<Integer> getAllUnSuppressedMfhdId() throws Exception;
+
+
+	public int saveAllUnSuppressedBibsWithDates(Path outputFile) throws Exception;
+
+	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception;
+
+	public int saveAllItemMaps(Path outputFile) throws Exception;
 
 	/**
 	 * @param fromDateString

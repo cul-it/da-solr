@@ -6,7 +6,6 @@ import java.util.List;
 import edu.cornell.library.integration.indexer.documentPostProcess.BarcodeSearch;
 import edu.cornell.library.integration.indexer.documentPostProcess.Collections;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
-//import edu.cornell.library.integration.indexer.documentPostProcess.LoadItemData;
 import edu.cornell.library.integration.indexer.documentPostProcess.MissingTitleReport;
 import edu.cornell.library.integration.indexer.documentPostProcess.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.documentPostProcess.NoAccessUrlsUnlessOnline;
@@ -40,7 +39,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSe
 import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
+//import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
@@ -76,23 +75,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	@Override
 	List<? extends FieldMaker> getFieldMakers() {
 		return Arrays.asList(
-				 	
-				new SPARQLFieldMakerImpl().
-					setName("id").
-					addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
-					addResultSetToFields( new AllResultsToField("id") ),
-					
-/*				new SPARQLFieldMakerImpl().
-					setName("holdings ids").
-					addMainStoreQuery("hold_ids",
-							"SELECT ?id \n"+
-				        	"WHERE {\n"+
-					    	"  ?hold marcrdf:hasBibliographicRecord $recordURI$.\n" +
-				        	"  ?hold marcrdf:hasField001 ?f.\n" +
-				        	"  ?f marcrdf:value ?id.\n" +
-							"}").
-					addResultSetToFields( new AllResultsToField("holdings_display")),
-			        */
+
 			    new SPARQLFieldMakerImpl().
 			        setName("holdings_data").
 				    addMainStoreQuery("holdings_control_fields",
@@ -145,11 +128,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						"SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n" +
 						" WHERE { $recordURI$ marcrdf:leader ?leader. }").
 		            addResultSetToFields( new HoldingsAndItemsRSTF()),
-		        
+		        /*
 		        new SPARQLFieldMakerImpl().
 		        	addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
 		        	addResultSetToFields( new TitleMatchRSTF()),
-		        	
+		        	*/
 				new StandardMARCFieldMaker("lc_controlnum_display","010","a"),
 				new StandardMARCFieldMaker("lc_controlnum_s","010","a"),
 				new StandardMARCFieldMaker("other_id_display","035","a"),
@@ -185,18 +168,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?sfield marcrdf:code ?code.\n" +
 				    		"   ?sfield marcrdf:value ?value. }").
 				    addResultSetToFields( new MARCResultSetToFields() ),
-				    
-				/*  The new logic for multivol uses item data not available in this step. Field
-				 * population moving to LoadItemData document post-processor.
-				new SPARQLFieldMakerImpl().
-				    setName("multivol").
-				    addMainStoreQuery("holdings_descr",
-				    		"SELECT ?f (SUBSTR(?leader,7,1) as ?rectype)\n"+
-				            " WHERE { ?h marcrdf:hasBibliographicRecord $recordURI$.\n"+
-				    				" ?h marcrdf:leader ?leader.\n"+
-				    				" OPTIONAL {?h ?p ?f.\n"+
-				                    "   ?p rdfs:subPropertyOf marcrdf:TextualHoldingsStatementField. }}").
-				    addResultSetToFields( new MultivolRSTF() ), */
 
 				new SPARQLFieldMakerImpl().
 				    setName("rec_type").
@@ -576,8 +547,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","500","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","501","a"),
 				new StandardMARCFieldMaker("notes_t","501","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("notes","502","a"),
-				new StandardMARCFieldMaker("notes_t","502","a",VernMode.SEARCH),
+				new StandardMARCFieldMaker("notes","502","abcdgo"),
+				new StandardMARCFieldMaker("notes_t","502","abcdgo",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","503","a"),
 				new StandardMARCFieldMaker("notes_t","503","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","504","ab"),
@@ -739,7 +710,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	
 				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"a"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
-				
+
 				new StandardMARCFieldMaker("frequency_display","310","a"),
 				new StandardMARCFieldMaker("isbn_display","020","a"),				
 				new StandardMARCFieldMaker("issn_display","022","a"),
@@ -747,10 +718,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","l",VernMode.SEARCH),
-				
-			//	new StandardMARCFieldMaker("eightninenine_s","899","a"),
+
 				new StandardMARCFieldMaker("eightninenine_t","899","ab"),
-				
+
 				new StandardMARCFieldMaker("other_identifier_display","024","a"),
 				new StandardMARCFieldMaker("id_t","024","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("publisher_number_display","028","a"),
