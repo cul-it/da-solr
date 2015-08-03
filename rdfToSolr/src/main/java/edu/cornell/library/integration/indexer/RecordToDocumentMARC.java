@@ -35,6 +35,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetTo
 import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.RecordTypeRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.SeriesAddedEntryRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
@@ -446,6 +447,22 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						    "        ?sfield marcrdf:code ?code.\n" +
 						    "        ?sfield marcrdf:value ?value. }").
 			        addResultSetToFields( new AuthorTitleResultSetToFields()),
+
+				new SPARQLFieldMakerImpl().
+				    	setName("seriesaddedentry").
+				    	addMainStoreQuery("seriesaddedentry",
+						"SELECT *\n" +
+						" WHERE { $recordURI$ ?p ?field.\n" +
+						"        ?p rdfs:subPropertyOf marcrdf:SeriesAddedEntry.\n"+
+					    "        ?field marcrdf:tag ?tag. \n" +
+					    "        ?field marcrdf:ind1 ?ind1. \n" +
+					    "        ?field marcrdf:ind2 ?ind2. \n" +
+					    "        ?field marcrdf:hasSubfield ?sfield .\n" +
+					    "        ?sfield marcrdf:code ?code.\n" +
+					    "        ?sfield marcrdf:value ?value.\n" +
+					    " }").
+					    addResultSetToFields( new SeriesAddedEntryRSTF()),
+
 
 			    new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("author_t","110","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
