@@ -511,7 +511,8 @@
         toc_t_cjk
         author_245c_t              author_245c_tP
         author_245c_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
@@ -565,7 +566,8 @@
         toc_t_cjk
         author_245c_t              author_245c_tP
         author_245c_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
     </lst>
     <lst name="appends">
@@ -686,7 +688,8 @@
         toc_t_cjk
         author_245c_t              author_245c_tP
         author_245c_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
       <str name="quot_qf">
         title_unstemC^25000        title_unstemP^25000
@@ -730,7 +733,8 @@
         toc_t_cjk
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
-        barcode_unstemC            barcode_unstemP
+        barcode_unstemC^10         barcode_unstemP^10
+        barcode_addl_unstemC       barcode_addl_unstemP
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
@@ -784,7 +788,8 @@
         toc_t_cjk
         author_245c_t              author_245c_tP
         author_245c_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
       <str name="quot_pf">
         title_unstemC^25000        title_unstemP^25000
@@ -827,7 +832,8 @@
         toc_t_cjk
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
-        barcode_unstemC            barcode_unstemP
+        barcode_unstemC^10         barcode_unstemP^10
+        barcode_addl_unstemC       barcode_addl_unstemP
       </str>
       
       <str name="author_qf">
@@ -1052,7 +1058,8 @@
         id
         eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
       <str name="number_pf">
         id_t                       id_tP
@@ -1060,7 +1067,8 @@
         id
         eightninenine_t            eightninenine_tP
         eightninenine_t_cjk
-        barcode_t                  barcode_tP
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
       </str>
       <str name="number_quot_qf">
         id_unstemC                 id_unstemP
@@ -1068,7 +1076,8 @@
         id
         eightninenine_unstemC      eightninenine_unstemP
         eightninenine_t_cjk
-        barcode_unstemC            barcode_unstemP
+        barcode_unstemC^10         barcode_unstemP^10
+        barcode_addl_unstemC       barcode_addl_unstemP
       </str>
       <str name="number_quot_pf">
         id_unstemC                 id_unstemP
@@ -1076,7 +1085,8 @@
         id
         eightninenine_unstemC      eightninenine_unstemP
         eightninenine_t_cjk
-        barcode_unstemC            barcode_unstemP
+        barcode_unstemC^10         barcode_unstemP^10
+        barcode_addl_unstemC       barcode_addl_unstemP
       </str>
 
       <str name="series_qf">
