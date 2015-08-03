@@ -227,12 +227,13 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				holding.locations[i] = locations.getByCode(loccode);
 				i++;
 			}
-			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-			String json = jsonstream.toString("UTF-8");
 			if (holding.modified_date != null)
 				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
 			else
 				addField(fields,"holdings_display",holding.id);
+			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+			mapper.writeValue(jsonstream,holding);
+			String json = jsonstream.toString("UTF-8");
 			addField(fields,"holdings_record_display",json);
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
