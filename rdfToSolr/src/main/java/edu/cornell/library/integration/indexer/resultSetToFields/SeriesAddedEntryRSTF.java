@@ -29,7 +29,7 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord();
-		rec.addDataFieldResultSet(results.get("main_entry"));
+		rec.addDataFieldResultSet(results.get("seriesaddedentry"));
 		Set<String> workFacet = new HashSet<String>();
 		for( DataField f: rec.data_fields.values() ) {
 			if (f.mainTag.equals("800")) {
