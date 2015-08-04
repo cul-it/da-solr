@@ -21,6 +21,8 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.Relator;
 
 /**
  * process the whole 7xx range into a wide variety of fields
@@ -77,6 +79,17 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						relation = "author_addl";
 						String author_disp = f.concatenateSpecificSubfields("abcfghijklmnopqrstuvwxyz");
 						String author_suffixes = f.concatenateSpecificSubfields("de");
+						for (Subfield sf : f.subfields.values())
+							if (sf.code.equals('4'))
+								try {
+									String r = Relator.valueOf(sf.value).toString();
+									if (author_suffixes.isEmpty())
+										author_suffixes = r;
+									else
+										author_suffixes += " "+r;
+								} catch (IllegalArgumentException e) {
+									System.out.println("Unexpected relator code: \""+sf.value+"\".");
+								}
 						if (author_suffixes.isEmpty())
 							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 									"author_addl",author_disp,author_cts));
