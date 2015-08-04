@@ -410,9 +410,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			     	"  ?sfield marcrdf:code ?code.\n" +
 				 	"  ?sfield marcrdf:value ?value. }").
 			        addResultSetToFieldsStepped( new TitleSeriesResultSetToFields()),
-			    	
-			    new StandardMARCFieldMaker("title_t","245","abdefgknpqsv",VernMode.SEARCH),
-
 
 			    new SPARQLFieldMakerImpl().
 			    	setName("author and main title").
