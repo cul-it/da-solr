@@ -78,14 +78,17 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (title_cts.isEmpty()) {
 						relation = "author_addl";
 						String author_disp = f.concatenateSpecificSubfields("abcfghijklmnopqrstuvwxyz");
-						String author_suffixes = f.concatenateSpecificSubfields("de");
-						for (Subfield sf : f.subfields.values())
+						String author_suffixes = f.concatenateSpecificSubfields("d");
+						for (Subfield sf : f.subfields.values()) {
 							if (sf.code.equals('4'))
 								try {
 									author_suffixes += ", "+Relator.valueOf(sf.value).toString();
 								} catch (IllegalArgumentException e) {
 									System.out.println("Unexpected relator code: \""+sf.value+"\".");
 								}
+							else if (sf.code.equals('e'))
+								author_suffixes += ", "+sf.value;
+						}
 						if (author_suffixes.isEmpty())
 							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 									"author_addl",author_disp,author_cts));
