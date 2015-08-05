@@ -33,7 +33,7 @@ public class HathiLinksRSTF implements ResultSetToFields {
 	Collection<String> denyTitles = new HashSet<String>();
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		//The results object is a Map of query names to ResultSets that

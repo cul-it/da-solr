@@ -23,7 +23,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 public class TitleMatchRSTF implements ResultSetToFields {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();

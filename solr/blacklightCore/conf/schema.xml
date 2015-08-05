@@ -353,7 +353,7 @@
     <field name="acquired" type="tint" indexed="true" stored="true" multiValued="false"/>
     <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="title_exact" type="exact" indexed="true" stored="false"/>
+    <field name="title_exact" type="exact" indexed="true" stored="false" multiValued="true" />
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
@@ -408,7 +408,6 @@
   <copyField source="donor_display" dest="donor_t"/>
 
   <copyField source="title_t" dest="title_ngram"/>
-  <copyField source="title_t" dest="title_exact"/>
 
   <!-- spellcheck fields -->
   <!-- default spell check;  should match fields for default request handler -->

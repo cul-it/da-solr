@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
+import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
@@ -30,7 +31,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 public class AuthorTitleResultSetToFields implements ResultSetToFields {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that
@@ -221,6 +222,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
 			String fulltitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
 			addField(solrFields,"fulltitle_display",fulltitle);
+			addField(solrFields,"title_t",fulltitle);
+			addField(solrFields,"title_exact",fulltitle);
 			responsibility = title.concatenateSpecificSubfields("c");
 
 			// sort title
@@ -229,6 +232,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				int nonFilingCharCount = Character.digit(title.ind2, 10);
 				if (nonFilingCharCount < sortTitle.length())
 					sortTitle = sortTitle.substring(nonFilingCharCount);
+				if (nonFilingCharCount > 0)
+					addField(solrFields,"title_exact",sortTitle);
 			}
 			sortTitle = getSortHeading(sortTitle);
 			addField(solrFields,"title_sort",sortTitle);
@@ -263,7 +268,21 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			addField(solrFields,"subtitle_vern_display",
 					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
 			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
+			if (title_vern.getScript().equals(MarcRecord.Script.CJK))
+				addField(solrFields,"title_t_cjk",fulltitle_vern);
+			else {
+				if (hasCJK(fulltitle_vern))
+					addField(solrFields,"title_t_cjk",fulltitle_vern);
+				addField(solrFields,"title_t",fulltitle_vern);
+			}
 			addField(solrFields,"fulltitle_vern_display",fulltitle_vern);
+			addField(solrFields,"title_exact",fulltitle_vern);
+			if (Character.isDigit(title_vern.ind2)) {
+				int nonFilingCharCount = Character.digit(title_vern.ind2, 10);
+				if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle_vern.length())
+					addField(solrFields,"title_exact",fulltitle_vern.substring(nonFilingCharCount));
+			}
+
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
 
 			if (uniform_title_vern == null) {

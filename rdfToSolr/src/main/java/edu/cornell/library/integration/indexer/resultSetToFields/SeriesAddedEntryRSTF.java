@@ -25,7 +25,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 public class SeriesAddedEntryRSTF implements ResultSetToFields {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord();
