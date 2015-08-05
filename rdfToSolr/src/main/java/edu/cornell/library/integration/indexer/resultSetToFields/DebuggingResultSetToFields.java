@@ -24,7 +24,7 @@ public class DebuggingResultSetToFields implements ResultSetToFields {
 	}
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		System.out.print( makeDebugStr(results) );
 		return innerRstf.toFields(results, config);

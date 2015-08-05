@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,7 +74,11 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		if( resultSetToFields != null){
 			for( ResultSetToFields r2f : resultSetToFields ){
 				if( r2f != null ){					
-					Map<? extends String, ? extends SolrInputField> newFields =r2f.toFields( results, config ) ;
+					Map<String,SolrInputField> newFields =r2f.toFields( results, config ) ;
+					if (config.isRSTFClassDebug(r2f.getClass()) ) {
+						System.out.println(r2f.getClass().getName()+" fields derived:");
+						dumpFieldsToStdout(newFields);
+					}
 					if( newFields != null)
 						fields.putAll( newFields);
 				}
@@ -83,5 +88,15 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		
 	}		
 	
+	private void dumpFieldsToStdout(
+			Map<String,SolrInputField> newFields) {
+		for (Entry<String,SolrInputField> entry : newFields.entrySet()) {
+			System.out.println(entry.getKey());
+			for (Object value : entry.getValue().getValues())
+				System.out.println("\t"+value.toString());
+		}
+		
+	}
+
 	static final Log log = LogFactory.getLog( SPARQLFieldMakerImpl.class);
 }

@@ -21,7 +21,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 		boolean multivol = false;
 		
 		@Override
-		public Map<? extends String, ? extends SolrInputField> toFields(
+		public Map<String, SolrInputField> toFields(
 				Map<String, ResultSet> results, SolrBuildConfig config) {
 			
 			ALL: for( String resultKey: results.keySet()){

@@ -16,7 +16,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 public class ResultsToStdout implements ResultSetToFields {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) {		
 		
 		for( String resultKey: results.keySet()){

@@ -31,7 +31,7 @@ import edu.cornell.library.integration.indexer.utilities.Relator;
 public class TitleChangeResultSetToFields implements ResultSetToFields {
 
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//The results object is a Map of query names to ResultSets that

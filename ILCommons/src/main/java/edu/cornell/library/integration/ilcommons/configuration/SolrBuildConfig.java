@@ -57,6 +57,7 @@ public class SolrBuildConfig {
 	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
 	private Map<String,RDFService> rdfservices = new HashMap<String,RDFService>();
     static DavService davService = null;
+    private List<Class<?>> debugRSTFs = new ArrayList<Class<?>>();
     
     public static List<String> getRequiredArgsForDB( String db ) {
     	List<String> list = new ArrayList<String>();
@@ -75,6 +76,13 @@ public class SolrBuildConfig {
     	list.add("webdavUser");
     	list.add("webdavPassword");
     	return list;
+    }
+    
+    public void setDebugRSTFClass( Class<?> c ) {
+    	debugRSTFs.add(c);
+    }
+    public boolean isRSTFClassDebug( Class<?> c ) {
+    	return debugRSTFs.contains(c);
     }
     
     public String getDailyBibUpdates() throws IOException {
@@ -601,6 +609,17 @@ public class SolrBuildConfig {
         	String valueWDate = insertIterationContext(value);
         	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
         	solrBuildConfig.values.put(field,valueWDate);
+        }
+        if (solrBuildConfig.values.containsKey("debugRSTF")) {
+        	String[] debugClasses = solrBuildConfig.values.get("debugRSTF").split(",\\s*");
+        	for (String className : debugClasses) {
+        		try {
+        			solrBuildConfig.setDebugRSTFClass(
+        					Class.forName("edu.cornell.library.integration.indexer.resultSetToFields."+className));
+				} catch (ClassNotFoundException e) {
+					System.out.println("Debug for class "+className+" failed due to ClassNotFoundException.");
+				}
+        	}
         }
     	return solrBuildConfig;
     }

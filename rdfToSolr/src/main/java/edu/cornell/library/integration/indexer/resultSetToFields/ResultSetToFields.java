@@ -13,7 +13,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  */
 public interface ResultSetToFields {
 	
-	public 	Map<? extends String, ? extends SolrInputField> 
+	public 	Map<String, SolrInputField> 
 	toFields(Map<String, ResultSet> results, SolrBuildConfig config) 
 	throws Exception;
 	

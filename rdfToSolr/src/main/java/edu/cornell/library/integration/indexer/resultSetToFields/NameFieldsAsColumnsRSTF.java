@@ -20,7 +20,7 @@ public class NameFieldsAsColumnsRSTF implements ResultSetToFields {
 	protected boolean debug = false;
 		
 	@Override
-	public Map<? extends String, ? extends SolrInputField> toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) {
 
 		//This method needs to return a map of fields:
