@@ -232,7 +232,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				int nonFilingCharCount = Character.digit(title.ind2, 10);
 				if (nonFilingCharCount < sortTitle.length())
 					sortTitle = sortTitle.substring(nonFilingCharCount);
-				addField(solrFields,"title_exact",sortTitle);
+				if (nonFilingCharCount > 0)
+					addField(solrFields,"title_exact",sortTitle);
 			}
 			sortTitle = getSortHeading(sortTitle);
 			addField(solrFields,"title_sort",sortTitle);
@@ -275,6 +276,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"title_t",fulltitle_vern);
 			}
 			addField(solrFields,"fulltitle_vern_display",fulltitle_vern);
+			addField(solrFields,"title_exact",fulltitle_vern);
 			if (Character.isDigit(title_vern.ind2)) {
 				int nonFilingCharCount = Character.digit(title_vern.ind2, 10);
 				if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle_vern.length())
