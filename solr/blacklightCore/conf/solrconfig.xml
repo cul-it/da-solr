@@ -638,6 +638,7 @@
       <str name="defType">edismax</str>
       <str name="echoParams">explicit</str>
       <str name="mm">100%</str>
+      <str name="q.alt">*</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         subtitle_unstemC^12500     subtitle_unstemP^12500
