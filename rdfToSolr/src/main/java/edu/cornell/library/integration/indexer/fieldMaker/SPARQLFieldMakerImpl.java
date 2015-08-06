@@ -75,7 +75,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 			for( ResultSetToFields r2f : resultSetToFields ){
 				if( r2f != null ){					
 					Map<String,SolrInputField> newFields =r2f.toFields( results, config ) ;
-					if (config.isRSTFClassDebug(r2f.getClass()) ) {
+					if (config.isDebugClass(r2f.getClass()) ) {
 						System.out.println(r2f.getClass().getName()+" fields derived:");
 						dumpFieldsToStdout(newFields);
 					}
@@ -87,7 +87,8 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		return fields;
 		
 	}		
-	
+
+	/* debug utility */
 	private void dumpFieldsToStdout(
 			Map<String,SolrInputField> newFields) {
 		for (Entry<String,SolrInputField> entry : newFields.entrySet()) {

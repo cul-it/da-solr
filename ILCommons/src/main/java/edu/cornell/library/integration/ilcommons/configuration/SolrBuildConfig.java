@@ -81,7 +81,7 @@ public class SolrBuildConfig {
     public void setDebugRSTFClass( Class<?> c ) {
     	debugRSTFs.add(c);
     }
-    public boolean isRSTFClassDebug( Class<?> c ) {
+    public boolean isDebugClass( Class<?> c ) {
     	return debugRSTFs.contains(c);
     }
     

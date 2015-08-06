@@ -130,8 +130,8 @@ public class IndexRecordListComparison {
 				"SELECT v.item_id, v.mfhd_id "
 				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
 				+"WHERE v.item_id = s.item_id "
-				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
-				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
+				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
+				+ "     OR ( v.record_date is not null AND s.record_date is null))");
 		while (rs.next())
 			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
 		rs.close();
@@ -170,8 +170,8 @@ public class IndexRecordListComparison {
 				"SELECT v.mfhd_id, v.bib_id "
 				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
-				+ " AND (voyager_date > date_add(s.solr_date,interval 15 second) "
-				+ "     OR ( voyager_date is not null AND s.solr_date is null))");
+				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
+				+ "     OR ( v.record_date is not null AND s.record_date is null))");
 		while (rs.next())
 			m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
@@ -207,7 +207,7 @@ public class IndexRecordListComparison {
 		ResultSet rs = stmt.executeQuery(
 				"select v.bib_id from "+bibTableVoy+" as v, "+bibTableSolr+" as s "
 				+ "WHERE v.bib_id = s.bib_id "
-				+ "  AND voyager_date > date_add(solr_date,interval 15 second)");
+				+ "  AND v.record_date > date_add(s.record_date,interval 15 second)");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		stmt.close();
