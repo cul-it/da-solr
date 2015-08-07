@@ -60,9 +60,9 @@ public class IndexRecordListComparison {
 		bibTableVoy = "bib_"+today;
 		mfhdTableVoy = "mfhd_"+today;
 		itemTableVoy = "item_"+today;
-		bibTableSolr = "bib_solr_"+solrCore;
-		mfhdTableSolr = "mfhd_solr_"+solrCore;
-		itemTableSolr = "item_solr_"+solrCore;
+		bibTableSolr = "bibSolr"+solrCore;
+		mfhdTableSolr = "mfhdSolr"+solrCore;
+		itemTableSolr = "itemSolr"+solrCore;
 
 		conn = config.getDatabaseConnection("Current");
 		stmt = conn.createStatement();
