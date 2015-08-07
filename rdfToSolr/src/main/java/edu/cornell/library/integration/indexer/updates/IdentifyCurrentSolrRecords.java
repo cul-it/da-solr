@@ -122,7 +122,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "index_date timestamp default now(), "
 				+ "format varchar(256), "
 				+ "location_label varchar(256), "
-				+ "edition varchar(256), "
+				+ "edition text, "
 				+ "pub_date varchar(256), "
 				+ "linking_mod_date timestamp, "
 				+ "key (bib_id) ) ENGINE=InnoDB");
