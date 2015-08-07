@@ -87,7 +87,7 @@ public class IdentifyCurrentSolrRecords {
 		while ((nextLine = reader.readNext()) != null ) {
 			if (nextLine[0].startsWith("bibid")) continue;
 			int bibid = processSolrBibData(nextLine[0],nextLine[1],nextLine[2],nextLine[3],nextLine[4],nextLine[5]);
-			if (bibCount % 100_000 == 0)
+			if (bibCount % 10_000 == 0)
 				current.commit();
 			if (nextLine.length == 6) continue;
 
@@ -95,9 +95,6 @@ public class IdentifyCurrentSolrRecords {
 			if (nextLine.length == 7) continue;
 
 			processSolrItemData(nextLine[7],bibid);
-
-			if (bibCount % 100_000 == 0)
-				current.commit();
 		}
 		reader.close();
 		for (PreparedStatement pstmt : pstmts.values()) {
@@ -194,6 +191,7 @@ public class IdentifyCurrentSolrRecords {
 							+ "VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("mfhd_insert");
 		for (int i = 0; i < solrHoldingsList.length; i++) {
+			if (solrHoldingsList[i].isEmpty()) continue;
 			int holdingsId;
 			Timestamp modified = null;
 			if (solrHoldingsList[i].contains("|")) {
@@ -222,6 +220,7 @@ public class IdentifyCurrentSolrRecords {
 					"INSERT INTO "+itemTable+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("item_insert");
 		for (int i = 0; i < solrItemList.length; i++) {
+			if (solrItemList[i].isEmpty()) continue;
 			itemCount++;
 			Timestamp modified = null;
 			String[] parts = solrItemList[i].split("\\|");
