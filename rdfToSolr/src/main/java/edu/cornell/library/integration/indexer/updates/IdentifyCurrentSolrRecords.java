@@ -123,7 +123,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "format varchar(256), "
 				+ "location_label varchar(256), "
 				+ "edition text, "
-				+ "pub_date varchar(256), "
+				+ "pub_date text, "
 				+ "linking_mod_date timestamp, "
 				+ "key (bib_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+bibTable+" disable keys");
