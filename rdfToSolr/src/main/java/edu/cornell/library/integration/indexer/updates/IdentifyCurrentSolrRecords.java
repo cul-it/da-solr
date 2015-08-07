@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -42,7 +42,7 @@ public class IdentifyCurrentSolrRecords {
 	private String mfhdTable = null;
 	private String itemTable = null;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 
 	public static void main(String[] args)  {
@@ -68,8 +68,8 @@ public class IdentifyCurrentSolrRecords {
 
 	    URL queryUrl = new URL(config.getSolrUrl() +
 				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&"
-				+ "fl=bibid_display,online,location_facet,url_access_display,format,holdings_display,item_display");
-	    //                 0          1          2               3             4            5             6
+				+ "fl=bibid_display,online,location_facet,url_access_display,format,timestamp,holdings_display,item_display");
+	    //                 0          1          2               3             4         5         6             7
 
 	    // Save Solr data to a temporary file
 	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
@@ -86,15 +86,15 @@ public class IdentifyCurrentSolrRecords {
 		String[] nextLine = null;
 		while ((nextLine = reader.readNext()) != null ) {
 			if (nextLine[0].startsWith("bibid")) continue;
-			int bibid = processSolrBibData(nextLine[0],nextLine[1],nextLine[2],nextLine[3],nextLine[4]);
+			int bibid = processSolrBibData(nextLine[0],nextLine[1],nextLine[2],nextLine[3],nextLine[4],nextLine[5]);
 			if (bibCount % 100_000 == 0)
 				current.commit();
-			if (nextLine.length == 5) continue;
-			
-			processSolrHoldingsData(nextLine[5],bibid);
 			if (nextLine.length == 6) continue;
 
-			processSolrItemData(nextLine[6],bibid);
+			processSolrHoldingsData(nextLine[6],bibid);
+			if (nextLine.length == 7) continue;
+
+			processSolrItemData(nextLine[7],bibid);
 
 			if (bibCount % 100_000 == 0)
 				current.commit();
@@ -112,9 +112,9 @@ public class IdentifyCurrentSolrRecords {
 		Statement stmt = current.createStatement();
 		String solrUrl = config.getSolrUrl();
 		String solrIndexName = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
-		bibTable = "bib_solr_"+solrIndexName;
-		mfhdTable = "mfhd_solr_"+solrIndexName;
-		itemTable = "item_solr_"+solrIndexName;
+		bibTable = "bibSolr"+solrIndexName;
+		mfhdTable = "mfhdSolr"+solrIndexName;
+		itemTable = "itemSolr"+solrIndexName;
 		
 		stmt.execute("drop table if exists "+bibTable);
 		stmt.execute("create table "+bibTable+" ( "
@@ -158,14 +158,14 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private int processSolrBibData(String solrBib,String online,
-			String location_facet,String url, String format) throws SQLException, ParseException {
+			String location_facet,String url, String format,String timestamp) throws SQLException, ParseException {
 		bibCount++;
 		String[] parts = solrBib.split("\\|", 2);
 		int bibid = Integer.valueOf(parts[0]);
 		if ( ! pstmts.containsKey("bib_insert"))
 			pstmts.put("bib_insert",current.prepareStatement(
-					"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label) "
-							+ "VALUES (?, ?, ?, ?)"));
+					"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label,index_date) "
+							+ "VALUES (?, ?, ?, ?, ?)"));
 		List<String> locations = new ArrayList<String>();
 		if ( ! url.isEmpty() )
 			locations.add("Online"); // TODO: detailed location labeling.
@@ -176,9 +176,10 @@ public class IdentifyCurrentSolrRecords {
 		// note: date comparison comes later.
 		PreparedStatement pstmt = pstmts.get("bib_insert");
 		pstmt.setInt(1, bibid);
-		pstmt.setTimestamp(2, new Timestamp( dateFormat.parse(parts[1]).getTime() ));
+		pstmt.setTimestamp(2, new Timestamp( marcDateFormat.parse(parts[1]).getTime() ));
 		pstmt.setString(3, format);
 		pstmt.setString(4, StringUtils.join(locations," / "));
+		pstmt.setTimestamp(5, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ) );
 		pstmt.addBatch();
 		if (++bibCount % 1000 == 0)
 			pstmt.executeBatch();
@@ -198,7 +199,7 @@ public class IdentifyCurrentSolrRecords {
 			if (solrHoldingsList[i].contains("|")) {
 				String[] parts = solrHoldingsList[i].split("\\|",2);
 				holdingsId = Integer.valueOf(parts[0]);
-				modified = new Timestamp( dateFormat.parse(parts[1]).getTime() );
+				modified = new Timestamp( marcDateFormat.parse(parts[1]).getTime() );
 			} else if (! solrHoldingsList[i].isEmpty()) {
 				holdingsId = Integer.valueOf(solrHoldingsList[i]);
 			} else {
@@ -227,7 +228,7 @@ public class IdentifyCurrentSolrRecords {
 			int itemId = Integer.valueOf(parts[0]);
 			int mfhdId = Integer.valueOf(parts[1]);
 			if (parts.length > 2)
-				modified = new Timestamp( dateFormat.parse(parts[2]).getTime() );
+				modified = new Timestamp( marcDateFormat.parse(parts[2]).getTime() );
 			pstmt.setInt(1, mfhdId);
 			pstmt.setInt(2, itemId);
 			pstmt.setTimestamp(3, modified);
