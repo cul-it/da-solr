@@ -14,6 +14,7 @@ import edu.cornell.library.integration.indexer.documentPostProcess.RemoveDuplica
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.documentPostProcess.SuppressUnwantedValues;
+import edu.cornell.library.integration.indexer.documentPostProcess.UpdateSolrInventoryDB;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.IndicatorReq;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
@@ -69,7 +70,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new BarcodeSearch(),
 				new RemoveDuplicateTitleData(),
 				new NoAccessUrlsUnlessOnline(),
-				new Collections()
+				new Collections(),
+				new UpdateSolrInventoryDB()
 		);
 	}
 

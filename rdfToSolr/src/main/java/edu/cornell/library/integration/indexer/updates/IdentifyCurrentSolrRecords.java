@@ -68,8 +68,10 @@ public class IdentifyCurrentSolrRecords {
 
 	    URL queryUrl = new URL(config.getSolrUrl() +
 				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&"
-				+ "fl=bibid_display,online,location_facet,url_access_display,format,edition_display,pub_date_display,timestamp,holdings_display,item_display");
-	    //                 0          1          2               3             4         5                 6              7           8               9
+				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
+		//                 0          1          2               3             4    
+				+ "edition_display,pub_date_display,timestamp,holdings_display,item_display");
+	    //				5                 6              7           8               9
 
 	    // Save Solr data to a temporary file
 	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
