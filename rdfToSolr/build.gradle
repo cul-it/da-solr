@@ -47,13 +47,6 @@ task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
- description = "Convert XML extract of Voyager location table to XML. "
- maxHeapSize = '500m'
- main = 'edu.cornell.library.integration.libraryXmlToRdf.LibraryXmlToNTriples'
- classpath = sourceSets.main.runtimeClasspath
-}
-
 task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
  description = "Generated a tab-delimited report of extracted values"
  maxHeapSize = '1024m'

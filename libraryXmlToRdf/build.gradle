@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+tasks.withType(Compile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+   compile project(':ILCommons')
+
+   compile fileTree(dir: 'libs', include: '*.jar')
+
+}
+
+task list(dependsOn: configurations.compile) << {
+    println "classpath = ${configurations.compile.collect {File file -> file.name}}"
+}
+
+task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert XML extract of Voyager location table to XML. "
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.libraryXmlToRdf.LibraryXmlToNTriples'
+ classpath = sourceSets.main.runtimeClasspath
+}
