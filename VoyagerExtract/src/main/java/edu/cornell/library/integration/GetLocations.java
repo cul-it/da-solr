@@ -3,7 +3,6 @@ package edu.cornell.library.integration;
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -82,13 +81,19 @@ public class GetLocations {
      List<String> requiredArgs = getRequiredArgsForWebdav();
      requiredArgs.add("locationDir");
      SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
-     app.run(config);
+     try {
+		app.run(config);
+	} catch (Exception e) {
+		e.printStackTrace();
+		System.exit(1);
+	}
    }
    
    /**
+ * @throws Exception 
     * 
     */
-   public void run(SolrBuildConfig config) {
+   public void run(SolrBuildConfig config) throws Exception {
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
       if (ctx.containsBean("catalogService")) {
@@ -100,27 +105,13 @@ public class GetLocations {
 
       davService = DavServiceFactory.getDavService( config );
 
-      List<Location> locationList = new ArrayList<Location>();
-      try {
-         locationList = getCatalogService().getAllLocation();
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-      //for (Location location: locationList) {
-      //   ObjectUtils.printBusinessObject(location);
-      //}
+      List<Location> locationList = getCatalogService().getAllLocation();
+
       LocationInfo locationInfo = new LocationInfo();
       locationInfo.setLocationList(locationList);
       String xml = getXml(locationInfo);
       
-      try {
-         saveXml(xml, config.getLocationDir() );
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }   
-      
+      saveXml(xml, config.getWebdavBaseUrl()+"/"+config.getLocationDir() );
    }
    
    /**
@@ -146,9 +137,7 @@ public class GetLocations {
    public void saveXml(String xml, String destDir) throws Exception {
 	   InputStream isr = IOUtils.toInputStream(xml, "UTF-8");
          
-	   String url = destDir + "/locations.xml";      
-	   System.out.println(url);
-	   System.out.println(davService.toString());
+	   String url = destDir + "/locations.xml";
 	   davService.saveFile(url, isr);
    }
 
