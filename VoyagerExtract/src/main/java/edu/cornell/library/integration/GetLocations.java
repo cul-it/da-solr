@@ -1,5 +1,7 @@
 package edu.cornell.library.integration;
 
+import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import edu.cornell.library.integration.bo.Location;
 import edu.cornell.library.integration.bo.LocationInfo;
 import edu.cornell.library.integration.config.IntegrationDataProperties;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.service.CatalogService;
@@ -39,21 +42,6 @@ public class GetLocations {
    public GetLocations() { 
        
    }  
-   
-      
-   /**
-    * @return the davService
-    */
-   public DavService getDavService() {
-      return this.davService;
-   }
-
-   /**
-    * @param davService the davService to set
-    */
-   public void setDavService(DavService davService) {
-      this.davService = davService;
-   }
 
    /**
     * @return the catalogService
@@ -94,18 +82,16 @@ public class GetLocations {
     */
    public static void main(String[] args) {
      GetLocations app = new GetLocations();
-     if (args.length != 1 ) {
-        System.err.println("You must provide destination dir as an argument");
-        System.exit(-1);
-     }
-     String destDir = args[0];
-     app.run(destDir);
+     List<String> requiredArgs = getRequiredArgsForWebdav();
+     requiredArgs.add("locationDir");
+     SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
+     app.run(config);
    }
    
    /**
     * 
     */
-   public void run(String destDir) {
+   public void run(SolrBuildConfig config) {
       ApplicationContext ctx = new ClassPathXmlApplicationContext("spring.xml");
      
       if (ctx.containsBean("catalogService")) {
@@ -115,16 +101,8 @@ public class GetLocations {
          System.exit(-1);
       }
 
-      setDavService(DavServiceFactory.getDavService());
+      davService = DavServiceFactory.getDavService( config );
 
-     /* if (ctx.containsBean("integrationDataProperties")) {
-         setIntegrationDataProperties((IntegrationDataProperties) ctx.getBean("integrationDataProperties"));
-      } else {
-         System.err.println("Could not get integrationDataProperties");
-         System.exit(-1);
-      }    
-*/
-       
       List<Location> locationList = new ArrayList<Location>();
       try {
          locationList = getCatalogService().getAllLocation();
@@ -140,7 +118,7 @@ public class GetLocations {
       String xml = getXml(locationInfo);
       
       try {
-         saveXml(xml, destDir);
+         saveXml(xml, config.getLocationDir() );
       } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -174,23 +152,10 @@ public class GetLocations {
          InputStream isr = new  ByteArrayInputStream(bytes);
          
          String url = destDir + "/locations.xml";      
-         getDavService().saveFile(url, isr);
+         davService.saveFile(url, isr);
       } catch (Exception ex) {
          throw ex;
       }
    }
-   
-   public void saveXmlToFile(String xml) throws Exception {
-      String fname = "/usr/local/src/integrationlayer/VoyagerExtract/locations.xml";
-      File file = new File(fname);
-      try {
-         FileUtils.writeStringToFile(file, xml);
-      } catch (IOException ex) {
-         throw ex;
-      }
-
-   }
-   
-   
 
 }

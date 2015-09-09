@@ -150,6 +150,16 @@ public class SolrBuildConfig {
     	}
     }
 
+    public String getLocationDir() throws IOException {
+    	if (values.containsKey("locationDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("locationDir"));
+    		return values.get("locationDir");
+    	} else {
+    		return null;
+    	}
+    }
+
+
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcBibDir"));
