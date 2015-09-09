@@ -2,14 +2,11 @@ package edu.cornell.library.integration;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -147,15 +144,12 @@ public class GetLocations {
     * @throws Exception
     */
    public void saveXml(String xml, String destDir) throws Exception {
-      try {
-         byte[] bytes = xml.getBytes("UTF-8");
-         InputStream isr = new  ByteArrayInputStream(bytes);
+	   InputStream isr = IOUtils.toInputStream(xml, "UTF-8");
          
-         String url = destDir + "/locations.xml";      
-         davService.saveFile(url, isr);
-      } catch (Exception ex) {
-         throw ex;
-      }
+	   String url = destDir + "/locations.xml";      
+	   System.out.println(url);
+	   System.out.println(davService.toString());
+	   davService.saveFile(url, isr);
    }
 
 }
