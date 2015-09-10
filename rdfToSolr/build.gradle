@@ -31,6 +31,13 @@ task list(dependsOn: configurations.compile) << {
     println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }
 
+task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert XML extract of Voyager location table to XML. "
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.libraryXmlToRdf.LibraryXmlToNTriples'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Generates a report of what records are missing\

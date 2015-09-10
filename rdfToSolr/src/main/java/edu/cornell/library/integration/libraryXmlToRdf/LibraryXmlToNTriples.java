@@ -2,7 +2,6 @@ package edu.cornell.library.integration.libraryXmlToRdf;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -72,7 +71,7 @@ public class LibraryXmlToNTriples {
 		DavService davService = DavServiceFactory.getDavService( config );
 		
 		try {
-			FileInputStream xmlstream = new FileInputStream( xmlfile );
+
 			XMLInputFactory input_factory = XMLInputFactory.newInstance();
 			InputStream is = davService.getFileAsInputStream(xmlfile);
 			XMLStreamReader r  = 
@@ -94,7 +93,7 @@ public class LibraryXmlToNTriples {
 										l.locationName + " is suppressed ("+l.mfhdCount+").");
 					}
 			}
-			xmlstream.close();
+			is.close();
 			davService.saveFile(target, IOUtils.toInputStream(sb.toString(), "UTF-8"));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,7 +113,7 @@ public class LibraryXmlToNTriples {
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
 		try {
 			String dir = config.getWebdavBaseUrl()+"/"+config.getLocationDir();
-			libraryXmlToNTriples( config, dir+"/locations.xml",dir+"locations.nt");
+			libraryXmlToNTriples( config, dir+"/locations.xml",dir+"/locations.nt");
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
