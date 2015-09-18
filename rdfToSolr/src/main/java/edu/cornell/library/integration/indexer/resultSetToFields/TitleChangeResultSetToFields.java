@@ -82,12 +82,14 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						if ( ! author_suffixes.isEmpty() )
 							author_suffixes = " "+author_suffixes;
 						for (Subfield sf : f.subfields.values()) {
-							if (sf.code.equals('4'))
+							if (sf.code.equals('4')) {
+								String code = sf.value.toLowerCase().replaceAll("[^a-z]", "");
 								try {
-									author_suffixes += ", "+Relator.valueOf(sf.value).toString();
+									author_suffixes += ", "+Relator.valueOf(code).toString();
 								} catch (IllegalArgumentException e) {
 									System.out.println("Unexpected relator code: \""+sf.value+"\".");
 								}
+							}
 							else if (sf.code.equals('e'))
 								author_suffixes += ", "+sf.value;
 						}

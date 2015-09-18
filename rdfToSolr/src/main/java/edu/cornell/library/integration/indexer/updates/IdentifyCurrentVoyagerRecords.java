@@ -51,7 +51,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("drop table if exists "+bibTable);
 	    c_stmt.execute("create table "+bibTable+"( "
 	    		+ "bib_id int(10) unsigned not null, "
-	    		+ "voyager_date timestamp null, "
+	    		+ "record_date timestamp null, "
 	    		+ "key (bib_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+bibTable+" disable keys");
@@ -62,7 +62,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ " from BIB_MASTER"
 	    		+" where SUPPRESS_IN_OPAC = 'N'");
 	    PreparedStatement pstmt = current.prepareStatement
-	    		("insert into "+bibTable+" (bib_id, voyager_date) "
+	    		("insert into "+bibTable+" (bib_id, record_date) "
 	    		+ " values ( ? , ? )");
 	    int i = 0;
 		while (rs.next()) {
@@ -90,7 +90,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("create table "+mfhdTable+"( "
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "mfhd_id int(10) unsigned not null, "
-	    		+ "voyager_date timestamp null, "
+	    		+ "record_date timestamp null, "
 	    		+ "key (mfhd_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+mfhdTable+" disable keys");
@@ -102,7 +102,7 @@ public class IdentifyCurrentVoyagerRecords {
 	             +" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
 	             + "  and SUPPRESS_IN_OPAC = 'N'");
 	    pstmt = current.prepareStatement
-	    		("insert into "+mfhdTable+" (bib_id, mfhd_id, voyager_date) "
+	    		("insert into "+mfhdTable+" (bib_id, mfhd_id, record_date) "
 	    				+ "values (?, ?, ?)");
 	    PreparedStatement bibConfirm = current.prepareStatement(
 	    		"select bib_id from "+bibTable+" where bib_id = ?");
@@ -136,7 +136,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("create table "+itemTable+"( "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "item_id int(10) unsigned not null, "
-	    		+ "voyager_date timestamp null, "
+	    		+ "record_date timestamp null, "
 	    		+ "key (item_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+itemTable+" disable keys");
@@ -147,7 +147,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+"  from MFHD_ITEM, ITEM"
 	    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID");
 	    pstmt = current.prepareStatement
-	    		("insert into "+itemTable+" (mfhd_id, item_id, voyager_date) "
+	    		("insert into "+itemTable+" (mfhd_id, item_id, record_date) "
 	    				+ "values (?, ?, ?)");
 	    i = 0;
 	    while (rs.next()) {

@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-tasks.withType(Compile) {
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
@@ -132,7 +132,6 @@ task (GetLocations, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.GetLocations'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
- args=['http://culdata.library.cornell.edu/data/voyager/locations']
 }
       
 task (step1GetAllSuppressionsFromCatalog, dependsOn:'assemble', type: JavaExec){

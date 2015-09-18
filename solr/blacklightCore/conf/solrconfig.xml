@@ -626,6 +626,134 @@
       <str name="fq">database_b:true</str>
     </lst>
   </requestHandler>
+  
+  <requestHandler name="/culdigreg" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="fl">id,fulltitle_display,author_display,pub_info_display,fulltitle_vern_display,
+                     summary_display,url_access_display</str>
+      <str name="rows">5000</str>
+      <str name="wt">ruby</str>
+      <str name="indent">true</str>
+      <str name="sort">title_sort asc</str>
+      <str name="defType">edismax</str>
+      <str name="echoParams">explicit</str>
+      <str name="mm">100%</str>
+      <str name="q">*</str>
+      <str name="qf">
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^2500 
+        subtitle_t^5000            subtitle_tP^5000
+        subtitle_t_cjk^1000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
+        title_uniform_t_cjk^250
+        title_addl_t^1250          title_addl_tP^1250
+        title_addl_t_cjk^250
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
+        subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^10
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
+        publisher_t_cjk^10
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
+        subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
+        isbn_t_cjk
+        issn_t_cjk
+        donor_s
+        donor_t                    donor_tP
+        donor_t_cjk
+        pubplace_t                 pubplace_tP
+        pubplace_t_cjk
+        eightninenine_t            eightninenine_tP
+        eightninenine_t_cjk
+        notes_t                    notes_tP
+        notes_t_cjk
+        summary_t                  summary_tP
+        summary_t_cjk
+        toc_t                      toc_tP
+        toc_t_cjk
+        author_245c_t              author_245c_tP
+        author_245c_t_cjk
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
+      </str>
+      <str name="pf">
+        title_unstemC^25000        title_unstemP^25000
+        subtitle_unstemC^12500     subtitle_unstemP^12500
+        title_t^12500              title_tP^12500     
+        title_t_cjk^2500
+        subtitle_t^5000            subtitle_tP^5000
+        subtitle_t_cjk^1000
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_uniform_t^1250       title_uniform_tP^1250
+        title_uniform_t_cjk^250
+        title_addl_t^1250          title_addl_tP^1250
+        title_addl_t_cjk^250
+        title_ngram^1000
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250
+        subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^10
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50
+        publisher_t_cjk^10
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25
+        subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5
+        title_series_t_cjk
+        isbn_t                     isbn_tP
+        issn_t                     issn_tP
+        isbn_t_cjk
+        issn_t_cjk
+        donor_s
+        donor_t                    donor_tP
+        donor_t_cjk
+        pubplace_t                 pubplace_tP
+        pubplace_t_cjk
+        eightninenine_t            eightninenine_tP
+        eightninenine_t_cjk
+        notes_t                    notes_tP
+        notes_t_cjk
+        summary_t                  summary_tP
+        summary_t_cjk
+        toc_t                      toc_tP
+        toc_t_cjk
+        author_245c_t              author_245c_tP
+        author_245c_t_cjk
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
+      </str>
+    </lst>
+  	<lst name="appends">
+  	  <str name="fq">eightninenine_t:culdigreg</str>
+  	</lst>
+  </requestHandler>
 
 
   <!-- Searching ("All Fields") -->

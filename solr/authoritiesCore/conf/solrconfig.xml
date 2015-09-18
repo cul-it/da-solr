@@ -204,7 +204,7 @@
     <lst name="master">
         <str name="enable">${enable.master:false}</str>
         <str name="replicateAfter">startup,optimize</str>
-        <str name="confFiles">schema.xml,solrconfig.xml,protwords.txt,synonyms.txt</str>
+        <str name="confFiles">schema.xml,protwords.txt,synonyms.txt</str>
     </lst>
     <lst name="slave">
         <str name="enable">${enable.slave:false}</str>
@@ -385,7 +385,7 @@
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>
-      <str name="sort">headingSort asc</str>
+      <str name="sort">headingSort asc,count desc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
       <str name="q">[&quot;$from&quot; TO *]</str>
@@ -402,7 +402,7 @@
         authority,mainEntry
       </str>
       <str name="df">headingSort</str>
-      <str name="sort">headingSort desc</str>
+      <str name="sort">headingSort desc,count asc</str>
       <str name="rows">20</str>
       <str name="wt">ruby</str>
       <str name="q">[* TO &quot;$to&quot;}</str>

@@ -1,8 +1,12 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +34,12 @@ import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
 public class DeleteFromSolr {
            
     public static void main(String[] argv) throws Exception{
-        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv);
+
+		List<String> requiredArgs = new ArrayList<String>();
+		requiredArgs.addAll(getRequiredArgsForDB("Current"));
+		requiredArgs.add("solrUrl");
+
+        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
         
         DeleteFromSolr dfs = new DeleteFromSolr();        
         dfs.doTheDelete(config);        
@@ -58,13 +67,22 @@ public class DeleteFromSolr {
         }
         
         String solrURL = config.getSolrUrl();                                        
-        SolrServer solr = new HttpSolrServer( solrURL );        
+        SolrServer solr = new HttpSolrServer( solrURL );
+		String solrIndexName = solrURL.substring(solrURL.lastIndexOf('/')+1);
+		String bibTable = "bibSolr"+solrIndexName;
+
                         
         int lineNum = 0;
+        Connection conn = null;
         try{
             System.out.println("Deleteing BIB IDs found in: " + deleteFileURL);
             System.out.println("from Solr at: " + solrURL);
-    
+
+            conn = config.getDatabaseConnection("Current");
+            conn.setAutoCommit(false);
+            PreparedStatement pstmt = conn.prepareStatement(
+            		"UPDATE "+bibTable+" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
+
             long countBeforeDel = countOfDocsInSolr( solr );
             InputStream is = davService.getFileAsInputStream( deleteFileURL );      
             BufferedReader reader = new BufferedReader(new InputStreamReader( is , "UTF-8" ));
@@ -79,29 +97,35 @@ public class DeleteFromSolr {
                 if( line != null && !line.trim().isEmpty()){
                     lineNum++;
                     ids.add( line );
+                    pstmt.setInt(1, Integer.valueOf(line));
+                    pstmt.addBatch();
                 }
                 
                 if( ids.size() >= batchSize ){
                     solr.deleteById( ids );
+                    pstmt.executeBatch();
                     ids.clear();                    
                 }                    
                 
                 if( lineNum % commitSize == 0 ){
                     System.out.println("Requested " + lineNum + " deletes and doing a commit.");
                     solr.commit();
+                    conn.commit();
                 }                
             }    
 
             if( ids.size() > 0 ){
                 solr.deleteById( ids );
+                pstmt.executeBatch();
             }
 
             System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
             solr.commit(true,true,true);
+            conn.commit();
             
             long countAfterDel = countOfDocsInSolr( solr );
             
-            System.out.println("Expeced to delete " + lineNum + " documents from Solr index.");
+            System.out.println("Expected to delete " + lineNum + " documents from Solr index.");
             System.out.println("Solr document count before delete: " + countBeforeDel + 
                     " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));            
             
@@ -109,6 +133,8 @@ public class DeleteFromSolr {
             throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
                     ", problem around line " + lineNum + ", some documents may "
                     + "have been deleted from Solr.", e);
+        } finally {
+        	conn.close();
         }
         
         System.out.println("Success: requested " + lineNum + " documents "

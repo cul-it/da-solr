@@ -1,18 +1,25 @@
 package edu.cornell.library.integration.libraryXmlToRdf;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
+
+import org.apache.commons.io.IOUtils;
+
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.ilcommons.service.DavService;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class LibraryXmlToNTriples {
 	
@@ -30,7 +37,7 @@ public class LibraryXmlToNTriples {
 	public static String type_p = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
 
 
-	public static void libraryXmlToNTriples(File xmlfile, File target) {
+	public static void libraryXmlToNTriples(SolrBuildConfig config, String xmlfile, String target) {
 		// priority libraries will match in preference to libraries on the main list.
 		priority_libraries.put("Annex", "Library Annex");
 		priority_libraries.put("Bailey", "Bailey Hortorium");
@@ -61,17 +68,18 @@ public class LibraryXmlToNTriples {
 		libraries.put("Uris","Uris Library");
 		libraries.put("Veterinary", "Veterinary Library");
 		
+		DavService davService = DavServiceFactory.getDavService( config );
 		
 		try {
-			FileInputStream xmlstream = new FileInputStream( xmlfile );
-			XMLInputFactory input_factory = XMLInputFactory.newInstance();
-			XMLStreamReader r  = 
-					input_factory.createXMLStreamReader(xmlfile.getPath(), xmlstream);
-			BufferedOutputStream out = null;
-			out =  new BufferedOutputStream(new FileOutputStream(target));
 
-			out.write(generateNTriples(priority_libraries).getBytes());
-			out.write(generateNTriples(libraries).getBytes());
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			InputStream is = davService.getFileAsInputStream(xmlfile);
+			XMLStreamReader r  = 
+					input_factory.createXMLStreamReader(is);
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(generateNTriples(priority_libraries));
+			sb.append(generateNTriples(libraries));
 			
 			while (r.hasNext()) {
 				String event = getEventTypeString(r.next());
@@ -79,14 +87,14 @@ public class LibraryXmlToNTriples {
 					if (r.getLocalName().equals("location")) {
 						Location l = processLocation(r);
 						if (l.suppressInOpac.equals("N"))
-							out.write(generateNTriples(l).getBytes());
+							sb.append(generateNTriples(l));
 						else 
 							System.out.println("Location "+l.locationCode+" / " + 
 										l.locationName + " is suppressed ("+l.mfhdCount+").");
 					}
 			}
-			xmlstream.close();
-			out.close();
+			is.close();
+			davService.saveFile(target, IOUtils.toInputStream(sb.toString(), "UTF-8"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -97,10 +105,19 @@ public class LibraryXmlToNTriples {
 	 */
 	public static void main(String[] args) {
 		
-		String destfile = "/users/fbw4/git/integrationLayer/rdf/library.nt";
+/*		String destfile = "/users/fbw4/git/integrationLayer/rdf/library.nt";
 		File file = new File( "/users/fbw4/git/integrationLayer/rdf/sources/locations.xml" );
-
-		libraryXmlToNTriples( file, new File(destfile));
+*/
+		List<String> requiredArgs = getRequiredArgsForWebdav();
+		requiredArgs.add("locationDir");
+		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
+		try {
+			String dir = config.getWebdavBaseUrl()+"/"+config.getLocationDir();
+			libraryXmlToNTriples( config, dir+"/locations.xml",dir+"/locations.nt");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		
 	}
 	

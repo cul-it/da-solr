@@ -81,7 +81,7 @@ public class SolrBuildConfig {
     public void setDebugRSTFClass( Class<?> c ) {
     	debugRSTFs.add(c);
     }
-    public boolean isRSTFClassDebug( Class<?> c ) {
+    public boolean isDebugClass( Class<?> c ) {
     	return debugRSTFs.contains(c);
     }
     
@@ -149,6 +149,16 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+
+    public String getLocationDir() throws IOException {
+    	if (values.containsKey("locationDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("locationDir"));
+    		return values.get("locationDir");
+    	} else {
+    		return null;
+    	}
+    }
+
 
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
