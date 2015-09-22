@@ -1,5 +1,9 @@
-Welcome to the D&A Integration Layer.
+Welcome to the Discovery & Access Solr Index Build
 
-The goal of the Integration Layer is to have a coordianted
-set of web services that provide access to data in the
-library systems. 
+This is a sub-project of Cornell's Discovery & Access, with
+a focus on building Solr indexes, primarily but not exclusively
+from catalog data.
+
+The primary method for execution of pieces of this project
+is through gradle. Execute "gradle tasks" to retrieve library
+jars used by the project and to get a list of available tasks.
