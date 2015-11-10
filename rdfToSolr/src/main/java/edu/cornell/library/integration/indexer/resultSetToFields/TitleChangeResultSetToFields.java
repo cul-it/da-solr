@@ -196,11 +196,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					relation = "issued_with";		break MAIN;
 				}
 				if (relation != null) {
-					if (f.ind1.equals('0')) {
-						String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-								relation+"_display",displaystring,title_cts));
-					}
+					// display no longer dependant on ind1 = '0'.
+					String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
+					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+							relation+"_display",displaystring,title_cts));
 				}
 
 				if (f.mainTag.equals("780") 
