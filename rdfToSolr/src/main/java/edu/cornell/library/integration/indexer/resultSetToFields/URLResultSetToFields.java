@@ -2,18 +2,22 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -30,70 +34,36 @@ public class URLResultSetToFields implements ResultSetToFields {
 		
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-	  	Map<String,HashMap<String,ArrayList<String>>> marcfields = 
-	  			new HashMap<String,HashMap<String,ArrayList<String>>>();
-						
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					String fi = nodeToString(sol.get("f")) +
-							nodeToString(sol.get("i1")) + 
-							nodeToString(sol.get("i2"));
-					HashMap<String,ArrayList<String>> fieldparts;
-					if (marcfields.containsKey(fi)) {
-						fieldparts = marcfields.get(fi);
-					} else {
-						fieldparts = new HashMap<String,ArrayList<String>>();
-					}
-					String c = nodeToString(sol.get("c"));
-					ArrayList<String> vals;
-					if (fieldparts.containsKey(c)) {
-						vals = fieldparts.get(c);
-					} else {
-						vals = new ArrayList<String>();
-					}
-					vals.add(nodeToString(sol.get("v")));
-					fieldparts.put(c, vals);
-					marcfields.put(fi, fieldparts);
-				}
-			}
-		}
+		MarcRecord rec = new MarcRecord();
 		
-		for (String fti: marcfields.keySet()) {
-//			String ind = fti.substring(fti.length()-2);
+		for( String resultKey: results.keySet()){
+			rec.addDataFieldResultSet(results.get(resultKey));
+		}
+		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+						
+		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
+		// but with organization determined by vernMode.
+		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		Arrays.sort( ids );
+		for( Integer id: ids) {
+			FieldSet fs = sortedFields.get(id);
+			Set<String> values880 = new HashSet<String>();
+			Set<String> valuesMain = new HashSet<String>();
+			Set<String> urls = new HashSet<String>();
+			for (DataField f : fs.fields) {
+				urls.addAll(f.valueListForSpecificSubfields("u"));
+				String linkLabel = f.concatenateSpecificSubfields("3yz");
+				if (linkLabel.isEmpty())
+					continue;
+				if (f.tag.equals("880"))
+					values880.add(linkLabel);
+				else
+					valuesMain.add(linkLabel);
+			}
+			values880.addAll(valuesMain);
+			String linkDescription = StringUtils.join(values880,' ');
 			String relation ="access"; //this is a default and may change later
-/*			if ((ind.equals("40")) || (ind.equals("41"))) {
-				relation = "access";
-			} else if (ind.equals("42"))  {
-				if (marcfields.get(fti).containsKey("3")) {
-					ArrayList<String> threes = marcfields.get(fti).get("3");
-					for (String three: threes) {
-						if (three.toLowerCase().contains("table of contents")) 
-							relation = "toc";
-					}
-				}
-			} */ 
-			if (relation.equals("")) relation = "other";
-			HashMap<String,ArrayList<String>> fieldparts = marcfields.get(fti);
-			if ( ! fieldparts.containsKey("u")) continue;
-			ArrayList<String> us = fieldparts.get("u");
-			ArrayList<String> threes = new ArrayList<String>();
-			ArrayList<String> zs = new ArrayList<String>();
-			if (fieldparts.containsKey("3")) threes = fieldparts.get("3");
-			if (fieldparts.containsKey("z")) zs = fieldparts.get("z");
-			StringBuilder sb = new StringBuilder();
-			for (String three: threes) {
-				sb.append(" ");
-				sb.append(three);
-			}
-			for (String z: zs) {
-				sb.append(" ");
-				sb.append(z);
-			}
-			String comment = sb.toString().trim();
-			String lc = comment.toLowerCase();
+			String lc = linkDescription.toLowerCase();
 			if (lc.contains("table of contents")
 					|| lc.contains("tables of contents")
 					|| lc.endsWith(" toc")
@@ -121,24 +91,32 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc.contains("more information")) {
 				relation = "other";
 			}
-			if (lc.contains("inding aid"))
+			if (lc.contains("finding aid"))
 				relation = "findingaid";
-			for (String u: us) {
-				if (u.toLowerCase().contains("://plates.library.cornell.edu")) {
-					relation = "bookplate";
-					if (! comment.equals(""))
-						addField(fields,"donor_t",standardizeApostrophes(comment));
-				} else if (u.toLowerCase().contains("://pda.library.cornell.edu")) {
-					relation = "pda";
+			
+			if (urls.size() > 1)
+				 System.out.println("Multiple URL fields for an 856 is an error.");
+			// There shouldn't be multiple URLs, but we're just going to iterate through
+			// them anyway.
+			for (String url: urls) {
+				String urlRelation = relation;
+				String url_lc = url.toLowerCase();
+				if (url_lc.contains("://plates.library.cornell.edu")) {
+					urlRelation = "bookplate";
+					if (! linkDescription.isEmpty())
+						addField(fields,"donor_t",standardizeApostrophes(linkDescription));
+				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
+					urlRelation = "pda";
 				}
-				if (comment.equals("")) {
-					addField(fields,"url_"+relation+"_display",u);						
+				if (linkDescription.isEmpty()) {
+					addField(fields,"url_"+urlRelation+"_display",url);						
 				} else {
-					addField(fields,"url_"+relation+"_display",u + "|" + comment);
+					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription);
 				}
 			}
+
 		}
-		
+
 		return fields;
 	}	
 

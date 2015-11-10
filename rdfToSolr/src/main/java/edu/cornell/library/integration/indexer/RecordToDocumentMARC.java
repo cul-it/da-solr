@@ -490,22 +490,24 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        addMainStoreQuery("urls", 
 			        	"SELECT *\n" +
 			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField856 ?f.\n" +
-			        	"  ?f marcrdf:ind1 ?i1.\n" +
-			        	"  ?f marcrdf:ind2 ?i2.\n" +
-			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-			        	"  ?sf marcrdf:code ?c.\n" +
-			        	"  ?sf marcrdf:value ?v. }").
+			        	"  $recordURI$ marcrdf:hasField856 ?field.\n" +
+			        	"  ?field marcrdf:tag ?tag.\n" +
+			        	"  ?field marcrdf:ind1 ?ind1.\n" +
+			        	"  ?field marcrdf:ind2 ?ind2.\n" +
+			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			        	"  ?sfield marcrdf:code ?code.\n" +
+			        	"  ?sfield marcrdf:value ?value. }").
 				   addMainStoreQuery("urls_mfhd", 
 						"SELECT *\n" +
 				    	" WHERE {\n" +
 						"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
-			        	"  ?mfhd marcrdf:hasField856 ?f.\n" +
-			        	"  ?f marcrdf:ind1 ?i1.\n" +
-			        	"  ?f marcrdf:ind2 ?i2.\n" +
-			        	"  ?f marcrdf:hasSubfield ?sf.\n" +
-			        	"  ?sf marcrdf:code ?c.\n" +
-			        	"  ?sf marcrdf:value ?v. }").
+			        	"  ?mfhd marcrdf:hasField856 ?field.\n" +
+			        	"  ?field marcrdf:tag ?tag.\n" +
+			        	"  ?field marcrdf:ind1 ?ind1.\n" +
+			        	"  ?field marcrdf:ind2 ?ind2.\n" +
+			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			        	"  ?sfield marcrdf:code ?code.\n" +
+			        	"  ?sfield marcrdf:value ?value. }").
 		        addResultSetToFields( new URLResultSetToFields()),
 
 		        getHathiLinks(),
