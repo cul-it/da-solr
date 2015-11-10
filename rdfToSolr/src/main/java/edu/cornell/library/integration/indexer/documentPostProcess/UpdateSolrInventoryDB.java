@@ -1,5 +1,12 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +16,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -220,7 +229,11 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		List<String> locations = new ArrayList<String>();
 		if (document.containsKey("url_access_display")) {
 //			Collection<Object> urls = document.getFieldValues("url_access_display");
-			locations.add("Online"); //TODO: detailed location labeling.
+			String sites = identifyOnlineServices(document.getFieldValues("url_access_display"));
+			if (sites == null)
+				locations.add("Online");
+			else
+				locations.add("Online: "+sites);
 		}
 		if (document.containsKey("location_facet")) {
 			String libraries = fieldValuesToConcatString(document.getFieldValues("location_facet"));
@@ -229,6 +242,45 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return StringUtils.join(locations," / ");
 	}
 
+	private String identifyOnlineServices(Collection<Object> urls) {
+		if (urlPatterns == null)
+			loadUrlPatterns();
+		List<String> identifiedSites = new ArrayList<String>();
+		for (Object url_o : urls) {
+			String url = url_o.toString().toLowerCase();
+			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
+				if (url.contains(pattern.getKey())) {
+					identifiedSites.add(pattern.getValue());
+					break;
+				}
+		}
+		if (identifiedSites.isEmpty())
+			return null;
+		return StringUtils.join(identifiedSites, ", ");
+	}
+	private void loadUrlPatterns() {
+		URL url = ClassLoader.getSystemResource("/online_site_identifications.txt");
+		urlPatterns = new HashMap<String,String>();
+		try {
+			Path p = Paths.get(url.toURI());
+			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
+			for (String site : sites) {
+				String[] parts = site.split("\\t", 2);
+				if (parts.length < 2)
+					continue;
+				urlPatterns.put(parts[0], parts[1]);
+			}
+		} catch (URISyntaxException e) {
+			// This should never happen since the URI syntax is machine generated.
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Couldn't read config file for site identifications.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	static Map<String,String> urlPatterns = null;
+	
 	private String fieldValuesToConcatString(Collection<Object> fieldValues) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
@@ -236,7 +288,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			if (first)
 				first = false;
 			else
-				sb.append(',');
+				sb.append(", ");
 			sb.append(val.toString());
 		}
 		return sb.toString();

@@ -1,0 +1,42 @@
+ABI/INFORM	ABI/INFORM
+ACLS Humanities	ACLS Humanities
+www.aspresolver.com	Alexander Street Press
+set=Books24x7	Books24x7
+Brepols Miscellanea	Brepols Miscellanea
+Business Insights	Business Insights
+Business Source Complete	Business Source Complete
+crcnetbase.com	CRCnetBASE
+www.davidrumsey.com	David Rumsey Collection
+Early English books	Early English Books Online
+.ebrary.com	Ebrary
+ebscohost.com	EBSCO Publishing
+Factiva	Factiva
+.galegroup.com	Gale CEngage Learning
+HathiTrust	HathiTrust
+www.heinonline.org	HeinOnline
+HighWire Press	HighWire Press
+ieeexplore.ieee.org	IEEE/IET
+www.archive.org	Internet Archive (archive.org)
+.jstor.org	JSTOR
+.knovel.com	Knovel
+LexisNexis	LexisNexis
+MIT CogNet	MIT CogNet
+.myilibrary.com	MyiLibrary
+National Academies Press	National Academies Press
+www.nber.org	Natl. Bureau of Econ. Research
+naxosmusiclibrary.com	Naxos Music Library
+NetLibrary	NetLibrary
+OECD iLibrary	OECD iLibrary
+cornell.lib.overdrive.com	OverDrive
+discover.pli.edu	Practising Law Institute
+.proquest.com	ProQuest
+www.rkma.com	RKMA Publications
+.safaribooksonline.com	Safari Books Online
+spiedigitallibrary.org	SPIE Digital Library
+SpringerLink	SpringerLink
+Thieme	Thieme
+www.osti.gov	U.S. Dept. of Energy
+U.S. Government Printing Office	U.S. Government Printing Office
+.gpo.gov	U.S. Government Printing Office
+.fldp.gov	U.S. Government Printing Office
+.fdlp.gov	U.S. Government Printing Office
