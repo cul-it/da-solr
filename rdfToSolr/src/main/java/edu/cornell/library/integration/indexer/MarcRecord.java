@@ -6,10 +6,12 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -348,6 +350,36 @@ public class MarcRecord {
 //					return "Roman";
 					return val;
 				}
+			}
+			/**
+			 * Returns a list of Subfield values for the DataField, matching the
+			 * list of specified subfield codes. Each subfield value will be separated
+			 * trim()'d, and any values then empty will be omitted.
+			 * 
+			 * For right-to-left languages, the start and stop RTL encoding Unicode
+			 * markers will be added to either end up each string, as long as the field
+			 * has a subfield $6 value ending with "/r". It is assumed that the subfield
+			 * $6 will be the first subfield, so the addition of the Unicode markers
+			 * will fail for RTL Subfields appearing before the appropriate subfield $6.
+			 */
+			public List<String> valueListForSpecificSubfields(String subfields) {
+				List<String> l = new ArrayList<String>();
+				Boolean rtl = false;
+				for (Subfield sf : this.subfields.values()) {
+					if (sf.code.equals('6'))
+						if (sf.value.equals("/r"))
+							rtl = true;
+					if (subfields.contains(sf.code.toString())) {
+						String val = sf.value.trim();
+						if (val.length() == 0)
+							continue;
+						if (rtl)
+							l.add(RLE_openRTL+val+PDF_closeRTL);
+						else
+							l.add(val);
+					}
+				}
+				return l;
 			}
 			
 			public Script getScript() {
