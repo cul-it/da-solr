@@ -1,1 +1,1 @@
-include 'rdfToSolr', 'solr', 'VoyagerExtract', 'ILCommons', 'marcXmlToRdf'
+include 'rdfToSolr', 'VoyagerExtract', 'ILCommons', 'marcXmlToRdf'
