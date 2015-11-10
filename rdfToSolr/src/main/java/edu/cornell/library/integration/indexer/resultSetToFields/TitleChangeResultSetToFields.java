@@ -109,7 +109,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					} else {
 						if (f.ind2.equals('2')) {
 							relation = "included_work";
-							valuesATFacet.add(f.concatenateSubfieldsOtherThan("6"));
+							valuesATFacet.add(f.concatenateSubfieldsOtherThan("64"));
 						} else {
 							relation = "related_work";
 						}
