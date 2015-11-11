@@ -261,7 +261,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"    ?hold852k marcrdf:code \"k\"^^xsd:string.\n" +
 			        	"    ?hold852k marcrdf:value ?prefix. }\n" + 
 			        	"}").
-				    addMainStoreQuery("bib_callno",
+				    addMainStoreQuery("bib_050callno",
 					    "SELECT ?part1 ?part2\n"+
 				    	"WHERE {\n"+
 		                "  $recordURI$ marcrdf:hasField050 ?f50.\n" +
@@ -273,7 +273,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					   	"    ?f50b marcrdf:code \"b\"^^xsd:string.\n" +
 					   	"    ?f50b marcrdf:value ?part2. }\n" +
 				    	"}").
-				    addMainStoreQuery("bib_callno",
+				    addMainStoreQuery("bib_950callno",
 				    		"SELECT ?part1 ?part2\n"+
 				    		"WHERE {\n"+
 				            "  $recordURI$ marcrdf:hasField950 ?f950.\n" +
