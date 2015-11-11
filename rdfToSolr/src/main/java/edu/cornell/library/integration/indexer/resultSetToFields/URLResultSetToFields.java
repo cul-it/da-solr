@@ -114,7 +114,8 @@ public class URLResultSetToFields implements ResultSetToFields {
 					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription);
 				}
 			}
-
+			if (! urls.isEmpty())
+				addField(fields,"notes_t",linkDescription);
 		}
 
 		return fields;
