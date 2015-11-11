@@ -357,7 +357,7 @@
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="callnum_sort" type="callNumberSort" indexed="true" stored="false" multiValued="false" />
+    <field name="callnum_sort" type="callNumberSort" indexed="true" stored="true" multiValued="false" />
 
     <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
     <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>

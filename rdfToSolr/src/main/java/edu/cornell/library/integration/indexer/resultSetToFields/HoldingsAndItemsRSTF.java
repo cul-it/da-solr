@@ -116,7 +116,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 //			rec.addDataFieldResultSet(rs);
 		}
 		
-		Boolean callNumSortSupplied = false;
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
 
@@ -203,10 +202,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			holding.copy_number = copyNo;
 			if ( ! loccodes.contains("serv,remo")) {
 				holding.callnos = callnos.toArray(new String[ callnos.size() ]);
-				if (! callNumSortSupplied && callnos.size() > 0) {
-					addField(fields,"callnum_sort",callnos.iterator().next());
-					callNumSortSupplied = true;
-				}
 			}
 			holding.notes = notes.toArray(new String[ notes.size() ]);
 			holding.holdings_desc = holdingDescs.toArray(new String[ holdingDescs.size() ]);

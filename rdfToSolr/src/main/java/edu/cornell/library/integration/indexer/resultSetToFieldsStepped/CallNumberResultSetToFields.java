@@ -38,6 +38,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		ArrayList<String> callnos = new ArrayList<String>();
 		ArrayList<String> letters = new ArrayList<String>();
+		String sort_callno = null;
 		ArrayList<Classification> classes = new ArrayList<Classification>();
 		
 		/*
@@ -50,39 +51,39 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
 			if (debug)
 				System.out.println(resultKey);
-			
-			if ( resultKey.endsWith("callno")) {
-				if( rs != null){
-					while(rs.hasNext()){
-						QuerySolution sol = rs.nextSolution();
 
-						if (debug) {
-							System.out.println(" result.");
-							Iterator<String> i = sol.varNames();
-							while (i.hasNext()) {
-								String fieldname = i.next();
-								System.out.println(fieldname +": " + nodeToString(sol.get(fieldname)));
-							}
+			if( rs != null){
+				while(rs.hasNext()){
+					QuerySolution sol = rs.nextSolution();
+
+					if (debug) {
+						System.out.println(" result.");
+						Iterator<String> i = sol.varNames();
+						while (i.hasNext()) {
+							String fieldname = i.next();
+							System.out.println(fieldname +": " + nodeToString(sol.get(fieldname)));
 						}
-							
-						String callno = nodeToString( sol.get("part1") );
-						if (callno.equalsIgnoreCase("No Call Number")) continue;
-						if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
-							// Not an LOC call number (probably)
-						} else {
-							// How many letters at beginning of call number?
-							int i = 0;
-							while ( callno.length() > i) {
-								if ( Character.isLetter(callno.charAt(i)) )
-									i++;
-								else
-									break;
-							}
+					}
+
+					String callno = nodeToString( sol.get("part1") );
+					if (callno.equalsIgnoreCase("No Call Number")) continue;
+					if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
+						// Not an LOC call number (probably)
+					} else {
+						// How many letters at beginning of call number?
+						int i = 0;
+						while ( callno.length() > i) {
+							if ( Character.isLetter(callno.charAt(i)) )
+								i++;
+							else
+								break;
+						}
+						if (i <= 3) { // Too many letters suggests not an LC call no
 							if (i >= 1)
 								letters.add( callno.substring(0,1).toUpperCase() );
 							if (i > 1)
 								letters.add( callno.substring(0,i).toUpperCase() );
-							if (i >= i) {
+							if (callno.length() > i) {
 								int j = i;
 								for ( ; j < callno.length() ; j++) {
 									Character c = callno.charAt(j);
@@ -93,29 +94,36 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 										callno.substring(0,i).toUpperCase(),
 										callno.substring(i, j)));
 							}
-						}
-						if (sol.contains("part2")) {
-							String part2 = nodeToString( sol.get("part2") );
-							if (! part2.equals("")) {
-								callno += " " + part2;
+							// There can be only one. Holdings take precedence.
+							if (sort_callno == null || resultKey.startsWith("holdings")) {
+								if (sol.contains("part2"))
+									sort_callno = callno+" "+nodeToString( sol.get("part2") );
+								else
+									sort_callno = callno;
 							}
 						}
-						if (debug)
-							System.out.println(callno);
-						if (resultKey.equals("holdings_callno") ) {
-//								&& sol.contains("loc")
-//								&& ! nodeToString( sol.get("loc")).equals("serv,remo")) {
+					}
+					if (sol.contains("part2")) {
+						String part2 = nodeToString( sol.get("part2") );
+						if (! part2.equals("")) {
+							callno += " " + part2;
+						}
+					}
+					if (debug)
+						System.out.println(callno);
+					if (resultKey.equals("holdings_callno") ) {
+//							&& sol.contains("loc")
+//							&& ! nodeToString( sol.get("loc")).equals("serv,remo")) {
+						callnos.add(callno);
+						if (callno.toLowerCase().startsWith("thesis ")) {
+							callno = callno.substring(7);
 							callnos.add(callno);
-							if (callno.toLowerCase().startsWith("thesis ")) {
-								callno = callno.substring(7);
+						}
+						if (sol.contains("prefix")) {
+							String prefix = nodeToString( sol.get("prefix") );
+							if (! prefix.equals("")) {
+								callno = prefix + " " + callno;
 								callnos.add(callno);
-							}
-							if (sol.contains("prefix")) {
-								String prefix = nodeToString( sol.get("prefix") );
-								if (! prefix.equals("")) {
-									callno = prefix + " " + callno;
-									callnos.add(callno);
-								}
 							}
 						}
 					}
@@ -127,6 +135,9 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
         // only in the holdings data, but all call numbers are still populated in the call number search.
 		for (int i = 0; i < callnos.size(); i++)
 			addField(fields,"lc_callnum_full",callnos.get(i));
+		
+		if (sort_callno != null) 
+			addField(fields,"callnum_sort",sort_callno);
 				
 		for (int i = 0; i < letters.size(); i++) {
 			String l = letters.get(i);
