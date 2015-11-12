@@ -7,6 +7,8 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -22,6 +25,7 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.Relator;
 
 /**
@@ -29,6 +33,8 @@ import edu.cornell.library.integration.indexer.utilities.Relator;
  * 
  */
 public class TitleChangeResultSetToFields implements ResultSetToFields {
+
+	static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -59,6 +65,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			Collection<String> valuesCorpAFacet = new ArrayList<String>();
 			Collection<String> valuesEventAFacet = new ArrayList<String>();
 			Collection<String> valuesATFacet = new ArrayList<String>();
+			HeadTypeDesc htd = null;
 			String relation = null;
 			for (DataField f: dataFields) {
 				String title_cts = f.concatenateSpecificSubfields("t");
@@ -70,8 +77,13 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
 					if (f.mainTag.equals("700")) {
 						author_cts = f.concatenateSpecificSubfields("abcdq");
-					} else {
+						htd = HeadTypeDesc.PERSNAME;
+					} else if (f.mainTag.equals("710")) {
 						author_cts = f.concatenateSpecificSubfields("ab");
+						htd = HeadTypeDesc.CORPNAME;
+					} else {
+						author_cts = f.concatenateSpecificSubfields("abe");
+						htd = HeadTypeDesc.EVENT;
 					}
 
 					// no title - this is an added entry author/creator
@@ -102,11 +114,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						if (f.mainTag.equals("700"))
 							valuesPersAFacet.add(f.concatenateSpecificSubfields("abcdq"));
 						else if (f.mainTag.equals("710"))
-							valuesCorpAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+							valuesCorpAFacet.add(f.concatenateSpecificSubfields("ab"));
 						else
-							valuesEventAFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuvwxyz"));
+							valuesEventAFacet.add(f.concatenateSpecificSubfields("abe"));
 					// with title, this is an included or related work
 					} else {
+						htd = HeadTypeDesc.WORK;
 						if (f.ind2.equals('2')) {
 							relation = "included_work";
 							valuesATFacet.add(f.concatenateSubfieldsOtherThan("64"));
@@ -246,15 +259,24 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
 					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
 							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					Map<String,Object> json = new HashMap<String,Object>();
+					json.put("name1", vernField.display);
+					json.put("search1", vernField.cts1);
+					json.put("name2", romanField.display);
+					json.put("search2", romanField.cts1);
+					json.put("type", htd.toString());
+					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+					mapper.writeValue(jsonstream, json);
+					addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
 					cts_fields.clear();
 				}
 			}
 			for (CtsField f : cts_fields)
 				if (f.vern)
-					addCtsField(solrFields,f);
+					addCtsField(solrFields,f,htd);
 			for (CtsField f : cts_fields)
 				if ( ! f.vern)
-					addCtsField(solrFields,f);
+					addCtsField(solrFields,f,htd);
 			for (String s : valuesPersAFacet) {
 				addField(solrFields,"author_pers_filing",getSortHeading(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
@@ -275,11 +297,18 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		return solrFields;	
 	}
 	
-	public void addCtsField(Map<String,SolrInputField> solrFields, CtsField f) {
+	public void addCtsField(Map<String,SolrInputField> solrFields, CtsField f, HeadTypeDesc htd) throws IOException {
 		if (f.relation.equals("author_addl")) {
 			addField(solrFields,"author_addl_display",f.display);
 			addField(solrFields,"author_addl_cts",String.format("%s|%s",
 					f.display,f.cts1));
+			Map<String,Object> json = new HashMap<String,Object>();
+			json.put("name1", f.display);
+			json.put("search1", f.cts1);
+			json.put("type", htd.toString());
+			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+			mapper.writeValue(jsonstream, json);
+			addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
 		} else {
 			if (f.cts2 == null)
 				addField(solrFields,f.relation,String.format("%s|%s",f.display,f.cts1));

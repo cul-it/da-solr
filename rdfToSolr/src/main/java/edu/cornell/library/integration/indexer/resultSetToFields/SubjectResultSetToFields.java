@@ -4,6 +4,7 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -22,12 +24,15 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
  */
 public class SubjectResultSetToFields implements ResultSetToFields {
+
+	static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -82,7 +87,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> values880_breadcrumbed = new HashSet<String>();
 			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
 			Set<String> values_browse = new HashSet<String>();
+			Set<String> valuesJson = new HashSet<String>();
 			boolean isWork = false;
+			HeadTypeDesc htd = HeadTypeDesc.TOPIC; //default
 		
 			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null;
 			for (DataField f: dataFields) {
@@ -92,40 +99,47 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "abcdefghkjlmnopqrstu";
 					dashed_fields = "vxyz";
 					filing_type = "pers";
+					htd = HeadTypeDesc.PERSNAME;
 					isWork = isWork(f);
 					break;
 				case "610":
 					main_fields = "abcdefghklmnoprstu";
 					dashed_fields = "vxyz";
 					filing_type = "corp";
+					htd = HeadTypeDesc.CORPNAME;
 					isWork = isWork(f);
 					break;
 				case "611":
 					main_fields = "acdefghklnpqstu";
 					dashed_fields = "vxyz";
 					filing_type = "event";
+					htd = HeadTypeDesc.EVENT;
 					isWork = isWork(f);
 					break;
 				case "630":
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
+					htd = HeadTypeDesc.GENHEAD;
 					break;
 				case "648":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					filing_type = "era";
 					facet_type = "era";
+					htd = HeadTypeDesc.CHRONTERM;
 					break;
 				case "650":
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
 					filing_type = "topic";
+					htd = HeadTypeDesc.TOPIC;
 					break;
 				case "651":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					filing_type = "geo";
 					facet_type = "geo";
+					htd = HeadTypeDesc.GEONAME;
 					break;
 				case "653":
 					// This field list is used for subject_display and sixfivethree.
@@ -134,12 +148,14 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "654":
 					main_fields = "abe";
 					dashed_fields = "vyz";
+					
 					break;
 				case "655":
 					main_fields = "ab"; //655 facet_type over-riden for FAST facet
 					dashed_fields = "vxyz";
 					filing_type = "genr";
 					facet_type = "genre";
+					htd = HeadTypeDesc.GENRE;
 					break;
 				case "656":
 					main_fields = "ak";
@@ -156,6 +172,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "abcdfgh";
 					facet_type = "geo";
 					filing_type = "geo";
+					htd = HeadTypeDesc.GEONAME;
 					break;
 				case "690":
 				case "691":
@@ -172,24 +189,36 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
-				if (isWork) filing_type = "work";
+				if (isWork) {
+					filing_type = "work";
+					htd = HeadTypeDesc.WORK;
+				}
 				if (! main_fields.equals("")) {
 					StringBuilder sb_piped = new StringBuilder();
 					StringBuilder sb_breadcrumbed = new StringBuilder();
 					String mainFields = f.concatenateSpecificSubfields(main_fields);
 					sb_piped.append(mainFields);
 					sb_breadcrumbed.append(mainFields);
+					Map<String,Object> json = new HashMap<String,Object>();
+					json.put("subject1", mainFields);
+					json.put("type", htd.toString());
+
 					values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 //					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (f.mainTag.equals("653")) {
 						addField(solrFields,"sixfivethree",sb_piped.toString());
 					}
+					int i = 1;
 					for (String dashed_term : dashed_terms) {
 						sb_piped.append("|"+dashed_term);
 						sb_breadcrumbed.append(" < "+dashed_term);
+						json.put("subject"+ ++i, dashed_term);
 						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					}
+					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+					mapper.writeValue(jsonstream, json);
+					valuesJson.add(jsonstream.toString("UTF-8"));
 					if (f.tag.equals("880")) {
 						values880_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						values880_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
@@ -217,21 +246,20 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_display",disp);
 			}
-			for (String s: values_browse) {
+			for (String s: values_browse)
 				if (filing_type != null) {
 					addField(solrFields,"subject_"+filing_type+"_facet",removeTrailingPunctuation(s,"."));
 					addField(solrFields,"subject_"+filing_type+"_filing",getSortHeading(s));
 				}
-			}
 
-			for (String s: values880_piped) {
+			for (String s: values880_piped)
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_cts",s);
-			}
-			for (String s: valuesMain_piped) {
+			for (String s: valuesMain_piped)
 				if ( ! h.isFAST || ! recordHasLCSH)
 					addField(solrFields,"subject_cts",s);
-			}
+			for (String s: valuesJson)
+				addField(solrFields,"subject_json",s);
 		}
 		
 		SolrInputField field = new SolrInputField("fast_b");

@@ -54,7 +54,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	String rectypebiblvl = null;
 	Collection<Map<String,Object>> boundWiths = new ArrayList<Map<String,Object>>();
 	Connection conn = null;
-	ObjectMapper mapper = new ObjectMapper();
+	static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public Map<String, SolrInputField> toFields(
