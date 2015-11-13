@@ -4,7 +4,7 @@ import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.h
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
@@ -278,19 +278,19 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				if ( ! f.vern)
 					addCtsField(solrFields,f,htd);
 			for (String s : valuesPersAFacet) {
-				addField(solrFields,"author_pers_filing",getSortHeading(s));
+				addField(solrFields,"author_pers_filing",getFilingForm(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
 			for (String s : valuesCorpAFacet) {
-				addField(solrFields,"author_corp_filing",getSortHeading(s));
+				addField(solrFields,"author_corp_filing",getFilingForm(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
 			for (String s : valuesEventAFacet) {
-				addField(solrFields,"author_event_filing",getSortHeading(s));
+				addField(solrFields,"author_event_filing",getFilingForm(s));
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
 			}
 			for (String s : valuesATFacet) {
-				addField(solrFields,"authortitle_filing",getSortHeading(s));
+				addField(solrFields,"authortitle_filing",getFilingForm(s));
 				addField(solrFields,"authortitle_facet",removeTrailingPunctuation(s,",. "));
 			}
 		}

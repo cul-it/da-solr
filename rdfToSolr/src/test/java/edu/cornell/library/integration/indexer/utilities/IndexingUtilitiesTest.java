@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.utilities;
 
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -21,52 +21,52 @@ public class IndexingUtilitiesTest {
 	
 	@Test
 	public void getSortHeadingTest() {
-		assertTrue(getSortHeading("hello").equals("hello"));
-		assertTrue(getSortHeading("Hello").equals("hello"));
-		assertTrue(getSortHeading("Hello,").equals("hello"));
-		assertTrue(getSortHeading("  hello     ").equals("hello"));
-		assertTrue(getSortHeading("héllo!").equals("hello"));
-		assertTrue(getSortHeading("!!- :::hello::: -!!").equals("hello"));
-		assertFalse(getSortHeading("hello").equals("goodbye"));
-		assertTrue(getSortHeading("hello-  -,:()@#$%^* hello").equals("hello hello"));
-		assertTrue(getSortHeading("Hello>hello").equals("hello 0000 hello"));
-		assertTrue(getSortHeading("Hello > hello").equals("hello 0000 hello"));
-		assertTrue(getSortHeading("Hello--Hello").equals("hello 0000 hello"));
-		assertTrue(getSortHeading("Hello -- Hello").equals("hello 0000 hello"));
-		assertTrue(getSortHeading("--Hello").equals("hello"));
-		assertTrue(getSortHeading("Hello---Hello").equals("hello 0000 hello"));
-		assertTrue(getSortHeading("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
-		assertTrue(getSortHeading("Hello & Goodbye!").equals("hello goodbye 6&"));
-		assertTrue(getSortHeading(" Alzheimer's disease ").equals("alzheimers disease"));
-		assertTrue(getSortHeading("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
+		assertTrue(getFilingForm("hello").equals("hello"));
+		assertTrue(getFilingForm("Hello").equals("hello"));
+		assertTrue(getFilingForm("Hello,").equals("hello"));
+		assertTrue(getFilingForm("  hello     ").equals("hello"));
+		assertTrue(getFilingForm("héllo!").equals("hello"));
+		assertTrue(getFilingForm("!!- :::hello::: -!!").equals("hello"));
+		assertFalse(getFilingForm("hello").equals("goodbye"));
+		assertTrue(getFilingForm("hello-  -,:()@#$%^* hello").equals("hello hello"));
+		assertTrue(getFilingForm("Hello>hello").equals("hello 0000 hello"));
+		assertTrue(getFilingForm("Hello > hello").equals("hello 0000 hello"));
+		assertTrue(getFilingForm("Hello--Hello").equals("hello 0000 hello"));
+		assertTrue(getFilingForm("Hello -- Hello").equals("hello 0000 hello"));
+		assertTrue(getFilingForm("--Hello").equals("hello"));
+		assertTrue(getFilingForm("Hello---Hello").equals("hello 0000 hello"));
+		assertTrue(getFilingForm("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
+		assertTrue(getFilingForm("Hello & Goodbye!").equals("hello goodbye 6&"));
+		assertTrue(getFilingForm(" Alzheimer's disease ").equals("alzheimers disease"));
+		assertTrue(getFilingForm("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
 				equals("abbasah ukht al rashid aww nakbat al baramikah"));
-		assertTrue(getSortHeading("’Abd al-Rraḥmān al-Kawākibī").
+		assertTrue(getFilingForm("’Abd al-Rraḥmān al-Kawākibī").
 				equals("abd al rrahman al kawakibi"));
-		assertTrue(getSortHeading(" ⁻Adh⁻i b⁻at : ḍr⁻ame").equals("adhi bat drame"));
-		assertTrue(getSortHeading("⁻Ac⁻arya, Pushpalat⁻a").equals("acarya pushpalata"));
-		assertTrue(getSortHeading("-0-De, Boll Weevil Convention. New Orleans. Nov.").
+		assertTrue(getFilingForm(" ⁻Adh⁻i b⁻at : ḍr⁻ame").equals("adhi bat drame"));
+		assertTrue(getFilingForm("⁻Ac⁻arya, Pushpalat⁻a").equals("acarya pushpalata"));
+		assertTrue(getFilingForm("-0-De, Boll Weevil Convention. New Orleans. Nov.").
 				equals("0 de boll weevil convention new orleans nov"));
-		assertTrue(getSortHeading("°Cómo funciona el Mercado de Seguros Médicos?").
+		assertTrue(getFilingForm("°Cómo funciona el Mercado de Seguros Médicos?").
 				equals("como funciona el mercado de seguros medicos"));
-		assertTrue(getSortHeading("σ and π Electrons in Organic Compounds").
+		assertTrue(getFilingForm("σ and π Electrons in Organic Compounds").
 				equals("sigma and pi electrons in organic compounds"));
-		assertTrue(getSortHeading("α- and β- modifications of benzene hexabromid").
+		assertTrue(getFilingForm("α- and β- modifications of benzene hexabromid").
 				equals("alpha and beta modifications of benzene hexabromid"));
-		assertTrue(getSortHeading("£1,000,000 bank-note and other stories").
+		assertTrue(getFilingForm("£1,000,000 bank-note and other stories").
 				equals("1000000 bank note and other stories"));
-		assertTrue(getSortHeading("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment").
+		assertTrue(getFilingForm("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment").
 				equals("tudes de centre de dveloppement financer le dveloppment"));
-		assertTrue(getSortHeading("†Wilhelm His").equals("wilhelm his"));
-		assertTrue(getSortHeading("").equals(""));
-		assertTrue(getSortHeading("         ").equals(""));
+		assertTrue(getFilingForm("†Wilhelm His").equals("wilhelm his"));
+		assertTrue(getFilingForm("").equals(""));
+		assertTrue(getFilingForm("         ").equals(""));
 		// non-standard space characters \u3000 is common in CJK text
-		assertTrue(getSortHeading("\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u202F\u205F\u3000\uFEFF").equals(""));
-	    assertTrue(getSortHeading("sydsæter knut").equals("sydsaeter knut"));
+		assertTrue(getFilingForm("\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u202F\u205F\u3000\uFEFF").equals(""));
+	    assertTrue(getFilingForm("sydsæter knut").equals("sydsaeter knut"));
 
 	    // non-Roman scripts are not fully or well supported in filing
-	    assertTrue(getSortHeading("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
+	    assertTrue(getFilingForm("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
 	    // Orig. string has control characters (hex:200E,200F,202B,202C). Should be stripped.
-	    assertTrue(getSortHeading("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
+	    assertTrue(getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
 	}
 	
 }

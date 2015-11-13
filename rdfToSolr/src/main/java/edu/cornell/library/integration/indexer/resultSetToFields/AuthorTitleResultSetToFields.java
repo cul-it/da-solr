@@ -3,7 +3,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -201,13 +201,13 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				}
 			}
 			for (String s : valuesFacet) {
-				String sort = getSortHeading(s);
+				String sort = getFilingForm(s);
 				addField(solrFields,"author_"+filing_type+"_filing",sort);
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,"., "));
 			}
 				
 			if (valuesMain.size() > 0) {
-				String sort_author = getSortHeading(valuesMain.iterator().next());
+				String sort_author = getFilingForm(valuesMain.iterator().next());
 				if (! dates.isEmpty())
 					sort_author += " " + dates;
 				addField(solrFields,"author_sort",sort_author);
@@ -224,13 +224,13 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"title_uniform_display",uniform_vern_cts);
 					String browse = author_vern+" "+browsetitle;
 					addField(solrFields,"authortitle_facet",browse);
-					addField(solrFields,"authortitle_filing",getSortHeading(browse));
+					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				} else if (author != null) {
 					String uniform_vern_cts = verntitle+"|"+verntitle+"|"+author;
 					addField(solrFields,"title_uniform_display",uniform_vern_cts);
 					String browse = author+" "+browsetitle;
 					addField(solrFields,"authortitle_facet",browse);
-					addField(solrFields,"authortitle_filing",getSortHeading(browse));
+					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				}
 			}
 
@@ -241,7 +241,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				addField(solrFields,"title_uniform_display",uniform_cts);
 				String browse = author+" "+browsetitle;
 				addField(solrFields,"authortitle_facet",browse);
-				addField(solrFields,"authortitle_filing",getSortHeading(browse));
+				addField(solrFields,"authortitle_filing",getFilingForm(browse));
 			}
 		}
 		String responsibility = null, responsibility_vern = null;
@@ -270,7 +270,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				if (nonFilingCharCount > 0)
 					addField(solrFields,"title_exact",sortTitle);
 			}
-			sortTitle = getSortHeading(sortTitle);
+			sortTitle = getFilingForm(sortTitle);
 			addField(solrFields,"title_sort",sortTitle);
 	
 			// title alpha buckets
@@ -291,7 +291,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			if ( (author != null) && ( uniform_title == null) ) {
 				String authorTitle = author + " " + maintitle;
 				addField(solrFields,"authortitle_facet",authorTitle);
-				addField(solrFields,"authortitle_filing",getSortHeading(authorTitle));
+				addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 			}
 		}
 		if (title_vern != null) {
@@ -324,11 +324,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				if (author_vern != null) {
 					String authorTitle = author_vern + " " + maintitle_vern;
 					addField(solrFields,"authortitle_facet",authorTitle);
-					addField(solrFields,"authortitle_filing",getSortHeading(authorTitle));
+					addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 				} else if (author != null) {
 					String authorTitle = author + " " + maintitle_vern;
 					addField(solrFields,"authortitle_facet",authorTitle);
-					addField(solrFields,"authortitle_filing",getSortHeading(authorTitle));
+					addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 				}
 			}
 		}

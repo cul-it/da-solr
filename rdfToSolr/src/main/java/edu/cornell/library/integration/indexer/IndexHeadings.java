@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -272,7 +272,7 @@ public class IndexHeadings {
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("name"))
 							heading = r.getAttributeValue(i);
-					String sort = getSortHeading(heading);
+					String sort = getFilingForm(heading);
 					if (sort.equals(headingSort)) {
 						in.close();
 						return heading;

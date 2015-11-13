@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
@@ -249,7 +249,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			for (String s: values_browse)
 				if (filing_type != null) {
 					addField(solrFields,"subject_"+filing_type+"_facet",removeTrailingPunctuation(s,"."));
-					addField(solrFields,"subject_"+filing_type+"_filing",getSortHeading(s));
+					addField(solrFields,"subject_"+filing_type+"_filing",getFilingForm(s));
 				}
 
 			for (String s: values880_piped)

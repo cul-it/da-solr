@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getSortHeading;
+import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 		
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
 		for (String s : workFacet) {
-			addField(fields,"authortitle_filing",getSortHeading(s));
+			addField(fields,"authortitle_filing",getFilingForm(s));
 			addField(fields,"authortitle_facet",removeTrailingPunctuation(s,";,. "));
 		}
 		

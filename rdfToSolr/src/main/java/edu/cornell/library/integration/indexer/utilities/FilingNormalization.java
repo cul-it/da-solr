@@ -11,7 +11,7 @@ public class FilingNormalization {
 	 * @param value
 	 * @return normalized value
 	 */
-	public static String getSortHeading(CharSequence value) {
+	public static String getFilingForm(CharSequence value) {
 
 		/* We will first normalize the unicode. For sorting, we will use 
 		 * "compatibility decomposed" form (NFKD). Decomposed form will make it easier
