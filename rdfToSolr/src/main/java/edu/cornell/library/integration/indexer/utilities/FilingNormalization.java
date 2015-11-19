@@ -61,7 +61,8 @@ public class FilingNormalization {
 				sb.append(c); break;
 
 			// additional punctuation we'd like to treat differently
-			case '>': 
+			case '>':  case '|':
+			case '—':// em dash
 				if (sb.length() > 0) {
 					if (sb.charAt(sb.length()-1) != ' ')
 						sb.append(' ');
@@ -82,7 +83,7 @@ public class FilingNormalization {
 			case '\'':case '(': case ')': case '*': case '+': case ',':
 			case '.': case '/': case ':': case ';': case '<': case '=':
 			case '?': case '@': case '[': case '\\':case ']': case '^':
-			case '_': case '`': case '{': case '|': case '}': case '~':
+			case '_': case '`': case '{': case '}': case '~': // case '|':
 				break;
 
 			// supplementary punctuation we don't want to file on
