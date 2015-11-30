@@ -569,7 +569,9 @@ public class MarcXmlToRdf {
 				doesBibExist.setInt(1, Integer.valueOf(id) );
 				ResultSet rs = doesBibExist.executeQuery();
 				rs.next();
-				if (rs.getInt(1) > 0)
+				int count = rs.getInt(1);
+				rs.close();
+				if (count > 0)
 					return true;
 			} else if (type.equals(RecordType.HOLDINGS)) {
 				if (doesMfhdExist == null)
@@ -578,7 +580,9 @@ public class MarcXmlToRdf {
 				doesMfhdExist.setInt(1, Integer.valueOf(id) );
 				ResultSet rs = doesMfhdExist.executeQuery();
 				rs.next();
-				if (rs.getInt(1) > 0)
+				int count = rs.getInt(1);
+				rs.close();
+				if (count > 0)
 					return true;
 			}
 		}
