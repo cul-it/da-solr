@@ -16,8 +16,14 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,6 +77,7 @@ public class MarcXmlToRdf {
 	private Boolean isUnsuppressedMfhdListFiltered = false;
 	private Boolean isUnsuppressedMfhdListFlagged = false;
 	private Collection<Integer> unsuppressedMfhds = null;
+	private Connection dbForUnsuppressedIdFiltering = null;
 	private Boolean isBibSrcDav = null;
 	private Boolean isMfhdSrcDav = null;
 	private Boolean isDestDav = null;
@@ -140,6 +147,16 @@ public class MarcXmlToRdf {
 			outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".").replaceAll(".gz$", "");
 		} else 
 			outFileExt = "." + f.toString().toLowerCase().replaceAll("_", ".");
+	}
+
+	/**
+	 * If set, the database connection will be used to query for the suppression status of
+	 * bibliographic and holdings ids. The unsuppressed records will be expected to appear in tables
+	 * named 'bib_yyyymmdd' and 'mfhd_yyyymmdd'. Suppressed record ids will not be listed.
+	 * @param Connection conn
+	 */
+	public void setDbForUnsuppressedIdFiltering( Connection c ) {
+		dbForUnsuppressedIdFiltering = c;
 	}
 
 	/**
@@ -535,7 +552,7 @@ public class MarcXmlToRdf {
 		xmlstream.close();
 	}
 	
-	private Boolean isSuppressionBlocked(String id, RecordType type) {
+	private Boolean isSuppressionBlocked(String id, RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC)
 				&& isUnsuppressedBibListFiltered
 				&& ! unsuppressedBibs.contains(Integer.valueOf(id)))
@@ -544,8 +561,32 @@ public class MarcXmlToRdf {
 				&& isUnsuppressedMfhdListFiltered
 				&& ! unsuppressedMfhds.contains(Integer.valueOf(id)))
 			return true;
+		if (null != dbForUnsuppressedIdFiltering) {
+			if (type.equals(RecordType.BIBLIOGRAPHIC)) {
+				if (doesBibExist == null)
+					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
+						("SELECT COUNT(*) FROM bib_"+today+" WHERE bib_id = ?");
+				doesBibExist.setInt(1, Integer.valueOf(id) );
+				ResultSet rs = doesBibExist.executeQuery();
+				rs.next();
+				if (rs.getInt(1) > 0)
+					return true;
+			} else if (type.equals(RecordType.HOLDINGS)) {
+				if (doesMfhdExist == null)
+					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
+						("SELECT COUNT(*) FROM mfhd_"+today+" WHERE mfhd_id = ?");
+				doesMfhdExist.setInt(1, Integer.valueOf(id) );
+				ResultSet rs = doesMfhdExist.executeQuery();
+				rs.next();
+				if (rs.getInt(1) > 0)
+					return true;
+			}
+		}
 		return false;
 	}
+	PreparedStatement doesBibExist = null;
+	PreparedStatement doesMfhdExist = null;
+	static String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
 	
 	public static String escapeForNTriples( String s ) {
 		s = s.replaceAll("\\\\", "\\\\\\\\");
