@@ -32,11 +32,16 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 		rec.addDataFieldResultSet(results.get("seriesaddedentry"));
 		Set<String> workFacet = new HashSet<String>();
 		for( DataField f: rec.data_fields.values() ) {
+			String title_cts = f.concatenateSpecificSubfields("tklnpmors");
+			String author_cts = null;
 			if (f.mainTag.equals("800")) {
-				workFacet.add(f.concatenateSpecificSubfields("abcdq"));
+				author_cts = f.concatenateSpecificSubfields("abcdq");
+			} else if (f.mainTag.equals("810")) {
+				author_cts = f.concatenateSpecificSubfields("ab");
 			} else {
-				workFacet.add(f.concatenateSpecificSubfields("abcdfghijklmnopqrstuwxyz"));
+				author_cts = f.concatenateSpecificSubfields("abe");
 			}
+			workFacet.add(author_cts+" | "+title_cts);
 		}
 		
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();

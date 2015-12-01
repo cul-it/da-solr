@@ -222,13 +222,13 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				if (author_vern != null) {
 					String uniform_vern_cts = verntitle+"|"+verntitle+"|"+author_vern;
 					addField(solrFields,"title_uniform_display",uniform_vern_cts);
-					String browse = author_vern+" "+browsetitle;
+					String browse = author_vern+" | "+browsetitle;
 					addField(solrFields,"authortitle_facet",browse);
 					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				} else if (author != null) {
 					String uniform_vern_cts = verntitle+"|"+verntitle+"|"+author;
 					addField(solrFields,"title_uniform_display",uniform_vern_cts);
-					String browse = author+" "+browsetitle;
+					String browse = author+" | "+browsetitle;
 					addField(solrFields,"authortitle_facet",browse);
 					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				}
@@ -239,7 +239,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			if (author != null) {
 				String uniform_cts = fulltitle+"|"+fulltitle+"|"+author;
 				addField(solrFields,"title_uniform_display",uniform_cts);
-				String browse = author+" "+browsetitle;
+				String browse = author+" | "+browsetitle;
 				addField(solrFields,"authortitle_facet",browse);
 				addField(solrFields,"authortitle_filing",getFilingForm(browse));
 			}
@@ -289,7 +289,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			}
 
 			if ( (author != null) && ( uniform_title == null) ) {
-				String authorTitle = author + " " + maintitle;
+				String authorTitle = author + " | " + maintitle;
 				addField(solrFields,"authortitle_facet",authorTitle);
 				addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 			}
@@ -322,11 +322,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 
 			if (uniform_title_vern == null) {
 				if (author_vern != null) {
-					String authorTitle = author_vern + " " + maintitle_vern;
+					String authorTitle = author_vern + " | " + maintitle_vern;
 					addField(solrFields,"authortitle_facet",authorTitle);
 					addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 				} else if (author != null) {
-					String authorTitle = author + " " + maintitle_vern;
+					String authorTitle = author + " | " + maintitle_vern;
 					addField(solrFields,"authortitle_facet",authorTitle);
 					addField(solrFields,"authortitle_filing",getFilingForm(authorTitle));
 				}

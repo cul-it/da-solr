@@ -74,7 +74,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						f.mainTag.equals("710") ||
 						f.mainTag.equals("711")) {
 
-					title_cts = f.concatenateSpecificSubfields("tklfnpmors");
+					title_cts = f.concatenateSpecificSubfields("tklnpmors");
 					if (f.mainTag.equals("700")) {
 						author_cts = f.concatenateSpecificSubfields("abcdq");
 						htd = HeadTypeDesc.PERSNAME;
@@ -122,7 +122,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						htd = HeadTypeDesc.WORK;
 						if (f.ind2.equals('2')) {
 							relation = "included_work";
-							valuesATFacet.add(f.concatenateSubfieldsOtherThan("64"));
+							valuesATFacet.add(author_cts+" | "+title_cts);
 						} else {
 							relation = "related_work";
 						}
