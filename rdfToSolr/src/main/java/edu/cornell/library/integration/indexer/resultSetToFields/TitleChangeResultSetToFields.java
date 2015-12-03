@@ -68,7 +68,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			HeadTypeDesc htd = null;
 			String relation = null;
 			for (DataField f: dataFields) {
-				String title_cts = f.concatenateSpecificSubfields("t");
+				String title_cts = null;
 				String author_cts;
 				if (f.mainTag.equals("700") || 
 						f.mainTag.equals("710") ||
@@ -208,12 +208,6 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 				case "777":
 					relation = "issued_with";		break MAIN;
 				}
-				if (relation != null) {
-					// display no longer dependant on ind1 = '0'.
-					String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
-					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
-							relation+"_display",displaystring,title_cts));
-				}
 
 				if (f.mainTag.equals("780") 
 						|| f.mainTag.equals("785")
@@ -225,6 +219,9 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						|| f.mainTag.equals("776")
 						|| f.mainTag.equals("777")
 						) {
+					title_cts = f.concatenateSpecificSubfields("s");
+					if (title_cts.isEmpty())
+						title_cts = f.concatenateSpecificSubfields("t");
 					String subfields = "atbcdegkqrs";
 					String value = f.concatenateSpecificSubfields(subfields); 
 					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
@@ -241,6 +238,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					}
 				}
 
+				if (relation != null) {
+					// display no longer dependant on ind1 = '0'.
+					String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
+					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
+							relation+"_display",displaystring,title_cts));
+				}
 
 			}
 			// Iff these are an cleanly matched pair of author display fields, do combined encoding
