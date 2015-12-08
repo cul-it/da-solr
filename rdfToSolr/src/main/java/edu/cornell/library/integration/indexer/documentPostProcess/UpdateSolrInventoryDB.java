@@ -17,8 +17,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -60,16 +62,18 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			origBibDate = rs.getTimestamp(1);
 		}
 		if (origBibDate == null) {
-			// bib is new
+			// bib is new in Solr
 			populateBibField( conn, document, bibid, bibDate );
 			populateHoldingFields( conn, document, bibid );
 			populateItemFields( conn, document );
+			populateWorkInfo( conn, extractOclcIdsFromSolrField(
+					document.getFieldValues("other_id_display")), bibid );
 		} else {
-			// if (bibDate.after(origBibDate))  bib is changed
 			removeOrigHoldingsDataFromDB( conn, document, bibid );
 			updateBibField( conn, document, bibid, bibDate );
 			populateHoldingFields( conn, document, bibid );
 			populateItemFields( conn, document );
+			updateWorkInfo( conn, document, bibid );
 		}
 		
 	}
@@ -108,6 +112,22 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			items.add( new ItemRecord( itemid, mfhdid, modified ));
 		}
 		return items;
+	}
+
+	private Set<Integer> extractOclcIdsFromSolrField(
+			Collection<Object> fieldValues) {
+		Set<Integer> oclcIds = new HashSet<Integer>();
+		for (Object id_obj : fieldValues) {
+			String id = id_obj.toString();
+			if (id.startsWith("(OCoLC)")) {
+				try {
+					oclcIds.add(Integer.valueOf(id.substring(7)));
+				} catch (NumberFormatException e) {
+					// Ignore the value if it's invalid
+				}
+			}
+		}
+		return oclcIds;
 	}
 
 	private void updateBibField(Connection conn, SolrInputDocument document,
@@ -168,6 +188,34 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 	}
 
+	private void updateWorkInfo(Connection conn, SolrInputDocument document, int bibid) throws SQLException {
+
+		Set<Integer> oclcIds = extractOclcIdsFromSolrField(
+				document.getFieldValues("other_id_display"));
+		PreparedStatement previousWorksStmt = conn.prepareStatement(
+				"SELECT DISTINCT oclcid FROM bib2work WHERE bibid = ?");
+		Set<Integer> previousOclcIds = new HashSet<Integer>();
+		previousWorksStmt.setInt(1, bibid);
+		ResultSet rs = previousWorksStmt.executeQuery();
+		while (rs.next()) {
+			previousOclcIds.add(rs.getInt(1));
+		}
+		rs.close();
+		previousWorksStmt.close();
+
+		Set<Integer> newOclcIds = new HashSet<Integer>(oclcIds);
+		newOclcIds.removeAll(previousOclcIds);
+		populateWorkInfo(conn, newOclcIds, bibid);
+
+		Set<Integer> removedOclcIds = new HashSet<Integer>(previousOclcIds);
+		removedOclcIds.removeAll(oclcIds);
+		deactivateWorkInfo(conn, removedOclcIds, bibid);
+
+		// If we get updates for the workid database, we will also want to
+		// do something with the carried over oclcids.
+
+	}
+
 	private void populateBibField(Connection conn, SolrInputDocument document,
 			Integer bibid, Timestamp recordDate) throws SQLException, ParseException {
 		String format = fieldValuesToConcatString(document.getFieldValues("format"));
@@ -223,6 +271,45 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		pstmt.executeBatch();
 		pstmt.close();
 		
+	}
+
+	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
+
+		PreparedStatement pstmt = conn.prepareStatement(
+				"SELECT workid FROM work2oclc WHERE oclc = ?");
+		PreparedStatement insertStmt = conn.prepareStatement(
+				"INSERT INTO bib2work (bibid, oclcid, workid) VALUES (?, ?, ?)");
+		for (int oclcId : oclcIds) {
+			pstmt.setInt(1, oclcId);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				int workid = rs.getInt(1);
+				insertStmt.setInt(1, bibid);
+				insertStmt.setInt(2, oclcId);
+				insertStmt.setInt(3, workid);
+				insertStmt.addBatch();
+			}
+		}
+		insertStmt.executeBatch();
+		insertStmt.close();
+		pstmt.close();
+
+	}
+
+	private void deactivateWorkInfo(Connection conn, Set<Integer> removedOclcIds, int bibid) throws SQLException {
+
+		if (removedOclcIds.isEmpty()) 
+			return;
+		PreparedStatement pstmt = conn.prepareStatement(
+				"UPDATE bib2work SET active = 0, mod_date = NOW() WHERE bibid = ? AND oclcid = ?");
+		for (int oclcid : removedOclcIds) {
+			pstmt.setInt(1, bibid);
+			pstmt.setInt(2, oclcid);
+			pstmt.addBatch();
+		}
+		pstmt.executeBatch();
+		pstmt.close();
+
 	}
 
 	private String calculateDisplayLocation(SolrInputDocument document) {
