@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.identifyOnlineServices;
 
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -11,15 +12,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 
@@ -41,6 +47,7 @@ public class IdentifyCurrentSolrRecords {
 	private String bibTable = null;
 	private String mfhdTable = null;
 	private String itemTable = null;
+	private String workTable = null;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -70,8 +77,8 @@ public class IdentifyCurrentSolrRecords {
 				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&"
 				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
 		//                 0          1          2               3             4    
-				+ "edition_display,pub_date_display,timestamp,holdings_display,item_display");
-	    //				5                 6              7           8               9
+				+ "edition_display,pub_date_display,timestamp,other_id_display,holdings_display,item_display");
+	    //				5                 6              7           8               9           10
 
 	    // Save Solr data to a temporary file
 	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
@@ -93,11 +100,14 @@ public class IdentifyCurrentSolrRecords {
 			if (bibCount % 10_000 == 0)
 				current.commit();
 			if (nextLine.length == 8) continue;
-
-			processSolrHoldingsData(nextLine[8],bibid);
+			
+			processWorksData(nextLine[8],bibid);
 			if (nextLine.length == 9) continue;
 
-			processSolrItemData(nextLine[9],bibid);
+			processSolrHoldingsData(nextLine[9],bibid);
+			if (nextLine.length == 10) continue;
+
+			processSolrItemData(nextLine[10],bibid);
 		}
 		reader.close();
 		for (PreparedStatement pstmt : pstmts.values()) {
@@ -107,7 +117,7 @@ public class IdentifyCurrentSolrRecords {
 		reactivateDBKeys();
 		current.commit();
 	}
-	
+
 	private void setUpTables() throws SQLException {
 		Statement stmt = current.createStatement();
 		String solrUrl = config.getSolrUrl();
@@ -115,6 +125,7 @@ public class IdentifyCurrentSolrRecords {
 		bibTable = "bibSolr"+solrIndexName;
 		mfhdTable = "mfhdSolr"+solrIndexName;
 		itemTable = "itemSolr"+solrIndexName;
+		workTable = "bib2work"+solrIndexName;
 		
 		stmt.execute("drop table if exists "+bibTable);
 		stmt.execute("create table "+bibTable+" ( "
@@ -147,6 +158,16 @@ public class IdentifyCurrentSolrRecords {
 				+ "active int(1) default 1, "
 				+ "key (item_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+itemTable+" disable keys");
+
+		stmt.execute("drop table if exists "+workTable);
+		stmt.execute("create table "+workTable+" ( "
+				+ "bib_id int(10) unsigned not null, "
+				+ "oclc_id int(10) unsigned not null, "
+				+ "work_id int(10) unsigned not null, "
+				+ "active int(1) default 1, "
+				+ "mod_date timestamp not null default current_timestamp, "
+				+ "key (work_id), key (bib_id) ) ENGINE=InnoDB");
+		stmt.execute("alter table "+workTable+" disable keys");
 		current.commit();
 
 	}
@@ -156,6 +177,7 @@ public class IdentifyCurrentSolrRecords {
 		stmt.execute("alter table "+bibTable+" enable keys");
 		stmt.execute("alter table "+mfhdTable+" enable keys");
 		stmt.execute("alter table "+itemTable+" enable keys");
+		stmt.execute("alter table "+workTable+" enable keys");
 		current.commit();
 	}
 
@@ -169,10 +191,18 @@ public class IdentifyCurrentSolrRecords {
 					"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?)"));
 		List<String> locations = new ArrayList<String>();
-		if ( ! url.isEmpty() )
-			locations.add("Online"); // TODO: detailed location labeling.
+		Collection<Object> urls = new HashSet<Object>();
+		for (String s : url.split(","))
+			urls.add(s);
+		String sites = identifyOnlineServices(urls);
+		if ( ! url.isEmpty() ) {
+			if (sites == null)
+				locations.add("Online");
+			else
+				locations.add("Online: "+sites);
+		}
 		if ( ! location_facet.isEmpty() )
-			locations.add("At the Library: "+location_facet);
+			locations.add("At the Library: "+eliminateDuplicateLocations(location_facet));
 
 		// Attempt to reflect Solr date in table. If fails, record not in Voyager.
 		// note: date comparison comes later.
@@ -181,13 +211,69 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setTimestamp(2, new Timestamp( marcDateFormat.parse(parts[1]).getTime() ));
 		pstmt.setString(3, format);
 		pstmt.setString(4, StringUtils.join(locations," / "));
-		pstmt.setTimestamp(5, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ) );
+		pstmt.setTimestamp(5, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ));
 		pstmt.setString(6, edition);
 		pstmt.setString(7, pubdate);
 		pstmt.addBatch();
 		if (++bibCount % 1000 == 0)
 			pstmt.executeBatch();
 		return bibid;
+	}
+
+	private String eliminateDuplicateLocations(String location_facet) {
+		String[] fieldValues = location_facet.split(",");
+		StringBuilder sb = new StringBuilder();
+		Collection<Object> foundValues = new HashSet<Object>();
+		boolean first = true;
+		for (Object val : fieldValues) {
+			if (foundValues.contains(val))
+				continue;
+			foundValues.add(val);
+			if (first)
+				first = false;
+			else
+				sb.append(", ");
+			sb.append(val.toString());
+		}
+		return sb.toString();
+	}
+
+	private void processWorksData(String ids, int bibid) throws SQLException {
+
+		Set<Integer> oclcIds = new HashSet<Integer>();
+		for (String id : ids.split(",")) {
+			if (id.startsWith("(OCoLC)")) {
+				try {
+					oclcIds.add(Integer.valueOf(id.substring(7)));
+				} catch (NumberFormatException e) {
+					// Ignore the value if it's invalid
+				}
+			}
+		}
+
+		if (oclcIds.isEmpty())
+			return;
+		
+		PreparedStatement pstmt = current.prepareStatement(
+				"SELECT workid FROM work2oclc WHERE oclcid = ?");
+		PreparedStatement insertStmt = current.prepareStatement(
+				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
+		for (int oclcId : oclcIds) {
+			pstmt.setInt(1, oclcId);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				int workid = rs.getInt(1);
+				insertStmt.setInt(1, bibid);
+				insertStmt.setInt(2, oclcId);
+				insertStmt.setInt(3, workid);
+				insertStmt.addBatch();
+			}
+		}
+		insertStmt.executeBatch();
+		insertStmt.close();
+		pstmt.close();
+
+
 	}
 
 	private void processSolrHoldingsData(String solrHoldings, int bibid) throws SQLException, ParseException {

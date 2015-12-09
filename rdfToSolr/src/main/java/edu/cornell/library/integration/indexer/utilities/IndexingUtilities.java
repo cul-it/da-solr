@@ -12,10 +12,19 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +40,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class IndexingUtilities {
 
@@ -58,7 +68,51 @@ public class IndexingUtilities {
 		}
 		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
-	
+
+	/**
+	 * 
+	 * @param urls - a list of url_access_display values
+	 * @return A comma-separated list of online provider names
+	 */
+	public static String identifyOnlineServices(Collection<Object> urls) {
+		if (urlPatterns == null)
+			loadUrlPatterns();
+		List<String> identifiedSites = new ArrayList<String>();
+		for (Object url_o : urls) {
+			String url = url_o.toString().toLowerCase();
+			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
+				if (url.contains(pattern.getKey())) {
+					identifiedSites.add(pattern.getValue());
+					break;
+				}
+		}
+		if (identifiedSites.isEmpty())
+			return null;
+		return StringUtils.join(identifiedSites, ", ");
+	}
+	private static void loadUrlPatterns() {
+		URL url = ClassLoader.getSystemResource("/online_site_identifications.txt");
+		urlPatterns = new HashMap<String,String>();
+		try {
+			Path p = Paths.get(url.toURI());
+			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
+			for (String site : sites) {
+				String[] parts = site.split("\\t", 2);
+				if (parts.length < 2)
+					continue;
+				urlPatterns.put(parts[0], parts[1]);
+			}
+		} catch (URISyntaxException e) {
+			// This should never happen since the URI syntax is machine generated.
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Couldn't read config file for site identifications.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	static Map<String,String> urlPatterns = null;
+
 	/**
 	 *
 	 * @param date

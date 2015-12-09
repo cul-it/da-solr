@@ -1,12 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.identifyOnlineServices;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,10 +11,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +29,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private String bibTable = null;
 	private String mfhdTable = null;
 	private String itemTable = null;
+	private String workTable = null;
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 	
 	@Override
@@ -48,6 +42,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		bibTable = "bibSolr"+solrIndexName;
 		mfhdTable = "mfhdSolr"+solrIndexName;
 		itemTable = "itemSolr"+solrIndexName;
+		workTable = "bib2work"+solrIndexName;
 
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
 		String bibid_display = document.getField("bibid_display").getValue().toString();
@@ -193,7 +188,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Set<Integer> oclcIds = extractOclcIdsFromSolrField(
 				document.getFieldValues("other_id_display"));
 		PreparedStatement previousWorksStmt = conn.prepareStatement(
-				"SELECT DISTINCT oclcid FROM bib2work WHERE bibid = ?");
+				"SELECT DISTINCT oclcid FROM "+workTable+" WHERE bib_id = ?");
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
 		previousWorksStmt.setInt(1, bibid);
 		ResultSet rs = previousWorksStmt.executeQuery();
@@ -276,9 +271,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
 
 		PreparedStatement pstmt = conn.prepareStatement(
-				"SELECT workid FROM work2oclc WHERE oclc = ?");
+				"SELECT workid FROM work2oclc WHERE oclcid = ?");
 		PreparedStatement insertStmt = conn.prepareStatement(
-				"INSERT INTO bib2work (bibid, oclcid, workid) VALUES (?, ?, ?)");
+				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
 		for (int oclcId : oclcIds) {
 			pstmt.setInt(1, oclcId);
 			ResultSet rs = pstmt.executeQuery();
@@ -301,7 +296,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if (removedOclcIds.isEmpty()) 
 			return;
 		PreparedStatement pstmt = conn.prepareStatement(
-				"UPDATE bib2work SET active = 0, mod_date = NOW() WHERE bibid = ? AND oclcid = ?");
+				"UPDATE "+workTable+" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?");
 		for (int oclcid : removedOclcIds) {
 			pstmt.setInt(1, bibid);
 			pstmt.setInt(2, oclcid);
@@ -329,49 +324,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return StringUtils.join(locations," / ");
 	}
 
-	private String identifyOnlineServices(Collection<Object> urls) {
-		if (urlPatterns == null)
-			loadUrlPatterns();
-		List<String> identifiedSites = new ArrayList<String>();
-		for (Object url_o : urls) {
-			String url = url_o.toString().toLowerCase();
-			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
-				if (url.contains(pattern.getKey())) {
-					identifiedSites.add(pattern.getValue());
-					break;
-				}
-		}
-		if (identifiedSites.isEmpty())
-			return null;
-		return StringUtils.join(identifiedSites, ", ");
-	}
-	private void loadUrlPatterns() {
-		URL url = ClassLoader.getSystemResource("/online_site_identifications.txt");
-		urlPatterns = new HashMap<String,String>();
-		try {
-			Path p = Paths.get(url.toURI());
-			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
-			for (String site : sites) {
-				String[] parts = site.split("\\t", 2);
-				if (parts.length < 2)
-					continue;
-				urlPatterns.put(parts[0], parts[1]);
-			}
-		} catch (URISyntaxException e) {
-			// This should never happen since the URI syntax is machine generated.
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("Couldn't read config file for site identifications.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-	static Map<String,String> urlPatterns = null;
 	
 	private String fieldValuesToConcatString(Collection<Object> fieldValues) {
 		StringBuilder sb = new StringBuilder();
+		Collection<Object> foundValues = new HashSet<Object>();
 		boolean first = true;
 		for (Object val : fieldValues) {
+			if (foundValues.contains(val))
+				continue;
+			foundValues.add(val);
 			if (first)
 				first = false;
 			else
