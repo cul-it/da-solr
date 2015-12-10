@@ -255,7 +255,7 @@ public class IdentifyCurrentSolrRecords {
 			return;
 		
 		PreparedStatement pstmt = current.prepareStatement(
-				"SELECT workid FROM work2oclc WHERE oclcid = ?");
+				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
 		PreparedStatement insertStmt = current.prepareStatement(
 				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
 		for (int oclcId : oclcIds) {
