@@ -91,7 +91,7 @@ public class IndexingUtilities {
 		return StringUtils.join(identifiedSites, ", ");
 	}
 	private static void loadUrlPatterns() {
-		URL url = ClassLoader.getSystemResource("/online_site_identifications.txt");
+		URL url = ClassLoader.getSystemResource("online_site_identifications.txt");
 		urlPatterns = new HashMap<String,String>();
 		try {
 			Path p = Paths.get(url.toURI());
