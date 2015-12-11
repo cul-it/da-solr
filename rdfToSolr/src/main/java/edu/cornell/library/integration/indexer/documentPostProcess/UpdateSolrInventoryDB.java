@@ -292,7 +292,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
 
 		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
-				"SELECT workid FROM workids.work2oclc WHERE oclcid = ?");
+				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
 		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
 				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
 
