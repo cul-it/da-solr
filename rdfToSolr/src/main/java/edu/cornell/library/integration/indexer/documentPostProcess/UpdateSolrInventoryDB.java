@@ -82,6 +82,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private void addWorkIdLinksToDocument(Connection conn,
 			SolrInputDocument document, int bibid) throws SQLException {
+		System.out.println("Looking for workid links: "+workids.toString());
 		if (workids.isEmpty())
 			return;
 		if (workids.size() > 1)
@@ -114,6 +115,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 								rs.getString("location_label"),rs.getString("edition"),
 								rs.getString("pub_date")));
 					referenceCount++;
+					System.out.println("Here's a reference: "+String.valueOf(refBibid));
 				}
 			}
 			if (referenceCount >= 1)
