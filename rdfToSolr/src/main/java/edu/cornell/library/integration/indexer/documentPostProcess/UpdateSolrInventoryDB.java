@@ -37,7 +37,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private static String workTable = null;
 	private static String solrIndexName = null;
 
-	private Set<Long> workids = null;
+	private Set<Long> workids = new HashSet<Long>();
 	
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
@@ -302,17 +302,19 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		rs.close();
 		origWorksStmt.close();
 
+		// new
 		Set<Integer> newOclcIds = new HashSet<Integer>(oclcIds);
 		newOclcIds.removeAll(previousOclcIds);
 		populateWorkInfo(conn, newOclcIds, bibid);
 
+		// removed
 		Set<Integer> removedOclcIds = new HashSet<Integer>(previousOclcIds);
 		removedOclcIds.removeAll(oclcIds);
 		deactivateWorkInfo(conn, removedOclcIds, bibid);
 
-		// If we get updates for the workid database, we will also want to
-		// do something with the carried over oclcids.
-
+		// retained
+		oclcIds.retainAll(previousOclcIds);
+		identifyRetainedWorkIds(conn, oclcIds);
 	}
 
 	private void populateBibField(Connection conn, SolrInputDocument document,
@@ -373,13 +375,26 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		insertItemStmt.close();
 	}
 
+	private void identifyRetainedWorkIds(Connection conn, Set<Integer> oclcIds) throws SQLException {
+
+		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
+				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
+
+		for (int oclcId : oclcIds) {
+			findWorksForOclcIdStmt.setInt(1, oclcId);
+			ResultSet rs = findWorksForOclcIdStmt.executeQuery();
+			while (rs.next())
+				workids.add(rs.getLong(1));
+			rs.close();
+		}
+		findWorksForOclcIdStmt.close();
+	}
 	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
 
 		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
 		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
 				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
-		workids = new HashSet<Long>();
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
