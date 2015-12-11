@@ -125,6 +125,17 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return oclcIds;
 	}
 
+	/* s1.equals(s2) will produce NPE if s1 is null. */
+	private boolean stringsEqual( String s1, String s2 ) {
+		if ( s1 == null ) {
+			if ( s2 == null )
+				return true;
+		} else if ( s1.equals(s2) ) {
+			return true;
+		}
+		return false;
+	}
+
 	private void updateBibField(Connection conn, SolrInputDocument document,
 			Integer bibid, Timestamp recordDate) throws SQLException, ParseException {
 
@@ -147,10 +158,10 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		// are the descriptive fields changed?
 		boolean descChanged = false;
 		while (origDescRS.next())
-			if (  ! format.equals(origDescRS.getString(1))
-					|| ! location.equals(origDescRS.getString(2))
-					|| ! edition.equals(origDescRS.getString(3))
-					|| ! pub_date.equals(origDescRS.getString(4)))
+			if (  ! stringsEqual(format,origDescRS.getString(1))
+					|| ! stringsEqual(location,origDescRS.getString(2))
+					|| ! stringsEqual(edition,origDescRS.getString(3))
+					|| ! stringsEqual(pub_date,origDescRS.getString(4)))
 				descChanged = true;
 		origDescRS.close();
 		pstmt.close();
