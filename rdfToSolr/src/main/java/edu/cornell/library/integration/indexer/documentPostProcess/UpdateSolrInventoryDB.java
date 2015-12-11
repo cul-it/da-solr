@@ -92,7 +92,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		if (conn == null)
+		if (conn == null || conn.isClosed())
 			setup(config,document);
 
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
