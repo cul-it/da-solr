@@ -11,12 +11,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
@@ -34,15 +37,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private static String workTable = null;
 	private static String solrIndexName = null;
 
-	private void setup(SolrBuildConfig config, SolrInputDocument document) throws Exception{
-		
-		String solrUrl = config.getSolrUrl();
-		solrIndexName = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
-		bibTable = "bibSolr"+solrIndexName;
-		mfhdTable = "mfhdSolr"+solrIndexName;
-		itemTable = "itemSolr"+solrIndexName;
-		workTable = "bib2work"+solrIndexName;
-	}
+	private Set<Long> workids = null;
 	
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
@@ -81,7 +76,93 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			updateWorkInfo( conn, document, bibid );
 		}
 
+		addWorkIdLinksToDocument(conn,document,bibid);
 		conn.close();
+	}
+
+	private void addWorkIdLinksToDocument(Connection conn,
+			SolrInputDocument document, int bibid) throws SQLException {
+		if (workids.isEmpty())
+			return;
+		if (workids.size() > 1)
+			System.out.println("bib with multiple associated works: "+bibid);
+		
+		PreparedStatement recordsForWorkStmt = conn.prepareStatement(
+				"SELECT bib.* FROM "+bibTable+" AS bib, "+workTable+" AS works "
+				+ "WHERE works.bib_id = bib.bib_id "
+				+ "AND works.work_id = ? "
+				+ "AND bib.active = 1 AND works.active = 1 ");
+		Map<Integer,TitleMatchReference> refs = new HashMap<Integer,TitleMatchReference>();
+		TitleMatchReference thisTitle = null;
+		SolrInputField workidDisplay = new SolrInputField("workid_display");
+		SolrInputField workidFacet = new SolrInputField("workid_facet");
+		for (long workid : workids) {
+			workidFacet.addValue(workid, 1);
+			recordsForWorkStmt.setLong(1, workid);
+			ResultSet rs = recordsForWorkStmt.executeQuery();
+			int referenceCount = 0;
+			while (rs.next()) {
+				int refBibid = rs.getInt("bib_id");
+				if (bibid == refBibid) {
+					if (thisTitle == null)
+						thisTitle = new TitleMatchReference(rs.getString("format"),
+								rs.getString("location_label"),rs.getString("edition"),
+								rs.getString("pub_date"));
+				} else {
+					if ( ! refs.containsKey(refBibid) )
+						refs.put(refBibid, new TitleMatchReference(rs.getString("format"),
+								rs.getString("location_label"),rs.getString("edition"),
+								rs.getString("pub_date")));
+					referenceCount++;
+				}
+			}
+			if (referenceCount >= 1)
+				workidDisplay.addValue(String.valueOf(workid)+"|"
+						+String.valueOf(referenceCount+1), 1);
+			rs.close();
+		}
+		recordsForWorkStmt.close();
+
+		document.put("workid_facet", workidFacet);
+
+		if (refs.isEmpty())
+			return;
+		if ( workidDisplay.getValueCount() > 0 )
+			document.put("workid_display", workidDisplay);
+		if (refs.size() <= 6) {
+			SolrInputField otherAvailability = new SolrInputField("other_availability_piped");
+			for (Map.Entry<Integer,TitleMatchReference> ref : refs.entrySet()) {
+				StringBuilder sb = new StringBuilder();
+				if ( ! stringsEqual(thisTitle.format,ref.getValue().format)) {
+					sb.append(ref.getValue().format);
+					sb.append(": ");
+				}
+				sb.append(ref.getValue().location_label);
+				String ed = ref.getValue().edition;
+				if (ed != null && ! ed.isEmpty()) {
+					sb.append(' ');
+					sb.append(ed);
+				}
+				String date = ref.getValue().pub_date;
+				if (date != null && ! date.isEmpty()) {
+					sb.append(' ');
+					sb.append(date);
+				}
+				otherAvailability.addValue(String.valueOf(ref.getKey())+"|"+sb.toString(), 1);
+			}
+			document.put("other_availability_piped", otherAvailability);
+		}
+		
+	}
+
+	private void setup(SolrBuildConfig config, SolrInputDocument document) throws Exception{
+		
+		String solrUrl = config.getSolrUrl();
+		solrIndexName = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
+		bibTable = "bibSolr"+solrIndexName;
+		mfhdTable = "mfhdSolr"+solrIndexName;
+		itemTable = "itemSolr"+solrIndexName;
+		workTable = "bib2work"+solrIndexName;
 	}
 
 	private List<HoldingRecord> extractHoldingsFromSolrField(
@@ -296,6 +377,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
 		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
 				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
+		workids = new HashSet<Long>();
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
@@ -306,6 +388,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				insertBibWorkMappingStmt.setInt(2, oclcId);
 				insertBibWorkMappingStmt.setLong(3, workid);
 				insertBibWorkMappingStmt.addBatch();
+				workids.add(workid);
 			}
 			rs.close();
 		}
@@ -410,5 +493,17 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 	}
 
-
+	private class TitleMatchReference {
+		String format;
+		String location_label;
+		String edition;
+		String pub_date;
+		public TitleMatchReference(String format, String location_label,
+				String edition, String pub_date) {
+			this.format = format;
+			this.location_label = location_label;
+			this.edition = edition;
+			this.pub_date = pub_date;
+		}
+	}
 }
