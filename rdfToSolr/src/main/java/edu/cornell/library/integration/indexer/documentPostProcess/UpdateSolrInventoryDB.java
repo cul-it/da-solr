@@ -33,66 +33,23 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private static String itemTable = null;
 	private static String workTable = null;
 	private static String solrIndexName = null;
-	private static Connection conn = null;
-	private static PreparedStatement 
-			updateDescStmt = null,  updateIndexedDateStmt = null,
-			origBibDateStmt = null, origDescStmt = null, origWorksStmt = null,   
-			origMfhdStmt = null,
-			insertBibStmt = null,  insertMfhdStmt = null,  insertItemStmt = null,
-			findWorksForOclcIdStmt = null,
-			insertBibWorkMappingStmt = null, updateBibWorkMappingStmt = null,
-			deleteItemStmt = null, deleteMfhdStmt = null;
 
 	private void setup(SolrBuildConfig config, SolrInputDocument document) throws Exception{
 		
-		conn = config.getDatabaseConnection("Current");
 		String solrUrl = config.getSolrUrl();
 		solrIndexName = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
 		bibTable = "bibSolr"+solrIndexName;
 		mfhdTable = "mfhdSolr"+solrIndexName;
 		itemTable = "itemSolr"+solrIndexName;
 		workTable = "bib2work"+solrIndexName;
-		origBibDateStmt = conn.prepareStatement("SELECT record_date FROM "+bibTable+" WHERE bib_id = ?");
-		origMfhdStmt = conn.prepareStatement(
-				"SELECT mfhd_id FROM "+mfhdTable+" WHERE bib_id = ?");
-		origDescStmt = conn.prepareStatement(
-				"SELECT format, location_label, edition, pub_date FROM "+bibTable+" WHERE bib_id = ?");
-		updateDescStmt = conn.prepareStatement(
-				"UPDATE "+bibTable
-				+" SET record_date = ?, format = ?, location_label = ?, "
-					+ "edition = ?, pub_date = ?, index_date = NOW(), linking_mod_date = NOW() "
-				+ "WHERE bib_id = ?");
-		updateIndexedDateStmt = conn.prepareStatement(
-				"UPDATE "+bibTable
-				+" SET record_date = ?, index_date = NOW() "
-				+"WHERE bib_id = ?");
-		origWorksStmt = conn.prepareStatement(
-				"SELECT DISTINCT oclc_id FROM "+workTable+" WHERE bib_id = ?");
-		insertBibStmt = conn.prepareStatement(
-				"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
-						+ "VALUES (?, ?, ?, ?, NOW(), ?, ?)");
-		insertMfhdStmt = conn.prepareStatement(
-				"INSERT INTO "+mfhdTable+" (bib_id, mfhd_id, record_date) "
-						+ "VALUES (?, ?, ?)");
-		insertItemStmt = conn.prepareStatement(
-				"INSERT INTO "+itemTable+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)");
-		findWorksForOclcIdStmt = conn.prepareStatement(
-				"SELECT workid FROM workids.work2oclc WHERE oclcid = ?");
-		insertBibWorkMappingStmt = conn.prepareStatement(
-				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
-		updateBibWorkMappingStmt = conn.prepareStatement(
-				"UPDATE "+workTable+" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?");
-		deleteItemStmt = conn.prepareStatement(
-				"DELETE FROM "+itemTable+" WHERE mfhd_id = ?");
-		deleteMfhdStmt = conn.prepareStatement(
-				"DELETE FROM "+mfhdTable+" WHERE bib_id = ?");
 	}
 	
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		if (conn == null || conn.isClosed())
+		Connection conn = config.getDatabaseConnection("Current");
+		if (solrIndexName == null)
 			setup(config,document);
 
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
@@ -100,6 +57,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		String[] tmp = bibid_display.split("\\|",2);
 		Integer bibid = Integer.valueOf(tmp[0]);
 		Timestamp bibDate = new Timestamp( marcDateFormat.parse(tmp[1]).getTime() );
+		PreparedStatement origBibDateStmt = conn.prepareStatement("SELECT record_date FROM "+bibTable+" WHERE bib_id = ?");
 		origBibDateStmt.setInt(1, bibid);
 		ResultSet rs = origBibDateStmt.executeQuery();
 		Timestamp origBibDate = null;
@@ -107,6 +65,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			origBibDate = rs.getTimestamp(1);
 		}
 		rs.close();
+		origBibDateStmt.close();
 		if (origBibDate == null) {
 			// bib is new in Solr
 			populateBibField( conn, document, bibid, bibDate );
@@ -121,6 +80,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			populateItemFields( conn, document );
 			updateWorkInfo( conn, document, bibid );
 		}
+
+		conn.close();
 	}
 
 	private List<HoldingRecord> extractHoldingsFromSolrField(
@@ -200,6 +161,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		String location = calculateDisplayLocation( document );
 
 		// pull existing values from DB are the descriptive fields changed?
+		PreparedStatement origDescStmt = conn.prepareStatement(
+				"SELECT format, location_label, edition, pub_date FROM "+bibTable+" WHERE bib_id = ?");
 		origDescStmt.setInt(1, bibid);
 		ResultSet origDescRS = origDescStmt.executeQuery();
 		boolean descChanged = false;
@@ -210,9 +173,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 					|| ! stringsEqual(pub_date,origDescRS.getString(4)))
 				descChanged = true;
 		origDescRS.close();
+		origDescStmt.close();
 
 		// update db appropriately
 		if (descChanged) {
+			PreparedStatement updateDescStmt = conn.prepareStatement(
+					"UPDATE "+bibTable
+					+" SET record_date = ?, format = ?, location_label = ?, "
+						+ "edition = ?, pub_date = ?, index_date = NOW(), linking_mod_date = NOW() "
+					+ "WHERE bib_id = ?");
 			updateDescStmt.setTimestamp(1, recordDate);
 			updateDescStmt.setString(2, format);
 			updateDescStmt.setString(3, location);
@@ -220,11 +189,17 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			updateDescStmt.setString(5, pub_date);
 			updateDescStmt.setInt(6, bibid);
 			updateDescStmt.executeUpdate();
+			updateDescStmt.close();
 		}
 		if ( ! descChanged ) {
+			PreparedStatement updateIndexedDateStmt = conn.prepareStatement(
+					"UPDATE "+bibTable
+					+" SET record_date = ?, index_date = NOW() "
+					+"WHERE bib_id = ?");
 			updateIndexedDateStmt.setTimestamp(1, recordDate);
 			updateIndexedDateStmt.setInt(2, bibid);
 			updateIndexedDateStmt.executeUpdate();
+			updateIndexedDateStmt.close();
 		}
 	}
 
@@ -233,12 +208,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Set<Integer> oclcIds = extractOclcIdsFromSolrField(
 				document.getFieldValues("other_id_display"));
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
+		PreparedStatement origWorksStmt = conn.prepareStatement(
+				"SELECT DISTINCT oclc_id FROM "+workTable+" WHERE bib_id = ?");
 		origWorksStmt.setInt(1, bibid);
 		ResultSet rs = origWorksStmt.executeQuery();
 		while (rs.next()) {
 			previousOclcIds.add(rs.getInt(1));
 		}
 		rs.close();
+		origWorksStmt.close();
 
 		Set<Integer> newOclcIds = new HashSet<Integer>(oclcIds);
 		newOclcIds.removeAll(previousOclcIds);
@@ -263,6 +241,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if (document.containsKey("edition_display"))
 			edition = fieldValuesToConcatString(document.getFieldValues("edition_display"));
 		String location = calculateDisplayLocation( document );
+		PreparedStatement insertBibStmt = conn.prepareStatement(
+				"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
+						+ "VALUES (?, ?, ?, ?, NOW(), ?, ?)");
 		insertBibStmt.setInt(1, bibid);
 		insertBibStmt.setTimestamp(2, recordDate);
 		insertBibStmt.setString(3, format);
@@ -270,12 +251,16 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		insertBibStmt.setString(5, edition);
 		insertBibStmt.setString(6, pub_date);
 		insertBibStmt.executeUpdate();
+		insertBibStmt.close();
 	}
 	private void populateHoldingFields(Connection conn, SolrInputDocument document,
 			Integer bibid) throws SQLException, ParseException {
 
 		List<HoldingRecord> holdings = extractHoldingsFromSolrField(
 				document.getFieldValues("holdings_display"));
+		PreparedStatement insertMfhdStmt = conn.prepareStatement(
+				"INSERT INTO "+mfhdTable+" (bib_id, mfhd_id, record_date) "
+						+ "VALUES (?, ?, ?)");
 		for (HoldingRecord holding : holdings ) {
 			insertMfhdStmt.setInt(1, bibid);
 			insertMfhdStmt.setInt(2, holding.id);
@@ -283,6 +268,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			insertMfhdStmt.addBatch();
 		}
 		insertMfhdStmt.executeBatch();
+		insertMfhdStmt.close();
 	}
 
 	private void populateItemFields(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
@@ -291,6 +277,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			return;
 		List<ItemRecord> items = extractItemsFromSolrField(
 				document.getFieldValues("item_display"));
+		PreparedStatement insertItemStmt = conn.prepareStatement(
+				"INSERT INTO "+itemTable+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)");
 		for (ItemRecord item : items ) {
 			insertItemStmt.setInt(1, item.mfhdid);
 			insertItemStmt.setInt(2, item.id);
@@ -298,9 +286,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			insertItemStmt.addBatch();
 		}
 		insertItemStmt.executeBatch();
+		insertItemStmt.close();
 	}
 
 	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
+
+		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
+				"SELECT workid FROM workids.work2oclc WHERE oclcid = ?");
+		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
+				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
@@ -314,20 +308,24 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			}
 			rs.close();
 		}
+		findWorksForOclcIdStmt.close();
 		insertBibWorkMappingStmt.executeBatch();
-
+		insertBibWorkMappingStmt.close();
 	}
 
 	private void deactivateWorkInfo(Connection conn, Set<Integer> removedOclcIds, int bibid) throws SQLException {
 
 		if (removedOclcIds.isEmpty()) 
 			return;
+		PreparedStatement updateBibWorkMappingStmt = conn.prepareStatement(
+				"UPDATE "+workTable+" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?");
 		for (int oclcid : removedOclcIds) {
 			updateBibWorkMappingStmt.setInt(1, bibid);
 			updateBibWorkMappingStmt.setInt(2, oclcid);
 			updateBibWorkMappingStmt.addBatch();
 		}
 		updateBibWorkMappingStmt.executeBatch();
+		updateBibWorkMappingStmt.close();
 	}
 
 	private String calculateDisplayLocation(SolrInputDocument document) {
@@ -368,6 +366,10 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private List<HoldingRecord> removeOrigHoldingsDataFromDB(
 			Connection conn, SolrInputDocument document, int bibid) throws SQLException {
 		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
+		PreparedStatement origMfhdStmt = conn.prepareStatement(
+				"SELECT mfhd_id FROM "+mfhdTable+" WHERE bib_id = ?");
+		PreparedStatement deleteItemStmt = conn.prepareStatement(
+				"DELETE FROM "+itemTable+" WHERE mfhd_id = ?");
 		origMfhdStmt.setInt(1, bibid);
 		ResultSet mfhdRs = origMfhdStmt.executeQuery();
 		while (mfhdRs.next()) {
@@ -375,9 +377,16 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			deleteItemStmt.addBatch();
 		}
 		mfhdRs.close();
+		origMfhdStmt.close();
 		deleteItemStmt.executeBatch();
+		deleteItemStmt.close();
+
+		PreparedStatement deleteMfhdStmt = conn.prepareStatement(
+				"DELETE FROM "+mfhdTable+" WHERE bib_id = ?");
 		deleteMfhdStmt.setInt(1, bibid);
 		deleteMfhdStmt.executeUpdate();
+		deleteMfhdStmt.close();
+
 		return holdings;
 	}
 
