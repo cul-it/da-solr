@@ -52,6 +52,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement pstmt = conn.prepareStatement("SELECT record_date FROM "+bibTable+" WHERE bib_id = ?");
 		pstmt.setInt(1, bibid);
 		ResultSet rs = pstmt.executeQuery();
+		pstmt.close();
 		Timestamp origBibDate = null;
 		while (rs.next()) {
 			origBibDate = rs.getTimestamp(1);
@@ -70,7 +71,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			populateItemFields( conn, document );
 			updateWorkInfo( conn, document, bibid );
 		}
-		
+		conn.close();
 	}
 
 	private List<HoldingRecord> extractHoldingsFromSolrField(
