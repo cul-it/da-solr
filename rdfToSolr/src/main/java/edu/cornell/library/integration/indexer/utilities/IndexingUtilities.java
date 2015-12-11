@@ -100,7 +100,7 @@ public class IndexingUtilities {
 				String[] parts = site.split("\\t", 2);
 				if (parts.length < 2)
 					continue;
-				urlPatterns.put(parts[0], parts[1]);
+				urlPatterns.put(parts[0].toLowerCase(), parts[1]);
 			}
 		} catch (URISyntaxException e) {
 			// This should never happen since the URI syntax is machine generated.
