@@ -253,6 +253,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private void populateItemFields(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
 
+		if ( ! document.containsKey("item_display") )
+			return;
 		List<ItemRecord> items = extractItemsFromSolrField(
 				document.getFieldValues("item_display"));
 		PreparedStatement pstmt = conn.prepareStatement(
