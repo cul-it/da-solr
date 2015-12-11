@@ -147,7 +147,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
-				+ "key (mfhd_id) ) ENGINE=InnoDB");
+				+ "key (bib_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+mfhdTable+" disable keys");
 
 		stmt.execute("drop table if exists "+itemTable);
@@ -156,7 +156,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "item_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
-				+ "key (item_id) ) ENGINE=InnoDB");
+				+ "key (mfhd_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+itemTable+" disable keys");
 
 		stmt.execute("drop table if exists "+workTable);

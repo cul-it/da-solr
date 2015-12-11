@@ -85,7 +85,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		deleteItemStmt = conn.prepareStatement(
 				"DELETE FROM "+itemTable+" WHERE mfhd_id = ?");
 		deleteMfhdStmt = conn.prepareStatement(
-				"DELETE FROM "+mfhdTable+" WHERE mfhd_id = ?");
+				"DELETE FROM "+mfhdTable+" WHERE bib_id = ?");
 	}
 	
 	@Override
@@ -371,15 +371,13 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		origMfhdStmt.setInt(1, bibid);
 		ResultSet mfhdRs = origMfhdStmt.executeQuery();
 		while (mfhdRs.next()) {
-			int mfhdid = mfhdRs.getInt(1);
-			deleteMfhdStmt.setInt(1, mfhdid);
-			deleteMfhdStmt.addBatch();
-			deleteItemStmt.setInt(1, mfhdid);
+			deleteItemStmt.setInt(1, mfhdRs.getInt(1));
 			deleteItemStmt.addBatch();
 		}
 		mfhdRs.close();
 		deleteItemStmt.executeBatch();
-		deleteMfhdStmt.executeBatch();
+		deleteMfhdStmt.setInt(1, bibid);
+		deleteMfhdStmt.executeUpdate();
 		return holdings;
 	}
 
