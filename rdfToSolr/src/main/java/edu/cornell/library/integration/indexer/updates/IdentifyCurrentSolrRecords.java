@@ -134,7 +134,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "active int(1) default 1, "
 				+ "index_date timestamp default now(), "
 				+ "format varchar(256), "
-				+ "location_label varchar(256), "
+				+ "location_label text, "
 				+ "edition text, "
 				+ "pub_date text, "
 				+ "linking_mod_date timestamp, "
