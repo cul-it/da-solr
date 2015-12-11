@@ -278,10 +278,10 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			pstmt.setInt(1, oclcId);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				int workid = rs.getInt(1);
+				long workid = rs.getLong(1);
 				insertStmt.setInt(1, bibid);
 				insertStmt.setInt(2, oclcId);
-				insertStmt.setInt(3, workid);
+				insertStmt.setLong(3, workid);
 				insertStmt.addBatch();
 			}
 		}
