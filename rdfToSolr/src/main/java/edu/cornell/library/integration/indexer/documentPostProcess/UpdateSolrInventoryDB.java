@@ -52,11 +52,11 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement pstmt = conn.prepareStatement("SELECT record_date FROM "+bibTable+" WHERE bib_id = ?");
 		pstmt.setInt(1, bibid);
 		ResultSet rs = pstmt.executeQuery();
-		pstmt.close();
 		Timestamp origBibDate = null;
 		while (rs.next()) {
 			origBibDate = rs.getTimestamp(1);
 		}
+		pstmt.close();
 		if (origBibDate == null) {
 			// bib is new in Solr
 			populateBibField( conn, document, bibid, bibDate );
