@@ -199,7 +199,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Set<Integer> oclcIds = extractOclcIdsFromSolrField(
 				document.getFieldValues("other_id_display"));
 		PreparedStatement previousWorksStmt = conn.prepareStatement(
-				"SELECT DISTINCT oclcid FROM "+workTable+" WHERE bib_id = ?");
+				"SELECT DISTINCT oclc_id FROM "+workTable+" WHERE bib_id = ?");
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
 		previousWorksStmt.setInt(1, bibid);
 		ResultSet rs = previousWorksStmt.executeQuery();
