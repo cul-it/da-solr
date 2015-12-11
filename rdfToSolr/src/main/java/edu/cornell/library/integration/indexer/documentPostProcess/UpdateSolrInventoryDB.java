@@ -123,6 +123,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private Set<Integer> extractOclcIdsFromSolrField(
 			Collection<Object> fieldValues) {
 		Set<Integer> oclcIds = new HashSet<Integer>();
+		if (fieldValues == null) return oclcIds;
 		for (Object id_obj : fieldValues) {
 			String id = id_obj.toString();
 			if (id.startsWith("(OCoLC)")) {
