@@ -400,7 +400,15 @@ public class MarcXmlToRdf {
 			dirToProcessInto = destDir;
 		
 		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
-			Integer batchid = Integer.valueOf(bibid) / groupsize;
+			Integer batchid;
+			try {
+				batchid = Integer.valueOf(bibid) / groupsize;
+			} catch (NumberFormatException e) {
+				// If the bib id isn't a valid integer, skip the record
+				System.out.println("Skipping record conversion due to invalid bib id.");
+				System.out.println(output.substring(0,120));
+				return;
+			}
 			String file = dirToProcessInto+"/"+destFilenamePrefix+"."+batchid+outFileExt;
 			if (simultaneousWrite) {
 				if ( ! outsById.containsKey(batchid)) {
