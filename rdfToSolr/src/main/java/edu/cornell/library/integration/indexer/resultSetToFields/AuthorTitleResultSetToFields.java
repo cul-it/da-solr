@@ -22,6 +22,7 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 
 /**
@@ -151,6 +152,16 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						json.put("name2", t);
 						json.put("search2", cts);
 						json.put("type", htd.toString());
+						AuthorityData authData = new AuthorityData(config,cts,htd);
+						json.put("authorizedForm", authData.authorized);
+						if (authData.authorized && authData.alternateForms != null) {
+							json.put("alternateForms", authData.alternateForms);
+							for (String altForm : authData.alternateForms) {
+								addField(solrFields,"authority_author_t",altForm);
+								if (hasCJK(altForm))
+									addField(solrFields,"authority_author_t_cjk",altForm);								
+							}
+						}
 						ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 						mapper.writeValue(jsonstream, json);
 						addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
@@ -177,6 +188,16 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					json.put("name1", s);
 					json.put("search1", cts880);
 					json.put("type", htd.toString());
+					AuthorityData authData = new AuthorityData(config,cts880,htd);
+					json.put("authorizedForm", authData.authorized);
+					if (authData.authorized && authData.alternateForms != null) {
+						json.put("alternateForms", authData.alternateForms);
+						for (String altForm : authData.alternateForms) {
+							addField(solrFields,"authority_author_t",altForm);
+							if (hasCJK(altForm))
+								addField(solrFields,"authority_author_t_cjk",altForm);								
+						}
+					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
@@ -195,6 +216,16 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					json.put("name1", s);
 					json.put("search1", cts);
 					json.put("type", htd.toString());
+					AuthorityData authData = new AuthorityData(config,cts,htd);
+					json.put("authorizedForm", authData.authorized);
+					if (authData.authorized && authData.alternateForms != null) {
+						json.put("alternateForms", authData.alternateForms);
+						for (String altForm : authData.alternateForms) {
+							addField(solrFields,"authority_author_t",altForm);
+							if (hasCJK(altForm))
+								addField(solrFields,"authority_author_t_cjk",altForm);								
+						}
+					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					addField(solrFields,"author_json",jsonstream.toString("UTF-8"));

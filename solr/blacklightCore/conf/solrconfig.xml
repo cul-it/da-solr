@@ -513,6 +513,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
@@ -568,6 +572,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
     </lst>
     <lst name="appends">
@@ -693,6 +701,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
@@ -748,6 +760,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
     </lst>
   	<lst name="appends">
@@ -818,6 +834,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="quot_qf">
         title_unstemC^25000        title_unstemP^25000
@@ -863,6 +883,10 @@
         author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
@@ -918,6 +942,10 @@
         author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="quot_pf">
         title_unstemC^25000        title_unstemP^25000
@@ -962,6 +990,10 @@
         author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       
       <str name="author_qf">
@@ -973,6 +1005,8 @@
         author_addl_t_cjk^5
         author_245c_t              author_245c_tP
         author_245c_t_cjk
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
       </str>
       <str name="author_pf">
         author_unstemC^125         author_unstemP^125
@@ -983,6 +1017,8 @@
         author_addl_t_cjk^5
         author_245c_t              author_245c_tP
         author_245c_t_cjk
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
       </str>
       <str name="author_quot_qf">
         author_unstemC^125         author_unstemP^125
@@ -991,6 +1027,8 @@
         author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
       </str>
       <str name="author_quot_pf">
         author_unstemC^125         author_unstemP^125
@@ -999,6 +1037,8 @@
         author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
       </str>
 
 
@@ -1070,6 +1110,8 @@
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t             subject_addl_tP
         subject_addl_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="subject_pf">
         subject_unstemC^200        subject_unstemP^200
@@ -1078,18 +1120,24 @@
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t             subject_addl_tP
         subject_addl_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="subject_quot_qf">
         subject_unstemC^200        subject_unstemP^200
         subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       <str name="subject_quot_pf">
         subject_unstemC^200        subject_unstemP^200
         subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t_cjk
+        authority_subject_t         authority_subject_tP
+        authority_subject_t_cjk
       </str>
       
       <str name="publisher_qf">
