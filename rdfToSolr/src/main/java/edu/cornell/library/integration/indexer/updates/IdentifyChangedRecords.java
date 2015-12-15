@@ -79,6 +79,11 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
 		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
 
+		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexing();
+		System.out.println("\tbibsMarkedAsNeedingReindexing: "+markedBibs.size());
+		bibsToUpdate.addAll(markedBibs);
+		markedBibs.clear();
+
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
 		bibsToUpdate.addAll(tempMap.values());

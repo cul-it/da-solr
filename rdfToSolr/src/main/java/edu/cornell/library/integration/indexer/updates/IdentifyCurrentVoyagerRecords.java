@@ -1,17 +1,17 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
@@ -38,7 +38,6 @@ public class IdentifyCurrentVoyagerRecords {
 	
 	public IdentifyCurrentVoyagerRecords(SolrBuildConfig config) throws Exception {
 	    this.config = config;
-	    String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
 	    Connection voyager = config.getDatabaseConnection("Voy");
 	    Connection current = config.getDatabaseConnection("Current");
 	    current.setAutoCommit(false);
@@ -47,14 +46,13 @@ public class IdentifyCurrentVoyagerRecords {
 	    c_stmt.execute("SET unique_checks=0");
 	    
 	    // Starting with bibs, create the destination table, then populated it from Voyager
-	    String bibTable = "bib_"+today;
-	    c_stmt.execute("drop table if exists "+bibTable);
-	    c_stmt.execute("create table "+bibTable+"( "
+	    c_stmt.execute("drop table if exists "+CurrentDBTable.BIB_VOY.toString());
+	    c_stmt.execute("create table "+CurrentDBTable.BIB_VOY.toString()+"( "
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "record_date timestamp null, "
 	    		+ "key (bib_id) ) "
 	    		+ "ENGINE=InnoDB");
-	    c_stmt.execute("alter table "+bibTable+" disable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" disable keys");
 		current.commit();
 
 	    ResultSet rs = v_stmt.executeQuery
@@ -62,8 +60,8 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ " from BIB_MASTER"
 	    		+" where SUPPRESS_IN_OPAC = 'N'");
 	    PreparedStatement pstmt = current.prepareStatement
-	    		("insert into "+bibTable+" (bib_id, record_date) "
-	    		+ " values ( ? , ? )");
+	    		("insert into "+CurrentDBTable.BIB_VOY.toString()+
+	    				" (bib_id, record_date) values ( ? , ? )");
 	    int i = 0;
 		while (rs.next()) {
 			pstmt.setInt(1, rs.getInt(1) );
@@ -80,20 +78,19 @@ public class IdentifyCurrentVoyagerRecords {
 		pstmt.executeBatch();
 		pstmt.close();
 		current.commit();
-	    c_stmt.execute("alter table "+bibTable+" disable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" disable keys");
 		rs.close();
 		System.out.println("Bib count: "+i);
 		
 		// Next, we do the same thing for holdings
-		String mfhdTable = "mfhd_"+today;
-	    c_stmt.execute("drop table if exists "+mfhdTable);
-	    c_stmt.execute("create table "+mfhdTable+"( "
+	    c_stmt.execute("drop table if exists "+CurrentDBTable.MFHD_VOY.toString());
+	    c_stmt.execute("create table "+CurrentDBTable.MFHD_VOY.toString()+"( "
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "record_date timestamp null, "
 	    		+ "key (mfhd_id) ) "
 	    		+ "ENGINE=InnoDB");
-	    c_stmt.execute("alter table "+mfhdTable+" disable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.MFHD_VOY.toString()+" disable keys");
 		current.commit();
 
 	    rs = v_stmt.executeQuery
@@ -102,10 +99,10 @@ public class IdentifyCurrentVoyagerRecords {
 	             +" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
 	             + "  and SUPPRESS_IN_OPAC = 'N'");
 	    pstmt = current.prepareStatement
-	    		("insert into "+mfhdTable+" (bib_id, mfhd_id, record_date) "
-	    				+ "values (?, ?, ?)");
+	    		("insert into "+CurrentDBTable.MFHD_VOY.toString()+
+	    				" (bib_id, mfhd_id, record_date) values (?, ?, ?)");
 	    PreparedStatement bibConfirm = current.prepareStatement(
-	    		"select bib_id from "+bibTable+" where bib_id = ?");
+	    		"select bib_id from "+CurrentDBTable.BIB_VOY.toString()+" where bib_id = ?");
 	    i = 0;
 	    while (rs.next()) {
 	    	int bib_id = rs.getInt(1);
@@ -126,20 +123,19 @@ public class IdentifyCurrentVoyagerRecords {
 	    pstmt.executeBatch();
 	    pstmt.close();
 		current.commit();
-	    c_stmt.execute("alter table "+mfhdTable+" enable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.MFHD_VOY.toString()+" enable keys");
 	    rs.close();
 	    System.out.println("Mfhd count: "+i);
 
 	    // Finally, do the same thing for items
-	    String itemTable = "item_"+today;
-	    c_stmt.execute("drop table if exists "+itemTable);
-	    c_stmt.execute("create table "+itemTable+"( "
+	    c_stmt.execute("drop table if exists "+CurrentDBTable.ITEM_VOY.toString());
+	    c_stmt.execute("create table "+CurrentDBTable.ITEM_VOY.toString()+"( "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "item_id int(10) unsigned not null, "
 	    		+ "record_date timestamp null, "
 	    		+ "key (item_id) ) "
 	    		+ "ENGINE=InnoDB");
-	    c_stmt.execute("alter table "+itemTable+" disable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.ITEM_VOY.toString()+" disable keys");
 		current.commit();
 	    
 	    rs = v_stmt.executeQuery
@@ -147,8 +143,8 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+"  from MFHD_ITEM, ITEM"
 	    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID");
 	    pstmt = current.prepareStatement
-	    		("insert into "+itemTable+" (mfhd_id, item_id, record_date) "
-	    				+ "values (?, ?, ?)");
+	    		("insert into "+CurrentDBTable.ITEM_VOY.toString()+
+	    				" (mfhd_id, item_id, record_date) values (?, ?, ?)");
 	    i = 0;
 	    while (rs.next()) {
 	    	pstmt.setInt(1, rs.getInt(1));
@@ -166,7 +162,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    pstmt.executeBatch();
 	    pstmt.close();
 	    System.out.println("Item count: "+i);
-	    c_stmt.execute("alter table "+itemTable+" enable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.ITEM_VOY.toString()+" enable keys");
 
 	    c_stmt.execute("SET unique_checks=1");
 		current.commit();

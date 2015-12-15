@@ -24,6 +24,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
 
 /**
  * Utility to delete bibs from Solr index.
@@ -76,11 +77,6 @@ public class DeleteFromSolr {
         
         String solrURL = config.getSolrUrl();                                        
         SolrServer solr = new HttpSolrServer( solrURL );
-		String solrIndexName = solrURL.substring(solrURL.lastIndexOf('/')+1);
-		String bibTable = "bibSolr"+solrIndexName;
-		String mfhdTable = "mfhdSolr"+solrIndexName;
-		String itemTable = "itemSolr"+solrIndexName;
-		String workTable = "bib2work"+solrIndexName;
 
 		Set<Integer> knockOnUpdates = new HashSet<Integer>();
                         
@@ -103,18 +99,24 @@ public class DeleteFromSolr {
             int commitSize = batchSize * 10;
 
             PreparedStatement bibStmt = conn.prepareStatement(
-            		"UPDATE "+bibTable+" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
+            		"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+
+            		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
             PreparedStatement workStmt = conn.prepareStatement(
-            		"UPDATE "+workTable+" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
+            		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
+            		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
             PreparedStatement mfhdQueryStmt = conn.prepareStatement(
-            		"SELECT mfhd_id FROM "+mfhdTable+" WHERE bib_id = ?");
+            		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR.toString()+
+            		" WHERE bib_id = ?");
             PreparedStatement mfhdDelStmt = conn.prepareStatement(
-            		"DELETE FROM "+mfhdTable+" WHERE bib_id = ?");
+            		"DELETE FROM "+CurrentDBTable.MFHD_SOLR.toString()+
+            		" WHERE bib_id = ?");
             PreparedStatement itemStmt = conn.prepareStatement(
-            		"DELETE FROM "+itemTable+" WHERE mfhd_id = ?");
+            		"DELETE FROM "+CurrentDBTable.ITEM_SOLR.toString()+
+            		" WHERE mfhd_id = ?");
             PreparedStatement knockOnUpdateStmt = conn.prepareStatement(
             		"SELECT b.bib_id"
-            		+ " FROM "+bibTable+" AS a, "+bibTable+" AS b "
+            		+ " FROM "+CurrentDBTable.BIB_SOLR.toString()+" AS a, "
+            				+CurrentDBTable.BIB_SOLR.toString()+" AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"

@@ -498,7 +498,7 @@ public class MarcXmlToRdf {
 		}
 	}
 	
-	public String swapFileExt ( String xml ) {
+	private String swapFileExt ( String xml ) {
 		String nt;
 		if (xml.endsWith(".xml"))
 			nt = xml.substring(0,xml.length()-4)+outFileExt;

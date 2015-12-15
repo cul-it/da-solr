@@ -5,9 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
 
 
 /**
@@ -31,12 +30,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  */
 public class IndexRecordListComparison {
 
-	private static String bibTableVoy;
-	private static String mfhdTableVoy;
-	private static String itemTableVoy;
-	private static String bibTableSolr;
-	private static String mfhdTableSolr;
-	private static String itemTableSolr;
 
 
 	private Connection conn = null;
@@ -53,17 +46,6 @@ public class IndexRecordListComparison {
 	
 	public IndexRecordListComparison(SolrBuildConfig config) throws ClassNotFoundException, SQLException {
 
-	    String solrUrl = config.getSolrUrl();
-	    String solrCore = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
-		String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-
-		bibTableVoy = "bib_"+today;
-		mfhdTableVoy = "mfhd_"+today;
-		itemTableVoy = "item_"+today;
-		bibTableSolr = "bibSolr"+solrCore;
-		mfhdTableSolr = "mfhdSolr"+solrCore;
-		itemTableSolr = "itemSolr"+solrCore;
-
 		conn = config.getDatabaseConnection("Current");
 		stmt = conn.createStatement();
 
@@ -73,7 +55,8 @@ public class IndexRecordListComparison {
 		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
 		ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
-				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
+				+ "FROM "+CurrentDBTable.MFHD_VOY.toString()+" as v, "
+						+CurrentDBTable.MFHD_SOLR.toString()+" as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
 				+ " AND v.bib_id != s.bib_id");
 		while (rs.next())
@@ -86,13 +69,14 @@ public class IndexRecordListComparison {
 		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
 		ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
-				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
+				+ "FROM "+CurrentDBTable.ITEM_VOY.toString()+" as v, "
+						+CurrentDBTable.ITEM_SOLR.toString()+ " as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND v.mfhd_id != s.mfhd_id");
 		while (rs.next())
 			m.put(rs.getInt(1),
-					new ChangedBib(getBibForMfhd(mfhdTableSolr,rs.getInt(3)),
-							getBibForMfhd(mfhdTableVoy,rs.getInt(2))));
+					new ChangedBib(getBibForMfhd(CurrentDBTable.MFHD_SOLR,rs.getInt(3)),
+							getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2))));
 		rs.close();
 		return m;
 	}
@@ -102,11 +86,13 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// new items
 		ResultSet rs = stmt.executeQuery(
-				"select v.item_id, v.mfhd_id from "+itemTableVoy+" as v "
-				+ "left join "+itemTableSolr+" as s on s.item_id = v.item_id "
+				"select v.item_id, v.mfhd_id"
+				+ " from "+CurrentDBTable.ITEM_VOY.toString()+" as v "
+				+ "left join "+CurrentDBTable.ITEM_SOLR.toString()+" as s"
+						+ " on s.item_id = v.item_id "
 				+ "where s.mfhd_id is null");
 		while (rs.next())
-			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+			m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
 		rs.close();
 		return m;
 	}
@@ -116,10 +102,12 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// deleted items
 		ResultSet rs = stmt.executeQuery(
-				"select s.item_id, s.mfhd_id from "+itemTableSolr+" as s "
-				+ "left join "+itemTableVoy+" as v on s.item_id = v.item_id "
+				"select s.item_id, s.mfhd_id "
+				+ "from "+CurrentDBTable.ITEM_SOLR.toString()+" as s "
+				+ "left join "+CurrentDBTable.ITEM_VOY.toString()+" as v"
+						+ " on s.item_id = v.item_id "
 				+ "where v.mfhd_id is null");
-		while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+		while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
 		rs.close();
 		return m;
 	}
@@ -128,12 +116,13 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
-				+ "FROM "+itemTableVoy+" as v,"+itemTableSolr + " as s "
+				+ "FROM "+CurrentDBTable.ITEM_VOY.toString()+" as v,"
+						+CurrentDBTable.ITEM_SOLR.toString() + " as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
 				+ "     OR ( v.record_date is not null AND s.record_date is null))");
 		while (rs.next())
-			m.put(rs.getInt(1),getBibForMfhd(mfhdTableVoy,rs.getInt(2)));
+			m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
 		rs.close();
 		return m;
 	}
@@ -142,8 +131,10 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		ResultSet rs = stmt.executeQuery(
-				"select v.mfhd_id, v.bib_id from "+mfhdTableVoy+" as v "
-				+ "left join "+mfhdTableSolr+" as s on s.mfhd_id = v.mfhd_id "
+				"select v.mfhd_id, v.bib_id"
+				+ " from "+CurrentDBTable.MFHD_VOY.toString()+" as v "
+				+ "left join "+CurrentDBTable.MFHD_SOLR.toString()+" as s"
+						+ " on s.mfhd_id = v.mfhd_id "
 				+ "where s.bib_id is null");
 		while (rs.next())
 			m.put(rs.getInt(1),rs.getInt(2));
@@ -155,8 +146,10 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// deleted mfhds
 		ResultSet rs = stmt.executeQuery(
-				"select s.mfhd_id, s.bib_id from "+mfhdTableSolr+" as s "
-				+ "left join "+mfhdTableVoy+" as v on s.mfhd_id = v.mfhd_id "
+				"select s.mfhd_id, s.bib_id"
+				+ " from "+CurrentDBTable.MFHD_SOLR.toString()+" as s "
+				+ "left join "+CurrentDBTable.MFHD_VOY.toString()+" as v"
+						+ " on s.mfhd_id = v.mfhd_id "
 				+ "where v.bib_id is null");
 		while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
 		rs.close();
@@ -168,7 +161,8 @@ public class IndexRecordListComparison {
 		// updated holdings
 		ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id "
-				+ "FROM "+mfhdTableVoy+" as v,"+mfhdTableSolr + " as s "
+				+ "FROM "+CurrentDBTable.MFHD_VOY.toString()+" as v,"
+						+CurrentDBTable.MFHD_SOLR.toString() + " as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
 				+ "     OR ( v.record_date is not null AND s.record_date is null))");
@@ -181,8 +175,9 @@ public class IndexRecordListComparison {
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
 		Set<Integer> l = new HashSet<Integer>();
 		ResultSet rs = stmt.executeQuery(
-				"select v.bib_id from "+bibTableVoy+" as v "
-				+ "left join "+bibTableSolr+" as s on s.bib_id = v.bib_id "
+				"select v.bib_id from "+CurrentDBTable.BIB_VOY.toString()+" as v "
+				+ "left join "+CurrentDBTable.BIB_SOLR.toString()+" as s"
+						+ " on s.bib_id = v.bib_id "
 				+ "where s.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
@@ -193,8 +188,9 @@ public class IndexRecordListComparison {
 		
 		Set<Integer> l = new HashSet<Integer>();
 		ResultSet rs = stmt.executeQuery(
-				"select s.bib_id from "+bibTableSolr+" as s "
-				+ "left join "+bibTableVoy+" as v on s.bib_id = v.bib_id "
+				"select s.bib_id from "+CurrentDBTable.BIB_SOLR.toString()+" as s "
+				+ "left join "+CurrentDBTable.BIB_VOY.toString()+" as v"
+						+ " on s.bib_id = v.bib_id "
 				+ "where v.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
@@ -205,7 +201,9 @@ public class IndexRecordListComparison {
 		Set<Integer> l = new HashSet<Integer>();
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(
-				"select v.bib_id from "+bibTableVoy+" as v, "+bibTableSolr+" as s "
+				"select v.bib_id"
+				+ " from "+CurrentDBTable.BIB_VOY.toString()+" as v, "
+						+CurrentDBTable.BIB_SOLR.toString()+" as s "
 				+ "WHERE v.bib_id = s.bib_id "
 				+ "  AND v.record_date > date_add(s.record_date,interval 15 second)");
 		while (rs.next()) l.add(rs.getInt(1));
@@ -214,10 +212,22 @@ public class IndexRecordListComparison {
 		return l;
 	}
 
-	private int getBibForMfhd( String mfhdTable, int mfhdId ) throws SQLException {
+	public Set<Integer> bibsMarkedAsNeedingReindexing() throws SQLException {
+		Set<Integer> l = new HashSet<Integer>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(
+				"select bib_id from "+CurrentDBTable.BIB_SOLR.toString()
+				+ " WHERE needs_update = 1");
+		while (rs.next()) l.add(rs.getInt(1));
+		rs.close();
+		stmt.close();
+		return l;
+	}
+
+	private int getBibForMfhd( CurrentDBTable table, int mfhdId ) throws SQLException {
 		if ( ! pstmts.containsKey("mfhd2bib"))
 			pstmts.put("mfhd2bib", conn.prepareStatement(
-					"SELECT bib_id FROM "+mfhdTable+" WHERE mfhd_id = ?"));
+					"SELECT bib_id FROM "+table.toString()+" WHERE mfhd_id = ?"));
 		PreparedStatement pstmt = pstmts.get("mfhd2bib");
 		pstmt.setInt(1, mfhdId);
 		ResultSet rs = pstmt.executeQuery();

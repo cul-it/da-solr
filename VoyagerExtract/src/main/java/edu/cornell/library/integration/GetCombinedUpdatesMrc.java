@@ -23,6 +23,8 @@ import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
+
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
 /**
@@ -71,10 +73,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		setDavService(DavServiceFactory.getDavService( config ));
 
         Set<String> updatedBibIds = new HashSet<String>();
-        String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-    	String bibTable = "bib_"+today;
-    	String mfhdTable = "mfhd_"+today;
-
 
 		String date =  getDateString(Calendar.getInstance());
 		Set<String> bibListForUpdate = getUpdatedBibs( config, date );
@@ -85,7 +83,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    updatedBibIds.addAll( bibListForAdd );
 	    current = config.getDatabaseConnection("Current");
     	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+bibTable+" WHERE bib_id = ?");
+    			"SELECT * FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ? AND active = 1");
 	    Set<String> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
 	    pstmt.close();
 	    if ( ! suppressedBibs.isEmpty()) {
@@ -97,7 +95,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		System.out.println("Identifying holdings ids");
 		Set<String> updatedMfhdIds =  getHoldingsForBibs( updatedBibIds );
     	pstmt = current.prepareStatement(
-    			"SELECT * FROM "+mfhdTable+" WHERE mfhd_id = ?");
+    			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
 	    Set<String> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
 	    pstmt.close();
 	    if ( ! suppressedMfhds.isEmpty()) {

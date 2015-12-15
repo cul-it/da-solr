@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
@@ -38,22 +39,16 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * of these tables can then be compared with the contents of the Solr index.
  */
 public class IdentifyCurrentSolrRecords {
-	
-	private SolrBuildConfig config;
+
 	private Connection current = null;
 	private int bibCount = 0;
 	private int mfhdCount = 0;
 	private int itemCount = 0;
-	private String bibTable = null;
-	private String mfhdTable = null;
-	private String itemTable = null;
-	private String workTable = null;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
-
 	public static void main(String[] args)  {
-		
+
 		List<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
@@ -64,10 +59,9 @@ public class IdentifyCurrentSolrRecords {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}	
-	
+	}
+
 	public IdentifyCurrentSolrRecords(SolrBuildConfig config) throws Exception {
-	    this.config = config;
 
 	    current = config.getDatabaseConnection("Current");
 	    current.setAutoCommit(false);
@@ -120,15 +114,9 @@ public class IdentifyCurrentSolrRecords {
 
 	private void setUpTables() throws SQLException {
 		Statement stmt = current.createStatement();
-		String solrUrl = config.getSolrUrl();
-		String solrIndexName = solrUrl.substring(solrUrl.lastIndexOf('/')+1);
-		bibTable = "bibSolr"+solrIndexName;
-		mfhdTable = "mfhdSolr"+solrIndexName;
-		itemTable = "itemSolr"+solrIndexName;
-		workTable = "bib2work"+solrIndexName;
 		
-		stmt.execute("drop table if exists "+bibTable);
-		stmt.execute("create table "+bibTable+" ( "
+		stmt.execute("drop table if exists "+CurrentDBTable.BIB_SOLR.toString());
+		stmt.execute("create table "+CurrentDBTable.BIB_SOLR.toString()+" ( "
 				+ "bib_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
@@ -138,46 +126,47 @@ public class IdentifyCurrentSolrRecords {
 				+ "edition text, "
 				+ "pub_date text, "
 				+ "linking_mod_date timestamp, "
+				+ "needs_update int(1) default 0, "
 				+ "key (bib_id) ) ENGINE=InnoDB");
-		stmt.execute("alter table "+bibTable+" disable keys");
+		stmt.execute("alter table "+CurrentDBTable.BIB_SOLR.toString()+" disable keys");
 
-		stmt.execute("drop table if exists "+mfhdTable);
-		stmt.execute("create table "+mfhdTable+" ( "
+		stmt.execute("drop table if exists "+CurrentDBTable.MFHD_SOLR.toString());
+		stmt.execute("create table "+CurrentDBTable.MFHD_SOLR.toString()+" ( "
 				+ "bib_id int(10) unsigned not null, "
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
 				+ "key (bib_id) ) ENGINE=InnoDB");
-		stmt.execute("alter table "+mfhdTable+" disable keys");
+		stmt.execute("alter table "+CurrentDBTable.MFHD_SOLR.toString()+" disable keys");
 
-		stmt.execute("drop table if exists "+itemTable);
-		stmt.execute("create table "+itemTable+" ( "
+		stmt.execute("drop table if exists "+CurrentDBTable.ITEM_SOLR.toString());
+		stmt.execute("create table "+CurrentDBTable.ITEM_SOLR.toString()+" ( "
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "item_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
 				+ "key (mfhd_id) ) ENGINE=InnoDB");
-		stmt.execute("alter table "+itemTable+" disable keys");
+		stmt.execute("alter table "+CurrentDBTable.ITEM_SOLR.toString()+" disable keys");
 
-		stmt.execute("drop table if exists "+workTable);
-		stmt.execute("create table "+workTable+" ( "
+		stmt.execute("drop table if exists "+CurrentDBTable.BIB2WORK.toString());
+		stmt.execute("create table "+CurrentDBTable.BIB2WORK.toString()+" ( "
 				+ "bib_id int(10) unsigned not null, "
 				+ "oclc_id int(10) unsigned not null, "
 				+ "work_id int(10) unsigned not null, "
 				+ "active int(1) default 1, "
 				+ "mod_date timestamp not null default current_timestamp, "
 				+ "key (work_id), key (bib_id) ) ENGINE=InnoDB");
-		stmt.execute("alter table "+workTable+" disable keys");
+		stmt.execute("alter table "+CurrentDBTable.BIB2WORK.toString()+" disable keys");
 		current.commit();
 
 	}
 
 	private void reactivateDBKeys() throws SQLException {
 		Statement stmt = current.createStatement();
-		stmt.execute("alter table "+bibTable+" enable keys");
-		stmt.execute("alter table "+mfhdTable+" enable keys");
-		stmt.execute("alter table "+itemTable+" enable keys");
-		stmt.execute("alter table "+workTable+" enable keys");
+		stmt.execute("alter table "+CurrentDBTable.BIB_SOLR.toString()+" enable keys");
+		stmt.execute("alter table "+CurrentDBTable.MFHD_SOLR.toString()+" enable keys");
+		stmt.execute("alter table "+CurrentDBTable.ITEM_SOLR.toString()+" enable keys");
+		stmt.execute("alter table "+CurrentDBTable.BIB2WORK.toString()+" enable keys");
 		current.commit();
 	}
 
@@ -188,7 +177,8 @@ public class IdentifyCurrentSolrRecords {
 		int bibid = Integer.valueOf(parts[0]);
 		if ( ! pstmts.containsKey("bib_insert"))
 			pstmts.put("bib_insert",current.prepareStatement(
-					"INSERT INTO "+bibTable+" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
+					"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
+					" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?)"));
 		List<String> locations = new ArrayList<String>();
 		Collection<Object> urls = new HashSet<Object>();
@@ -257,7 +247,8 @@ public class IdentifyCurrentSolrRecords {
 		PreparedStatement pstmt = current.prepareStatement(
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
 		PreparedStatement insertStmt = current.prepareStatement(
-				"INSERT INTO "+workTable+" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
+				"INSERT INTO "+CurrentDBTable.BIB2WORK.toString()+
+				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
 		for (int oclcId : oclcIds) {
 			pstmt.setInt(1, oclcId);
 			ResultSet rs = pstmt.executeQuery();
@@ -280,8 +271,8 @@ public class IdentifyCurrentSolrRecords {
 		String[] solrHoldingsList = solrHoldings.split(",");
 		if ( ! pstmts.containsKey("mfhd_insert"))
 			pstmts.put("mfhd_insert",current.prepareStatement(
-					"INSERT INTO "+mfhdTable+" (bib_id, mfhd_id, record_date) "
-							+ "VALUES (?, ?, ?)"));
+					"INSERT INTO "+CurrentDBTable.MFHD_SOLR.toString()+
+					" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("mfhd_insert");
 		for (int i = 0; i < solrHoldingsList.length; i++) {
 			if (solrHoldingsList[i].isEmpty()) continue;
@@ -310,7 +301,8 @@ public class IdentifyCurrentSolrRecords {
 		String[] solrItemList = solrItems.split(",");
 		if ( ! pstmts.containsKey("item_insert"))
 			pstmts.put("item_insert", current.prepareStatement(
-					"INSERT INTO "+itemTable+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)"));
+					"INSERT INTO "+CurrentDBTable.ITEM_SOLR.toString()+
+					" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("item_insert");
 		for (int i = 0; i < solrItemList.length; i++) {
 			if (solrItemList[i].isEmpty()) continue;
