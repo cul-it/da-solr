@@ -580,7 +580,7 @@ public class MarcXmlToRdf {
 				rs.next();
 				int count = rs.getInt(1);
 				rs.close();
-				if (count > 0)
+				if (count == 0)
 					return true;
 			} else if (type.equals(RecordType.HOLDINGS)) {
 				if (doesMfhdExist == null)
@@ -591,7 +591,7 @@ public class MarcXmlToRdf {
 				rs.next();
 				int count = rs.getInt(1);
 				rs.close();
-				if (count > 0)
+				if (count == 0)
 					return true;
 			}
 		}
