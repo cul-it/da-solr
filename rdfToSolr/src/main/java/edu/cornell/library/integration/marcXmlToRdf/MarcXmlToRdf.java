@@ -516,20 +516,21 @@ public class MarcXmlToRdf {
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
+					int id = Integer.valueOf(rec.id);
 
 					if (type.equals(RecordType.BIBLIOGRAPHIC)) {
-						if (foundBibs.contains(Integer.valueOf(rec.id))) {
+						if (foundBibs.contains(id)) {
 							System.out.println("Skipping duplicate bib record: "+rec.id);
 							continue;
-						} else foundBibs.add(Integer.valueOf(rec.id));
+						} else foundBibs.add(id);
 					} else if (type.equals(RecordType.HOLDINGS)) {
-						if (foundMfhds.contains(Integer.valueOf(rec.id))) {
+						if (foundMfhds.contains(id)) {
 							System.out.println("Skipping duplicate holding record: "+rec.id);
 							continue;
-						} else foundMfhds.add(Integer.valueOf(rec.id));
+						} else foundMfhds.add(id);
 					}
 					
-					if (isSuppressionBlocked(rec.id, type))
+					if (isSuppressionBlocked(id, type))
 						continue;
 
 					mapNonRomanFieldsToRomanizedFields(rec);
@@ -560,21 +561,21 @@ public class MarcXmlToRdf {
 		xmlstream.close();
 	}
 	
-	private Boolean isSuppressionBlocked(String id, RecordType type) throws SQLException {
+	private Boolean isSuppressionBlocked(Integer id, RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC)
 				&& isUnsuppressedBibListFiltered
-				&& ! unsuppressedBibs.contains(Integer.valueOf(id)))
+				&& ! unsuppressedBibs.contains(id))
 			return true;
 		if (type.equals(RecordType.HOLDINGS)
 				&& isUnsuppressedMfhdListFiltered
-				&& ! unsuppressedMfhds.contains(Integer.valueOf(id)))
+				&& ! unsuppressedMfhds.contains(id))
 			return true;
 		if (null != dbForUnsuppressedIdFiltering) {
 			if (type.equals(RecordType.BIBLIOGRAPHIC)) {
 				if (doesBibExist == null)
 					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM bib_"+today+" WHERE bib_id = ?");
-				doesBibExist.setInt(1, Integer.valueOf(id) );
+				doesBibExist.setInt(1,id);
 				ResultSet rs = doesBibExist.executeQuery();
 				rs.next();
 				int count = rs.getInt(1);
@@ -585,7 +586,7 @@ public class MarcXmlToRdf {
 				if (doesMfhdExist == null)
 					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM mfhd_"+today+" WHERE mfhd_id = ?");
-				doesMfhdExist.setInt(1, Integer.valueOf(id) );
+				doesMfhdExist.setInt(1,id);
 				ResultSet rs = doesMfhdExist.executeQuery();
 				rs.next();
 				int count = rs.getInt(1);
