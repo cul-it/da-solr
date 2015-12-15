@@ -3,12 +3,17 @@ package edu.cornell.library.integration.indexer.updates;
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -38,6 +43,9 @@ public class DeleteFromSolr {
 		List<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
+		requiredArgs.add("webdavBaseUrl");
+		requiredArgs.add("dailyBibDeletes");
+		requiredArgs.add("dailyBibUpdates");
 
         SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
         
@@ -70,7 +78,11 @@ public class DeleteFromSolr {
         SolrServer solr = new HttpSolrServer( solrURL );
 		String solrIndexName = solrURL.substring(solrURL.lastIndexOf('/')+1);
 		String bibTable = "bibSolr"+solrIndexName;
+		String mfhdTable = "mfhdSolr"+solrIndexName;
+		String itemTable = "itemSolr"+solrIndexName;
+		String workTable = "bib2work"+solrIndexName;
 
+		Set<Integer> knockOnUpdates = new HashSet<Integer>();
                         
         int lineNum = 0;
         Connection conn = null;
@@ -80,8 +92,6 @@ public class DeleteFromSolr {
 
             conn = config.getDatabaseConnection("Current");
             conn.setAutoCommit(false);
-            PreparedStatement pstmt = conn.prepareStatement(
-            		"UPDATE "+bibTable+" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
 
             long countBeforeDel = countOfDocsInSolr( solr );
             InputStream is = davService.getFileAsInputStream( deleteFileURL );      
@@ -91,19 +101,59 @@ public class DeleteFromSolr {
             List<String> ids = new ArrayList<String>(batchSize);
             
             int commitSize = batchSize * 10;
-            
+
+            PreparedStatement bibStmt = conn.prepareStatement(
+            		"UPDATE "+bibTable+" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
+            PreparedStatement workStmt = conn.prepareStatement(
+            		"UPDATE "+workTable+" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
+            PreparedStatement mfhdQueryStmt = conn.prepareStatement(
+            		"SELECT mfhd_id FROM "+mfhdTable+" WHERE bib_id = ?");
+            PreparedStatement mfhdDelStmt = conn.prepareStatement(
+            		"DELETE FROM "+mfhdTable+" WHERE bib_id = ?");
+            PreparedStatement itemStmt = conn.prepareStatement(
+            		"DELETE FROM "+itemTable+" WHERE mfhd_id = ?");
+            PreparedStatement knockOnUpdateStmt = conn.prepareStatement(
+            		"SELECT b.bib_id"
+            		+ " FROM "+bibTable+" AS a, "+bibTable+" AS b "
+            		+ "WHERE b.work_id = a.work_id"
+            		+ " AND a.bib_id = ?"
+            		+ " AND a.bib_id != b.bib_id"
+            		+ " AND a.active = 1"
+            		+ " AND b.active = 1");
+
             String line;   
             while ((line = reader.readLine()) != null)   {
                 if( line != null && !line.trim().isEmpty()){
                     lineNum++;
                     ids.add( line );
-                    pstmt.setInt(1, Integer.valueOf(line));
-                    pstmt.addBatch();
+                    int id = Integer.valueOf(line);
+                    knockOnUpdateStmt.setInt(1,id);
+                    ResultSet rs = knockOnUpdateStmt.executeQuery();
+                    while (rs.next())
+                    	knockOnUpdates.add(rs.getInt(1));
+                    rs.close();
+                    knockOnUpdates.remove(id);
+                    bibStmt.setInt(1,id);
+                    bibStmt.addBatch();
+                    workStmt.setInt(1,id);
+                    workStmt.addBatch();
+                    mfhdQueryStmt.setInt(1,id);
+                    rs = mfhdQueryStmt.executeQuery();
+                    while (rs.next()) {
+                    	itemStmt.setInt(1,rs.getInt(1));
+                    	itemStmt.addBatch();
+                    }
+                    rs.close();
+                    mfhdDelStmt.setInt(1,id);
+                    mfhdDelStmt.addBatch();
                 }
                 
                 if( ids.size() >= batchSize ){
                     solr.deleteById( ids );
-                    pstmt.executeBatch();
+                    bibStmt.executeBatch();
+                    workStmt.executeBatch();
+                    mfhdDelStmt.executeQuery();
+                    itemStmt.executeQuery();
                     ids.clear();                    
                 }                    
                 
@@ -116,7 +166,10 @@ public class DeleteFromSolr {
 
             if( ids.size() > 0 ){
                 solr.deleteById( ids );
-                pstmt.executeBatch();
+                bibStmt.executeBatch();
+                workStmt.executeBatch();
+                mfhdDelStmt.executeQuery();
+                itemStmt.executeQuery();
             }
 
             System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
@@ -127,7 +180,13 @@ public class DeleteFromSolr {
             
             System.out.println("Expected to delete " + lineNum + " documents from Solr index.");
             System.out.println("Solr document count before delete: " + countBeforeDel + 
-                    " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));            
+                    " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));
+            
+            if ( ! knockOnUpdates.isEmpty()) {
+            	System.out.println(String.valueOf(knockOnUpdates.size())
+            			+" documents identified as needing update because they share a work_id with deleted rec(s).");
+            	produceUpdateFile(config,davService,knockOnUpdates);
+            }
             
         } catch (Exception e) {
             throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
@@ -139,8 +198,35 @@ public class DeleteFromSolr {
         
         System.out.println("Success: requested " + lineNum + " documents "
                 + "to be deleted from solr at " + config.getSolrUrl());
-    }    
-    
+    }
+
+	private void produceUpdateFile( SolrBuildConfig config,
+			DavService davService, Set<Integer> bibsToUpdate) throws Exception {
+
+		if (bibsToUpdate != null && bibsToUpdate.size() > 0){			
+			
+			Integer[] arr = bibsToUpdate.toArray(new Integer[ bibsToUpdate.size() ]);
+			Arrays.sort( arr );
+			StringBuilder sb = new StringBuilder();
+			for( Integer id: arr ) {
+				sb.append(id);
+				sb.append("\n");
+			}
+
+			String updateReport = sb.toString();
+
+			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
+			        + "deletedRecordKnockOnBibList.txt";
+			try {			    
+				davService.saveFile(fileName, new ByteArrayInputStream(updateReport.getBytes("UTF-8")));
+				System.out.println("Wrote report to " + fileName);
+			} catch (Exception e) {
+			    throw new Exception("Could not save list of "
+			            + "BIB IDs that need update to file '" + fileName + "'",e);   
+			}
+		}
+	}
+
     private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException{
         SolrQuery query = new SolrQuery();
         query.set("qt", "standard");
