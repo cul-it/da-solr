@@ -20,10 +20,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +54,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.
@@ -574,7 +573,7 @@ public class MarcXmlToRdf {
 			if (type.equals(RecordType.BIBLIOGRAPHIC)) {
 				if (doesBibExist == null)
 					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
-						("SELECT COUNT(*) FROM bib_"+today+" WHERE bib_id = ?");
+						("SELECT COUNT(*) FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 				doesBibExist.setInt(1,id);
 				ResultSet rs = doesBibExist.executeQuery();
 				rs.next();
@@ -585,7 +584,7 @@ public class MarcXmlToRdf {
 			} else if (type.equals(RecordType.HOLDINGS)) {
 				if (doesMfhdExist == null)
 					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
-						("SELECT COUNT(*) FROM mfhd_"+today+" WHERE mfhd_id = ?");
+						("SELECT COUNT(*) FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?");
 				doesMfhdExist.setInt(1,id);
 				ResultSet rs = doesMfhdExist.executeQuery();
 				rs.next();
@@ -599,7 +598,6 @@ public class MarcXmlToRdf {
 	}
 	PreparedStatement doesBibExist = null;
 	PreparedStatement doesMfhdExist = null;
-	static String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
 	
 	public static String escapeForNTriples( String s ) {
 		s = s.replaceAll("\\\\", "\\\\\\\\");
