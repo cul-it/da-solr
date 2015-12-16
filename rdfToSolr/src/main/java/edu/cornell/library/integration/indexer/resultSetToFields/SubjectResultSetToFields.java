@@ -224,7 +224,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					int i = 1;
 					for (String dashed_term : dashed_terms) {
 						sb_piped.append("|"+dashed_term);
-						sb_breadcrumbed.append(" < "+dashed_term);
+						sb_breadcrumbed.append(" > "+dashed_term);
 						json.put("subject"+ ++i, dashed_term);
 						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 						authData = new AuthorityData(config,sb_breadcrumbed.toString(),htd);
