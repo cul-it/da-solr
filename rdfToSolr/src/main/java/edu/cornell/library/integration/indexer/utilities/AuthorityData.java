@@ -32,8 +32,10 @@ public class AuthorityData {
 		rs.close();
 		isAuthorizedStmt.close();
 
-		if ( ! authorized )
+		if ( ! authorized ) {
+			conn.close();
 			return;
+		}
 		
 		PreparedStatement alternateFormsStmt = conn.prepareStatement(
 				"SELECT form FROM alt_form WHERE heading_id = ?");
