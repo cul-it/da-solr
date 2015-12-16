@@ -217,7 +217,10 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	/* s1.equals(s2) will produce NPE if s1 is null. */
 	private boolean stringsEqual( String s1, String s2 ) {
 		if ( s1 == null ) {
-			if ( s2 == null )
+			if ( s2 == null || s2.isEmpty() )
+				return true;
+		} else if ( s2 == null ) {
+			if ( s1.isEmpty() )
 				return true;
 		} else if ( s1.equals(s2) ) {
 			return true;

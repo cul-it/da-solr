@@ -203,7 +203,7 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(4, StringUtils.join(locations," / "));
 		pstmt.setTimestamp(5, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ));
 		pstmt.setString(6, edition.isEmpty() ? null : edition);
-		pstmt.setString(7, pubdate);
+		pstmt.setString(7, pubdate.isEmpty() ? null : pubdate);
 		pstmt.addBatch();
 		if (++bibCount % 1000 == 0)
 			pstmt.executeBatch();
