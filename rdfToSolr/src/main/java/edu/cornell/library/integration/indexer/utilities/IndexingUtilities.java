@@ -98,7 +98,7 @@ public class IndexingUtilities {
 			String url = url_o.toString().toLowerCase();
 			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
 				if (url.contains(pattern.getKey())) {
-					if ( ! identifiedSites.contains(pattern.getKey()) )
+					if ( ! identifiedSites.contains(pattern.getValue()) )
 						identifiedSites.add(pattern.getValue());
 					break;
 				}
