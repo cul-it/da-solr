@@ -46,6 +46,7 @@ public class AuthorityData {
 		}
 		rs.close();
 		alternateFormsStmt.close();
+		conn.close();
 	}
 
 }
