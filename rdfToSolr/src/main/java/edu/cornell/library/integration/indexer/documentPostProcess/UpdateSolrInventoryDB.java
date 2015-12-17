@@ -164,6 +164,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private List<HoldingRecord> extractHoldingsFromSolrField(
 			Collection<Object> fieldValues) throws ParseException {
 		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
+		if (fieldValues == null) return holdings;
 		for (Object holding_obj : fieldValues) {
 			String holding = holding_obj.toString();
 			int mfhdid;
