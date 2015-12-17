@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
@@ -282,11 +282,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			for (Subfield sf : title.subfields.values())
 				if (sf.code.equals('h'))
 					sf.value = sf.value.replaceAll("\\[.*\\]", "");
-			String maintitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:：/／= ");
+			String maintitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:ï¼š/ï¼�= ");
 			addField(solrFields,"title_display",maintitle);
 			addField(solrFields,"subtitle_display",
-					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
-			String fulltitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
+					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:ï¼š/ï¼�= "));
+			String fulltitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:ï¼š/ï¼�= ");
 			addField(solrFields,"fulltitle_display",fulltitle);
 			addField(solrFields,"title_t",fulltitle);
 			addField(solrFields,"title_exact",fulltitle);
@@ -329,11 +329,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			for (Subfield sf : title_vern.subfields.values())
 				if (sf.code.equals('h'))
 					sf.value = sf.value.replaceAll("\\[.*\\]", "");
-			String maintitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:：/／= ");
+			String maintitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:ï¼š/ï¼�= ");
 			addField(solrFields,"title_vern_display",maintitle_vern);
 			addField(solrFields,"subtitle_vern_display",
-					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:：/／= "));
-			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:：/／= ");
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:ï¼š/ï¼�= "));
+			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:ï¼š/ï¼�= ");
 			if (title_vern.getScript().equals(MarcRecord.Script.CJK))
 				addField(solrFields,"title_t_cjk",fulltitle_vern);
 			else {

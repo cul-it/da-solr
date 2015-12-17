@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
+encoding//ILCommons/src/test/java/edu/cornell/library/integration/utilities/CharacterSetUtilsTest.java=UTF-8
+encoding//rdfToSolr/src/main/java/edu/cornell/library/integration/indexer/resultSetToFields/AuthorTitleResultSetToFields.java=UTF-8
 encoding//rdfToSolr/src/main/java/edu/cornell/library/integration/indexer/utilities/FilingNormalization.java=UTF-8

@@ -1,11 +1,11 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.trimInternationally;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.RLE_openRTL;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;

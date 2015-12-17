@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.hasCJK;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -54,7 +54,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.

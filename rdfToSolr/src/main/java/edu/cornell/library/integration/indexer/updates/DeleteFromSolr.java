@@ -23,8 +23,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.ilcommons.util.FileNameUtils;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.FileNameUtils;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Utility to delete bibs from Solr index.

@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.standardizeApostrophes;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;

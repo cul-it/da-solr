@@ -22,7 +22,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /** Evaluate populated fields for conditions of membership for any collections.
  * (Currently only "Law Library".)

@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.ilcommons.util;
+package edu.cornell.library.integration.utilities;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

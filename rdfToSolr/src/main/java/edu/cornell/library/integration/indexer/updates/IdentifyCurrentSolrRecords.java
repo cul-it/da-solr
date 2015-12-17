@@ -31,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with

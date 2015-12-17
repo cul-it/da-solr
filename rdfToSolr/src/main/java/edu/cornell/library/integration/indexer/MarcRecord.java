@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.ilcommons.util.CharacterSetUtils.RLE_openRTL;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;

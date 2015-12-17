@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.ilcommons.util;
+package edu.cornell.library.integration.utilities;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
