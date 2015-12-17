@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.util.ClassPathPropertyLoader;
+import edu.cornell.library.integration.utilities.ClassPathPropertyLoader;
 
 public class DavServiceFactory {
    
