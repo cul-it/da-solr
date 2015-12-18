@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -44,6 +45,8 @@ public class IndexHeadings {
 	private Map<HeadType,Map<String,PreparedStatement>> statements =
 			new HashMap<HeadType,Map<String,PreparedStatement>>();
 	SolrBuildConfig config;
+	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+
 
 	/**
 	 * @param args
@@ -151,7 +154,8 @@ public class IndexHeadings {
 	}
 
 
-	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count) throws SolrServerException, SQLException {
+	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count)
+			throws SolrServerException, SQLException, InterruptedException {
 
 		String count_field = blf.headingType().dbField();
 		// update record count in db
@@ -217,7 +221,8 @@ public class IndexHeadings {
 	}
 
 
-	private String getDisplayHeading(BlacklightField blf, String headingSort) throws IOException, XMLStreamException, URISyntaxException {
+	private String getDisplayHeading(BlacklightField blf, String headingSort)
+			throws IOException, XMLStreamException, URISyntaxException, InterruptedException {
 
 		String facet = blf.facetField();
 		if (facet == null)
@@ -248,38 +253,51 @@ public class IndexHeadings {
 		return null;
 	}
 
-	private String findHeadingInSolrResponse(String query, String headingSort, String facet) throws URISyntaxException, IOException, XMLStreamException {
+	private String findHeadingInSolrResponse(String query, String headingSort, String facet)
+			throws URISyntaxException, MalformedURLException, XMLStreamException, InterruptedException {
 
 		URI uri = new URI(query);
 		URL queryUrl = uri.toURL();
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = queryUrl.openStream();
-		XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
 
-		// fast forward to response body
-		FF: while (r.hasNext())
-			if (r.next() == XMLEvent.START_ELEMENT)
-				if (r.getLocalName().equals("lst"))
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name"))
-							if (r.getAttributeValue(i).equals(facet)) break FF;
+		while (true) {
+			try{
+				InputStream in = queryUrl.openStream();
+				XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
 		
-		// process actual results
-		String heading = null;
-		while (r.hasNext())
-			if (r.next() == XMLEvent.START_ELEMENT)
-				if (r.getLocalName().equals("int")) {
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name"))
-							heading = r.getAttributeValue(i);
-					String sort = getFilingForm(heading);
-					if (sort.equals(headingSort)) {
-						in.close();
-						return heading;
-					}
-				}
-		in.close();
-		return null;
+				// fast forward to response body
+				FF: while (r.hasNext())
+					if (r.next() == XMLEvent.START_ELEMENT)
+						if (r.getLocalName().equals("lst"))
+							for (int i = 0; i < r.getAttributeCount(); i++)
+								if (r.getAttributeLocalName(i).equals("name"))
+									if (r.getAttributeValue(i).equals(facet)) break FF;
+				
+				// process actual results
+				String heading = null;
+				while (r.hasNext())
+					if (r.next() == XMLEvent.START_ELEMENT)
+						if (r.getLocalName().equals("int")) {
+							for (int i = 0; i < r.getAttributeCount(); i++)
+								if (r.getAttributeLocalName(i).equals("name"))
+									heading = r.getAttributeValue(i);
+							String sort = getFilingForm(heading);
+							if (sort.equals(headingSort)) {
+								in.close();
+								return heading;
+							}
+						}
+				in.close();
+				return null;
+			} catch (IOException e) {
+				/* The only way the while(true) loop is repeated, is if an error is
+				 * thrown and execution ends up in this block. In that case, we will just
+				 * wait a few seconds and try again.
+				 */
+				System.out.println("IOException querying Solr at <"+query+">.");
+				Thread.sleep( 3000 );
+				System.out.println("retrying...");
+			}
+		}
 	}
 
 
