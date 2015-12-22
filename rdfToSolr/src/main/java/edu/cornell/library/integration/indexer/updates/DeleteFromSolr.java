@@ -115,8 +115,8 @@ public class DeleteFromSolr {
             		" WHERE mfhd_id = ?");
             PreparedStatement knockOnUpdateStmt = conn.prepareStatement(
             		"SELECT b.bib_id"
-            		+ " FROM "+CurrentDBTable.BIB_SOLR.toString()+" AS a, "
-            				+CurrentDBTable.BIB_SOLR.toString()+" AS b "
+            		+ " FROM "+CurrentDBTable.BIB2WORK.toString()+" AS a, "
+            				+CurrentDBTable.BIB2WORK.toString()+" AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"
