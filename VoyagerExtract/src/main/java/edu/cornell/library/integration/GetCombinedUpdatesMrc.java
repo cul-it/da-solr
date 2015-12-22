@@ -3,6 +3,7 @@ package edu.cornell.library.integration;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -10,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +55,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    public static void main(String[] args) throws Exception {                
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
+     requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voyager"));
      requiredArgs.addAll(getRequiredArgsForWebdav());
      requiredArgs.add("dailyMrcDir");
      requiredArgs.add("dailyMfhdDir");
@@ -105,8 +108,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
 
-		saveBIBsToMARC(  updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
-		saveMFHDsToMARC( updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
+		Connection voyager = config.getDatabaseConnection("Voyager");
+		saveBIBsToMARC(  voyager, updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
+		saveMFHDsToMARC( voyager, updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
+		voyager.close();
 	}
 
 
@@ -129,19 +134,31 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      * Get the MARC for each MFHD ID and concatenate data to create MARC files. 
      * Only put 10000 MARC records in a file.
      */
-	private void saveMFHDsToMARC(Set<String> updatedMfhdIds, String mfhdDestDir) throws Exception {
+	private void saveMFHDsToMARC(Connection voyager, Set<String> updatedMfhdIds, String mfhdDestDir) throws Exception {
 	    int recno = 0;
         int maxrec = 10000;
         int seqno = 1;
-        StringBuffer sb = new StringBuffer();                        
-        
+        StringBuffer sb = new StringBuffer();
+
+        PreparedStatement mfhdStmt = voyager.prepareStatement(
+        		"SELECT * FROM MFHD_DATA WHERE MFHD_DATA.MFHD_ID = ? ORDER BY MFHD_DATA.SEQNUM");
+
         Iterator<String> mfhdIds = updatedMfhdIds.iterator();
         while( mfhdIds.hasNext() ){
             String mfhdid = mfhdIds.next();
-            
-            List<MfhdData> mfhdDataList;
+
+            List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
             try {
-                mfhdDataList = getCatalogService().getMfhdData(mfhdid);
+            	mfhdStmt.setInt(1, Integer.valueOf(mfhdid));
+            	ResultSet rs = mfhdStmt.executeQuery();
+            	while (rs.next()) {
+	                MfhdData mfhdData = new MfhdData(); 
+	                mfhdData.setMfhdId(rs.getString("MFHD_ID"));
+	                mfhdData.setSeqnum(rs.getString("SEQNUM"));
+	                mfhdData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
+	                mfhdDataList.add(mfhdData);
+            	}
+            	rs.close();
             } catch (Exception e) { 
                 throw new Exception("Could not get MARC for MFHD ID " + mfhdid, e );
             } 
@@ -171,7 +188,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
                 sb = new StringBuffer();                             
             }                            
         }
-
+        mfhdStmt.close();
     }
 
 
@@ -179,47 +196,60 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * Get the MARC for each BIB ID, concatenate bib data to create MARC
 	 * files. Only put 10000 MARC records in a file.
 	 */
-	private void saveBIBsToMARC(Set<String> updatedBibIds, String bibDestDir) throws Exception {
+	private void saveBIBsToMARC(Connection voyager, Set<String> updatedBibIds, String bibDestDir) throws Exception {
         int recno = 0;
         int maxrec = 10000;
         int seqno = 1;
         StringBuffer sb = new StringBuffer();
-        
+
+        PreparedStatement bibStmt = voyager.prepareStatement(
+        		"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = ? ORDER BY BIB_DATA.SEQNUM");
+
         Iterator<String> bibIds = updatedBibIds.iterator();
         while( bibIds.hasNext()){
             String bibid  = bibIds.next();
-            
-            List<BibData> bibDataList;
+
+            List<BibData> bibDataList = new ArrayList<BibData>();
             try {
-               bibDataList = getCatalogService().getBibData(bibid);
-            } catch (Exception e) { 
+            	bibStmt.setInt(1, Integer.valueOf(bibid));
+            	ResultSet rs = bibStmt.executeQuery();
+            	while (rs.next()) {
+	                BibData bibData = new BibData(); 
+	                bibData.setBibId(rs.getString("BIB_ID"));
+	                bibData.setSeqnum(rs.getString("SEQNUM"));
+	                bibData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
+	                bibDataList.add(bibData);
+            	}
+            	rs.close();
+            } catch (Exception e) {
                 throw new Exception("Could not get MARC for BIB ID " + bibid, e);
-            } 
-               
-           for (BibData bibData : bibDataList) { 
-               sb.append(bibData.getRecord()); 
-           }
-           /* Inserting a carriage return after each MARC record in the file.
-            * This is not valid in a technically correct MARC "database" file, but
-            * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
-            * library, we may need to remove this. For now, it simplifies pulling problem
-            * records from the MARC "database".
-            */
-           if (! bibDataList.isEmpty())
-        	   sb.append('\n');
-           
-           recno = recno + 1;
-           if (recno >= maxrec || ! bibIds.hasNext() ) {
-               try{
-                   saveBibMrc(sb.toString(), seqno, bibDestDir);
-               } catch (Exception e) {
-                   throw new Exception("Problem saving BIB MARC to a WEBDAV file. ", e);
-               }
-               recno = 0;
-               seqno = seqno + 1;
-               sb = new StringBuffer();
-           }                           
-        }                               
+            }
+
+            for (BibData bibData : bibDataList) { 
+            	sb.append(bibData.getRecord()); 
+            }
+            /* Inserting a carriage return after each MARC record in the file.
+             * This is not valid in a technically correct MARC "database" file, but
+             * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
+             * library, we may need to remove this. For now, it simplifies pulling problem
+             * records from the MARC "database".
+             */
+            if (! bibDataList.isEmpty())
+            	sb.append('\n');
+
+            recno = recno + 1;
+            if (recno >= maxrec || ! bibIds.hasNext() ) {
+            	try{
+            		saveBibMrc(sb.toString(), seqno, bibDestDir);
+            	} catch (Exception e) {
+            		throw new Exception("Problem saving BIB MARC to a WEBDAV file. ", e);
+            	}
+            	recno = 0;
+            	seqno = seqno + 1;
+            	sb = new StringBuffer();
+            }
+        }
+        bibStmt.close();
     }
 
 
