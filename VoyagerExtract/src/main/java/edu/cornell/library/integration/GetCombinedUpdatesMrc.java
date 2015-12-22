@@ -53,10 +53,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
    /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
     */
-   public static void main(String[] args) throws Exception {                
+   public static void main(String[] args) throws Exception {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-     requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voyager"));
+     requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
      requiredArgs.addAll(getRequiredArgsForWebdav());
      requiredArgs.add("dailyMrcDir");
      requiredArgs.add("dailyMfhdDir");
@@ -106,7 +106,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
 
-		Connection voyager = config.getDatabaseConnection("Voyager");
+		Connection voyager = config.getDatabaseConnection("Voy");
 		saveBIBsToMARC(  voyager, updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		saveMFHDsToMARC( voyager, updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
 		voyager.close();
