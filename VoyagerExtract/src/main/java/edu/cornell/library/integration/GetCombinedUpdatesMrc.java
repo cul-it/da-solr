@@ -1,6 +1,8 @@
 package edu.cornell.library.integration;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import edu.cornell.library.integration.bo.BibData;
@@ -70,24 +71,21 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	private void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config) 
 	        throws Exception{
 
-		if ( getCatalogService() == null )
-		    throw new Exception("Could not get catalogService");			
-		
 		setDavService(DavServiceFactory.getDavService( config ));
 
-        Set<String> updatedBibIds = new HashSet<String>();
+        Set<Integer> updatedBibIds = new HashSet<Integer>();
 
 		String date =  getDateString(Calendar.getInstance());
-		Set<String> bibListForUpdate = getUpdatedBibs( config, date );
+		Set<Integer> bibListForUpdate = getUpdatedBibs( config, date );
 	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() );
 	    updatedBibIds.addAll(bibListForUpdate);
-		Set<String> bibListForAdd = getBibIdsToAdd( config, date );
+		Set<Integer> bibListForAdd = getBibIdsToAdd( config, date );
 	    System.out.println("bibListForAdd: " + bibListForAdd.size() );
 	    updatedBibIds.addAll( bibListForAdd );
 	    current = config.getDatabaseConnection("Current");
     	PreparedStatement pstmt = current.prepareStatement(
     			"SELECT * FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ? AND active = 1");
-	    Set<String> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
+	    Set<Integer> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
 	    pstmt.close();
 	    if ( ! suppressedBibs.isEmpty()) {
 	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
@@ -96,10 +94,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
-		Set<String> updatedMfhdIds =  getHoldingsForBibs( updatedBibIds );
+		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
     	pstmt = current.prepareStatement(
     			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
-	    Set<String> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
+	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
 	    pstmt.close();
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
@@ -115,10 +113,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	}
 
 
-    private Set<String> checkForSuppressedRecords(PreparedStatement pstmt, Set<String> updatedIds) throws SQLException {
-    	Set<String> suppressed = new HashSet<String>();
-    	for (String id : updatedIds) {
-    		pstmt.setInt(1, Integer.valueOf(id));
+    private Set<Integer> checkForSuppressedRecords(PreparedStatement pstmt, Set<Integer> updatedIds) throws SQLException {
+    	Set<Integer> suppressed = new HashSet<Integer>();
+    	for (Integer id : updatedIds) {
+    		pstmt.setInt(1, id);
     		ResultSet rs = pstmt.executeQuery();
     		boolean isSuppressed = true;
     		while (rs.next())
@@ -134,7 +132,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      * Get the MARC for each MFHD ID and concatenate data to create MARC files. 
      * Only put 10000 MARC records in a file.
      */
-	private void saveMFHDsToMARC(Connection voyager, Set<String> updatedMfhdIds, String mfhdDestDir) throws Exception {
+	private void saveMFHDsToMARC(Connection voyager, Set<Integer> updatedMfhdIds, String mfhdDestDir) throws Exception {
 	    int recno = 0;
         int maxrec = 10000;
         int seqno = 1;
@@ -143,13 +141,13 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         PreparedStatement mfhdStmt = voyager.prepareStatement(
         		"SELECT * FROM MFHD_DATA WHERE MFHD_DATA.MFHD_ID = ? ORDER BY MFHD_DATA.SEQNUM");
 
-        Iterator<String> mfhdIds = updatedMfhdIds.iterator();
+        Iterator<Integer> mfhdIds = updatedMfhdIds.iterator();
         while( mfhdIds.hasNext() ){
-            String mfhdid = mfhdIds.next();
+        	Integer mfhdid = mfhdIds.next();
 
             List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
             try {
-            	mfhdStmt.setInt(1, Integer.valueOf(mfhdid));
+            	mfhdStmt.setInt(1,mfhdid);
             	ResultSet rs = mfhdStmt.executeQuery();
             	while (rs.next()) {
 	                MfhdData mfhdData = new MfhdData(); 
@@ -196,7 +194,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * Get the MARC for each BIB ID, concatenate bib data to create MARC
 	 * files. Only put 10000 MARC records in a file.
 	 */
-	private void saveBIBsToMARC(Connection voyager, Set<String> updatedBibIds, String bibDestDir) throws Exception {
+	private void saveBIBsToMARC(Connection voyager, Set<Integer> updatedBibIds, String bibDestDir) throws Exception {
         int recno = 0;
         int maxrec = 10000;
         int seqno = 1;
@@ -205,13 +203,13 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         PreparedStatement bibStmt = voyager.prepareStatement(
         		"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = ? ORDER BY BIB_DATA.SEQNUM");
 
-        Iterator<String> bibIds = updatedBibIds.iterator();
+        Iterator<Integer> bibIds = updatedBibIds.iterator();
         while( bibIds.hasNext()){
-            String bibid  = bibIds.next();
+        	Integer bibid  = bibIds.next();
 
             List<BibData> bibDataList = new ArrayList<BibData>();
             try {
-            	bibStmt.setInt(1, Integer.valueOf(bibid));
+            	bibStmt.setInt(1, bibid);
             	ResultSet rs = bibStmt.executeQuery();
             	while (rs.next()) {
 	                BibData bibData = new BibData(); 
@@ -257,15 +255,18 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
 	 * @throws Exception 
 	 */
-	private Set<String> getHoldingsForBibs( Set<String> bibIds) throws Exception {	    	    
-        Set<String> newMfhdIdSet = new HashSet<String>();        
-        for (String bibid : bibIds) {
-            try {
-                newMfhdIdSet.addAll( getCatalogService().getMfhdIdsByBibId(bibid) );                                    
-            } catch (Exception e) {
-                throw new Exception("Could not get the MFHD IDs for BIB ID " + bibid, e);
-            } 
-        }         
+	private Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws Exception {
+		PreparedStatement holdingsForBibsStmt = current.prepareStatement(
+				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?");
+        Set<Integer> newMfhdIdSet = new HashSet<Integer>();        
+        for (Integer bibid : bibIds) {
+        	holdingsForBibsStmt.setInt(1,bibid);
+        	ResultSet rs = holdingsForBibsStmt.executeQuery();
+        	while (rs.next())
+        		newMfhdIdSet.add(rs.getInt(1));
+        	rs.close();
+        }
+        holdingsForBibsStmt.close();
         return newMfhdIdSet;
 	}	
 
@@ -275,16 +276,21 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * @throws Exception 
 	 * 
 	 */
-	private Set<String> getUpdatedBibs( SolrBuildConfig config, String today ) throws Exception {
+	private Set<Integer> getUpdatedBibs( SolrBuildConfig config, String today ) throws Exception {
 
         List<String> updateFiles = getDavService().getFileUrlList(
         		config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/");
-        Set<String> updatedBibs = new HashSet<String>();
+        Set<Integer> updatedBibs = new HashSet<Integer>();
         for (String url : updateFiles) {
     	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
     		tempPath.toFile().deleteOnExit();
             File localTmpFile = getDavService().getFile(url, tempPath.toString());
-            updatedBibs.addAll(FileUtils.readLines(localTmpFile));
+            try (BufferedReader br = new BufferedReader(new FileReader(localTmpFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                	updatedBibs.add(Integer.valueOf(line));
+                }
+            }
             localTmpFile.delete();
         }
         return updatedBibs;
@@ -297,16 +303,21 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 * @throws Exception 
 	 * 
 	 */
-	private Set<String> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
+	private Set<Integer> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
         
         List<String> addFiles = getDavService().getFileUrlList(
         		config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/");
-        Set<String> addedBibs = new HashSet<String>();
+        Set<Integer> addedBibs = new HashSet<Integer>();
         for (String url : addFiles) {
     	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
     		tempPath.toFile().deleteOnExit();
             File localTmpFile = getDavService().getFile(url, tempPath.toString());
-            addedBibs.addAll(FileUtils.readLines(localTmpFile));
+            try (BufferedReader br = new BufferedReader(new FileReader(localTmpFile))) {
+            	String line;
+                while ((line = br.readLine()) != null) {
+                	addedBibs.add(Integer.valueOf(line));
+                }
+            }
             localTmpFile.delete();
         }
         return addedBibs;
