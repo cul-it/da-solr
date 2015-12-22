@@ -154,8 +154,8 @@ public class DeleteFromSolr {
                     solr.deleteById( ids );
                     bibStmt.executeBatch();
                     workStmt.executeBatch();
-                    mfhdDelStmt.executeQuery();
-                    itemStmt.executeQuery();
+                    mfhdDelStmt.executeBatch();
+                    itemStmt.executeBatch();
                     ids.clear();                    
                 }                    
                 
@@ -170,8 +170,8 @@ public class DeleteFromSolr {
                 solr.deleteById( ids );
                 bibStmt.executeBatch();
                 workStmt.executeBatch();
-                mfhdDelStmt.executeQuery();
-                itemStmt.executeQuery();
+                mfhdDelStmt.executeBatch();
+                itemStmt.executeBatch();
             }
 
             System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
