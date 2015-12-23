@@ -355,6 +355,8 @@ public class SolrBuildConfig {
     				return null;
     			}
     		}
+    		for (String path : paths)
+    			makeDirIfNeeded( path );
     		return paths;
     	} 
     	return null;
