@@ -88,7 +88,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    		+ "bib_id int(10) unsigned not null, "
 	    		+ "mfhd_id int(10) unsigned not null, "
 	    		+ "record_date timestamp null, "
-	    		+ "primary key (mfhd_id), "
+	    		+ "key (mfhd_id), "
 	    		+ "key (bib_id) ) "
 	    		+ "ENGINE=InnoDB");
 	    c_stmt.execute("alter table "+CurrentDBTable.MFHD_VOY.toString()+" disable keys");
