@@ -231,20 +231,16 @@ public class IndexAuthorityRecords {
 							System.out.println("Skipping Juvenile subject authority heading: "+rec.id);
 							return;
 						}
-			} else if (f.tag.startsWith("1")) {
-				// main heading
-				heading = dashedHeading(f);
-
+			} else if (f.tag.startsWith("1")) { // main heading
 				MAIN: switch (f.tag) {
 				case "100":
 				case "110":
 				case "111":
-					for (Subfield sf : f.subfields.values() ) {
+					for (Subfield sf : f.subfields.values() )
 						if (sf.code.equals('t')) {
 							htd = HeadTypeDesc.WORK;
 							break MAIN;
 						}
-					}
 					if (f.tag.equals("100"))
 						htd = HeadTypeDesc.PERSNAME;
 					else if (f.tag.equals("110"))
@@ -269,9 +265,12 @@ public class IndexAuthorityRecords {
 					break;
 				case "162":
 					htd = HeadTypeDesc.MEDIUM;
+				default:
+					// If the record is for a subdivision (main entry >=180),
+					// we won't do anything with it.
 				}
-				// If the record is for a subdivision (main entry >=180),
-				// we won't do anything with it.
+				heading = dashedHeading(f, htd);
+
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
 			} else if (f.tag.startsWith("3")) {
@@ -447,9 +446,23 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
-	private String dashedHeading(DataField f) {
+	private String dashedHeading(DataField f, HeadTypeDesc htd) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
-		String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+		String heading = null;
+		if (htd.equals(HeadTypeDesc.WORK)) {
+			StringBuilder sb = new StringBuilder();
+			if (f.tag.endsWith("00"))
+				sb.append(f.concatenateSpecificSubfields("abcdq"));
+			else if (f.tag.endsWith("10"))
+				sb.append(f.concatenateSpecificSubfields("ab"));
+			else // 11
+				sb.append(f.concatenateSpecificSubfields("abe"));
+			sb.append(" | ");
+			sb.append(f.concatenateSpecificSubfields("tklnpmors"));
+			heading = sb.toString();
+		} else {
+			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+		}
 		if ( ! heading.isEmpty() && ! dashed_terms.isEmpty() )
 			heading += " > "+dashed_terms;
 		return heading;
@@ -554,7 +567,7 @@ public class IndexAuthorityRecords {
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
-		String heading = dashedHeading(f);
+		String heading = dashedHeading(f, r.headingTypeDesc);
 		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) {
