@@ -198,7 +198,21 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if (! main_fields.equals("")) {
 					StringBuilder sb_piped = new StringBuilder();
 					StringBuilder sb_breadcrumbed = new StringBuilder();
-					String mainFields = f.concatenateSpecificSubfields(main_fields);
+					String mainFields = null;
+					if (htd.equals(HeadTypeDesc.WORK)) {
+						StringBuilder sb = new StringBuilder();
+						if (f.tag.endsWith("00"))
+							sb.append(f.concatenateSpecificSubfields("abcdq"));
+						else if (f.tag.endsWith("10"))
+							sb.append(f.concatenateSpecificSubfields("ab"));
+						else // 11
+							sb.append(f.concatenateSpecificSubfields("abe"));
+						sb.append(" | ");
+						sb.append(f.concatenateSpecificSubfields("tklnpmors"));
+						mainFields = sb.toString();
+					} else {
+						mainFields = f.concatenateSpecificSubfields(main_fields);
+					}
 					sb_piped.append(mainFields);
 					sb_breadcrumbed.append(mainFields);
 					Map<String,Object> json = new HashMap<String,Object>();
