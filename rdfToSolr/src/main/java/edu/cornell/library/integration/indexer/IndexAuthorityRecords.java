@@ -265,9 +265,12 @@ public class IndexAuthorityRecords {
 					break;
 				case "162":
 					htd = HeadTypeDesc.MEDIUM;
+					break;
 				default:
 					// If the record is for a subdivision (main entry >=180),
 					// we won't do anything with it.
+					System.out.println("Not deriving heading browse entries from record. "+rec.id);
+					return;
 				}
 				heading = dashedHeading(f, htd);
 
@@ -399,10 +402,6 @@ public class IndexAuthorityRecords {
 					System.out.println("Field 666 found, but no matching record type: b. "+rec.id);
 				}
 			}
-		}
-		if (heading == null || htd == null) {
-			System.out.println("Not deriving heading browse entries from record. "+rec.id);
-			return;
 		}
 		headingSort = getFilingForm(heading);
 
