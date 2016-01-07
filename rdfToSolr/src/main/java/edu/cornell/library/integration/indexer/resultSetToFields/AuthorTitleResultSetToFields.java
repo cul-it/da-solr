@@ -149,7 +149,10 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						Map<String,Object> json = new HashMap<String,Object>();
 						json.put("name1", s);
 						json.put("search1", cts880);
-						json.put("name2", t);
+						if (dates.isEmpty())
+							json.put("name2", t);
+						else
+							json.put("name2", t + " "+dates);
 						json.put("search2", cts);
 						json.put("type", htd.toString());
 						AuthorityData authData = new AuthorityData(config,cts,htd);
@@ -175,17 +178,18 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					}
 			} else {
 				for (String s: values880) {
+					Map<String,Object> json = new HashMap<String,Object>();
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
+						json.put("name1", s);
 						author_vern = s;
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
+						json.put("name1", s+" "+dates);
 						author_vern = s+" "+dates;
 					}
-					Map<String,Object> json = new HashMap<String,Object>();
-					json.put("name1", s);
 					json.put("search1", cts880);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts880,htd);
@@ -203,17 +207,18 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
 				}
 				for (String s: valuesMain) {
+					Map<String,Object> json = new HashMap<String,Object>();
 					if (dates.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
+						json.put("name1", s);
 						author = s;
 					} else {
 						addField(solrFields,"author_cts",s+" "+dates+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+dates,", "));
+						json.put("name1", s+" "+dates);
 						author = s+" "+dates;
 					}
-					Map<String,Object> json = new HashMap<String,Object>();
-					json.put("name1", s);
 					json.put("search1", cts);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts,htd);
