@@ -71,8 +71,10 @@ public class IdentifyCurrentSolrRecords {
 				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&"
 				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
 		//                 0          1          2               3             4    
-				+ "edition_display,pub_date_display,timestamp,other_id_display,holdings_display,item_display");
-	    //				5                 6              7           8               9           10
+				+ "edition_display,pub_date_display,timestamp,type,other_id_display,"
+			    //	       5              6              7      8         9
+				+ "holdings_display,item_display");
+	    //                10           11
 
 	    // Save Solr data to a temporary file
 	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
@@ -93,15 +95,16 @@ public class IdentifyCurrentSolrRecords {
 					nextLine[3],nextLine[4],nextLine[5],nextLine[6],nextLine[7]);
 			if (bibCount % 10_000 == 0)
 				current.commit();
-			if (nextLine.length == 8) continue;
-			
-			processWorksData(nextLine[8],bibid);
 			if (nextLine.length == 9) continue;
-
-			processSolrHoldingsData(nextLine[9],bibid);
+			
+			if (nextLine[8].equals("Catalog"))
+				processWorksData( nextLine[9], bibid );
 			if (nextLine.length == 10) continue;
 
-			processSolrItemData(nextLine[10],bibid);
+			processSolrHoldingsData(nextLine[10],bibid);
+			if (nextLine.length == 11) continue;
+
+			processSolrItemData(nextLine[11],bibid);
 		}
 		reader.close();
 		for (PreparedStatement pstmt : pstmts.values()) {

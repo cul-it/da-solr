@@ -135,7 +135,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			return;
 		if ( workidDisplay.getValueCount() > 0 )
 			document.put("workid_display", workidDisplay);
-		if (refs.size() <= 6) {
+		if (refs.size() <= 12) {
 			SolrInputField otherAvailability = new SolrInputField("other_availability_piped");
 			for (Map.Entry<Integer,TitleMatchReference> ref : refs.entrySet()) {
 				StringBuilder sb = new StringBuilder();
@@ -290,8 +290,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private void updateWorkInfo(Connection conn, SolrInputDocument document, 
 			int bibid) throws SQLException {
 
-		Set<Integer> oclcIds = extractOclcIdsFromSolrField(
-				document.getFieldValues("other_id_display"));
+		// While a non-Catalog record may have an OCLC id, we don't want to
+		// use it for the work id mapping, as that is a catalog function.
+		Set<Integer> oclcIds = null;
+		if (document.getFieldValue("type").toString().equals("Catalog")) {
+			extractOclcIdsFromSolrField(
+					document.getFieldValues("other_id_display"));
+		} else {
+			oclcIds = new HashSet<Integer>();
+		}
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
 		PreparedStatement origWorksStmt = conn.prepareStatement(
 				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK.toString()+
