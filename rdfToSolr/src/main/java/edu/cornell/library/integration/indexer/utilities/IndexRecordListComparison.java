@@ -178,7 +178,7 @@ public class IndexRecordListComparison {
 				"select v.bib_id from "+CurrentDBTable.BIB_VOY.toString()+" as v "
 				+ "left join "+CurrentDBTable.BIB_SOLR.toString()+" as s"
 						+ " on s.bib_id = v.bib_id "
-				+ "where s.bib_id is null");
+				+ "where s.active and s.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
@@ -191,7 +191,7 @@ public class IndexRecordListComparison {
 				"select s.bib_id from "+CurrentDBTable.BIB_SOLR.toString()+" as s "
 				+ "left join "+CurrentDBTable.BIB_VOY.toString()+" as v"
 						+ " on s.bib_id = v.bib_id "
-				+ "where v.bib_id is null");
+				+ "where s.active AND v.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
