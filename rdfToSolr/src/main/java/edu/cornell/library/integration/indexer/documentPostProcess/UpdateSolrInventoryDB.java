@@ -294,7 +294,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		// use it for the work id mapping, as that is a catalog function.
 		Set<Integer> oclcIds = null;
 		if (document.getFieldValue("type").toString().equals("Catalog")) {
-			extractOclcIdsFromSolrField(
+			oclcIds = extractOclcIdsFromSolrField(
 					document.getFieldValues("other_id_display"));
 		} else {
 			oclcIds = new HashSet<Integer>();
