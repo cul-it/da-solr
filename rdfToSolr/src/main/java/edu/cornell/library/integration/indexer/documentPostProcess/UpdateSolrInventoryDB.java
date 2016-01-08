@@ -407,6 +407,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.BIB2WORK.toString()+
 				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
+		PreparedStatement findBibsForAddedWorksStmt = conn.prepareStatement(
+				"SELECT bib_id"
+				+ " FROM "+CurrentDBTable.BIB2WORK.toString()
+				+" WHERE work_id = ?"
+				+ "  AND oclc_id = ?"
+				+ "  AND bib_id != ?"
+				+ "  AND active");
+		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
+				"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+" SET needs_update = 1 WHERE bib_id = ?");
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
@@ -418,12 +427,24 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				insertBibWorkMappingStmt.setLong(3, workid);
 				insertBibWorkMappingStmt.addBatch();
 				workids.add(workid);
+				findBibsForAddedWorksStmt.setLong(1, workid);
+				findBibsForAddedWorksStmt.setInt(2, oclcId);
+				findBibsForAddedWorksStmt.setInt(3, bibid);
+				ResultSet knockOnRS = findBibsForAddedWorksStmt.executeQuery();
+				while (knockOnRS.next()) {
+					markBibForUpdateStmt.setInt(1, knockOnRS.getInt(1));
+					markBibForUpdateStmt.addBatch();
+				}
+				knockOnRS.close();
 			}
 			rs.close();
 		}
 		findWorksForOclcIdStmt.close();
 		insertBibWorkMappingStmt.executeBatch();
 		insertBibWorkMappingStmt.close();
+		markBibForUpdateStmt.executeBatch();
+		markBibForUpdateStmt.close();
+		findBibsForAddedWorksStmt.close();
 	}
 
 	private void deactivateWorkInfo(Connection conn, Set<Integer> removedOclcIds, int bibid) throws SQLException {
@@ -433,13 +454,34 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement updateBibWorkMappingStmt = conn.prepareStatement(
 				"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
 				" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?");
+		PreparedStatement findBibsForDeactivatedWorksStmt = conn.prepareStatement(
+				"SELECT distinct b.bib_id"
+				+ " FROM "+CurrentDBTable.BIB2WORK.toString()+" as a, "
+						+CurrentDBTable.BIB2WORK.toString()+" as b"
+				+ " WHERE a.work_id = b.work_id"
+				+ "   AND a.bib_id = ? AND a.oclc_id = ?"
+				+ "   AND b.bib_id != a.bib_id"
+				+ "   AND b.active");
+		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
+				"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+" SET needs_update = 1 WHERE bib_id = ?");
 		for (int oclcid : removedOclcIds) {
 			updateBibWorkMappingStmt.setInt(1, bibid);
 			updateBibWorkMappingStmt.setInt(2, oclcid);
 			updateBibWorkMappingStmt.addBatch();
+			findBibsForDeactivatedWorksStmt.setInt(1, bibid);
+			findBibsForDeactivatedWorksStmt.setInt(2, oclcid);
+			ResultSet rs = findBibsForDeactivatedWorksStmt.executeQuery();
+			while (rs.next()) {
+				markBibForUpdateStmt.setInt(1, rs.getInt(1));
+				markBibForUpdateStmt.addBatch();
+			}
+			rs.close();
 		}
 		updateBibWorkMappingStmt.executeBatch();
 		updateBibWorkMappingStmt.close();
+		markBibForUpdateStmt.executeBatch();
+		markBibForUpdateStmt.close();
+		findBibsForDeactivatedWorksStmt.close();
 	}
 
 	private String calculateDisplayLocation(SolrInputDocument document) {
