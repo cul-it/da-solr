@@ -100,7 +100,7 @@ public class DeleteFromSolr {
 
             PreparedStatement bibStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+
-            		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
+            		" SET active = 0, linking_mod_date = NOW(), needs_update = 0 WHERE bib_id = ?");
             PreparedStatement workStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
             		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
