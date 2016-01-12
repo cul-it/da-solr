@@ -40,6 +40,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		ArrayList<String> letters = new ArrayList<String>();
 		String sort_callno = null;
 		ArrayList<Classification> classes = new ArrayList<Classification>();
+		String non_lc_callno = null; // We only need up to one of these
 		
 		/*
 		 * Step 1. 
@@ -69,6 +70,12 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 					if (callno.equalsIgnoreCase("No Call Number")) continue;
 					if (sol.contains("ind1") && ! nodeToString( sol.get("ind1")).equals("0")) {
 						// Not an LOC call number (probably)
+						if (non_lc_callno == null) {
+							if (sol.contains("part2"))
+								non_lc_callno = callno+" "+nodeToString( sol.get("part2") );
+							else
+								non_lc_callno = callno;
+						}
 					} else {
 						// How many letters at beginning of call number?
 						int i = 0;
@@ -130,6 +137,8 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 				}
 			}
 		}
+		if (sort_callno == null)
+			sort_callno = non_lc_callno;
 
 		// It has been decided not to display call numbers in the item view,
         // only in the holdings data, but all call numbers are still populated in the call number search.

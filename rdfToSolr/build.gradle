@@ -99,6 +99,27 @@ task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
    maxHeapSize = '1500m'
    classpath = sourceSets.main.runtimeClasspath
 }
+task (step9IndexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Incremental Update Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+task (step10Headings2Solr, dependsOn: 'assemble', type: JavaExec){
+   group="Incremental Update Steps"
+   description="Pulls authorized and unauthorized headings with totals from Mysql database to Solr" 
+   main='edu.cornell.library.integration.indexer.Headings2Solr'
+   maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
 
 task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
    group="Full Build Steps"
@@ -114,20 +135,6 @@ task (indexAuthority, dependsOn: 'assemble', type: JavaExec){
    description="Indexes Authority Solr core from Authority MARC XML" 
    main='edu.cornell.library.integration.indexer.IndexAuthorityRecords'
    maxHeapSize = '3000m'
-   classpath = sourceSets.main.runtimeClasspath
-}
-task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
-   group="Full Build Steps"
-   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
-   main='edu.cornell.library.integration.indexer.IndexHeadings'
-   maxHeapSize = '3000m'
-   classpath = sourceSets.main.runtimeClasspath
-}
-task (headings2Solr, dependsOn: 'assemble', type: JavaExec){
-   group="Full Build Steps"
-   description="Pulls authorized and unauthorized headings with totals from Mysql database to Solr" 
-   main='edu.cornell.library.integration.indexer.Headings2Solr'
-   maxHeapSize = '1500m'
    classpath = sourceSets.main.runtimeClasspath
 }
 
