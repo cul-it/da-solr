@@ -211,7 +211,7 @@
       </analyzer>
     </fieldType>
     <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
-      <analyzer>
+      <analyzer type="index">
 		<!--  remove all spaces  -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
@@ -220,6 +220,15 @@
         <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
         <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30" side="front"/>
+      </analyzer>
+      <analyzer type="query">
+		<!--  remove all spaces  -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.CJKWidthFilterFactory"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
+        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
       </analyzer>
     </fieldType>
     
