@@ -233,10 +233,12 @@
     </fieldType>
     <fieldType name="numericLeftAnchored" class="solr.TextField" >
     <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
 		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20" side="front"/>
     </analyzer>
     <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
 		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
     </analyzer>
     </fieldType>
