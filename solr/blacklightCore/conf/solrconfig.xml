@@ -1418,7 +1418,14 @@
         title_series_unstemC^25    title_series_unstemP^25
         title_series_t_cjk
       </str>
-            
+
+ 	  <str name="notes_qf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="notes_pf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="notes_starts_qf">notes_startsC notes_startsP notes_startsCJK</str>
+ 	  <str name="notes_starts_pf">notes_startsC notes_startsP notes_startsCJK</str>
+ 	  <str name="notes_quot_qf">notes_unstemC notes_unstemP notes_t_cjk</str>
+ 	  <str name="notes_quot_pf">notes_unstemC notes_unstemP notes_t_cjk</str>
+
       <int name="ps">2</int>
       <float name="tie">0.01</float>
 
