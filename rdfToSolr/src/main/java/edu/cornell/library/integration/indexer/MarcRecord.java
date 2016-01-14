@@ -401,7 +401,26 @@ public class MarcRecord {
 				}
 				return Script.UNKNOWN;
 			}
-		
+
+			/**
+			 * 
+			 * @param fulltitle - the already concatenated title from this field
+			 * @return string without article if conditions are met to remove one, original title otherwise.
+			 * 
+			 * We want the full title passed back into the method for the
+			 * sake of execution efficiency. If the argument were the list of subfields
+			 * to be included in the full title, they would have to be concatenated in 
+			 * this method, while they all but guaranteed to be concatenated separately
+			 * so that the calling method can have access to the title WITH the article.
+			 */
+			public String getStringWithoutInitialArticle(String fulltitle) {
+				if (Character.isDigit(this.ind2)) {
+					int nonFilingCharCount = Character.digit(this.ind2, 10);
+					if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle.length())
+						return fulltitle.substring(nonFilingCharCount);
+				}
+				return fulltitle;
+			}
 		
 		}
 		
