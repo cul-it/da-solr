@@ -231,6 +231,15 @@
         <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
       </analyzer>
     </fieldType>
+    <fieldType name="numericLeftAnchored" class="solr.TextField" >
+    <analyzer type="index">
+		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^\d\.]+"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20" side="front"/>
+    </analyzer>
+    <analyzer type="query">
+		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^\d\.]+"/>
+    </analyzer>
+    </fieldType>
     
     
     <!--  CJK field type for Chinese, Japanese & Korean text is care of Naomi Dushay and her work at Stanford -->
@@ -447,6 +456,7 @@
     <dynamicField name="*_startsC" type="textLeftAnchoredC" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsCJK" type="textLeftAnchoredCJK" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsP" type="textLeftAnchoredP" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsNum" type="numericLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false" multiValued="true"/>         
   </fields>
@@ -462,12 +472,13 @@
   <copyField source="*_t" dest="*_startsC"/>
   <copyField source="*_t" dest="*_startsP"/>
   <copyField source="*_t_cjk" dest="*_startsCJK"/>
-  <copyField source="issn_t" dest="issn_ngram"/>
-  <copyField source="isbn_t" dest="isbn_ngram"/>
-  <copyField source="eightninenine_t" dest="eightninenine_ngram"/>
-  <copyField source="barcode_t" dest="barcode_ngram"/>
-  <copyField source="id_t" dest="id_ngram"/>
-  <copyField source="id" dest="id_ngram"/>
+  <copyField source="issn_t" dest="issn_startsNum"/>
+  <copyField source="isbn_t" dest="isbn_startsNum"/>
+  <copyField source="eightninenine_t" dest="eightninenine_startsNum"/>
+  <copyField source="barcode_t" dest="barcode_startsNum"/>
+  <copyField source="barcode_addl_t" dest="barcode_addl_startsNum"/>
+  <copyField source="id_t" dest="id_startsNum"/>
+  <copyField source="id" dest="id_startsNum"/>
   <copyField source="donor_s" dest="donor_startsC"/>
   <copyField source="*_filing" dest="*_browse"/>
   <copyField source="donor_display" dest="donor_t"/>

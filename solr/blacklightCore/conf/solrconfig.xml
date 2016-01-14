@@ -851,17 +851,17 @@
         publisher_startsC^75       publisher_startsP^75        publisher_startsCJK^10
         subject_addl_startsC^125   subject_addl_startsP^125    subject_addl_startsCJK^5
         title_series_startsC^25    title_series_startsP^25     title_series_startsCJK
-        isbn_startsC               isbn_startsP        isbn_startsCJK       isbn_ngram
-        issn_startsC               issn_startsP        issn_startsCJK       issn_ngram
+        isbn_startsC               isbn_startsP        isbn_startsCJK       isbn_startsNum
+        issn_startsC               issn_startsP        issn_startsCJK       issn_startsNum
         donor_startsC              donor_startsP               donor_startsCJK
         pubplace_startsC           pubplace_startsP            pubplace_startsCJK
-        eightninenine_startsC      eightninenine_startsP   eightninenine_ngram
+        eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
         notes_startsC              notes_startsP               notes_startsCJK
         summary_startsC            summary_startsP             summary_startsCJK
         toc_startsC                toc_startsP                 toc_startsCJK
         author_245c_startsC        author_245c_startsP         author_245c_startsCJK
-        barcode_startsC            barcode_startsP         barcode_addl_ngram
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_ngram
+        barcode_startsC            barcode_startsP         barcode_startsNum
+        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
         authority_author_startsC   authority_author_startsP    authority_author_startsCJK
         authority_subject_startsC  authority_subject_startsP   authority_subject_startsCJK
       </str>
@@ -985,18 +985,18 @@
         publisher_startsC^75       publisher_startsP^75       publisher_startsCJK^10
         subject_addl_startsC^125   subject_addl_startsP^125   subject_addl_startsCJK^5
         title_series_startsC^25    title_series_startsP^25    title_series_startsCJK
-        isbn_startsC               isbn_startsP        isbn_startsCJK        isbn_ngram
-        issn_startsC               issn_startsP        issn_startsCJK        issn_ngram
+        isbn_startsC               isbn_startsP        isbn_startsCJK        isbn_startsNum
+        issn_startsC               issn_startsP        issn_startsCJK        issn_startsNum
         donor_startsC              donor_startsP              donor_startsCJK
         pubplace_startsC           pubplace_startsP           pubplace_startsCJK
         eightninenine_startsC      eightninenine_startsP      eightninenine_startsCJK
-                                                           eightninenine_ngram
+                                                           eightninenine_startsNum
         notes_startsC              notes_startsP              notes_startsCJK
         summary_startsC            summary_startsP            summary_startsCJK
         toc_startsC                toc_startsP                toc_startsCJK
         author_245c_startsC        author_245c_startsP        author_245c_startsCJK
-        barcode_startsC^10         barcode_startsP^10      barcode_ngram
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_ngram
+        barcode_startsC^10         barcode_startsP^10      barcode_startsNum
+        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
         authority_author_startsC   authority_author_startsP   authority_author_startsCJK
         authority_subject_startsC  authority_subject_startsP  authority_subject_startsCJK
       </str>
@@ -1324,12 +1324,12 @@
         issn_t_cjk
       </str>
       <str name="isbnissn_starts_qf">
-        isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_ngram
-        issn_startsC   issn_startsP   issn_startsCJK   issn_ngram
+        isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
+        issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
       </str>
       <str name="isbnissn_starts_pf">
-        isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_ngram
-        issn_startsC   issn_startsP   issn_startsCJK   issn_ngram
+        isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
+        issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
       </str>
       <str name="isbnissn_quot_qf">
         isbn_unstemC               isbn_unstemP
@@ -1364,16 +1364,16 @@
         barcode_addl_t             barcode_addl_tP
       </str>
       <str name="number_starts_qf">
-      	id_ngram
-        eightninenine_startsC      eightninenine_startsP   eightninenine_ngram
-        barcode_startsC            barcode_startsP         barcode_addl_ngram
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_ngram
+      	id_startsNum
+        eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
+        barcode_startsC            barcode_startsP         barcode_startsNum
+        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
       <str name="number_starts_pf">
-      	id_ngram
-        eightninenine_startsC      eightninenine_startsP   eightninenine_ngram
-        barcode_startsC            barcode_startsP         barcode_addl_ngram
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_ngram
+      	id_startsNum
+        eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
+        barcode_startsC            barcode_startsP         barcode_startsNum
+        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
       <str name="number_quot_qf">
         id_unstemC                 id_unstemP
