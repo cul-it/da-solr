@@ -66,7 +66,6 @@ public class IndexHeadings {
         
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = new ArrayList<String>();
-		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
