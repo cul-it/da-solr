@@ -153,7 +153,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					
 					break;
 				case "655":
-					main_fields = "ab"; //655 facet_type over-riden for FAST facet
+					main_fields = "ab"; //655 facet_type over-ridden for FAST facet
 					dashed_fields = "vxyz";
 					filing_type = "genr";
 					facet_type = "genre";
