@@ -66,7 +66,6 @@ public class IndexHeadings {
         
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = new ArrayList<String>();
-		requiredArgs.add("xmlDir");
 		requiredArgs.add("blacklightSolrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
@@ -86,7 +85,7 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_topic_filing", "subject_topic_facet"));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_geo_filing", "subject_geo_facet"));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_era_filing", "subject_era_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_genr_filing", "subject_genre_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_genr_filing", "subject_genr_facet"));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK, "subject_work_filing", "subject_work_facet"));
 
 		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_filing", "authortitle_facet"));

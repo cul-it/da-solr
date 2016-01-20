@@ -4,7 +4,9 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -27,8 +29,10 @@ public class DBCodeRSTF implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();		
-				
+		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+
+		Set<String> dbcodes = new HashSet<String>();
+		Set<String> providercodes = new HashSet<String>();
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){
@@ -41,13 +45,26 @@ public class DBCodeRSTF implements ResultSetToFields {
 						for (String code : codes) {
 							String[] parts = code.split("=",2);
 							if (parts.length == 2)
-								if (parts[0].equals("dbcode") || parts[0].equals("providercode"))
-									addField(fields,parts[0],parts[1]);
+								if (parts[0].equals("dbcode")) {
+									dbcodes.add(parts[1]);
+								} else if (parts[0].equals("providercode")) {
+									providercodes.add(parts[1]);
+								}
+						}
+					} else if (instructions.contains("_")) {
+						String[] codes = instructions.split("_",2);
+						if (codes.length == 2) {
+							providercodes.add(codes[0]);
+							dbcodes.add(codes[1]);
 						}
 					}
 				}
 			}
-		}	
+		}
+		for ( String dbcode : dbcodes )
+			addField(fields,"dbcode",dbcode);
+		for ( String providercode : providercodes )
+			addField(fields,"providercode",providercode);
 		return fields;
 	}	
 
