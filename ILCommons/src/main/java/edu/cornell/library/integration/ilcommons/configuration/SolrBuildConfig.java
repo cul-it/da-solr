@@ -541,7 +541,7 @@ public class SolrBuildConfig {
 //		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
 		    	cpds.setUser( user );
 		    	cpds.setPassword( pass );
-		    	cpds.setMaxStatements(25);
+		    	cpds.setMaxStatements(35);
 		    	cpds.setTestConnectionOnCheckout(true);
 		    	cpds.setTestConnectionOnCheckin(true);
 		    	// if we retry every thirty seconds for thirty attempts, we should be
@@ -552,6 +552,7 @@ public class SolrBuildConfig {
 		    	cpds.setMinPoolSize(1);
 		    	cpds.setMaxPoolSize(pool);
 		    	cpds.setInitialPoolSize(1);
+		    	cpds.setDebugUnreturnedConnectionStackTraces(true);
 		    	databases.put(id, cpds);
 	    	}
 	    	if (debug) System.out.println("Connection pool established. Obtaining and returning connection.");
