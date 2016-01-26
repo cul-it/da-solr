@@ -24,6 +24,9 @@ rdf/*.nt
 *.out
 *.properties
 
+!c3p0.properties
+
+
 ## tdbIndex created by DataIndexer app
 tdbIndex/
 
