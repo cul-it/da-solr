@@ -244,7 +244,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		// pull existing values from DB are the descriptive fields changed?
 		PreparedStatement origDescStmt = conn.prepareStatement(
-				"SELECT format, location_label, edition, pub_date"
+				"SELECT format, location_label, edition, pub_date, active"
 				+ " FROM "+CurrentDBTable.BIB_SOLR.toString()+" WHERE bib_id = ?");
 		origDescStmt.setInt(1, bibid);
 		ResultSet origDescRS = origDescStmt.executeQuery();
@@ -253,7 +253,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			if (  ! stringsEqual(format,origDescRS.getString(1))
 					|| ! stringsEqual(location,origDescRS.getString(2))
 					|| ! stringsEqual(edition,origDescRS.getString(3))
-					|| ! stringsEqual(pub_date,origDescRS.getString(4)))
+					|| ! stringsEqual(pub_date,origDescRS.getString(4))
+					|| ! origDescRS.getBoolean(5))
 				descChanged = true;
 		origDescRS.close();
 		origDescStmt.close();
@@ -263,7 +264,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			PreparedStatement updateDescStmt = conn.prepareStatement(
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
 					+" SET record_date = ?, format = ?, location_label = ?, needs_update = 0, "
-						+ "edition = ?, pub_date = ?, index_date = NOW(), linking_mod_date = NOW() "
+						+ "edition = ?, pub_date = ?, index_date = NOW(), linking_mod_date = NOW(), "
+						+ "active = 1 "
 					+ "WHERE bib_id = ?");
 			updateDescStmt.setTimestamp(1, recordDate);
 			updateDescStmt.setString(2, format);
@@ -277,7 +279,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if ( ! descChanged ) {
 			PreparedStatement updateIndexedDateStmt = conn.prepareStatement(
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
-					+" SET record_date = ?, index_date = NOW(), needs_update = 0 "
+					+" SET record_date = ?, index_date = NOW(), needs_update = 0, active = 1 "
 					+"WHERE bib_id = ?");
 			updateIndexedDateStmt.setTimestamp(1, recordDate);
 			updateIndexedDateStmt.setInt(2, bibid);
@@ -302,7 +304,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
 		PreparedStatement origWorksStmt = conn.prepareStatement(
 				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK.toString()+
-				" WHERE bib_id = ?");
+				" WHERE bib_id = ? AND active");
 		origWorksStmt.setInt(1, bibid);
 		ResultSet rs = origWorksStmt.executeQuery();
 		while (rs.next()) {
@@ -404,6 +406,13 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
+		PreparedStatement checkForDeactivatedBibWorkMappingStmt = conn.prepareStatement(
+				"SELECT * FROM "+CurrentDBTable.BIB2WORK+
+				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?");
+		PreparedStatement activateBibWorkMappingStmt = conn.prepareStatement(
+				"UPDATE "+CurrentDBTable.BIB2WORK+
+				"  SET active = 1, mod_date = NOW() "+
+				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?");
 		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.BIB2WORK.toString()+
 				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
@@ -422,10 +431,29 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			ResultSet rs = findWorksForOclcIdStmt.executeQuery();
 			while (rs.next()) {
 				long workid = rs.getLong(1);
-				insertBibWorkMappingStmt.setInt(1, bibid);
-				insertBibWorkMappingStmt.setInt(2, oclcId);
-				insertBibWorkMappingStmt.setLong(3, workid);
-				insertBibWorkMappingStmt.addBatch();
+				// Is the mapping already present, but deactivated?
+				checkForDeactivatedBibWorkMappingStmt.setInt(1, bibid);
+				checkForDeactivatedBibWorkMappingStmt.setInt(2, oclcId);
+				checkForDeactivatedBibWorkMappingStmt.setLong(3, workid);
+				ResultSet isDeactivatedRS = checkForDeactivatedBibWorkMappingStmt.executeQuery();
+				boolean isDeactivated = false;
+				while (isDeactivatedRS.next())
+					isDeactivated = true;
+				isDeactivatedRS.close();
+
+				if (isDeactivated) {
+					// If it's present but deactivated, then "adding" it means activating it.
+					activateBibWorkMappingStmt.setInt(1, bibid);
+					activateBibWorkMappingStmt.setInt(2, oclcId);
+					activateBibWorkMappingStmt.setLong(3, workid);
+					activateBibWorkMappingStmt.addBatch();
+				} else {
+					// If it's not present at all, then adding it involves an insert.
+					insertBibWorkMappingStmt.setInt(1, bibid);
+					insertBibWorkMappingStmt.setInt(2, oclcId);
+					insertBibWorkMappingStmt.setLong(3, workid);
+					insertBibWorkMappingStmt.addBatch();
+				}
 				workids.add(workid);
 				findBibsForAddedWorksStmt.setLong(1, workid);
 				findBibsForAddedWorksStmt.setInt(2, oclcId);
@@ -442,6 +470,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		findWorksForOclcIdStmt.close();
 		insertBibWorkMappingStmt.executeBatch();
 		insertBibWorkMappingStmt.close();
+		activateBibWorkMappingStmt.executeBatch();
+		activateBibWorkMappingStmt.close();
 		markBibForUpdateStmt.executeBatch();
 		markBibForUpdateStmt.close();
 		findBibsForAddedWorksStmt.close();

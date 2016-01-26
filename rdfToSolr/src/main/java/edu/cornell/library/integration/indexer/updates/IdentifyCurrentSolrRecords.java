@@ -139,7 +139,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
-				+ "primary key (mfhd_id), "
+				+ "key (mfhd_id), "
 				+ "key (bib_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+CurrentDBTable.MFHD_SOLR.toString()+" disable keys");
 
@@ -149,7 +149,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "item_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
 				+ "active int(1) default 1, "
-				+ "primary key (item_id), "
+				+ "key (item_id), "
 				+ "key (mfhd_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+CurrentDBTable.ITEM_SOLR.toString()+" disable keys");
 
