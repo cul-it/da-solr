@@ -143,7 +143,7 @@ public class IndexAuthorityRecords {
 				+ "`to_heading` int(10) unsigned NOT NULL, "
 				+ "`ref_type` tinyint(3) unsigned NOT NULL, "
 				+ "`ref_desc` varchar(256) NOT NULL DEFAULT '', "
-				+ "KEY (`from_heading`)) "
+				+ " PRIMARY KEY (`from_heading`,`to_heading`,`ref_type`,`ref_desc`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
@@ -459,6 +459,8 @@ public class IndexAuthorityRecords {
 			sb.append(" | ");
 			sb.append(f.concatenateSpecificSubfields("tklnpmors"));
 			heading = sb.toString();
+		} else if (htd.equals(HeadTypeDesc.GENHEAD)) {
+			heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		}
@@ -601,7 +603,7 @@ public class IndexAuthorityRecords {
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(
-				"INSERT INTO reference (from_heading, to_heading, ref_type, ref_desc)"
+				"REPLACE INTO reference (from_heading, to_heading, ref_type, ref_desc)"
 				+ " VALUES (?, ?, ?, ?)");
 		pstmt.setInt(1, from_id);
 		pstmt.setInt(2, to_id);
