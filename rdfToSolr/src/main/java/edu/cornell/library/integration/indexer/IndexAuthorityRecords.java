@@ -106,7 +106,7 @@ public class IndexAuthorityRecords {
 		stmt.execute("CREATE TABLE `alt_form` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`form` text NOT NULL, "
-				+ "KEY `heading_id` (`heading_id`,`form`(30))) "
+				+ "PRIMARY KEY `heading_id` (`heading_id`,`form`(255))) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `heading`");
@@ -504,7 +504,7 @@ public class IndexAuthorityRecords {
 
 	private void insertAltForm(Integer heading_id, String form) throws SQLException {
 		PreparedStatement stmt = connection.prepareStatement(
-				"INSERT INTO alt_form (heading_id, form) VALUES (?, ?)");
+				"REPLACE INTO alt_form (heading_id, form) VALUES (?, ?)");
 		stmt.setInt(1, heading_id);
 		stmt.setString(2, form);
 		stmt.executeUpdate();
