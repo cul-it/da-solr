@@ -38,7 +38,7 @@ task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( step8ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
+task( step08ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Generates a report of what records are missing\
  from the Solr Index or are in the Solr index but not in Voyager."
@@ -75,7 +75,7 @@ task( marcXmlToN3, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
+task(step03DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps" 
  description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
 
@@ -83,7 +83,7 @@ task(step7DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
+task(step07IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  group="Incremental Update Steps"
  description = "Builds Solr Documents for MARC\
  n-Triples from step 5 and adds them to the Solr index."
@@ -92,14 +92,14 @@ task(step6IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task (step5UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
+task (step06UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
  group="Incremental Update Steps"
    description="Converts Voyager Updates MARC XML to MARC N-Triples." 
    main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
    maxHeapSize = '1500m'
    classpath = sourceSets.main.runtimeClasspath
 }
-task (step9IndexHeadings, dependsOn: 'assemble', type: JavaExec){
+task (step09IndexHeadings, dependsOn: 'assemble', type: JavaExec){
    group="Incremental Update Steps"
    description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
    main='edu.cornell.library.integration.indexer.IndexHeadings'
@@ -166,8 +166,7 @@ task copyToLib(type: Copy) {
 }
 
 
-task (step2IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
- group="Incremental Update Steps"
+task (IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
  description="Gets a list of BIB and MFHD\
  records updates from the Voyager database for the previous day"
 
@@ -176,7 +175,7 @@ task (step2IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
-task (IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
+task (step01IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item records from the Voyager database"
 
@@ -185,14 +184,13 @@ task (IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '1024m'
 }
 task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
- group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item records from the Solr index"
 
  main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
-task (IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
+task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item\
  records updates from the Voyager database for the previous day"
