@@ -26,8 +26,8 @@ public class ClassUtils {
 
    private ClassUtils() {}
 
-   @SuppressWarnings("unchecked")
-   public static Method[] getMethods(Class<?> clazz) {
+   @SuppressWarnings("rawtypes")
+public static Method[] getMethods(Class<?> clazz) {
       if (Proxy.isProxyClass(clazz) && clazz.getInterfaces().length > 0 ) {
          return clazz.getInterfaces()[0].getDeclaredMethods();
       }
@@ -72,7 +72,7 @@ public class ClassUtils {
       return result;
    }
 
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({ "unchecked", "rawtypes" })
    public static boolean isXmlEnum(Class<? extends Object> class1) {
       boolean result = false;
       try {
@@ -136,8 +136,8 @@ public class ClassUtils {
       return result;
    }
 
-   @SuppressWarnings("unchecked")
-   public static boolean hasEmptyConstructor(Class<?> type) {
+   @SuppressWarnings("rawtypes")
+public static boolean hasEmptyConstructor(Class<?> type) {
       boolean result = false;
       Constructor[] constructors = type.getDeclaredConstructors();
       for (Constructor constructor : constructors) {

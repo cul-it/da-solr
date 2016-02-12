@@ -24,8 +24,8 @@ public class ObjectUtils {
    public static final String VERSION = "$Rev: 63219 $";
    private static final Log logger = LogFactory.getLog(ObjectUtils.class);
 
-   @SuppressWarnings("unchecked")
-  private static final Set<Class> SIMPLE_TYPES = new HashSet<Class>() {
+  @SuppressWarnings("rawtypes")
+private static final Set<Class> SIMPLE_TYPES = new HashSet<Class>() {
        /**
       *
       */
@@ -62,7 +62,6 @@ public class ObjectUtils {
     * @param obj
     * @return
     */
-   @SuppressWarnings("unchecked")
   public static boolean isMap(Object obj) {
        if (obj instanceof Map) {
            return true;
@@ -97,8 +96,8 @@ public class ObjectUtils {
     * @param clazz
     * @return
     */
-   @SuppressWarnings("unchecked")
-  public static boolean isClassArray(Class clazz) {
+  @SuppressWarnings("rawtypes")
+public static boolean isClassArray(Class clazz) {
        if (clazz.isArray()) {
            return true;
        }
@@ -125,8 +124,8 @@ public class ObjectUtils {
     * @param clazz
     * @return
     */
-   @SuppressWarnings("unchecked")
-  public static boolean isClassSimpleType(Class clazz) {
+  @SuppressWarnings("rawtypes")
+public static boolean isClassSimpleType(Class clazz) {
        boolean result = false;
        if (clazz != null && SIMPLE_TYPES.contains(clazz)) {
            result = true;
@@ -138,8 +137,8 @@ public class ObjectUtils {
     * @param value
     * @return
     */
-   @SuppressWarnings("unchecked")
-  public static boolean isComplex(Object value) {
+  @SuppressWarnings("rawtypes")
+public static boolean isComplex(Object value) {
        Class type = value.getClass();
        return !(isSimpleType(value) || type.isEnum());
    }
@@ -196,10 +195,8 @@ public class ObjectUtils {
          try {
            fields[f++] = o.getClass().getDeclaredField(s);
         } catch (SecurityException e) {
-           // TODO Auto-generated catch block
            e.printStackTrace();
         } catch (NoSuchFieldException e) {
-           // TODO Auto-generated catch block
            e.printStackTrace();
         }
       }

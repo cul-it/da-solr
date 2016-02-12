@@ -21,14 +21,12 @@ public class VoyagerServiceTest extends AbstractJUnit4SpringContextTests {
    @Test
    public void testGetFileList() {
       CatalogService catalogService = (CatalogService) applicationContext.getBean("catalogService");
-      String propName = "voyager_bib_mrc_daily";
       try {
          List<Location> locationlist = catalogService.getAllLocation();
          for (Location location : locationlist) {
             ObjectUtils.printBusinessObject(location);
          }
       } catch (Exception e) { 
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }

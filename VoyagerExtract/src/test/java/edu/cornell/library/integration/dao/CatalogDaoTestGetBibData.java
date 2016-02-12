@@ -28,8 +28,8 @@ public class CatalogDaoTestGetBibData extends AbstractJUnit4SpringContextTests {
    public void testGetBibData() {
       System.out.println("testGetBibData");
       CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
-      String bibid = "4579181"; 
-      
+      String bibid = "4579181";
+
       try {
     	  List<BibData>  bibDataList = catalogDao.getBibData(bibid);
           StringBuffer sb = new StringBuffer();
@@ -37,10 +37,10 @@ public class CatalogDaoTestGetBibData extends AbstractJUnit4SpringContextTests {
              sb.append(bibData.getRecord());
           }
           ConvertUtils convert = new ConvertUtils();
-          Record record = convert.getMarcRecord(sb.toString());
+          @SuppressWarnings("static-access")
+		Record record = convert.getMarcRecord(sb.toString());
           System.out.println(record.toString());
-      } catch (Exception e) { 
-         // TODO Auto-generated catch block
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }

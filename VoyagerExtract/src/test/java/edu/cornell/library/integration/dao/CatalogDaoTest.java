@@ -112,10 +112,10 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
              sb.append(mfhdData.getRecord());
           }
           ConvertUtils convert = new ConvertUtils();
-          Record record = convert.getMarcRecord(sb.toString(),null);
+          @SuppressWarnings("static-access")
+		Record record = convert.getMarcRecord(sb.toString(),null);
           System.out.println(record.toString());
       } catch (Exception e) { 
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }

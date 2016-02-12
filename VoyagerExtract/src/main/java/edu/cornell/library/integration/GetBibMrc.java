@@ -108,7 +108,6 @@ public class GetBibMrc {
          //System.out.println("mrc: "+mrc); 
          saveBibMrc(mrc, bibid, destDir); 
       } catch (Exception e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       } 
       

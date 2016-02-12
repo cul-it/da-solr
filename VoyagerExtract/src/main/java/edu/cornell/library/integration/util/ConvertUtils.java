@@ -77,7 +77,7 @@ public class ConvertUtils {
 	            e.printStackTrace();
 	            continue;
 	         }
-	         String controlNumberOfLastReadRecord = record.getControlNumber();
+//	         String controlNumberOfLastReadRecord = record.getControlNumber();
 	         if (MARC_8_ENCODING.equals( convertEncoding )) {
 	            record.getLeader().setCharCodingScheme('a');
 	         }
@@ -88,7 +88,6 @@ public class ConvertUtils {
 
 	      } 
 	   } catch (UnsupportedEncodingException e) {
-		  // TODO Auto-generated catch block
 		  e.printStackTrace();
 	   } finally {
 	          
@@ -150,7 +149,8 @@ public class ConvertUtils {
     * @param invalidCharacter
     * @param badCharacterLocator
     */
-   private static void modifyRecord(Record record, RecordLine line,
+   @SuppressWarnings("unchecked")
+private static void modifyRecord(Record record, RecordLine line,
          String invalidCharacter, String badCharacterLocator) {
 	   
       // change LEADER
@@ -161,7 +161,7 @@ public class ConvertUtils {
       }
 
       // change control fields 
-      String NonleaderReplaced = "The character is replaced with space.\n";
+//      String NonleaderReplaced = "The character is replaced with space.\n";
       if (line.getLine().startsWith("00")) {
          String tag = line.getLine().substring(0, 3);
          ControlField fd = (ControlField) record.getVariableField(tag);
@@ -256,7 +256,7 @@ public class ConvertUtils {
                  continue;
               }
               
-              String controlNumberOfLastReadRecord = record.getControlNumber();
+              //String controlNumberOfLastReadRecord = record.getControlNumber();
               
               if (MARC_8_ENCODING.equals( convertEncoding )) {
                  record.getLeader().setCharCodingScheme('a');
@@ -272,7 +272,6 @@ public class ConvertUtils {
               } 
            } 
         } catch (UnsupportedEncodingException e) {
-           // TODO Auto-generated catch block
            e.printStackTrace();
         } finally {
                
