@@ -105,6 +105,19 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	}
 
 	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
+			String marcSubfieldCodes, VernMode vernMode, Boolean titleMode){ 			
+		super(); 		
+		this.marcSubfieldCodes = marcSubfieldCodes;
+		this.marcFieldTag = marcFieldTag;
+		this.solrFieldName = solrFieldName;
+		this.vernMode = vernMode;
+		if (this.vernMode.equals(VernMode.VERNACULAR)
+				|| this.vernMode.equals(VernMode.SING_VERN))
+			this.solrVernFieldName = calcVernFieldName(this.solrFieldName);
+		this.titleMode = titleMode;
+	}
+
+	public StandardMARCFieldMaker(String solrFieldName, String marcFieldTag, 
 			IndicatorReq ir, String marcSubfieldCodes){ 			
 		super(); 		
 		this.marcSubfieldCodes = marcSubfieldCodes;
@@ -128,6 +141,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 	String unwantedChars = null;
 	IndicatorReq indicatorReq = null;
 	VernMode vernMode = VernMode.ADAPTIVE;
+	Boolean titleMode = false;
 
 	public String getName() {
 		return StandardMARCFieldMaker.class.getSimpleName() +
@@ -207,7 +221,6 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				solrField = new SolrInputField(solrFieldName + "_cjk");
 				fieldmap.put(solrFieldName+"_cjk", solrField);
 			}
-
 			
 			// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 			// but with organization determined by vernMode.
@@ -233,11 +246,17 @@ public class StandardMARCFieldMaker implements FieldMaker {
 								if (hasCJK(val))
 									fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
 								fieldmap.get(solrFieldName).addValue(standardizeApostrophes(val), 1.0f);
+								if (titleMode)
+									fieldmap.get(solrFieldName).addValue(standardizeApostrophes(
+											f.getStringWithoutInitialArticle(val)), 1.0f);
 							}							
 						} else {
 							if (isCJK(val))
 								fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
 							fieldmap.get(solrFieldName).addValue(standardizeApostrophes(val), 1.0f);
+							if (titleMode)
+								fieldmap.get(solrFieldName).addValue(standardizeApostrophes(
+										f.getStringWithoutInitialArticle(val)), 1.0f);
 						}
 					} else {
 						fieldmap.get(solrFieldName).addValue(val, 1.0f);
