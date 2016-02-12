@@ -82,7 +82,7 @@ public class IdentifyCurrentSolrRecords {
 		tempPath.toFile().deleteOnExit();
 		FileOutputStream fos = new FileOutputStream(tempPath.toString());
 		ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
-		fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
+		fos.getChannel().transferFrom(rbc, 0, 100_000_000_000L);
 		fos.close();
 		
 		CSVReader reader = new CSVReader(new FileReader(tempPath.toString()));
