@@ -270,14 +270,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,romanField.cts1,htd);
 					json.put("authorizedForm", authData.authorized);
-					if (authData.authorized && authData.alternateForms != null) {
-						json.put("alternateForms", authData.alternateForms);
+					if (authData.authorized && authData.alternateForms != null)
 						for (String altForm : authData.alternateForms) {
 							addField(solrFields,"authority_author_t",altForm);
 							if (hasCJK(altForm))
 								addField(solrFields,"authority_author_t_cjk",altForm);								
 						}
-					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
@@ -321,14 +319,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			json.put("type", htd.toString());
 			AuthorityData authData = new AuthorityData(config,f.cts1,htd);
 			json.put("authorizedForm", authData.authorized);
-			if (authData.authorized && authData.alternateForms != null) {
-				json.put("alternateForms", authData.alternateForms);
+			if (authData.authorized && authData.alternateForms != null)
 				for (String altForm : authData.alternateForms) {
 					addField(solrFields,"authority_author_t",altForm);
 					if (hasCJK(altForm))
 						addField(solrFields,"authority_author_t_cjk",altForm);								
 				}
-			} 
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);
 			addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));

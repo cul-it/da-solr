@@ -6,6 +6,7 @@ import static edu.cornell.library.integration.indexer.utilities.FilingNormalizat
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -215,19 +216,19 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					}
 					sb_piped.append(mainFields);
 					sb_breadcrumbed.append(mainFields);
-					Map<String,Object> json = new HashMap<String,Object>();
-					json.put("subject1", mainFields);
-					json.put("type", htd.toString());
+					List<Object> json = new ArrayList<Object>();
+					Map<String,Object> subj1 = new HashMap<String,Object>();
+					subj1.put("subject", mainFields);
+					subj1.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,mainFields,htd);
-					json.put("subject1Authorized", authData.authorized);
-					if (authData.authorized && authData.alternateForms != null) {
-						json.put("subject1AlternateForms", authData.alternateForms);
+					subj1.put("authorized", authData.authorized);
+					if (authData.authorized && authData.alternateForms != null)
 						for (String altForm : authData.alternateForms) {
 							addField(solrFields,"authority_subject_t",altForm);
 							if (hasCJK(altForm))
 								addField(solrFields,"authority_subject_t_cjk",altForm);								
 						}
-					}
+					json.add(subj1);
 
 					values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 					List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
@@ -235,23 +236,21 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					if (f.mainTag.equals("653")) {
 						addField(solrFields,"sixfivethree",sb_piped.toString());
 					}
-					int i = 1;
 					for (String dashed_term : dashed_terms) {
+						Map<String,Object> subj = new HashMap<String,Object>();
 						sb_piped.append("|"+dashed_term);
 						sb_breadcrumbed.append(" > "+dashed_term);
-						json.put("subject"+ ++i, dashed_term);
+						subj.put("subject", dashed_term);
 						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 						authData = new AuthorityData(config,sb_breadcrumbed.toString(),htd);
-						json.put("subject"+i+"Authorized", authData.authorized);
-						if (authData.authorized && authData.alternateForms != null) {
-							json.put("subject"+i+"AlternateForms", authData.alternateForms);
+						subj.put("authorized", authData.authorized);
+						if (authData.authorized && authData.alternateForms != null)
 							for (String altForm : authData.alternateForms) {
 								addField(solrFields,"authority_subject_t",altForm);
 								if (hasCJK(altForm))
 									addField(solrFields,"authority_subject_t_cjk",altForm);								
 							}
-						}
-
+						json.add(subj);
 					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
