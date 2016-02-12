@@ -41,6 +41,7 @@ public class GetRecordCount {
    
    public int countRecords(DavService davService, String srcDir, String srcFile) throws Exception {
       int total = 0;    
+      @SuppressWarnings("unused")
       Record record = null;      
       //InputStream is = davService.getFileAsInputStream(srcDir + "/" +srcFile);
       String tmpFilePath = TMPDIR +"/"+ srcFile;
@@ -85,8 +86,7 @@ public void run(String srcDir) {
          //System.out.println("Getting list of bib marc files");
          srcList = davService.getFileList(srcDir);
       } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+        e.printStackTrace();
       } 
       if (srcList.size() == 0) {
          System.out.println("No Marc files available to process");

@@ -149,7 +149,6 @@ public class ConvertUtils {
     * @param invalidCharacter
     * @param badCharacterLocator
     */
-   @SuppressWarnings("unchecked")
 private static void modifyRecord(Record record, RecordLine line,
          String invalidCharacter, String badCharacterLocator) {
 	   

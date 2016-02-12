@@ -2,7 +2,6 @@ package edu.cornell.library.integration.support;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,26 +16,19 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 public class OracleTables {
 
-    static String DBDriver = "oracle.jdbc.driver.OracleDriver";
-    static String DBUrl = "jdbc:oracle:thin:@database.library.cornell.edu:1521:VGER";
-    static String DBProtocol = "jdbc:oracle:thin:@";
-    static String DBServer = "database.library.cornell.edu:1521:VGER";
-    static String DBName = "CORNELLDB";
-    static String DBuser = "login";
-    static String DBpass = "login";
-
     static DatabaseMetaData dbmeta = null;
 
 
     /**
      * @param args
+     * @throws SQLException 
+     * @throws ClassNotFoundException 
      */
-    public static void main(String[] args) {
-    	
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
     	SolrBuildConfig config =
-    			SolrBuildConfig.loadConfig(args );
+    			SolrBuildConfig.loadConfig(args,SolrBuildConfig.getRequiredArgsForDB("Voy"));
 
-        Connection conn = openConnection(DBDriver, DBProtocol, DBServer, DBName, DBuser, DBpass);
+        Connection conn = config.getDatabaseConnection("Voy");
         System.out.println("Got Connection");
         List<String> tables = getTableNames(conn);
         for (int i=0; i < tables.size(); i++) {
@@ -47,36 +39,7 @@ public class OracleTables {
         closeConnection(conn);
     }
 
-    public static Connection openConnection(String driver, String databaseProtocol, String databaseServer, String databaseName, String databaseUsername, String databasePassword) {
-
-
-        Connection connection = null;
-
-        // actually connect to the database
-        try {
-
-           Class.forName(driver);
-           String dburl = databaseProtocol + databaseServer;
-           // System.out.println("database connection url: "+dburl);
-           connection = DriverManager.getConnection(dburl , databaseUsername, databasePassword);
-
-           if (connection == null) {
-              System.out.println("openconnection: no connection made");
-           }
-           // end alert if no connection made
-        } catch (SQLException sqlexception) {
-           System.out.println(sqlexception.getMessage());
-           sqlexception.printStackTrace();
-        } catch (Exception exception) {
-           //System.out.println(exception);
-           exception.printStackTrace();
-        }
-
-        return connection;
-     }
-
-
-     public static List<String> getTableNames(Connection conn) {
+     private static List<String> getTableNames(Connection conn) {
          ResultSet rs = null;
 
          ArrayList<String> tables = new ArrayList<String>();
@@ -98,7 +61,7 @@ public class OracleTables {
           return tables;
      }
 
-     public static void describeTable(Connection conn, String table) {
+     private static void describeTable(Connection conn, String table) {
         ResultSet rs = null;
         HashMap<String, String> columns = new HashMap<String, String>();
 //        HashMap<String, String> keys = new HashMap<String, String>();
@@ -356,7 +319,7 @@ public class OracleTables {
         System.out.println();
      }
 
-     public static void closeConnection(Connection conn) {
+     private static void closeConnection(Connection conn) {
         if (conn != null) {
           try {
             conn.close();
