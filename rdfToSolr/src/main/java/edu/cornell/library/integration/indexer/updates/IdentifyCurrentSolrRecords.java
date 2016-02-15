@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
@@ -90,21 +91,33 @@ public class IdentifyCurrentSolrRecords {
 		// Then read the file back in to process it
 
 		for (CSVRecord record : records) {
-			int bibid = processSolrBibData
-					(record.get("bibid_display"),record.get("online"),record.get("location_facet"),
-					record.get("url_access_display"),record.get("format"),record.get("title_display"),
-					record.get("title_vern_display"),record.get("title_uniform_display"),
-					record.get("language_facet"),record.get("edition_display"),
-					record.get("pub_date_display"),record.get("timestamp"));
-			if (bibCount % 10_000 == 0)
-				current.commit();
-			
-			if (record.get("type").equals("Catalog"))
-				processWorksData( record.get("other_id_display"), bibid );
-
-			processSolrHoldingsData(record.get("holdings_display"),bibid);
-
-			processSolrItemData(record.get("item_display"),bibid);
+			try {
+				int bibid = processSolrBibData
+						(record.get("bibid_display"),record.get("online"),record.get("location_facet"),
+						record.get("url_access_display"),record.get("format"),record.get("title_display"),
+						record.get("title_vern_display"),record.get("title_uniform_display"),
+						record.get("language_facet"),record.get("edition_display"),
+						record.get("pub_date_display"),record.get("timestamp"));
+				if (bibCount % 10_000 == 0)
+					current.commit();
+				
+				if (record.get("type").equals("Catalog"))
+					processWorksData( record.get("other_id_display"), bibid );
+	
+				processSolrHoldingsData(record.get("holdings_display"),bibid);
+	
+				processSolrItemData(record.get("item_display"),bibid);
+			} catch (NumberFormatException e ) {
+				Map<String,String> valueMap = record.toMap();
+				StringBuilder sb = new StringBuilder();
+				sb.append("CSV row value map:\n");
+				for (Entry<String, String> entry : valueMap.entrySet()) {
+					sb.append(entry.getKey()).append(' ').append(entry.getValue()).append('\n');
+				}
+				System.out.print(sb.toString());
+				System.out.flush();
+				throw e;
+			}
 		}
 		reader.close();
 		for (PreparedStatement pstmt : pstmts.values()) {
