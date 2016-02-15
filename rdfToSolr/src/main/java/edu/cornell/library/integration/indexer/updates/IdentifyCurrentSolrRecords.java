@@ -67,7 +67,7 @@ public class IdentifyCurrentSolrRecords {
 	    setUpTables();
 
 	    URL queryUrl = new URL(config.getSolrUrl() +
-				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&"
+				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&csv.escape=\\&"
 				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
 		//                 0          1          2               3             4    
 				+ "title_display,title_vern_display,title_uniform_display,language_facet,"
