@@ -71,7 +71,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
 		//                 0          1          2               3             4    
 				+ "title_display,title_vern_display,title_uniform_display,language_facet,"
-				//       6              6                 7                      8
+				//       5              6                 7                      8
 				+ "edition_display,pub_date_display,timestamp,type,other_id_display,"
 			    //	       9              10             11    12         13
 				+ "holdings_display,item_display");
@@ -227,6 +227,7 @@ public class IdentifyCurrentSolrRecords {
 		// Attempt to reflect Solr date in table. If fails, record not in Voyager.
 		// note: date comparison comes later.
 		PreparedStatement pstmt = pstmts.get("bib_insert");
+		try {
 		pstmt.setInt(1, bibid);
 		pstmt.setTimestamp(2, new Timestamp( marcDateFormat.parse(parts[1]).getTime() ));
 		pstmt.setString(3, format);
@@ -238,6 +239,23 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(9, language.isEmpty() ? null : language);
 		pstmt.setString(10, title);
 		pstmt.addBatch();
+		} catch (ParseException e) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("solrBib ").append(solrBib);
+			sb.append("\nonline ").append(online);
+			sb.append("\nlocation_facet ").append(location_facet);
+			sb.append("\nurl ").append(url);
+			sb.append("\nformat ").append(format);
+			sb.append("\ntitle_display ").append(title_display);
+			sb.append("\ntitle_vern_display ").append(title_vern_display);
+			sb.append("\ntitle_uniform_display ").append(title_uniform_display);
+			sb.append("\nlanguage ").append(language);
+			sb.append("\nedition ").append(edition);
+			sb.append("\npubdate ").append(pubdate);
+			sb.append("\ntimestamp ").append(timestamp);
+			System.out.println(sb.toString());
+			throw e;
+		}
 		if (++bibCount % 1000 == 0)
 			pstmt.executeBatch();
 		return bibid;
