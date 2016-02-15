@@ -86,7 +86,8 @@ public class IdentifyCurrentSolrRecords {
 		fos.close();
 
 		Reader reader = new FileReader(tempPath.toString());
-		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(reader);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().
+				withEscape('\\').parse(reader);
 
 		// Then read the file back in to process it
 
