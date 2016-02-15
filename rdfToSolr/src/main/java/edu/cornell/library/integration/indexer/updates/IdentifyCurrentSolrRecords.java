@@ -239,7 +239,7 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(9, language.isEmpty() ? null : language);
 		pstmt.setString(10, title);
 		pstmt.addBatch();
-		} catch (ParseException e) {
+		} catch (IllegalArgumentException | ParseException e) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("solrBib ").append(solrBib);
 			sb.append("\nonline ").append(online);
