@@ -360,8 +360,21 @@ public class IdentifyCurrentSolrRecords {
 			itemCount++;
 			Timestamp modified = null;
 			String[] parts = solrItemList[i].split("\\|");
-			int itemId = Integer.valueOf(parts[0]);
-			int mfhdId = Integer.valueOf(parts[1]);
+			int itemId = 0, mfhdId = 0;
+			try {
+				itemId = Integer.valueOf(parts[0]);
+				mfhdId = Integer.valueOf(parts[1]);
+			} catch (NumberFormatException e) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("solrItems ").append(solrItems);
+				sb.append("\nsolrItemList.length ").append(solrItemList.length);
+				sb.append("\ni ").append(i);
+				sb.append("\nsolrItemList[i] ").append(solrItemList[i]);
+				sb.append("\nparts[0] ").append(parts[0]);
+				sb.append("\nparts[1] ").append(parts[1]);
+				System.out.println(sb.toString());
+				throw e;
+			}
 			if (parts.length > 2)
 				modified = new Timestamp( marcDateFormat.parse(parts[2]).getTime() );
 			pstmt.setInt(1, mfhdId);
