@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.indexer.utilities.IndexingUtilitie
 
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -28,7 +29,9 @@ import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
-import au.com.bytecode.opencsv.CSVReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -69,13 +72,9 @@ public class IdentifyCurrentSolrRecords {
 	    URL queryUrl = new URL(config.getSolrUrl() +
 				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&csv.escape=\\&"
 				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
-		//                 0          1          2               3             4    
 				+ "title_display,title_vern_display,title_uniform_display,language_facet,"
-				//       5              6                 7                      8
 				+ "edition_display,pub_date_display,timestamp,type,other_id_display,"
-			    //	       9              10             11    12         13
 				+ "holdings_display,item_display");
-	    //                14           15
 
 	    // Save Solr data to a temporary file
 	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
@@ -85,28 +84,27 @@ public class IdentifyCurrentSolrRecords {
 		fos.getChannel().transferFrom(rbc, 0, 100_000_000_000L);
 		fos.close();
 
-		CSVReader reader = new CSVReader(new FileReader(tempPath.toString()),',','"','\\',1);
+		Reader reader = new FileReader(tempPath.toString());
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().parse(reader);
 
 		// Then read the file back in to process it
 
-		String[] nextLine = null;
-		while ((nextLine = reader.readNext()) != null ) {
-			if (nextLine[0].startsWith("bibid")) continue;
-			int bibid = processSolrBibData(nextLine[0],nextLine[1],nextLine[2],
-					nextLine[3],nextLine[4],nextLine[5],nextLine[6],nextLine[7],
-					nextLine[8],nextLine[9],nextLine[10],nextLine[11]);
+		for (CSVRecord record : records) {
+			int bibid = processSolrBibData
+					(record.get("bibid_display"),record.get("online"),record.get("location_facet"),
+					record.get("url_access_display"),record.get("format"),record.get("title_display"),
+					record.get("title_vern_display"),record.get("title_uniform_display"),
+					record.get("language_facet"),record.get("edition_display"),
+					record.get("pub_date_display"),record.get("timestamp"));
 			if (bibCount % 10_000 == 0)
 				current.commit();
-			if (nextLine.length == 13) continue;
 			
-			if (nextLine[12].equals("Catalog"))
-				processWorksData( nextLine[13], bibid );
-			if (nextLine.length == 14) continue;
+			if (record.get("type").equals("Catalog"))
+				processWorksData( record.get("other_id_display"), bibid );
 
-			processSolrHoldingsData(nextLine[14],bibid);
-			if (nextLine.length == 15) continue;
+			processSolrHoldingsData(record.get("holdings_display"),bibid);
 
-			processSolrItemData(nextLine[15],bibid);
+			processSolrItemData(record.get("item_display"),bibid);
 		}
 		reader.close();
 		for (PreparedStatement pstmt : pstmts.values()) {
