@@ -84,7 +84,6 @@ public class IdentifyCurrentSolrRecords {
 		    for (SolrDocument doc : response.getResults()) {
 				int bibid = processSolrBibData(
 						(ArrayList) doc.getFieldValue("bibid_display"),
-						(ArrayList) doc.getFieldValue("online"),
 						(ArrayList) doc.getFieldValue("location_facet"),
 						(ArrayList) doc.getFieldValue("url_access_display"),
 						(ArrayList) doc.getFieldValue("format"),
@@ -179,7 +178,6 @@ public class IdentifyCurrentSolrRecords {
 
 	private int processSolrBibData(
 			ArrayList<Object> solrBib,
-			ArrayList<Object>  online,
 			ArrayList<Object>  location_facet,
 			ArrayList<Object>  url,
 			ArrayList<Object>  format,
@@ -199,13 +197,13 @@ public class IdentifyCurrentSolrRecords {
 					"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
 					" (bib_id, record_date, format, sites,libraries,index_date,edition,pub_date,language,title) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
-		String sites = identifyOnlineServices(url);
-		if ( ! url.isEmpty() )
+		String sites = (url == null) ? null : identifyOnlineServices(url);
+		if ( url != null && ! url.isEmpty() )
 			if (sites == null)
 				sites = "Online";
 		String libraries = eliminateDuplicateLocations(location_facet);
 		String title = null;
-		if ( ! title_uniform_display.isEmpty()) {
+		if (title_uniform_display != null && ! title_uniform_display.isEmpty()) {
 			String first = (String) title_uniform_display.get(0);
 			int pipePos = first.indexOf('|');
 			if (pipePos == -1)
@@ -214,7 +212,7 @@ public class IdentifyCurrentSolrRecords {
 				title = first.substring(0, pipePos);
 		}
 		if (title == null)
-			if (! title_vern_display.isEmpty())
+			if (title_vern_display != null && ! title_vern_display.isEmpty())
 				title = title_vern_display;
 		if (title == null)
 			title = title_display;
@@ -229,15 +227,17 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(4, sites);
 		pstmt.setString(5, libraries);
 		pstmt.setTimestamp(6, new Timestamp( timestamp.getTime() ));
-		pstmt.setString(7, edition.isEmpty() ? null : (String) edition.get(0));
-		pstmt.setString(8, pubdate.isEmpty() ? null : StringUtils.join(pubdate, ", "));
-		pstmt.setString(9, language.isEmpty() ? null : StringUtils.join(language, ", "));
+		pstmt.setString(7, edition != null && edition.isEmpty()
+				? null : (String) edition.get(0));
+		pstmt.setString(8, pubdate != null && pubdate.isEmpty()
+				? null : StringUtils.join(pubdate, ", "));
+		pstmt.setString(9, language != null && language.isEmpty()
+				? null : StringUtils.join(language, ", "));
 		pstmt.setString(10, title);
 		pstmt.addBatch();
 		} catch (IllegalArgumentException | ParseException e) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("solrBib ").append(solrBib);
-			sb.append("\nonline ").append(online);
 			sb.append("\nlocation_facet ").append(location_facet);
 			sb.append("\nurl ").append(url);
 			sb.append("\nformat ").append(format);
@@ -257,6 +257,7 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
+		if (location_facet == null) return "";
 		StringBuilder sb = new StringBuilder();
 		Collection<Object> foundValues = new HashSet<Object>();
 		boolean first = true;
@@ -274,6 +275,9 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private void processWorksData(ArrayList<Object> ids, int bibid) throws SQLException {
+
+		if (ids == null)
+			return;
 
 		Set<Integer> oclcIds = new HashSet<Integer>();
 		for (Object obj : ids) {
@@ -314,6 +318,10 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private void processSolrHoldingsData(ArrayList<Object> solrHoldings, int bibid) throws SQLException, ParseException {
+
+		if (solrHoldings == null)
+			return;
+
 		if ( ! pstmts.containsKey("mfhd_insert"))
 			pstmts.put("mfhd_insert",current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.MFHD_SOLR.toString()+
@@ -344,6 +352,10 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private void processSolrItemData(ArrayList<Object> solrItems, int bibid) throws SQLException, ParseException {
+
+		if (solrItems == null)
+			return;
+
 		if ( ! pstmts.containsKey("item_insert"))
 			pstmts.put("item_insert", current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.ITEM_SOLR.toString()+
