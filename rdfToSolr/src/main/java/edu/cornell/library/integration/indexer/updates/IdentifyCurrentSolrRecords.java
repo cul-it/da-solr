@@ -77,13 +77,14 @@ public class IdentifyCurrentSolrRecords {
 	    		"language_facet","edition_display","pub_date_display","timestamp",
 	    		"type","other_id_display","holdings_display","item_display");
 	    query.set("defType", "lucene");
+	    query.setRows(0);
+	    Long totalRecords = solr.query(query).getResults().getNumFound();
+	    query.setRows(fetchsize);
 
-	    while (offset < fetchsize) {
+	    while (offset < totalRecords) {
 	    	query.setStart((int) offset);
-		    query.setRows(fetchsize);
-		    QueryResponse response = solr.query(query);
-		    for (SolrDocument doc : response.getResults()) {
-				int bibid = processSolrBibData(
+		    for (SolrDocument doc : solr.query(query).getResults()) {
+		    	int bibid = processSolrBibData(
 						(ArrayList) doc.getFieldValue("bibid_display"),
 						(ArrayList) doc.getFieldValue("location_facet"),
 						(ArrayList) doc.getFieldValue("url_access_display"),
@@ -95,15 +96,16 @@ public class IdentifyCurrentSolrRecords {
 						(ArrayList) doc.getFieldValue("edition_display"),
 						(ArrayList) doc.getFieldValue("pub_date_display"),
 						(Date) doc.getFieldValue("timestamp"));
-				
-				if (((String) doc.getFieldValue("type")).equals("Catalog"))
-					processWorksData((ArrayList) doc.getFieldValue("other_id_display"),bibid);
+
+		    	if (((String) doc.getFieldValue("type")).equals("Catalog"))
+		    		processWorksData((ArrayList) doc.getFieldValue("other_id_display"),bibid);
 	
-				processSolrHoldingsData((ArrayList) doc.getFieldValue("holdings_display"),bibid);
+		    	processSolrHoldingsData((ArrayList) doc.getFieldValue("holdings_display"),bibid);
 	
-				processSolrItemData((ArrayList) doc.getFieldValue("item_display"),bibid);	    	
+		    	processSolrItemData((ArrayList) doc.getFieldValue("item_display"),bibid);	    	
 		    }
-			current.commit();
+		    if (bibCount % 5000 == 0)
+		    	current.commit();
 			offset += fetchsize;
 	    }
 		for (PreparedStatement pstmt : pstmts.values()) {
