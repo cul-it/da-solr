@@ -3,14 +3,6 @@ package edu.cornell.library.integration.indexer.updates;
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
 import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.identifyOnlineServices;
 
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,13 +17,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
@@ -70,57 +63,47 @@ public class IdentifyCurrentSolrRecords {
 	    current.setAutoCommit(false);
 	    setUpTables();
 
-	    URL queryUrl = new URL(config.getSolrUrl() +
-				"/select?qt=standard&q=id%3A*&wt=csv&rows=50000000&csv.escape=\\&"
-				+ "fl=bibid_display,online,location_facet,url_access_display,format,"
-				+ "title_display,title_vern_display,title_uniform_display,language_facet,"
-				+ "edition_display,pub_date_display,timestamp,type,other_id_display,"
-				+ "holdings_display,item_display");
+	    int fetchsize = 1000;
+	    long offset = 0;
 
-	    // Save Solr data to a temporary file
-	    final Path tempPath = Files.createTempFile("identifyCurrentSolrRecords-", ".csv");
-		tempPath.toFile().deleteOnExit();
-		FileOutputStream fos = new FileOutputStream(tempPath.toString());
-		ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
-		fos.getChannel().transferFrom(rbc, 0, 100_000_000_000L);
-		fos.close();
+	    HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
+	    SolrQuery query = new SolrQuery();
+	    query.setQuery("id:*");
+	    query.setFields("bibid_display","online","location_facet","url_access_display",
+	    		"format","title_display","title_vern_display","title_uniform_display",
+	    		"language_facet","edition_display","pub_date_display","timestamp",
+	    		"type","other_id_display","holdings_display","item_display");
+	    query.set("defType", "standard");
 
-		Reader reader = new FileReader(tempPath.toString());
-		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().
-				withEscape('\\').parse(reader);
-
-		// Then read the file back in to process it
-
-		for (CSVRecord record : records) {
-			try {
+	    while (offset < fetchsize) {
+	    	query.setStart((int) offset);
+		    query.setRows(fetchsize);
+		    QueryResponse response = solr.query(query);
+		    for (SolrDocument doc : response.getResults()) {
 				int bibid = processSolrBibData
-						(record.get("bibid_display"),record.get("online"),record.get("location_facet"),
-						record.get("url_access_display"),record.get("format"),record.get("title_display"),
-						record.get("title_vern_display"),record.get("title_uniform_display"),
-						record.get("language_facet"),record.get("edition_display"),
-						record.get("pub_date_display"),record.get("timestamp"));
+						((String) doc.getFieldValue("bibid_display"),
+								(String) doc.getFieldValue("online"),
+								(String) doc.getFieldValue("location_facet"),
+								(String) doc.getFieldValue("url_access_display"),
+								(String) doc.getFieldValue("format"),
+								(String) doc.getFieldValue("title_display"),
+								(String) doc.getFieldValue("title_vern_display"),
+								(String) doc.getFieldValue("title_uniform_display"),
+								(String) doc.getFieldValue("language_facet"),
+								(String) doc.getFieldValue("edition_display"),
+								(String) doc.getFieldValue("pub_date_display"),
+								(String) doc.getFieldValue("timestamp"));
 				if (bibCount % 10_000 == 0)
 					current.commit();
 				
-				if (record.get("type").equals("Catalog"))
-					processWorksData( record.get("other_id_display"), bibid );
+				if (((String) doc.getFieldValue("type")).equals("Catalog"))
+					processWorksData((String) doc.getFieldValue("other_id_display"),bibid);
 	
-				processSolrHoldingsData(record.get("holdings_display"),bibid);
+				processSolrHoldingsData((String) doc.getFieldValue("holdings_display"),bibid);
 	
-				processSolrItemData(record.get("item_display"),bibid);
-			} catch (NumberFormatException e ) {
-				Map<String,String> valueMap = record.toMap();
-				StringBuilder sb = new StringBuilder();
-				sb.append("CSV row value map:\n");
-				for (Entry<String, String> entry : valueMap.entrySet()) {
-					sb.append(entry.getKey()).append(' ').append(entry.getValue()).append('\n');
-				}
-				System.out.print(sb.toString());
-				System.out.flush();
-				throw e;
-			}
-		}
-		reader.close();
+				processSolrItemData((String) doc.getFieldValue("item_display"),bibid);	    	
+		    }
+	    }
 		for (PreparedStatement pstmt : pstmts.values()) {
 			pstmt.executeBatch();
 			pstmt.close();
