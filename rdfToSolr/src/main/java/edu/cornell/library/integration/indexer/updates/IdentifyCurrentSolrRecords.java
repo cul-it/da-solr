@@ -227,11 +227,11 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(4, sites);
 		pstmt.setString(5, libraries);
 		pstmt.setTimestamp(6, new Timestamp( timestamp.getTime() ));
-		pstmt.setString(7, edition != null && edition.isEmpty()
+		pstmt.setString(7, edition == null || edition.isEmpty()
 				? null : (String) edition.get(0));
-		pstmt.setString(8, pubdate != null && pubdate.isEmpty()
+		pstmt.setString(8, pubdate == null || pubdate.isEmpty()
 				? null : StringUtils.join(pubdate, ", "));
-		pstmt.setString(9, language != null && language.isEmpty()
+		pstmt.setString(9, language == null || language.isEmpty()
 				? null : StringUtils.join(language, ", "));
 		pstmt.setString(10, title);
 		pstmt.addBatch();
