@@ -42,6 +42,7 @@ public class IdentifyCurrentSolrRecords {
 	private int bibCount = 0;
 	private int mfhdCount = 0;
 	private int itemCount = 0;
+	private int workCount = 0;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -94,8 +95,6 @@ public class IdentifyCurrentSolrRecords {
 						(ArrayList) doc.getFieldValue("edition_display"),
 						(ArrayList) doc.getFieldValue("pub_date_display"),
 						(Date) doc.getFieldValue("timestamp"));
-				if (bibCount % 10_000 == 0)
-					current.commit();
 				
 				if (((String) doc.getFieldValue("type")).equals("Catalog"))
 					processWorksData((ArrayList) doc.getFieldValue("other_id_display"),bibid);
@@ -104,6 +103,8 @@ public class IdentifyCurrentSolrRecords {
 	
 				processSolrItemData((ArrayList) doc.getFieldValue("item_display"),bibid);	    	
 		    }
+			current.commit();
+			offset += fetchsize;
 	    }
 		for (PreparedStatement pstmt : pstmts.values()) {
 			pstmt.executeBatch();
@@ -131,7 +132,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "title text, "
 				+ "linking_mod_date timestamp, "
 				+ "needs_update int(1) default 0, "
-				+ "key (bib_id) ) ENGINE=InnoDB");
+				+ "primary key (bib_id) ) ENGINE=InnoDB");
 		stmt.execute("alter table "+CurrentDBTable.BIB_SOLR.toString()+" disable keys");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.MFHD_SOLR.toString());
@@ -296,9 +297,11 @@ public class IdentifyCurrentSolrRecords {
 		
 		PreparedStatement pstmt = current.prepareStatement(
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
-		PreparedStatement insertStmt = current.prepareStatement(
+		if (! pstmts.containsKey("work_insert"))
+			pstmts.put("work_insert", current.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.BIB2WORK.toString()+
-				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
+				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)"));
+		PreparedStatement insertStmt = pstmts.get("work_insert");
 		for (int oclcId : oclcIds) {
 			pstmt.setInt(1, oclcId);
 			ResultSet rs = pstmt.executeQuery();
@@ -308,13 +311,12 @@ public class IdentifyCurrentSolrRecords {
 				insertStmt.setInt(2, oclcId);
 				insertStmt.setLong(3, workid);
 				insertStmt.addBatch();
+				workCount++;
 			}
 		}
-		insertStmt.executeBatch();
-		insertStmt.close();
+		if (workCount % 1000 == 0)
+			insertStmt.executeBatch();
 		pstmt.close();
-
-
 	}
 
 	private void processSolrHoldingsData(ArrayList<Object> solrHoldings, int bibid) throws SQLException, ParseException {
