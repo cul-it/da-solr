@@ -73,7 +73,7 @@ public class IdentifyCurrentSolrRecords {
 	    		"format","title_display","title_vern_display","title_uniform_display",
 	    		"language_facet","edition_display","pub_date_display","timestamp",
 	    		"type","other_id_display","holdings_display","item_display");
-	    query.set("defType", "standard");
+	    query.set("defType", "lucene");
 
 	    while (offset < fetchsize) {
 	    	query.setStart((int) offset);
