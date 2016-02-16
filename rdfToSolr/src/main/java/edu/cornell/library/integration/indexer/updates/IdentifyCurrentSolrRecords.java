@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -80,28 +81,28 @@ public class IdentifyCurrentSolrRecords {
 		    query.setRows(fetchsize);
 		    QueryResponse response = solr.query(query);
 		    for (SolrDocument doc : response.getResults()) {
-				int bibid = processSolrBibData
-						((String) doc.getFieldValue("bibid_display"),
-								(String) doc.getFieldValue("online"),
-								(String) doc.getFieldValue("location_facet"),
-								(String) doc.getFieldValue("url_access_display"),
-								(String) doc.getFieldValue("format"),
-								(String) doc.getFieldValue("title_display"),
-								(String) doc.getFieldValue("title_vern_display"),
-								(String) doc.getFieldValue("title_uniform_display"),
-								(String) doc.getFieldValue("language_facet"),
-								(String) doc.getFieldValue("edition_display"),
-								(String) doc.getFieldValue("pub_date_display"),
-								(String) doc.getFieldValue("timestamp"));
+				int bibid = processSolrBibData(
+						(ArrayList) doc.getFieldValue("bibid_display"),
+						(ArrayList) doc.getFieldValue("online"),
+						(ArrayList) doc.getFieldValue("location_facet"),
+						(ArrayList) doc.getFieldValue("url_access_display"),
+						(ArrayList) doc.getFieldValue("format"),
+						(String) doc.getFieldValue("title_display"),
+						(String) doc.getFieldValue("title_vern_display"),
+						(ArrayList) doc.getFieldValue("title_uniform_display"),
+						(ArrayList) doc.getFieldValue("language_facet"),
+						(ArrayList) doc.getFieldValue("edition_display"),
+						(ArrayList) doc.getFieldValue("pub_date_display"),
+						(String) doc.getFieldValue("timestamp"));
 				if (bibCount % 10_000 == 0)
 					current.commit();
 				
 				if (((String) doc.getFieldValue("type")).equals("Catalog"))
-					processWorksData((String) doc.getFieldValue("other_id_display"),bibid);
+					processWorksData((ArrayList) doc.getFieldValue("other_id_display"),bibid);
 	
-				processSolrHoldingsData((String) doc.getFieldValue("holdings_display"),bibid);
+				processSolrHoldingsData((ArrayList) doc.getFieldValue("holdings_display"),bibid);
 	
-				processSolrItemData((String) doc.getFieldValue("item_display"),bibid);	    	
+				processSolrItemData((ArrayList) doc.getFieldValue("item_display"),bibid);	    	
 		    }
 	    }
 		for (PreparedStatement pstmt : pstmts.values()) {
@@ -176,42 +177,40 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	private int processSolrBibData(
-			String solrBib, //0
-			String online,  //1
-			String location_facet, //2
-			String url, //3
-			String format, //4
-			String title_display, //5
-			String title_vern_display, //6
-			String title_uniform_display, //7
-			String language, //8
-			String edition, //9
-			String pubdate, //10
-			String timestamp //11
+			ArrayList<Object> solrBib,
+			ArrayList<Object>  online,
+			ArrayList<Object>  location_facet,
+			ArrayList<Object>  url,
+			ArrayList<Object>  format,
+			String title_display,
+			String title_vern_display,
+			ArrayList<Object>  title_uniform_display,
+			ArrayList<Object>  language,
+			ArrayList<Object>  edition,
+			ArrayList<Object>  pubdate,
+			String  timestamp
 			) throws SQLException, ParseException {
 		bibCount++;
-		String[] parts = solrBib.split("\\|", 2);
+		String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
 		int bibid = Integer.valueOf(parts[0]);
 		if ( ! pstmts.containsKey("bib_insert"))
 			pstmts.put("bib_insert",current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
 					" (bib_id, record_date, format, sites,libraries,index_date,edition,pub_date,language,title) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
-		Collection<Object> urls = new HashSet<Object>();
-		for (String s : url.split(","))
-			urls.add(s);
-		String sites = identifyOnlineServices(urls);
+		String sites = identifyOnlineServices(url);
 		if ( ! url.isEmpty() )
 			if (sites == null)
 				sites = "Online";
 		String libraries = eliminateDuplicateLocations(location_facet);
 		String title = null;
 		if ( ! title_uniform_display.isEmpty()) {
-			int pipePos = title_uniform_display.indexOf('|');
+			String first = (String) title_uniform_display.get(0);
+			int pipePos = first.indexOf('|');
 			if (pipePos == -1)
-				title = title_uniform_display;
+				title = first;
 			else
-				title = title_uniform_display.substring(0, pipePos);
+				title = first.substring(0, pipePos);
 		}
 		if (title == null)
 			if (! title_vern_display.isEmpty())
@@ -225,13 +224,13 @@ public class IdentifyCurrentSolrRecords {
 		try {
 		pstmt.setInt(1, bibid);
 		pstmt.setTimestamp(2, new Timestamp( marcDateFormat.parse(parts[1]).getTime() ));
-		pstmt.setString(3, format);
+		pstmt.setString(3, StringUtils.join(format, ','));
 		pstmt.setString(4, sites);
 		pstmt.setString(5, libraries);
 		pstmt.setTimestamp(6, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ));
-		pstmt.setString(7, edition.isEmpty() ? null : edition);
-		pstmt.setString(8, pubdate.isEmpty() ? null : pubdate);
-		pstmt.setString(9, language.isEmpty() ? null : language);
+		pstmt.setString(7, edition.isEmpty() ? null : (String) edition.get(0));
+		pstmt.setString(8, pubdate.isEmpty() ? null : StringUtils.join(pubdate, ", "));
+		pstmt.setString(9, language.isEmpty() ? null : StringUtils.join(language, ", "));
 		pstmt.setString(10, title);
 		pstmt.addBatch();
 		} catch (IllegalArgumentException | ParseException e) {
@@ -256,12 +255,11 @@ public class IdentifyCurrentSolrRecords {
 		return bibid;
 	}
 
-	private String eliminateDuplicateLocations(String location_facet) {
-		String[] fieldValues = location_facet.split(",");
+	private String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
 		StringBuilder sb = new StringBuilder();
 		Collection<Object> foundValues = new HashSet<Object>();
 		boolean first = true;
-		for (Object val : fieldValues) {
+		for (Object val : location_facet) {
 			if (foundValues.contains(val))
 				continue;
 			foundValues.add(val);
@@ -274,10 +272,11 @@ public class IdentifyCurrentSolrRecords {
 		return sb.toString();
 	}
 
-	private void processWorksData(String ids, int bibid) throws SQLException {
+	private void processWorksData(ArrayList<Object> ids, int bibid) throws SQLException {
 
 		Set<Integer> oclcIds = new HashSet<Integer>();
-		for (String id : ids.split(",")) {
+		for (Object obj : ids) {
+			String id = (String) obj;
 			if (id.startsWith("(OCoLC)")) {
 				try {
 					oclcIds.add(Integer.valueOf(id.substring(7)));
@@ -313,23 +312,23 @@ public class IdentifyCurrentSolrRecords {
 
 	}
 
-	private void processSolrHoldingsData(String solrHoldings, int bibid) throws SQLException, ParseException {
-		String[] solrHoldingsList = solrHoldings.split(",");
+	private void processSolrHoldingsData(ArrayList<Object> solrHoldings, int bibid) throws SQLException, ParseException {
 		if ( ! pstmts.containsKey("mfhd_insert"))
 			pstmts.put("mfhd_insert",current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.MFHD_SOLR.toString()+
 					" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("mfhd_insert");
-		for (int i = 0; i < solrHoldingsList.length; i++) {
-			if (solrHoldingsList[i].isEmpty()) continue;
+		for (int i = 0; i < solrHoldings.size(); i++) {
+			String holding = (String) solrHoldings.get(i);
+			if (holding.isEmpty()) continue;
 			int holdingsId;
 			Timestamp modified = null;
-			if (solrHoldingsList[i].contains("|")) {
-				String[] parts = solrHoldingsList[i].split("\\|",2);
+			if (holding.contains("|")) {
+				String[] parts = holding.split("\\|",2);
 				holdingsId = Integer.valueOf(parts[0]);
 				modified = new Timestamp( marcDateFormat.parse(parts[1]).getTime() );
-			} else if (! solrHoldingsList[i].isEmpty()) {
-				holdingsId = Integer.valueOf(solrHoldingsList[i]);
+			} else if (! holding.isEmpty()) {
+				holdingsId = Integer.valueOf(holding);
 			} else {
 				continue;
 			}
@@ -343,28 +342,28 @@ public class IdentifyCurrentSolrRecords {
 		}
 	}
 
-	private void processSolrItemData(String solrItems, int bibid) throws SQLException, ParseException {
-		String[] solrItemList = solrItems.split(",");
+	private void processSolrItemData(ArrayList<Object> solrItems, int bibid) throws SQLException, ParseException {
 		if ( ! pstmts.containsKey("item_insert"))
 			pstmts.put("item_insert", current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.ITEM_SOLR.toString()+
 					" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)"));
 		PreparedStatement pstmt = pstmts.get("item_insert");
-		for (int i = 0; i < solrItemList.length; i++) {
-			if (solrItemList[i].isEmpty()) continue;
+		for (int i = 0; i < solrItems.size(); i++) {
+			String item = (String) solrItems.get(i);
+			if (item.isEmpty()) continue;
 			itemCount++;
 			Timestamp modified = null;
-			String[] parts = solrItemList[i].split("\\|");
+			String[] parts = item.split("\\|");
 			int itemId = 0, mfhdId = 0;
 			try {
 				itemId = Integer.valueOf(parts[0]);
 				mfhdId = Integer.valueOf(parts[1]);
 			} catch (NumberFormatException e) {
 				StringBuilder sb = new StringBuilder();
-				sb.append("solrItems ").append(solrItems);
-				sb.append("\nsolrItemList.length ").append(solrItemList.length);
+				sb.append("solrItems ").append(solrItems.toString());
+				sb.append("\nsolrItems.size ").append(solrItems.size());
 				sb.append("\ni ").append(i);
-				sb.append("\nsolrItemList[i] ").append(solrItemList[i]);
+				sb.append("\nsolrItems.get(i) ").append(solrItems.get(i));
 				sb.append("\nparts[0] ").append(parts[0]);
 				sb.append("\nparts[1] ").append(parts[1]);
 				System.out.println(sb.toString());
