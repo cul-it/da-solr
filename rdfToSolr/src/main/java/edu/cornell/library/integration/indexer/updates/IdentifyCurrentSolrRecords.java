@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -93,7 +94,7 @@ public class IdentifyCurrentSolrRecords {
 						(ArrayList) doc.getFieldValue("language_facet"),
 						(ArrayList) doc.getFieldValue("edition_display"),
 						(ArrayList) doc.getFieldValue("pub_date_display"),
-						(String) doc.getFieldValue("timestamp"));
+						(Date) doc.getFieldValue("timestamp"));
 				if (bibCount % 10_000 == 0)
 					current.commit();
 				
@@ -188,7 +189,7 @@ public class IdentifyCurrentSolrRecords {
 			ArrayList<Object>  language,
 			ArrayList<Object>  edition,
 			ArrayList<Object>  pubdate,
-			String  timestamp
+			Date  timestamp
 			) throws SQLException, ParseException {
 		bibCount++;
 		String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
@@ -227,7 +228,7 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(3, StringUtils.join(format, ','));
 		pstmt.setString(4, sites);
 		pstmt.setString(5, libraries);
-		pstmt.setTimestamp(6, new Timestamp( DatatypeConverter.parseDateTime(timestamp).getTimeInMillis() ));
+		pstmt.setTimestamp(6, new Timestamp( timestamp.getTime() ));
 		pstmt.setString(7, edition.isEmpty() ? null : (String) edition.get(0));
 		pstmt.setString(8, pubdate.isEmpty() ? null : StringUtils.join(pubdate, ", "));
 		pstmt.setString(9, language.isEmpty() ? null : StringUtils.join(language, ", "));
