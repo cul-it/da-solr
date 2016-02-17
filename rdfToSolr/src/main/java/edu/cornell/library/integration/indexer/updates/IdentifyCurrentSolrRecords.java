@@ -20,12 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -60,13 +57,14 @@ public class IdentifyCurrentSolrRecords {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public IdentifyCurrentSolrRecords(SolrBuildConfig config) throws Exception {
 
 	    current = config.getDatabaseConnection("Current");
 	    current.setAutoCommit(false);
 	    setUpTables();
 
-	    int fetchsize = 1000;
+	    int fetchsize = 5000;
 	    long offset = 0;
 
 	    HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
@@ -85,28 +83,27 @@ public class IdentifyCurrentSolrRecords {
 	    	query.setStart((int) offset);
 		    for (SolrDocument doc : solr.query(query).getResults()) {
 		    	int bibid = processSolrBibData(
-						(ArrayList) doc.getFieldValue("bibid_display"),
-						(ArrayList) doc.getFieldValue("location_facet"),
-						(ArrayList) doc.getFieldValue("url_access_display"),
-						(ArrayList) doc.getFieldValue("format"),
+						(ArrayList<Object>) doc.getFieldValue("bibid_display"),
+						(ArrayList<Object>) doc.getFieldValue("location_facet"),
+						(ArrayList<Object>) doc.getFieldValue("url_access_display"),
+						(ArrayList<Object>) doc.getFieldValue("format"),
 						(String) doc.getFieldValue("title_display"),
 						(String) doc.getFieldValue("title_vern_display"),
-						(ArrayList) doc.getFieldValue("title_uniform_display"),
-						(ArrayList) doc.getFieldValue("language_facet"),
-						(ArrayList) doc.getFieldValue("edition_display"),
-						(ArrayList) doc.getFieldValue("pub_date_display"),
+						(ArrayList<Object>) doc.getFieldValue("title_uniform_display"),
+						(ArrayList<Object>) doc.getFieldValue("language_facet"),
+						(ArrayList<Object>) doc.getFieldValue("edition_display"),
+						(ArrayList<Object>) doc.getFieldValue("pub_date_display"),
 						(Date) doc.getFieldValue("timestamp"));
 
 		    	if (((String) doc.getFieldValue("type")).equals("Catalog"))
-		    		processWorksData((ArrayList) doc.getFieldValue("other_id_display"),bibid);
+		    		processWorksData((ArrayList<Object>) doc.getFieldValue("other_id_display"),bibid);
 	
-		    	processSolrHoldingsData((ArrayList) doc.getFieldValue("holdings_display"),bibid);
+		    	processSolrHoldingsData((ArrayList<Object>) doc.getFieldValue("holdings_display"),bibid);
 	
-		    	processSolrItemData((ArrayList) doc.getFieldValue("item_display"),bibid);	    	
+		    	processSolrItemData((ArrayList<Object>) doc.getFieldValue("item_display"),bibid);	    	
 		    }
-		    if (bibCount % 5000 == 0)
-		    	current.commit();
 			offset += fetchsize;
+			current.commit();
 	    }
 		for (PreparedStatement pstmt : pstmts.values()) {
 			pstmt.executeBatch();
