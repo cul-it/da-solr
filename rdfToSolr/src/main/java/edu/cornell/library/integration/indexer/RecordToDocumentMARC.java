@@ -601,8 +601,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","535","abcd3",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","537","3a"),
 				new StandardMARCFieldMaker("notes_t","537","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("notes","544","3a"),
-				new StandardMARCFieldMaker("notes_t","544","a",VernMode.SEARCH),
+				new StandardMARCFieldMaker("notes","544","3ad"),
+				new StandardMARCFieldMaker("notes_t","544","ad",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","547","3a"),
 				new StandardMARCFieldMaker("notes_t","547","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","550","3a"),
@@ -726,7 +726,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	addResultSetToFields( new NewBooksRSTF()),
 
 		        	
-				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"3a"),
+				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"3ac"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 
 				new StandardMARCFieldMaker("frequency_display","310","a"),
