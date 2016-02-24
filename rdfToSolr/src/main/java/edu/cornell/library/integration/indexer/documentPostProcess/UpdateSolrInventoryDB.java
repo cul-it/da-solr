@@ -1,7 +1,8 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.identifyOnlineServices;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.pullReferenceFields;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,11 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /** Evaluate populated fields for conditions of membership for any collections.
@@ -33,6 +37,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	private Set<Long> workids = new HashSet<Long>();
+	static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
@@ -44,7 +49,6 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		String bibid_display = document.getField("bibid_display").getValue().toString();
 		String[] tmp = bibid_display.split("\\|",2);
 		Integer bibid = Integer.valueOf(tmp[0]);
-		Timestamp bibDate = new Timestamp( marcDateFormat.parse(tmp[1]).getTime() );
 		PreparedStatement origBibDateStmt = conn.prepareStatement(
 				"SELECT record_date FROM "+CurrentDBTable.BIB_SOLR.toString()
 				+" WHERE bib_id = ?");
@@ -59,7 +63,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Boolean knockOnUpdatesNeeded;
 		if (origBibDate == null) {
 			// bib is new in Solr
-			populateBibField( conn, document, bibid, bibDate );
+			populateBibField( conn, document );
 			populateHoldingFields( conn, document, bibid );
 			populateItemFields( conn, document );
 			populateWorkInfo( conn, extractOclcIdsFromSolrField(
@@ -67,7 +71,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			knockOnUpdatesNeeded = true;
 		} else {
 			removeOrigHoldingsDataFromDB( conn, document, bibid );
-			knockOnUpdatesNeeded = updateBibField( conn, document, bibid, bibDate );
+			knockOnUpdatesNeeded = updateBibField( conn, document, bibid);
 			populateHoldingFields( conn, document, bibid );
 			populateItemFields( conn, document );
 			updateWorkInfo( conn, document, bibid );
@@ -78,7 +82,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	}
 
 	private void addWorkIdLinksToDocument(Connection conn,
-			SolrInputDocument document, int bibid, boolean knockOnUpdatesNeeded) throws SQLException {
+			SolrInputDocument document, int bibid, boolean knockOnUpdatesNeeded) throws Exception {
 		if (workids.isEmpty())
 			return;
 		if (workids.size() > 1)
@@ -96,6 +100,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		TitleMatchReference thisTitle = null;
 		SolrInputField workidDisplay = new SolrInputField("workid_display");
 		SolrInputField workidFacet = new SolrInputField("workid_facet");
+		SolrInputField otherAvailPiped = new SolrInputField("other_availability_piped");
+		SolrInputField otherAvailJson = new SolrInputField("other_availability_json");
 		for (long workid : workids) {
 			workidFacet.addValue(workid, 1);
 			recordsForWorkStmt.setLong(1, workid);
@@ -104,15 +110,30 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			while (rs.next()) {
 				int refBibid = rs.getInt("bib_id");
 				if (bibid == refBibid) {
-					if (thisTitle == null)
-						thisTitle = new TitleMatchReference(rs.getString("format"),
-								rs.getString("location_label"),rs.getString("edition"),
-								rs.getString("pub_date"));
+					if (thisTitle == null) {
+						thisTitle = new TitleMatchReference();
+						thisTitle.id = bibid;
+						thisTitle.format = rs.getString("format");
+						thisTitle.sites = rs.getString("sites");
+						thisTitle.libraries = rs.getString("libraries");
+						thisTitle.edition = rs.getString("edition");
+						thisTitle.pub_date = rs.getString("pub_date");
+						thisTitle.language = rs.getString("language");
+						thisTitle.title = rs.getString("title");
+					}
 				} else {
-					if ( ! refs.containsKey(refBibid) )
-						refs.put(refBibid, new TitleMatchReference(rs.getString("format"),
-								rs.getString("location_label"),rs.getString("edition"),
-								rs.getString("pub_date")));
+					if ( ! refs.containsKey(refBibid) ) {
+						TitleMatchReference ref = new TitleMatchReference();
+						ref.id = refBibid;
+						ref.format = rs.getString("format");
+						ref.sites = rs.getString("sites");
+						ref.libraries = rs.getString("libraries");
+						ref.edition = rs.getString("edition");
+						ref.pub_date = rs.getString("pub_date");
+						ref.language = rs.getString("language");
+						ref.title = rs.getString("title");
+						refs.put(refBibid, ref);
+					}
 					referenceCount++;
 					if (knockOnUpdatesNeeded) {
 						markBibForUpdateStmt.setInt(1,refBibid);
@@ -136,28 +157,69 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if ( workidDisplay.getValueCount() > 0 )
 			document.put("workid_display", workidDisplay);
 		if (refs.size() <= 12) {
-			SolrInputField otherAvailability = new SolrInputField("other_availability_piped");
 			for (Map.Entry<Integer,TitleMatchReference> ref : refs.entrySet()) {
-				StringBuilder sb = new StringBuilder();
-				if ( ! stringsEqual(thisTitle.format,ref.getValue().format)) {
-					sb.append(ref.getValue().format);
-					sb.append(": ");
-				}
-				sb.append(ref.getValue().location_label);
-				String ed = ref.getValue().edition;
-				if (ed != null && ! ed.isEmpty()) {
-					sb.append(' ');
-					sb.append(ed);
-				}
-				String date = ref.getValue().pub_date;
-				if (date != null && ! date.isEmpty()) {
-					sb.append(' ');
-					sb.append(date);
-				}
-				otherAvailability.addValue(String.valueOf(ref.getKey())+"|"+sb.toString(), 1);
+				otherAvailPiped.addValue(generatePipedAvailability(thisTitle,ref.getValue()), 1);
+				otherAvailJson.addValue(generateJsonAvailability(ref.getValue()), 1);
 			}
-			document.put("other_availability_piped", otherAvailability);
+			document.put("other_availability_piped", otherAvailPiped);
+			document.put("other_availability_json", otherAvailJson);
 		}
+		
+	}
+	private String generateJsonAvailability(
+			TitleMatchReference ref)  throws Exception {
+		Map<String,Object> json = new HashMap<String,Object>();
+		json.put("bibid", ref.id);
+		json.put("format", ref.format);
+		if (ref.sites != null && ! ref.sites.isEmpty())
+			json.put("sites", ref.sites);
+		if (ref.libraries != null && ! ref.libraries.isEmpty())
+			json.put("libraries", ref.libraries);
+		if (ref.edition != null && ! ref.edition.isEmpty())
+			json.put("edition", ref.edition);
+		if (ref.pub_date != null && ! ref.pub_date.isEmpty())
+			json.put("pub_date", ref.pub_date);
+		if (ref.language != null && ! ref.language.isEmpty())
+			json.put("language", ref.language);
+		if (ref.title != null && ! ref.title.isEmpty())
+			json.put("title", ref.title);
+		ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+		mapper.writeValue(jsonstream, json);
+		return jsonstream.toString("UTF-8");
+	}
+
+	private String generatePipedAvailability(
+			TitleMatchReference thisTitle,
+			TitleMatchReference ref) {
+		StringBuilder sb = new StringBuilder();
+		if ( ! stringsEqual(thisTitle.format,ref.format)) {
+			sb.append(ref.format);
+			sb.append(": ");
+		}
+		boolean online = false;
+		if (ref.sites != null && ! ref.sites.isEmpty()) {
+			if (! ref.sites.equals("Online"))
+				sb.append("Online: ");
+			sb.append(ref.sites);		
+			online = true;
+		}
+		if (ref.libraries != null && ! ref.libraries.isEmpty()) {
+			if (online)
+				sb.append(" / ");
+			sb.append("At the Library: ");
+			sb.append(ref.libraries);
+		}
+		String ed = ref.edition;
+		if (ed != null && ! ed.isEmpty()) {
+			sb.append(' ');
+			sb.append(ed);
+		}
+		String date = ref.pub_date;
+		if (date != null && ! date.isEmpty()) {
+			sb.append(' ');
+			sb.append(date);
+		}
+		return String.valueOf(ref.id)+"|"+sb.toString();
 		
 	}
 
@@ -230,31 +292,27 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	}
 
 	private Boolean updateBibField(Connection conn, SolrInputDocument document,
-			Integer bibid, Timestamp recordDate) throws SQLException, ParseException {
+			Integer bibid) throws SQLException, ParseException {
 
-		// generate necessary values
-		String format = fieldValuesToConcatString(document.getFieldValues("format"));
-		String edition = null;
-		String pub_date = null;
-		if (document.containsKey("pub_date_display"))
-			pub_date = fieldValuesToConcatString(document.getFieldValues("pub_date_display"));
-		if (document.containsKey("edition_display"))
-			edition = fieldValuesToConcatString(document.getFieldValues("edition_display"));
-		String location = calculateDisplayLocation( document );
+		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
 
 		// pull existing values from DB are the descriptive fields changed?
 		PreparedStatement origDescStmt = conn.prepareStatement(
-				"SELECT format, location_label, edition, pub_date, active"
+				"SELECT format, sites, libraries, edition,"
+				+ " pub_date, title, language, active"
 				+ " FROM "+CurrentDBTable.BIB_SOLR.toString()+" WHERE bib_id = ?");
 		origDescStmt.setInt(1, bibid);
 		ResultSet origDescRS = origDescStmt.executeQuery();
 		boolean descChanged = false;
 		while (origDescRS.next())
-			if (  ! stringsEqual(format,origDescRS.getString(1))
-					|| ! stringsEqual(location,origDescRS.getString(2))
-					|| ! stringsEqual(edition,origDescRS.getString(3))
-					|| ! stringsEqual(pub_date,origDescRS.getString(4))
-					|| ! origDescRS.getBoolean(5))
+			if (  ! stringsEqual(ref.format,origDescRS.getString("format"))
+					|| ! stringsEqual(ref.sites,origDescRS.getString("sites"))
+					|| ! stringsEqual(ref.libraries,origDescRS.getString("libraries"))
+					|| ! stringsEqual(ref.edition,origDescRS.getString("edition"))
+					|| ! stringsEqual(ref.pub_date,origDescRS.getString("pub_date"))
+					|| ! stringsEqual(ref.title,origDescRS.getString("title"))
+					|| ! stringsEqual(ref.language,origDescRS.getString("language"))
+					|| ! origDescRS.getBoolean("active"))
 				descChanged = true;
 		origDescRS.close();
 		origDescStmt.close();
@@ -263,16 +321,21 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if (descChanged) {
 			PreparedStatement updateDescStmt = conn.prepareStatement(
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
-					+" SET record_date = ?, format = ?, location_label = ?, needs_update = 0, "
-						+ "edition = ?, pub_date = ?, index_date = NOW(), linking_mod_date = NOW(), "
-						+ "active = 1 "
+					+" SET record_date = ?, format = ?, "
+					+ "sites = ?, libraries = ?, needs_update = 0, "
+					+ "edition = ?, pub_date = ?, title = ?, language = ?, "
+					+ "index_date = NOW(), linking_mod_date = NOW(), "
+					+ "active = 1 "
 					+ "WHERE bib_id = ?");
-			updateDescStmt.setTimestamp(1, recordDate);
-			updateDescStmt.setString(2, format);
-			updateDescStmt.setString(3, location);
-			updateDescStmt.setString(4, edition);
-			updateDescStmt.setString(5, pub_date);
-			updateDescStmt.setInt(6, bibid);
+			updateDescStmt.setTimestamp(1, ref.timestamp);
+			updateDescStmt.setString(2, ref.format);
+			updateDescStmt.setString(3, ref.sites);
+			updateDescStmt.setString(4, ref.libraries);
+			updateDescStmt.setString(5, ref.edition);
+			updateDescStmt.setString(6, ref.pub_date);
+			updateDescStmt.setString(7, ref.title);
+			updateDescStmt.setString(8, ref.language);
+			updateDescStmt.setInt(9, bibid);
 			updateDescStmt.executeUpdate();
 			updateDescStmt.close();
 		}
@@ -281,7 +344,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
 					+" SET record_date = ?, index_date = NOW(), needs_update = 0, active = 1 "
 					+"WHERE bib_id = ?");
-			updateIndexedDateStmt.setTimestamp(1, recordDate);
+			updateIndexedDateStmt.setTimestamp(1, ref.timestamp);
 			updateIndexedDateStmt.setInt(2, bibid);
 			updateIndexedDateStmt.executeUpdate();
 			updateIndexedDateStmt.close();
@@ -328,26 +391,23 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		identifyRetainedWorkIds(conn, oclcIds);
 	}
 
-	private void populateBibField(Connection conn, SolrInputDocument document,
-			Integer bibid, Timestamp recordDate) throws SQLException, ParseException {
-		String format = fieldValuesToConcatString(document.getFieldValues("format"));
-		String edition = null;
-		String pub_date = null;
-		if (document.containsKey("pub_date_display"))
-			pub_date = fieldValuesToConcatString(document.getFieldValues("pub_date_display"));
-		if (document.containsKey("edition_display"))
-			edition = fieldValuesToConcatString(document.getFieldValues("edition_display"));
-		String location = calculateDisplayLocation( document );
+	private void populateBibField(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
+		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
+
 		PreparedStatement insertBibStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
-				" (bib_id, record_date, format, location_label,index_date,edition,pub_date) "
+				" (bib_id, record_date, format, sites, libraries, "
+				+ "index_date, edition, pub_date, title, language) "
 						+ "VALUES (?, ?, ?, ?, NOW(), ?, ?)");
-		insertBibStmt.setInt(1, bibid);
-		insertBibStmt.setTimestamp(2, recordDate);
-		insertBibStmt.setString(3, format);
-		insertBibStmt.setString(4, location);
-		insertBibStmt.setString(5, edition);
-		insertBibStmt.setString(6, pub_date);
+		insertBibStmt.setInt(1, ref.id);
+		insertBibStmt.setTimestamp(2, ref.timestamp);
+		insertBibStmt.setString(3, ref.format);
+		insertBibStmt.setString(4, ref.sites);
+		insertBibStmt.setString(4, ref.libraries);
+		insertBibStmt.setString(5, ref.edition);
+		insertBibStmt.setString(6, ref.pub_date);
+		insertBibStmt.setString(4, ref.title);
+		insertBibStmt.setString(4, ref.language);
 		insertBibStmt.executeUpdate();
 		insertBibStmt.close();
 	}
@@ -514,41 +574,6 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		findBibsForDeactivatedWorksStmt.close();
 	}
 
-	private String calculateDisplayLocation(SolrInputDocument document) {
-		List<String> locations = new ArrayList<String>();
-		if (document.containsKey("url_access_display")) {
-//			Collection<Object> urls = document.getFieldValues("url_access_display");
-			String sites = identifyOnlineServices(document.getFieldValues("url_access_display"));
-			if (sites == null)
-				locations.add("Online");
-			else
-				locations.add("Online: "+sites);
-		}
-		if (document.containsKey("location_facet")) {
-			String libraries = fieldValuesToConcatString(document.getFieldValues("location_facet"));
-			locations.add("At the Library: "+libraries);
-		}
-		return StringUtils.join(locations," / ");
-	}
-
-	
-	private String fieldValuesToConcatString(Collection<Object> fieldValues) {
-		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<Object>();
-		boolean first = true;
-		for (Object val : fieldValues) {
-			if (foundValues.contains(val))
-				continue;
-			foundValues.add(val);
-			if (first)
-				first = false;
-			else
-				sb.append(", ");
-			sb.append(val.toString());
-		}
-		return sb.toString();
-	}
-
 	private List<HoldingRecord> removeOrigHoldingsDataFromDB(
 			Connection conn, SolrInputDocument document, int bibid) throws SQLException {
 		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
@@ -592,20 +617,6 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			this.id = id;
 			this.mfhdid = mfhdid;
 			this.modified = modified;
-		}
-	}
-
-	private class TitleMatchReference {
-		String format;
-		String location_label;
-		String edition;
-		String pub_date;
-		public TitleMatchReference(String format, String location_label,
-				String edition, String pub_date) {
-			this.format = format;
-			this.location_label = location_label;
-			this.edition = edition;
-			this.pub_date = pub_date;
 		}
 	}
 }

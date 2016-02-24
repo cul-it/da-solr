@@ -18,12 +18,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,10 +40,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 
 public class IndexingUtilities {
 
@@ -112,6 +116,80 @@ public class IndexingUtilities {
 		}
 	}
 	static Map<String,String> urlPatterns = null;
+
+
+
+	public static String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
+		if (location_facet == null) return "";
+		StringBuilder sb = new StringBuilder();
+		Collection<Object> foundValues = new HashSet<Object>();
+		boolean first = true;
+		for (Object val : location_facet) {
+			if (foundValues.contains(val))
+				continue;
+			foundValues.add(val);
+			if (first)
+				first = false;
+			else
+				sb.append(", ");
+			sb.append(val.toString());
+		}
+		return sb.toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static TitleMatchReference pullReferenceFields(SolrDocument doc) throws ParseException {
+		TitleMatchReference ref = new TitleMatchReference();
+		ArrayList<Object> solrBib = (ArrayList<Object>) doc.getFieldValue("bibid_display");
+		String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
+		ref.id = Integer.valueOf(parts[0]);
+		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+		ref.format = StringUtils.join(
+				(ArrayList<Object>)doc.getFieldValue("format"),',');
+		boolean online = doc.containsKey("url_access_display");
+		if (online) {
+			ref.sites = identifyOnlineServices((ArrayList<Object>)doc.getFieldValue("url_access_display"));
+			if (ref.sites == null)
+				ref.sites = "Online";
+		}
+		ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)doc.getFieldValue("location_facet"));
+		if (doc.containsKey("edition_display"))
+			ref.edition = (String)((ArrayList<Object>) doc.getFieldValue("edition_display")).get(0);
+		if (doc.containsKey("pub_date_display"))
+			ref.pub_date = StringUtils.join((ArrayList<Object>) doc.getFieldValue("pub_date_display"),", ");
+		if (doc.containsKey("language_facet"))
+			ref.language = StringUtils.join(
+					(ArrayList<Object>)doc.getFieldValue("language"),',');
+		if (doc.containsKey("title_uniform_display")) {
+			String uniformTitle = (String)((ArrayList<Object>) doc.getFieldValue("title_uniform_display")).get(0);
+			int pipePos = uniformTitle.indexOf('|');
+			if (pipePos == -1)
+				ref.title = uniformTitle;
+			else
+				ref.title = uniformTitle.substring(0, pipePos);
+		}
+		if (ref.title == null && doc.containsKey("title_vern_display"))
+			ref.title = (String) doc.getFieldValue("title_vern_display");
+		if (ref.title == null)
+			ref.title = (String) doc.getFieldValue("title_display");
+		return ref;
+	}
+	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+
+	public static class TitleMatchReference {
+		public int id;
+		public String format = null;
+		public String sites = null;
+		public String libraries = null;
+		public String edition = null;
+		public String pub_date = null;
+		public String language = null;
+		public String title = null;
+		public java.sql.Timestamp timestamp = null;
+		public TitleMatchReference() {
+		}
+	}
+
 
 	/**
 	 *

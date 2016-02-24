@@ -122,9 +122,7 @@ task (FindMissingBibId, dependsOn:'assemble', type: JavaExec){
 
 task (step04GetCombinedUpdatesMrc, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
- description="Gets a list of BIB and\
- MFHD records updates from the Voyager database for the previous day."
-
+ description="Retrieves BIB and MFHD records identified as changed or in need of re-indexing"
  main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'

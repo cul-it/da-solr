@@ -1,7 +1,8 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.identifyOnlineServices;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.marcDateFormat;
+import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.pullReferenceFields;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
@@ -41,12 +40,10 @@ public class IdentifyCurrentSolrRecords {
 	private int itemCount = 0;
 	private int workCount = 0;
 	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
-	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static void main(String[] args)  {
 
-		List<String> requiredArgs = new ArrayList<String>();
-		requiredArgs.addAll(getRequiredArgsForDB("Current"));
+		List<String> requiredArgs = getRequiredArgsForDB("Current");
 		requiredArgs.add("solrUrl");
 
 		try{        
@@ -82,18 +79,7 @@ public class IdentifyCurrentSolrRecords {
 	    while (offset < totalRecords) {
 	    	query.setStart((int) offset);
 		    for (SolrDocument doc : solr.query(query).getResults()) {
-		    	int bibid = processSolrBibData(
-						(ArrayList<Object>) doc.getFieldValue("bibid_display"),
-						(ArrayList<Object>) doc.getFieldValue("location_facet"),
-						(ArrayList<Object>) doc.getFieldValue("url_access_display"),
-						(ArrayList<Object>) doc.getFieldValue("format"),
-						(String) doc.getFieldValue("title_display"),
-						(String) doc.getFieldValue("title_vern_display"),
-						(ArrayList<Object>) doc.getFieldValue("title_uniform_display"),
-						(ArrayList<Object>) doc.getFieldValue("language_facet"),
-						(ArrayList<Object>) doc.getFieldValue("edition_display"),
-						(ArrayList<Object>) doc.getFieldValue("pub_date_display"),
-						(Date) doc.getFieldValue("timestamp"));
+		    	int bibid = processSolrBibData(doc);
 
 		    	if (((String) doc.getFieldValue("type")).equals("Catalog"))
 		    		processWorksData((ArrayList<Object>) doc.getFieldValue("other_id_display"),bibid);
@@ -174,102 +160,33 @@ public class IdentifyCurrentSolrRecords {
 		current.commit();
 	}
 
-	private int processSolrBibData(
-			ArrayList<Object> solrBib,
-			ArrayList<Object>  location_facet,
-			ArrayList<Object>  url,
-			ArrayList<Object>  format,
-			String title_display,
-			String title_vern_display,
-			ArrayList<Object>  title_uniform_display,
-			ArrayList<Object>  language,
-			ArrayList<Object>  edition,
-			ArrayList<Object>  pubdate,
-			Date  timestamp
-			) throws SQLException, ParseException {
+	private int processSolrBibData(SolrDocument doc) throws SQLException, ParseException {
 		bibCount++;
-		String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
-		int bibid = Integer.valueOf(parts[0]);
+		TitleMatchReference ref = pullReferenceFields(doc);
+
 		if ( ! pstmts.containsKey("bib_insert"))
 			pstmts.put("bib_insert",current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
 					" (bib_id, record_date, format, sites,libraries,index_date,edition,pub_date,language,title) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
-		String sites = (url == null) ? null : identifyOnlineServices(url);
-		if ( url != null && ! url.isEmpty() )
-			if (sites == null)
-				sites = "Online";
-		String libraries = eliminateDuplicateLocations(location_facet);
-		String title = null;
-		if (title_uniform_display != null && ! title_uniform_display.isEmpty()) {
-			String first = (String) title_uniform_display.get(0);
-			int pipePos = first.indexOf('|');
-			if (pipePos == -1)
-				title = first;
-			else
-				title = first.substring(0, pipePos);
-		}
-		if (title == null)
-			if (title_vern_display != null && ! title_vern_display.isEmpty())
-				title = title_vern_display;
-		if (title == null)
-			title = title_display;
 
 		// Attempt to reflect Solr date in table. If fails, record not in Voyager.
 		// note: date comparison comes later.
 		PreparedStatement pstmt = pstmts.get("bib_insert");
-		try {
-		pstmt.setInt(1, bibid);
-		pstmt.setTimestamp(2, new Timestamp( marcDateFormat.parse(parts[1]).getTime() ));
-		pstmt.setString(3, StringUtils.join(format, ','));
-		pstmt.setString(4, sites);
-		pstmt.setString(5, libraries);
-		pstmt.setTimestamp(6, new Timestamp( timestamp.getTime() ));
-		pstmt.setString(7, edition == null || edition.isEmpty()
-				? null : (String) edition.get(0));
-		pstmt.setString(8, pubdate == null || pubdate.isEmpty()
-				? null : StringUtils.join(pubdate, ", "));
-		pstmt.setString(9, language == null || language.isEmpty()
-				? null : StringUtils.join(language, ", "));
-		pstmt.setString(10, title);
+		pstmt.setInt(1, ref.id);
+		pstmt.setTimestamp(2, ref.timestamp);
+		pstmt.setString(3, ref.format);
+		pstmt.setString(4, ref.sites);
+		pstmt.setString(5, ref.libraries);
+		pstmt.setTimestamp(6, new Timestamp( ((Date) doc.getFieldValue("timestamp")).getTime() ));
+		pstmt.setString(7, ref.edition);
+		pstmt.setString(8, ref.pub_date);
+		pstmt.setString(9, ref.language);
+		pstmt.setString(10, ref.title);
 		pstmt.addBatch();
-		} catch (IllegalArgumentException | ParseException e) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("solrBib ").append(solrBib);
-			sb.append("\nlocation_facet ").append(location_facet);
-			sb.append("\nurl ").append(url);
-			sb.append("\nformat ").append(format);
-			sb.append("\ntitle_display ").append(title_display);
-			sb.append("\ntitle_vern_display ").append(title_vern_display);
-			sb.append("\ntitle_uniform_display ").append(title_uniform_display);
-			sb.append("\nlanguage ").append(language);
-			sb.append("\nedition ").append(edition);
-			sb.append("\npubdate ").append(pubdate);
-			sb.append("\ntimestamp ").append(timestamp);
-			System.out.println(sb.toString());
-			throw e;
-		}
 		if (++bibCount % 1000 == 0)
 			pstmt.executeBatch();
-		return bibid;
-	}
-
-	private String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
-		if (location_facet == null) return "";
-		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<Object>();
-		boolean first = true;
-		for (Object val : location_facet) {
-			if (foundValues.contains(val))
-				continue;
-			foundValues.add(val);
-			if (first)
-				first = false;
-			else
-				sb.append(", ");
-			sb.append(val.toString());
-		}
-		return sb.toString();
+		return ref.id;
 	}
 
 	private void processWorksData(ArrayList<Object> ids, int bibid) throws SQLException {
