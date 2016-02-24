@@ -24,14 +24,14 @@ public class AuthorityData {
 
 		Connection conn = config.getDatabaseConnection("Headings");
 		PreparedStatement isAuthorizedStmt = conn.prepareStatement(
-				"SELECT main_entry, id, undifferentiated FROM heading WHERE type_desc = ? AND sort = ?");
+				"SELECT main_entry, id FROM heading WHERE type_desc = ? AND sort = ?");
 		isAuthorizedStmt.setInt(1, htd.ordinal());
 		isAuthorizedStmt.setString(2, getFilingForm(heading));
 		ResultSet rs = isAuthorizedStmt.executeQuery();
 		while (rs.next()) {
 			authorized = rs.getBoolean(1);
 			headingId = rs.getInt(2);
-			undifferentiated = rs.getBoolean(3);
+	//		undifferentiated = rs.getBoolean(3);
 		}
 		rs.close();
 		isAuthorizedStmt.close();
