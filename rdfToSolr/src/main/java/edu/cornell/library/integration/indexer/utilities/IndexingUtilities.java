@@ -191,7 +191,7 @@ public class IndexingUtilities {
 				ref.pub_date = StringUtils.join((ArrayList<Object>)pub_date_display ,", ");
 		}
 		if (doc.containsKey("language_facet")) {
-			Object language_facet = doc.getFieldValue("language");
+			Object language_facet = doc.getFieldValue("language_facet");
 			if (language_facet.getClass().equals(String.class))
 				ref.language = (String) language_facet;
 			else
