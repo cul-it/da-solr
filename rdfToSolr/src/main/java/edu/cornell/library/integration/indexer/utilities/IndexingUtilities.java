@@ -140,28 +140,70 @@ public class IndexingUtilities {
 	@SuppressWarnings("unchecked")
 	public static TitleMatchReference pullReferenceFields(SolrDocument doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
-		ArrayList<Object> solrBib = (ArrayList<Object>) doc.getFieldValue("bibid_display");
-		String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
-		ref.id = Integer.valueOf(parts[0]);
-		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
-		ref.format = StringUtils.join(
-				(ArrayList<Object>)doc.getFieldValue("format"),',');
+		Object bibid_display = doc.getFieldValue("bibid_display");
+		if (bibid_display.getClass().equals(String.class)) {
+			String[] parts = ((String)bibid_display).split("\\|", 2);
+			ref.id = Integer.valueOf(parts[0]);
+			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+		} else {
+			ArrayList<Object> solrBib = (ArrayList<Object>) bibid_display;
+			String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
+			ref.id = Integer.valueOf(parts[0]);
+			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+		}
+		Object format = doc.getFieldValue("format");
+		if (format.getClass().equals(String.class))
+			ref.format = (String)format;
+		else
+			ref.format = StringUtils.join((ArrayList<Object>)format,',');
 		boolean online = doc.containsKey("url_access_display");
 		if (online) {
-			ref.sites = identifyOnlineServices((ArrayList<Object>)doc.getFieldValue("url_access_display"));
+			Object url_access_display = doc.getFieldValue("url_access_display");
+			if (url_access_display.getClass().equals(String.class)) {
+				ArrayList<Object> urls = new ArrayList<Object>();
+				urls.add(url_access_display);
+				ref.sites = identifyOnlineServices(urls);
+			} else {
+				ref.sites = identifyOnlineServices((ArrayList<Object>)url_access_display);
+			}
 			if (ref.sites == null)
 				ref.sites = "Online";
 		}
-		ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)doc.getFieldValue("location_facet"));
-		if (doc.containsKey("edition_display"))
-			ref.edition = (String)((ArrayList<Object>) doc.getFieldValue("edition_display")).get(0);
-		if (doc.containsKey("pub_date_display"))
-			ref.pub_date = StringUtils.join((ArrayList<Object>) doc.getFieldValue("pub_date_display"),", ");
-		if (doc.containsKey("language_facet"))
-			ref.language = StringUtils.join(
-					(ArrayList<Object>)doc.getFieldValue("language"),',');
+		Object location_facet = doc.getFieldValue("location_facet");
+		if (location_facet.getClass().equals(String.class)) {
+			ref.libraries = (String) location_facet;
+		} else {
+			ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)location_facet);			
+		}
+		if (doc.containsKey("edition_display")) {
+			Object edition_display = doc.getFieldValue("edition_display");
+			if (edition_display.getClass().equals(String.class)) {
+				ref.edition = (String) edition_display;
+			} else {
+				ref.edition = (String)((ArrayList<Object>) edition_display).get(0);
+			}
+		}
+		if (doc.containsKey("pub_date_display")) {
+			Object pub_date_display = doc.getFieldValue("pub_date_display");
+			if (pub_date_display.getClass().equals(String.class))
+				ref.pub_date = (String) pub_date_display;
+			else 
+				ref.pub_date = StringUtils.join((ArrayList<Object>)pub_date_display ,", ");
+		}
+		if (doc.containsKey("language_facet")) {
+			Object language_facet = doc.getFieldValue("language");
+			if (language_facet.getClass().equals(String.class))
+				ref.language = (String) language_facet;
+			else
+				ref.language = StringUtils.join((ArrayList<Object>)language_facet,',');
+		}
 		if (doc.containsKey("title_uniform_display")) {
-			String uniformTitle = (String)((ArrayList<Object>) doc.getFieldValue("title_uniform_display")).get(0);
+			Object title_uniform_display = doc.getFieldValue("title_uniform_display");
+			String uniformTitle;
+			if (title_uniform_display.getClass().equals(String.class))
+				uniformTitle = (String) title_uniform_display;
+			else 
+				uniformTitle = (String)((ArrayList<Object>)title_uniform_display ).get(0);
 			int pipePos = uniformTitle.indexOf('|');
 			if (pipePos == -1)
 				ref.title = uniformTitle;
