@@ -169,11 +169,13 @@ public class IndexingUtilities {
 			if (ref.sites == null)
 				ref.sites = "Online";
 		}
-		Object location_facet = doc.getFieldValue("location_facet");
-		if (location_facet.getClass().equals(String.class)) {
-			ref.libraries = (String) location_facet;
-		} else {
-			ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)location_facet);			
+		if (doc.containsKey("location_facet")) {
+			Object location_facet = doc.getFieldValue("location_facet");
+			if (location_facet.getClass().equals(String.class)) {
+				ref.libraries = (String) location_facet;
+			} else {
+				ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)location_facet);			
+			}
 		}
 		if (doc.containsKey("edition_display")) {
 			Object edition_display = doc.getFieldValue("edition_display");
