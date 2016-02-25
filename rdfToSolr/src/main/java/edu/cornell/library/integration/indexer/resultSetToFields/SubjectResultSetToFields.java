@@ -288,14 +288,14 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"subject_"+filing_type+"_filing",getFilingForm(s));
 				}
 
-			for (String s: values880_piped)
-				if ( ! h.isFAST || ! recordHasLCSH)
+			if ( ! h.isFAST || ! recordHasLCSH) {
+				for (String s: values880_piped)
 					addField(solrFields,"subject_cts",s);
-			for (String s: valuesMain_piped)
-				if ( ! h.isFAST || ! recordHasLCSH)
+				for (String s: valuesMain_piped)
 					addField(solrFields,"subject_cts",s);
-			for (String s: valuesJson)
-				addField(solrFields,"subject_json",s);
+				for (String s: valuesJson)
+					addField(solrFields,"subject_json",s);
+			}
 		}
 		
 		SolrInputField field = new SolrInputField("fast_b");
