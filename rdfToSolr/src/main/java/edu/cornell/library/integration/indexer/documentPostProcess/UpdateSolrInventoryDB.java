@@ -398,16 +398,16 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
 				" (bib_id, record_date, format, sites, libraries, "
 				+ "index_date, edition, pub_date, title, language) "
-						+ "VALUES (?, ?, ?, ?, NOW(), ?, ?)");
+						+ "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)");
 		insertBibStmt.setInt(1, ref.id);
 		insertBibStmt.setTimestamp(2, ref.timestamp);
 		insertBibStmt.setString(3, ref.format);
 		insertBibStmt.setString(4, ref.sites);
-		insertBibStmt.setString(4, ref.libraries);
-		insertBibStmt.setString(5, ref.edition);
-		insertBibStmt.setString(6, ref.pub_date);
-		insertBibStmt.setString(4, ref.title);
-		insertBibStmt.setString(4, ref.language);
+		insertBibStmt.setString(5, ref.libraries);
+		insertBibStmt.setString(6, ref.edition);
+		insertBibStmt.setString(7, ref.pub_date);
+		insertBibStmt.setString(8, ref.title);
+		insertBibStmt.setString(9, ref.language);
 		insertBibStmt.executeUpdate();
 		insertBibStmt.close();
 	}
