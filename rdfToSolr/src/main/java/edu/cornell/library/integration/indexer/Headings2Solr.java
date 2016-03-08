@@ -120,7 +120,8 @@ public class Headings2Solr {
 			}
 		}
 		stmt.close();
-		solr.add(docs);
+		if ( ! docs.isEmpty() )
+			solr.add(docs);
 		solr.blockUntilFinished();
 		solr.commit();
 		connectionFindWorks.close();
