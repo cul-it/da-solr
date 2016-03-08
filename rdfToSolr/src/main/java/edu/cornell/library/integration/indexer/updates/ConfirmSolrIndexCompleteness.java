@@ -49,6 +49,7 @@ public class ConfirmSolrIndexCompleteness  {
 	 */
 	public static void main(String[] args) throws Exception  {
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
+		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
 		requiredArgs.add("solrUrl");
         SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );

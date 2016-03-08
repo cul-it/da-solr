@@ -4,7 +4,6 @@ package edu.cornell.library.integration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +38,7 @@ public class ConvertMarcToXml {
     */
    public ConvertMarcToXml(String[] args) throws IOException { 
 	   
-	   Collection<String> requiredFields = new HashSet<String>();
+	   Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
 	   requiredFields.add("marc2XmlDirs"); 
 	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
 	   davService = DavServiceFactory.getDavService(config);

@@ -42,7 +42,7 @@ public class Headings2Solr {
 	}
 
 	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = new ArrayList<String>();
+		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("authorSolrUrl");
 		requiredArgs.add("subjectSolrUrl");
 		requiredArgs.add("authorTitleSolrUrl");

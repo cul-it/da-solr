@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -23,7 +22,7 @@ public class VoyagerFull {
 	
 	public VoyagerFull(String[] args) throws Exception {
 		
-		Collection<String> requiredFields = new HashSet<String>();
+		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredFields.add("fullXmlBibDir");
 		requiredFields.add("fullXmlMfhdDir");
 		requiredFields.add("n3Dir");

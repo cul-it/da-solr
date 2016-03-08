@@ -48,7 +48,7 @@ public class IndexAuthorityRecords {
 	 */
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = new HashSet<String>();
+		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("xmlDir");
 	            
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);

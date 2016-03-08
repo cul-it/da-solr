@@ -2,7 +2,6 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
@@ -27,7 +26,7 @@ public class MarcToNT {
 	
 	public MarcToNT(String[] args) throws Exception {
 		
-		Collection<String> requiredFields = new HashSet<String>();
+		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("nonVoyUriPrefix");
 		requiredFields.add("xmlDir");

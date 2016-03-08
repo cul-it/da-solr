@@ -65,7 +65,7 @@ public class IndexHeadings {
 	public IndexHeadings(String[] args) throws Exception {
         
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = new ArrayList<String>();
+		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
