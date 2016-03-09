@@ -75,6 +75,13 @@ task (step05ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
        }
+task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Run ConvertMarcToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+       }
 
 task (GetRecentBibDataCount, dependsOn:'assemble', type: JavaExec){
  description='Run GetRecentBibDataCount'
