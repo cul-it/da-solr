@@ -9,14 +9,17 @@ import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
+
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
 
 public class AuthorityData {
-	
+
 	public Boolean authorized = false;
 	public List<String> alternateForms = null;
 	public int headingId = 0;
-	
+	public Boolean undifferentiated = false;
+
 	public AuthorityData( SolrBuildConfig config, String heading, HeadTypeDesc htd) throws ClassNotFoundException, SQLException {
 
 		Connection conn = config.getDatabaseConnection("Headings");
@@ -28,17 +31,22 @@ public class AuthorityData {
 		while (rs.next()) {
 			authorized = rs.getBoolean(1);
 			headingId = rs.getInt(2);
+	//		undifferentiated = rs.getBoolean(3);
 		}
 		rs.close();
 		isAuthorizedStmt.close();
 
-		if ( ! authorized ) {
+		if ( ! authorized || undifferentiated) {
 			conn.close();
 			return;
 		}
-		
+
 		PreparedStatement alternateFormsStmt = conn.prepareStatement(
-				"SELECT form FROM alt_form WHERE heading_id = ?");
+				"SELECT heading FROM heading, reference "
+				+ "WHERE to_heading = ? "
+				+ "AND from_heading = heading.id "
+				+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
+				+" ORDER BY sort");
 		alternateFormsStmt.setInt(1, headingId);
 		rs = alternateFormsStmt.executeQuery();
 		while (rs.next()) {

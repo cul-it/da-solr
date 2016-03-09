@@ -42,7 +42,7 @@ public class Headings2Solr {
 	}
 
 	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = new ArrayList<String>();
+		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("authorSolrUrl");
 		requiredArgs.add("subjectSolrUrl");
 		requiredArgs.add("authorTitleSolrUrl");
@@ -120,7 +120,8 @@ public class Headings2Solr {
 			}
 		}
 		stmt.close();
-		solr.add(docs);
+		if ( ! docs.isEmpty() )
+			solr.add(docs);
 		solr.blockUntilFinished();
 		solr.commit();
 		connectionFindWorks.close();
@@ -210,13 +211,18 @@ public class Headings2Solr {
 	private static PreparedStatement alt_pstmt = null;
 	private Collection<String> getAltForms( int id ) throws SQLException {
 		if (alt_pstmt == null)
-			alt_pstmt = connection.prepareStatement("SELECT form FROM alt_form WHERE heading_id = ?");
+			alt_pstmt = connection.prepareStatement(
+					"SELECT heading FROM heading, reference "
+					+ "WHERE to_heading = ? "
+					+ "AND from_heading = heading.id "
+					+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
+					+ " ORDER BY sort");
 		alt_pstmt.setInt(1, id);
 		alt_pstmt.execute();
 		ResultSet rs = alt_pstmt.getResultSet();
 		Collection<String> forms = new ArrayList<String>();
 		while (rs.next())
-			forms.add( rs.getString("form") );
+			forms.add( rs.getString("heading") );
 		rs.close();
 		return forms;
 	}

@@ -337,20 +337,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("edition_display","250","ab"),
 									
 				new StandardMARCFieldMaker("title_addl_t","210","ab",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","222","ab",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","242","abnp",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","243","abcdefgklmnopqrs",VernMode.SEARCH),
+				new StandardMARCFieldMaker("title_addl_t","222","ab",VernMode.SEARCH,true),
+				new StandardMARCFieldMaker("title_addl_t","242","abnp",VernMode.SEARCH,true),
+				new StandardMARCFieldMaker("title_addl_t","243","abcdefgklmnopqrs",VernMode.SEARCH,true),
 				new StandardMARCFieldMaker("author_245c_t","245","c",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","246","abcdefgklmnopqrs",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","740","anp",VernMode.SEARCH),
-
-				new StandardMARCFieldMaker("title_uniform_t","130","adfgklmnoprst",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_uniform_t","240","adfgklmnoprs",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_uniform_t","730","abcdefghijklmnopqrstuvwxyz",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_uniform_t","700","tklfnpmors",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_uniform_t","710","tklfnpmors",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_uniform_t","711","tklfnpmors",VernMode.SEARCH),
+				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp",VernMode.SEARCH,true),
+				new StandardMARCFieldMaker("title_addl_t","740","anp",VernMode.SEARCH,true),
 
 				new StandardMARCFieldMaker("title_series_t","400","abdfklnptvcegu",VernMode.SEARCH),				
 				new StandardMARCFieldMaker("title_series_t","410","abdfklnptvcegu",VernMode.SEARCH),				
@@ -359,7 +352,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("title_series_t","800","abcdefghklmnopqrstuv",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_series_t","810","abcdefghklmnopqrstuv",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_series_t","811","acdefghklnpqstuv",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_series_t","830","adfghklmnoprstv",VernMode.SEARCH),
+				new StandardMARCFieldMaker("title_series_t","830","adfghklmnoprstv",VernMode.SEARCH,true),
 				new StandardMARCFieldMaker("title_series_t","490","anpv",VernMode.SEARCH),
 
 				new StandardMARCFieldMaker("title_other_display","243","adfgklmnoprs",":/ "),
@@ -608,8 +601,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","535","abcd3",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","537","3a"),
 				new StandardMARCFieldMaker("notes_t","537","a",VernMode.SEARCH),
-				new StandardMARCFieldMaker("notes","544","3a"),
-				new StandardMARCFieldMaker("notes_t","544","a",VernMode.SEARCH),
+				new StandardMARCFieldMaker("notes","544","3ad"),
+				new StandardMARCFieldMaker("notes_t","544","ad",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","547","3a"),
 				new StandardMARCFieldMaker("notes_t","547","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","550","3a"),
@@ -733,7 +726,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	addResultSetToFields( new NewBooksRSTF()),
 
 		        	
-				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"3a"),
+				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"3ac"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 
 				new StandardMARCFieldMaker("frequency_display","310","a"),

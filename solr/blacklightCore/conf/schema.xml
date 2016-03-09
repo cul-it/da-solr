@@ -179,6 +179,69 @@
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
+
+    <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
+      <analyzer>
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
+      <analyzer>
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+		<!--  remove all spaces  -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.CJKWidthFilterFactory"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
+        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30" side="front"/>
+      </analyzer>
+      <analyzer type="query">
+		<!--  remove all spaces  -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.CJKWidthFilterFactory"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
+        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
+        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
+      </analyzer>
+    </fieldType>
+    <fieldType name="numericLeftAnchored" class="solr.TextField" >
+    <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
+		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20" side="front"/>
+    </analyzer>
+    <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
+		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+    </analyzer>
+    </fieldType>
     
     
     <!--  CJK field type for Chinese, Japanese & Korean text is care of Naomi Dushay and her work at Stanford -->
@@ -392,6 +455,10 @@
 	<dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_unstemP" type="textNoStemP" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsC" type="textLeftAnchoredC" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsCJK" type="textLeftAnchoredCJK" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsP" type="textLeftAnchoredP" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsNum" type="numericLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false" multiValued="true"/>         
   </fields>
@@ -404,6 +471,17 @@
   <copyField source="*_t" dest="*_tP"/>
   <copyField source="*_t" dest="*_unstemC"/>
   <copyField source="*_t" dest="*_unstemP"/>
+  <copyField source="*_t" dest="*_startsC"/>
+  <copyField source="*_t" dest="*_startsP"/>
+  <copyField source="*_t_cjk" dest="*_startsCJK"/>
+  <copyField source="issn_t" dest="issn_startsNum"/>
+  <copyField source="isbn_t" dest="isbn_startsNum"/>
+  <copyField source="eightninenine_t" dest="eightninenine_startsNum"/>
+  <copyField source="barcode_t" dest="barcode_startsNum"/>
+  <copyField source="barcode_addl_t" dest="barcode_addl_startsNum"/>
+  <copyField source="id_t" dest="id_startsNum"/>
+  <copyField source="id" dest="id_startsNum"/>
+  <copyField source="donor_s" dest="donor_startsC"/>
   <copyField source="*_filing" dest="*_browse"/>
   <copyField source="donor_display" dest="donor_t"/>
 

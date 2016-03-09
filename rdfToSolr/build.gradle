@@ -188,7 +188,7 @@ task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
 
  main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
  classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1024m'
+ maxHeapSize = '2048m'
 }
 task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"

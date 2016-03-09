@@ -178,7 +178,7 @@ public class IndexRecordListComparison {
 				"select v.bib_id from "+CurrentDBTable.BIB_VOY.toString()+" as v "
 				+ "left join "+CurrentDBTable.BIB_SOLR.toString()+" as s"
 						+ " on s.bib_id = v.bib_id "
-				+ "where s.active and s.bib_id is null");
+				+ "where s.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
@@ -225,10 +225,11 @@ public class IndexRecordListComparison {
 	}
 
 	private int getBibForMfhd( CurrentDBTable table, int mfhdId ) throws SQLException {
-		if ( ! pstmts.containsKey("mfhd2bib"))
-			pstmts.put("mfhd2bib", conn.prepareStatement(
+		String statementKey = "mfhd2bib_"+table.toString();
+		if ( ! pstmts.containsKey(statementKey))
+			pstmts.put(statementKey, conn.prepareStatement(
 					"SELECT bib_id FROM "+table.toString()+" WHERE mfhd_id = ?"));
-		PreparedStatement pstmt = pstmts.get("mfhd2bib");
+		PreparedStatement pstmt = pstmts.get(statementKey);
 		pstmt.setInt(1, mfhdId);
 		ResultSet rs = pstmt.executeQuery();
 		int bibid = 0;
