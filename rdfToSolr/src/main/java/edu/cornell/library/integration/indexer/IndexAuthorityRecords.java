@@ -48,7 +48,7 @@ public class IndexAuthorityRecords {
 	 */
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = new HashSet<String>();
+		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("xmlDir");
 	            
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
@@ -102,13 +102,6 @@ public class IndexAuthorityRecords {
 	private void setUpDatabase() throws SQLException {
 		Statement stmt = connection.createStatement();
 
-		stmt.execute("DROP TABLE IF EXISTS `alt_form`");
-		stmt.execute("CREATE TABLE `alt_form` ( "
-				+ "`heading_id` int(10) unsigned NOT NULL, "
-				+ "`form` text NOT NULL, "
-				+ "KEY `heading_id` (`heading_id`,`form`(30))) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
 		stmt.execute("DROP TABLE IF EXISTS `heading`");
 		stmt.execute("CREATE TABLE `heading` ("
 				+ "`id` int(10) unsigned NOT NULL auto_increment, "
@@ -116,6 +109,7 @@ public class IndexAuthorityRecords {
 				+ "`type_desc` tinyint(3) unsigned NOT NULL, "
 				+ "`authority` tinyint(1) NOT NULL default '0', "
 				+ "`main_entry` tinyint(1) NOT NULL default '0', "
+				+ "`undifferentiated` tinyint(1) NOT NULL default '0', "
 				+ "`works_by` mediumint(8) unsigned NOT NULL default '0', "
 				+ "`works_about` mediumint(8) unsigned NOT NULL default '0', "
 				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
@@ -143,7 +137,8 @@ public class IndexAuthorityRecords {
 				+ "`to_heading` int(10) unsigned NOT NULL, "
 				+ "`ref_type` tinyint(3) unsigned NOT NULL, "
 				+ "`ref_desc` varchar(256) NOT NULL DEFAULT '', "
-				+ " PRIMARY KEY (`from_heading`,`to_heading`,`ref_type`,`ref_desc`)) "
+				+ " PRIMARY KEY (`from_heading`,`to_heading`,`ref_type`,`ref_desc`), "
+				+ " KEY (`to_heading`) ) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
@@ -406,16 +401,9 @@ public class IndexAuthorityRecords {
 		headingSort = getFilingForm(heading);
 
 		// Populate Main Entry Heading Record
-		Integer heading_id = getMainHeadingRecordId(heading,headingSort,htd);
+		Integer heading_id = getMainHeadingRecordId(heading,headingSort,htd,isUndifferentiated);
 		for (String note : notes)
 			insertNote(heading_id, note);
-		
-		// Populate alternate forms as direct references for see "from" tracings. 
-		// Records marked as undifferentiated will have see tracings that refer to different
-		// people. By not populating them here, we avoid cross populating them into bib records.
-		if ( ! isUndifferentiated ) 
-			for (Relation r : sees )
-				insertAltForm(heading_id, r.headingOrig);
 
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
@@ -502,16 +490,6 @@ public class IndexAuthorityRecords {
 		stmt.close();
 	}
 
-	private void insertAltForm(Integer heading_id, String form) throws SQLException {
-		PreparedStatement stmt = connection.prepareStatement(
-				"INSERT INTO alt_form (heading_id, form) VALUES (?, ?)");
-		stmt.setInt(1, heading_id);
-		stmt.setString(2, form);
-		stmt.executeUpdate();
-		stmt.close();		
-	}
-
-
 	private void insertNote(Integer heading_id, String note) throws SQLException {
 		PreparedStatement stmt = connection.prepareStatement(
 				"INSERT INTO note (heading_id, note) VALUES (? , ?)");
@@ -522,16 +500,18 @@ public class IndexAuthorityRecords {
 	}
 
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
-			HeadTypeDesc htd) throws SQLException {
+			HeadTypeDesc htd, Boolean isUndifferentiated) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement(
-				"SELECT id FROM heading " +
+				"SELECT id, undifferentiated FROM heading " +
 				"WHERE type_desc = ? AND sort = ?");
 		pstmt.setInt(1, htd.ordinal());
 		pstmt.setString(2, headingSort);
 		ResultSet resultSet = pstmt.executeQuery();
 		Integer recordId = null;
+		Boolean undifferentiated = null;
 		while (resultSet.next()) {
-			recordId = resultSet.getInt("id");
+			recordId = resultSet.getInt(1);
+			undifferentiated = resultSet.getBoolean(2);
 		}
 		pstmt.close();
 		if (recordId != null) {
@@ -543,15 +523,25 @@ public class IndexAuthorityRecords {
 			pstmt1.setInt(2, recordId);
 			pstmt1.executeUpdate();
 			pstmt1.close();
+			// if the record was inserted as differentiated, but this one is undifferentiated
+			// the update it.
+			if (isUndifferentiated && ! undifferentiated) {
+				pstmt1 = connection.prepareStatement(
+						"UPDATE heading SET undifferentiated = 1 WHERE id = ?");
+				pstmt1.setInt(1, recordId);
+				pstmt1.executeUpdate();
+				pstmt1.close();
+			}
 		} else {
 			// create new record
 			PreparedStatement pstmt1 = connection.prepareStatement(
-					"INSERT INTO heading (heading, sort, type_desc, authority, main_entry) " +
-					"VALUES (?, ?, ?, 1, 1)",
+					"INSERT INTO heading (heading, sort, type_desc, authority, main_entry, undifferentiated) " +
+					"VALUES (?, ?, ?, 1, 1, ?)",
                     Statement.RETURN_GENERATED_KEYS);
 			pstmt1.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
 			pstmt1.setString(2, headingSort);
 			pstmt1.setInt(3, htd.ordinal());
+			pstmt1.setBoolean(4, isUndifferentiated);
 			int affectedCount = pstmt1.executeUpdate();
 			if (affectedCount < 1) 
 				throw new SQLException("Creating Heading Record Failed.");

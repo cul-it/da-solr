@@ -87,7 +87,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 					|| lc.startsWith("companion") // e.g. companion website
 					|| lc.contains("record available for display")
 					|| lc.startsWith("related") // related web site, related electronic resource...
-					|| lc.contains("Internet Movie Database")
+					|| lc.contains("internet movie database")
 					|| lc.contains("more information")) {
 				relation = "other";
 			}

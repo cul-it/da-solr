@@ -44,7 +44,7 @@ public class DeleteFromSolr {
 		List<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
-		requiredArgs.add("webdavBaseUrl");
+		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
 		requiredArgs.add("dailyBibDeletes");
 		requiredArgs.add("dailyBibUpdates");
 

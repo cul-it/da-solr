@@ -832,12 +832,13 @@ public class SolrBuildConfig {
     public static String checkConfiguration( Collection<String> requiredArgs, SolrBuildConfig checkMe){
         String errMsgs = "";
 
-        // universally required fields
-        errMsgs += checkWebdavUrl( checkMe.values.get("webdavBaseUrl"));
-        errMsgs += checkExists( checkMe.values.get("webdavUser") , "webdavUser");
-        errMsgs += checkExists( checkMe.values.get("webdavPassword") , "webdavPassword");
-
         // fields required for select processes
+        if (requiredArgs.contains("webdavBaseUrl"))
+        	errMsgs += checkWebdavUrl( checkMe.values.get("webdavBaseUrl"));
+        if (requiredArgs.contains("webdavUser"))
+        	errMsgs += checkExists( checkMe.values.get("webdavUser") , "webdavUser");
+        if (requiredArgs.contains("webdavPassword"))
+        	errMsgs += checkExists( checkMe.values.get("webdavPassword") , "webdavPassword");
         if (requiredArgs.contains("solrUrl"))
         	errMsgs += checkSolrUrl( checkMe.values.get("solrUrl") );
         if (requiredArgs.contains("blacklightSolrUrl"))

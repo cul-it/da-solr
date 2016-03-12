@@ -2,7 +2,6 @@ package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +48,7 @@ public class IdentifyChangedRecords {
 
 	public static void main(String[] args)  {
 		
-		List<String> requiredArgs = new ArrayList<String>();
+		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 
 		try{        

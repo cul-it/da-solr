@@ -74,15 +74,17 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						f.mainTag.equals("710") ||
 						f.mainTag.equals("711")) {
 
-					title_cts = f.concatenateSpecificSubfields("tklnpmors");
 					if (f.mainTag.equals("700")) {
 						author_cts = f.concatenateSpecificSubfields("abcdq");
+						title_cts = f.concatenateSpecificSubfields("tklnpmors");
 						htd = HeadTypeDesc.PERSNAME;
 					} else if (f.mainTag.equals("710")) {
 						author_cts = f.concatenateSpecificSubfields("ab");
+						title_cts = f.concatenateSpecificSubfields("tklnpmors");
 						htd = HeadTypeDesc.CORPNAME;
 					} else {
 						author_cts = f.concatenateSpecificSubfields("abe");
+						title_cts = f.concatenateSpecificSubfields("tklpmors");
 						htd = HeadTypeDesc.EVENT;
 					}
 
@@ -129,6 +131,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
 						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,true,
 								relation+"_display",workField,title_cts,author_cts));
+						addField(solrFields,"title_uniform_t",standardizeApostrophes(title_cts));
 					}
 					continue; //next datafield
 				}
@@ -140,6 +143,8 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (f.mainTag.equals("730")) {
 						title_cts = f.concatenateSubfieldsOtherThan("6");
 						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
+						String searchField = f.concatenateSpecificSubfields("abcdefghjklmnopqrstuvwxyz");
+						addField(solrFields,"title_uniform_t",standardizeApostrophes(searchField));
 					} else {
 						title_cts = f.concatenateSpecificSubfields("ab");
 						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
@@ -223,8 +228,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					if (title_cts.isEmpty())
 						title_cts = f.concatenateSpecificSubfields("t");
 					String subfields = "atbcdegkqrs";
-					String value = f.concatenateSpecificSubfields(subfields); 
+					String value = f.concatenateSpecificSubfields(subfields);
+					String valueWOarticle = f.getStringWithoutInitialArticle(value);
 					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
+					addField(solrFields,"title_uniform_t",standardizeApostrophes(valueWOarticle));
 					if (f.tag.equals("880")) {
 						if (f.getScript().equals(MarcRecord.Script.CJK)) {
 							addField(solrFields,"title_uniform_t_cjk",value);
@@ -270,14 +277,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,romanField.cts1,htd);
 					json.put("authorizedForm", authData.authorized);
-					if (authData.authorized && authData.alternateForms != null) {
-						json.put("alternateForms", authData.alternateForms);
+					if (authData.authorized && authData.alternateForms != null)
 						for (String altForm : authData.alternateForms) {
 							addField(solrFields,"authority_author_t",altForm);
 							if (hasCJK(altForm))
 								addField(solrFields,"authority_author_t_cjk",altForm);								
 						}
-					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
@@ -321,14 +326,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			json.put("type", htd.toString());
 			AuthorityData authData = new AuthorityData(config,f.cts1,htd);
 			json.put("authorizedForm", authData.authorized);
-			if (authData.authorized && authData.alternateForms != null) {
-				json.put("alternateForms", authData.alternateForms);
+			if (authData.authorized && authData.alternateForms != null)
 				for (String altForm : authData.alternateForms) {
 					addField(solrFields,"authority_author_t",altForm);
 					if (hasCJK(altForm))
 						addField(solrFields,"authority_author_t_cjk",altForm);								
 				}
-			} 
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);
 			addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));

@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,13 +54,28 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 			for (DataField f: dataFields) {
 				String field = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String cts = f.concatenateSpecificSubfields("adfgklmnoprst");
+				String titleWOarticle = f.getStringWithoutInitialArticle(field);
+				if (f.tag.equals("880")) {
+					if (f.getScript().equals(MarcRecord.Script.CJK)) {
+						addField(solrFields,"title_uniform_t_cjk",field);
+					} else {
+						if (hasCJK(field))
+							addField(solrFields,"title_uniform_t_cjk",field);
+						addField(solrFields,"title_uniform_t",field);
+						addField(solrFields,"title_uniform_t",titleWOarticle);
+					}
+				} else {
+					addField(solrFields,"title_uniform_t",field);
+					addField(solrFields,"title_uniform_t",titleWOarticle);
+				}
 				if (cts.length() > 0) {
 					field += "|"+cts;
 				}
-				if (f.tag.equals("880"))
+				if (f.tag.equals("880")) {
 					values880.add(field);
-				else
+				} else {
 					valuesMain.add(field);
+				}
 			}
 			for (String s: values880)
 				addField(solrFields,"title_uniform_display",s);	

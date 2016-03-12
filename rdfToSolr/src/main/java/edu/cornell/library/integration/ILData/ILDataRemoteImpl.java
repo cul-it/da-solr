@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -102,23 +101,5 @@ public class ILDataRemoteImpl implements ILData {
 			out.add( q.replace("$URI$", "<" + uri + ">"));
 		}		
 		return out;
-	}
-	
-	
-	private static List<String> getQueries(String[] queryFiles) throws IOException {
-		ArrayList<String> queries = new ArrayList<String>();
-		for( String fname : queryFiles ){
-			InputStream is = getForQuery( fname );
-			if( is == null ) 
-				throw new IOException("Cannot find resource file " + fname);			
-			queries.add(IOUtils.toString(is,"UTF-8"));
-		}
-		return queries;
-	}
-	
-	@SuppressWarnings("static-access")
-	private static InputStream getForQuery(String fname) {
-		String p = "edu/cornell/library/integration/recordextract/queries/";			
-		return  ILDataRemoteImpl.class.getClassLoader().getSystemResourceAsStream( p + fname);		
 	}
 }
