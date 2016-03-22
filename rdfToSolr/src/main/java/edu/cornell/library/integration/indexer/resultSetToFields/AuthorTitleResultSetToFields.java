@@ -263,7 +263,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				}
 				String titleWOarticle = uniform_title_vern.getStringWithoutInitialArticle(verntitle);
-				if (title_vern.getScript().equals(MarcRecord.Script.CJK))
+				if (uniform_title_vern.getScript().equals(MarcRecord.Script.CJK))
 					addField(solrFields,"title_uniform_t_cjk",verntitle);
 				else {
 					if (hasCJK(verntitle))
