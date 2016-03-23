@@ -157,7 +157,7 @@ public class DeleteFromSolr {
                 if( ids.size() >= batchSize ){
                     solr.deleteById( ids );
                     bibStmt.executeBatch();
-                    markDoneInQueueStmt.executeQuery();
+                    markDoneInQueueStmt.executeBatch();
                     workStmt.executeBatch();
                     mfhdDelStmt.executeBatch();
                     itemStmt.executeBatch();
@@ -174,7 +174,7 @@ public class DeleteFromSolr {
             if( ids.size() > 0 ){
                 solr.deleteById( ids );
                 bibStmt.executeBatch();
-                markDoneInQueueStmt.executeQuery();
+                markDoneInQueueStmt.executeBatch();
                 workStmt.executeBatch();
                 mfhdDelStmt.executeBatch();
                 itemStmt.executeBatch();
