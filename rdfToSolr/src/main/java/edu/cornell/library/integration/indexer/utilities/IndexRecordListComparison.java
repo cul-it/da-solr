@@ -259,7 +259,6 @@ public class IndexRecordListComparison {
 			pstmt.addBatch();
 		}
 		pstmt.executeBatch();
-		pstmt.close();
 	}
 
 
