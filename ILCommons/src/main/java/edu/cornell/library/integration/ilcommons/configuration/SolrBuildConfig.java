@@ -717,13 +717,14 @@ public class SolrBuildConfig {
 
 
     private static SolrBuildConfig loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
-        if( argv.length > 1 ){   
-            System.out.println("loading from command line arg: \n" + argv[0]);
-            return loadFromPropertiesFile( getFile( argv[0]), null );
-        }else{
-            System.out.println("loading from command line arg: \n"+ argv[0] + "  " + argv[1] );
-            return loadFromPropertiesFile( getFile(argv[0]), getFile(argv[1]));
-        }            
+    	List<InputStream> inputStreams = new ArrayList<InputStream>();
+    	for (String arg : argv) {
+    		if (arg.endsWith(".properties")) {
+    			if (debug) System.out.println("loading from command line arg: "+arg);
+    			inputStreams.add(getFile(arg));
+    		}
+    	}
+    	return loadFromPropertiesFile(inputStreams);
     }
 
 
@@ -734,17 +735,11 @@ public class SolrBuildConfig {
     private static SolrBuildConfig loadFromEnvVar( String value ) throws Exception {
         System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
-        if( ! value.contains(",") ){
-            return loadFromPropertiesFile( getFile( value ), null );
-        }else{
-//            String firstFileName, secondFileName;
-            String names[] = value.split(",");
-            if( names.length > 2 )
-                throw new Exception("The env var has more than two files: " + value);
-            if( names.length < 2 )
-                throw new Exception("The env var has fewer than two files: " + value);
-            return loadFromPropertiesFile( getFile(names[0]), getFile(names[1]));
-        }        
+        String[] names = value.split(",");
+        List<InputStream> inputStreams = new ArrayList<InputStream>();
+        for (String name : names)
+        	inputStreams.add(getFile(name));
+        return loadFromPropertiesFile( inputStreams );
     }
 
 
@@ -755,30 +750,13 @@ public class SolrBuildConfig {
      * 
      * If inB is null, only inA will be loaded. 
      */
-    public static SolrBuildConfig loadFromPropertiesFile(InputStream inA, InputStream inB) 
+    public static SolrBuildConfig loadFromPropertiesFile(List<InputStream> inputs) 
             throws IOException{
         
-        Properties prop;
-        
-        if (debug) System.out.println("Loading properties from file A.");
-        Properties propA = new Properties();
-        propA.load( inA );
-        inA.close();
-        
-        if (debug) System.out.println("Loading properties from file B.");
-        Properties propB = null; 
-        if( inB != null ){
-            propB = new Properties( );
-            propB.load(inB);
-            inB.close();
-        }
-        
-        if( inB != null ){
-            prop = new Properties();
-            prop.putAll( propB );
-            prop.putAll( propA );
-        } else {
-            prop = propB;
+        Properties prop = new Properties();
+
+        for (InputStream in : inputs) {
+        	prop.load( in );
         }
         
         SolrBuildConfig conf = new SolrBuildConfig();
