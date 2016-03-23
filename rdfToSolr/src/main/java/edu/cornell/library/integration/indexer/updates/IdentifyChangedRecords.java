@@ -81,8 +81,6 @@ public class IdentifyChangedRecords {
 
 		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexingDueToDataChange();
 		System.out.println("\tbibsMarkedAsNeedingReindexingDueToDataChange: "+markedBibs.size());
-		bibsToUpdate.addAll(markedBibs);
-		markedBibs.clear();
 
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
@@ -132,9 +130,15 @@ public class IdentifyChangedRecords {
 
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
+		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
+
+		bibsToUpdate.addAll(markedBibs);
+		markedBibs.clear();
+		bibsToUpdate.removeAll(bibsToDelete);
+		bibsToUpdate.removeAll(bibsToAdd);
+
 		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
 		produceUpdateFile(bibsToUpdate);
-		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
 		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
 		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 
