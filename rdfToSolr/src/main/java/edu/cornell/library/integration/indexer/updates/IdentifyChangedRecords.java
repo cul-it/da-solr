@@ -70,11 +70,9 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
 		produceAddFile( bibsToAdd );
-		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager();
 		System.out.println("Bibs To Delete from Solr: "+bibsToDelete.size());
 		produceDeleteFile( bibsToDelete );
-		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
 
 		System.out.println("Bibs To Update:");
 
@@ -137,6 +135,8 @@ public class IdentifyChangedRecords {
 		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
 		produceUpdateFile(bibsToUpdate);
 		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
+		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
+		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 
 		c = null; // to allow GC
 	
