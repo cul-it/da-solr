@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 
@@ -212,12 +214,14 @@ public class IndexRecordListComparison {
 		return l;
 	}
 
-	public Set<Integer> bibsMarkedAsNeedingReindexing() throws SQLException {
+	public Set<Integer> bibsMarkedAsNeedingReindexingDueToDataChange() throws SQLException {
 		Set<Integer> l = new HashSet<Integer>();
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(
-				"select bib_id from "+CurrentDBTable.BIB_SOLR.toString()
-				+ " WHERE needs_update = 1");
+				"SELECT bib_id FROM "+CurrentDBTable.QUEUE.toString()
+				+ " WHERE not done_date"
+				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal()
+				+ " AND cause != '"+DataChangeUpdateType.DELETE.toString()+"'");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		stmt.close();

@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,6 +15,7 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -49,6 +52,7 @@ public class IdentifyChangedRecords {
 	public static void main(String[] args)  {
 		
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 
 		try{        
@@ -69,17 +73,19 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
 		produceAddFile( bibsToAdd );
+		queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager();
 		System.out.println("Bibs To Delete from Solr: "+bibsToDelete.size());
 		produceDeleteFile( bibsToDelete );
+		queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
 
 		System.out.println("Bibs To Update:");
 
 		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
 		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
 
-		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexing();
-		System.out.println("\tbibsMarkedAsNeedingReindexing: "+markedBibs.size());
+		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexingDueToDataChange();
+		System.out.println("\tbibsMarkedAsNeedingReindexingDueToDataChange: "+markedBibs.size());
 		bibsToUpdate.addAll(markedBibs);
 		markedBibs.clear();
 
@@ -135,10 +141,28 @@ public class IdentifyChangedRecords {
 
 		c = null; // to allow GC
 	
-		produceUpdateFile(bibsToUpdate); 
+		produceUpdateFile(bibsToUpdate);
+		queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
  	}
 
 	
+	private void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
+		if (bibsToAdd == null || bibsToAdd.isEmpty())
+			return;
+		Connection current = this.config.getDatabaseConnection("Current");
+		PreparedStatement pstmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString() +
+				" (bib_id, priority, cause) VALUES (?, 0, ?)");
+		pstmt.setString(2, type.toString());
+		for (Integer bib : bibsToAdd) {
+			pstmt.setInt(1, bib);
+			pstmt.addBatch();
+		}
+		pstmt.executeBatch();
+		pstmt.close();
+		current.close();
+	}
+
 	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
 
 		// Write a file of BIBIDs that are in the Solr index but not voyager
@@ -215,6 +239,21 @@ public class IdentifyChangedRecords {
 			            + "BIB IDs that need update to file '" + fileName + "'",e);   
 			}
 		}
+	}
+
+	public static enum DataChangeUpdateType {
+		ADD("Added Record"),
+		UPDATE("Record Update"),
+		DELETE("Record Deleted or Suppressed"),
+		TITLELINK("Title Link Update");
+
+		private String string;
+
+		private DataChangeUpdateType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
 	}
 	
 }

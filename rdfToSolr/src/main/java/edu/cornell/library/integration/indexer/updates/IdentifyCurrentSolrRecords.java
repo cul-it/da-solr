@@ -116,7 +116,6 @@ public class IdentifyCurrentSolrRecords {
 				+ "language text, "
 				+ "title text, "
 				+ "linking_mod_date timestamp, "
-				+ "needs_update int(1) default 0 "
 				+ ") ENGINE=InnoDB");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.MFHD_SOLR.toString());
