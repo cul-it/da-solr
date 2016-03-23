@@ -244,6 +244,25 @@ public class IndexRecordListComparison {
 		return bibid;
 	}
 
+	
+	public void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
+		if (bibsToAdd == null || bibsToAdd.isEmpty())
+			return;
+		if ( ! pstmts.containsKey("queueBib"))
+			pstmts.put("queueBib", conn.prepareStatement(
+					"INSERT INTO "+CurrentDBTable.QUEUE.toString() +
+					" (bib_id, priority, cause) VALUES (?, 0, ?)"));
+		PreparedStatement pstmt = pstmts.get("queueBib");
+		pstmt.setString(2, type.toString());
+		for (Integer bib : bibsToAdd) {
+			pstmt.setInt(1, bib);
+			pstmt.addBatch();
+		}
+		pstmt.executeBatch();
+		pstmt.close();
+	}
+
+
 	public class ChangedBib {
 		public int original;
 		public int changed;

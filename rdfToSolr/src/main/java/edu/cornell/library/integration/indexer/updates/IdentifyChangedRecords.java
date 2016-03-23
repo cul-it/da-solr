@@ -73,11 +73,11 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
 		produceAddFile( bibsToAdd );
-		queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
+		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager();
 		System.out.println("Bibs To Delete from Solr: "+bibsToDelete.size());
 		produceDeleteFile( bibsToDelete );
-		queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
+		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
 
 		System.out.println("Bibs To Update:");
 
@@ -138,30 +138,12 @@ public class IdentifyChangedRecords {
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
 		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
+		produceUpdateFile(bibsToUpdate);
+		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
 
 		c = null; // to allow GC
 	
-		produceUpdateFile(bibsToUpdate);
-		queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
  	}
-
-	
-	private void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
-		if (bibsToAdd == null || bibsToAdd.isEmpty())
-			return;
-		Connection current = this.config.getDatabaseConnection("Current");
-		PreparedStatement pstmt = current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString() +
-				" (bib_id, priority, cause) VALUES (?, 0, ?)");
-		pstmt.setString(2, type.toString());
-		for (Integer bib : bibsToAdd) {
-			pstmt.setInt(1, bib);
-			pstmt.addBatch();
-		}
-		pstmt.executeBatch();
-		pstmt.close();
-		current.close();
-	}
 
 	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
 
