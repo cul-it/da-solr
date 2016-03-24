@@ -1,13 +1,8 @@
 package edu.cornell.library.integration;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,10 +20,8 @@ import org.apache.commons.io.IOUtils;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
-
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
 /**
  * This gets a list of BIB and MFHD records updates from the Voyager database for a
@@ -42,6 +35,8 @@ import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildC
  * sequence of files.
  */
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
+	
+	final static Integer MIN_UPDATE_VOLUME = 150_000;
    
    /**
     * default constructor
@@ -57,11 +52,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
      requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
-     requiredArgs.addAll(getRequiredArgsForWebdav());
-     requiredArgs.add("dailyMrcDir");
-     requiredArgs.add("dailyMfhdDir");
-     requiredArgs.add("dailyBibUpdates");
-     requiredArgs.add("dailyBibAdds");
      
      app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args, requiredArgs) );     
    }
@@ -71,22 +61,11 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	private void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config) 
 	        throws Exception{
 
-		setDavService(DavServiceFactory.getDavService( config ));
-
-        Set<Integer> updatedBibIds = new HashSet<Integer>();
-
-		String date =  getDateString(Calendar.getInstance());
-		Set<Integer> bibListForUpdate = getUpdatedBibs( config, date );
-	    System.out.println("bibListForUpdate: " + bibListForUpdate.size() );
-	    updatedBibIds.addAll(bibListForUpdate);
-		Set<Integer> bibListForAdd = getBibIdsToAdd( config, date );
-	    System.out.println("bibListForAdd: " + bibListForAdd.size() );
-	    updatedBibIds.addAll( bibListForAdd );
 	    current = config.getDatabaseConnection("Current");
-    	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
-	    Set<Integer> suppressedBibs = checkForSuppressedRecords(pstmt, updatedBibIds);
-	    pstmt.close();
+
+        Set<Integer> updatedBibIds = getBibsToUpdateOrAdd( );
+        System.out.println("Updated and added bibs identified: ");
+	    Set<Integer> suppressedBibs = checkForSuppressedRecords(CurrentDBTable.BIB_VOY,updatedBibIds);
 	    if ( ! suppressedBibs.isEmpty()) {
 	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
 	    	updatedBibIds.removeAll(suppressedBibs);
@@ -95,10 +74,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
-    	pstmt = current.prepareStatement(
-    			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
-	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
-	    pstmt.close();
+	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(CurrentDBTable.MFHD_VOY, updatedMfhdIds);
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
 	    }
@@ -113,7 +89,9 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	}
 
 
-    private Set<Integer> checkForSuppressedRecords(PreparedStatement pstmt, Set<Integer> updatedIds) throws SQLException {
+    private Set<Integer> checkForSuppressedRecords(CurrentDBTable table, Set<Integer> updatedIds) throws SQLException {
+    	PreparedStatement pstmt = current.prepareStatement(
+    			"SELECT * FROM "+table.toString()+" WHERE bib_id = ?");
     	Set<Integer> suppressed = new HashSet<Integer>();
     	for (Integer id : updatedIds) {
     		pstmt.setInt(1, id);
@@ -125,6 +103,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     		if (isSuppressed)
     			suppressed.add(id);
     	}
+	    pstmt.close();
     	return suppressed;
 	}
 
@@ -272,54 +251,30 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
 
     /**
-	 * Gets the list of BIB IDs require updating in Solr.
-	 * @throws Exception 
-	 * 
-	 */
-	private Set<Integer> getUpdatedBibs( SolrBuildConfig config, String today ) throws Exception {
-
-        List<String> updateFiles = getDavService().getFileUrlList(
-        		config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/");
-        Set<Integer> updatedBibs = new HashSet<Integer>();
-        for (String url : updateFiles) {
-    	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
-    		tempPath.toFile().deleteOnExit();
-            File localTmpFile = getDavService().getFile(url, tempPath.toString());
-            try (BufferedReader br = new BufferedReader(new FileReader(localTmpFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                	updatedBibs.add(Integer.valueOf(line));
-                }
-            }
-            localTmpFile.delete();
-        }
-        return updatedBibs;
-    }
-
-
-    /**
 	 * Gets the list of BIB IDs that are new or newly unsuppressed (or otherwise missing
 	 * from the index). This list was generated in step 2.
 	 * @throws Exception 
 	 * 
 	 */
-	private Set<Integer> getBibIdsToAdd( SolrBuildConfig config, String today ) throws Exception {
-        
-        List<String> addFiles = getDavService().getFileUrlList(
-        		config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/");
+	private Set<Integer> getBibsToUpdateOrAdd(  ) throws Exception {
+
         Set<Integer> addedBibs = new HashSet<Integer>();
-        for (String url : addFiles) {
-    	    final Path tempPath = Files.createTempFile("getCombinedUpdatesMrc-", ".txt");
-    		tempPath.toFile().deleteOnExit();
-            File localTmpFile = getDavService().getFile(url, tempPath.toString());
-            try (BufferedReader br = new BufferedReader(new FileReader(localTmpFile))) {
-            	String line;
-                while ((line = br.readLine()) != null) {
-                	addedBibs.add(Integer.valueOf(line));
-                }
-            }
-            localTmpFile.delete();
+
+        PreparedStatement pstmt = current.prepareStatement(
+        		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
+        		+" WHERE not done_date"
+        		+" ORDER BY priority");
+        ResultSet rs = pstmt.executeQuery();
+        IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
+        while ( ( addedBibs.size() < MIN_UPDATE_VOLUME
+        		  || priority.equals(IndexQueuePriority.DATACHANGE))
+        		&& rs.next()) {
+        	addedBibs.add(rs.getInt("bib_id"));
+        	if (rs.getInt("priority") != IndexQueuePriority.DATACHANGE.ordinal())
+        		priority = IndexQueuePriority.values()[rs.getInt("priority")];
         }
+        rs.close();
+        pstmt.close();
         return addedBibs;
     }
 
