@@ -79,7 +79,17 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 
 		addWorkIdLinksToDocument(conn,document,bibid,knockOnUpdatesNeeded);
+		markBibAsDoneInIndexQueue(conn,bibid);
 		conn.close();
+	}
+
+	private void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
+		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
+				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
+						+ " WHERE bib_id = ? AND NOT done_date");
+		markDoneInQueueStmt.setInt(1, bibid);
+		markDoneInQueueStmt.executeUpdate();
+		markDoneInQueueStmt.close();
 	}
 
 	private void addWorkIdLinksToDocument(Connection conn,
@@ -352,12 +362,6 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			updateIndexedDateStmt.executeUpdate();
 			updateIndexedDateStmt.close();
 		}
-		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
-						+ " WHERE bib_id = ? AND NOT done_date");
-		markDoneInQueueStmt.setInt(1, bibid);
-		markDoneInQueueStmt.executeUpdate();
-		markDoneInQueueStmt.close();
 		
 		return descChanged;
 	}
@@ -421,6 +425,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		insertBibStmt.executeUpdate();
 		insertBibStmt.close();
 	}
+
 	private void populateHoldingFields(Connection conn, SolrInputDocument document,
 			Integer bibid) throws SQLException, ParseException {
 
