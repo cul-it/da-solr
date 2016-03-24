@@ -750,7 +750,7 @@ public class MarcXmlToRdf {
 		int batchCount = (bibs.length / groupsize) + 1;
 		for (int i3 = 1; i3 <= batchCount; i3++) {
 			Integer minBibid;
-			if (i3*groupsize <= bibs.length)
+			if (i3*groupsize < bibs.length)
 				minBibid = bibs[(i3)*groupsize];
 			else
 				minBibid = bibs[bibs.length - 1];
