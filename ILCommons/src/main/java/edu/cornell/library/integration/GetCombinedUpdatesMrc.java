@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -52,7 +53,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
      GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
      requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
-     
+     requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
+     requiredArgs.add("dailyMrcDir");
+     requiredArgs.add("dailyMfhdDir");
+   
      app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args, requiredArgs) );     
    }
    
@@ -82,6 +86,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
 
+		setDavService(DavServiceFactory.getDavService( config ));
 		Connection voyager = config.getDatabaseConnection("Voy");
 		saveBIBsToMARC(  voyager, updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		saveMFHDsToMARC( voyager, updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
