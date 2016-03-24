@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.utilities;
+package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 
@@ -48,8 +48,24 @@ import org.apache.solr.common.SolrInputField;
 
 public class IndexingUtilities {
 
+	public static enum IndexQueuePriority {
+		DATACHANGE("Data Change"),
+		CODECHANGE_PRIORITY1("Code Change 1"),
+		CODECHANGE_PRIORITY2("Code Change 2"),
+		CODECHANGE_PRIORITY3("Code Change 3"),
+		CODECHANGE_PRIORITY4("Code Change 4");
+
+		private String string;
+
+		private IndexQueuePriority(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
+	}
+
 	public static void optimizeIndex( String solrCoreURL ) {
-		System.out.println("Optimizing index at: "+solrCoreURL+". This may take a while...");
+		System.out.println("Optimizing index at: "+solrCoreURL+".");
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
 		try {

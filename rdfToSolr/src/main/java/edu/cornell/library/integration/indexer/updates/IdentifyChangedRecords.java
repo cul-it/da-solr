@@ -49,6 +49,7 @@ public class IdentifyChangedRecords {
 	public static void main(String[] args)  {
 		
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 
 		try{        
@@ -78,10 +79,8 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
 		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
 
-		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexing();
-		System.out.println("\tbibsMarkedAsNeedingReindexing: "+markedBibs.size());
-		bibsToUpdate.addAll(markedBibs);
-		markedBibs.clear();
+		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexingDueToDataChange();
+		System.out.println("\tbibsMarkedAsNeedingReindexingDueToDataChange: "+markedBibs.size());
 
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
@@ -131,14 +130,22 @@ public class IdentifyChangedRecords {
 
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
+		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
+
+		bibsToUpdate.addAll(markedBibs);
+		markedBibs.clear();
+		bibsToUpdate.removeAll(bibsToDelete);
+		bibsToUpdate.removeAll(bibsToAdd);
+
 		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
+		produceUpdateFile(bibsToUpdate);
+		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
+		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 
 		c = null; // to allow GC
 	
-		produceUpdateFile(bibsToUpdate); 
  	}
 
-	
 	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
 
 		// Write a file of BIBIDs that are in the Solr index but not voyager
@@ -215,6 +222,21 @@ public class IdentifyChangedRecords {
 			            + "BIB IDs that need update to file '" + fileName + "'",e);   
 			}
 		}
+	}
+
+	public static enum DataChangeUpdateType {
+		ADD("Added Record"),
+		UPDATE("Record Update"),
+		DELETE("Record Deleted or Suppressed"),
+		TITLELINK("Title Link Update");
+
+		private String string;
+
+		private DataChangeUpdateType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
 	}
 	
 }

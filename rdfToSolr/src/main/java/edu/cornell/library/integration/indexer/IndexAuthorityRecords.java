@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.io.InputStream;
 import java.sql.Connection;

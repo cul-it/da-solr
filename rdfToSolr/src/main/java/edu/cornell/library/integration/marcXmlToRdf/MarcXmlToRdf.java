@@ -53,7 +53,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
+import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 //TODO: The coding for individual files as src or dest material is 

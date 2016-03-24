@@ -47,6 +47,14 @@ task( step08ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec)
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task( QueueRecordsForSolrIndex, dependsOn: 'assemble', type: JavaExec) {
+ description = "Takes input file of bib ids, and queues them for update in Solr."
+ args = [ 4, 'Add 899 display field', 'bibsContaining899.txt' ]
+ maxHeapSize = '512m'  
+ main = 'edu.cornell.library.integration.indexer.updates.QueueRecordsForSolrIndex'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to TXT representation of MARC"
  maxHeapSize = '1500m'

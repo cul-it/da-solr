@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.pullReferenceFields;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.pullReferenceFields;
 
 import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
@@ -25,7 +25,8 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.TitleMatchReference;
+import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /** Evaluate populated fields for conditions of membership for any collections.
@@ -78,7 +79,17 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 
 		addWorkIdLinksToDocument(conn,document,bibid,knockOnUpdatesNeeded);
+		markBibAsDoneInIndexQueue(conn,bibid);
 		conn.close();
+	}
+
+	private void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
+		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
+				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
+						+ " WHERE bib_id = ? AND NOT done_date");
+		markDoneInQueueStmt.setInt(1, bibid);
+		markDoneInQueueStmt.executeUpdate();
+		markDoneInQueueStmt.close();
 	}
 
 	private void addWorkIdLinksToDocument(Connection conn,
@@ -95,7 +106,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+ "AND works.work_id = ? "
 				+ "AND bib.active = 1 AND works.active = 1 ");
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+" SET needs_update = 1 WHERE bib_id = ?");
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+ " (bib_id, priority, cause) VALUES"
+				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 		Map<Integer,TitleMatchReference> refs = new HashMap<Integer,TitleMatchReference>();
 		TitleMatchReference thisTitle = null;
 		SolrInputField workidDisplay = new SolrInputField("workid_display");
@@ -322,7 +335,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			PreparedStatement updateDescStmt = conn.prepareStatement(
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
 					+" SET record_date = ?, format = ?, "
-					+ "sites = ?, libraries = ?, needs_update = 0, "
+					+ "sites = ?, libraries = ?, "
 					+ "edition = ?, pub_date = ?, title = ?, language = ?, "
 					+ "index_date = NOW(), linking_mod_date = NOW(), "
 					+ "active = 1 "
@@ -342,13 +355,14 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if ( ! descChanged ) {
 			PreparedStatement updateIndexedDateStmt = conn.prepareStatement(
 					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
-					+" SET record_date = ?, index_date = NOW(), needs_update = 0, active = 1 "
+					+" SET record_date = ?, index_date = NOW(), active = 1 "
 					+"WHERE bib_id = ?");
 			updateIndexedDateStmt.setTimestamp(1, ref.timestamp);
 			updateIndexedDateStmt.setInt(2, bibid);
 			updateIndexedDateStmt.executeUpdate();
 			updateIndexedDateStmt.close();
 		}
+		
 		return descChanged;
 	}
 
@@ -411,6 +425,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		insertBibStmt.executeUpdate();
 		insertBibStmt.close();
 	}
+
 	private void populateHoldingFields(Connection conn, SolrInputDocument document,
 			Integer bibid) throws SQLException, ParseException {
 
@@ -484,7 +499,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+ "  AND bib_id != ?"
 				+ "  AND active");
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+" SET needs_update = 1 WHERE bib_id = ?");
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+ " (bib_id, priority, cause) VALUES"
+				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
@@ -553,7 +570,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+ "   AND b.bib_id != a.bib_id"
 				+ "   AND b.active");
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+" SET needs_update = 1 WHERE bib_id = ?");
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+ " (bib_id, priority, cause) VALUES"
+				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 		for (int oclcid : removedOclcIds) {
 			updateBibWorkMappingStmt.setInt(1, bibid);
 			updateBibWorkMappingStmt.setInt(2, oclcid);

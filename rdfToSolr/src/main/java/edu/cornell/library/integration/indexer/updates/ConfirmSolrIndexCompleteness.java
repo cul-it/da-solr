@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.optimizeIndex;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.optimizeIndex;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

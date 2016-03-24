@@ -55,11 +55,10 @@ public class DeleteFromSolr {
     }
     
     public void doTheDelete(SolrBuildConfig config) throws Exception  {
-            
-            
+
         DavService davService = DavServiceFactory.getDavService( config );
-        
-        //  use the most current delete file        
+
+        //  use the most current delete file
         String prefix = "bibListForDelete"; 
         String deletesDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes(); 
         String deleteFileURL="notYetSet?";
@@ -74,7 +73,7 @@ public class DeleteFromSolr {
                     + "file from " + deletesDir + " with prefix " + prefix);
             return;
         }
-        
+
         String solrURL = config.getSolrUrl();                                        
         SolrServer solr = new HttpSolrServer( solrURL );
 
@@ -100,7 +99,10 @@ public class DeleteFromSolr {
 
             PreparedStatement bibStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+
-            		" SET active = 0, linking_mod_date = NOW(), needs_update = 0 WHERE bib_id = ?");
+            		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
+    		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
+    				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
+    						+ " WHERE bib_id = ? AND NOT done_date");
             PreparedStatement workStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
             		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
@@ -137,6 +139,8 @@ public class DeleteFromSolr {
                     knockOnUpdates.remove(id);
                     bibStmt.setInt(1,id);
                     bibStmt.addBatch();
+                    markDoneInQueueStmt.setInt(1,id);
+                    markDoneInQueueStmt.addBatch();
                     workStmt.setInt(1,id);
                     workStmt.addBatch();
                     mfhdQueryStmt.setInt(1,id);
@@ -153,6 +157,7 @@ public class DeleteFromSolr {
                 if( ids.size() >= batchSize ){
                     solr.deleteById( ids );
                     bibStmt.executeBatch();
+                    markDoneInQueueStmt.executeBatch();
                     workStmt.executeBatch();
                     mfhdDelStmt.executeBatch();
                     itemStmt.executeBatch();
@@ -169,6 +174,7 @@ public class DeleteFromSolr {
             if( ids.size() > 0 ){
                 solr.deleteById( ids );
                 bibStmt.executeBatch();
+                markDoneInQueueStmt.executeBatch();
                 workStmt.executeBatch();
                 mfhdDelStmt.executeBatch();
                 itemStmt.executeBatch();

@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.utilities;
+package edu.cornell.library.integration.utilities;
 
 import java.text.Normalizer;
 
