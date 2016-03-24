@@ -255,6 +255,7 @@ public class IndexRecordListComparison {
 		PreparedStatement pstmt = pstmts.get("queueBib");
 		pstmt.setString(2, type.toString());
 		for (Integer bib : bibsToAdd) {
+			if (bib == null || bib.equals(0)) continue;
 			pstmt.setInt(1, bib);
 			pstmt.addBatch();
 		}

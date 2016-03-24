@@ -464,6 +464,12 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+    public Integer getTargetDailyUpdatesBibCount() {
+    	if (values.containsKey("targetDailyUpdatesBibCount"))
+    		return Integer.valueOf(values.get("targetDailyUpdatesBibCount"));
+    	else
+    		return null;
+    }
     
     /**
      * @return the tmpDir on local file system
