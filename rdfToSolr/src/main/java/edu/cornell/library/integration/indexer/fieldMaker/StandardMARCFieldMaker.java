@@ -6,7 +6,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimIn
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.Collections;

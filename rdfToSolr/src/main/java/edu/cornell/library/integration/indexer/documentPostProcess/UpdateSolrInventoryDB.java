@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.pullReferenceFields;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.pullReferenceFields;
 
 import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.TitleMatchReference;
+import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /** Evaluate populated fields for conditions of membership for any collections.

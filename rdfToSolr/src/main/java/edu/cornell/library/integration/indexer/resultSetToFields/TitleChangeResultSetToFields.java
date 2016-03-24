@@ -5,7 +5,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;

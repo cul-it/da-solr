@@ -20,7 +20,7 @@ import org.apache.commons.io.IOUtils;
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**

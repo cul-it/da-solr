@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.marcDateFormat;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.pullReferenceFields;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.marcDateFormat;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.pullReferenceFields;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +24,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.TitleMatchReference;
+import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**

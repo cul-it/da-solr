@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.utilities;
+package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 

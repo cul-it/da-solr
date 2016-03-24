@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.combineFields;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.combineFields;
 
 import java.util.Collections;
 import java.util.List;

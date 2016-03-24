@@ -14,7 +14,7 @@ import java.util.Set;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 
