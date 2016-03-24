@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

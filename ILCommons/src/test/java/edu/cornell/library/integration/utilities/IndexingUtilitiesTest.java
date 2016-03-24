@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.utilities;
 
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
