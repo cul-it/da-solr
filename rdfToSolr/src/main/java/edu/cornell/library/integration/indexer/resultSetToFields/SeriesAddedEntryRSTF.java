@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.HashMap;
 import java.util.HashSet;

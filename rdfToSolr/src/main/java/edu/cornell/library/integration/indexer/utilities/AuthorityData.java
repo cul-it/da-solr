@@ -11,7 +11,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
 
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 public class AuthorityData {
 

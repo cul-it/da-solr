@@ -1,6 +1,12 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,6 +19,7 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -47,20 +54,267 @@ public class IdentifyChangedRecords {
 
 
 	public static void main(String[] args)  {
-		
+		boolean thorough = true;
+		if (args.length > 0)
+			thorough = Boolean.valueOf(args[0]);
+
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
-		requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
+		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
+		if (thorough)
+			requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
+		else
+			requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyChangedRecords( SolrBuildConfig.loadConfig( args, requiredArgs ));
+			new IdentifyChangedRecords( SolrBuildConfig.loadConfig( null, requiredArgs ),thorough);
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}	
-	
-	public IdentifyChangedRecords(SolrBuildConfig config) throws Exception {
-	    this.config = config;
+	}
+
+	public IdentifyChangedRecords(SolrBuildConfig config, Boolean thorough) throws Exception {
+		this.config = config;
+		if (thorough) {
+			System.out.println("Launching thorough check for Voyager record changes.");
+			thoroughIdentifiationOfChanges();
+		} else {
+			System.out.println("Launching quick check for Voyager record changes.");
+			quickIdentificationOfChanges();
+		}
+	}
+
+	private void quickIdentificationOfChanges() throws Exception {
+		Connection current = config.getDatabaseConnection("Current");
+		Statement stmtCurrent = current.createStatement();
+		ResultSet rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
+		Timestamp ts = null;
+		Integer max_bib = 0, max_mfhd = 0, max_item = 0;
+		while (rs.next()) {
+			ts = rs.getTimestamp(2);
+			max_bib = rs.getInt(1);
+		}
+		rs.close();
+		rs = stmtCurrent.executeQuery("SELECT max(mfhd_id) FROM "+CurrentDBTable.MFHD_VOY);
+		while (rs.next())
+			max_mfhd = rs.getInt(1);
+		rs.close();
+		rs = stmtCurrent.executeQuery("SELECT max(item_id) FROM "+CurrentDBTable.ITEM_VOY);
+		while (rs.next())
+			max_item = rs.getInt(1);
+		rs.close();
+		
+		Connection voyager = config.getDatabaseConnection("Voy");
+		PreparedStatement pstmt = voyager.prepareStatement(
+				"select BIB_ID, UPDATE_DATE from BIB_MASTER"
+				+ " where SUPPRESS_IN_OPAC = 'N'"
+				+ " and ( BIB_ID > ? or UPDATE_DATE > ?)");
+		pstmt.setInt(1, max_bib);
+		pstmt.setTimestamp(2, ts);
+		rs = pstmt.executeQuery();
+		while (rs.next())
+			queueBib( current, rs.getInt(1), rs.getTimestamp(2) );
+		rs.close();
+		pstmt.close();
+		pstmt = voyager.prepareStatement(
+				"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
+	    		 +"  from BIB_MFHD, MFHD_MASTER"
+	             +" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
+	             + "  and SUPPRESS_IN_OPAC = 'N'"
+	             + " and ( MFHD_MASTER.MFHD_ID > ? or UPDATE_DATE > ?)");
+		pstmt.setInt(1, max_mfhd);
+		pstmt.setTimestamp(2, ts);
+		rs = pstmt.executeQuery();
+		while (rs.next())
+			queueMfhd( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
+		rs.close();
+		pstmt.close();
+		pstmt = voyager.prepareStatement(
+				"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
+	    		+"  from MFHD_ITEM, ITEM"
+	    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
+	    		+" and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)");
+		pstmt.setInt(1, max_item);
+		pstmt.setTimestamp(2, ts);
+		rs = pstmt.executeQuery();
+		while (rs.next())
+			queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
+		rs.close();
+		pstmt.close();
+	}
+
+	private static PreparedStatement bibVoyQStmt = null;
+	private static PreparedStatement bibVoyIStmt = null;
+	private static PreparedStatement bibVoyUStmt = null;
+	private static PreparedStatement bibQueueStmt = null;
+	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
+		if (bibVoyQStmt == null)
+			bibVoyQStmt = current.prepareStatement(
+					"SELECT record_date FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
+		bibVoyQStmt.setInt(1, bib_id);
+		ResultSet rs = bibVoyQStmt.executeQuery();
+		while (rs.next()) {
+			if (0 > rs.getTimestamp(1).compareTo(update_date)) {
+				// bib is already in current, but has been updated
+				if (bibVoyUStmt == null)
+					bibVoyUStmt = current.prepareStatement(
+							"UPDATE "+CurrentDBTable.BIB_VOY.toString()
+							+" SET record_date = ?"
+							+" WHERE bib_id = ?");
+				bibVoyUStmt.setTimestamp(1, update_date);
+				bibVoyUStmt.setInt(2, bib_id);
+				bibVoyUStmt.executeUpdate();
+				addBibToIndexQueue(current, bib_id);
+			} // else bib is unchanged - do nothing
+			rs.close();
+			return;
+		}
+		rs.close();
+
+		// bib is not yet in current db
+		if (bibVoyIStmt == null)
+			bibVoyIStmt = current.prepareStatement(
+					"INSERT INTO "+CurrentDBTable.BIB_VOY.toString()
+					+" (bib_id, record_date) VALUES (?, ?)");
+		bibVoyIStmt.setInt(1, bib_id);
+		bibVoyIStmt.setTimestamp(2, update_date);
+		bibVoyIStmt.executeUpdate();
+		addBibToIndexQueue(current, bib_id);
+	}
+
+	private static PreparedStatement mfhdVoyQStmt = null;
+	private static PreparedStatement mfhdVoyIStmt = null;
+	private static PreparedStatement mfhdVoyUStmt = null;
+	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
+			Timestamp update_date) throws SQLException {
+		if (mfhdVoyQStmt == null)
+			mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
+		mfhdVoyQStmt.setInt(1, mfhd_id);
+		ResultSet rs = mfhdVoyQStmt.executeQuery();
+		while (rs.next()) {
+			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+				// mfhd is already in current, but has been updated
+				int old_bib = rs.getInt(1);
+				if (mfhdVoyUStmt == null)
+					mfhdVoyUStmt = current.prepareStatement(
+							"UPDATE "+CurrentDBTable.MFHD_VOY.toString()
+							+" SET record_date = ?, bib_id = ?"
+							+" WHERE mfhd_id = ?");
+				mfhdVoyUStmt.setTimestamp(1, update_date);
+				mfhdVoyUStmt.setInt(2, bib_id);
+				mfhdVoyUStmt.setInt(3, mfhd_id);
+				mfhdVoyUStmt.executeUpdate();
+				addBibToIndexQueue(current, bib_id);
+
+				if (old_bib != bib_id)
+					addBibToIndexQueue(current, old_bib);
+			} // else mfhd is unchanged - do nothing
+			rs.close();
+			return;
+		}
+		rs.close();
+
+		// mfhd is not yet in current db
+		if (mfhdVoyIStmt == null)
+			mfhdVoyIStmt = current.prepareStatement(
+					"INSERT INTO "+CurrentDBTable.MFHD_VOY.toString()
+					+" (bib_id, mfhd_id, record_date)"
+					+" VALUES (?, ?, ?)");
+		mfhdVoyIStmt.setInt(1, bib_id);
+		mfhdVoyIStmt.setInt(2, mfhd_id);
+		mfhdVoyIStmt.setTimestamp(3, update_date);
+		mfhdVoyIStmt.executeUpdate();
+		addBibToIndexQueue(current, bib_id);
+	}
+
+	private static PreparedStatement itemVoyQStmt = null;
+	private static PreparedStatement itemVoyIStmt = null;
+	private static PreparedStatement itemVoyUStmt = null;
+	private void queueItem(Connection current, int mfhd_id, int item_id,
+			Timestamp update_date) throws SQLException {
+		if (itemVoyQStmt == null)
+			itemVoyQStmt = current.prepareStatement(
+					"SELECT mfhd_id, record_date"
+					+" FROM "+CurrentDBTable.ITEM_VOY.toString()
+					+" WHERE item_id = ?");
+		itemVoyQStmt.setInt(1, item_id);
+		ResultSet rs = itemVoyQStmt.executeQuery();
+		while (rs.next()) {
+			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+				// item is already in current, but has been updated
+				int old_mfhd = rs.getInt(1);
+				if (itemVoyUStmt == null)
+					itemVoyUStmt = current.prepareStatement(
+							"UPDATE "+CurrentDBTable.ITEM_VOY.toString()
+							+" SET record_date = ?, mfhd_id = ?"
+							+" WHERE item_id = ?");
+				itemVoyUStmt.setTimestamp(1, update_date);
+				itemVoyUStmt.setInt(2, mfhd_id);
+				itemVoyUStmt.setInt(3, item_id);
+				itemVoyUStmt.executeUpdate();
+
+				int bib_id = getBibIdForMfhd(current, mfhd_id);
+				if (bib_id > 0)
+					addBibToIndexQueue(current, bib_id);
+
+				if (mfhd_id != old_mfhd) {
+					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
+					if (old_bib_id > 0 && old_bib_id != bib_id)
+						addBibToIndexQueue(current, old_bib_id);
+				}
+			} // else item is unchanged - do nothing
+			rs.close();
+			return;
+		}
+		rs.close();
+
+		// item is not yet in current db
+		if (itemVoyIStmt == null)
+			itemVoyIStmt = current.prepareStatement(
+					"INSERT INTO "+CurrentDBTable.ITEM_VOY.toString()
+					+" (mfhd_id, item_id, record_date)"
+					+" VALUES (?, ?, ?)");
+		itemVoyIStmt.setInt(1, mfhd_id);
+		itemVoyIStmt.setInt(2, item_id);
+		itemVoyIStmt.setTimestamp(3, update_date);
+		itemVoyIStmt.executeUpdate();
+		int bib_id = getBibIdForMfhd(current,mfhd_id);
+		if (bib_id > 0)
+			addBibToIndexQueue(current,bib_id);
+		
+	}
+	private int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
+		if (mfhdVoyQStmt == null)
+			mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
+		mfhdVoyQStmt.setInt(1, mfhd_id);
+		ResultSet rs2 = mfhdVoyQStmt.executeQuery();
+		Integer bib_id = 0;
+		while (rs2.next())
+			bib_id = rs2.getInt(1);
+		rs2.close();
+		return bib_id;
+	}
+	private void addBibToIndexQueue(Connection current, Integer bib_id) throws SQLException {
+		if (bibQueueStmt == null)
+			bibQueueStmt = prepareBibQueueStmt(current);
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.executeUpdate();
+	}
+
+	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
+		return current.prepareStatement(
+				"SELECT bib_id, record_date"
+				+" FROM "+CurrentDBTable.MFHD_VOY.toString()
+				+" WHERE mfhd_id = ?");
+	}
+	private PreparedStatement prepareBibQueueStmt(Connection current) throws SQLException {
+		return current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, 0, 'Record Update'");
+	}
+	private void thoroughIdentifiationOfChanges() throws Exception {
+
 	    this.davService = DavServiceFactory.getDavService( config );
 		System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 
@@ -78,10 +332,8 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
 		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
 
-		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexing();
-		System.out.println("\tbibsMarkedAsNeedingReindexing: "+markedBibs.size());
-		bibsToUpdate.addAll(markedBibs);
-		markedBibs.clear();
+		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexingDueToDataChange();
+		System.out.println("\tbibsMarkedAsNeedingReindexingDueToDataChange: "+markedBibs.size());
 
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
@@ -131,14 +383,22 @@ public class IdentifyChangedRecords {
 
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
+		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
+
+		bibsToUpdate.addAll(markedBibs);
+		markedBibs.clear();
+		bibsToUpdate.removeAll(bibsToDelete);
+		bibsToUpdate.removeAll(bibsToAdd);
+
 		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
+		produceUpdateFile(bibsToUpdate);
+		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
+		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 
 		c = null; // to allow GC
 	
-		produceUpdateFile(bibsToUpdate); 
  	}
 
-	
 	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
 
 		// Write a file of BIBIDs that are in the Solr index but not voyager
@@ -215,6 +475,21 @@ public class IdentifyChangedRecords {
 			            + "BIB IDs that need update to file '" + fileName + "'",e);   
 			}
 		}
+	}
+
+	public static enum DataChangeUpdateType {
+		ADD("Added Record"),
+		UPDATE("Record Update"),
+		DELETE("Record Deleted or Suppressed"),
+		TITLELINK("Title Link Update");
+
+		private String string;
+
+		private DataChangeUpdateType(String name) {
+			string = name;
+		}
+
+		public String toString() { return string; }
 	}
 	
 }

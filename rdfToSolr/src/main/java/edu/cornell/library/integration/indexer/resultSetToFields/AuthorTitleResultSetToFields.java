@@ -2,8 +2,8 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -263,7 +263,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				}
 				String titleWOarticle = uniform_title_vern.getStringWithoutInitialArticle(verntitle);
-				if (title_vern.getScript().equals(MarcRecord.Script.CJK))
+				if (uniform_title_vern.getScript().equals(MarcRecord.Script.CJK))
 					addField(solrFields,"title_uniform_t_cjk",verntitle);
 				else {
 					if (hasCJK(verntitle))

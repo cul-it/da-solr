@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.insertSpaceAfterCommas;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

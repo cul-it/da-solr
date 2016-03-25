@@ -2,8 +2,8 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.utilities.FilingNormalization.getFilingForm;
-import static edu.cornell.library.integration.indexer.utilities.IndexingUtilities.removeTrailingPunctuation;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 
 /**
- * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
+ * process subject field values into display, facet, search, and browse/filing fields
  * 
  */
 public class SubjectResultSetToFields implements ResultSetToFields {
@@ -91,33 +91,50 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
 			Set<String> values_browse = new HashSet<String>();
 			Set<String> valuesJson = new HashSet<String>();
-			boolean isWork = false;
 			HeadTypeDesc htd = HeadTypeDesc.TOPIC; //default
 		
-			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null;
+			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null, title_fields = null;
 			for (DataField f: dataFields) {
 				
 				switch (f.mainTag) {
 				case "600":
-					main_fields = "abcdefghkjlmnopqrstu";
+					if ( isWork(f) ) {
+						main_fields = "abcdq";
+						title_fields = "tklnpmors";
+						filing_type = "work";
+						htd = HeadTypeDesc.WORK;
+					} else {
+						main_fields = "abcdeghjnqu";
+						filing_type = "pers";
+						htd = HeadTypeDesc.PERSNAME;
+					}
 					dashed_fields = "vxyz";
-					filing_type = "pers";
-					htd = HeadTypeDesc.PERSNAME;
-					isWork = isWork(f);
 					break;
 				case "610":
-					main_fields = "abcdefghklmnoprstu";
+					if ( isWork(f) ) {
+						main_fields = "ab";
+						title_fields = "tklnpmors";
+						filing_type = "work";
+						htd = HeadTypeDesc.WORK;
+					} else {
+						main_fields = "abcdeghu";
+						filing_type = "corp";
+						htd = HeadTypeDesc.CORPNAME;
+					}
 					dashed_fields = "vxyz";
-					filing_type = "corp";
-					htd = HeadTypeDesc.CORPNAME;
-					isWork = isWork(f);
 					break;
 				case "611":
-					main_fields = "acdefghklnpqstu";
+					if ( isWork(f) ) {
+						main_fields = "abcden";
+						title_fields = "tklpmors";
+						filing_type = "work";
+						htd = HeadTypeDesc.WORK;
+					} else {
+						main_fields = "acdeghnqu";
+						filing_type = "event";
+						htd = HeadTypeDesc.EVENT;
+					}
 					dashed_fields = "vxyz";
-					filing_type = "event";
-					htd = HeadTypeDesc.EVENT;
-					isWork = isWork(f);
 					break;
 				case "630":
 					main_fields = "adfghklmnoprst";
@@ -192,24 +209,15 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
-				if (isWork) {
-					filing_type = "work";
-					htd = HeadTypeDesc.WORK;
-				}
 				if (! main_fields.equals("")) {
 					StringBuilder sb_piped = new StringBuilder();
 					StringBuilder sb_breadcrumbed = new StringBuilder();
 					String mainFields = null;
 					if (htd.equals(HeadTypeDesc.WORK)) {
 						StringBuilder sb = new StringBuilder();
-						if (f.tag.endsWith("00"))
-							sb.append(f.concatenateSpecificSubfields("abcdq"));
-						else if (f.tag.endsWith("10"))
-							sb.append(f.concatenateSpecificSubfields("ab"));
-						else // 11
-							sb.append(f.concatenateSpecificSubfields("abe"));
+						sb.append(f.concatenateSpecificSubfields(main_fields));
 						sb.append(" | ");
-						sb.append(f.concatenateSpecificSubfields("tklnpmors"));
+						sb.append(f.concatenateSpecificSubfields(title_fields));
 						mainFields = sb.toString();
 					} else {
 						mainFields = f.concatenateSpecificSubfields(main_fields);
@@ -307,12 +315,14 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 	
 	
 	private boolean isWork(DataField f) {
-		f.concatenateSpecificSubfields("tklfnpmors");
 		for (Subfield sf : f.subfields.values())
 			switch (sf.code) {
-			case 't': case 'k': case 'l': case 'f': case 'n':
+			case 't': case 'k': case 'l':
 			case 'p': case 'm': case 'o': case 'r': case 's':
 				return true;
+			case 'n':
+				if ( ! f.mainTag.equals("611"))
+					return true;
 			}
 		return false;
 	}

@@ -53,7 +53,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
-import edu.cornell.library.integration.indexer.utilities.IndexingUtilities;
+import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 //TODO: The coding for individual files as src or dest material is 
@@ -750,7 +750,7 @@ public class MarcXmlToRdf {
 		int batchCount = (bibs.length / groupsize) + 1;
 		for (int i3 = 1; i3 <= batchCount; i3++) {
 			Integer minBibid;
-			if (i3*groupsize <= bibs.length)
+			if (i3*groupsize < bibs.length)
 				minBibid = bibs[(i3)*groupsize];
 			else
 				minBibid = bibs[bibs.length - 1];
