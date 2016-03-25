@@ -62,7 +62,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
         Set<Integer> updatedBibIds = getBibsToUpdateOrAdd( config );
         System.out.println("Updated and added bibs identified: ");
-	    Set<Integer> suppressedBibs = checkForSuppressedRecords(CurrentDBTable.BIB_VOY,updatedBibIds);
+    	PreparedStatement pstmt = current.prepareStatement(
+    			"SELECT * FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
+	    Set<Integer> suppressedBibs = checkForSuppressedRecords(pstmt,updatedBibIds);
+	    pstmt.close();
 	    if ( ! suppressedBibs.isEmpty()) {
 	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
 	    	updatedBibIds.removeAll(suppressedBibs);
@@ -71,7 +74,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
-	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(CurrentDBTable.MFHD_VOY, updatedMfhdIds);
+		pstmt = current.prepareStatement(
+    			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
+	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
+	    pstmt.close();
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
 	    }
@@ -87,9 +93,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	}
 
 
-    private Set<Integer> checkForSuppressedRecords(CurrentDBTable table, Set<Integer> updatedIds) throws SQLException {
-    	PreparedStatement pstmt = current.prepareStatement(
-    			"SELECT * FROM "+table.toString()+" WHERE bib_id = ?");
+    private Set<Integer> checkForSuppressedRecords(PreparedStatement pstmt, Set<Integer> updatedIds) throws SQLException {
     	Set<Integer> suppressed = new HashSet<Integer>();
     	for (Integer id : updatedIds) {
     		pstmt.setInt(1, id);
@@ -101,7 +105,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     		if (isSuppressed)
     			suppressed.add(id);
     	}
-	    pstmt.close();
     	return suppressed;
 	}
 
