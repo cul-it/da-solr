@@ -296,7 +296,10 @@ public class IdentifyChangedRecords {
 	}
 	private void addBibToIndexQueue(Connection current, Integer bib_id) throws SQLException {
 		if (bibQueueStmt == null)
-			bibQueueStmt = prepareBibQueueStmt(current);
+			bibQueueStmt = current.prepareStatement(
+					"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+					+" (bib_id, priority, cause)"
+					+" VALUES (?, 0, 'Record Update')");
 		bibQueueStmt.setInt(1, bib_id);
 		bibQueueStmt.executeUpdate();
 	}
@@ -307,12 +310,7 @@ public class IdentifyChangedRecords {
 				+" FROM "+CurrentDBTable.MFHD_VOY.toString()
 				+" WHERE mfhd_id = ?");
 	}
-	private PreparedStatement prepareBibQueueStmt(Connection current) throws SQLException {
-		return current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-				+" (bib_id, priority, cause)"
-				+" VALUES (?, 0, 'Record Update'");
-	}
+
 	private void thoroughIdentifiationOfChanges() throws Exception {
 
 	    this.davService = DavServiceFactory.getDavService( config );
