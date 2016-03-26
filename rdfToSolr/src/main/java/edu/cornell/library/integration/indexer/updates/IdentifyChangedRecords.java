@@ -213,7 +213,7 @@ public class IdentifyChangedRecords {
 				rs.close();
 				return;
 			}
-			Timestamp old_date = rs.getTimestamp(1);
+			Timestamp old_date = rs.getTimestamp(2);
 			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// mfhd is already in current, but has been updated
 				int old_bib = rs.getInt(1);
@@ -273,7 +273,7 @@ public class IdentifyChangedRecords {
 				rs.close();
 				return;
 			}
-			Timestamp old_date = rs.getTimestamp(1);
+			Timestamp old_date = rs.getTimestamp(2);
 			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// item is already in current, but has been updated
 				int old_mfhd = rs.getInt(1);
