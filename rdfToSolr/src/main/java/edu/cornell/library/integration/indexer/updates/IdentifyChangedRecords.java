@@ -154,7 +154,7 @@ public class IdentifyChangedRecords {
 		bibVoyQStmt.setInt(1, bib_id);
 		ResultSet rs = bibVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(1).compareTo(update_date)) {
+			if (update_date == null || 0 > rs.getTimestamp(1).compareTo(update_date)) {
 				// bib is already in current, but has been updated
 				if (bibVoyUStmt == null)
 					bibVoyUStmt = current.prepareStatement(
@@ -192,7 +192,7 @@ public class IdentifyChangedRecords {
 		mfhdVoyQStmt.setInt(1, mfhd_id);
 		ResultSet rs = mfhdVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+			if (update_date == null || 0 > rs.getTimestamp(2).compareTo(update_date)) {
 				// mfhd is already in current, but has been updated
 				int old_bib = rs.getInt(1);
 				if (mfhdVoyUStmt == null)
@@ -240,7 +240,7 @@ public class IdentifyChangedRecords {
 		itemVoyQStmt.setInt(1, item_id);
 		ResultSet rs = itemVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+			if (update_date == null || 0 > rs.getTimestamp(2).compareTo(update_date)) {
 				// item is already in current, but has been updated
 				int old_mfhd = rs.getInt(1);
 				if (itemVoyUStmt == null)
