@@ -118,6 +118,10 @@ public class IdentifyChangedRecords {
 			queueBib( current, rs.getInt(1), rs.getTimestamp(2) );
 		rs.close();
 		pstmt.close();
+
+		int bibCount = updatedBibs.size();
+		System.out.println("Queued from poling bib data :"+bibCount);
+
 		pstmt = voyager.prepareStatement(
 				"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
 	    		 +"  from BIB_MFHD, MFHD_MASTER"
@@ -131,6 +135,10 @@ public class IdentifyChangedRecords {
 			queueMfhd( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
 		rs.close();
 		pstmt.close();
+
+		int mfhdCount = updatedBibs.size() - bibCount;
+		System.out.println("Queued from poling holdings data :"+mfhdCount);
+
 		pstmt = voyager.prepareStatement(
 				"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
 	    		+"  from MFHD_ITEM, ITEM"
@@ -143,7 +151,10 @@ public class IdentifyChangedRecords {
 			queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
 		rs.close();
 		pstmt.close();
-		System.out.println("\n Total bibs queued: "+updatedBibs.size());
+
+		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
+		System.out.println("Queued from poling item data :"+itemCount);
+		System.out.println("Total bibs queued: "+updatedBibs.size());
 	}
 
 	private static PreparedStatement bibVoyQStmt = null;
@@ -341,13 +352,7 @@ public class IdentifyChangedRecords {
 			return;
 		updatedBibs.add(bib_id);
 		bibQueueStmt.setInt(1, bib_id);
-		if (isNew) {
-			bibQueueStmt.setString(2, "Added Record");
-			System.out.print(',');
-		} else {
-			bibQueueStmt.setString(2, "Record Update");
-			System.out.print('.');
-		}
+		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
 		bibQueueStmt.executeUpdate();
 	}
 
