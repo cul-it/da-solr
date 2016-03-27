@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,7 @@ public class IdentifyChangedRecords {
 	DavService davService;
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+	Set<Integer> updatedBibs = new HashSet<Integer>();
 
 
 	public static void main(String[] args)  {
@@ -141,6 +143,7 @@ public class IdentifyChangedRecords {
 			queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
 		rs.close();
 		pstmt.close();
+		System.out.println("\n Total bibs queued: "+updatedBibs.size());
 	}
 
 	private static PreparedStatement bibVoyQStmt = null;
@@ -160,7 +163,7 @@ public class IdentifyChangedRecords {
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				System.out.println("Unexpected bib found: "+bib_id);
-				addBibToIndexQueue(current, bib_id);
+				addBibToIndexQueue(current, bib_id, false);
 				rs.close();
 				return;
 			}
@@ -175,7 +178,7 @@ public class IdentifyChangedRecords {
 				bibVoyUStmt.setTimestamp(1, update_date);
 				bibVoyUStmt.setInt(2, bib_id);
 				bibVoyUStmt.executeUpdate();
-				addBibToIndexQueue(current, bib_id);
+				addBibToIndexQueue(current, bib_id, false);
 			} // else bib is unchanged - do nothing
 			rs.close();
 			return;
@@ -190,7 +193,7 @@ public class IdentifyChangedRecords {
 		bibVoyIStmt.setInt(1, bib_id);
 		bibVoyIStmt.setTimestamp(2, update_date);
 		bibVoyIStmt.executeUpdate();
-		addBibToIndexQueue(current, bib_id);
+		addBibToIndexQueue(current, bib_id, true);
 	}
 
 	private static PreparedStatement mfhdVoyQStmt = null;
@@ -209,7 +212,7 @@ public class IdentifyChangedRecords {
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				System.out.println("Unexpected mfhd found: "+mfhd_id+" (bib:"+bib_id+")");
-				addBibToIndexQueue(current, bib_id);
+				addBibToIndexQueue(current, bib_id, false);
 				rs.close();
 				return;
 			}
@@ -226,10 +229,10 @@ public class IdentifyChangedRecords {
 				mfhdVoyUStmt.setInt(2, bib_id);
 				mfhdVoyUStmt.setInt(3, mfhd_id);
 				mfhdVoyUStmt.executeUpdate();
-				addBibToIndexQueue(current, bib_id);
+				addBibToIndexQueue(current, bib_id, false);
 
 				if (old_bib != bib_id)
-					addBibToIndexQueue(current, old_bib);
+					addBibToIndexQueue(current, old_bib, false);
 			} // else mfhd is unchanged - do nothing
 			rs.close();
 			return;
@@ -246,7 +249,7 @@ public class IdentifyChangedRecords {
 		mfhdVoyIStmt.setInt(2, mfhd_id);
 		mfhdVoyIStmt.setTimestamp(3, update_date);
 		mfhdVoyIStmt.executeUpdate();
-		addBibToIndexQueue(current, bib_id);
+		addBibToIndexQueue(current, bib_id, false);
 	}
 
 	private static PreparedStatement itemVoyQStmt = null;
@@ -269,7 +272,7 @@ public class IdentifyChangedRecords {
 				 * queue the bib for index just in case, but not update the inventory. */
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
-				addBibToIndexQueue(current, bib_id);
+				addBibToIndexQueue(current, bib_id, false);
 				rs.close();
 				return;
 			}
@@ -289,12 +292,12 @@ public class IdentifyChangedRecords {
 
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				if (bib_id > 0)
-					addBibToIndexQueue(current, bib_id);
+					addBibToIndexQueue(current, bib_id, false);
 
 				if (mfhd_id != old_mfhd) {
 					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
 					if (old_bib_id > 0 && old_bib_id != bib_id)
-						addBibToIndexQueue(current, old_bib_id);
+						addBibToIndexQueue(current, old_bib_id, false);
 				}
 			} // else item is unchanged - do nothing
 			rs.close();
@@ -314,7 +317,7 @@ public class IdentifyChangedRecords {
 		itemVoyIStmt.executeUpdate();
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
 		if (bib_id > 0)
-			addBibToIndexQueue(current,bib_id);
+			addBibToIndexQueue(current,bib_id, false);
 		
 	}
 	private int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
@@ -328,13 +331,23 @@ public class IdentifyChangedRecords {
 		rs2.close();
 		return bib_id;
 	}
-	private void addBibToIndexQueue(Connection current, Integer bib_id) throws SQLException {
+	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
 		if (bibQueueStmt == null)
 			bibQueueStmt = current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 					+" (bib_id, priority, cause)"
-					+" VALUES (?, 0, 'Record Update')");
+					+" VALUES (?, 0, ?)");
+		if (updatedBibs.contains(bib_id))
+			return;
+		updatedBibs.add(bib_id);
 		bibQueueStmt.setInt(1, bib_id);
+		if (isNew) {
+			bibQueueStmt.setString(2, "Added Record");
+			System.out.print(',');
+		} else {
+			bibQueueStmt.setString(2, "Record Update");
+			System.out.print('.');
+		}
 		bibQueueStmt.executeUpdate();
 	}
 
