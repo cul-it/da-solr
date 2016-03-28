@@ -126,6 +126,10 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+    public void setWebdavBaseUrl(String url) {
+    	values.put("webdavBaseUrl",url);
+    }
+
     public String getLocalBaseFilePath() {
     	if (values.containsKey("localBaseFilePath")) {
     		return values.get("localBaseFilePath");
@@ -469,6 +473,9 @@ public class SolrBuildConfig {
     		return Integer.valueOf(values.get("targetDailyUpdatesBibCount"));
     	else
     		return null;
+    }
+    public void setTargetDailyUpdatesBibCount(Integer count) {
+    	values.put("targetDailyUpdatesBibCount",String.valueOf(count));
     }
     
     /**

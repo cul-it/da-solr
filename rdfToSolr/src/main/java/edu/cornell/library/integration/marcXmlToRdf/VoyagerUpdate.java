@@ -34,7 +34,7 @@ public class VoyagerUpdate {
 		
 		davService = DavServiceFactory.getDavService(config);				
 		String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-					    
+		    
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
 		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
