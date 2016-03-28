@@ -28,7 +28,6 @@ public class ConvertMarcToXml {
 	   Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
 	   requiredFields.add("marc2XmlDirs"); 
 	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
-	   davService = DavServiceFactory.getDavService(config);
 
 	   try {
 		   new ConvertMarcToXml(config);
@@ -43,6 +42,8 @@ public class ConvertMarcToXml {
  * @throws IOException 
     */
    public ConvertMarcToXml(SolrBuildConfig config) throws IOException { 
+	   davService = DavServiceFactory.getDavService(config);
+
 	   String[] dirs = null;
 	   try {
 		   dirs = config.getMarc2XmlDirs();
