@@ -18,14 +18,19 @@ public class ConvertMarcToXml {
    /** Logger for this class and subclasses */
    protected final Log logger = LogFactory.getLog(getClass()); 
 
-   private DavService davService;
+   private static DavService davService;
  
    /**
     * @param args
     */
    public static void main(String[] args) {
+
+	   Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
+	   requiredFields.add("marc2XmlDirs"); 
+	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
+
 	   try {
-		   new ConvertMarcToXml(args);
+		   new ConvertMarcToXml(config);
 	   } catch (IOException e) {
 		   e.printStackTrace();
 		   System.exit(1);
@@ -36,14 +41,9 @@ public class ConvertMarcToXml {
     * default constructor
  * @throws IOException 
     */
-   public ConvertMarcToXml(String[] args) throws IOException { 
-	   
-	   Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
-	   requiredFields.add("marc2XmlDirs"); 
-	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
+   public ConvertMarcToXml(SolrBuildConfig config) throws IOException { 
 	   davService = DavServiceFactory.getDavService(config);
-	   
-	   
+
 	   String[] dirs = null;
 	   try {
 		   dirs = config.getMarc2XmlDirs();

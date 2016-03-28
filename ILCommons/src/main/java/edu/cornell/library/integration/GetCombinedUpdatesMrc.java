@@ -33,35 +33,26 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	private static Integer MIN_UPDATE_VOLUME = 150_000;
    
    /**
-    * default constructor
-    */
-   public GetCombinedUpdatesMrc() { 
-       
-   }     
-
-   /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
     */
    public static void main(String[] args) throws Exception {
-     GetCombinedUpdatesMrc app = new GetCombinedUpdatesMrc();
      List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
      requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
      requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
      requiredArgs.add("dailyMrcDir");
      requiredArgs.add("dailyMfhdDir");
    
-     app.getCombinedUpatedsAndSaveAsMARC( SolrBuildConfig.loadConfig(args, requiredArgs) );     
+     new GetCombinedUpdatesMrc(SolrBuildConfig.loadConfig(args, requiredArgs));
    }
    
    private Connection current;
    
-	private void getCombinedUpatedsAndSaveAsMARC(SolrBuildConfig config) 
-	        throws Exception{
+	public GetCombinedUpdatesMrc(SolrBuildConfig config) throws Exception{
 
 	    current = config.getDatabaseConnection("Current");
 
         Set<Integer> updatedBibIds = getBibsToUpdateOrAdd( config );
-        System.out.println("Updated and added bibs identified: ");
+        System.out.println("Updated and added bibs identified: "+updatedBibIds.size());
     	PreparedStatement pstmt = current.prepareStatement(
     			"SELECT * FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
 	    Set<Integer> suppressedBibs = checkForSuppressedRecords(pstmt,updatedBibIds);
@@ -78,6 +69,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
 	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
 	    pstmt.close();
+	    current.close();
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
 	    }
@@ -243,18 +235,19 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	 */
 	private Set<Integer> getBibsToUpdateOrAdd( SolrBuildConfig config ) throws Exception {
 
-        Set<Integer> addedBibs = new HashSet<Integer>();
+        Integer configRecCount = config.getTargetDailyUpdatesBibCount();
+        if (configRecCount != null) {
+        	System.out.println("Target updates bib count set to "+configRecCount);
+        	MIN_UPDATE_VOLUME = configRecCount;
+        }
+
+        Set<Integer> addedBibs = new HashSet<Integer>(MIN_UPDATE_VOLUME);
 
         PreparedStatement pstmt = current.prepareStatement(
         		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
         		+" WHERE not done_date"
         		+" ORDER BY priority");
         ResultSet rs = pstmt.executeQuery();
-        Integer configRecCount = config.getTargetDailyUpdatesBibCount();
-        if (configRecCount != null) {
-        	System.out.println("Target updates bib count set to "+configRecCount);
-        	MIN_UPDATE_VOLUME = configRecCount;
-        }
         IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
         while ( ( addedBibs.size() < MIN_UPDATE_VOLUME
         		  || priority.equals(IndexQueuePriority.DATACHANGE))

@@ -28,8 +28,14 @@ import edu.cornell.library.integration.indexer.IndexDirectory;
 public class IncrementalBibFileToSolr {
     
     public static void main(String[] argv) throws Exception{
-        
-        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv);
+    	List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+    	requiredArgs.add("dailyMrcNtDir");
+    	requiredArgs.add("solrUrl");
+    	new IncrementalBibFileToSolr( SolrBuildConfig.loadConfig(argv,requiredArgs) );
+
+    }
+     
+    public IncrementalBibFileToSolr( SolrBuildConfig config ) throws Exception {
                                      
         /* Figure out the name of the most recent BIB MARC NT file. */
         List<String> filesToIndex;

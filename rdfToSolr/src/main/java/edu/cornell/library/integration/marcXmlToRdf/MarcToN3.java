@@ -42,7 +42,7 @@ public class MarcToN3 {
 		File tempFile = File.createTempFile("NonVoyagerRecords_", ".nt.gz");
 		tempFile.deleteOnExit();
 		System.out.println("Temp NT.GZ file : " + tempFile.getAbsolutePath());
-	*/    
+	*/
 		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.NAME_AS_SOURCE);
 		converter.setOutputFormat(OutputFormat.N3);
 		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getXmlDir(), davService);
