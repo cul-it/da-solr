@@ -155,6 +155,8 @@ public class IdentifyChangedRecords {
 		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
 		System.out.println("Queued from poling item data :"+itemCount);
 		System.out.println("Total bibs queued: "+updatedBibs.size());
+		current.close();
+		voyager.close();
 	}
 
 	private static PreparedStatement bibVoyQStmt = null;

@@ -69,6 +69,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
     			"SELECT * FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE mfhd_id = ?");
 	    Set<Integer> suppressedMfhds = checkForSuppressedRecords(pstmt, updatedMfhdIds);
 	    pstmt.close();
+	    current.close();
 	    if ( ! suppressedMfhds.isEmpty()) {
 	    	updatedMfhdIds.removeAll(suppressedMfhds);
 	    }
