@@ -106,6 +106,9 @@ public class DeleteFromSolr {
             PreparedStatement workStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
             		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
+            PreparedStatement dequeueStmt = conn.prepareStatement(
+            		"DELETE FROM "+CurrentDBTable.QUEUE.toString()+
+            		" WHERE bib_id = ? AND NOT done_date");
             PreparedStatement mfhdQueryStmt = conn.prepareStatement(
             		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR.toString()+
             		" WHERE bib_id = ?");
@@ -139,6 +142,8 @@ public class DeleteFromSolr {
                     knockOnUpdates.remove(id);
                     bibStmt.setInt(1,id);
                     bibStmt.addBatch();
+                    dequeueStmt.setInt(1,id);
+                    dequeueStmt.addBatch();
                     markDoneInQueueStmt.setInt(1,id);
                     markDoneInQueueStmt.addBatch();
                     workStmt.setInt(1,id);
@@ -157,6 +162,7 @@ public class DeleteFromSolr {
                 if( ids.size() >= batchSize ){
                     solr.deleteById( ids );
                     bibStmt.executeBatch();
+                    dequeueStmt.executeBatch();
                     markDoneInQueueStmt.executeBatch();
                     workStmt.executeBatch();
                     mfhdDelStmt.executeBatch();
@@ -174,6 +180,7 @@ public class DeleteFromSolr {
             if( ids.size() > 0 ){
                 solr.deleteById( ids );
                 bibStmt.executeBatch();
+                dequeueStmt.executeBatch();
                 markDoneInQueueStmt.executeBatch();
                 workStmt.executeBatch();
                 mfhdDelStmt.executeBatch();
