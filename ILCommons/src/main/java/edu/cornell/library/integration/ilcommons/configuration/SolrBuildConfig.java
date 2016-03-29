@@ -137,6 +137,9 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
+    public void setLocalBaseFilePath(String path) {
+    		values.put("localBaseFilePath",path);
+    }
 
     public String getWebdavUser() {
     	if (values.containsKey("webdavUser")) {

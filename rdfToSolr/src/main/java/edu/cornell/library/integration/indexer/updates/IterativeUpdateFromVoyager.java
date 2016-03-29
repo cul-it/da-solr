@@ -32,11 +32,13 @@ public class IterativeUpdateFromVoyager {
 		config.setTargetDailyUpdatesBibCount(ITERATIVE_BATCH_SIZE);
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
+		String localBaseFilePath = config.getLocalBaseFilePath();
 
 		int i = 0;
 		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 17) {
-			// do the thing
+
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );
+			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
 			new GetCombinedUpdatesMrc(config);
 			new ConvertMarcToXml(config);
