@@ -53,7 +53,7 @@ public class IdentifyChangedRecords {
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	Set<Integer> updatedBibs = new HashSet<Integer>();
-
+	PreparedStatement bibQueueStmt = null;
 
 	public static void main(String[] args)  {
 		boolean thorough = true;
@@ -88,6 +88,11 @@ public class IdentifyChangedRecords {
 
 	private void quickIdentificationOfChanges() throws Exception {
 		Connection current = config.getDatabaseConnection("Current");
+		bibQueueStmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, 0, ?)");
+
 		Statement stmtCurrent = current.createStatement();
 		ResultSet rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
 		Timestamp ts = null;
@@ -155,8 +160,18 @@ public class IdentifyChangedRecords {
 		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
 		System.out.println("Queued from poling item data :"+itemCount);
 		System.out.println("Total bibs queued: "+updatedBibs.size());
+		bibQueueStmt.close();
 		current.close();
 		voyager.close();
+	}
+
+	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
+		if (updatedBibs.contains(bib_id))
+			return;
+		updatedBibs.add(bib_id);
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
+		bibQueueStmt.executeUpdate();
 	}
 
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
@@ -339,19 +354,6 @@ public class IdentifyChangedRecords {
 		rs.close();
 		mfhdVoyQStmt.close();
 		return bib_id;
-	}
-	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
-		PreparedStatement bibQueueStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-					+" (bib_id, priority, cause)"
-					+" VALUES (?, 0, ?)");
-		if (updatedBibs.contains(bib_id))
-			return;
-		updatedBibs.add(bib_id);
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
-		bibQueueStmt.executeUpdate();
-		bibQueueStmt.close();
 	}
 
 	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
