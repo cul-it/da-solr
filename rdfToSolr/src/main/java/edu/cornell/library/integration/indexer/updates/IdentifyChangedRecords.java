@@ -129,7 +129,7 @@ public class IdentifyChangedRecords {
 		while (rs.next()) {
 			Timestamp thisTS = rs.getTimestamp(2);
 			queueBib( current, rs.getInt(1), thisTS );
-			if (0 > thisTS.compareTo(max_date))
+			if (thisTS != null && 0 > thisTS.compareTo(max_date))
 				max_date = thisTS;
 		}
 		rs.close();
