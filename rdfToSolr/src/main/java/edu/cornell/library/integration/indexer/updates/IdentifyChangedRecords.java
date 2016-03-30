@@ -53,7 +53,8 @@ public class IdentifyChangedRecords {
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	Set<Integer> updatedBibs = new HashSet<Integer>();
-
+	PreparedStatement bibQueueStmt = null;
+	private static Timestamp max_date = null;
 
 	public static void main(String[] args)  {
 		boolean thorough = true;
@@ -88,12 +89,23 @@ public class IdentifyChangedRecords {
 
 	private void quickIdentificationOfChanges() throws Exception {
 		Connection current = config.getDatabaseConnection("Current");
+		bibQueueStmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, 0, ?)");
+
 		Statement stmtCurrent = current.createStatement();
-		ResultSet rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
+		ResultSet rs = null;
+		if (max_date == null)
+			rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
+		else
+			rs = stmtCurrent.executeQuery("SELECT max(bib_id) FROM "+CurrentDBTable.BIB_VOY);
 		Timestamp ts = null;
 		Integer max_bib = 0, max_mfhd = 0, max_item = 0;
 		while (rs.next()) {
-			ts = rs.getTimestamp(2);
+			if (max_date == null)
+				max_date = rs.getTimestamp(2);
+			ts = max_date;
 			max_bib = rs.getInt(1);
 		}
 		rs.close();
@@ -114,13 +126,17 @@ public class IdentifyChangedRecords {
 		pstmt.setInt(1, max_bib);
 		pstmt.setTimestamp(2, ts);
 		rs = pstmt.executeQuery();
-		while (rs.next())
-			queueBib( current, rs.getInt(1), rs.getTimestamp(2) );
+		while (rs.next()) {
+			Timestamp thisTS = rs.getTimestamp(2);
+			queueBib( current, rs.getInt(1), thisTS );
+			if (thisTS != null && 0 > thisTS.compareTo(max_date))
+				max_date = thisTS;
+		}
 		rs.close();
 		pstmt.close();
 
 		int bibCount = updatedBibs.size();
-		System.out.println("Queued from poling bib data :"+bibCount);
+		System.out.println("Queued from poling bib data: "+bibCount);
 
 		pstmt = voyager.prepareStatement(
 				"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
@@ -137,7 +153,7 @@ public class IdentifyChangedRecords {
 		pstmt.close();
 
 		int mfhdCount = updatedBibs.size() - bibCount;
-		System.out.println("Queued from poling holdings data :"+mfhdCount);
+		System.out.println("Queued from poling holdings data: "+mfhdCount);
 
 		pstmt = voyager.prepareStatement(
 				"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
@@ -153,10 +169,20 @@ public class IdentifyChangedRecords {
 		pstmt.close();
 
 		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
-		System.out.println("Queued from poling item data :"+itemCount);
+		System.out.println("Queued from poling item data: "+itemCount);
 		System.out.println("Total bibs queued: "+updatedBibs.size());
+		bibQueueStmt.close();
 		current.close();
 		voyager.close();
+	}
+
+	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
+		if (updatedBibs.contains(bib_id))
+			return;
+		updatedBibs.add(bib_id);
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
+		bibQueueStmt.executeUpdate();
 	}
 
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
@@ -339,19 +365,6 @@ public class IdentifyChangedRecords {
 		rs.close();
 		mfhdVoyQStmt.close();
 		return bib_id;
-	}
-	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
-		PreparedStatement bibQueueStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-					+" (bib_id, priority, cause)"
-					+" VALUES (?, 0, ?)");
-		if (updatedBibs.contains(bib_id))
-			return;
-		updatedBibs.add(bib_id);
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
-		bibQueueStmt.executeUpdate();
-		bibQueueStmt.close();
 	}
 
 	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
