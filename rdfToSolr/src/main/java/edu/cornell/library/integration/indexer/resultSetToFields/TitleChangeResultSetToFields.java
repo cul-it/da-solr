@@ -1,9 +1,9 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -23,10 +23,9 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
-import edu.cornell.library.integration.indexer.utilities.Relator;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.RelatorSet;
 
 /**
  * process the whole 7xx range into a wide variety of fields
@@ -95,18 +94,20 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						String author_suffixes = f.concatenateSpecificSubfields("d");
 						if ( ! author_suffixes.isEmpty() )
 							author_suffixes = " "+author_suffixes;
-						for (Subfield sf : f.subfields.values()) {
-							if (sf.code.equals('4')) {
-								String code = sf.value.toLowerCase().replaceAll("[^a-z]", "");
-								try {
-									author_suffixes += ", "+Relator.valueOf(code).toString();
-								} catch (IllegalArgumentException e) {
-									System.out.println("Unexpected relator code: \""+sf.value+"\".");
-								}
+						RelatorSet rs = new RelatorSet(f);
+						if ( ! rs.isEmpty() ) {
+							if (author_suffixes.isEmpty()) {
+								author_disp =
+										RelatorSet.validateForConcatWRelators(author_disp);
+							} else {
+								author_suffixes =
+										RelatorSet.validateForConcatWRelators(author_suffixes);
 							}
-							else if (sf.code.equals('e'))
-								author_suffixes += ", "+sf.value;
+							author_suffixes += ' '+rs.toString();
 						}
+						if (author_suffixes.isEmpty())
+							if (author_disp.charAt(author_disp.length()-1) == ',')
+								author_disp = author_disp.substring(0, author_disp.length()-1);
 						if (author_suffixes.isEmpty() || f.tag.equals("880"))
 							cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 									"author_addl",author_disp,author_cts));
@@ -266,6 +267,11 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					else romanField = f;
 				}
 				if (candidate && vernField != null && romanField != null) {
+
+					// clean comma from end of vernacular display value
+					if (vernField.display.charAt(vernField.display.length()-1) == ',')
+						vernField.display = vernField.display.substring(0, vernField.display.length()-1);
+
 					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
 					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
 							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
