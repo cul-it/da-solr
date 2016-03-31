@@ -193,7 +193,6 @@ task (step01IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec)
 }
 task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
  description="Gets a list of BIB, MFHD and item records from the Solr index"
-
  main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
@@ -202,7 +201,6 @@ task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item\
  records updates from the Voyager database for the previous day"
-
  main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
@@ -215,6 +213,15 @@ task (QuickIdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '512m'
 }
+task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Uses the quick method to identify changed records in Voyager,\
+  and updates them in Solr. Continues until the time is after 5pm."
+ main='edu.cornell.library.integration.indexer.updates.IterativeUpdateFromVoyager'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
 
 task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
  description="Automatically identify a test suite of records to be used for display\

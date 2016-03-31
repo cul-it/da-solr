@@ -175,7 +175,7 @@ public class MarcRecord {
 			}
 			// Take groups linked by occurrence number, and add them as groups to the sorted fields
 			// keyed by the smallest field id of the group. Groups will be added together, but with
-			// that highest precendence of the lowest field id.
+			// that highest precedence of the lowest field id.
 			for( Integer linkOccurrenceNumber : matchedFields.keySet() ) {
 				FieldSet fs = matchedFields.get(linkOccurrenceNumber);
 				sortedFields.put(fs.minFieldNo, fs);

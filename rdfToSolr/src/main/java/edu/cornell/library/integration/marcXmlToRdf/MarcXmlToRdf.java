@@ -747,16 +747,16 @@ public class MarcXmlToRdf {
 		Integer[] bibs = bibids.toArray(new Integer[ bibids.size() ]);
 		bibids.clear();
 		Arrays.sort( bibs );
-		int batchCount = (bibs.length / groupsize) + 1;
-		for (int i3 = 1; i3 <= batchCount; i3++) {
+		int batchCount = (bibs.length + groupsize - 1) / groupsize;
+		for (int batch = 1; batch <= batchCount; batch++) {
 			Integer minBibid;
-			if (i3*groupsize < bibs.length)
-				minBibid = bibs[(i3)*groupsize];
+			if (batch*groupsize < bibs.length)
+				minBibid = bibs[batch*groupsize];
 			else
 				minBibid = bibs[bibs.length - 1];
-			System.out.println(i3+": "+minBibid);
+			System.out.println(batch+": "+minBibid);
 			OutputStreamWriter  out = openFileForWrite(dirToProcessInto+"/"+
-					destFilenamePrefix+"."+i3+outFileExt);
+					destFilenamePrefix+"."+batch+outFileExt);
 			outsById.put(minBibid, out);
 			
 		}

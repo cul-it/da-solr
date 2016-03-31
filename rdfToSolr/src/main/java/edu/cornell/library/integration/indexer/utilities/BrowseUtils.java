@@ -14,7 +14,7 @@ public class BrowseUtils {
 		GENRE("Genre/Form Term"),
 		MEDIUM("Medium of Performance"),
 		WORK("Work");
-		
+
 		private String string;
 		
 		private HeadTypeDesc(String name) {

@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +52,9 @@ public class IdentifyChangedRecords {
 	DavService davService;
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
+	Set<Integer> updatedBibs = new HashSet<Integer>();
+	PreparedStatement bibQueueStmt = null;
+	private static Timestamp max_date = null;
 
 	public static void main(String[] args)  {
 		boolean thorough = true;
@@ -86,12 +89,23 @@ public class IdentifyChangedRecords {
 
 	private void quickIdentificationOfChanges() throws Exception {
 		Connection current = config.getDatabaseConnection("Current");
+		bibQueueStmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, 0, ?)");
+
 		Statement stmtCurrent = current.createStatement();
-		ResultSet rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
+		ResultSet rs = null;
+		if (max_date == null)
+			rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
+		else
+			rs = stmtCurrent.executeQuery("SELECT max(bib_id) FROM "+CurrentDBTable.BIB_VOY);
 		Timestamp ts = null;
 		Integer max_bib = 0, max_mfhd = 0, max_item = 0;
 		while (rs.next()) {
-			ts = rs.getTimestamp(2);
+			if (max_date == null)
+				max_date = rs.getTimestamp(2);
+			ts = max_date;
 			max_bib = rs.getInt(1);
 		}
 		rs.close();
@@ -112,10 +126,18 @@ public class IdentifyChangedRecords {
 		pstmt.setInt(1, max_bib);
 		pstmt.setTimestamp(2, ts);
 		rs = pstmt.executeQuery();
-		while (rs.next())
-			queueBib( current, rs.getInt(1), rs.getTimestamp(2) );
+		while (rs.next()) {
+			Timestamp thisTS = rs.getTimestamp(2);
+			queueBib( current, rs.getInt(1), thisTS );
+			if (thisTS != null && 0 > thisTS.compareTo(max_date))
+				max_date = thisTS;
+		}
 		rs.close();
 		pstmt.close();
+
+		int bibCount = updatedBibs.size();
+		System.out.println("Queued from poling bib data: "+bibCount);
+
 		pstmt = voyager.prepareStatement(
 				"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
 	    		 +"  from BIB_MFHD, MFHD_MASTER"
@@ -129,6 +151,10 @@ public class IdentifyChangedRecords {
 			queueMfhd( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
 		rs.close();
 		pstmt.close();
+
+		int mfhdCount = updatedBibs.size() - bibCount;
+		System.out.println("Queued from poling holdings data: "+mfhdCount);
+
 		pstmt = voyager.prepareStatement(
 				"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
 	    		+"  from MFHD_ITEM, ITEM"
@@ -141,62 +167,94 @@ public class IdentifyChangedRecords {
 			queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
 		rs.close();
 		pstmt.close();
+
+		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
+		System.out.println("Queued from poling item data: "+itemCount);
+		System.out.println("Total bibs queued: "+updatedBibs.size());
+		bibQueueStmt.close();
+		current.close();
+		voyager.close();
 	}
 
-	private static PreparedStatement bibVoyQStmt = null;
-	private static PreparedStatement bibVoyIStmt = null;
-	private static PreparedStatement bibVoyUStmt = null;
-	private static PreparedStatement bibQueueStmt = null;
+	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
+		if (updatedBibs.contains(bib_id))
+			return;
+		updatedBibs.add(bib_id);
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
+		bibQueueStmt.executeUpdate();
+	}
+
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
-		if (bibVoyQStmt == null)
-			bibVoyQStmt = current.prepareStatement(
+		PreparedStatement bibVoyQStmt = current.prepareStatement(
 					"SELECT record_date FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
 		bibVoyQStmt.setInt(1, bib_id);
 		ResultSet rs = bibVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(1).compareTo(update_date)) {
+			if (update_date == null) {
+				/* ideally, this shouldn't happen. If the update date in Voyager is null,
+				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
+				 * the record reflected in the Current Records database. If it does happen, we should
+				 * queue the bib for index just in case, but not update the inventory. */
+				System.out.println("Unexpected bib found: "+bib_id);
+				addBibToIndexQueue(current, bib_id, false);
+				rs.close();
+				bibVoyQStmt.close();
+				return;
+			}
+			Timestamp old_date = rs.getTimestamp(1);
+			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// bib is already in current, but has been updated
-				if (bibVoyUStmt == null)
-					bibVoyUStmt = current.prepareStatement(
+				PreparedStatement bibVoyUStmt = current.prepareStatement(
 							"UPDATE "+CurrentDBTable.BIB_VOY.toString()
 							+" SET record_date = ?"
 							+" WHERE bib_id = ?");
 				bibVoyUStmt.setTimestamp(1, update_date);
 				bibVoyUStmt.setInt(2, bib_id);
 				bibVoyUStmt.executeUpdate();
-				addBibToIndexQueue(current, bib_id);
+				bibVoyUStmt.close();
+				addBibToIndexQueue(current, bib_id, false);
 			} // else bib is unchanged - do nothing
 			rs.close();
+			bibVoyQStmt.close();
 			return;
 		}
 		rs.close();
+		bibVoyQStmt.close();
 
 		// bib is not yet in current db
-		if (bibVoyIStmt == null)
-			bibVoyIStmt = current.prepareStatement(
+		PreparedStatement bibVoyIStmt = current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.BIB_VOY.toString()
 					+" (bib_id, record_date) VALUES (?, ?)");
 		bibVoyIStmt.setInt(1, bib_id);
 		bibVoyIStmt.setTimestamp(2, update_date);
 		bibVoyIStmt.executeUpdate();
-		addBibToIndexQueue(current, bib_id);
+		bibVoyIStmt.close();
+		addBibToIndexQueue(current, bib_id, true);
 	}
 
-	private static PreparedStatement mfhdVoyQStmt = null;
-	private static PreparedStatement mfhdVoyIStmt = null;
-	private static PreparedStatement mfhdVoyUStmt = null;
 	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
 			Timestamp update_date) throws SQLException {
-		if (mfhdVoyQStmt == null)
-			mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
+		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
 		mfhdVoyQStmt.setInt(1, mfhd_id);
 		ResultSet rs = mfhdVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+			if (update_date == null) {
+				/* ideally, this shouldn't happen. If the update date in Voyager is null,
+				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
+				 * the record reflected in the Current Records database. If it does happen, we should
+				 * queue the bib for index just in case, but not update the inventory. */
+				System.out.println("Unexpected mfhd found: "+mfhd_id+" (bib:"+bib_id+")");
+				addBibToIndexQueue(current, bib_id, false);
+				rs.close();
+				mfhdVoyQStmt.close();
+				return;
+			}
+			Timestamp old_date = rs.getTimestamp(2);
+			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// mfhd is already in current, but has been updated
 				int old_bib = rs.getInt(1);
-				if (mfhdVoyUStmt == null)
-					mfhdVoyUStmt = current.prepareStatement(
+				PreparedStatement mfhdVoyUStmt = current.prepareStatement(
 							"UPDATE "+CurrentDBTable.MFHD_VOY.toString()
 							+" SET record_date = ?, bib_id = ?"
 							+" WHERE mfhd_id = ?");
@@ -204,19 +262,21 @@ public class IdentifyChangedRecords {
 				mfhdVoyUStmt.setInt(2, bib_id);
 				mfhdVoyUStmt.setInt(3, mfhd_id);
 				mfhdVoyUStmt.executeUpdate();
-				addBibToIndexQueue(current, bib_id);
+				mfhdVoyUStmt.close();
+				addBibToIndexQueue(current, bib_id, false);
 
 				if (old_bib != bib_id)
-					addBibToIndexQueue(current, old_bib);
+					addBibToIndexQueue(current, old_bib, false);
 			} // else mfhd is unchanged - do nothing
 			rs.close();
+			mfhdVoyQStmt.close();
 			return;
 		}
 		rs.close();
+		mfhdVoyQStmt.close();
 
 		// mfhd is not yet in current db
-		if (mfhdVoyIStmt == null)
-			mfhdVoyIStmt = current.prepareStatement(
+		PreparedStatement mfhdVoyIStmt = current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.MFHD_VOY.toString()
 					+" (bib_id, mfhd_id, record_date)"
 					+" VALUES (?, ?, ?)");
@@ -224,27 +284,36 @@ public class IdentifyChangedRecords {
 		mfhdVoyIStmt.setInt(2, mfhd_id);
 		mfhdVoyIStmt.setTimestamp(3, update_date);
 		mfhdVoyIStmt.executeUpdate();
-		addBibToIndexQueue(current, bib_id);
+		mfhdVoyIStmt.close();
+		addBibToIndexQueue(current, bib_id, false);
 	}
 
-	private static PreparedStatement itemVoyQStmt = null;
-	private static PreparedStatement itemVoyIStmt = null;
-	private static PreparedStatement itemVoyUStmt = null;
 	private void queueItem(Connection current, int mfhd_id, int item_id,
 			Timestamp update_date) throws SQLException {
-		if (itemVoyQStmt == null)
-			itemVoyQStmt = current.prepareStatement(
+		PreparedStatement itemVoyQStmt = current.prepareStatement(
 					"SELECT mfhd_id, record_date"
 					+" FROM "+CurrentDBTable.ITEM_VOY.toString()
 					+" WHERE item_id = ?");
 		itemVoyQStmt.setInt(1, item_id);
 		ResultSet rs = itemVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (0 > rs.getTimestamp(2).compareTo(update_date)) {
+			if (update_date == null) {
+				/* ideally, this shouldn't happen. If the update date in Voyager is null,
+				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
+				 * the record reflected in the Current Records database. If it does happen, we should
+				 * queue the bib for index just in case, but not update the inventory. */
+				int bib_id = getBibIdForMfhd(current, mfhd_id);
+				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
+				addBibToIndexQueue(current, bib_id, false);
+				rs.close();
+				itemVoyQStmt.close();
+				return;
+			}
+			Timestamp old_date = rs.getTimestamp(2);
+			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// item is already in current, but has been updated
 				int old_mfhd = rs.getInt(1);
-				if (itemVoyUStmt == null)
-					itemVoyUStmt = current.prepareStatement(
+				PreparedStatement itemVoyUStmt = current.prepareStatement(
 							"UPDATE "+CurrentDBTable.ITEM_VOY.toString()
 							+" SET record_date = ?, mfhd_id = ?"
 							+" WHERE item_id = ?");
@@ -252,25 +321,27 @@ public class IdentifyChangedRecords {
 				itemVoyUStmt.setInt(2, mfhd_id);
 				itemVoyUStmt.setInt(3, item_id);
 				itemVoyUStmt.executeUpdate();
+				itemVoyUStmt.close();
 
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				if (bib_id > 0)
-					addBibToIndexQueue(current, bib_id);
+					addBibToIndexQueue(current, bib_id, false);
 
 				if (mfhd_id != old_mfhd) {
 					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
 					if (old_bib_id > 0 && old_bib_id != bib_id)
-						addBibToIndexQueue(current, old_bib_id);
+						addBibToIndexQueue(current, old_bib_id, false);
 				}
 			} // else item is unchanged - do nothing
 			rs.close();
+			itemVoyQStmt.close();
 			return;
 		}
 		rs.close();
+		itemVoyQStmt.close();
 
 		// item is not yet in current db
-		if (itemVoyIStmt == null)
-			itemVoyIStmt = current.prepareStatement(
+		PreparedStatement itemVoyIStmt = current.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.ITEM_VOY.toString()
 					+" (mfhd_id, item_id, record_date)"
 					+" VALUES (?, ?, ?)");
@@ -278,27 +349,22 @@ public class IdentifyChangedRecords {
 		itemVoyIStmt.setInt(2, item_id);
 		itemVoyIStmt.setTimestamp(3, update_date);
 		itemVoyIStmt.executeUpdate();
+		itemVoyIStmt.close();
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
 		if (bib_id > 0)
-			addBibToIndexQueue(current,bib_id);
+			addBibToIndexQueue(current,bib_id, false);
 		
 	}
 	private int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
-		if (mfhdVoyQStmt == null)
-			mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
+		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
 		mfhdVoyQStmt.setInt(1, mfhd_id);
-		ResultSet rs2 = mfhdVoyQStmt.executeQuery();
+		ResultSet rs = mfhdVoyQStmt.executeQuery();
 		Integer bib_id = 0;
-		while (rs2.next())
-			bib_id = rs2.getInt(1);
-		rs2.close();
+		while (rs.next())
+			bib_id = rs.getInt(1);
+		rs.close();
+		mfhdVoyQStmt.close();
 		return bib_id;
-	}
-	private void addBibToIndexQueue(Connection current, Integer bib_id) throws SQLException {
-		if (bibQueueStmt == null)
-			bibQueueStmt = prepareBibQueueStmt(current);
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.executeUpdate();
 	}
 
 	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
@@ -307,12 +373,7 @@ public class IdentifyChangedRecords {
 				+" FROM "+CurrentDBTable.MFHD_VOY.toString()
 				+" WHERE mfhd_id = ?");
 	}
-	private PreparedStatement prepareBibQueueStmt(Connection current) throws SQLException {
-		return current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-				+" (bib_id, priority, cause)"
-				+" VALUES (?, 0, 'Record Update'");
-	}
+
 	private void thoroughIdentifiationOfChanges() throws Exception {
 
 	    this.davService = DavServiceFactory.getDavService( config );
