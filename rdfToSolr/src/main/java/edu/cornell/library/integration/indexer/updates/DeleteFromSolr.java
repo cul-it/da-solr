@@ -102,13 +102,13 @@ public class DeleteFromSolr {
             		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
     		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
     				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
-    						+ " WHERE bib_id = ? AND NOT done_date");
+    						+ " WHERE bib_id = ? AND done_date = 0");
             PreparedStatement workStmt = conn.prepareStatement(
             		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
             		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
             PreparedStatement dequeueStmt = conn.prepareStatement(
             		"DELETE FROM "+CurrentDBTable.QUEUE.toString()+
-            		" WHERE bib_id = ? AND NOT done_date");
+            		" WHERE bib_id = ? AND done_date = 0");
             PreparedStatement mfhdQueryStmt = conn.prepareStatement(
             		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR.toString()+
             		" WHERE bib_id = ?");

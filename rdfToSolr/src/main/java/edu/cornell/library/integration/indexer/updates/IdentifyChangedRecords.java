@@ -235,10 +235,14 @@ public class IdentifyChangedRecords {
 
 	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
 			Timestamp update_date) throws SQLException {
+		if ( ! isBibActive(current,bib_id))
+			return;
+
 		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
 		mfhdVoyQStmt.setInt(1, mfhd_id);
 		ResultSet rs = mfhdVoyQStmt.executeQuery();
 		while (rs.next()) {
+
 			if (update_date == null) {
 				/* ideally, this shouldn't happen. If the update date in Voyager is null,
 				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
@@ -299,12 +303,13 @@ public class IdentifyChangedRecords {
 		while (rs.next()) {
 			if (update_date == null) {
 				/* ideally, this shouldn't happen. If the update date in Voyager is null,
-				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
+				 * then it was retrieved based on voy!id > max(current!id), which means we shouldn't have found
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
-				addBibToIndexQueue(current, bib_id, false);
+				if (isBibActive(current,bib_id))
+					addBibToIndexQueue(current, bib_id, false);
 				rs.close();
 				itemVoyQStmt.close();
 				return;
@@ -324,12 +329,13 @@ public class IdentifyChangedRecords {
 				itemVoyUStmt.close();
 
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
-				if (bib_id > 0)
+				if (bib_id > 0 && isBibActive(current,bib_id))
 					addBibToIndexQueue(current, bib_id, false);
 
 				if (mfhd_id != old_mfhd) {
 					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
-					if (old_bib_id > 0 && old_bib_id != bib_id)
+					if (old_bib_id > 0 && old_bib_id != bib_id
+							&& isBibActive(current,old_bib_id))
 						addBibToIndexQueue(current, old_bib_id, false);
 				}
 			} // else item is unchanged - do nothing
@@ -351,9 +357,21 @@ public class IdentifyChangedRecords {
 		itemVoyIStmt.executeUpdate();
 		itemVoyIStmt.close();
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
-		if (bib_id > 0)
+		if (bib_id > 0 && isBibActive(current,bib_id))
 			addBibToIndexQueue(current,bib_id, false);
 		
+	}
+	private boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
+		PreparedStatement bibVoyQStmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
+		bibVoyQStmt.setInt(1, bib_id);
+		ResultSet rs = bibVoyQStmt.executeQuery();
+		boolean exists = false;
+		while (rs.next())
+			exists = true;
+		rs.close();
+		bibVoyQStmt.close();
+		return exists;
 	}
 	private int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
 		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);

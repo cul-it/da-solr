@@ -193,7 +193,7 @@ public class IndexRecordListComparison {
 				"select s.bib_id from "+CurrentDBTable.BIB_SOLR.toString()+" as s "
 				+ "left join "+CurrentDBTable.BIB_VOY.toString()+" as v"
 						+ " on s.bib_id = v.bib_id "
-				+ "where s.active AND v.bib_id is null");
+				+ "where s.active = 1 AND v.bib_id is null");
 		while (rs.next()) l.add(rs.getInt(1));
 		rs.close();
 		return l;
@@ -219,7 +219,7 @@ public class IndexRecordListComparison {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(
 				"SELECT bib_id FROM "+CurrentDBTable.QUEUE.toString()
-				+ " WHERE not done_date"
+				+ " WHERE done_date = 0"
 				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal()
 				+ " AND cause != '"+DataChangeUpdateType.DELETE.toString()+"'");
 		while (rs.next()) l.add(rs.getInt(1));
