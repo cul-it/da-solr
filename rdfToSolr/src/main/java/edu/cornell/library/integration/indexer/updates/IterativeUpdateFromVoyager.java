@@ -12,9 +12,6 @@ import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 
 public class IterativeUpdateFromVoyager {
-	
-	private final static Integer ITERATIVE_BATCH_SIZE = 1000;
-
 	public static void main(String[] args) throws Exception {
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
 		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
@@ -27,9 +24,14 @@ public class IterativeUpdateFromVoyager {
 		requiredArgs.add("dailyMrcNtDir");
 		requiredArgs.add("dailyMrcNtFilenamePrefix");
     	requiredArgs.add("solrUrl");
-
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
-		config.setTargetDailyUpdatesBibCount(ITERATIVE_BATCH_SIZE);
+
+		switch (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+		case Calendar.SATURDAY:
+		case Calendar.SUNDAY:
+			config.setTargetDailyUpdatesBibCount(5_000); break;
+		default: config.setTargetDailyUpdatesBibCount(1_000);
+		}
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
