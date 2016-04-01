@@ -205,6 +205,7 @@ task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
 }
+
 task (QuickIdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  description="Attempts to quickly but imperfectly identify changed Voyager records."
  main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
@@ -221,4 +222,12 @@ task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
+
+task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
+ description="Automatically identify a test suite of records to be used for display\
+              field testing, and populate a database with their display field contents."
+ main='edu.cornell.library.integration.indexTesting.BuildDisplayFieldTestRecordSuite'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 
