@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -55,7 +56,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         System.out.println("Updated and added bibs identified: "+updatedBibIds.size());
 	    Set<Integer> suppressedBibs = checkForSuppressedRecords(current,updatedBibIds);
 	    if ( ! suppressedBibs.isEmpty()) {
-	    	System.out.println("suppressed bibs eliminated from list: "+suppressedBibs.size());
+	    	System.out.println("suppressed bibs eliminated from list: "
+	    			+suppressedBibs.size()+" ("+StringUtils.join(suppressedBibs, ", ")+")");
 	    	updatedBibIds.removeAll(suppressedBibs);
 	    }
 	     	    
