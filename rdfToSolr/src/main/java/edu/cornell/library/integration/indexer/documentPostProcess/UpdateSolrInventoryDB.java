@@ -86,7 +86,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
 		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
 				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
-						+ " WHERE bib_id = ? AND NOT done_date");
+						+ " WHERE bib_id = ? AND done_date = 0");
 		markDoneInQueueStmt.setInt(1, bibid);
 		markDoneInQueueStmt.executeUpdate();
 		markDoneInQueueStmt.close();
@@ -381,7 +381,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Set<Integer> previousOclcIds = new HashSet<Integer>();
 		PreparedStatement origWorksStmt = conn.prepareStatement(
 				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK.toString()+
-				" WHERE bib_id = ? AND active");
+				" WHERE bib_id = ? AND active = 1");
 		origWorksStmt.setInt(1, bibid);
 		ResultSet rs = origWorksStmt.executeQuery();
 		while (rs.next()) {
@@ -497,7 +497,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+" WHERE work_id = ?"
 				+ "  AND oclc_id = ?"
 				+ "  AND bib_id != ?"
-				+ "  AND active");
+				+ "  AND active = 1");
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 				+ " (bib_id, priority, cause) VALUES"
@@ -568,7 +568,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+ " WHERE a.work_id = b.work_id"
 				+ "   AND a.bib_id = ? AND a.oclc_id = ?"
 				+ "   AND b.bib_id != a.bib_id"
-				+ "   AND b.active");
+				+ "   AND b.active = 1");
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 				+ " (bib_id, priority, cause) VALUES"

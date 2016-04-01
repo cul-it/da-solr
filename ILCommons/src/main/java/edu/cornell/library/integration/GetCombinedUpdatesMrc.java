@@ -238,7 +238,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
         PreparedStatement pstmt = current.prepareStatement(
         		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
-        		+" WHERE not done_date"
+        		+" WHERE done_date = 0"
         		+" ORDER BY priority");
         ResultSet rs = pstmt.executeQuery();
         IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
