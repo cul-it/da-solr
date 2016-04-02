@@ -189,7 +189,7 @@ public class MrcToXmlConverter {
        
        FileUtils.deleteQuietly(f);
        
-       System.out.println("File record count: "+ total+"\n");
+       System.out.println("File record count: "+ total);
        return f001list;
         
     }

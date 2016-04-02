@@ -56,6 +56,7 @@ public class ConvertMarcToXml {
 		   System.out.println("marc2XmlDirs must be configured with an even number of paths in src/dest pairs.");
 		   return;
 	   }
+	   System.out.println("\nConvert MARC to MARC XML");
 	   for (int i = 0; i < dirs.length; i += 2) {
 		   convertDir(dirs[i], dirs[i+1]);
 	   }
@@ -77,7 +78,7 @@ public class ConvertMarcToXml {
          System.out.println("No Marc files available to process");
       } else {
          for (String srcFile  : srcList) {
-            System.out.println("Converting mrc file: "+ srcFile);
+            System.out.println("Converting file: "+ srcFile);
    			try {
    				totalRecordCount += converter.convertMrcToXml(davService, srcDir, srcFile).size();
    			} catch (Exception e) {
@@ -86,7 +87,7 @@ public class ConvertMarcToXml {
    			}
    		}
       }
-      System.out.println("\nTotal record count for "+srcDir+": "+totalRecordCount);
+      System.out.println("Total record count for directory: "+totalRecordCount);
       
    }
 }
