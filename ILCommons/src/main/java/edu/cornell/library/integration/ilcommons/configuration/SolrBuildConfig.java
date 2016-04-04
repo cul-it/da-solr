@@ -568,7 +568,6 @@ public class SolrBuildConfig {
 		    	cpds.setMinPoolSize(1);
 		    	cpds.setMaxPoolSize(pool);
 		    	cpds.setInitialPoolSize(1);
-		    	cpds.setDebugUnreturnedConnectionStackTraces(true);
 		    	databases.put(id, cpds);
 	    	}
 	    	if (debug) System.out.println("Connection pool established. Obtaining and returning connection.");
