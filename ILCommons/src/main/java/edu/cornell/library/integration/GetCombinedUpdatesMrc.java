@@ -123,6 +123,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             	mfhdDataList.add(mfhdData);
             }
             rs.close();
+            if (mfhdDataList.isEmpty()) {
+            	System.out.println("Skipping record m"+mfhdid+". Could not retrieve from Voyager. If available, the bib will still be indexed.");
+            	continue;
+            }
             
             for (MfhdData mfhdData : mfhdDataList) { 
                 sb.append(mfhdData.getRecord()); 
@@ -133,8 +137,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
              * library, we may need to remove this. For now, it simplifies pulling problem
              * records from the MARC "database".
              */
-            if (! mfhdDataList.isEmpty())
-         	   sb.append('\n');
+            sb.append('\n');
             
             recno = recno + 1;
             
@@ -177,6 +180,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             	bibDataList.add(bibData);
             }
             rs.close();
+            if (bibDataList.isEmpty()) {
+            	System.out.println("Skipping record b"+bibid+". Could not retrieve from Voyager.");
+            	continue; // TODO: dequeue bib if it's no longer in Voyager
+            }
 
             for (BibData bibData : bibDataList) { 
             	sb.append(bibData.getRecord()); 
@@ -187,8 +194,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
              * library, we may need to remove this. For now, it simplifies pulling problem
              * records from the MARC "database".
              */
-            if (! bibDataList.isEmpty())
-            	sb.append('\n');
+            sb.append('\n');
 
             recno = recno + 1;
             if (recno >= maxrec || ! bibIds.hasNext() ) {
