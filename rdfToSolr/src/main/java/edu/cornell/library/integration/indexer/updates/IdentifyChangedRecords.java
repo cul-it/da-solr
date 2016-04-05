@@ -181,7 +181,9 @@ public class IdentifyChangedRecords {
 			return;
 		updatedBibs.add(bib_id);
 		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2, (isNew)?"Added Record":"Record Update");
+		bibQueueStmt.setString(2,
+				(isNew)?DataChangeUpdateType.ADD.toString()
+						:DataChangeUpdateType.UPDATE.toString());
 		bibQueueStmt.executeUpdate();
 	}
 

@@ -21,6 +21,7 @@ import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
@@ -250,9 +251,13 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         		+" ORDER BY priority");
         ResultSet rs = pstmt.executeQuery();
         IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
+        final String delete = DataChangeUpdateType.DELETE.toString();
         while ( ( addedBibs.size() < MIN_UPDATE_VOLUME
         		  || priority.equals(IndexQueuePriority.DATACHANGE))
         		&& rs.next()) {
+
+        	if (rs.getString("cause").equals(delete))
+        		continue;
         	addedBibs.add(rs.getInt("bib_id"));
         	if (rs.getInt("priority") != IndexQueuePriority.DATACHANGE.ordinal())
         		priority = IndexQueuePriority.values()[rs.getInt("priority")];

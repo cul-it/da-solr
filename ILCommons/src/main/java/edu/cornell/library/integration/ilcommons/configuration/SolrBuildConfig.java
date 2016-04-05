@@ -590,7 +590,10 @@ public class SolrBuildConfig {
         	return c;    		
     	}
     }
-    
+    public void setDatabasePoolsize(String id, int size) {
+    	values.put("databasePoolsize"+id, String.valueOf(size));
+    }
+
     public void closeDatabaseConnectionPools() {
     	for (String dbid : databases.keySet())
     		databases.get(dbid).close();
