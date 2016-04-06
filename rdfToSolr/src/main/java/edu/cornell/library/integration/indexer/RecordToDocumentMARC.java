@@ -236,7 +236,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addResultSetToFields( new FormatResultSetToFields() ),
 										
 				getLanguageFieldMaker(),
-				new StandardMARCFieldMaker("language_display","546","3ab"),
 				    		
 			    new SPARQLFieldMakerStepped().
 			        setName("call_numbers").
@@ -784,6 +783,16 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	    		"        ?l intlayer:code ?langcode.\n" +
 	    		"        ?l rdfs:label ?language.\n" +
 	    		"	}").
+	    addMainStoreQuery("language_note",
+	    		"SELECT *\n" +
+	    		" WHERE { $recordURI$ marcrdf:hasField546 ?field.\n" +
+	    		"        ?field marcrdf:tag ?tag. \n" +
+	    		"        ?field marcrdf:ind1 ?ind1. \n" +
+	    		"        ?field marcrdf:ind2 ?ind2. \n" +
+	    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
+	    		"        ?sfield marcrdf:code ?code.\n" +
+	    		"        ?sfield marcrdf:value ?value.\n" +
+	    		" }").
 	    addMainStoreQuery("languages_041",
 	    		"SELECT DISTINCT ?c ?language\n"+
 	            " WHERE {$recordURI$ marcrdf:hasField041 ?f.\n" +
