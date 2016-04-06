@@ -1,8 +1,359 @@
-/* Build script for integration layer */
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-/* The current thinking is to setup a build
-   script at the base integrationLayer directory
-   with scripts in the sub diectories like rdfToSolr. */
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+   compile fileTree(dir: 'libs', include: '*.jar')   
+
+   compile 'org.apache.hadoop:hadoop-core:1.0.3'
+
+   //get us core, tdb, arq, and iri
+   compile 'org.apache.jena:apache-jena:2.11.1'
+
+   compile 'commons-io:commons-io:2.4'
+   compile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
+   runtime fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
+
+   testCompile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
+   testRuntime fileTree(dir: 'lib', include: '*.jar' )   
+
+   //gets a lot of sesame jars   
+   compile 'org.openrdf.sesame:sesame-runtime:2.7.11'
+
+   compile 'javax.servlet:servlet-api:2.5'
+   compile 'junit:junit:4.9'  
+
+   compile 'org.apache.httpcomponents:httpmime:4.2.2'
+             
+   compile 'org.apache.solr:solr-solrj:4.9.1'
+   
+   compile 'com.google.guava:guava:14.0'
+
+}
+
+task list(dependsOn: configurations.compile) << { 
+    println "classpath = ${configurations.compile.collect {File file -> file.name}}"
+}
+
+task (step01IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets a list of BIB, MFHD and item records from the Voyager database"
+ main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentVoyagerRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
+task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Gets a list of BIB, MFHD and item\
+ records updates from the Voyager database for the previous day"
+ main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
+task(step03DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
+ group="Incremental Update Steps" 
+ description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
+
+ main = 'edu.cornell.library.integration.indexer.updates.DeleteFromSolr'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task (step04GetCombinedUpdatesMrc, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Retrieves BIB and MFHD records identified as changed or in need of re-indexing"
+ main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
+task (step05ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Run ConvertMarcToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
+task (step06UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+   description="Converts Voyager Updates MARC XML to MARC N-Triples." 
+   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
+   maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task(step07IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
+ group="Incremental Update Steps"
+ description = "Builds Solr Documents for MARC\
+ n-Triples from step 5 and adds them to the Solr index."
+ maxHeapSize = '1000m'
+ main = 'edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( step08ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
+ group="Incremental Update Steps"
+ description = "Generates a report of what records are missing\
+ from the Solr Index or are in the Solr index but not in Voyager."
+ maxHeapSize = '2048m'  
+ main = 'edu.cornell.library.integration.indexer.updates.ConfirmSolrIndexCompleteness'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task (step09IndexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Incremental Update Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+task (step10Headings2Solr, dependsOn: 'assemble', type: JavaExec){
+   group="Incremental Update Steps"
+   description="Pulls authorized and unauthorized headings with totals from Mysql database to Solr" 
+   main='edu.cornell.library.integration.indexer.Headings2Solr'
+   maxHeapSize = '1500m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert XML extract of Voyager location table to XML. "
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.libraryXmlToRdf.LibraryXmlToNTriples'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( QueueRecordsForSolrIndex, dependsOn: 'assemble', type: JavaExec) {
+ description = "Takes input file of bib ids, and queues them for update in Solr."
+ args = [ 4, 'Add 899 display field', 'bibsContaining899.txt' ]
+ maxHeapSize = '512m'  
+ main = 'edu.cornell.library.integration.indexer.updates.QueueRecordsForSolrIndex'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to TXT representation of MARC"
+ maxHeapSize = '1500m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToTxt'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
+ description = "Generated a tab-delimited report of extracted values"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.RunExtractReport'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( marcXmlToNT, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to N-Triples"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToNT'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( marcXmlToN3, dependsOn: 'assemble', type: JavaExec) {
+ description = "Convert all MARC XML to N3"
+ maxHeapSize = '1024m'
+ main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToN3'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
+   main='edu.cornell.library.integration.indexer.IndexHeadings'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Converts Voyager MARC XML to MARC N-Triples." 
+   jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
+   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (indexAuthority, dependsOn: 'assemble', type: JavaExec){
+   group="Full Build Steps"
+   description="Indexes Authority Solr core from Authority MARC XML" 
+   main='edu.cornell.library.integration.indexer.IndexAuthorityRecords'
+   maxHeapSize = '3000m'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+
+task libJar(type: Jar){
+    description = 'Create a jar of all the dependencies of this project, but no classes from this project'
+    from {
+        configurations.compile.collect{ it.isDirectory() ? it : zipTree(it) }
+    }
+    archiveName 'rdfToSolr.dependencies.jar'
+    // some how we are getting two slf4j implementations, 
+    // some project's pom.xml is messed up.
+    exclude "**/slf4j-jdk14*"
+}
+
+jar {
+    description = 'Create a jar of all the dependencies and classes of this project'
+    dependsOn configurations.compile
+    from { 
+       configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+    }
+    exclude "**/slf4j-jdk14*"
+}
+
+task copyToLib(type: Copy) {
+    description = "Copy all dependencies to $buildDir/output/lib for use by IDEs like eclipse"  
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+
+task (IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
+ description="Gets a list of BIB and MFHD\
+ records updates from the Voyager database for the previous day"
+
+ main='edu.cornell.library.integration.indexer.updates.IdentifyDeletedRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
+ description="Gets a list of BIB, MFHD and item records from the Solr index"
+ main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
+task (QuickIdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
+ description="Attempts to quickly but imperfectly identify changed Voyager records."
+ main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
+ args = [ 'false' ]
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '512m'
+}
+task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Uses the quick method to identify changed records in Voyager,\
+  and updates them in Solr. Continues until the time is after 5pm."
+ main='edu.cornell.library.integration.indexer.updates.IterativeUpdateFromVoyager'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
+
+task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
+ description="Automatically identify a test suite of records to be used for display\
+              field testing, and populate a database with their display field contents."
+ main='edu.cornell.library.integration.indexTesting.BuildDisplayFieldTestRecordSuite'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
+task (OracleTables, dependsOn: 'assemble', type: JavaExec){
+   description="Get Oracle Tables" 
+   main='edu.cornell.library.integration.support.OracleTables'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (OracleTest, dependsOn: 'assemble', type: JavaExec){
+   description="Oracle Test" 
+   main='edu.cornell.library.integration.support.OracleTest'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (OracleQuery, dependsOn: 'assemble', type: JavaExec){
+   description="Oracle Query" 
+   main='edu.cornell.library.integration.support.OracleQuery'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task (GetRecordCount, dependsOn:'assemble', type: JavaExec){
+   description='Run GetRecordCount'
+   main='edu.cornell.library.integration.GetRecordCount'
+   classpath = sourceSets.main.runtimeClasspath
+   args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done']
+}
+
+task (GetBibMrc, dependsOn:'assemble', type: JavaExec){
+ description='Run GetBibMrc'
+ main='edu.cornell.library.integration.GetBibMrc'
+ classpath = sourceSets.main.runtimeClasspath
+ args = ['6794039', 
+         'http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.updates']
+}
+
+task (GetMfhdMrc, dependsOn:'assemble', type: JavaExec){
+ description='Run GetMfhdMrc'
+ main='edu.cornell.library.integration.GetMfhdMrc'
+ classpath = sourceSets.main.runtimeClasspath
+ args=['8318301','http://culdata.library.cornell.edu/data/voyager/mfhd/mfhd.mrc.updates']
+}
+
+task (GetAuthUpdatesMrc, dependsOn:'assemble', type: JavaExec){
+ description='Run GetAuthUpdatesMrc'
+ main='edu.cornell.library.integration.GetAuthUpdatesMrc'
+ classpath = sourceSets.main.runtimeClasspath
+ args=['http://culdata.library.cornell.edu/data/voyager/auth/auth.mrc.updates']
+}
+
+task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Run ConvertMarcToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+       }
+
+task (GetRecentBibDataCount, dependsOn:'assemble', type: JavaExec){
+ description='Run GetRecentBibDataCount'
+ main='edu.cornell.library.integration.GetRecentBibDataCount'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+ args=['3'  ]
+}
+
+task (GetRecentMfhdDataCount, dependsOn:'assemble', type: JavaExec){
+ description='Run GetRecentMfhdDataCount'
+ main='edu.cornell.library.integration.GetRecentMfhdDataCount'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+ args=['3']
+}
+
+task (GetLocations, dependsOn:'assemble', type: JavaExec){
+ description='Run GetLocations'
+ main='edu.cornell.library.integration.GetLocations'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
+task (GetCatalogRecordLists, dependsOn:'assemble', type: JavaExec){
+ description="Gets lists of current bib, holdings, and item ids with necessary mappings and modified dates."
+ main='edu.cornell.library.integration.GetCatalogRecordLists'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
+task (GetBibMasterData, dependsOn:'assemble', type: JavaExec){
+ description='Run GetBibMasterData'
+ main='edu.cornell.library.integration.GetBibMasterData'
+ classpath = sourceSets.main.runtimeClasspath
+ args=['6100933']
+}
+
+task (FindMissingBibId, dependsOn:'assemble', type: JavaExec){
+ description='Run FindMissingBibId'
+ main='edu.cornell.library.integration.support.FindMissingBibId'
+ classpath = sourceSets.main.runtimeClasspath
+  maxHeapSize = '2048m'
+}
 
 
 subprojects {
@@ -12,149 +363,13 @@ subprojects {
         mavenCentral()
         //sesame repository
         maven { url "http://repo.aduna-software.org/maven2/releases/" }
-    }    
+    }
 }
-
-
 
 task wrapper(type: Wrapper) {
 
-    description = "Setups up gradle wraper. see\
+    description = "Setups up gradle wrapper. see\
  http://www.gradle.org/docs/current/userguide/gradle_wrapper.html"
 
     gradleVersion = '1.4'
-}     
-
-//task prepareForTesting(dependsOn: ['convertRadioactiveMARCToRDF', 
-//'copySolrTemplateDirToTestingResources']) << { 
-//}
-
-// task convertRadioactiveMARCToRDF (type: Xslt)  {  
-//   source file('rdf/sources/RadMARCATS1.xml' )
-//   destDir = file('rdf/output')
-//   extension = 'nt' 
-//   stylesheetFile = file( 'rdf/voyager-to-vitroTriples.datamap.xsl' )
-// }
-
-task copySolrTemplateDirToTestingResources (type: Sync) {
-  //Need to use the solr template dir in the unit tests.
-  //So it needs to be copied to the testing resource directory.  
-  from './solr'
-  into 'rdfToSolr/src/test/resources/solr'
 }
-
-task solrTestPropertiesFile  {
-  File solrDir = new File ('./solr')
-  String from = './rdfToSolr/src/test/resources/testSolr.properties.example'
-  String to   = './rdfToSolr/src/test/resources/testSolr.properties'
-  
-  Map filters = [ solrTemplateDirectory: solrDir.absolutePath ]
-  ant.copy(file: from, tofile: to) {
-    filterset() {
-       filters.each { key, value -> filter(token: key, value: value) }       
-    }
-  } 
-}
-
-
-/* bdc34: I'd rather have this as a file named Xslt.groovy in the
-   buildSrc directory but I haven't been able to 
-   get it to work.  So it lives here for now.  */
-   
-/**
- *  Gradle plug-in for running a set of one or more
- *  files through an XSLT transform.  A styleSheet
- *  file must be specified.  The source file(s) are
- *  configured just like any other source task:
- *     source <file>
- *       ...or...
- *     source <directory>
- *       ...and then optionally...
- *     include '*.xml'
- *     exclude, etc.
- *
- *  One of destDir or destFile must be specified, though if
- *  there are multiple source files then destFile will just
- *  keep getting rewritten.
- *
- *  The extension is stripped from the source files and the
- *  specified extension is appended (whether it is set or not)
- *  it defaults to no extension.
- *
- *  Example task formatting a check style report:
- *
- *  task checkstyleReport(type: Xslt, dependsOn: check) {
- *      source project.checkstyleResultsDir
- *      include '*.xml'
- *
- *      destDir = project.checkstyleResultsDir
- *      extension = 'html'
- *
- *      stylesheetFile = file( 'config/checkstyle/checkstyle-noframes.xsl' )
- *  }
- *
- *  The above definition requires that the specified XSL file be
- *  copied in with the other checkstyle configuration files.  (The
- *  file in the example is part of the checkstyle distribution.)
- *
- */
-
-// import javax.xml.transform.TransformerFactory
-// import javax.xml.transform.stream.StreamResult
-// import javax.xml.transform.stream.StreamSource
-
-
-// // Trying to work around a small defficiency in plug-in class
-// // resolution.
-// project.Xslt = Xslt.class
-
-// class Xslt extends SourceTask {
-
-//     @OutputFile @Optional
-//     File destFile
-
-//     @OutputDirectory @Optional
-//     File destDir
-
-//     @InputFile
-//     File stylesheetFile
-
-//     @Optional
-//     String extension
-
-//     @TaskAction
-//     def transform() {
-//         if (!((destFile != null) ^ (destDir != null))) {
-//             throw new InvalidUserDataException("Must specify exactly 1 of output file or dir.")
-//         }
-
-//         println( "Using XSL style sheet:" + stylesheetFile );
-
-//         def factory = TransformerFactory.newInstance()
-//         def transformer = factory.newTransformer(new StreamSource(stylesheetFile));
-
-//         source.visit { FileVisitDetails fvd ->
-//             if (fvd.isDirectory()) {
-//                 return
-//             }
-
-//             println( "Processing " + fvd )
-
-//             File d = destFile;
-//             if( d == null )
-//                 {
-//                 // Remove the extension from the file name
-//                 name = fvd.file.name.replaceAll( '[.][^\\.]*$', '' )
-//                 if( extension != null )
-//                     name += '.' + extension
-//                 d = new File( destDir, name )
-//                 }
-//             println( "--> output:" + d )
-
-//             transformer.transform(new StreamSource(fvd.file), new StreamResult(d))
-
-
-//         }
-//     }
-
-// }
