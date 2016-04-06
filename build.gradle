@@ -5,6 +5,20 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+repositories {
+    mavenCentral()
+    //sesame repository
+    maven { url "http://repo.aduna-software.org/maven2/releases/" }
+}
+
+task wrapper(type: Wrapper) {
+
+    description = "Setups up gradle wrapper. see\
+ http://www.gradle.org/docs/current/userguide/gradle_wrapper.html"
+
+    gradleVersion = '1.4'
+}
+
 dependencies {
    compile fileTree(dir: 'libs', include: '*.jar')   
 
@@ -353,23 +367,4 @@ task (FindMissingBibId, dependsOn:'assemble', type: JavaExec){
  main='edu.cornell.library.integration.support.FindMissingBibId'
  classpath = sourceSets.main.runtimeClasspath
   maxHeapSize = '2048m'
-}
-
-
-subprojects {
-    apply plugin: 'java'
-
-    repositories {
-        mavenCentral()
-        //sesame repository
-        maven { url "http://repo.aduna-software.org/maven2/releases/" }
-    }
-}
-
-task wrapper(type: Wrapper) {
-
-    description = "Setups up gradle wrapper. see\
- http://www.gradle.org/docs/current/userguide/gradle_wrapper.html"
-
-    gradleVersion = '1.4'
 }
