@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -74,6 +75,7 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 		MarcRecord rec = new MarcRecord();
 		rec.addDataFieldResultSet(results.get("language_note"),"546");
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		List<String> notes = new ArrayList<String>();
 		for (FieldSet fs : sortedFields.values()) {
 			String value880 = null;
 			String valueMain = null;
@@ -85,7 +87,7 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 				}
 			}
 			if (valueMain == null && value880 != null) {
-				display_langs.add(value880);
+				notes.add(value880);
 			} else if (valueMain != null) {
 				for (int i = display_langs.size() - 1; i >= 0; i--) {
 					String language = display_langs.get(i);
@@ -94,13 +96,13 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 				}
 				if (value880 != null) {
 					if (value880.length() <= 15) {
-						display_langs.add(value880+" / " + valueMain);
+						notes.add(value880+" / " + valueMain);
 					} else {
-						display_langs.add(value880);
-						display_langs.add(valueMain);
+						notes.add(value880);
+						notes.add(valueMain);
 					}
 				} else {
-					display_langs.add(valueMain);
+					notes.add(valueMain);
 				}
 			}
 		}
@@ -108,15 +110,11 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 
 		Iterator<String> i = facet_langs.iterator();
 		while (i.hasNext()) addField(fields,"language_facet",i.next());
-		StringBuilder sb = new StringBuilder();
-		i = display_langs.iterator();
-		Boolean first = true;
-		while (i.hasNext()) {
-			if (first) first = false;
-			else sb.append(", ");
-			sb.append(i.next());
-		}
-		addField(fields, "language_display",sb.toString());
+		if ( ! display_langs.isEmpty())
+			addField(fields, "language_display",StringUtils.join(display_langs, ", "));
+		for (String note : notes)
+			addField(fields, "language_display",note);
+			
 		
 		return fields;
 	}
