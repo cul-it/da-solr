@@ -87,9 +87,11 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 			if (valueMain == null && value880 != null) {
 				display_langs.add(value880);
 			} else if (valueMain != null) {
-				for (String language : display_langs)
+				for (int i = display_langs.size() - 1; i >= 0; i--) {
+					String language = display_langs.get(i);
 					if (valueMain.contains(language))
-						display_langs.remove(language);
+						display_langs.remove(i);
+				}
 				if (value880 != null) {
 					if (value880.length() <= 15) {
 						display_langs.add(value880+" / " + valueMain);
