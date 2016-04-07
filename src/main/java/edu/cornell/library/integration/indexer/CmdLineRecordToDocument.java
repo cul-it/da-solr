@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -97,22 +97,20 @@ public class CmdLineRecordToDocument extends CommandBase{
 			throw new Exception("a identifier field of '" +idFieldKey+"' is required");				    
 		
         //It would be nice to use the default binary handler but there seem to be library problems		
-        HttpSolrServer server = new HttpSolrServer(solrIndexURL);
-        		
-		//SolrServer server = new CommonsHttpSolrServer(solrIndexURL);
-		//server.setRequestWriter(new BinaryRequestWriter());
-		
+        HttpSolrClient solr = new HttpSolrClient(solrIndexURL);
+
 		//this might not work well if there are multiple values for the id field        
         String idValue = ClientUtils.escapeQueryChars( (String)doc.getField( idFieldKey ).getFirstValue() );         
-		server.deleteByQuery(idFieldKey + ":" + idValue );
+		solr.deleteByQuery(idFieldKey + ":" + idValue );
 		
 		List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 		docs.add( doc );
 		
-		UpdateResponse resp = server.add(docs);
+		UpdateResponse resp = solr.add(docs);
 		System.out.println( respToString( resp ) );
 		
-		server.commit();		
+		solr.commit();
+		solr.close();
 	}
 	
 	private static String respToString( UpdateResponse resp){

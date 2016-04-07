@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,20 +50,20 @@ public class Headings2Solr {
 
 		connection = config.getDatabaseConnection("Headings");
 
-		ConcurrentUpdateSolrServer solr =
-				new ConcurrentUpdateSolrServer(config.getSubjectSolrUrl(),1000,5);
+		ConcurrentUpdateSolrClient solr =
+				new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5);
 		findWorks(solr, HeadType.SUBJECT);
-		solr.shutdown();
-		solr = new ConcurrentUpdateSolrServer(config.getAuthorSolrUrl(),1000,5);
+		solr.close();
+		solr = new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5);
 		findWorks(solr, HeadType.AUTHOR);
-		solr.shutdown();
-		solr = new ConcurrentUpdateSolrServer(config.getAuthorTitleSolrUrl(),1000,5);
+		solr.close();
+		solr = new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5);
 		findWorks(solr, HeadType.AUTHORTITLE);
-		solr.shutdown();
+		solr.close();
 		connection.close();
 	}
 
-	private void findWorks(ConcurrentUpdateSolrServer solr, HeadType ht) throws Exception  {
+	private void findWorks(ConcurrentUpdateSolrClient solr, HeadType ht) throws Exception  {
 		String query =
 			"SELECT h.* "
 			+ "FROM heading as h"

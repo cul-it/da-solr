@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -64,7 +64,7 @@ public class IdentifyCurrentSolrRecords {
 	    int fetchsize = 5000;
 	    long offset = 0;
 
-	    HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
+	    HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl());
 	    SolrQuery query = new SolrQuery();
 	    query.setQuery("id:*");
 	    query.setFields("bibid_display","online","location_facet","url_access_display",
@@ -97,6 +97,7 @@ public class IdentifyCurrentSolrRecords {
 		}
 		makeDBKeys();
 		current.commit();
+		solr.close();
 	}
 
 	private void setUpTables() throws SQLException {

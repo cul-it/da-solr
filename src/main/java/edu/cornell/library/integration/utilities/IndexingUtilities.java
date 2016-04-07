@@ -42,7 +42,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -154,7 +154,7 @@ public class IndexingUtilities {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static TitleMatchReference pullReferenceFields(SolrDocument doc) throws ParseException {
+	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
 		Object bibid_display = doc.getFieldValue("bibid_display");
 		if (bibid_display.getClass().equals(String.class)) {
