@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
@@ -40,9 +40,9 @@ public class StdinRecordToDocument extends CommandBase {
 		RDFService rdfService = new RDFServiceSparqlHttp( rdfEndpointURI );
 			
 		//setup solr server
-		SolrServer solrServer = null;
+		SolrClient solr = null;
 		try {
-			solrServer = setupSolrServer(solrIndexURL);
+			solr = setupSolrServer(solrIndexURL);
 		} catch (MalformedURLException e) {
 			System.err.println("could not setup connection with solr index: " + e.getMessage());
 			System.exit(1);
@@ -59,19 +59,19 @@ public class StdinRecordToDocument extends CommandBase {
 				
 				System.err.println(recordURI);
 				try{
-					addToIndex( solrServer, r2d.buildDoc(recordURI, config) );
+					addToIndex( solr, r2d.buildDoc(recordURI, config) );
 				}catch(Exception ex){
 					System.out.println("exception while working on " + recordURI + "\n" + ex.getMessage());
 					ex.printStackTrace(System.out);
 				}
 				count++;
 				if( count % commitCount == 0)
-					solrServer.commit();
+					solr.commit();
 				
 				recordURI = in.readLine();
 			}
 			
-			solrServer.commit();
+			solr.commit();
 		}catch(Exception ex){
 			System.out.println( ex.toString() );
 			ex.printStackTrace(System.out);
@@ -82,7 +82,7 @@ public class StdinRecordToDocument extends CommandBase {
 	}
 
 	
-	private static void addToIndex(SolrServer solrServer, SolrInputDocument doc) 
+	private static void addToIndex(SolrClient solrServer, SolrInputDocument doc) 
 			throws SolrServerException, IOException {
 
 		//this might not work well if there are multiple values for the id field        
@@ -93,8 +93,8 @@ public class StdinRecordToDocument extends CommandBase {
 		solrServer.add(doc);			
 	}
 
-	static SolrServer setupSolrServer( String endPointURI ) throws MalformedURLException{
-        return new HttpSolrServer(endPointURI);        		
+	static SolrClient setupSolrServer( String endPointURI ) throws MalformedURLException{
+        return new HttpSolrClient(endPointURI);        		
 	}
 	
 	private static String help = "\nexpected: endPointURI recToDocImplClassName solrIndexURL\n";

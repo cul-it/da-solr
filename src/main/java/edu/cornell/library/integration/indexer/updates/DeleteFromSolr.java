@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer.updates;
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -73,7 +74,7 @@ public class DeleteFromSolr {
         }
 
         String solrURL = config.getSolrUrl();                                        
-        SolrServer solr = new HttpSolrServer( solrURL );
+        SolrClient solr = new HttpSolrClient( solrURL );
 
 		Set<Integer> knockOnUpdates = new HashSet<Integer>();
 
@@ -251,7 +252,7 @@ public class DeleteFromSolr {
 		}
 	}
 
-    private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException{
+    private static long countOfDocsInSolr( SolrClient solr ) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
         query.set("qt", "standard");
         query.setQuery("*:*");

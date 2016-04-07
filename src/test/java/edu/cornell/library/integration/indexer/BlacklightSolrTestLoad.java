@@ -15,9 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
@@ -42,7 +42,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
  */
 public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 			
-	static SolrServer solr = null;		
+	static SolrClient solr = null;		
 		
 	/**
 	 * These are the path prefixes to try to use 
@@ -82,8 +82,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		
 	public static void setupSolr() throws Exception{		
 		setupRdf();
-		solr = new HttpSolrServer("http://da-dev-solr.library.cornell.edu/solr/test");
-//		solr = new 	HttpSolrServer( "http://fbw4-dev.library.cornell.edu:8080/solr/test" );
+		solr = new HttpSolrClient("http://da-dev-solr.library.cornell.edu/solr/test");
 		indexStandardTestRecords( solr, rdf );		
 	}
 	
@@ -96,7 +95,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		solr.ping();
 	}
 	
-	public void testRadioactiveIds() throws SolrServerException{	
+	public void testRadioactiveIds() throws SolrServerException, IOException{	
 		String[] ids = new String[]{				
 				"UNTRadMARC001", 		
 				"UNTRadMARC002",
@@ -134,8 +133,9 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	
 	/** 
 	 * Test that a document with the given IDs are in the results for the query. 
-	 * @throws SolrServerException */
-	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException{
+	 * @throws SolrServerException 
+	 * @throws IOException */
+	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException, IOException{
 		assertNotNull(errmsg + " but query was null", query);
 		assertNotNull(errmsg + " but docIds was null", docIds );
 									
@@ -168,7 +168,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	    return s.hasNext() ? s.next() : "";
 	}
 
-	private static void indexStandardTestRecords( SolrServer solr , RDFService rdfService) throws Exception {
+	private static void indexStandardTestRecords( SolrClient solr , RDFService rdfService) throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
 		InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { ?bib  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" +
 				"             <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .}",

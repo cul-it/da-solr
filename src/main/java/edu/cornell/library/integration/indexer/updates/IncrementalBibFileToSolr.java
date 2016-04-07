@@ -7,9 +7,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -99,8 +99,9 @@ public class IncrementalBibFileToSolr {
      */
     private static void commitAndMakeAvaiableForSearch(String solrUrl) 
             throws SolrServerException, IOException {
-        SolrServer solr = new  HttpSolrServer( solrUrl );
-        solr.commit(true,true,true);        
+        SolrClient solr = new  HttpSolrClient( solrUrl );
+        solr.commit(true,true,true);
+        solr.close();
     }
 
 

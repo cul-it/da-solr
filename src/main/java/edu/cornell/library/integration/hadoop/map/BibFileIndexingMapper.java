@@ -30,9 +30,9 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
@@ -76,7 +76,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     Path doneDir;
 	
 	String solrURL;
-	SolrServer solr;
+	SolrClient solr;
 
     /** If true, attempt to delete the document from solr before adding them
         in order to do an update. */
@@ -357,7 +357,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					+ BibFileToSolr.SOLR_SERVICE_URL);
 				
 		//solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
-        solr = new HttpSolrServer(solrURL);
+        solr = new HttpSolrClient(solrURL);
 		
 		try { solr.ping(); } catch (SolrServerException e) {
 			throw new Error("Cannot connect to solr server at \""+solrURL+"\".",e);
