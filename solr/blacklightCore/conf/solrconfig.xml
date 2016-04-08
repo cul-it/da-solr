@@ -1137,7 +1137,7 @@
     	title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
-        title_uniform_startsC^250  title_uniform_startsP^250 title_uniform_startsCJK^250
+        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
         subtitle_t^50              subtitle_tP^50           subtitle_t_cjk^10
         subtitle_unstemC^125       subtitle_unstemP^125
         title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
