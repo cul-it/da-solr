@@ -142,13 +142,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             
             recno = recno + 1;
             
-            if (recno >= maxrec || ! mfhdIds.hasNext() ) {         
+            if (recno >= maxrec) {         
             	saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
                 seqno = seqno + 1;
                 recno = 0; 
                 sb = new StringBuffer();                             
             }                            
         }
+        if (recno != 0)
+        	saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
         mfhdStmt.close();
     }
 
@@ -198,13 +200,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             sb.append('\n');
 
             recno = recno + 1;
-            if (recno >= maxrec || ! bibIds.hasNext() ) {
+            if (recno >= maxrec) {
             	saveBibMrc(sb.toString(), seqno, bibDestDir);
             	recno = 0;
             	seqno = seqno + 1;
             	sb = new StringBuffer();
             }
         }
+        if (recno != 0)
+        	saveBibMrc(sb.toString(), seqno, bibDestDir);
         bibStmt.close();
     }
 
