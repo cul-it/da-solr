@@ -598,6 +598,19 @@
       <str name="fq">database_b:true</str>
     </lst>
   </requestHandler>
+  <requestHandler name="/termsOfUse" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="fl">id,fulltitle_display,title_display,subtitle_display,fulltitle_vern_display,summary_display,sixfivethree,url_access_display,title_other_display,dbcode,providercode</str>
+      <str name="df">id</str>
+      <str name="rows">1</str>
+      <str name="wt">ruby</str>
+      <str name="q">{!raw f=id v=$id}</str>
+      <str name="q.alt">*</str>
+      <str name="facet.mincount">1</str>
+    </lst>
+  </requestHandler>
   <requestHandler name="/databasesBySubject" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="defType">lucene</str>
