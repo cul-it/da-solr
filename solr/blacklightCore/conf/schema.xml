@@ -397,9 +397,6 @@
     <field name="author_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
 
-    <!-- these search fields are NOT multi-valued -->
-    <field name="author_t" type="text" indexed="true" stored="false" multiValued="false"/>
-
     <!-- these fields are also used for display, so they must be stored -->
     <!-- these display fields are now being used for search -->
     <field name="isbn_t" type="text" indexed="true" stored="true" multiValued="true"/>
