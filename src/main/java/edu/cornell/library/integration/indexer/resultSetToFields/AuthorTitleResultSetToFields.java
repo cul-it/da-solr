@@ -304,6 +304,10 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 		String responsibility = null, responsibility_vern = null;
 		if (title != null) {
 		
+			for (Subfield sf : title.subfields.values())
+				if (sf.code.equals('h'))
+					sf.value = sf.value.replaceAll("\\[.*\\]", "");
+
 			String fulltitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("abdefghknpqsv"),".,;:=/ ");
 
 			// sort title
@@ -312,9 +316,6 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			addField(solrFields,"title_sort",sortTitle);
 	
 			// main title display fields
-			for (Subfield sf : title.subfields.values())
-				if (sf.code.equals('h'))
-					sf.value = sf.value.replaceAll("\\[.*\\]", "");
 			String maintitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:=/ ");
 			addField(solrFields,"title_display",maintitle);
 			addField(solrFields,"subtitle_display",
