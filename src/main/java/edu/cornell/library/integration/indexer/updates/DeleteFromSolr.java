@@ -119,8 +119,11 @@ public class DeleteFromSolr {
             	ids.add( String.valueOf(bib_id) );
             	knockOnUpdateStmt.setInt(1,bib_id);
             	ResultSet rs = knockOnUpdateStmt.executeQuery();
-            	while (rs.next())
-            		knockOnUpdates.add(rs.getInt(1));
+            	while (rs.next()) {
+            		int other_bib_id = rs.getInt(1);
+            		if ( ! ids.contains( String.valueOf(other_bib_id) ))
+            			knockOnUpdates.add(other_bib_id);
+            	}
             	rs.close();
             	knockOnUpdates.remove(bib_id);
             	bibStmt.setInt(1,bib_id);
