@@ -27,13 +27,15 @@ import edu.cornell.library.integration.utilities.FileNameUtils;
 /**
  * Utility to delete bibs from Solr index.
  * 
- * Gets directory from config.getDailyBibDeleted() via WEBDAV. the most current
- * delete file will be used.
+ * Identifies bibs that should be deleted from solr based on the "Current"
+ * database's CurrentDBTable.QUEUE table entries with `cause` listed as
+ * DataChangeUpdateType.DELETE.
  * 
- * The file should have a single Bib ID per a line. It should be UTF-8 encoded.
- * 
- * A delete requests will be sent to the Solr service for each bib ID. They
- * may be sent in batches.
+ * Bibs are deleted from Solr, and the "Current" database is updated to reflect
+ * changes in the current Solr contents. Finally, any bibs that might link to
+ * the deleted bibs based on shared work id's will be queued to be refreshed
+ * in Solr by adding entries to the CurrentDBTable.QUEUE with
+ * DataChangeUpdateType.TITLELINK.
  */
 public class DeleteFromSolr {
            
@@ -42,9 +44,6 @@ public class DeleteFromSolr {
 		List<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
-		requiredArgs.add("dailyBibDeletes");
-		requiredArgs.add("dailyBibUpdates");
 
         SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
         
@@ -53,24 +52,6 @@ public class DeleteFromSolr {
     }
     
     public void doTheDelete(SolrBuildConfig config) throws Exception  {
-
-        DavService davService = DavServiceFactory.getDavService( config );
-
-        //  use the most current delete file
-        String prefix = "bibListForDelete"; 
-        String deletesDir = config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes(); 
-        String deleteFileURL="notYetSet?";
-        try {
-            deleteFileURL = FileNameUtils.findMostRecentFile(davService, deletesDir, prefix);
-        } catch (Exception e) {                        
-            throw new Exception("No documents have been deleted, could not find the most recent deletes "
-                    + "file from " + deletesDir + " with prefix " + prefix, e );
-        }            
-        if( deleteFileURL == null ) {
-            System.out.println("No documents have been deleted, could not find the most recent deletes "
-                    + "file from " + deletesDir + " with prefix " + prefix);
-            return;
-        }
 
         String solrURL = config.getSolrUrl();                                        
         SolrServer solr = new HttpSolrServer( solrURL );
@@ -199,7 +180,6 @@ public class DeleteFromSolr {
             if ( ! knockOnUpdates.isEmpty()) {
             	System.out.println(String.valueOf(knockOnUpdates.size())
             			+" documents identified as needing update because they share a work_id with deleted rec(s).");
-            	produceUpdateFile(config,davService,knockOnUpdates);
             	PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
         				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
         				+ " (bib_id, priority, cause) VALUES"
@@ -213,8 +193,7 @@ public class DeleteFromSolr {
             }
             
         } catch (Exception e) {
-        	throw new Exception( "Exception while processing deletes form file " + deleteFileURL + 
-        			", problem around line " + lineNum + ", some documents may "
+        	throw new Exception( "Exception while processing deletes, some documents may "
         			+ "have been deleted from Solr.", e);
         } finally {
         	conn.close();
@@ -223,33 +202,6 @@ public class DeleteFromSolr {
         System.out.println("Success: requested " + lineNum + " documents "
                 + "to be deleted from solr at " + config.getSolrUrl());
     }
-
-	private void produceUpdateFile( SolrBuildConfig config,
-			DavService davService, Set<Integer> bibsToUpdate) throws Exception {
-
-		if (bibsToUpdate != null && bibsToUpdate.size() > 0){			
-			
-			Integer[] arr = bibsToUpdate.toArray(new Integer[ bibsToUpdate.size() ]);
-			Arrays.sort( arr );
-			StringBuilder sb = new StringBuilder();
-			for( Integer id: arr ) {
-				sb.append(id);
-				sb.append("\n");
-			}
-
-			String updateReport = sb.toString();
-
-			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
-			        + "deletedRecordKnockOnBibList.txt";
-			try {			    
-				davService.saveFile(fileName, new ByteArrayInputStream(updateReport.getBytes("UTF-8")));
-				System.out.println("Wrote report to " + fileName);
-			} catch (Exception e) {
-			    throw new Exception("Could not save list of "
-			            + "BIB IDs that need update to file '" + fileName + "'",e);   
-			}
-		}
-	}
 
     private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException{
         SolrQuery query = new SolrQuery();
