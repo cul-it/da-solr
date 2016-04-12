@@ -1096,6 +1096,12 @@
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
         authority_author_startsC   authority_author_startsP  authority_author_startsCJK
       </str>
+      <str name="author_cts_qf">
+        author_pers_filing author_corp_filing author_event_filing
+      </str>
+      <str name="author_cts_pf">
+        author_pers_filing author_corp_filing author_event_filing
+      </str>
       <str name="author_quot_qf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
@@ -1212,6 +1218,26 @@
         subject_startsC^200        subject_startsP^200        subject_startsCJK^5
         subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
         authority_subject_startsC  authority_subject_startsP  authority_subject_startsCJK
+      </str>
+      <str name="subject_cts_qf">
+        subject_pers_browse
+        subject_corp_browse
+        subject_event_browse
+        subject_topic_browse
+        subject_geo_browse
+        subject_era_browse
+        subject_genr_browse
+        subject_work_browse
+      </str>
+      <str name="subject_cts_pf">
+        subject_pers_browse
+        subject_corp_browse
+        subject_event_browse
+        subject_topic_browse
+        subject_geo_browse
+        subject_era_browse
+        subject_genr_browse
+        subject_work_browse
       </str>
       <str name="subject_quot_qf">
         subject_unstemC^200        subject_unstemP^200
