@@ -72,21 +72,6 @@
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
 
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
-
-      Numeric field types that manipulate the value into
-      a string value that isn't human-readable in its internal form,
-      but with a lexicographic ordering the same as the numeric ordering,
-      so that range queries work correctly.
-    -->
-    <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
-    
     <!-- The "RandomSortField" is not used to store or search any
          data.  You can declare fields of this type it in your schema
          to generate pseudo-random orderings of your docs for sorting 
@@ -200,7 +185,7 @@
         <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
         <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
         <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30" side="front"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
 		<!--  remove all spaces  -->
@@ -216,7 +201,7 @@
     <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
 		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20" side="front"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20"/>
     </analyzer>
     <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
@@ -288,7 +273,7 @@
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15" side="front"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15"/>
     </analyzer>
     <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
@@ -348,7 +333,7 @@
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="edu.cornell.library.integration.indexer.utilities.FilingFilterFactory" />
+        <filter class="edu.cornell.library.integration.utilities.FilingFilterFactory" />
       </analyzer>
     </fieldType>
 
