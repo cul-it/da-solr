@@ -1097,10 +1097,10 @@
         authority_author_startsC   authority_author_startsP  authority_author_startsCJK
       </str>
       <str name="author_cts_qf">
-        author_pers_filing author_corp_filing author_event_filing
+        author_pers_browse author_corp_browse author_event_browse
       </str>
       <str name="author_cts_pf">
-        author_pers_filing author_corp_filing author_event_filing
+        author_pers_browse author_corp_browse author_event_browse
       </str>
       <str name="author_quot_qf">
         author_unstemC^125         author_unstemP^125

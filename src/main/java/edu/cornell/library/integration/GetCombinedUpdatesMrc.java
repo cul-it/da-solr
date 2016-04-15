@@ -32,7 +32,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePri
  */
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	
-	private static Integer MIN_UPDATE_VOLUME = 150_000;
+	private static Integer minUpdateBibCount = 150_000;
    
    /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
@@ -244,19 +244,20 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         Integer configRecCount = config.getTargetDailyUpdatesBibCount();
         if (configRecCount != null) {
         	System.out.println("Target updates bib count set to "+configRecCount);
-        	MIN_UPDATE_VOLUME = configRecCount;
+        	minUpdateBibCount = configRecCount;
         }
 
-        Set<Integer> addedBibs = new HashSet<Integer>(MIN_UPDATE_VOLUME);
+        Set<Integer> addedBibs = new HashSet<Integer>(minUpdateBibCount);
 
         PreparedStatement pstmt = current.prepareStatement(
         		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
         		+" WHERE done_date = 0"
-        		+" ORDER BY priority");
+        		+" ORDER BY priority"
+        		+" LIMIT " + minUpdateBibCount*2);
         ResultSet rs = pstmt.executeQuery();
         IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
         final String delete = DataChangeUpdateType.DELETE.toString();
-        while ( ( addedBibs.size() < MIN_UPDATE_VOLUME
+        while ( ( addedBibs.size() < minUpdateBibCount
         		  || priority.equals(IndexQueuePriority.DATACHANGE))
         		&& rs.next()) {
 

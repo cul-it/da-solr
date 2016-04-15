@@ -560,6 +560,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?sfield marcrdf:value ?value. }").
 			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()), //IndicatorReq Needed!
 			    
+			    new StandardMARCFieldMaker("notes","362","a"),
+				new StandardMARCFieldMaker("notes_t","362","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","500","3a"),
 				new StandardMARCFieldMaker("notes_t","500","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","501","3a"),
