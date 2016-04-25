@@ -1022,21 +1022,27 @@
         author_addl_t_cjk^5
         author_245c_t              author_245c_tP
         author_245c_t_cjk
-      </str>
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk
+     </str>
       <str name="author_pf">
-
-      </str>
+        author_unstemC^125         author_unstemP^125
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_t^50                author_tP^50
+        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25
+        author_addl_t_cjk^5
+        author_245c_t              author_245c_tP
+        author_245c_t_cjk
+        authority_author_t         authority_author_tP
+        authority_author_t_cjk      </str>
       <str name="author_starts_qf">
         author_startsC^125         author_startsP^125        author_startsCJK^10
         author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
-        authority_author_startsC   authority_author_startsP  authority_author_startsCJK
       </str>
       <str name="author_starts_pf">
-        author_startsC^125         author_startsP^125        author_startsCJK^10
-        author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
-        author_245c_startsC        author_245c_startsP       author_245c_startsCJK
-        authority_author_startsC   authority_author_startsP  authority_author_startsCJK
+
       </str>
       <str name="author_cts_qf">
         author_pers_browse author_corp_browse author_event_browse
