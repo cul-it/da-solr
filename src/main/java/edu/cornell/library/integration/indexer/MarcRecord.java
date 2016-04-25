@@ -414,8 +414,25 @@ public class MarcRecord {
 			 * so that the calling method can have access to the title WITH the article.
 			 */
 			public String getStringWithoutInitialArticle(String fulltitle) {
-				if (Character.isDigit(this.ind2)) {
-					int nonFilingCharCount = Character.digit(this.ind2, 10);
+				Character nonFilingCharInd = null;
+				switch (this.mainTag) {
+				case "130":
+				case "730":
+				case "740":
+					nonFilingCharInd = this.ind1;
+					break;
+				case "222":
+				case "240":
+				case "242":
+				case "243":
+				case "245":
+				case "830":
+					nonFilingCharInd = this.ind2;
+				}
+				if (nonFilingCharInd == null)
+					return fulltitle;
+				if (Character.isDigit(nonFilingCharInd)) {
+					int nonFilingCharCount = Character.digit(nonFilingCharInd, 10);
 					if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle.length())
 						return fulltitle.substring(nonFilingCharCount);
 				}

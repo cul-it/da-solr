@@ -37,7 +37,7 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
-			rec.addDataFieldResultSet(rs);
+			rec.addDataFieldResultSet(rs,"130");
 		}
 		
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
