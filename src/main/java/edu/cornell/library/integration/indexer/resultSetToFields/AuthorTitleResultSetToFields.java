@@ -95,12 +95,12 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						filing_type = "pers";
 						htd = HeadTypeDesc.PERSNAME;
 					} else if (mainTag.equals("110")) {
-						subfields = "abcdefghijklmnopqrstuvwxyz";
+						subfields = "abcdfghijklmnopqrstuvwxyz";
 						ctsSubfields = "ab";
 						filing_type = "corp";
 						htd = HeadTypeDesc.CORPNAME;
 					} else {
-						subfields = "abcdefghijklmnopqrstuvwxyz";
+						subfields = "abcdefghiklmnopqrstuvwxyz";
 						ctsSubfields = "abe";
 						filing_type = "event";
 						htd = HeadTypeDesc.EVENT;
