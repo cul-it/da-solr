@@ -62,49 +62,60 @@ public class DeleteFromSolr {
         Connection conn = null;
         try{
             System.out.println("Deleting BIB IDs found in queue with: "
-            		+DataChangeUpdateType.DELETE.toString());
+            		+DataChangeUpdateType.DELETE);
             System.out.println("from Solr at: " + solrURL);
-
-            config.setDatabasePoolsize("Current", 2);
-            conn = config.getDatabaseConnection("Current");
-            conn.setAutoCommit(false);
 
             long countBeforeDel = countOfDocsInSolr( solr );
 
+            config.setDatabasePoolsize("Current", 2);
             Connection getQueuedConn = config.getDatabaseConnection("Current");
             PreparedStatement deleteQueueStmt = getQueuedConn.prepareStatement(
-            		"SELECT bib_id FROM "+CurrentDBTable.QUEUE.toString()
+            		"SELECT bib_id FROM "+CurrentDBTable.QUEUE
             		+" WHERE done_date = 0 AND priority = 0"
             		+" AND cause = ?");
             deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
             ResultSet deleteQueueRS = deleteQueueStmt.executeQuery();
+            if ( ! deleteQueueRS.first() ) {
+            	// no records to delete
+            	deleteQueueRS.close();
+            	deleteQueueStmt.close();
+            	getQueuedConn.close();
+                config.setDatabasePoolsize("Current", 1);
+                System.out.println("No record deletes were queued.");
+                return;
+            }
+            deleteQueueRS.beforeFirst();
+
             int batchSize = 1000;
             List<String> ids = new ArrayList<String>(batchSize);
+
+            conn = config.getDatabaseConnection("Current");
+            conn.setAutoCommit(false);
 
             int commitSize = batchSize * 10;
 
             PreparedStatement bibStmt = conn.prepareStatement(
-            		"UPDATE "+CurrentDBTable.BIB_SOLR.toString()+
+            		"UPDATE "+CurrentDBTable.BIB_SOLR+
             		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
     		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
-    				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
+    				"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
     						+ " WHERE bib_id = ? AND done_date = 0");
             PreparedStatement workStmt = conn.prepareStatement(
-            		"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
+            		"UPDATE "+CurrentDBTable.BIB2WORK+
             		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
             PreparedStatement mfhdQueryStmt = conn.prepareStatement(
-            		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR.toString()+
+            		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+
             		" WHERE bib_id = ?");
             PreparedStatement mfhdDelStmt = conn.prepareStatement(
-            		"DELETE FROM "+CurrentDBTable.MFHD_SOLR.toString()+
+            		"DELETE FROM "+CurrentDBTable.MFHD_SOLR+
             		" WHERE bib_id = ?");
             PreparedStatement itemStmt = conn.prepareStatement(
-            		"DELETE FROM "+CurrentDBTable.ITEM_SOLR.toString()+
+            		"DELETE FROM "+CurrentDBTable.ITEM_SOLR+
             		" WHERE mfhd_id = ?");
             PreparedStatement knockOnUpdateStmt = conn.prepareStatement(
             		"SELECT b.bib_id"
-            		+ " FROM "+CurrentDBTable.BIB2WORK.toString()+" AS a, "
-            				+CurrentDBTable.BIB2WORK.toString()+" AS b "
+            		+ " FROM "+CurrentDBTable.BIB2WORK+" AS a, "
+            				+CurrentDBTable.BIB2WORK+" AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"
@@ -184,9 +195,9 @@ public class DeleteFromSolr {
             	System.out.println(String.valueOf(knockOnUpdates.size())
             			+" documents identified as needing update because they share a work_id with deleted rec(s).");
             	PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-        				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+        				"INSERT INTO "+CurrentDBTable.QUEUE
         				+ " (bib_id, priority, cause) VALUES"
-        				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
+        				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK+"')");
             	for (int bib_id : knockOnUpdates) {
             		markBibForUpdateStmt.setInt(1,bib_id);
             		markBibForUpdateStmt.addBatch();
