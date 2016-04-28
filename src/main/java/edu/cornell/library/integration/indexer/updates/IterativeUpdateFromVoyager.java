@@ -42,6 +42,8 @@ public class IterativeUpdateFromVoyager {
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );
 			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
+			DeleteFromSolr dfs = new DeleteFromSolr();
+			dfs.doTheDelete(config);
 			new GetCombinedUpdatesMrc(config);
 			new ConvertMarcToXml(config);
 

@@ -18,6 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -46,6 +50,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
+import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+
 public class IndexingUtilities {
 
 	public static enum IndexQueuePriority {
@@ -62,6 +69,44 @@ public class IndexingUtilities {
 		}
 
 		public String toString() { return string; }
+	}
+
+	/**
+	 * bib_id is either already in CurrentDBTable.BIB_VOY and presumably in Solr, or it may have been
+	 * newly inserted as suppressed. If the former, it needs to be queued for delete from Solr. If
+	 * the latter, it can be safely ignored.
+	 * @param current
+	 * @param bib_id
+	 * @throws SQLException
+	 */
+	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
+		boolean inBIB_VOY = false;
+		PreparedStatement bibVoyQStmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
+		bibVoyQStmt.setInt(1, bib_id);
+		ResultSet rs = bibVoyQStmt.executeQuery();
+		while (rs.next())
+			inBIB_VOY = true;
+		rs.close();
+		bibVoyQStmt.close();
+		if ( ! inBIB_VOY )
+			return;
+		PreparedStatement bibVoyDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
+		bibVoyDStmt.setInt(1, bib_id);
+		bibVoyDStmt.executeUpdate();
+		addBibToDeleteQueue(current, bib_id);
+		bibVoyDStmt.close();
+	}
+	private static void addBibToDeleteQueue(Connection current, Integer bib_id) throws SQLException {
+		PreparedStatement bibQueueStmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, 0, ?)");
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.setString(2,DataChangeUpdateType.DELETE.toString());
+		bibQueueStmt.executeUpdate();
+		bibQueueStmt.close();
 	}
 
 	public static void optimizeIndex( String solrCoreURL ) {

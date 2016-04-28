@@ -21,6 +21,7 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -90,7 +91,7 @@ public class IdentifyChangedRecords {
 	private void quickIdentificationOfChanges() throws Exception {
 		Connection current = config.getDatabaseConnection("Current");
 		bibQueueStmt = current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				"INSERT INTO "+CurrentDBTable.QUEUE
 				+" (bib_id, priority, cause)"
 				+" VALUES (?, 0, ?)");
 
@@ -120,15 +121,22 @@ public class IdentifyChangedRecords {
 		
 		Connection voyager = config.getDatabaseConnection("Voy");
 		PreparedStatement pstmt = voyager.prepareStatement(
-				"select BIB_ID, UPDATE_DATE from BIB_MASTER"
-				+ " where SUPPRESS_IN_OPAC = 'N'"
-				+ " and ( BIB_ID > ? or UPDATE_DATE > ?)");
+				"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
+				+ " where ( BIB_ID > ? or UPDATE_DATE > ?)");
 		pstmt.setInt(1, max_bib);
 		pstmt.setTimestamp(2, ts);
 		rs = pstmt.executeQuery();
 		while (rs.next()) {
 			Timestamp thisTS = rs.getTimestamp(2);
-			queueBib( current, rs.getInt(1), thisTS );
+			String suppress_in_opac = rs.getString(3);
+			int bib_id = rs.getInt(1);
+			if (updatedBibs.contains(bib_id))
+				continue;
+			if (suppress_in_opac != null && suppress_in_opac.equals("N"))
+				queueBib( current, bib_id, thisTS );
+			else
+				queueBibDelete( current, bib_id );
+			updatedBibs.add(bib_id);
 			if (thisTS != null && 0 > thisTS.compareTo(max_date))
 				max_date = thisTS;
 		}
@@ -176,20 +184,16 @@ public class IdentifyChangedRecords {
 		voyager.close();
 	}
 
-	private void addBibToIndexQueue(Connection current, Integer bib_id, Boolean isNew) throws SQLException {
-		if (updatedBibs.contains(bib_id))
-			return;
-		updatedBibs.add(bib_id);
+	private void addBibToIndexQueue(Connection current, Integer bib_id, DataChangeUpdateType reason) throws SQLException {
 		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2,
-				(isNew)?DataChangeUpdateType.ADD.toString()
-						:DataChangeUpdateType.UPDATE.toString());
+		bibQueueStmt.setString(2,reason.toString());
 		bibQueueStmt.executeUpdate();
 	}
 
+
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
 		PreparedStatement bibVoyQStmt = current.prepareStatement(
-					"SELECT record_date FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
+					"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 		bibVoyQStmt.setInt(1, bib_id);
 		ResultSet rs = bibVoyQStmt.executeQuery();
 		while (rs.next()) {
@@ -199,7 +203,7 @@ public class IdentifyChangedRecords {
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				System.out.println("Unexpected bib found: "+bib_id);
-				addBibToIndexQueue(current, bib_id, false);
+				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
 				rs.close();
 				bibVoyQStmt.close();
 				return;
@@ -208,14 +212,14 @@ public class IdentifyChangedRecords {
 			if (old_date == null || 0 > old_date.compareTo(update_date)) {
 				// bib is already in current, but has been updated
 				PreparedStatement bibVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.BIB_VOY.toString()
+							"UPDATE "+CurrentDBTable.BIB_VOY
 							+" SET record_date = ?"
 							+" WHERE bib_id = ?");
 				bibVoyUStmt.setTimestamp(1, update_date);
 				bibVoyUStmt.setInt(2, bib_id);
 				bibVoyUStmt.executeUpdate();
 				bibVoyUStmt.close();
-				addBibToIndexQueue(current, bib_id, false);
+				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
 			} // else bib is unchanged - do nothing
 			rs.close();
 			bibVoyQStmt.close();
@@ -226,13 +230,13 @@ public class IdentifyChangedRecords {
 
 		// bib is not yet in current db
 		PreparedStatement bibVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.BIB_VOY.toString()
+					"INSERT INTO "+CurrentDBTable.BIB_VOY
 					+" (bib_id, record_date) VALUES (?, ?)");
 		bibVoyIStmt.setInt(1, bib_id);
 		bibVoyIStmt.setTimestamp(2, update_date);
 		bibVoyIStmt.executeUpdate();
 		bibVoyIStmt.close();
-		addBibToIndexQueue(current, bib_id, true);
+		addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ADD);
 	}
 
 	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
@@ -251,7 +255,7 @@ public class IdentifyChangedRecords {
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				System.out.println("Unexpected mfhd found: "+mfhd_id+" (bib:"+bib_id+")");
-				addBibToIndexQueue(current, bib_id, false);
+				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 				rs.close();
 				mfhdVoyQStmt.close();
 				return;
@@ -261,7 +265,7 @@ public class IdentifyChangedRecords {
 				// mfhd is already in current, but has been updated
 				int old_bib = rs.getInt(1);
 				PreparedStatement mfhdVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.MFHD_VOY.toString()
+							"UPDATE "+CurrentDBTable.MFHD_VOY
 							+" SET record_date = ?, bib_id = ?"
 							+" WHERE mfhd_id = ?");
 				mfhdVoyUStmt.setTimestamp(1, update_date);
@@ -269,10 +273,10 @@ public class IdentifyChangedRecords {
 				mfhdVoyUStmt.setInt(3, mfhd_id);
 				mfhdVoyUStmt.executeUpdate();
 				mfhdVoyUStmt.close();
-				addBibToIndexQueue(current, bib_id, false);
+				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 
 				if (old_bib != bib_id)
-					addBibToIndexQueue(current, old_bib, false);
+					addBibToIndexQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
 			} // else mfhd is unchanged - do nothing
 			rs.close();
 			mfhdVoyQStmt.close();
@@ -283,7 +287,7 @@ public class IdentifyChangedRecords {
 
 		// mfhd is not yet in current db
 		PreparedStatement mfhdVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.MFHD_VOY.toString()
+					"INSERT INTO "+CurrentDBTable.MFHD_VOY
 					+" (bib_id, mfhd_id, record_date)"
 					+" VALUES (?, ?, ?)");
 		mfhdVoyIStmt.setInt(1, bib_id);
@@ -291,14 +295,14 @@ public class IdentifyChangedRecords {
 		mfhdVoyIStmt.setTimestamp(3, update_date);
 		mfhdVoyIStmt.executeUpdate();
 		mfhdVoyIStmt.close();
-		addBibToIndexQueue(current, bib_id, false);
+		addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 	}
 
 	private void queueItem(Connection current, int mfhd_id, int item_id,
 			Timestamp update_date) throws SQLException {
 		PreparedStatement itemVoyQStmt = current.prepareStatement(
 					"SELECT mfhd_id, record_date"
-					+" FROM "+CurrentDBTable.ITEM_VOY.toString()
+					+" FROM "+CurrentDBTable.ITEM_VOY
 					+" WHERE item_id = ?");
 		itemVoyQStmt.setInt(1, item_id);
 		ResultSet rs = itemVoyQStmt.executeQuery();
@@ -311,7 +315,7 @@ public class IdentifyChangedRecords {
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
 				if (isBibActive(current,bib_id))
-					addBibToIndexQueue(current, bib_id, false);
+					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 				rs.close();
 				itemVoyQStmt.close();
 				return;
@@ -321,7 +325,7 @@ public class IdentifyChangedRecords {
 				// item is already in current, but has been updated
 				int old_mfhd = rs.getInt(1);
 				PreparedStatement itemVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.ITEM_VOY.toString()
+							"UPDATE "+CurrentDBTable.ITEM_VOY
 							+" SET record_date = ?, mfhd_id = ?"
 							+" WHERE item_id = ?");
 				itemVoyUStmt.setTimestamp(1, update_date);
@@ -332,13 +336,13 @@ public class IdentifyChangedRecords {
 
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				if (bib_id > 0 && isBibActive(current,bib_id))
-					addBibToIndexQueue(current, bib_id, false);
+					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 
 				if (mfhd_id != old_mfhd) {
 					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
 					if (old_bib_id > 0 && old_bib_id != bib_id
 							&& isBibActive(current,old_bib_id))
-						addBibToIndexQueue(current, old_bib_id, false);
+						addBibToIndexQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
 				}
 			} // else item is unchanged - do nothing
 			rs.close();
@@ -350,7 +354,7 @@ public class IdentifyChangedRecords {
 
 		// item is not yet in current db
 		PreparedStatement itemVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.ITEM_VOY.toString()
+					"INSERT INTO "+CurrentDBTable.ITEM_VOY
 					+" (mfhd_id, item_id, record_date)"
 					+" VALUES (?, ?, ?)");
 		itemVoyIStmt.setInt(1, mfhd_id);
@@ -360,12 +364,12 @@ public class IdentifyChangedRecords {
 		itemVoyIStmt.close();
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
 		if (bib_id > 0 && isBibActive(current,bib_id))
-			addBibToIndexQueue(current,bib_id, false);
+			addBibToIndexQueue(current,bib_id,DataChangeUpdateType.ITEM_UPDATE);
 		
 	}
 	private boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
 		PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY.toString()+" WHERE bib_id = ?");
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 		bibVoyQStmt.setInt(1, bib_id);
 		ResultSet rs = bibVoyQStmt.executeQuery();
 		boolean exists = false;
@@ -390,7 +394,7 @@ public class IdentifyChangedRecords {
 	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
 		return current.prepareStatement(
 				"SELECT bib_id, record_date"
-				+" FROM "+CurrentDBTable.MFHD_VOY.toString()
+				+" FROM "+CurrentDBTable.MFHD_VOY
 				+" WHERE mfhd_id = ?");
 	}
 
@@ -560,7 +564,11 @@ public class IdentifyChangedRecords {
 
 	public static enum DataChangeUpdateType {
 		ADD("Added Record"),
+		@Deprecated
 		UPDATE("Record Update"),
+		BIB_UPDATE("Bibliographic Record Update"),
+		MFHD_UPDATE("Holdings Record Change"),
+		ITEM_UPDATE("Item Record Change"),
 		DELETE("Record Deleted or Suppressed"),
 		TITLELINK("Title Link Update");
 

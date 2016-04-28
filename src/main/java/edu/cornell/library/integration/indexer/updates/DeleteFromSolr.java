@@ -38,7 +38,7 @@ import edu.cornell.library.integration.utilities.FileNameUtils;
  * DataChangeUpdateType.TITLELINK.
  */
 public class DeleteFromSolr {
-           
+
     public static void main(String[] argv) throws Exception{
 
 		List<String> requiredArgs = new ArrayList<String>();
@@ -46,14 +46,14 @@ public class DeleteFromSolr {
 		requiredArgs.add("solrUrl");
 
         SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
-        
-        DeleteFromSolr dfs = new DeleteFromSolr();        
-        dfs.doTheDelete(config);        
+
+        DeleteFromSolr dfs = new DeleteFromSolr();
+        dfs.doTheDelete(config);
     }
-    
+
     public void doTheDelete(SolrBuildConfig config) throws Exception  {
 
-        String solrURL = config.getSolrUrl();                                        
+        String solrURL = config.getSolrUrl();   
         SolrServer solr = new HttpSolrServer( solrURL );
 
 		Set<Integer> knockOnUpdates = new HashSet<Integer>();
@@ -125,7 +125,7 @@ public class DeleteFromSolr {
             while (deleteQueueRS.next())   {
             	int bib_id = deleteQueueRS.getInt(1);
             	if (bib_id == 0)
-            		continue;	
+            		continue;
             	lineNum++;
             	ids.add( String.valueOf(bib_id) );
             	knockOnUpdateStmt.setInt(1,bib_id);
@@ -152,7 +152,7 @@ public class DeleteFromSolr {
             	rs.close();
             	mfhdDelStmt.setInt(1,bib_id);
             	mfhdDelStmt.addBatch();
-                
+
             	if( ids.size() >= batchSize ){
             		solr.deleteById( ids );
             		bibStmt.executeBatch();
@@ -160,14 +160,14 @@ public class DeleteFromSolr {
             		workStmt.executeBatch();
             		mfhdDelStmt.executeBatch();
             		itemStmt.executeBatch();
-            		ids.clear();                    
-            	}                    
-                
+            		ids.clear();
+            	}
+
             	if( lineNum % commitSize == 0 ){
             		System.out.println("Requested " + lineNum + " deletes and doing a commit.");
             		solr.commit();
             		conn.commit();
-            	}                
+            	}
             }
             deleteQueueStmt.close();
             getQueuedConn.close();
@@ -183,14 +183,12 @@ public class DeleteFromSolr {
 
             System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
             solr.commit(true,true,true);
-            conn.commit();
-            
             long countAfterDel = countOfDocsInSolr( solr );
-            
+
             System.out.println("Expected to delete " + lineNum + " documents from Solr index.");
-            System.out.println("Solr document count before delete: " + countBeforeDel + 
+            System.out.println("Solr document count before delete: " + countBeforeDel +
                     " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));
-            
+
             if ( ! knockOnUpdates.isEmpty()) {
             	System.out.println(String.valueOf(knockOnUpdates.size())
             			+" documents identified as needing update because they share a work_id with deleted rec(s).");
@@ -205,23 +203,26 @@ public class DeleteFromSolr {
             	markBibForUpdateStmt.executeBatch();
             	markBibForUpdateStmt.close();
             }
-            
+
+            conn.commit();
+
         } catch (Exception e) {
         	throw new Exception( "Exception while processing deletes, some documents may "
         			+ "have been deleted from Solr.", e);
         } finally {
-        	conn.close();
+        	if (conn != null && ! conn.isClosed())
+        		conn.close();
         }
-        
+
         System.out.println("Success: requested " + lineNum + " documents "
                 + "to be deleted from solr at " + config.getSolrUrl());
     }
 
-    private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException{
+    private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException {
         SolrQuery query = new SolrQuery();
         query.set("qt", "standard");
         query.setQuery("*:*");
         query.setRows(0);
-        return solr.query( query ).getResults().getNumFound();        
+        return solr.query( query ).getResults().getNumFound();
     }
 }
