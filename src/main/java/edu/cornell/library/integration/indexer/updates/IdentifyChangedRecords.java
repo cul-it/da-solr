@@ -199,19 +199,10 @@ public class IdentifyChangedRecords {
 		bibVoyQStmt.setInt(1, bib_id);
 		ResultSet rs = bibVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (update_date == null) {
-				/* ideally, this shouldn't happen. If the update date in Voyager is null,
-				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
-				 * the record reflected in the Current Records database. If it does happen, we should
-				 * queue the bib for index just in case, but not update the inventory. */
-				System.out.println("Unexpected bib found: "+bib_id);
-				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
-				rs.close();
-				bibVoyQStmt.close();
-				return;
-			}
 			Timestamp old_date = rs.getTimestamp(1);
-			if (old_date == null || 0 > old_date.compareTo(update_date)) {
+			if (update_date != null
+					&& (old_date == null
+					    || 0 > old_date.compareTo(update_date))) {
 				// bib is already in current, but has been updated
 				PreparedStatement bibVoyUStmt = current.prepareStatement(
 							"UPDATE "+CurrentDBTable.BIB_VOY
@@ -250,23 +241,10 @@ public class IdentifyChangedRecords {
 		mfhdVoyQStmt.setInt(1, mfhd_id);
 		ResultSet rs = mfhdVoyQStmt.executeQuery();
 		while (rs.next()) {
-
-			if (update_date == null) {
-				/* ideally, this shouldn't happen. If the update date in Voyager is null,
-				 * then it was retrieved based on voy!id > max(cuurrent!id), which means we shouldn't have found
-				 * the record reflected in the Current Records database. If it does happen, we should
-				 * queue the bib for index just in case, but not update the inventory. */
-				System.out.println("Unexpected mfhd found: "+mfhd_id+" (bib:"+bib_id+")");
-				if (! updatedBibs.contains(bib_id)) {
-					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
-					updatedBibs.add(bib_id);
-				}
-				rs.close();
-				mfhdVoyQStmt.close();
-				return;
-			}
 			Timestamp old_date = rs.getTimestamp(2);
-			if (old_date == null || 0 > old_date.compareTo(update_date)) {
+			if (update_date != null
+					&& (old_date == null
+					    || 0 > old_date.compareTo(update_date))) {
 				// mfhd is already in current, but has been updated
 				int old_bib = rs.getInt(1);
 				PreparedStatement mfhdVoyUStmt = current.prepareStatement(
@@ -321,24 +299,10 @@ public class IdentifyChangedRecords {
 		itemVoyQStmt.setInt(1, item_id);
 		ResultSet rs = itemVoyQStmt.executeQuery();
 		while (rs.next()) {
-			if (update_date == null) {
-				/* ideally, this shouldn't happen. If the update date in Voyager is null,
-				 * then it was retrieved based on voy!id > max(current!id), which means we shouldn't have found
-				 * the record reflected in the Current Records database. If it does happen, we should
-				 * queue the bib for index just in case, but not update the inventory. */
-				int bib_id = getBibIdForMfhd(current, mfhd_id);
-				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
-				if (isBibActive(current,bib_id)
-						&& ! updatedBibs.contains(bib_id)) {
-					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
-					updatedBibs.add(bib_id);
-				}
-				rs.close();
-				itemVoyQStmt.close();
-				return;
-			}
 			Timestamp old_date = rs.getTimestamp(2);
-			if (old_date == null || 0 > old_date.compareTo(update_date)) {
+			if (update_date != null
+					&& (old_date == null
+					    || 0 > old_date.compareTo(update_date))) {
 				// item is already in current, but has been updated
 				int old_mfhd = rs.getInt(1);
 				PreparedStatement itemVoyUStmt = current.prepareStatement(
