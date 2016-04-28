@@ -89,6 +89,7 @@ public class IdentifyChangedRecords {
 	}
 
 	private void quickIdentificationOfChanges() throws Exception {
+		updatedBibs.clear();
 		Connection current = config.getDatabaseConnection("Current");
 		bibQueueStmt = current.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE
