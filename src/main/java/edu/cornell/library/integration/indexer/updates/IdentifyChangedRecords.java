@@ -257,7 +257,10 @@ public class IdentifyChangedRecords {
 				 * the record reflected in the Current Records database. If it does happen, we should
 				 * queue the bib for index just in case, but not update the inventory. */
 				System.out.println("Unexpected mfhd found: "+mfhd_id+" (bib:"+bib_id+")");
-				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+				if (! updatedBibs.contains(bib_id)) {
+					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					updatedBibs.add(bib_id);
+				}
 				rs.close();
 				mfhdVoyQStmt.close();
 				return;
@@ -275,10 +278,16 @@ public class IdentifyChangedRecords {
 				mfhdVoyUStmt.setInt(3, mfhd_id);
 				mfhdVoyUStmt.executeUpdate();
 				mfhdVoyUStmt.close();
-				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+				if (! updatedBibs.contains(bib_id)) {
+					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					updatedBibs.add(bib_id);
+				}
 
-				if (old_bib != bib_id)
+				if (old_bib != bib_id
+						&& ! updatedBibs.contains(old_bib)) {
 					addBibToIndexQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
+					updatedBibs.add(old_bib);
+				}
 			} // else mfhd is unchanged - do nothing
 			rs.close();
 			mfhdVoyQStmt.close();
@@ -297,7 +306,10 @@ public class IdentifyChangedRecords {
 		mfhdVoyIStmt.setTimestamp(3, update_date);
 		mfhdVoyIStmt.executeUpdate();
 		mfhdVoyIStmt.close();
-		addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+		if (! updatedBibs.contains(bib_id)) {
+			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+			updatedBibs.add(bib_id);
+		}
 	}
 
 	private void queueItem(Connection current, int mfhd_id, int item_id,
@@ -316,8 +328,11 @@ public class IdentifyChangedRecords {
 				 * queue the bib for index just in case, but not update the inventory. */
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
 				System.out.println("Unexpected item found: "+item_id+" (bib:"+bib_id+")");
-				if (isBibActive(current,bib_id))
+				if (isBibActive(current,bib_id)
+						&& ! updatedBibs.contains(bib_id)) {
 					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					updatedBibs.add(bib_id);
+				}
 				rs.close();
 				itemVoyQStmt.close();
 				return;
@@ -337,14 +352,22 @@ public class IdentifyChangedRecords {
 				itemVoyUStmt.close();
 
 				int bib_id = getBibIdForMfhd(current, mfhd_id);
-				if (bib_id > 0 && isBibActive(current,bib_id))
+				if (bib_id > 0
+						&& isBibActive(current,bib_id)
+						&& ! updatedBibs.contains(bib_id)) {
 					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					updatedBibs.add(bib_id);
+				}
 
 				if (mfhd_id != old_mfhd) {
 					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
-					if (old_bib_id > 0 && old_bib_id != bib_id
-							&& isBibActive(current,old_bib_id))
+					if ( old_bib_id > 0
+							&& old_bib_id != bib_id
+							&& isBibActive(current,old_bib_id)
+							&& ! updatedBibs.contains(old_bib_id)) {
 						addBibToIndexQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
+						updatedBibs.add(old_bib_id);
+					}
 				}
 			} // else item is unchanged - do nothing
 			rs.close();
@@ -365,8 +388,12 @@ public class IdentifyChangedRecords {
 		itemVoyIStmt.executeUpdate();
 		itemVoyIStmt.close();
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
-		if (bib_id > 0 && isBibActive(current,bib_id))
-			addBibToIndexQueue(current,bib_id,DataChangeUpdateType.ITEM_UPDATE);
+		if (bib_id > 0
+				&& isBibActive(current,bib_id)
+				&& ! updatedBibs.contains(bib_id)) {
+			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+			updatedBibs.add(bib_id);
+		}
 		
 	}
 	private boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
