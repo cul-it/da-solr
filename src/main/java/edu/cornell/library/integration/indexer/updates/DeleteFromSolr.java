@@ -80,7 +80,6 @@ public class DeleteFromSolr {
             	deleteQueueRS.close();
             	deleteQueueStmt.close();
             	getQueuedConn.close();
-                config.setDatabasePoolsize("Current", 1);
                 System.out.println("No record deletes were queued.");
                 return;
             }

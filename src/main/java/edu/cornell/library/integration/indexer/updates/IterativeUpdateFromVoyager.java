@@ -35,6 +35,7 @@ public class IterativeUpdateFromVoyager {
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
+		config.setDatabasePoolsize("Current", 2);
 
 		int i = 0;
 		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 17) {
