@@ -109,6 +109,8 @@ public class IdentifyChangedRecords {
 			ts = max_date;
 			max_bib = rs.getInt(1);
 		}
+		ts.setTime(ts.getTime() - (120/*seconds*/
+				                    * 1000/*millis per second*/));
 		rs.close();
 		rs = stmtCurrent.executeQuery("SELECT max(mfhd_id) FROM "+CurrentDBTable.MFHD_VOY);
 		while (rs.next())
