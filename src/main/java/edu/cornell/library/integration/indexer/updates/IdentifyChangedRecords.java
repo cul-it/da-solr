@@ -139,7 +139,6 @@ public class IdentifyChangedRecords {
 				queueBib( current, bib_id, thisTS );
 			else
 				queueBibDelete( current, bib_id );
-			updatedBibs.add(bib_id);
 			if (thisTS != null && 0 > thisTS.compareTo(max_date))
 				max_date = thisTS;
 		}
@@ -213,7 +212,10 @@ public class IdentifyChangedRecords {
 				bibVoyUStmt.setInt(2, bib_id);
 				bibVoyUStmt.executeUpdate();
 				bibVoyUStmt.close();
-				addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+				if ( ! updatedBibs.contains(bib_id)) {
+					updatedBibs.add(bib_id);
+					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+				}
 			} // else bib is unchanged - do nothing
 			rs.close();
 			bibVoyQStmt.close();
@@ -230,7 +232,10 @@ public class IdentifyChangedRecords {
 		bibVoyIStmt.setTimestamp(2, update_date);
 		bibVoyIStmt.executeUpdate();
 		bibVoyIStmt.close();
-		addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ADD);
+		if ( ! updatedBibs.contains(bib_id)) {
+			updatedBibs.add(bib_id);
+			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ADD);
+		}
 	}
 
 	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
