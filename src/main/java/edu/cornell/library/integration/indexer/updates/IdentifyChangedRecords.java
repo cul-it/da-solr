@@ -421,53 +421,65 @@ public class IdentifyChangedRecords {
 
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		Set<Integer> mfhdsToUpdate = new HashSet<Integer>();
+		mfhdsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.itemsNewerInVoyagerThanIndex();
 		System.out.println("\titemsNewerInVoyagerThanIndex: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		Set<Integer> itemsToUpdate = new HashSet<Integer>();
+		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.mfhdsInIndexNotVoyager();
 		System.out.println("\tmfhdsInIndexNotVoyager: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		mfhdsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.mfhdsInVoyagerNotIndex();
 		System.out.println("\tmfhdsInVoyagerNotIndex: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		mfhdsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.itemsInIndexNotVoyager();
 		System.out.println("\titemsInIndexNotVoyager: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.itemsInVoyagerNotIndex();
 		System.out.println("\titemsInVoyagerNotIndex: "+tempMap.size());
-		bibsToUpdate.addAll(tempMap.values());
+		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 		
 		Map<Integer,ChangedBib> tempCBMap = c.mfhdsAttachedToDifferentBibs();
 		System.out.println("\tmfhdsAttachedToDifferentBibs: "+tempCBMap.size());
 		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
-			bibsToUpdate.add(cb.original);
-			bibsToUpdate.add(cb.changed);
+			mfhdsToUpdate.add(cb.original);
+			mfhdsToUpdate.add(cb.changed);
 		}
 		tempCBMap.clear();
 
 		tempCBMap = c.itemsAttachedToDifferentMfhds();
 		System.out.println("\titemsAttachedToDifferentMfhds: "+tempCBMap.size());
 		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
-			bibsToUpdate.add(cb.original);
-			bibsToUpdate.add(cb.changed);
+			itemsToUpdate.add(cb.original);
+			itemsToUpdate.add(cb.changed);
 		}
 		tempCBMap.clear();
 
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
-		c.queueBibs( bibsToUpdate, DataChangeUpdateType.UPDATE );
+		c.queueBibs( bibsToUpdate, DataChangeUpdateType.BIB_UPDATE );
+		mfhdsToUpdate.removeAll(bibsToDelete);
+		mfhdsToUpdate.removeAll(bibsToAdd);
+		mfhdsToUpdate.removeAll(bibsToUpdate);
+		c.queueBibs( mfhdsToUpdate, DataChangeUpdateType.MFHD_UPDATE );
+		itemsToUpdate.removeAll(bibsToDelete);
+		itemsToUpdate.removeAll(bibsToAdd);
+		itemsToUpdate.removeAll(bibsToUpdate);
+		itemsToUpdate.removeAll(mfhdsToUpdate);
+		c.queueBibs( itemsToUpdate, DataChangeUpdateType.ITEM_UPDATE );
+		
 
 		bibsToUpdate.addAll(markedBibs);
 		markedBibs.clear();
@@ -563,8 +575,6 @@ public class IdentifyChangedRecords {
 
 	public static enum DataChangeUpdateType {
 		ADD("Added Record"),
-		@Deprecated
-		UPDATE("Record Update"),
 		BIB_UPDATE("Bibliographic Record Update"),
 		MFHD_UPDATE("Holdings Record Change"),
 		ITEM_UPDATE("Item Record Change"),
