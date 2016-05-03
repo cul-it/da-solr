@@ -90,7 +90,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			Set<String> values880_breadcrumbed = new HashSet<String>();
 			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
 			Set<String> values_browse = new HashSet<String>();
-			Set<String> valuesJson = new HashSet<String>();
+			Set<String> valuesMain_json = new HashSet<String>();
+			Set<String> values880_json = new HashSet<String>();
 			HeadTypeDesc htd = HeadTypeDesc.TOPIC; //default
 		
 			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null, title_fields = null;
@@ -262,13 +263,14 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					}
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
-					valuesJson.add(jsonstream.toString("UTF-8"));
 					if (f.tag.equals("880")) {
 						values880_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						values880_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+						values880_json.add(jsonstream.toString("UTF-8"));
 					} else {
 						valuesMain_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						valuesMain_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+						valuesMain_json.add(jsonstream.toString("UTF-8"));
 					}
 				}
 			}
@@ -301,7 +303,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"subject_cts",s);
 				for (String s: valuesMain_piped)
 					addField(solrFields,"subject_cts",s);
-				for (String s: valuesJson)
+				for (String s: values880_json)
+					addField(solrFields,"subject_json",s);
+				for (String s: valuesMain_json)
 					addField(solrFields,"subject_json",s);
 			}
 		}
