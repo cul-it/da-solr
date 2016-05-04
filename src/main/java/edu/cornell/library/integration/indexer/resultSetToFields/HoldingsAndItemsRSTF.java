@@ -77,7 +77,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 					if (m.matches()) {
 						l.number = Integer.valueOf(m.group(1));
 					} else {
-						System.out.println(nodeToString(sol.get("locuri")));
+						System.out.println("location not identified for code='"+l.code+"'.");
 					}
 					locations.add(l);
 					

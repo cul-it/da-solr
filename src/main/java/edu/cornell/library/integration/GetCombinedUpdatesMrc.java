@@ -1,5 +1,7 @@
 package edu.cornell.library.integration;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -65,7 +67,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
-	    current.close();
 		
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
@@ -74,6 +75,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		Connection voyager = config.getDatabaseConnection("Voy");
 		saveBIBsToMARC(  voyager, updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		saveMFHDsToMARC( voyager, updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
+	    current.close();
 		voyager.close();
 	}
 
@@ -185,7 +187,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             rs.close();
             if (bibDataList.isEmpty()) {
             	System.out.println("Skipping record b"+bibid+". Could not retrieve from Voyager.");
-            	continue; // TODO: dequeue bib if it's no longer in Voyager
+				queueBibDelete( current, bibid );
             }
 
             for (BibData bibData : bibDataList) { 

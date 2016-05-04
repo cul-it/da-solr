@@ -105,7 +105,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 							sf948fs.add(nodeToString( node ));
 							if (debug) System.out.println("sf948f = "+nodeToString( node ));
 						} else if (name.equals("loccode")) {
-							loccodes.add(nodeToString( node ));
+							loccodes.add(nodeToString( node ).trim());
 							if (debug) System.out.println("location code = "+nodeToString( node ));
 						} else if (name.equals("f502")) {
 							isThesis = true;

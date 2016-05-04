@@ -56,8 +56,12 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		String[] mainTitleParts = field.getFirstValue().toString().split(" *= *");
 		String[] vernTitleParts = vernTitle.split(" *= *");
 		Collection<String> newVernTitleParts = new HashSet<String>();
-		if ( (mainTitleParts.length == 1) && (vernTitleParts.length == 1))
+		if ( (mainTitleParts.length == 1) && (vernTitleParts.length == 1)) {
+			if (mainTitleParts[0].equals(vernTitleParts[0])) {
+				document.remove(vernFieldName);
+			}
 			return;
+		}
 
 		for (String vernPart : vernTitleParts) {
 			Boolean matched = false;
