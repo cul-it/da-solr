@@ -18,6 +18,10 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.bo.BibData;
 import edu.cornell.library.integration.bo.MfhdData;
@@ -271,6 +275,20 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         }
         rs.close();
         pstmt.close();
+
+        if (addedBibs.size() < minUpdateBibCount) {
+            HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl());
+            SolrQuery query = new SolrQuery();
+            query.setQuery("*:*");
+            query.setSort("timestamp", ORDER.asc);
+            query.setFields("id");
+            query.setRows(minUpdateBibCount - addedBibs.size());
+            for (SolrDocument doc : solr.query(query).getResults()) {
+                addedBibs.add(Integer.valueOf(
+                        doc.getFieldValues("id").iterator().next().toString()));
+            }
+            solr.close();
+        }
         return addedBibs;
     }
 
