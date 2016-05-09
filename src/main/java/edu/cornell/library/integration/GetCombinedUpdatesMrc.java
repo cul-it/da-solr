@@ -281,7 +281,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
                 addedBibs.add(Integer.valueOf(
                         doc.getFieldValues("id").iterator().next().toString()));
             }
-            solr.close();
         }
         return addedBibs;
     }
