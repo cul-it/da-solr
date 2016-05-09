@@ -29,7 +29,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 /**
  * Retrieve a set of bib and holdings records that have been flagged as needing
@@ -256,22 +255,17 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         Set<Integer> addedBibs = new HashSet<Integer>(minUpdateBibCount);
 
         PreparedStatement pstmt = current.prepareStatement(
-        		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
-        		+" WHERE done_date = 0"
-        		+" ORDER BY priority"
-        		+" LIMIT " + minUpdateBibCount*2);
+			"SELECT * FROM "+CurrentDBTable.QUEUE
+			+" WHERE done_date = 0"
+			+" ORDER BY priority"
+			+" LIMIT " + Math.round(minUpdateBibCount*1.125));
         ResultSet rs = pstmt.executeQuery();
-        IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
         final String delete = DataChangeUpdateType.DELETE.toString();
-        while ( ( addedBibs.size() < minUpdateBibCount
-        		  || priority.equals(IndexQueuePriority.DATACHANGE))
-        		&& rs.next()) {
 
+        while (rs.next() && addedBibs.size() < minUpdateBibCount) {
         	if (rs.getString("cause").equals(delete))
         		continue;
         	addedBibs.add(rs.getInt("bib_id"));
-        	if (rs.getInt("priority") != IndexQueuePriority.DATACHANGE.ordinal())
-        		priority = IndexQueuePriority.values()[rs.getInt("priority")];
         }
         rs.close();
         pstmt.close();
