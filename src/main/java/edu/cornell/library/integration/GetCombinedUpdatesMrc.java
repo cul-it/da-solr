@@ -2,6 +2,7 @@ package edu.cornell.library.integration;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -9,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,8 +23,6 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocument;
 
-import edu.cornell.library.integration.bo.BibData;
-import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
@@ -118,25 +116,24 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         while( mfhdIds.hasNext() ){
         	Integer mfhdid = mfhdIds.next();
 
-            List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
+        	ByteArrayOutputStream bb = new ByteArrayOutputStream(); 
             mfhdStmt.setInt(1,mfhdid);
             ResultSet rs = mfhdStmt.executeQuery();
-            while (rs.next()) {
-            	MfhdData mfhdData = new MfhdData(); 
-            	mfhdData.setMfhdId(rs.getString("MFHD_ID"));
-            	mfhdData.setSeqnum(rs.getString("SEQNUM"));
-            	mfhdData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
-            	mfhdDataList.add(mfhdData);
-            }
+            while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
             rs.close();
-            if (mfhdDataList.isEmpty()) {
+            if (bb.size() == 0) {
             	System.out.println("Skipping record m"+mfhdid+". Could not retrieve from Voyager. If available, the bib will still be indexed.");
             	continue;
             }
-            
-            for (MfhdData mfhdData : mfhdDataList) { 
-                sb.append(mfhdData.getRecord()); 
+
+            String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+
+            if ( marcRecord.contains("\uFFFD") ) {
+            	System.out.println("Mfhd MARC contains Unicode Replacement Character (U+FFFD): "+mfhdid);
+            	System.out.println(marcRecord);
             }
+
+            sb.append(marcRecord);
             /* Inserting a carriage return after each MARC record in the file.
              * This is not valid in a technically correct MARC "database" file, but
              * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
@@ -144,9 +141,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
              * records from the MARC "database".
              */
             sb.append('\n');
-            
+
             recno = recno + 1;
-            
             if (recno >= maxrec) {         
             	saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
                 seqno = seqno + 1;
@@ -177,35 +173,25 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         while( bibIds.hasNext()){
         	Integer bibid  = bibIds.next();
 
-            List<BibData> bibDataList = new ArrayList<BibData>();
-            bibStmt.setInt(1, bibid);
+        	ByteArrayOutputStream bb = new ByteArrayOutputStream(); 
+        	bibStmt.setInt(1, bibid);
             ResultSet rs = bibStmt.executeQuery();
-            while (rs.next()) {
-            	BibData bibData = new BibData(); 
-            	bibData.setBibId(rs.getString("BIB_ID"));
-            	bibData.setSeqnum(rs.getString("SEQNUM"));
-            	bibData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
-            	bibDataList.add(bibData);
-            }
+            while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
             rs.close();
-            if (bibDataList.isEmpty()) {
+            if (bb.size() == 0) {
             	System.out.println("Skipping record b"+bibid+". Could not retrieve from Voyager.");
 				queueBibDelete( current, bibid );
+				continue;
             }
 
-            Boolean containsUnicodeReplacementChar = false;
-            for (BibData bibData : bibDataList) { 
-            	sb.append(bibData.getRecord()); 
-            	if (bibData.getRecord().contains("\uFFFD"))
-            		containsUnicodeReplacementChar = true;
-            }
+            String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
 
-            if ( containsUnicodeReplacementChar ) {
+            if ( marcRecord.contains("\uFFFD") ) {
             	System.out.println("Bib MARC contains Unicode Replacement Character (U+FFFD): "+bibid);
-            	for (BibData bd : bibDataList)
-            		System.out.print(bd.getRecord());
-            	System.out.print("\n");
+            	System.out.println(marcRecord);
             }
+
+            sb.append(marcRecord);
             /* Inserting a carriage return after each MARC record in the file.
              * This is not valid in a technically correct MARC "database" file, but
              * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
