@@ -193,8 +193,18 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 				queueBibDelete( current, bibid );
             }
 
+            Boolean containsUnicodeReplacementChar = false;
             for (BibData bibData : bibDataList) { 
             	sb.append(bibData.getRecord()); 
+            	if (bibData.getRecord().contains("\uFFFD"))
+            		containsUnicodeReplacementChar = true;
+            }
+
+            if ( containsUnicodeReplacementChar ) {
+            	System.out.println("Bib MARC contains Unicode Replacement Character (U+FFFD): "+bibid);
+            	for (BibData bd : bibDataList)
+            		System.out.print(bd.getRecord());
+            	System.out.print("\n");
             }
             /* Inserting a carriage return after each MARC record in the file.
              * This is not valid in a technically correct MARC "database" file, but
@@ -290,15 +300,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/bib.update." + getDateString(now) + "."+ seqno +".mrc";
 		System.out.println("Saving BIB mrc to "+ url);
-		InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
+		InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8);
 		getDavService().saveFile(url, isr);
 	}
 	
-	private void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
+	private void saveMfhdMrc(String mrc, int seqno, String destDir) throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/mfhd.update." + getDateString(now) + "."+ seqno +".mrc";
 		System.out.println("Saving MFHD mrc to: "+ url);
-		InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
+		InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8);
 		getDavService().saveFile(url, isr);
 	}
    
