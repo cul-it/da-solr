@@ -69,6 +69,10 @@ public class IndexHeadings {
 		requiredArgs.add("blacklightSolrUrl");
 	            
 		config = SolrBuildConfig.loadConfig(args,requiredArgs);
+		if ( config.getExtendedIndexingMode() ) {
+			System.out.println("Not updating the browse indexes when in extended indexing mode.");
+			System.exit(1);
+		}
 		
 		connection = config.getDatabaseConnection("Headings");
 		deleteCountsFromDB();
