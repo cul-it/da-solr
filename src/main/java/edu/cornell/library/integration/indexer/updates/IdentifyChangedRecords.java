@@ -571,7 +571,7 @@ public class IdentifyChangedRecords {
 		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
 		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE),
 		
-		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.LOW_PRIORITY);
+		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
 
 		private String string;
 		private IndexQueuePriority priority;
