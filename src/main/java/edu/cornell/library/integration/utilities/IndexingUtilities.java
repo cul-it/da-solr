@@ -106,7 +106,7 @@ public class IndexingUtilities {
 				+" VALUES (?, ?, ?)");
 		bibQueueStmt.setInt(1, bib_id);
 		bibQueueStmt.setInt(2, type.getPriority().ordinal());
-		bibQueueStmt.setString(3,DataChangeUpdateType.DELETE.toString());
+		bibQueueStmt.setString(3,type.toString());
 		bibQueueStmt.executeUpdate();
 		bibQueueStmt.close();
 	}
