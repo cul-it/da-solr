@@ -60,7 +60,8 @@ public class IndexingUtilities {
 		CODECHANGE_PRIORITY1("Code Change 1"),
 		CODECHANGE_PRIORITY2("Code Change 2"),
 		CODECHANGE_PRIORITY3("Code Change 3"),
-		CODECHANGE_PRIORITY4("Code Change 4");
+		CODECHANGE_PRIORITY4("Code Change 4"),
+		NOT_RECENTLY_UPDATED("Refresh Old Solr Record");
 
 		private String string;
 
@@ -95,16 +96,17 @@ public class IndexingUtilities {
 				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 		bibVoyDStmt.setInt(1, bib_id);
 		bibVoyDStmt.executeUpdate();
-		addBibToDeleteQueue(current, bib_id);
+		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
 		bibVoyDStmt.close();
 	}
-	private static void addBibToDeleteQueue(Connection current, Integer bib_id) throws SQLException {
+	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
 		PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE
 				+" (bib_id, priority, cause)"
-				+" VALUES (?, 0, ?)");
+				+" VALUES (?, ?, ?)");
 		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2,DataChangeUpdateType.DELETE.toString());
+		bibQueueStmt.setInt(2, type.getPriority().ordinal());
+		bibQueueStmt.setString(3,DataChangeUpdateType.DELETE.toString());
 		bibQueueStmt.executeUpdate();
 		bibQueueStmt.close();
 	}
