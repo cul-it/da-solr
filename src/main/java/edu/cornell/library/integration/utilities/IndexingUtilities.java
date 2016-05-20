@@ -245,7 +245,7 @@ public class IndexingUtilities {
 			if (edition_display.getClass().equals(String.class)) {
 				ref.edition = (String) edition_display;
 			} else {
-				ref.edition = (String)((ArrayList<Object>) edition_display).get(0);
+				ref.edition = StringUtils.join((ArrayList<Object>)edition_display ,"; ");
 			}
 		}
 		if (doc.containsKey("pub_date_display")) {
