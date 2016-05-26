@@ -1,5 +1,6 @@
 package edu.cornell.library.integration;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
 import java.io.ByteArrayOutputStream;
@@ -274,8 +275,13 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             query.setFields("id");
             query.setRows(minUpdateBibCount - addedBibs.size());
             for (SolrDocument doc : solr.query(query).getResults()) {
-                addedBibs.add(Integer.valueOf(
-                        doc.getFieldValues("id").iterator().next().toString()));
+            	int bib_id = Integer.valueOf(
+                        doc.getFieldValues("id").iterator().next().toString());
+            	if ( ! addedBibs.contains(bib_id) ) {
+            		addedBibs.add(bib_id);
+            		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            	}
+            		
             }
         }
         return addedBibs;

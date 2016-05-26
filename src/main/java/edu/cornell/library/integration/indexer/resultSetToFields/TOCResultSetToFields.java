@@ -7,12 +7,12 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_cl
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -52,9 +52,9 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<Boolean> isCJK = new HashSet<Boolean>();
-			Set<String> valuesMain = new HashSet<String>();
+			List<String> values880 = new ArrayList<String>();
+			List<Boolean> isCJK = new ArrayList<Boolean>();
+			List<String> valuesMain = new ArrayList<String>();
 			String relation = null;
 			String subfields = "atr";
 			for (DataField f: dataFields) {

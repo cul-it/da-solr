@@ -21,7 +21,10 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
+
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -54,7 +57,6 @@ public class IdentifyChangedRecords {
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	Set<Integer> updatedBibs = new HashSet<Integer>();
-	PreparedStatement bibQueueStmt = null;
 	private static Timestamp max_date = null;
 
 	public static void main(String[] args)  {
@@ -91,10 +93,6 @@ public class IdentifyChangedRecords {
 	private void quickIdentificationOfChanges() throws Exception {
 		updatedBibs.clear();
 		Connection current = config.getDatabaseConnection("Current");
-		bibQueueStmt = current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE
-				+" (bib_id, priority, cause)"
-				+" VALUES (?, 0, ?)");
 
 		Statement stmtCurrent = current.createStatement();
 		ResultSet rs = null;
@@ -181,17 +179,9 @@ public class IdentifyChangedRecords {
 		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
 		System.out.println("Queued from poling item data: "+itemCount);
 		System.out.println("Total bibs queued: "+updatedBibs.size());
-		bibQueueStmt.close();
 		current.close();
 		voyager.close();
 	}
-
-	private void addBibToIndexQueue(Connection current, Integer bib_id, DataChangeUpdateType reason) throws SQLException {
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setString(2,reason.toString());
-		bibQueueStmt.executeUpdate();
-	}
-
 
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
 		PreparedStatement bibVoyQStmt = current.prepareStatement(
@@ -214,7 +204,7 @@ public class IdentifyChangedRecords {
 				bibVoyUStmt.close();
 				if ( ! updatedBibs.contains(bib_id)) {
 					updatedBibs.add(bib_id);
-					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
 				}
 			} // else bib is unchanged - do nothing
 			rs.close();
@@ -234,7 +224,7 @@ public class IdentifyChangedRecords {
 		bibVoyIStmt.close();
 		if ( ! updatedBibs.contains(bib_id)) {
 			updatedBibs.add(bib_id);
-			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ADD);
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
 		}
 	}
 
@@ -263,13 +253,13 @@ public class IdentifyChangedRecords {
 				mfhdVoyUStmt.executeUpdate();
 				mfhdVoyUStmt.close();
 				if (! updatedBibs.contains(bib_id)) {
-					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 					updatedBibs.add(bib_id);
 				}
 
 				if (old_bib != bib_id
 						&& ! updatedBibs.contains(old_bib)) {
-					addBibToIndexQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
+					addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
 					updatedBibs.add(old_bib);
 				}
 			} // else mfhd is unchanged - do nothing
@@ -291,7 +281,7 @@ public class IdentifyChangedRecords {
 		mfhdVoyIStmt.executeUpdate();
 		mfhdVoyIStmt.close();
 		if (! updatedBibs.contains(bib_id)) {
-			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 			updatedBibs.add(bib_id);
 		}
 	}
@@ -325,7 +315,7 @@ public class IdentifyChangedRecords {
 				if (bib_id > 0
 						&& isBibActive(current,bib_id)
 						&& ! updatedBibs.contains(bib_id)) {
-					addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 					updatedBibs.add(bib_id);
 				}
 
@@ -335,7 +325,7 @@ public class IdentifyChangedRecords {
 							&& old_bib_id != bib_id
 							&& isBibActive(current,old_bib_id)
 							&& ! updatedBibs.contains(old_bib_id)) {
-						addBibToIndexQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
+						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
 						updatedBibs.add(old_bib_id);
 					}
 				}
@@ -361,7 +351,7 @@ public class IdentifyChangedRecords {
 		if (bib_id > 0
 				&& isBibActive(current,bib_id)
 				&& ! updatedBibs.contains(bib_id)) {
-			addBibToIndexQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 			updatedBibs.add(bib_id);
 		}
 		
@@ -574,20 +564,25 @@ public class IdentifyChangedRecords {
 	}
 
 	public static enum DataChangeUpdateType {
-		ADD("Added Record"),
-		BIB_UPDATE("Bibliographic Record Update"),
-		MFHD_UPDATE("Holdings Record Change"),
-		ITEM_UPDATE("Item Record Change"),
-		DELETE("Record Deleted or Suppressed"),
-		TITLELINK("Title Link Update");
+		ADD("Added Record",IndexQueuePriority.DATACHANGE),
+		BIB_UPDATE("Bibliographic Record Update",IndexQueuePriority.DATACHANGE),
+		MFHD_UPDATE("Holdings Record Change",IndexQueuePriority.DATACHANGE),
+		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
+		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
+		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE),
+		
+		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
 
 		private String string;
+		private IndexQueuePriority priority;
 
-		private DataChangeUpdateType(String name) {
+		private DataChangeUpdateType(String name, IndexQueuePriority priority) {
 			string = name;
+			this.priority = priority;
 		}
 
 		public String toString() { return string; }
+		public IndexQueuePriority getPriority () { return priority; }
 	}
 	
 }

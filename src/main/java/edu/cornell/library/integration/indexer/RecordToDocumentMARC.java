@@ -333,7 +333,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("pubplace_t","260","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("pubplace_t","264","a",VernMode.SEARCH),
 
-				new StandardMARCFieldMaker("edition_display","250","ab"),
+				new StandardMARCFieldMaker("edition_display","250","3ab"),
 									
 				new StandardMARCFieldMaker("title_addl_t","210","ab",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","222","ab",VernMode.SEARCH,true),
