@@ -270,6 +270,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         if (addedBibs.size() < minUpdateBibCount) {
             HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
             SolrQuery query = new SolrQuery();
+            query.setRequestHandler("standard");
             query.setQuery("*:*");
             query.setSort("timestamp", ORDER.asc);
             query.setFields("id");
