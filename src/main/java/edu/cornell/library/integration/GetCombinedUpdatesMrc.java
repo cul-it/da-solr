@@ -2,6 +2,7 @@ package edu.cornell.library.integration;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeBibsFromUpdateQueue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -64,6 +65,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    	System.out.println("suppressed bibs eliminated from list: "
 	    			+suppressedBibs.size()+" ("+StringUtils.join(suppressedBibs, ", ")+")");
 	    	updatedBibIds.removeAll(suppressedBibs);
+	    	removeBibsFromUpdateQueue(current, suppressedBibs);
 	    }
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
