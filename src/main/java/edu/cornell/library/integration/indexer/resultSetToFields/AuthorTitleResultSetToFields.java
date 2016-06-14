@@ -362,11 +362,11 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			for (Subfield sf : title_vern.subfields.values())
 				if (sf.code.equals('h'))
 					sf.value = sf.value.replaceAll("\\[.*\\]", "");
-			String maintitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:=/ ");
+			String maintitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:=/\uFF0F ");
 			addField(solrFields,"title_vern_display",maintitle_vern);
 			addField(solrFields,"subtitle_vern_display",
-					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:=/ "));
-			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:=/ ");
+					removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("bdefgknpqsv"),".,;:=/\uFF0F "));
+			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:=/\uFF0F ");
 			String titleWOarticle = title_vern.getStringWithoutInitialArticle(fulltitle_vern);
 
 			if (title_vern.getScript().equals(MarcRecord.Script.CJK))
