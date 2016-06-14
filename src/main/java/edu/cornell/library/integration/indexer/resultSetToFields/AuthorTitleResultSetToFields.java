@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,6 +69,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			Set<String> valuesMain = new HashSet<String>();
 			Set<String> valuesFacet = new HashSet<String>();
 			String suffixes = "";
+			String dates = "";
 			String cts = "";
 			String cts880 = "";
 			String mainTag = null;
@@ -116,6 +118,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							RelatorSet relators = new RelatorSet(f);
 							if (mainTag.equals("100"))
 								suffixes = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),"., ");
+							dates = StringUtils.chomp(suffixes,",");
 							if ( ! relators.isEmpty() ) {
 								if (suffixes.isEmpty()) {
 									value = RelatorSet.validateForConcatWRelators(value);
@@ -126,8 +129,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 								suffixes += ' '+relators.toString();
 							}
 							if (suffixes.isEmpty())
-								if (value.charAt(value.length()-1) == ',')
-									value = value.substring(0, value.length()-1);
+								value = StringUtils.chomp(value,",");
 							valuesMain.add(value);
 							cts = f.concatenateSpecificSubfields(ctsSubfields);
 							if ( ! cts.isEmpty() )
@@ -181,12 +183,12 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 						mapper.writeValue(jsonstream, json);
 						addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
-						if (suffixes.isEmpty()) {
+						if (dates.isEmpty()) {
 							author_vern = s;
 							author = t;
 						} else {
-							author_vern = s+" "+suffixes;
-							author = t+" "+suffixes;
+							author_vern = s+" "+dates;
+							author = t+" "+dates;
 						}
 					}
 			} else {
@@ -196,13 +198,15 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						addField(solrFields,"author_cts",s+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
 						json.put("name1", s);
-						author_vern = s;
 					} else {
 						addField(solrFields,"author_cts",s+" "+suffixes+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+suffixes,", "));
 						json.put("name1", s+" "+suffixes);
-						author_vern = s+" "+suffixes;
 					}
+					if (dates.isEmpty())
+						author_vern = s;
+					else
+						author_vern = s+" "+dates;
 					json.put("search1", cts880);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts880,htd);
@@ -223,13 +227,15 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						addField(solrFields,"author_cts",s+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
 						json.put("name1", s);
-						author = s;
 					} else {
 						addField(solrFields,"author_cts",s+" "+suffixes+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s+" "+suffixes,", "));
 						json.put("name1", s+" "+suffixes);
-						author = s+" "+suffixes;
 					}
+					if (dates.isEmpty())
+						author = s;
+					else
+						author = s+" "+dates;
 					json.put("search1", cts);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts,htd);
@@ -253,8 +259,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 				
 			if (valuesMain.size() > 0) {
 				String sort_author = getFilingForm(valuesMain.iterator().next());
-				if (! suffixes.isEmpty())
-					sort_author += " " + suffixes;
+				if (! dates.isEmpty())
+					sort_author += " " + dates;
 				addField(solrFields,"author_sort",sort_author);
 			}
 		}

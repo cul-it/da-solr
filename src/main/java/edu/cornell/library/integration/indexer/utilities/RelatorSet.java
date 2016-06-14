@@ -40,7 +40,7 @@ public class RelatorSet {
 	}
 	public static String validateForConcatWRelators( String orig ) {
 		if (orig.endsWith("-,")) {
-			orig = orig.substring(0, orig.length() - 1);
+			orig = StringUtils.chop(orig);
 		} else if (orig.endsWith(",")
 				|| orig.endsWith("-")) {
 			// this is correct - do nothing
