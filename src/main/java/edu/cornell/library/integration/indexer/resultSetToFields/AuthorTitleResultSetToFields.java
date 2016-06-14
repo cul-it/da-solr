@@ -118,7 +118,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							RelatorSet relators = new RelatorSet(f);
 							if (mainTag.equals("100"))
 								suffixes = removeTrailingPunctuation(f.concatenateSpecificSubfields("d"),"., ");
-							dates = StringUtils.chomp(suffixes,",");
+							dates = suffixes;
 							if ( ! relators.isEmpty() ) {
 								if (suffixes.isEmpty()) {
 									value = RelatorSet.validateForConcatWRelators(value);
@@ -190,6 +190,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							author_vern = s+" "+dates;
 							author = t+" "+dates;
 						}
+						author_vern = StringUtils.chomp(author_vern,",");
+						author = StringUtils.chomp(author,",");
 					}
 			} else {
 				for (String s: values880) {
@@ -207,6 +209,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						author_vern = s;
 					else
 						author_vern = s+" "+dates;
+					author_vern = StringUtils.chomp(author_vern,",");
 					json.put("search1", cts880);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts880,htd);
@@ -236,6 +239,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						author = s;
 					else
 						author = s+" "+dates;
+					author = StringUtils.chomp(author,",");
 					json.put("search1", cts);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts,htd);
