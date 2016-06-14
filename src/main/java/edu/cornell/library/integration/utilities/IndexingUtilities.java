@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -109,6 +110,18 @@ public class IndexingUtilities {
 		bibQueueStmt.setString(3,type.toString());
 		bibQueueStmt.executeUpdate();
 		bibQueueStmt.close();
+	}
+	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
+			throws SQLException {
+		PreparedStatement bibQueueDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.QUEUE
+				+" WHERE bib_id = ? AND done_date = 0");
+		for (Integer bib_id : bib_ids) {
+			bibQueueDStmt.setInt(1, bib_id);
+			bibQueueDStmt.addBatch();
+		}
+		bibQueueDStmt.executeBatch();
+		bibQueueDStmt.close();
 	}
 
 	public static void optimizeIndex( String solrCoreURL ) {
