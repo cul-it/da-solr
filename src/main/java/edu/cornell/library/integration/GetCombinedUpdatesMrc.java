@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,7 @@ import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	
 	private static Integer minUpdateBibCount = 150_000;
+	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
    
    /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
@@ -135,6 +137,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             	System.out.println("Mfhd MARC contains Unicode Replacement Character (U+FFFD): "+mfhdid);
             	System.out.println(marcRecord);
             }
+            if ( uPlusHexPattern.matcher(marcRecord).matches() ) {
+            	System.out.println("Mfhd MARC contains Unicode Character Replacement Sequence (U+XXXX): "+mfhdid);
+            	System.out.println(marcRecord);
+            }
 
             sb.append(marcRecord);
             /* Inserting a carriage return after each MARC record in the file.
@@ -191,6 +197,10 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
             if ( marcRecord.contains("\uFFFD") ) {
             	System.out.println("Bib MARC contains Unicode Replacement Character (U+FFFD): "+bibid);
+            	System.out.println(marcRecord);
+            }
+            if ( uPlusHexPattern.matcher(marcRecord).matches() ) {
+            	System.out.println("Bib MARC contains Unicode Character Replacement Sequence (U+XXXX): "+bibid);
             	System.out.println(marcRecord);
             }
 
