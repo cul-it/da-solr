@@ -329,7 +329,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("pubplace_t","260","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("pubplace_t","264","a",VernMode.SEARCH),
 
-				new StandardMARCFieldMaker("edition_display","250","ab"),
+				new StandardMARCFieldMaker("edition_display","250","3ab"),
 									
 				new StandardMARCFieldMaker("title_addl_t","210","ab",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","222","ab",VernMode.SEARCH,true),
@@ -337,7 +337,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("title_addl_t","243","abcdefgklmnopqrs",VernMode.SEARCH,true),
 				new StandardMARCFieldMaker("author_245c_t","245","c",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","246","abcdefgklmnopqrs",VernMode.SEARCH),
-				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp",VernMode.SEARCH,true),
+				new StandardMARCFieldMaker("title_addl_t","247","abcdefgnp",VernMode.SEARCH),
 				new StandardMARCFieldMaker("title_addl_t","740","anp",VernMode.SEARCH,true),
 
 				new StandardMARCFieldMaker("title_series_t","400","abdfklnptvcegu",VernMode.SEARCH),				
@@ -556,6 +556,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?sfield marcrdf:value ?value. }").
 			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()), //IndicatorReq Needed!
 			    
+			    new StandardMARCFieldMaker("notes","362","a"),
+				new StandardMARCFieldMaker("notes_t","362","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","500","3a"),
 				new StandardMARCFieldMaker("notes_t","500","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("notes","501","3a"),

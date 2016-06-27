@@ -1,5 +1,10 @@
 package edu.cornell.library.integration;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeBibsFromUpdateQueue;
+
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -7,23 +12,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrDocument;
 
-import edu.cornell.library.integration.bo.BibData;
-import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 /**
  * Retrieve a set of bib and holdings records that have been flagged as needing
@@ -32,7 +38,8 @@ import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePri
  */
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	
-	private static Integer MIN_UPDATE_VOLUME = 150_000;
+	private static Integer minUpdateBibCount = 150_000;
+	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
    
    /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
@@ -60,12 +67,12 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    	System.out.println("suppressed bibs eliminated from list: "
 	    			+suppressedBibs.size()+" ("+StringUtils.join(suppressedBibs, ", ")+")");
 	    	updatedBibIds.removeAll(suppressedBibs);
+	    	removeBibsFromUpdateQueue(current, suppressedBibs);
 	    }
 	     	    
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
-	    current.close();
 		
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
@@ -74,6 +81,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		Connection voyager = config.getDatabaseConnection("Voy");
 		saveBIBsToMARC(  voyager, updatedBibIds , config.getWebdavBaseUrl() + "/" + config.getDailyMrcDir() );
 		saveMFHDsToMARC( voyager, updatedMfhdIds, config.getWebdavBaseUrl() + "/" + config.getDailyMfhdDir() );
+	    current.close();
 		voyager.close();
 	}
 
@@ -113,25 +121,28 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         while( mfhdIds.hasNext() ){
         	Integer mfhdid = mfhdIds.next();
 
-            List<MfhdData> mfhdDataList = new ArrayList<MfhdData>();
+        	ByteArrayOutputStream bb = new ByteArrayOutputStream(); 
             mfhdStmt.setInt(1,mfhdid);
             ResultSet rs = mfhdStmt.executeQuery();
-            while (rs.next()) {
-            	MfhdData mfhdData = new MfhdData(); 
-            	mfhdData.setMfhdId(rs.getString("MFHD_ID"));
-            	mfhdData.setSeqnum(rs.getString("SEQNUM"));
-            	mfhdData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
-            	mfhdDataList.add(mfhdData);
-            }
+            while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
             rs.close();
-            if (mfhdDataList.isEmpty()) {
+            if (bb.size() == 0) {
             	System.out.println("Skipping record m"+mfhdid+". Could not retrieve from Voyager. If available, the bib will still be indexed.");
             	continue;
             }
-            
-            for (MfhdData mfhdData : mfhdDataList) { 
-                sb.append(mfhdData.getRecord()); 
+
+            String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+
+            if ( marcRecord.contains("\uFFFD") ) {
+            	System.out.println("Mfhd MARC contains Unicode Replacement Character (U+FFFD): "+mfhdid);
+            	System.out.println(marcRecord);
             }
+            if ( uPlusHexPattern.matcher(marcRecord).matches() ) {
+            	System.out.println("Mfhd MARC contains Unicode Character Replacement Sequence (U+XXXX): "+mfhdid);
+            	System.out.println(marcRecord);
+            }
+
+            sb.append(marcRecord);
             /* Inserting a carriage return after each MARC record in the file.
              * This is not valid in a technically correct MARC "database" file, but
              * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
@@ -139,9 +150,8 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
              * records from the MARC "database".
              */
             sb.append('\n');
-            
+
             recno = recno + 1;
-            
             if (recno >= maxrec) {         
             	saveMfhdMrc(sb.toString(), seqno, mfhdDestDir);
                 seqno = seqno + 1;
@@ -172,25 +182,29 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         while( bibIds.hasNext()){
         	Integer bibid  = bibIds.next();
 
-            List<BibData> bibDataList = new ArrayList<BibData>();
-            bibStmt.setInt(1, bibid);
+        	ByteArrayOutputStream bb = new ByteArrayOutputStream(); 
+        	bibStmt.setInt(1, bibid);
             ResultSet rs = bibStmt.executeQuery();
-            while (rs.next()) {
-            	BibData bibData = new BibData(); 
-            	bibData.setBibId(rs.getString("BIB_ID"));
-            	bibData.setSeqnum(rs.getString("SEQNUM"));
-            	bibData.setRecord(new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8));
-            	bibDataList.add(bibData);
-            }
+            while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
             rs.close();
-            if (bibDataList.isEmpty()) {
+            if (bb.size() == 0) {
             	System.out.println("Skipping record b"+bibid+". Could not retrieve from Voyager.");
-            	continue; // TODO: dequeue bib if it's no longer in Voyager
+				queueBibDelete( current, bibid );
+				continue;
             }
 
-            for (BibData bibData : bibDataList) { 
-            	sb.append(bibData.getRecord()); 
+            String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+
+            if ( marcRecord.contains("\uFFFD") ) {
+            	System.out.println("Bib MARC contains Unicode Replacement Character (U+FFFD): "+bibid);
+            	System.out.println(marcRecord);
             }
+            if ( uPlusHexPattern.matcher(marcRecord).matches() ) {
+            	System.out.println("Bib MARC contains Unicode Character Replacement Sequence (U+XXXX): "+bibid);
+            	System.out.println(marcRecord);
+            }
+
+            sb.append(marcRecord);
             /* Inserting a carriage return after each MARC record in the file.
              * This is not valid in a technically correct MARC "database" file, but
              * is supported by org.marc4j.MarcPermissiveStreamReader. If we ever stop using this
@@ -244,30 +258,45 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         Integer configRecCount = config.getTargetDailyUpdatesBibCount();
         if (configRecCount != null) {
         	System.out.println("Target updates bib count set to "+configRecCount);
-        	MIN_UPDATE_VOLUME = configRecCount;
+        	minUpdateBibCount = configRecCount;
         }
 
-        Set<Integer> addedBibs = new HashSet<Integer>(MIN_UPDATE_VOLUME);
+        Set<Integer> addedBibs = new HashSet<Integer>(minUpdateBibCount);
 
         PreparedStatement pstmt = current.prepareStatement(
-        		"SELECT * FROM "+CurrentDBTable.QUEUE.toString()
-        		+" WHERE done_date = 0"
-        		+" ORDER BY priority");
+			"SELECT * FROM "+CurrentDBTable.QUEUE
+			+" WHERE done_date = 0"
+			+" ORDER BY priority"
+			+" LIMIT " + Math.round(minUpdateBibCount*1.125));
         ResultSet rs = pstmt.executeQuery();
-        IndexQueuePriority priority = IndexQueuePriority.DATACHANGE;
         final String delete = DataChangeUpdateType.DELETE.toString();
-        while ( ( addedBibs.size() < MIN_UPDATE_VOLUME
-        		  || priority.equals(IndexQueuePriority.DATACHANGE))
-        		&& rs.next()) {
 
+        while (rs.next() && addedBibs.size() < minUpdateBibCount) {
         	if (rs.getString("cause").equals(delete))
         		continue;
         	addedBibs.add(rs.getInt("bib_id"));
-        	if (rs.getInt("priority") != IndexQueuePriority.DATACHANGE.ordinal())
-        		priority = IndexQueuePriority.values()[rs.getInt("priority")];
         }
         rs.close();
         pstmt.close();
+
+        if (addedBibs.size() < minUpdateBibCount) {
+            HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
+            SolrQuery query = new SolrQuery();
+            query.setRequestHandler("standard");
+            query.setQuery("*:*");
+            query.setSort("timestamp", ORDER.asc);
+            query.setFields("id");
+            query.setRows(minUpdateBibCount - addedBibs.size());
+            for (SolrDocument doc : solr.query(query).getResults()) {
+            	int bib_id = Integer.valueOf(
+                        doc.getFieldValues("id").iterator().next().toString());
+            	if ( ! addedBibs.contains(bib_id) ) {
+            		addedBibs.add(bib_id);
+            		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            	}
+            		
+            }
+        }
         return addedBibs;
     }
 
@@ -276,15 +305,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/bib.update." + getDateString(now) + "."+ seqno +".mrc";
 		System.out.println("Saving BIB mrc to "+ url);
-		InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
+		InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8);
 		getDavService().saveFile(url, isr);
 	}
 	
-	private void saveMfhdMrc(String mrc, int seqno, String destDir)	throws Exception {
+	private void saveMfhdMrc(String mrc, int seqno, String destDir) throws Exception {
 		Calendar now = Calendar.getInstance();
 		String url = destDir + "/mfhd.update." + getDateString(now) + "."+ seqno +".mrc";
 		System.out.println("Saving MFHD mrc to: "+ url);
-		InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");
+		InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8);
 		getDavService().saveFile(url, isr);
 	}
    

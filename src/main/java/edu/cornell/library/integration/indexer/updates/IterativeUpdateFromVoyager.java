@@ -35,13 +35,18 @@ public class IterativeUpdateFromVoyager {
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
+		config.setDatabasePoolsize("Current", 2);
+		int quittingTime = ( config.getExtendedIndexingMode() ) ? 23 : 18;
+		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
 
 		int i = 0;
-		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 17) {
+		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < quittingTime) {
 
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );
 			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
+			DeleteFromSolr dfs = new DeleteFromSolr();
+			dfs.doTheDelete(config);
 			new GetCombinedUpdatesMrc(config);
 			new ConvertMarcToXml(config);
 

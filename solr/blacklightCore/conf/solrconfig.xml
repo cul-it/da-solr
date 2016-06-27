@@ -75,37 +75,15 @@
     <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
     <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
 
-    <!-- Expert: Merge Policy 
-         The Merge Policy in Lucene controls how merging of segments is done.
-         The default since Solr/Lucene 3.3 is TieredMergePolicy.
-         The default since Lucene 2.3 was the LogByteSizeMergePolicy,
-         Even older versions of Lucene used LogDocMergePolicy.
-      -->
-    <!--
-        <mergePolicy class="org.apache.lucene.index.TieredMergePolicy">
-          <int name="maxMergeAtOnce">10</int>
-          <int name="segmentsPerTier">10</int>
-        </mergePolicy>
-      -->
-       
-    <!-- Merge Factor
-         The merge factor controls how many segments will get merged at a time.
-         For TieredMergePolicy, mergeFactor is a convenience parameter which
-         will set both MaxMergeAtOnce and SegmentsPerTier at once.
-         For LogByteSizeMergePolicy, mergeFactor decides how many new segments
-         will be allowed before they are merged into one.
-         Default is 10 for both merge policies.
-      -->
+	<mergePolicy class="org.apache.solr.index.TieredMergePolicy">
+		<int name="maxMergeAtOnce">10</int>
+		<int name="segmentsPerTier">10</int>
+	</mergePolicy>
+
     <!-- 
     <mergeFactor>10</mergeFactor>
       -->
 
-    <!-- Expert: Merge Scheduler
-         The Merge Scheduler in Lucene controls how merges are
-         performed.  The ConcurrentMergeScheduler (Lucene 2.3 default)
-         can perform merges in the background using separate threads.
-         The SerialMergeScheduler (Lucene 2.2 default) does not.
-     -->
     <!-- 
        <mergeScheduler class="org.apache.lucene.index.ConcurrentMergeScheduler"/>
        -->
@@ -874,8 +852,6 @@
         author_245c_startsC        author_245c_startsP         author_245c_startsCJK
         barcode_startsC            barcode_startsP         barcode_startsNum
         barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
-        authority_author_startsC   authority_author_startsP    authority_author_startsCJK
-        authority_subject_startsC  authority_subject_startsP   authority_subject_startsCJK
       </str>
       <str name="quot_qf">
         title_unstemC^25000        title_unstemP^25000
@@ -986,30 +962,7 @@
         authority_subject_t_cjk
       </str>
       <str name="starts_pf">
-        title_startsC^25000        title_startsP^25000        title_startsCJK^2500
-        title_uniform_startsC^2500 title_uniform_startsP^2500 title_uniform_startsCJK^250
-        title_addl_startsC^2500    title_addl_startsP^2500    title_addl_startsCJK^250
-        subject_startsC^375        subject_startsP^375        subject_startsCJK^50
-        author_startsC^125         author_startsP^125         author_startsCJK^10
-        author_addl_startsC^75     author_addl_startsP^75     author_addl_startsCJK^5
-      lc_callnum_full^100
-        publisher_startsC^75       publisher_startsP^75       publisher_startsCJK^10
-        subject_addl_startsC^125   subject_addl_startsP^125   subject_addl_startsCJK^5
-        title_series_startsC^25    title_series_startsP^25    title_series_startsCJK
-        isbn_startsC               isbn_startsP        isbn_startsCJK        isbn_startsNum
-        issn_startsC               issn_startsP        issn_startsCJK        issn_startsNum
-        donor_startsC              donor_startsP              donor_startsCJK
-        pubplace_startsC           pubplace_startsP           pubplace_startsCJK
-        eightninenine_startsC      eightninenine_startsP      eightninenine_startsCJK
-                                                           eightninenine_startsNum
-        notes_startsC              notes_startsP              notes_startsCJK
-        summary_startsC            summary_startsP            summary_startsCJK
-        toc_startsC                toc_startsP                toc_startsCJK
-        author_245c_startsC        author_245c_startsP        author_245c_startsCJK
-        barcode_startsC^10         barcode_startsP^10      barcode_startsNum
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
-        authority_author_startsC   authority_author_startsP   authority_author_startsCJK
-        authority_subject_startsC  authority_subject_startsP  authority_subject_startsCJK
+
       </str>
       <str name="quot_pf">
         title_unstemC^25000        title_unstemP^25000
@@ -1071,7 +1024,7 @@
         author_245c_t_cjk
         authority_author_t         authority_author_tP
         authority_author_t_cjk
-      </str>
+     </str>
       <str name="author_pf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
@@ -1082,19 +1035,20 @@
         author_245c_t              author_245c_tP
         author_245c_t_cjk
         authority_author_t         authority_author_tP
-        authority_author_t_cjk
-      </str>
+        authority_author_t_cjk      </str>
       <str name="author_starts_qf">
         author_startsC^125         author_startsP^125        author_startsCJK^10
         author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
-        authority_author_startsC   authority_author_startsP  authority_author_startsCJK
       </str>
       <str name="author_starts_pf">
-        author_startsC^125         author_startsP^125        author_startsCJK^10
-        author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
-        author_245c_startsC        author_245c_startsP       author_245c_startsCJK
-        authority_author_startsC   authority_author_startsP  authority_author_startsCJK
+
+      </str>
+      <str name="author_cts_qf">
+        author_pers_browse author_corp_browse author_event_browse
+      </str>
+      <str name="author_cts_pf">
+        author_pers_browse author_corp_browse author_event_browse
       </str>
       <str name="author_quot_qf">
         author_unstemC^125         author_unstemP^125
@@ -1134,8 +1088,8 @@
       <str name="title_pf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-    	title_startsC^250          title_startsP^250        title_startsCJK^25
-		title_exact^500            title_ngram
+    	title_startsC^125          title_startsP^125        title_startsCJK^12
+		title_exact^500
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
@@ -1206,12 +1160,28 @@
       <str name="subject_starts_qf">
         subject_startsC^200        subject_startsP^200        subject_startsCJK^5
         subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
-        authority_subject_startsC  authority_subject_startsP  authority_subject_startsCJK
       </str>
       <str name="subject_starts_pf">
-        subject_startsC^200        subject_startsP^200        subject_startsCJK^5
-        subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
-        authority_subject_startsC  authority_subject_startsP  authority_subject_startsCJK
+      </str>
+      <str name="subject_cts_qf">
+        subject_pers_browse
+        subject_corp_browse
+        subject_event_browse
+        subject_topic_browse
+        subject_geo_browse
+        subject_era_browse
+        subject_genr_browse
+        subject_work_browse
+      </str>
+      <str name="subject_cts_pf">
+        subject_pers_browse
+        subject_corp_browse
+        subject_event_browse
+        subject_topic_browse
+        subject_geo_browse
+        subject_era_browse
+        subject_genr_browse
+        subject_work_browse
       </str>
       <str name="subject_quot_qf">
         subject_unstemC^200        subject_unstemP^200
@@ -1457,14 +1427,10 @@
       <str name="facet.limit">10</str>
       <str name="facet.field">format</str>
       <str name="facet.field">online</str>
-      <str name="facet.field">lc_1letter_facet</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
       <str name="facet.field">pub_date_facet</str>
       <str name="facet.field">author_facet</str>
-      <str name="facet.field">subject_era_facet</str>
-      <str name="facet.field">subject_geo_facet</str>
-      <str name="facet.field">subject_topic_facet</str>
       <str name="facet.field">subject_content_facet</str>
       
       <str name="spellcheck">true</str>

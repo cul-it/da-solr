@@ -18,6 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -46,6 +51,9 @@ import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
+import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+
 public class IndexingUtilities {
 
 	public static enum IndexQueuePriority {
@@ -53,7 +61,8 @@ public class IndexingUtilities {
 		CODECHANGE_PRIORITY1("Code Change 1"),
 		CODECHANGE_PRIORITY2("Code Change 2"),
 		CODECHANGE_PRIORITY3("Code Change 3"),
-		CODECHANGE_PRIORITY4("Code Change 4");
+		CODECHANGE_PRIORITY4("Code Change 4"),
+		NOT_RECENTLY_UPDATED("Refresh Old Solr Record");
 
 		private String string;
 
@@ -62,6 +71,57 @@ public class IndexingUtilities {
 		}
 
 		public String toString() { return string; }
+	}
+
+	/**
+	 * bib_id is either already in CurrentDBTable.BIB_VOY and presumably in Solr, or it may have been
+	 * newly inserted as suppressed. If the former, it needs to be queued for delete from Solr. If
+	 * the latter, it can be safely ignored.
+	 * @param current
+	 * @param bib_id
+	 * @throws SQLException
+	 */
+	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
+		boolean inBIB_VOY = false;
+		PreparedStatement bibVoyQStmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
+		bibVoyQStmt.setInt(1, bib_id);
+		ResultSet rs = bibVoyQStmt.executeQuery();
+		while (rs.next())
+			inBIB_VOY = true;
+		rs.close();
+		bibVoyQStmt.close();
+		if ( ! inBIB_VOY )
+			return;
+		PreparedStatement bibVoyDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
+		bibVoyDStmt.setInt(1, bib_id);
+		bibVoyDStmt.executeUpdate();
+		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
+		bibVoyDStmt.close();
+	}
+	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
+		PreparedStatement bibQueueStmt = current.prepareStatement(
+				"INSERT INTO "+CurrentDBTable.QUEUE
+				+" (bib_id, priority, cause)"
+				+" VALUES (?, ?, ?)");
+		bibQueueStmt.setInt(1, bib_id);
+		bibQueueStmt.setInt(2, type.getPriority().ordinal());
+		bibQueueStmt.setString(3,type.toString());
+		bibQueueStmt.executeUpdate();
+		bibQueueStmt.close();
+	}
+	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
+			throws SQLException {
+		PreparedStatement bibQueueDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.QUEUE
+				+" WHERE bib_id = ? AND done_date = 0");
+		for (Integer bib_id : bib_ids) {
+			bibQueueDStmt.setInt(1, bib_id);
+			bibQueueDStmt.addBatch();
+		}
+		bibQueueDStmt.executeBatch();
+		bibQueueDStmt.close();
 	}
 
 	public static void optimizeIndex( String solrCoreURL ) {

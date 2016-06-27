@@ -135,6 +135,13 @@ task (step10Headings2Solr, dependsOn: 'assemble', type: JavaExec){
    classpath = sourceSets.main.runtimeClasspath
 }
 
+task( RecordBatchProcessingData, dependsOn: 'assemble', type: JavaExec) {
+ description = "Pull batch processing logs into update queue."
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.indexer.updates.RecordBatchProcessingData'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert XML extract of Voyager location table to XML. "
  maxHeapSize = '500m'

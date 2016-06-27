@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -166,6 +168,13 @@ public class SolrBuildConfig {
     	}
     }
 
+    public String getBatchInfoDir() throws IOException {
+    	if (values.containsKey("batchInfoDir")) {
+    		return values.get("batchInfoDir");
+    	} else {
+    		return null;
+    	}
+    }
 
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
@@ -476,6 +485,19 @@ public class SolrBuildConfig {
     		return Integer.valueOf(values.get("targetDailyUpdatesBibCount"));
     	else
     		return null;
+    }
+    public Boolean getExtendedIndexingMode() {
+    	if (values.containsKey("extendedIndexingMode")) {
+    		String val = values.get("extendedIndexingMode");
+    		if (val.equals("true"))
+    			return true;
+    		String dayOfWeek = new SimpleDateFormat("EEEEE").format(new Date());
+    		String[] parts = StringUtils.split(val,',');
+    		for( String part : parts )
+    			if( part.equals(dayOfWeek) )
+    				return true;
+    	}
+    	return false;
     }
     public void setTargetDailyUpdatesBibCount(Integer count) {
     	values.put("targetDailyUpdatesBibCount",String.valueOf(count));
@@ -859,6 +881,8 @@ public class SolrBuildConfig {
         	errMsgs += checkDir( checkMe.values.get("txtDir"), "txtDir");
         if (requiredArgs.contains("tdfDir"))
         	errMsgs += checkDir( checkMe.values.get("tdfDir"), "tdfDir");
+        if (requiredArgs.contains("batchInfoDir"))
+        	errMsgs += checkDir( checkMe.values.get("batchInfoDir"), "batchInfoDir");
         if (requiredArgs.contains("nonVoyUriPrefix"))
         	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
         if (requiredArgs.contains("nonVoyIdPrefix"))
