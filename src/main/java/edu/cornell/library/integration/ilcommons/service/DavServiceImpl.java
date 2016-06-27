@@ -74,6 +74,18 @@ public class DavServiceImpl implements DavService {
     }
 
     /* (non-Javadoc)
+     * @see edu.cornell.library.integration.service.DavService#getResourceList(java.lang.String)
+     */
+    public List<DavResource> getResourceList(String url) throws IOException {
+        try{
+            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
+            return sardine.list(url);
+        }catch (IOException e){
+            throw new IOException( "Problem while trying to get file list from " + url ,e);
+        }
+    }
+
+    /* (non-Javadoc)
      * @see edu.cornell.library.integration.service.DavService#getFileList(java.lang.String)
      */
     public List<String> getFileList(String url) throws IOException {

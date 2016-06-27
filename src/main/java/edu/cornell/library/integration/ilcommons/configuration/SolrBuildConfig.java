@@ -168,6 +168,13 @@ public class SolrBuildConfig {
     	}
     }
 
+    public String getBatchInfoDir() throws IOException {
+    	if (values.containsKey("batchInfoDir")) {
+    		return values.get("batchInfoDir");
+    	} else {
+    		return null;
+    	}
+    }
 
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
@@ -874,6 +881,8 @@ public class SolrBuildConfig {
         	errMsgs += checkDir( checkMe.values.get("txtDir"), "txtDir");
         if (requiredArgs.contains("tdfDir"))
         	errMsgs += checkDir( checkMe.values.get("tdfDir"), "tdfDir");
+        if (requiredArgs.contains("batchInfoDir"))
+        	errMsgs += checkDir( checkMe.values.get("batchInfoDir"), "batchInfoDir");
         if (requiredArgs.contains("nonVoyUriPrefix"))
         	errMsgs += checkUriPrefix( checkMe.values.get("nonVoyUriPrefix"), "nonVoyUriPrefix");
         if (requiredArgs.contains("nonVoyIdPrefix"))

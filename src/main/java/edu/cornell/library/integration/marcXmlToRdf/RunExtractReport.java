@@ -28,7 +28,6 @@ public class RunExtractReport {
 	public RunExtractReport(String[] args) throws Exception {
 		
 		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
-		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("xmlDir");
 		requiredFields.add("tdfDir");
 		requiredFields.add("reportList");  // Exactly ONE EXTRACT_* report expected; addl ok.
