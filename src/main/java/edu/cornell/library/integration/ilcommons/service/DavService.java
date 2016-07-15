@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.googlecode.sardine.DavResource;
+
 
 /**
  * @author jaf30
@@ -28,8 +30,15 @@ public interface DavService {
     * @return list of filenames
     * @throws IOException
     */
-   public List<String>  getFileList(String url) throws IOException;
+   public List<DavResource>  getResourceList(String url) throws IOException;
    
+   /**
+    * @param url
+    * @return list of filenames
+    * @throws IOException
+    */
+   public List<String>  getFileList(String url) throws IOException;
+
    /**
     * @param url
     * @return list of file urls
