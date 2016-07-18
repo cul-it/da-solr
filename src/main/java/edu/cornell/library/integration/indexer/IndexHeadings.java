@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,12 +69,30 @@ public class IndexHeadings {
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
 	            
-		config = SolrBuildConfig.loadConfig(args,requiredArgs);
-		if ( config.getExtendedIndexingMode() ) {
-			System.out.println("Not updating the browse indexes when in extended indexing mode.");
-			System.exit(1);
+		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		if (args.length > 0) {
+			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+			try {
+				int minHour = Integer.parseInt(args[0]);
+				if (minHour < currentHour)
+					throw new IllegalStateException("Error: according to provided arguments, "
+							+ "this method can't be run before "+minHour+":00 local time.");
+				if (args.length > 1) {
+					int maxHour = Integer.parseInt(args[1]);
+					if (maxHour >= currentHour)
+						throw new IllegalStateException("Error: according to provided arguments, "
+								+ "this method can't be run after "+maxHour+":00 local time.");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("Error: 1st argument (if provided) must be an integer 0-23 "
+						+ "representing the minimum hour BEFORE which this job should fail.");
+				System.out.println("\\t2nd argument (if provided) must be an integer 0-23 "
+						+ "representing the maximum hour AFTER which this job should fail.");
+				System.out.println("\\tTo provide a max hour and not a min, the 1st argument must be 0.");
+				throw e;
+			}
 		}
-		
+
 		connection = config.getDatabaseConnection("Headings");
 		deleteCountsFromDB();
 		connection.setAutoCommit(false);
