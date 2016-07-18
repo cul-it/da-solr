@@ -74,12 +74,12 @@ public class IndexHeadings {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 			try {
 				int minHour = Integer.parseInt(args[0]);
-				if (minHour < currentHour)
+				if (minHour > currentHour)
 					throw new IllegalStateException("Error: according to provided arguments, "
 							+ "this method can't be run before "+minHour+":00 local time.");
 				if (args.length > 1) {
 					int maxHour = Integer.parseInt(args[1]);
-					if (maxHour >= currentHour)
+					if (maxHour <= currentHour)
 						throw new IllegalStateException("Error: according to provided arguments, "
 								+ "this method can't be run after "+maxHour+":00 local time.");
 				}
