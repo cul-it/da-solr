@@ -100,7 +100,7 @@
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
@@ -112,7 +112,7 @@
     <fieldType name="textP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
@@ -126,7 +126,7 @@
     <fieldType name="textNoStemC" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
@@ -137,7 +137,7 @@
     <fieldType name="textNoStemP" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
@@ -148,11 +148,11 @@
 
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
       <analyzer>
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- replace any leading whitespace with "beginswith." to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith." />
 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
@@ -163,11 +163,11 @@
     </fieldType>
     <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
       <analyzer>
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- replace any leading whitespace with "beginswith." to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith." />
 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />     
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
