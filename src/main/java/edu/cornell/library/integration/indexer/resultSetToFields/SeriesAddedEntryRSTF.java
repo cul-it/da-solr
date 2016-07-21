@@ -41,7 +41,7 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 			} else {
 				author_cts = f.concatenateSpecificSubfields("abe");
 			}
-			workFacet.add(author_cts+" | "+title_cts);
+			workFacet.add(author_cts+" | "+f.getStringWithoutInitialArticle(title_cts));
 		}
 		
 		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();

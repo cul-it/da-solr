@@ -125,7 +125,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						htd = HeadTypeDesc.WORK;
 						if (f.ind2.equals('2')) {
 							relation = "included_work";
-							valuesATFacet.add(author_cts+" | "+title_cts);
+							valuesATFacet.add(author_cts+" | "+f.getStringWithoutInitialArticle(title_cts));
 						} else {
 							relation = "related_work";
 						}
