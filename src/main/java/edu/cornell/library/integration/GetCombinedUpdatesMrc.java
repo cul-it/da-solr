@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -286,8 +287,12 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             query.setQuery("*:*");
             query.setSort("timestamp", ORDER.asc);
             query.setFields("id");
-            query.setRows(minUpdateBibCount - addedBibs.size());
+            if (primeNumbers == null)
+            	primeNumbers = generatePrimeNumberList(minUpdateBibCount);
+            query.setRows(primeNumbers.get(minUpdateBibCount-addedBibs.size()-1));
+            int i = 0;
             for (SolrDocument doc : solr.query(query).getResults()) {
+            	if ( ! primeNumbers.contains(++i) ) continue;
             	int bib_id = Integer.valueOf(
                         doc.getFieldValues("id").iterator().next().toString());
             	if ( ! addedBibs.contains(bib_id) ) {
@@ -299,6 +304,19 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         }
         return addedBibs;
     }
+	private ArrayList<Integer> primeNumbers = null;
+	private ArrayList<Integer> generatePrimeNumberList(int number) {
+		ArrayList<Integer> primeNumbers = new ArrayList<Integer>(number);
+		int i = 0;
+		MAIN: while (primeNumbers.size() < number) {
+			int halfOfI = ++i/2;
+			for (int j=2;j<=halfOfI;j++)
+				if (i%j==0)
+					continue MAIN;
+			primeNumbers.add(i);
+		}
+		return primeNumbers;
+	}
 
     private void saveBibMrc(String mrc, int seqno, String destDir)
 			throws Exception {

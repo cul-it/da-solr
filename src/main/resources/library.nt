@@ -181,8 +181,8 @@
 
 <http://da-rdf.library.cornell.edu/individual/loc_38> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_38> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_38> <http://www.w3.org/2000/01/rdf-schema#label> "Geneva Experiment Station Library".
-<http://da-rdf.library.cornell.edu/individual/loc_38> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_geneva>.
+<http://da-rdf.library.cornell.edu/individual/loc_38> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_38> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_39> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva,anx"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_39> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -191,8 +191,8 @@
 
 <http://da-rdf.library.cornell.edu/individual/loc_41> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva,ref"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_41> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_41> <http://www.w3.org/2000/01/rdf-schema#label> "Geneva Library Reference (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_41> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_geneva>.
+<http://da-rdf.library.cornell.edu/individual/loc_41> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
+<http://da-rdf.library.cornell.edu/individual/loc_41> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_44> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "hote,anx"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_44> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
@@ -557,8 +557,8 @@
 
 <http://da-rdf.library.cornell.edu/individual/loc_40> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "gnva,rare"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_40> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_40> <http://www.w3.org/2000/01/rdf-schema#label> "Geneva Library Rare Books (Non-Circulating)".
-<http://da-rdf.library.cornell.edu/individual/loc_40> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_geneva>.
+<http://da-rdf.library.cornell.edu/individual/loc_40> <http://www.w3.org/2000/01/rdf-schema#label> "Mann Library Special Collections (Non-Circulating)".
+<http://da-rdf.library.cornell.edu/individual/loc_40> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_mann>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_43> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "hote"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_43> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
