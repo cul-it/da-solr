@@ -33,6 +33,7 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
@@ -244,7 +245,7 @@ public class IndexAuthorityRecords {
 						htd = HeadTypeDesc.EVENT;
 					break;
 				case "130":
-					htd = HeadTypeDesc.GENHEAD;
+					htd = HeadTypeDesc.WORK;
 					break;
 				case "148":
 					htd = HeadTypeDesc.CHRONTERM;
@@ -437,18 +438,18 @@ public class IndexAuthorityRecords {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
 		if (htd.equals(HeadTypeDesc.WORK)) {
-			StringBuilder sb = new StringBuilder();
-			if (f.tag.endsWith("00"))
-				sb.append(f.concatenateSpecificSubfields("abcdq"));
-			else if (f.tag.endsWith("10"))
-				sb.append(f.concatenateSpecificSubfields("ab"));
-			else // 11
-				sb.append(f.concatenateSpecificSubfields("abe"));
-			sb.append(" | ");
-			sb.append(f.concatenateSpecificSubfields("tklnpmors"));
-			heading = sb.toString();
-		} else if (htd.equals(HeadTypeDesc.GENHEAD)) {
-			heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
+			if (f.tag.endsWith("30"))
+				heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
+			else {
+				FieldValues vals;
+				if (f.tag.endsWith("00"))
+					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+				else if (f.tag.endsWith("10"))
+					vals = f.getFieldValuesForNameMaybeTitleField("ab;tklnpmors");
+				else // 11
+					vals = f.getFieldValuesForNameMaybeTitleField("abe;tklnpmors");
+				heading = vals.author+" | "+vals.title;
+			}
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		}
@@ -668,7 +669,7 @@ public class IndexAuthorityRecords {
 					r.headingTypeDesc = HeadTypeDesc.WORK;
 			break;
 		case "30":
-			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
+			r.headingTypeDesc = HeadTypeDesc.WORK;	break;
 		case "50":
 			r.headingTypeDesc = HeadTypeDesc.TOPIC;		break;
 		case "48":

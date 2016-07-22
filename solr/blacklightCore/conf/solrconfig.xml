@@ -1167,6 +1167,7 @@
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
@@ -1177,6 +1178,7 @@
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
