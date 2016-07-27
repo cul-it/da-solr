@@ -569,7 +569,7 @@ public class IdentifyChangedRecords {
 		MFHD_UPDATE("Holdings Record Change",IndexQueuePriority.DATACHANGE),
 		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
 		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
-		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE),
+		TITLELINK("Title Link Update",IndexQueuePriority.CODECHANGE_PRIORITY1),
 		
 		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
 

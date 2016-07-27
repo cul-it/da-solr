@@ -108,7 +108,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
+				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 		Map<Integer,TitleMatchReference> refs = new HashMap<Integer,TitleMatchReference>();
 		TitleMatchReference thisTitle = null;
 		SolrInputField workidDisplay = new SolrInputField("workid_display");
@@ -501,7 +501,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
+				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
@@ -572,7 +572,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
+				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
 		for (int oclcid : removedOclcIds) {
 			updateBibWorkMappingStmt.setInt(1, bibid);
 			updateBibWorkMappingStmt.setInt(2, oclcid);
