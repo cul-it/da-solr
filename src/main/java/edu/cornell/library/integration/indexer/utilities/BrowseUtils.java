@@ -41,6 +41,14 @@ public class BrowseUtils {
 		}
 		public HeadType headingType() { return _ht; }
 		public HeadTypeDesc headingTypeDesc() { return _htd; }
+		public String browseCtsName() {
+			final StringBuilder sb = new StringBuilder();
+			sb.append(_ht.toString());
+			if ( ! _ht.equals(HeadType.AUTHORTITLE) )
+				sb.append('_').append(_htd.abbrev());
+			sb.append("_browse");
+			return sb.toString();
+		}
 		public String fieldName() {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(_ht.toString());

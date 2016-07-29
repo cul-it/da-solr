@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
@@ -31,6 +32,8 @@ public class Headings2Solr {
 			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
+	private final Map<HeadType, HashMap<HeadTypeDesc, String>> blacklightFields =
+			new HashMap<HeadType,HashMap<HeadTypeDesc,String>>();
 
 	public static void main(String[] args) {
 		try {
@@ -98,8 +101,16 @@ public class Headings2Solr {
 			if (xrefs.seeAlsoJson != null)
 				doc.addField("seeAlso", xrefs.seeAlsoJson);
 			doc.addField("alternateForm", getAltForms(id));
+			HeadTypeDesc htd = HeadTypeDescs[ rs.getInt("type_desc") ];
 			if ( ! ht.equals(HeadType.AUTHORTITLE))
-				doc.addField("headingTypeDesc", HeadTypeDescs[ rs.getInt("type_desc") ]);
+				doc.addField("headingTypeDesc", htd);
+			if (! blacklightFields.containsKey(ht) || ! blacklightFields.get(ht).containsKey(htd)) {
+				BlacklightField blf = new BlacklightField(ht,htd);
+				if (! blacklightFields.containsKey(ht))
+					blacklightFields.put(ht, new HashMap<HeadTypeDesc,String>());
+				blacklightFields.get(ht).put(htd, blf.browseCtsName());
+			}
+			doc.addField("blacklightField", blacklightFields.get(ht).get(htd));
 			doc.addField("authority", rs.getBoolean("authority"));
 			doc.addField("mainEntry", rs.getBoolean("main_entry"));
 			doc.addField("notes", getNotes(id));
