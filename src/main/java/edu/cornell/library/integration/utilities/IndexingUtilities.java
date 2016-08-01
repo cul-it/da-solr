@@ -38,6 +38,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -384,6 +388,35 @@ public class IndexingUtilities {
 		out.finish();
 		out.close();
 		FileUtils.deleteQuietly(new File(s));
+	}
+
+	public static SolrInputDocument xml2SolrInputDocument(String xml) throws XMLStreamException {
+		SolrInputDocument doc = new SolrInputDocument();
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = 
+				input_factory.createXMLStreamReader(new StringReader(xml));
+		while (r.hasNext()) {
+			if (r.next() == XMLEvent.START_ELEMENT) {
+				if (r.getLocalName().equals("doc")) {
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("boost"))
+							doc.setDocumentBoost(Float.valueOf(r.getAttributeValue(i)));
+				} else if (r.getLocalName().equals("field")) {
+					String fieldName = null;
+					Float boost = null;
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("name"))
+							fieldName = r.getAttributeValue(i);
+						else if (r.getAttributeLocalName(i).equals("boost"))
+							boost = Float.valueOf(r.getAttributeValue(i));
+					if (boost != null)
+						doc.addField(fieldName, r.getElementText(), boost);
+					else
+						doc.addField(fieldName, r.getElementText());
+				}
+			}
+		}
+		return doc;
 	}
 	
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
