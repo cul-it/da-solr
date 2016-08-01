@@ -38,6 +38,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -47,7 +51,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -195,7 +199,7 @@ public class IndexingUtilities {
 
 
 
-	public static String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
+	public static String eliminateDuplicateLocations(Collection<Object> location_facet) {
 		if (location_facet == null) return "";
 		StringBuilder sb = new StringBuilder();
 		Collection<Object> foundValues = new HashSet<Object>();
@@ -214,74 +218,38 @@ public class IndexingUtilities {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static TitleMatchReference pullReferenceFields(SolrDocument doc) throws ParseException {
+	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
-		Object bibid_display = doc.getFieldValue("bibid_display");
-		if (bibid_display.getClass().equals(String.class)) {
-			String[] parts = ((String)bibid_display).split("\\|", 2);
-			ref.id = Integer.valueOf(parts[0]);
-			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
-		} else {
-			ArrayList<Object> solrBib = (ArrayList<Object>) bibid_display;
-			String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
-			ref.id = Integer.valueOf(parts[0]);
-			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
-		}
-		Object format = doc.getFieldValue("format");
-		if (format.getClass().equals(String.class))
-			ref.format = (String)format;
-		else
-			ref.format = StringUtils.join((ArrayList<Object>)format,',');
-		boolean online = doc.containsKey("url_access_display");
-		if (online) {
-			Object url_access_display = doc.getFieldValue("url_access_display");
-			if (url_access_display.getClass().equals(String.class)) {
-				ArrayList<Object> urls = new ArrayList<Object>();
-				urls.add(url_access_display);
-				ref.sites = identifyOnlineServices(urls);
-			} else {
-				ref.sites = identifyOnlineServices((ArrayList<Object>)url_access_display);
-			}
+
+		Collection<Object> bibid_display = doc.getFieldValues("bibid_display");
+		String[] parts = ((String)bibid_display.iterator().next()).split("\\|", 2);
+		ref.id = Integer.valueOf(parts[0]);
+		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+
+		ref.format = StringUtils.join(doc.getFieldValues("format"),',');
+
+		if (doc.containsKey("url_access_display")) {
+			ref.sites = identifyOnlineServices(doc.getFieldValues("url_access_display"));
 			if (ref.sites == null)
 				ref.sites = "Online";
 		}
-		if (doc.containsKey("location_facet")) {
-			Object location_facet = doc.getFieldValue("location_facet");
-			if (location_facet.getClass().equals(String.class)) {
-				ref.libraries = (String) location_facet;
-			} else {
-				ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)location_facet);			
-			}
-		}
-		if (doc.containsKey("edition_display")) {
-			Object edition_display = doc.getFieldValue("edition_display");
-			if (edition_display.getClass().equals(String.class)) {
-				ref.edition = (String) edition_display;
-			} else {
-				ref.edition = StringUtils.join((ArrayList<Object>)edition_display ,"; ");
-			}
-		}
-		if (doc.containsKey("pub_date_display")) {
-			Object pub_date_display = doc.getFieldValue("pub_date_display");
-			if (pub_date_display.getClass().equals(String.class))
-				ref.pub_date = (String) pub_date_display;
-			else 
-				ref.pub_date = StringUtils.join((ArrayList<Object>)pub_date_display ,", ");
-		}
-		if (doc.containsKey("language_facet")) {
-			Object language_facet = doc.getFieldValue("language_facet");
-			if (language_facet.getClass().equals(String.class))
-				ref.language = (String) language_facet;
-			else
-				ref.language = StringUtils.join((ArrayList<Object>)language_facet,',');
-		}
+
+		if (doc.containsKey("location_facet"))
+			ref.libraries = eliminateDuplicateLocations(
+					doc.getFieldValues("location_facet"));
+
+		if (doc.containsKey("edition_display"))
+			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
+
+		if (doc.containsKey("pub_date_display"))
+			ref.pub_date = StringUtils.join(doc.getFieldValues("pub_date_display"),", ");
+
+		if (doc.containsKey("language_facet"))
+			ref.language = StringUtils.join(doc.getFieldValues("language_facet"),',');
+
 		if (doc.containsKey("title_uniform_display")) {
-			Object title_uniform_display = doc.getFieldValue("title_uniform_display");
-			String uniformTitle;
-			if (title_uniform_display.getClass().equals(String.class))
-				uniformTitle = (String) title_uniform_display;
-			else 
-				uniformTitle = (String)((ArrayList<Object>)title_uniform_display ).get(0);
+			String uniformTitle = (String)doc.getFieldValues
+					("title_uniform_display").iterator().next();
 			int pipePos = uniformTitle.indexOf('|');
 			if (pipePos == -1)
 				ref.title = uniformTitle;
@@ -289,9 +257,10 @@ public class IndexingUtilities {
 				ref.title = uniformTitle.substring(0, pipePos);
 		}
 		if (ref.title == null && doc.containsKey("title_vern_display"))
-			ref.title = (String) doc.getFieldValue("title_vern_display");
+			ref.title = (String)doc.getFieldValues("title_vern_display").iterator().next();
 		if (ref.title == null)
-			ref.title = (String) doc.getFieldValue("title_display");
+			ref.title = (String)doc.getFieldValues("title_display").iterator().next();
+
 		return ref;
 	}
 	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -419,6 +388,35 @@ public class IndexingUtilities {
 		out.finish();
 		out.close();
 		FileUtils.deleteQuietly(new File(s));
+	}
+
+	public static SolrInputDocument xml2SolrInputDocument(String xml) throws XMLStreamException {
+		SolrInputDocument doc = new SolrInputDocument();
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = 
+				input_factory.createXMLStreamReader(new StringReader(xml));
+		while (r.hasNext()) {
+			if (r.next() == XMLEvent.START_ELEMENT) {
+				if (r.getLocalName().equals("doc")) {
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("boost"))
+							doc.setDocumentBoost(Float.valueOf(r.getAttributeValue(i)));
+				} else if (r.getLocalName().equals("field")) {
+					String fieldName = null;
+					Float boost = null;
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("name"))
+							fieldName = r.getAttributeValue(i);
+						else if (r.getAttributeLocalName(i).equals("boost"))
+							boost = Float.valueOf(r.getAttributeValue(i));
+					if (boost != null)
+						doc.addField(fieldName, r.getElementText(), boost);
+					else
+						doc.addField(fieldName, r.getElementText());
+				}
+			}
+		}
+		return doc;
 	}
 	
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	

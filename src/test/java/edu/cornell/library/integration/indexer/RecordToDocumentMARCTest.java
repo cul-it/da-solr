@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -59,7 +60,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@Test
 	@Ignore
-	public void testBronte() throws SolrServerException{
+	public void testBronte() throws SolrServerException, IOException{
 		
 		/* make sure that we have the document in the index before we do anything */			
 		testQueryGetsDocs("Expect to find Bronte document by doc:id 4696",
@@ -81,7 +82,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@Test
 	@Ignore 
-	public void testUnicode() throws SolrServerException{
+	public void testUnicode() throws SolrServerException, IOException{
 		testQueryGetsDocs("Expect to find document by doc:id 3309",
 				new SolrQuery().setQuery("id:3309").setParam("qt", "standard"),
 				new String[]{ "3309" } ) ;
@@ -103,7 +104,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 
 	@Test
 	@Ignore
-	public void testLanguageSearchFacet() throws SolrServerException{
+	public void testLanguageSearchFacet() throws SolrServerException, IOException{
 
 		try {
 			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> ?f." +
@@ -143,7 +144,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@Test
 	@Ignore
-	public void testCallnumSearchFacet() throws SolrServerException{
+	public void testCallnumSearchFacet() throws SolrServerException, IOException{
 		
 		//"Expected "P - Language & Literature" for lc_1letter_facet on document 4696."
 		SolrQuery q = new SolrQuery().setQuery("bronte");

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -26,8 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 
 /** Evaluate populated fields for conditions of membership for any collections.
  * (Currently only "Law Library".)
@@ -307,7 +306,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	private Boolean updateBibField(Connection conn, SolrInputDocument document,
 			Integer bibid) throws SQLException, ParseException {
 
-		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
+		TitleMatchReference ref = pullReferenceFields(document);
 
 		// pull existing values from DB are the descriptive fields changed?
 		PreparedStatement origDescStmt = conn.prepareStatement(
@@ -406,7 +405,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	}
 
 	private void populateBibField(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
-		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
+		TitleMatchReference ref = pullReferenceFields(document);
 
 		PreparedStatement insertBibStmt = conn.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+

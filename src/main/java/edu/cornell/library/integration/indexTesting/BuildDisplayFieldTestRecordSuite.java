@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -38,7 +38,7 @@ public class BuildDisplayFieldTestRecordSuite {
 		if (count == null)
 			throw new SQLException("Failed to retrieve unique document count from test suite database.");
 		System.out.println(count);
-		HttpSolrServer solr = new HttpSolrServer(config.getBlacklightSolrUrl());
+		HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
 		SolrQuery query = new SolrQuery();
 		query.setQuery("id:*");
 		query.setFields("*");
@@ -73,6 +73,7 @@ public class BuildDisplayFieldTestRecordSuite {
 				count++;
 			}
 		}
+		solr.close();
 	}
 
 	PreparedStatement knownFieldsWhichNeedCoverageStmt = null;

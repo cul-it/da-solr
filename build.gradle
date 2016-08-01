@@ -42,9 +42,10 @@ dependencies {
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
              
-   compile 'org.apache.solr:solr-solrj:4.9.1'
-   
    compile 'com.google.guava:guava:14.0'
+
+	compile 'org.apache.solr:solr-solrj:5.5.0'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
 
 }
 

@@ -2,27 +2,23 @@ package edu.cornell.library.integration.indexer.updates;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
-import edu.cornell.library.integration.utilities.FileNameUtils;
 
 /**
  * Utility to delete bibs from Solr index.
@@ -53,8 +49,8 @@ public class DeleteFromSolr {
 
     public void doTheDelete(SolrBuildConfig config) throws Exception  {
 
-        String solrURL = config.getSolrUrl();   
-        SolrServer solr = new HttpSolrServer( solrURL );
+        String solrURL = config.getSolrUrl();                                        
+        SolrClient solr = new HttpSolrClient( solrURL );
 
 		Set<Integer> knockOnUpdates = new HashSet<Integer>();
 
@@ -217,7 +213,7 @@ public class DeleteFromSolr {
                 + "to be deleted from solr at " + config.getSolrUrl());
     }
 
-    private static long countOfDocsInSolr( SolrServer solr ) throws SolrServerException {
+    private static long countOfDocsInSolr( SolrClient solr ) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
         query.set("qt", "standard");
         query.setQuery("*:*");

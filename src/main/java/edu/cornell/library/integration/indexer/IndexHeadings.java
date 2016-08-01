@@ -98,20 +98,20 @@ public class IndexHeadings {
 		connection.setAutoCommit(false);
 
 		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
-		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.PERSNAME, "author_pers_filing", "author_facet" ));
-		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.CORPNAME, "author_corp_filing", "author_facet" ));
-		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.EVENT, "author_event_filing",    "author_facet" ));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.PERSNAME));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.CORPNAME));
+		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.EVENT));
 
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.PERSNAME, "subject_pers_filing", "subject_pers_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CORPNAME, "subject_corp_filing", "subject_corp_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.EVENT, "subject_event_filing", "subject_event_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.TOPIC, "subject_topic_filing", "subject_topic_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GEONAME, "subject_geo_filing", "subject_geo_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CHRONTERM, "subject_era_filing", "subject_era_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE, "subject_genr_filing", "subject_genr_facet"));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK, "subject_work_filing", "subject_work_facet"));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.PERSNAME));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CORPNAME));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.EVENT));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.TOPIC));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GEONAME));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CHRONTERM));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE));
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK));
 
-		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK, "authortitle_filing", "authortitle_facet"));
+		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
 		for (BlacklightField blf : blFields) {
 			

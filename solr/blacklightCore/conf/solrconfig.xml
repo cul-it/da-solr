@@ -897,9 +897,9 @@
         author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
-        authority_author_t         authority_author_tP
+        authority_author_unstemC   authority_author_unstemP
         authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
+        authority_subject_unstemC  authority_subject_unstemP
         authority_subject_t_cjk
       </str>
       <str name="pf">
@@ -1007,9 +1007,9 @@
         author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
-        authority_author_t         authority_author_tP
+        authority_author_unstemC   authority_author_unstemP
         authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
+        authority_subject_unstemC  authority_subject_unstemP
         authority_subject_t_cjk
       </str>
       
@@ -1057,7 +1057,7 @@
         author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
-        authority_author_t         authority_author_tP
+        authority_author_unstemC   authority_author_unstemP
         authority_author_t_cjk
       </str>
       <str name="author_quot_pf">
@@ -1067,7 +1067,7 @@
         author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP
         author_245c_t_cjk
-        authority_author_t         authority_author_tP
+        authority_author_unstemC   authority_author_unstemP
         authority_author_t_cjk
       </str>
 
@@ -1167,6 +1167,7 @@
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
@@ -1177,6 +1178,7 @@
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
@@ -1188,7 +1190,7 @@
         subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
+        authority_subject_unstemC  authority_subject_unstemP
         authority_subject_t_cjk
       </str>
       <str name="subject_quot_pf">
@@ -1196,7 +1198,7 @@
         subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
         subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
+        authority_subject_unstemC  authority_subject_unstemP
         authority_subject_t_cjk
       </str>
       

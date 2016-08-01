@@ -45,8 +45,8 @@ public class Collections implements DocumentPostProcess{
 			}
 		}
 		
-		if (document.containsKey("lc_alpha_facet")) {
-			SolrInputField f = document.getField("lc_alpha_facet");
+		if (document.containsKey("lc_callnum_facet")) {
+			SolrInputField f = document.getField("lc_callnum_facet");
 			for (Object v : f.getValues()) {
 				String val = v.toString();
 				lc_alphas.add(val.substring(0, val.indexOf(' ')));

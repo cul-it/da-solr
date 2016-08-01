@@ -305,6 +305,17 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         return addedBibs;
     }
 	private ArrayList<Integer> primeNumbers = null;
+	/**
+	 * Generate an ArrayList&lt;Integer&gt; of the first &lt;number&gt; primes,
+	 * including 1. While modern math theory firmly excludes 1 from the set of prime
+	 * numbers, this was not originally the case[1][2]. For this particular use case,
+	 * it made sense to include it. It may need to be excluded if the code is repurposed.
+	 * This is also not an efficient algorithm for large values of &lt;number&gt;, and
+	 * a sieve might be preferable at scale.<br/><br/>
+	 * 
+	 * [1] http://mathworld.wolfram.com/PrimeNumber.html <br/>
+	 * [2] http://mathforum.org/library/drmath/view/64874.html
+	 */
 	private ArrayList<Integer> generatePrimeNumberList(int number) {
 		ArrayList<Integer> primeNumbers = new ArrayList<Integer>(number);
 		int i = 0;
