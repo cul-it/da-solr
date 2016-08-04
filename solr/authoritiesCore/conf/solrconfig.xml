@@ -5,11 +5,12 @@
     an extensively commented version of this file. 
 -->
 <config>
-<!-- Admin Handlers - This will register all the standard admin RequestHandlers. -->
 
-  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
+  <luceneMatchVersion>6.0</luceneMatchVersion>
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
-  
+
+  <schemaFactory class="ClassicIndexSchemaFactory"/>
+
   <!-- lib directives can be used to instruct Solr to load an Jars identified
        and use them to resolve any "plugins" specified in your solrconfig.xml or
        schema.xml (ie: Analyzers, Request Handlers, etc...).
@@ -443,18 +444,6 @@
 
 <!-- this caused a problem with solr 4.1 -->
 <!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
-
-  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
-  <requestHandler name="/admin/ping" class="PingRequestHandler">
-    <lst name="defaults">
-      <str name="qt">search</str>
-      <str name="q">book</str>
-      <str name="echoParams">all</str>
-    </lst>
-  </requestHandler>
-  <admin>
-    <defaultQuery>book</defaultQuery>
-  </admin>
 
   <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
     <lst name="defaults">
