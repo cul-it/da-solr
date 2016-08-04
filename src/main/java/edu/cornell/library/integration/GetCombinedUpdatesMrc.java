@@ -24,7 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -281,7 +281,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         pstmt.close();
 
         if (addedBibs.size() < minUpdateBibCount) {
-            HttpSolrServer solr = new HttpSolrServer(config.getSolrUrl());
+            HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl());
             SolrQuery query = new SolrQuery();
             query.setRequestHandler("standard");
             query.setQuery("*:*");
@@ -301,6 +301,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
             	}
             		
             }
+            solr.close();
         }
         return addedBibs;
     }
