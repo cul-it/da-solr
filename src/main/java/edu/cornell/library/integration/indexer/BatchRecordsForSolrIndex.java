@@ -41,8 +41,6 @@ public class BatchRecordsForSolrIndex {
 			+" WHERE done_date = 0 AND batched_date = 0"
 			+" ORDER BY priority"
 			+" LIMIT " + Math.round(maxCount*1.125));
-        PreparedStatement batchStmt = current.prepareStatement(
-        		"UPDATE "+CurrentDBTable.QUEUE+" SET batched_date = NOW() WHERE bib_id = ?");
         ResultSet rs = pstmt.executeQuery();
         final String delete = DataChangeUpdateType.DELETE.toString();
 
@@ -51,8 +49,6 @@ public class BatchRecordsForSolrIndex {
         		continue;
         	int bib_id = rs.getInt("bib_id");
         	addedBibs.add(bib_id);
-        	batchStmt.setInt(1,bib_id);
-        	batchStmt.addBatch();
         }
         rs.close();
         pstmt.close();
@@ -75,12 +71,16 @@ public class BatchRecordsForSolrIndex {
             	if ( ! addedBibs.contains(bib_id) ) {
             		addedBibs.add(bib_id);
             		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
-                	batchStmt.setInt(1,bib_id);
-                	batchStmt.addBatch();
             	}
             		
             }
             solr.close();
+        }
+        PreparedStatement batchStmt = current.prepareStatement(
+        		"UPDATE "+CurrentDBTable.QUEUE+" SET batched_date = NOW() WHERE bib_id = ?");
+        for (int bib_id : addedBibs) {
+        	batchStmt.setInt(1,bib_id);
+        	batchStmt.addBatch();
         }
         batchStmt.executeBatch();
         batchStmt.close();
