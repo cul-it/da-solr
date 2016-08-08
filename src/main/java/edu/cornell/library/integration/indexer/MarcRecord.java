@@ -68,6 +68,9 @@ public class MarcRecord {
 	}
 
 	public void addControlFieldResultSet( final ResultSet rs ) {
+		addControlFieldResultSet(rs,false);
+	}
+	public void addControlFieldResultSet( final ResultSet rs, boolean nonBreaking ) {
 		while (rs.hasNext()) {
 			final QuerySolution sol = rs.nextSolution();
 			addControlFieldQuerySolution( sol );
@@ -76,11 +79,16 @@ public class MarcRecord {
 	}
 
 	public void addControlFieldQuerySolution( final QuerySolution sol ) {
+		addControlFieldQuerySolution(sol,false);
+	}
+	public void addControlFieldQuerySolution( final QuerySolution sol, boolean nonBreaking ) {
 		final String f_uri = nodeToString( sol.get("field") );
 		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
 		final ControlField f = new ControlField();
 		f.tag = nodeToString(sol.get("tag"));
 		f.value = nodeToString(sol.get("value"));
+		if (nonBreaking)
+			f.value = f.value.replaceAll(" ", "\uC2A0");
 		f.id = field_no;
 		this.control_fields.put(field_no, f);
 		if (f.tag.equals("001"))

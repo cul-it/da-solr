@@ -45,7 +45,7 @@ public class MARCResultSetToFields implements ResultSetToFields {
 		
 		if (results.containsKey("marc_control_fields")) {
 			ResultSet marc_control_fields = results.get("marc_control_fields");
-			rec.addControlFieldResultSet(marc_control_fields);
+			rec.addControlFieldResultSet(marc_control_fields,true);
 		}
 		
 		if (results.containsKey("marc_data_fields")) {
