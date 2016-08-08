@@ -45,6 +45,7 @@ public class ProcessQueue {
 		String random = RandomStringUtils.randomAlphanumeric(12);
 		String webdavBaseUrl = config.getWebdavBaseUrl()+"/"+random+"/";
 		String localBaseFilePath = config.getLocalBaseFilePath()+"/"+random+"/";
+		DownloadMARC downloader = new DownloadMARC(config);
 		
 		Connection current = config.getDatabaseConnection("Current");
 		int i = 0;
@@ -54,7 +55,6 @@ public class ProcessQueue {
 			Set<Integer> bibIds = getBibsToIndex(current,config.getSolrUrl(),0,batchSize);
 			Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
 
-			DownloadMARC downloader = new DownloadMARC(config);
 			Set<Integer> deletedBibs = downloader.saveXml(
 					RecordType.BIBLIOGRAPHIC, bibIds, config.getDailyBibMrcXmlDir());
 			Set<Integer> deletedMfhds = downloader.saveXml(

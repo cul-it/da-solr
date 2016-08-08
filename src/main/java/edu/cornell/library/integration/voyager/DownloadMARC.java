@@ -137,10 +137,10 @@ public class DownloadMARC {
         if ( uPlusHexPattern.matcher(rec).matches() )
         	System.out.println(type.toString()+" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
 	}
-	private String marcToXml( String marc21 ) {
-		InputStream is = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8));
+	private String marcToXml( String marc21 ) throws IOException {
+		InputStream in = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8));
 		OutputStream out = new ByteArrayOutputStream();
-		MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is,true,true);
+		MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(in,true,true);
 		MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
 		writer.setUnicodeNormalization(true);
 		Record record = null;
@@ -158,6 +158,8 @@ public class DownloadMARC {
             if (! hasInvalidChars)
             	writer.write(record);
         }
+        in.close();
+        out.close();
         writer.close();
         return out.toString();
 	}
@@ -175,6 +177,7 @@ public class DownloadMARC {
 	private void writeFile(String filename, String recs) throws Exception {
 		InputStream is = new ByteArrayInputStream(recs.toString().getBytes(StandardCharsets.UTF_8));
 		davService.saveFile(filename, is);
+		is.close();
 	}
 	private String queryVoyager(RecordType type, Integer id)
 			throws SQLException, ClassNotFoundException, IOException {
@@ -185,6 +188,7 @@ public class DownloadMARC {
     	rs.close();
     	if (bb.size() == 0)
     		return null;
+    	bb.close();
     	String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
     	return marcRecord;
 	}
