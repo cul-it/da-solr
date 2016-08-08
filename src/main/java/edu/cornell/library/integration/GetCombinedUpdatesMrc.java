@@ -1,6 +1,6 @@
 package edu.cornell.library.integration;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
+import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeBibsFromUpdateQueue;
 
@@ -12,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,14 +21,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrDocument;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
@@ -38,10 +32,10 @@ import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
  * 
  */
 public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
-	
-	private static Integer minUpdateBibCount = 150_000;
+
+	private static Integer bibCount = 150_000;
 	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
-   
+
    /**
     * Main is called with the normal VoyagerToSolrConfiguration args.
     */
@@ -61,7 +55,15 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
 	    current = config.getDatabaseConnection("Current");
 
-        Set<Integer> updatedBibIds = getBibsToUpdateOrAdd( config );
+        Integer configRecCount = config.getTargetDailyUpdatesBibCount();
+        if (configRecCount != null) {
+        	System.out.println("Target updates bib count set to "+configRecCount);
+        	bibCount = configRecCount;
+        }
+
+        boolean minimal = config.getMinimalMaintenanceMode();
+        Set<Integer> updatedBibIds = getBibsToIndex( current, config.getSolrUrl(),
+        			(minimal)?0:bibCount, bibCount );
         System.out.println("Updated and added bibs identified: "+updatedBibIds.size());
 	    Set<Integer> suppressedBibs = checkForSuppressedRecords(current,updatedBibIds);
 	    if ( ! suppressedBibs.isEmpty()) {
@@ -74,7 +76,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 	    // Get MFHD IDs for all the BIB IDs
 		System.out.println("Identifying holdings ids");
 		Set<Integer> updatedMfhdIds =  getHoldingsForBibs( current, updatedBibIds );
-		
+
 		System.out.println("Total BibIDList: " + updatedBibIds.size());
 		System.out.println("Total MfhdIDList: " + updatedMfhdIds.size());
 
@@ -246,89 +248,6 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
         holdingsForBibsStmt.close();
         return newMfhdIdSet;
 	}	
-
-
-    /**
-	 * Gets the list of BIB IDs that are new or newly unsuppressed (or otherwise missing
-	 * from the index). This list was generated in step 2.
-	 * @throws Exception 
-	 * 
-	 */
-	private Set<Integer> getBibsToUpdateOrAdd( SolrBuildConfig config ) throws Exception {
-
-        Integer configRecCount = config.getTargetDailyUpdatesBibCount();
-        if (configRecCount != null) {
-        	System.out.println("Target updates bib count set to "+configRecCount);
-        	minUpdateBibCount = configRecCount;
-        }
-
-        Set<Integer> addedBibs = new HashSet<Integer>(minUpdateBibCount);
-
-        PreparedStatement pstmt = current.prepareStatement(
-			"SELECT * FROM "+CurrentDBTable.QUEUE
-			+" WHERE done_date = 0"
-			+" ORDER BY priority"
-			+" LIMIT " + Math.round(minUpdateBibCount*1.125));
-        ResultSet rs = pstmt.executeQuery();
-        final String delete = DataChangeUpdateType.DELETE.toString();
-
-        while (rs.next() && addedBibs.size() < minUpdateBibCount) {
-        	if (rs.getString("cause").equals(delete))
-        		continue;
-        	addedBibs.add(rs.getInt("bib_id"));
-        }
-        rs.close();
-        pstmt.close();
-
-        if (addedBibs.size() < minUpdateBibCount) {
-            HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl());
-            SolrQuery query = new SolrQuery();
-            query.setRequestHandler("standard");
-            query.setQuery("*:*");
-            query.setSort("timestamp", ORDER.asc);
-            query.setFields("id");
-            if (primeNumbers == null)
-            	primeNumbers = generatePrimeNumberList(minUpdateBibCount);
-            query.setRows(primeNumbers.get(minUpdateBibCount-addedBibs.size()-1));
-            int i = 0;
-            for (SolrDocument doc : solr.query(query).getResults()) {
-            	if ( ! primeNumbers.contains(++i) ) continue;
-            	int bib_id = Integer.valueOf(
-                        doc.getFieldValues("id").iterator().next().toString());
-            	if ( ! addedBibs.contains(bib_id) ) {
-            		addedBibs.add(bib_id);
-            		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
-            	}
-            		
-            }
-            solr.close();
-        }
-        return addedBibs;
-    }
-	private ArrayList<Integer> primeNumbers = null;
-	/**
-	 * Generate an ArrayList&lt;Integer&gt; of the first &lt;number&gt; primes,
-	 * including 1. While modern math theory firmly excludes 1 from the set of prime
-	 * numbers, this was not originally the case[1][2]. For this particular use case,
-	 * it made sense to include it. It may need to be excluded if the code is repurposed.
-	 * This is also not an efficient algorithm for large values of &lt;number&gt;, and
-	 * a sieve might be preferable at scale.<br/><br/>
-	 * 
-	 * [1] http://mathworld.wolfram.com/PrimeNumber.html <br/>
-	 * [2] http://mathforum.org/library/drmath/view/64874.html
-	 */
-	private ArrayList<Integer> generatePrimeNumberList(int number) {
-		ArrayList<Integer> primeNumbers = new ArrayList<Integer>(number);
-		int i = 0;
-		MAIN: while (primeNumbers.size() < number) {
-			int halfOfI = ++i/2;
-			for (int j=2;j<=halfOfI;j++)
-				if (i%j==0)
-					continue MAIN;
-			primeNumbers.add(i);
-		}
-		return primeNumbers;
-	}
 
     private void saveBibMrc(String mrc, int seqno, String destDir)
 			throws Exception {

@@ -486,10 +486,19 @@ public class SolrBuildConfig {
     	else
     		return null;
     }
+    // minimal maintenance means not indexing records that aren't queued
+    public Boolean getMinimalMaintenanceMode() {
+    	if (values.containsKey("minimalMaintenanceMode")) {
+    		String val = values.get("minimalMaintenanceMode");
+    		if (val.equals("true") || val.equals("1"))
+    			return true;
+    	}
+    	return false;
+    }
     public Boolean getExtendedIndexingMode() {
     	if (values.containsKey("extendedIndexingMode")) {
     		String val = values.get("extendedIndexingMode");
-    		if (val.equals("true"))
+    		if (val.equals("true") || val.equals("1"))
     			return true;
     		String dayOfWeek = new SimpleDateFormat("EEEEE").format(new Date());
     		String[] parts = StringUtils.split(val,',');
