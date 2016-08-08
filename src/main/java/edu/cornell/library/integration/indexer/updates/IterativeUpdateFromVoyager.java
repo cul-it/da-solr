@@ -29,8 +29,8 @@ public class IterativeUpdateFromVoyager {
 		switch (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
 		case Calendar.SATURDAY:
 		case Calendar.SUNDAY:
-			config.setTargetDailyUpdatesBibCount(5_000); break;
-		default: config.setTargetDailyUpdatesBibCount(1_000);
+			config.setTargetBatchSize(5_000); break;
+		default: config.setTargetBatchSize(1_000);
 		}
 
 		String webdavBaseURL = config.getWebdavBaseUrl();

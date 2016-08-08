@@ -480,11 +480,14 @@ public class SolrBuildConfig {
     		return null;
     	}
     }
-    public Integer getTargetDailyUpdatesBibCount() {
-    	if (values.containsKey("targetDailyUpdatesBibCount"))
-    		return Integer.valueOf(values.get("targetDailyUpdatesBibCount"));
+    public Integer getTargetBatchSize() {
+    	if (values.containsKey("targetBatchSize"))
+    		return Integer.valueOf(values.get("targetBatchSize"));
     	else
     		return null;
+    }
+    public void setTargetBatchSize(Integer count) {
+    	values.put("targetBatchSize",String.valueOf(count));
     }
     // minimal maintenance means not indexing records that aren't queued
     public Boolean getMinimalMaintenanceMode() {
@@ -508,10 +511,7 @@ public class SolrBuildConfig {
     	}
     	return false;
     }
-    public void setTargetDailyUpdatesBibCount(Integer count) {
-    	values.put("targetDailyUpdatesBibCount",String.valueOf(count));
-    }
-    
+
     /**
      * @return the tmpDir on local file system
      */

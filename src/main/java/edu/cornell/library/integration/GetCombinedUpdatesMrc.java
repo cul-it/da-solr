@@ -55,7 +55,7 @@ public class GetCombinedUpdatesMrc extends VoyagerToSolrStep {
 
 	    current = config.getDatabaseConnection("Current");
 
-        Integer configRecCount = config.getTargetDailyUpdatesBibCount();
+        Integer configRecCount = config.getTargetBatchSize();
         if (configRecCount != null) {
         	System.out.println("Target updates bib count set to "+configRecCount);
         	bibCount = configRecCount;
