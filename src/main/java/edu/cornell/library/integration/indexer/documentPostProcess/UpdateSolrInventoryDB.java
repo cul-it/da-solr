@@ -87,7 +87,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		PreparedStatement solrDocumentToDB = conn.prepareStatement(
 				"UPDATE "+CurrentDBTable.BIB_SOLR+" SET solr_document = ? WHERE bib_id = ?");
 		solrDocumentToDB.setString(1,ClientUtils.toXML(document).replaceAll("</field>","$0\n"));
-		solrDocumentToDB.setInt(1,bibid);
+		solrDocumentToDB.setInt(2,bibid);
 		solrDocumentToDB.executeUpdate();
 		solrDocumentToDB.close();
 	}
