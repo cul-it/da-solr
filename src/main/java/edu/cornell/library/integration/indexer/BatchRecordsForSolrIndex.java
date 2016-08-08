@@ -35,7 +35,7 @@ public class BatchRecordsForSolrIndex {
         Set<Integer> addedBibs = new HashSet<Integer>(minCount);
 
         Statement stmt = current.createStatement();
-        stmt.executeQuery("LOCK TABLES "+CurrentDBTable.BATCHLOCK+" READ");
+        stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE");
         PreparedStatement pstmt = current.prepareStatement(
 			"SELECT * FROM "+CurrentDBTable.QUEUE
 			+" WHERE done_date = 0 AND batched_date = 0"
