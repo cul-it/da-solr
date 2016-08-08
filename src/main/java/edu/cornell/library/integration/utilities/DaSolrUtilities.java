@@ -10,7 +10,8 @@ public class DaSolrUtilities {
 		MFHD_SOLR("mfhdRecsSolr"),
 		ITEM_SOLR("itemRecsSolr"),
 		BIB2WORK("bib2work"),
-		QUEUE("indexQueue");
+		QUEUE("indexQueue"),
+		BATCHLOCK("batchLock");
 
 		private String string;
 
