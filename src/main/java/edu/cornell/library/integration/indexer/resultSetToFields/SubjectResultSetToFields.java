@@ -187,7 +187,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
-				if (! main_fields.equals("")) {
+				if (main_fields != null && ! main_fields.equals("")) {
 					final StringBuilder sb_piped = new StringBuilder();
 					final StringBuilder sb_breadcrumbed = new StringBuilder();
 					String mainFields = null;
