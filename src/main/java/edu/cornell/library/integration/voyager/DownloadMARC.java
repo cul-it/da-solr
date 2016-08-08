@@ -158,7 +158,8 @@ public class DownloadMARC {
             if (! hasInvalidChars)
             	writer.write(record);
         }
-        return writer.toString();
+        writer.close();
+        return out.toString();
 	}
 	private void prepareStatement(RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC))
