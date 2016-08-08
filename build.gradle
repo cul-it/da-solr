@@ -143,6 +143,13 @@ task( RecordBatchProcessingData, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task( processQueue, dependsOn: 'assemble', type: JavaExec) {
+ description = "Process records from the index queue until there's no backlog. "
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.indexer.ProcessQueue'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
 task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert XML extract of Voyager location table to XML. "
  maxHeapSize = '500m'
