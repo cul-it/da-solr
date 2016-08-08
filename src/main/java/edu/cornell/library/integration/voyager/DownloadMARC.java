@@ -67,7 +67,7 @@ public class DownloadMARC {
 					else
 						url.append("auth.");
 					url.append(fileSeqNo).append(".xml");
-					writeFile(url.toString(),recs.toString());
+					writeFile(url.toString(),marcToXml(recs.toString()));
 					recCount = 0;
 					fileSeqNo++;
 					recs.setLength(0);
@@ -85,7 +85,7 @@ public class DownloadMARC {
 			else
 				url.append("auth.");
 			url.append(fileSeqNo).append(".xml");
-			writeFile(url.toString(),recs.toString());
+			writeFile(url.toString(),marcToXml(recs.toString()));
 		}
 		pstmt.close();
 		voyager.close();
