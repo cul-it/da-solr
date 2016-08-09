@@ -44,14 +44,17 @@ public class ProcessQueue {
 
 		String random = RandomStringUtils.randomAlphanumeric(12);
 		String webdavBaseUrl = config.getWebdavBaseUrl()+"/"+random+"/";
-		String localBaseFilePath = config.getLocalBaseFilePath()+"/"+random+"/";
+		String localBaseFilePath = config.getLocalBaseFilePath();
+		if (localBaseFilePath != null)
+			localBaseFilePath += "/"+random+"/";
 		DownloadMARC downloader = new DownloadMARC(config);
 		
 		Connection current = config.getDatabaseConnection("Current");
 		int i = 0;
 		while (true) {
 			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
-			config.setLocalBaseFilePath(localBaseFilePath+i);
+			if (localBaseFilePath != null)
+				config.setLocalBaseFilePath(localBaseFilePath+i);
 			Set<Integer> bibIds = getBibsToIndex(current,config.getSolrUrl(),0,batchSize);
 			Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
 
