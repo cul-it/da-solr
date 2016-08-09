@@ -194,7 +194,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					if (vals != null) {
 						final StringBuilder sb = new StringBuilder();
 						sb.append(vals.author);
-						if (vals.title.equals(HeadType.AUTHORTITLE))
+						if (vals.type.equals(HeadType.AUTHORTITLE))
 							sb.append(" | ").append(vals.title);
 						mainFields = sb.toString();
 					} else {
