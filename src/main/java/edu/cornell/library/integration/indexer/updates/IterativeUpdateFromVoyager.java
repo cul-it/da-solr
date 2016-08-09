@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class IterativeUpdateFromVoyager {
 			converter.run();
 
 			new IncrementalBibFileToSolr(config);
-
+			commitIndexChanges( config.getSolrUrl() );
 		}
 	}
 

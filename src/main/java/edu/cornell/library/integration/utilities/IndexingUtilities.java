@@ -51,6 +51,9 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -151,6 +154,17 @@ public class IndexingUtilities {
 		}
 		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
+    /**
+     * Do a hard and soft commit. This should commit the changes to the index (hard commit)
+     * and also open new searchers on the Solr server so the search results are
+     * visible (soft commit). 
+     */
+    public static void commitIndexChanges(String solrUrl) 
+            throws SolrServerException, IOException {
+        SolrClient solr = new  HttpSolrClient( solrUrl );
+        solr.commit(true,true,true);
+        solr.close();
+    }
 
 	/**
 	 * 
