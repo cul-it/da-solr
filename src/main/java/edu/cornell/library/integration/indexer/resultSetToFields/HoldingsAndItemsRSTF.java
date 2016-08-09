@@ -345,7 +345,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	        					|| colname.equals("historical_bookings")
 	        					|| colname.equals("historical_browses")
 	        					|| colname.equals("historical_charges")
-	        					|| colname.equals("item_sequence_number")
 	        					|| colname.equals("magnetic_media")
 	        					|| colname.equals("media_type_id")
 	        					|| colname.equals("modify_date")
