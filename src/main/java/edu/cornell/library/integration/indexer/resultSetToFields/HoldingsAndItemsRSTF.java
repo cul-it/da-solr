@@ -7,7 +7,6 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.insert
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
@@ -307,10 +306,14 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			if (debug)
 				System.out.println(h.id);
 			String query = 
-					"SELECT CORNELLDB.MFHD_ITEM.*, CORNELLDB.ITEM.*, CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME, CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
+					"SELECT CORNELLDB.MFHD_ITEM.*,"
+					+ "     CORNELLDB.ITEM.*,"
+					+ "     CORNELLDB.ITEM_TYPE.ITEM_TYPE_NAME,"
+					+ "     CORNELLDB.ITEM_BARCODE.ITEM_BARCODE " +
 					" FROM CORNELLDB.MFHD_ITEM, CORNELLDB.ITEM_TYPE, CORNELLDB.ITEM" +
-					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID "+
-					                                            " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'" +
+					" LEFT OUTER JOIN CORNELLDB.ITEM_BARCODE"
+					+ "    ON CORNELLDB.ITEM_BARCODE.ITEM_ID = CORNELLDB.ITEM.ITEM_ID "+
+					        " AND CORNELLDB.ITEM_BARCODE.BARCODE_STATUS = '1'" +
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
@@ -336,6 +339,25 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	        			System.out.println();
 	        		for (int i=1; i <= mdcolumnCount ; i++) {
 	        			String colname = rsmd.getColumnName(i).toLowerCase();
+	        			if (colname.equals("create_location_id")
+	        					|| colname.equals("create_operator_id")
+	        					|| colname.equals("freetext")
+	        					|| colname.equals("historical_bookings")
+	        					|| colname.equals("historical_browses")
+	        					|| colname.equals("historical_charges")
+	        					|| colname.equals("item_sequence_number")
+	        					|| colname.equals("magnetic_media")
+	        					|| colname.equals("media_type_id")
+	        					|| colname.equals("modify_date")
+	        					|| colname.equals("modify_location_id")
+	        					|| colname.equals("modify_operator_id")
+	        					|| colname.equals("pieces")
+	        					|| colname.equals("price")
+	        					|| colname.equals("reserve_charges")
+	        					|| colname.equals("sensitize")
+	        					|| colname.equals("short_loan_charges")
+	        					|| colname.equals("spine_label"))
+	        				continue;
 	        			int coltype = rsmd.getColumnType(i);
 	        			String value = null;
 	       				if (coltype == java.sql.Types.CLOB) {
