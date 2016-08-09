@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,7 +140,7 @@ public class DavServiceImpl implements DavService {
         try{
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
             InputStream istream = sardine.get(url);      
-            return IOUtils.toString(istream, "UTF-8");
+            return IOUtils.toString(istream, StandardCharsets.UTF_8);
         }catch(IOException e){
             throw new IOException("Problem while getting file as a String: " + url ,e );
         }

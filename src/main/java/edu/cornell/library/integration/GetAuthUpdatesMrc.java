@@ -2,7 +2,7 @@ package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -137,11 +137,9 @@ public class GetAuthUpdatesMrc {
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(mrc, "UTF-8");            
+         InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8);            
          getDavService().saveFile(url, isr);
       
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
       } catch (Exception ex) {
          throw ex;
       }  
@@ -153,8 +151,8 @@ public class GetAuthUpdatesMrc {
     * @return
     * @throws UnsupportedEncodingException
     */
-   protected InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
+   protected InputStream stringToInputStream(String str) {
+      byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
       return new ByteArrayInputStream(bytes);	
    }
    

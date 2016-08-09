@@ -2,7 +2,7 @@ package edu.cornell.library.integration;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
 
@@ -127,11 +127,9 @@ public class GetMfhdMrc {
       try {         
          
          //FileUtils.writeStringToFile(new File("/tmp/test.mrc"), mrc, "UTF-8");
-         InputStream isr = IOUtils.toInputStream(mrc, "UTF-8"); 
+         InputStream isr = IOUtils.toInputStream(mrc, StandardCharsets.UTF_8); 
          getDavService().saveFile(url, isr);
-      
-      } catch (UnsupportedEncodingException ex) {
-         throw ex;
+
       } catch (Exception ex) {
          throw ex;
       }  
@@ -142,8 +140,8 @@ public class GetMfhdMrc {
     * @return
     * @throws UnsupportedEncodingException
     */
-   protected InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
+   protected InputStream stringToInputStream(String str) {
+      byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
       return new ByteArrayInputStream(bytes);	
    }
    

@@ -5,8 +5,8 @@ package edu.cornell.library.integration.dao;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Clob;
@@ -508,7 +508,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	              +" WHERE SUPPRESS_IN_OPAC = 'N'"
 	              +" ORDER BY BIB_ID";
 	      final int bibCount[] ={ 0 };
-	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
 	    		    @Override public void processRow( ResultSet rs) throws SQLException {
 	    		      String id=rs.getString(1);
@@ -526,14 +526,14 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 	       return bibCount[0];
 	}
 
-	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws Exception {
+	public int saveAllUnSuppressedMfhdsWithDates(Path outputFile) throws IOException {
 	      String sql = ""
 	              +" select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, to_char(UPDATE_DATE, 'yyyyMMddHHmmss')"
 	    		  +"   from BIB_MFHD, MFHD_MASTER"
 	              +"  where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID and SUPPRESS_IN_OPAC = 'N'"
 	    		  +"  order by BIB_MFHD.MFHD_ID";
 	      final int mfhdCount[] ={ 0 };
-	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
 	    		   @Override public void processRow( ResultSet rs) throws SQLException {
 	    			   String bib=rs.getString(1);
@@ -560,7 +560,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
 				+"   AND MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 				+" ORDER BY ITEM.ITEM_ID";
 		final int itemCount[] ={ 0 };
-	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, Charset.forName("UTF-8")); ){
+	       try( BufferedWriter out = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8); ){
 	    	   getJdbcTemplate().query(sql,new RowCallbackHandler(){
 	    		    @Override public void processRow( ResultSet rs) throws SQLException {
 	    		      String bib=rs.getString(1);
@@ -712,12 +712,7 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          bibData.setBibId(rs.getString("BIB_ID"));
          bibData.setSeqnum(rs.getString("SEQNUM"));
          
-         String record = "";
-         try {
-            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
-         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-         } 
+         String record = new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8);
           
          bibData.setRecord(record); 
          return bibData;
@@ -734,13 +729,8 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          mfhdData.setMfhdId(rs.getString("MFHD_ID"));
          mfhdData.setSeqnum(rs.getString("SEQNUM"));
          
-         String record = "";
-         try {
-            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");             
-         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-         }
-          
+         String record = new String(rs.getBytes("RECORD_SEGMENT"),StandardCharsets.UTF_8);
+
          mfhdData.setRecord(record);
          return mfhdData;
        }
@@ -755,14 +745,9 @@ public MfhdMasterData getMfhdMasterData(String mfhdid) throws Exception {
          AuthData authData = new AuthData(); 
          authData.setAuthId(rs.getString("AUTH_ID"));
          authData.setSeqnum(rs.getString("SEQNUM"));
-         
-         String record = "";
-         try {
-            record = new String(rs.getBytes("RECORD_SEGMENT"), "UTF-8");
-         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-         } 
-          
+
+         String record = new String(rs.getBytes("RECORD_SEGMENT"), StandardCharsets.UTF_8);
+
          authData.setRecord(record); 
          return authData;
        }

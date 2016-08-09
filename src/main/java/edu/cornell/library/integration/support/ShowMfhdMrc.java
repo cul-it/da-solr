@@ -2,7 +2,7 @@ package edu.cornell.library.integration.support;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -100,8 +100,8 @@ public class ShowMfhdMrc {
     * @return
     * @throws UnsupportedEncodingException
     */
-   protected InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
+   protected InputStream stringToInputStream(String str) {
+      byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
       return new ByteArrayInputStream(bytes);	
    }
    

@@ -3,6 +3,7 @@ package edu.cornell.library.integration;
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -135,7 +136,7 @@ public class GetLocations {
     * @throws Exception
     */
    public void saveXml(String xml, String destDir) throws Exception {
-	   InputStream isr = IOUtils.toInputStream(xml, "UTF-8");
+	   InputStream isr = IOUtils.toInputStream(xml, StandardCharsets.UTF_8);
          
 	   String url = destDir + "/locations.xml";
 	   davService.saveFile(url, isr);

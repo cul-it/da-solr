@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -381,9 +382,9 @@ public class MarcXmlToRdf {
 		OutputStreamWriter b = null;
 		if (outFileExt.endsWith(".gz")) 
 			b =  new OutputStreamWriter(new GZIPOutputStream(
-					new FileOutputStream(f,true)),"UTF-8");
+					new FileOutputStream(f,true)),StandardCharsets.UTF_8);
 		else {
-			b =  new OutputStreamWriter(new FileOutputStream(f,true),"UTF-8");
+			b =  new OutputStreamWriter(new FileOutputStream(f,true),StandardCharsets.UTF_8);
 		}
 		return b;
 	}

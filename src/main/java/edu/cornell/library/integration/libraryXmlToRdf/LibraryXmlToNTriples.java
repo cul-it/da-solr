@@ -4,6 +4,7 @@ import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildC
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,7 +95,7 @@ public class LibraryXmlToNTriples {
 					}
 			}
 			is.close();
-			davService.saveFile(target, IOUtils.toInputStream(sb.toString(), "UTF-8"));
+			davService.saveFile(target, IOUtils.toInputStream(sb.toString(), StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

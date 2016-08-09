@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.Test;
@@ -77,7 +78,7 @@ public class DavServiceTest {
       String url = "http://culdatadev.library.cornell.edu/data/test/test.txt";
       try {
          String testString = "This is a test";
-         byte[] bytes = testString.getBytes("UTF-8");
+         byte[] bytes = testString.getBytes(StandardCharsets.UTF_8);
          InputStream isr = new  ByteArrayInputStream(bytes);
          davService.saveFile(url, isr);          
          
@@ -95,7 +96,7 @@ public class DavServiceTest {
       String url = "http://culdatadev.library.cornell.edu/data/test/test2.txt";
       try {
          String testString = "This is test2";
-         byte[] bytes = testString.getBytes("UTF-8"); 
+         byte[] bytes = testString.getBytes(StandardCharsets.UTF_8); 
          davService.saveBytesToFile(url, bytes);          
          
       } catch (Exception e) {

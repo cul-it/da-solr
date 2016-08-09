@@ -2,6 +2,7 @@ package edu.cornell.library.integration.recordextract;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class RecordExtract {
 			InputStream is = getForQuery( fname );
 			if( is == null ) 
 				throw new Exception("Cannot find resource " + fname);
-			String q = IOUtils.toString(is,"UTF-8");
+			String q = IOUtils.toString(is,StandardCharsets.UTF_8);
 			queries.add(IndexingUtilities.substituteInRecordURI(recordURI, q));
 		}
 		return queries;

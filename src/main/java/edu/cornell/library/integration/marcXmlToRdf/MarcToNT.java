@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -65,7 +66,7 @@ public class MarcToNT {
 				System.out.println(report);
 				FileUtils.writeStringToFile(
 						new File (config.getNonVoyIdPrefix() + "-"+ report + ".txt"),
-						reportResult, "UTF-8", false);
+						reportResult, StandardCharsets.UTF_8, false);
 				System.out.println(reportResult);
 			}
 		}

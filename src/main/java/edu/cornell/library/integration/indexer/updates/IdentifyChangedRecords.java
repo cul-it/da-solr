@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -502,7 +503,8 @@ public class IdentifyChangedRecords {
 			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() + "/"
 			        + "bibListForDelete-"+ currentDate + ".txt";			
 			try {
-				davService.saveFile( deleteReportFile , new ByteArrayInputStream(deleteReport.getBytes("UTF-8")));
+				davService.saveFile( deleteReportFile ,
+						new ByteArrayInputStream(deleteReport.getBytes(StandardCharsets.UTF_8)));
 				System.out.println("Wrote report to " + deleteReportFile);
 			} catch (Exception e) {
 				throw new Exception("Could not save report of deletes to '" + deleteReportFile + "'" , e);
@@ -528,7 +530,8 @@ public class IdentifyChangedRecords {
 			        config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
 			        + "bibListToAdd-"+ currentDate + ".txt";
 			try {
-				davService.saveFile( addReportFile , new ByteArrayInputStream(addReport.getBytes("UTF-8")));
+				davService.saveFile( addReportFile ,
+						new ByteArrayInputStream(addReport.getBytes(StandardCharsets.UTF_8)));
 				System.out.println("Wrote report to " + addReportFile);
 			} catch (Exception e) {
 				throw new Exception("Could not save report of adds to '" + addReportFile + "'" , e);
@@ -554,7 +557,8 @@ public class IdentifyChangedRecords {
 			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
 			        + "bibListForUpdate-"+ currentDate + ".txt";
 			try {			    
-				davService.saveFile(fileName, new ByteArrayInputStream(updateReport.getBytes("UTF-8")));
+				davService.saveFile(fileName,
+						new ByteArrayInputStream(updateReport.getBytes(StandardCharsets.UTF_8)));
 				System.out.println("Wrote report to " + fileName);
 			} catch (Exception e) {
 			    throw new Exception("Could not save list of "

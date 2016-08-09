@@ -8,7 +8,7 @@ import static edu.cornell.library.integration.util.MarcToXmlConstants.WEIRD_CHAR
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -64,7 +64,6 @@ public class ConvertUtils {
 	   boolean permissive      = true;
 	   boolean convertToUtf8   = true;
 	   InputStream is = null;
-	   try {
 		  is = stringToInputStream(mrc);
 		  reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
 	      while (reader.hasNext()) {
@@ -87,16 +86,12 @@ public class ConvertUtils {
 	             throw new Error( "Could not convert record because it has bad characters.");
 
 	      } 
-	   } catch (UnsupportedEncodingException e) {
-		  e.printStackTrace();
-	   } finally {
 	          
 	      try { 
 	         is.close();
 	      } catch (IOException e) {
 	         e.printStackTrace();
 	      } 
-	   }
 	   return record;
    }
    
@@ -240,7 +235,6 @@ private static void modifyRecord(Record record, RecordLine line,
         boolean convertToUtf8   = true;
         InputStream is = null;
         
-        try {
            is = ConvertUtils.stringToInputStream(mrc);
            reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
            while (reader.hasNext()) {
@@ -270,16 +264,12 @@ private static void modifyRecord(Record record, RecordLine line,
                  f001list.add(f001.getData().toString());
               } 
            } 
-        } catch (UnsupportedEncodingException e) {
-           e.printStackTrace();
-        } finally {
                
            try { 
               is.close();
            } catch (IOException e) {
               e.printStackTrace();
            } 
-        }
         return f001list;
     }   
    
@@ -288,8 +278,8 @@ private static void modifyRecord(Record record, RecordLine line,
     * @return
     * @throws UnsupportedEncodingException
     */
-   public  static InputStream stringToInputStream(String str) throws UnsupportedEncodingException {
-      byte[] bytes = str.getBytes("UTF-8");
+   public  static InputStream stringToInputStream(String str) {
+      byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
       return new ByteArrayInputStream(bytes);   
    }
    

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class MarcToSolrUtils {
 	public static void saveLinksToFile( String urlOfIndex, String fileName) throws IOException{		
 		List<String>links = getLinksFromPage(urlOfIndex);
 		FileOutputStream os = new FileOutputStream(fileName); 
-		OutputStreamWriter out = new OutputStreamWriter(os,"UTF-8");
+		OutputStreamWriter out = new OutputStreamWriter(os,StandardCharsets.UTF_8);
 		for( String s : links){
 			out.write(s );
 			out.write('\n');

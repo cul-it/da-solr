@@ -7,6 +7,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.insert
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
