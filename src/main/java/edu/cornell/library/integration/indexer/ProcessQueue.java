@@ -40,7 +40,7 @@ public class ProcessQueue {
 	}
 
 	public ProcessQueue(SolrBuildConfig config) throws Exception {
-		int batchSize = 5_000;
+		int batchSize = 800;
 
 		String random = RandomStringUtils.randomAlphanumeric(12);
 		String webdavBaseUrl = config.getWebdavBaseUrl()+"/"+random+"/";
