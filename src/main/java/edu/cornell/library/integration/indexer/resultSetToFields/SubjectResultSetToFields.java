@@ -59,6 +59,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		boolean recordHasLCSH = false;
 
 		final Collection<Heading> taggedFields = new LinkedHashSet<Heading>();
+		final Collection<String> authorityAltForms = new HashSet<String>();
+		final Collection<String> authorityAltFormsCJK = new HashSet<String>();
 
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -210,9 +212,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					subj1.put("authorized", authData.authorized);
 					if (authData.authorized && authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
-							addField(solrFields,"authority_subject_t",altForm);
+							authorityAltForms.add(altForm);
 							if (hasCJK(altForm))
-								addField(solrFields,"authority_subject_t_cjk",altForm);
+								authorityAltFormsCJK.add(altForm);
 						}
 					json.add(subj1);
 
@@ -232,9 +234,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						subj.put("authorized", authData.authorized);
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
-								addField(solrFields,"authority_subject_t",altForm);
+								authorityAltForms.add(altForm);
 								if (hasCJK(altForm))
-									addField(solrFields,"authority_subject_t_cjk",altForm);
+									authorityAltFormsCJK.add(altForm);
 							}
 						json.add(subj);
 					}
@@ -290,6 +292,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		final SolrInputField field = new SolrInputField("fast_b");
 		field.setValue(recordHasFAST, 1.0f);
 		solrFields.put("fast_b", field);
+
+		for (String altForm : authorityAltForms)
+			addField(solrFields,"authority_subject_t",altForm);
+		for (String altForm : authorityAltFormsCJK)
+			addField(solrFields,"authority_subject_t_cjk",altForm);
 
 		return solrFields;
 	}
