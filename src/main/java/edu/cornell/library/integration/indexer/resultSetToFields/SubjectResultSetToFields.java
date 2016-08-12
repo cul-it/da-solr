@@ -59,6 +59,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		boolean recordHasLCSH = false;
 
 		final Collection<Heading> taggedFields = new LinkedHashSet<Heading>();
+		final Collection<String> subjectDisplay = new LinkedHashSet<String>();
+		final Collection<String> subjectJson = new LinkedHashSet<String>();
 		final Collection<String> authorityAltForms = new HashSet<String>();
 		final Collection<String> authorityAltFormsCJK = new HashSet<String>();
 
@@ -261,7 +263,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if (h.isFAST)
 					addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",disp);
+					subjectDisplay.add(disp);
 			}
 			for (final String s: valuesMain_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
@@ -269,7 +271,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				if (h.isFAST)
 					addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",disp);
+					subjectDisplay.add(disp);
 			}
 			for (final String s: values_browse)
 				if (htd != null) {
@@ -283,9 +285,9 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				for (final String s: valuesMain_piped)
 					addField(solrFields,"subject_cts",s);
 				for (final String s: values880_json)
-					addField(solrFields,"subject_json",s);
+					subjectJson.add( s );
 				for (final String s: valuesMain_json)
-					addField(solrFields,"subject_json",s);
+					subjectJson.add( s );
 			}
 		}
 
@@ -293,6 +295,10 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		field.setValue(recordHasFAST, 1.0f);
 		solrFields.put("fast_b", field);
 
+		for (String json : subjectJson)
+			addField(solrFields,"subject_json",json);
+		for (String display : subjectDisplay)
+			addField(solrFields,"subject_display",display);
 		for (String altForm : authorityAltForms)
 			addField(solrFields,"authority_subject_t",altForm);
 		for (String altForm : authorityAltFormsCJK)
