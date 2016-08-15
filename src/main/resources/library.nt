@@ -49,6 +49,9 @@
 <http://da-rdf.library.cornell.edu/individual/lib_physical> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Library>.
 <http://da-rdf.library.cornell.edu/individual/lib_physical> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Sciences Library".
 
+<http://da-rdf.library.cornell.edu/individual/lib_spacesci> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Library>.
+<http://da-rdf.library.cornell.edu/individual/lib_spacesci> <http://www.w3.org/2000/01/rdf-schema#label> "Space Sciences Building".
+
 <http://da-rdf.library.cornell.edu/individual/lib_olin> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Library>.
 <http://da-rdf.library.cornell.edu/individual/lib_olin> <http://www.w3.org/2000/01/rdf-schema#label> "Olin Library".
 
@@ -414,8 +417,8 @@
 
 <http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Sciences Library".
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_physical>.
+<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/2000/01/rdf-schema#label> "Spacecraft Planetary Imaging Facility 317 Space Science Bldg".
+<http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_spacesci>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys,anx"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
