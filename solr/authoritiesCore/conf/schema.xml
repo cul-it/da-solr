@@ -43,10 +43,6 @@
     <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-
-    <!-- included for backwards compat, same as "pint" below. For backwards
-         compat only, see notes at "pint" -->    
-    <fieldType name="integer" class="solr.IntField" omitNorms="true"/>
     
      <!--
      Numeric field types that index each value at various levels of precision
