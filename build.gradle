@@ -165,6 +165,14 @@ task( QueueRecordsForSolrIndex, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
+task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description='Run ConvertMarcToXml'
+ main='edu.cornell.library.integration.ConvertMarcToXml'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
 task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
  description = "Convert all MARC XML to TXT representation of MARC"
  maxHeapSize = '1500m'
