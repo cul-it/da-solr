@@ -191,26 +191,26 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
-				if (main_fields != null && ! main_fields.equals("")) {
+				String primarySubjectTerm = null;
+				if (vals != null) {
+					final StringBuilder sb = new StringBuilder();
+					sb.append(vals.author);
+					if (vals.type.equals(HeadType.AUTHORTITLE))
+						sb.append(" | ").append(vals.title);
+					primarySubjectTerm = sb.toString();
+				} else if (main_fields != null) {
+					primarySubjectTerm = f.concatenateSpecificSubfields(main_fields);
+				}
+				if (primarySubjectTerm != null) {
 					final StringBuilder sb_piped = new StringBuilder();
 					final StringBuilder sb_breadcrumbed = new StringBuilder();
-					String mainFields = null;
-					if (vals != null) {
-						final StringBuilder sb = new StringBuilder();
-						sb.append(vals.author);
-						if (vals.type.equals(HeadType.AUTHORTITLE))
-							sb.append(" | ").append(vals.title);
-						mainFields = sb.toString();
-					} else {
-						mainFields = f.concatenateSpecificSubfields(main_fields);
-					}
-					sb_piped.append(mainFields);
-					sb_breadcrumbed.append(mainFields);
+					sb_piped.append(primarySubjectTerm);
+					sb_breadcrumbed.append(primarySubjectTerm);
 					final List<Object> json = new ArrayList<Object>();
 					final Map<String,Object> subj1 = new HashMap<String,Object>();
-					subj1.put("subject", mainFields);
+					subj1.put("subject", primarySubjectTerm);
 					subj1.put("type", htd.toString());
-					AuthorityData authData = new AuthorityData(config,mainFields,htd);
+					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,htd);
 					subj1.put("authorized", authData.authorized);
 					if (authData.authorized && authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
