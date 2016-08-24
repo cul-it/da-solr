@@ -457,20 +457,20 @@ public class MarcRecord {
 		 * @return FieldValues
 		 */
 		public FieldValues getFieldValuesForNameMaybeTitleField(String subfields) {
-			List<Subfield> authorSubfields = new ArrayList<Subfield>();
-			List<Subfield> titleSubfields = new ArrayList<Subfield>();
+			List<String> authorSubfields = new ArrayList<String>();
+			List<String> titleSubfields = new ArrayList<String>();
 			boolean foundTitle = false;
 			for(Subfield sf : this.subfields.values()) {
 				if (subfields != null && -1 < subfields.indexOf(sf.code))
 					continue;
 				if (foundTitle)
-					titleSubfields.add(sf);
+					titleSubfields.add(sf.value);
 				else
 					if (sf.code.equals('t')) {
 						foundTitle = true;
-						titleSubfields.add(sf);
+						titleSubfields.add(sf.value);
 					} else
-						authorSubfields.add(sf);
+						authorSubfields.add(sf.value);
 			}
 			if ( titleSubfields.isEmpty() )
 				return new FieldValues( StringUtils.join(authorSubfields, ' '));
