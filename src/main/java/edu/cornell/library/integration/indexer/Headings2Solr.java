@@ -103,7 +103,7 @@ public class Headings2Solr {
 			doc.addField("alternateForm", getAltForms(id));
 			HeadTypeDesc htd = HeadTypeDescs[ rs.getInt("type_desc") ];
 			if ( ! ht.equals(HeadType.AUTHORTITLE))
-				doc.addField("headingTypeDesc", htd);
+				doc.addField("headingTypeDesc", htd.toString());
 			if (! blacklightFields.containsKey(ht) || ! blacklightFields.get(ht).containsKey(htd)) {
 				BlacklightField blf = new BlacklightField(ht,htd);
 				if (! blacklightFields.containsKey(ht))
