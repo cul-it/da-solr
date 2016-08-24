@@ -461,7 +461,7 @@ public class MarcRecord {
 			List<String> titleSubfields = new ArrayList<String>();
 			boolean foundTitle = false;
 			for(Subfield sf : this.subfields.values()) {
-				if (subfields != null && -1 < subfields.indexOf(sf.code))
+				if (subfields != null && -1 == subfields.indexOf(sf.code))
 					continue;
 				if (foundTitle)
 					titleSubfields.add(sf.value);
