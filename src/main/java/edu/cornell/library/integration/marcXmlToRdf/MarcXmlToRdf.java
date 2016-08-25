@@ -493,7 +493,6 @@ public class MarcXmlToRdf {
 					))
 				out.write( outputHeaders );
 			out.write( output );
-			out.close();
 		} else {
 			System.out.println("N-Triples not written to file. Bibid: "+bibid);
 		}
@@ -614,7 +613,7 @@ public class MarcXmlToRdf {
 	}
 	
 	private void processBibs(  ) throws Exception {
-		
+
 		String localProcessDir = null;
 		String localProcessFile = null;
 		if (tempBibSrcDir != null)
@@ -624,7 +623,7 @@ public class MarcXmlToRdf {
 				localProcessDir = bibSrcDir;
 			else
 				localProcessFile = bibSrcFile;
-		
+
 		if (localProcessDir != null) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(
 					Paths.get(localProcessDir))) {
@@ -637,7 +636,7 @@ public class MarcXmlToRdf {
 			}}
 			return;
 		}
-		
+
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
@@ -646,7 +645,7 @@ public class MarcXmlToRdf {
 				readXml(is,RecordType.BIBLIOGRAPHIC ); }
 			return;
 		}
-		
+
 		// At this point we're looking for Dav sources
 		if (bibSrcDir != null) {
 			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
@@ -658,7 +657,7 @@ public class MarcXmlToRdf {
 			}
 			return;
 		}
-		
+
 		if (bibSrcFile != null) {
 			currentInputFile = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
 			System.out.println(bibSrcFile);
@@ -666,9 +665,9 @@ public class MarcXmlToRdf {
 					RecordType.BIBLIOGRAPHIC );
 			return;
 		}		
-		
+
 	}
-	
+
 	private void processMfhds( ) throws Exception {
 		String localProcessDir = null;
 		String localProcessFile = null;
@@ -748,7 +747,7 @@ public class MarcXmlToRdf {
 		} else {
 			bibids.addAll(collectBibidsFromXmlFile(Paths.get(bibSrcFile)));
 		}
-		
+
 		// Sort list of bib record IDs and determine ranges for batches of size groupsize.
 		System.out.println(bibids.size() + " bibids in set.\n");
 		Integer[] bibs = bibids.toArray(new Integer[ bibids.size() ]);
