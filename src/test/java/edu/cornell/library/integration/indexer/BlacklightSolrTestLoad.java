@@ -163,9 +163,12 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	}
 	
 	public static String convertStreamToString(java.io.InputStream is) {
-	    @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    return s.hasNext() ? s.next() : "";
+		String answer = null;
+		try (java.util.Scanner scanner = new java.util.Scanner(is)) {
+			scanner.useDelimiter("\\A");
+			answer =  scanner.hasNext() ? scanner.next() : "";
+		}
+	    return answer;
 	}
 
 	private static void indexStandardTestRecords( SolrClient solr , RDFService rdfService) throws Exception {
