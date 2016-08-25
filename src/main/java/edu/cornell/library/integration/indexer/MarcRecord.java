@@ -73,7 +73,7 @@ public class MarcRecord {
 	public void addControlFieldResultSet( final ResultSet rs, boolean nonBreaking ) {
 		while (rs.hasNext()) {
 			final QuerySolution sol = rs.nextSolution();
-			addControlFieldQuerySolution( sol );
+			addControlFieldQuerySolution( sol, nonBreaking );
 		}
 
 	}
@@ -329,9 +329,8 @@ public class MarcRecord {
 			final String val = sb.toString().trim();
 			if (rtl && (val.length() > 0)) {
 				return RLE_openRTL+val+PDF_closeRTL;
-			} else {
-				return val;
 			}
+			return val;
 		}
 		public String concatenateSpecificSubfields(final String subfields) {
 			return concatenateSpecificSubfields(" ",subfields);
@@ -359,10 +358,8 @@ public class MarcRecord {
 			final String val = sb.toString().trim();
 			if (rtl && (val.length() > 0)) {
 				return RLE_openRTL+val+PDF_closeRTL;
-			} else {
-				//					return "Roman";
-				return val;
 			}
+			return val;
 		}
 		/**
 		 * Returns a list of Subfield values for the DataField, matching the
@@ -474,10 +471,9 @@ public class MarcRecord {
 			}
 			if ( titleSubfields.isEmpty() )
 				return new FieldValues( StringUtils.join(authorSubfields, ' '));
-			else
-				return new FieldValues(
-						StringUtils.join(authorSubfields, ' '),
-						StringUtils.join(titleSubfields, ' '));
+			return new FieldValues(
+					StringUtils.join(authorSubfields, ' '),
+					StringUtils.join(titleSubfields, ' '));
 		}
 	}
 
