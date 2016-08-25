@@ -38,12 +38,8 @@ public class LoadItemData implements DocumentPostProcess{
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		Connection conn = null;
-		try {
-			conn = config.getDatabaseConnection("Voy");
+		try ( Connection conn = config.getDatabaseConnection("Voy") ) {
 			loadItemData(document,conn, recordURI, config);
-		} finally {
-			if (conn != null) conn.close();
 		}
 	}
 	
@@ -265,7 +261,7 @@ public class LoadItemData implements DocumentPostProcess{
 
 	private static Pattern multivolDesc = null;
 	private static Pattern singlevolDesc = null;
-	private Boolean doesDescriptionLookMultivol(SolrInputDocument document) {
+	private static Boolean doesDescriptionLookMultivol(SolrInputDocument document) {
 		if (! document.containsKey("description_display"))
 			return null;
 		SolrInputField f = document.getField("description_display");
@@ -287,7 +283,7 @@ public class LoadItemData implements DocumentPostProcess{
 		return null;
 	}
 
-	private Boolean doesDescriptionHaveE(String recordURI,
+	private static Boolean doesDescriptionHaveE(String recordURI,
 			SolrBuildConfig config) throws Exception {
 		
 		StandardMARCFieldMaker fm = new StandardMARCFieldMaker("supp","300","e");
@@ -337,9 +333,9 @@ public class LoadItemData implements DocumentPostProcess{
 	}
 	
     private static String convertClobToString(Clob clob) throws Exception {
-        InputStream inputStream = clob.getAsciiStream();
         StringWriter writer = new StringWriter();
-        IOUtils.copy(inputStream, writer, "utf-8");
+        try (  InputStream inputStream = clob.getAsciiStream() ) {
+        	IOUtils.copy(inputStream, writer, "utf-8"); }
         return writer.toString();
      }
 	

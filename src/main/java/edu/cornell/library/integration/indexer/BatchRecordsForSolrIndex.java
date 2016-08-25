@@ -34,58 +34,56 @@ public class BatchRecordsForSolrIndex {
 
         Set<Integer> addedBibs = new HashSet<Integer>(minCount);
 
-        Statement stmt = current.createStatement();
-        stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE");
-        PreparedStatement pstmt = current.prepareStatement(
-			"SELECT * FROM "+CurrentDBTable.QUEUE
-			+" WHERE done_date = 0 AND batched_date = 0"
-			+" ORDER BY priority"
-			+" LIMIT " + Math.round(maxCount*1.125));
-        ResultSet rs = pstmt.executeQuery();
-        final String delete = DataChangeUpdateType.DELETE.toString();
+        try (Statement stmt = current.createStatement()) {
+        	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE"); }
+        try (PreparedStatement pstmt = current.prepareStatement(
+        		"SELECT * FROM "+CurrentDBTable.QUEUE
+        		+" WHERE done_date = 0 AND batched_date = 0"
+        		+" ORDER BY priority"
+        		+" LIMIT " + Math.round(maxCount*1.125));
+        		ResultSet rs = pstmt.executeQuery()) {
+        	final String delete = DataChangeUpdateType.DELETE.toString();
 
-        while (rs.next() && addedBibs.size() < maxCount) {
-        	if (rs.getString("cause").equals(delete))
-        		continue;
-        	int bib_id = rs.getInt("bib_id");
-        	addedBibs.add(bib_id);
+        	while (rs.next() && addedBibs.size() < maxCount) {
+        		if (rs.getString("cause").equals(delete))
+        			continue;
+        		int bib_id = rs.getInt("bib_id");
+        		addedBibs.add(bib_id);
+        	}
         }
-        rs.close();
-        pstmt.close();
 
         if (addedBibs.size() < minCount) {
-            HttpSolrClient solr = new HttpSolrClient(solrUrl);
-            SolrQuery query = new SolrQuery();
-            query.setRequestHandler("standard");
-            query.setQuery("*:*");
-            query.setSort("timestamp", ORDER.asc);
-            query.setFields("id");
-            if (primeNumbers == null)
-            	primeNumbers = generatePrimeNumberList(minCount);
-            query.setRows(primeNumbers.get(minCount-addedBibs.size()-1));
-            int i = 0;
-            for (SolrDocument doc : solr.query(query).getResults()) {
-            	if ( ! primeNumbers.contains(++i) ) continue;
-            	int bib_id = Integer.valueOf(
-                        doc.getFieldValues("id").iterator().next().toString());
-            	if ( ! addedBibs.contains(bib_id) ) {
-            		addedBibs.add(bib_id);
-            		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            try (HttpSolrClient solr = new HttpSolrClient(solrUrl)) {
+            	SolrQuery query = new SolrQuery();
+            	query.setRequestHandler("standard");
+            	query.setQuery("*:*");
+            	query.setSort("timestamp", ORDER.asc);
+            	query.setFields("id");
+            	if (primeNumbers == null)
+            		primeNumbers = generatePrimeNumberList(minCount);
+            	query.setRows(primeNumbers.get(minCount-addedBibs.size()-1));
+            	int i = 0;
+            	for (SolrDocument doc : solr.query(query).getResults()) {
+            		if ( ! primeNumbers.contains(++i) ) continue;
+            		int bib_id = Integer.valueOf(
+            				doc.getFieldValues("id").iterator().next().toString());
+            		if ( ! addedBibs.contains(bib_id) ) {
+            			addedBibs.add(bib_id);
+            			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            		}      		
             	}
-            		
             }
-            solr.close();
         }
-        PreparedStatement batchStmt = current.prepareStatement(
-        		"UPDATE "+CurrentDBTable.QUEUE+" SET batched_date = NOW() WHERE bib_id = ?");
-        for (int bib_id : addedBibs) {
-        	batchStmt.setInt(1,bib_id);
-        	batchStmt.addBatch();
+        try (PreparedStatement batchStmt = current.prepareStatement(
+        		"UPDATE "+CurrentDBTable.QUEUE+" SET batched_date = NOW() WHERE bib_id = ?")) {
+        	for (int bib_id : addedBibs) {
+        		batchStmt.setInt(1,bib_id);
+        		batchStmt.addBatch();
+        	}
+        	batchStmt.executeBatch();
         }
-        batchStmt.executeBatch();
-        batchStmt.close();
-        stmt.executeQuery("UNLOCK TABLES");
-        stmt.close();
+        try (Statement stmt = current.createStatement()) {
+        	stmt.executeQuery("UNLOCK TABLES"); }
         return addedBibs;
     }
 	private static ArrayList<Integer> primeNumbers = null;

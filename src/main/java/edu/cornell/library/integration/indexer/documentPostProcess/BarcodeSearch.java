@@ -33,13 +33,8 @@ public class BarcodeSearch implements DocumentPostProcess{
 			return;
 		}
 		
-		Connection conn = null;
-		try {
-			conn = config.getDatabaseConnection("Voy");
+		try (  Connection conn = config.getDatabaseConnection("Voy")  ) {
 			generateFields(document,conn);
-		} finally {
-			if (conn != null)
-				conn.close();			
 		}
 	}
 	
@@ -121,9 +116,9 @@ public class BarcodeSearch implements DocumentPostProcess{
 	}
 
 	private static String convertClobToString(Clob clob) throws Exception {
-        InputStream inputStream = clob.getAsciiStream();
         StringWriter writer = new StringWriter();
-        IOUtils.copy(inputStream, writer, "utf-8");
+        try (  InputStream inputStream = clob.getAsciiStream() ){
+        	IOUtils.copy(inputStream, writer, "utf-8"); }
         return writer.toString();
      }
 

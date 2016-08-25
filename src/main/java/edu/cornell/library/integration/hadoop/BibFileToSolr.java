@@ -18,7 +18,7 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -112,7 +112,7 @@ public class BibFileToSolr extends Configured implements Tool {
 		job.setJobName("BibFileToSolr");			
 		job.setJarByClass( BibFileToSolr.class );
 				
-		TextInputFormat.setInputPaths(job, todoDir );			
+		FileInputFormat.setInputPaths(job, todoDir );			
 		
 		job.setMapperClass( BibFileIndexingMapper.class);
 		job.setNumReduceTasks(0);
@@ -129,24 +129,23 @@ public class BibFileToSolr extends Configured implements Tool {
 
 	/** Each run we make a new output dir 
 	 * @throws IOException */
-	private Path setupOutputDir(Configuration conf) throws IOException {
-		FileSystem fs =  FileSystem.get(conf);
-    	
+	private static Path setupOutputDir(Configuration conf) throws IOException {
+
 		// Make a directory to put all the output dirs into.
 		Path dirForOutputs = new Path( conf.get( INPUT_DIR )+".outputs" );
-		
-    	if( ! dirExists( fs, dirForOutputs)){
-    		fs.mkdirs( dirForOutputs );
-    	}    	
-    	
+
+		try (  FileSystem fs =  FileSystem.get(conf)  ) {
+			if( ! dirExists( fs, dirForOutputs))
+				fs.mkdirs( dirForOutputs );
+		}
+
         Date now = new Date( );
         SimpleDateFormat ft = new SimpleDateFormat ("yyyy.MM.dd.hh.mm.ss");
-        
     	Path outputDir = new Path( dirForOutputs.toString() + Path.SEPARATOR + ft.format(now)  );
     	return outputDir;
 	}
 
-	private int help() {
+	private static int help() {
 		System.err.println("\nBibFileToSolr <configFile.xml>");
 		System.err.println("see exampleBibFileToSolrConfig.xml for instrucitons on configFile.xml");
 		ToolRunner.printGenericCommandUsage(System.out);
@@ -158,8 +157,8 @@ public class BibFileToSolr extends Configured implements Tool {
 	 * ensure that there is an inputDir, an outputDir and that the inputDir
 	 * has bib URL files. 
 	 */
-    private void setupInputDir(Configuration conf, Path inputDir) throws IOException {
-    	FileSystem fs =  FileSystem.get(conf);
+    private static void setupInputDir(Configuration conf, Path inputDir) throws IOException {
+    	try (  FileSystem fs =  FileSystem.get(conf)  ) {
     	
     	if( ! dirExists( fs, inputDir)){
     		fs.mkdirs( inputDir );    		
@@ -171,15 +170,16 @@ public class BibFileToSolr extends Configured implements Tool {
     	}else{
     		System.err.println("No input files found in " + inputDir.toString() + ", fetching them from webdav.");
     		fetchInputFilesFromWebdav( conf, inputDir );
-    	}		
+    	}
+    	}
 	}
 
 	/** Get a listing of files in WebDav and make one file per URL in inputDir.	
 	 * @throws IOException */
-	private void fetchInputFilesFromWebdav(Configuration conf, Path inputDir) throws IOException {
-		FileSystem fs =  FileSystem.get(conf);
+	private static void fetchInputFilesFromWebdav(Configuration conf, Path inputDir) throws IOException {
+
 		Random r = new Random();
-		try{
+		try (  FileSystem fs =  FileSystem.get(conf)  ) {
 			DavService dav = new DavServiceImpl(conf.get( BIB_WEBDAV_USER ), conf.get(BIB_WEBDAV_PASSWORD));
 			String davUrl = conf.get( BIB_WEBDAV_URL );
 			List<String> files = dav.getFileList( conf.get( BIB_WEBDAV_URL ) );
@@ -200,20 +200,16 @@ public class BibFileToSolr extends Configured implements Tool {
 				}								
 				
 				Path newf = new Path( inputDir, inputSplitName);
-				BufferedWriter br=new BufferedWriter(new OutputStreamWriter(fs.create(newf,true)));
-				br.write(  davUrl + file );
-				br.close();							
+				try (  BufferedWriter br=new BufferedWriter(new OutputStreamWriter(fs.create(newf,true)))  ){
+					br.write(  davUrl + file );
+				}
 			}
-		}catch( IOException ex ){			
-			throw new Error( "Cannot access BIB RDF webdav service at " + conf.get(BIB_WEBDAV_URL), ex);
 		}
-		
-		
 	}
 
-	private Path setupTodoAndDone(FileSystem fs, 
+	private static Path setupTodoAndDone(FileSystem fs, 
                                   Path inputDir, 
-                                  Path todoDir, Path doneDir) throws java.io.IOException {
+                                  Path todoDir, Path doneDir) throws IOException {
         if( dirExists( fs, todoDir )){
             //assume that things are setup and use todo
             System.out.println("Resuming from todo directory: " + todoDir);
@@ -230,13 +226,12 @@ public class BibFileToSolr extends Configured implements Tool {
         return todoDir;
     }
 
-    private boolean dirExists( FileSystem fs, Path dir)throws java.io.IOException{
+    private static boolean dirExists( FileSystem fs, Path dir) throws IOException{
         try{
             FileStatus stat = fs.getFileStatus( dir );            
             if( stat != null && stat.isDir() )
                 return true;
-            else 
-                return false;
+			return false;
         }catch( FileNotFoundException fnoe){
             return false;
         }
@@ -244,7 +239,7 @@ public class BibFileToSolr extends Configured implements Tool {
     
     /** Check that the properties that are needed are in the config. 
      *  Throw an Error if properties are missing. */
-    private void checkConfig(Configuration config){
+    private static void checkConfig(Configuration config){
     	String[][] checks ={
     		{SOLR_SERVICE_URL,"required property " + SOLR_SERVICE_URL + " is not in configuraiton." }, 
     		{INPUT_DIR ,"required property " + INPUT_DIR+ " is not in configuraiton." } ,

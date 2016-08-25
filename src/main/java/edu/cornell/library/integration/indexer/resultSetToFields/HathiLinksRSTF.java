@@ -68,13 +68,8 @@ public class HathiLinksRSTF implements ResultSetToFields {
 				}
 		}
 		
-		Connection conn = null;
-		try {
-			conn = config.getDatabaseConnection("Hathi");
+		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {			
 			return generateFields(conn, oclcids, barcodes);
-		} finally {
-			if (conn != null)
-				conn.close();
 		}
 	}
 
@@ -96,29 +91,29 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		} */
 		
 		if (barcodes.size() > 0) {
-			PreparedStatement pstmt = conn.prepareStatement
+			try (  PreparedStatement pstmt = conn.prepareStatement
 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
-					+ " WHERE Volume_Identifier = ?");
-			for (String barcode : barcodes ) {
-				pstmt.setString(1, "coo."+barcode);
-				java.sql.ResultSet rs = pstmt.executeQuery();
-				tabulateResults(rs);
+					+ " WHERE Volume_Identifier = ?")  ) {
+				for (String barcode : barcodes ) {
+					pstmt.setString(1, "coo."+barcode);
+					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+						tabulateResults(rs); }
+				}
 			}
-			pstmt.close();
 		}
 		
 		for ( String title : availableHathiMaterials.keySet() ) {
 			Collection<String> volumes = availableHathiMaterials.get(title);
 			int count = volumes.size();
 			if (count == 1) {
-				PreparedStatement pstmt = conn.prepareStatement
+				try ( PreparedStatement pstmt = conn.prepareStatement
 						("SELECT COUNT(*) as count FROM raw_hathi"
-						+ " WHERE UofM_Record_Number = ?");
-				pstmt.setString(1, title);
-				java.sql.ResultSet rs = pstmt.executeQuery();
-				while (rs.next())
-					count = rs.getInt("count");
-				pstmt.close();
+						+ " WHERE UofM_Record_Number = ?")  ) {
+					pstmt.setString(1, title);
+					try (  java.sql.ResultSet rs = pstmt.executeQuery()  ) {
+						while (rs.next())
+							count = rs.getInt("count"); }
+				}
 			}
 			if (count == 1) {
 				// volume link

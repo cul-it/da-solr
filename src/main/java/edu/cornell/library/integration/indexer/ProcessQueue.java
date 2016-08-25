@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,20 +93,20 @@ public class ProcessQueue {
 	
     /**
 	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
-	 * @throws Exception 
+     * @throws SQLException 
 	 */
-	private Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws Exception {
-		PreparedStatement pstmt = current.prepareStatement(
-				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?");
+	private static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
         Set<Integer> mfhdIds = new HashSet<Integer>();        
-        for (Integer bibid : bibIds) {
-        	pstmt.setInt(1,bibid);
-        	ResultSet rs = pstmt.executeQuery();
-        	while (rs.next())
-        		mfhdIds.add(rs.getInt(1));
-        	rs.close();
-        }
-        pstmt.close();
+		try (PreparedStatement pstmt = current.prepareStatement(
+				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
+			for (Integer bibid : bibIds) {
+				pstmt.setInt(1,bibid);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next())
+						mfhdIds.add(rs.getInt(1));
+				}
+			}
+		}
         return mfhdIds;
 	}	
 

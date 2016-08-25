@@ -54,7 +54,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	
 	@Override
 	List<? extends DocumentPostProcess> getDocumentPostProcess() {
-		return (List<? extends DocumentPostProcess>) Arrays.asList(				
+		return Arrays.asList(				
 				new SingleValueField("pub_date_sort",Correction.firstValue),
 				new SingleValueField("author_display",Correction.firstValue),
 				new SingleValueField("author_sort",Correction.firstValue),

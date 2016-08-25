@@ -269,17 +269,18 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		if (conn == null)
 			conn = config.getDatabaseConnection("Voy");
 		// lookup item id here!!!
-		Statement stmt = conn.createStatement();
-		String query =
+		int item_id = 0;
+		try (  Statement stmt = conn.createStatement() ){
+			String query =
 				"SELECT CORNELLDB.ITEM_BARCODE.ITEM_ID "
 				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = '"+barcode+"'";
-		java.sql.ResultSet rs = stmt.executeQuery(query);
-		int item_id = 0;
-		while (rs.next()) {
-			item_id = rs.getInt(1);
+			try (  java.sql.ResultSet rs = stmt.executeQuery(query)  ){
+				while (rs.next()) {
+					item_id = rs.getInt(1);
+				}
+				if (item_id == 0) return;
+			}
 		}
-		if (item_id == 0) return;
-		stmt.close();
 		Map<String,Object> boundWith = new HashMap<String,Object>();
 		boundWith.put("item_id", item_id);
 		boundWith.put("mfhd_id", mfhd_id);
@@ -605,9 +606,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	}
 	
     private static String convertClobToString(Clob clob) throws Exception {
-        InputStream inputStream = clob.getAsciiStream();
         StringWriter writer = new StringWriter();
-        IOUtils.copy(inputStream, writer, "utf-8");
+        try (  InputStream inputStream = clob.getAsciiStream() ) {
+        	IOUtils.copy(inputStream, writer, "utf-8"); }
         return writer.toString();
      }
 	

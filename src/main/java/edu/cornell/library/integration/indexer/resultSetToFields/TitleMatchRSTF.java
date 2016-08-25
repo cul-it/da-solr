@@ -38,52 +38,56 @@ public class TitleMatchRSTF implements ResultSetToFields {
 		}
 		if (bibid == 0) return solrFields;
 		
-		Connection conn = null;
-		try {
-			conn = config.getDatabaseConnection("Workids");
-			PreparedStatement pstmt = conn.prepareStatement
+		try ( Connection conn = config.getDatabaseConnection("Workids") ){
+			
+			int workid = 0, voyCount = 0;
+			try (  PreparedStatement pstmt = conn.prepareStatement
 					("   SELECT workRecCount.* FROM voy2work" +
 					" LEFT JOIN workRecCount on (voy2work.workid = workRecCount.workid) "
-					+ "   WHERE bibid = ?");
-			pstmt.setInt(1, bibid);
-			java.sql.ResultSet workResult = pstmt.executeQuery();
-			int workid = 0, voyCount = 0;
-			while (workResult.next()) {
-				workid = workResult.getInt("workid");
-				voyCount = workResult.getInt("voyCount");
+					+ "   WHERE bibid = ?")  ) {
+				pstmt.setInt(1, bibid);
+				try (  java.sql.ResultSet workResult = pstmt.executeQuery()  ) {
+					while (workResult.next()) {
+						workid = workResult.getInt("workid");
+						voyCount = workResult.getInt("voyCount");
+					}
+				}
 			}
-			pstmt.close();
 			addField(solrFields,"workid_facet",String.valueOf(workid));
 			addField(solrFields,"workid_display",String.valueOf(workid)+"|"+String.valueOf(voyCount));
 			if (workid == 0 || voyCount == 1) return solrFields;
 			
-			PreparedStatement pstmt2 = conn.prepareStatement
-					("SELECT voy2loc.* " +
-					   "FROM voy2work LEFT JOIN voy2loc ON (voy2loc.bibid = voy2work.bibid) " +
-					  "WHERE workid = ?");
-			pstmt2.setInt(1, workid);
-			java.sql.ResultSet bibResult = pstmt2.executeQuery();
-			List<BibRec> otherBibs = new ArrayList<BibRec>();
 			String mainRecFormat = null;
-			while (bibResult.next()) {
-				int otherBib = bibResult.getInt("bibid");
-				if (otherBib == bibid) {
-					mainRecFormat = bibResult.getString("format");
-					continue;
+			List<BibRec> otherBibs = new ArrayList<BibRec>();
+			try ( PreparedStatement pstmt = conn.prepareStatement
+						("SELECT voy2loc.* " +
+						   "FROM voy2work LEFT JOIN voy2loc ON (voy2loc.bibid = voy2work.bibid) " +
+						  "WHERE workid = ?")  ){
+
+				pstmt.setInt(1, workid);
+				try (  java.sql.ResultSet bibResult = pstmt.executeQuery()  ) {
+
+					while (bibResult.next()) {
+						int otherBib = bibResult.getInt("bibid");
+						if (otherBib == bibid) {
+							mainRecFormat = bibResult.getString("format");
+							continue;
+						}
+						String format = bibResult.getString("format");
+						String online = bibResult.getString("online");
+						String library = bibResult.getString("library");
+						if (online != null)
+							if (library != null)
+								otherBibs.add(new BibRec(otherBib,format,"Online/At the Library"));
+							else
+								otherBibs.add(new BibRec(otherBib,format,online));
+						else
+							if (library != null)
+								otherBibs.add(new BibRec(otherBib,format,library));
+							else
+								otherBibs.add(new BibRec(otherBib,format,"unavailable"));
+					}
 				}
-				String format = bibResult.getString("format");
-				String online = bibResult.getString("online");
-				String library = bibResult.getString("library");
-				if (online != null)
-					if (library != null)
-						otherBibs.add(new BibRec(otherBib,format,"Online/At the Library"));
-					else
-						otherBibs.add(new BibRec(otherBib,format,online));
-				else
-					if (library != null)
-						otherBibs.add(new BibRec(otherBib,format,library));
-					else
-						otherBibs.add(new BibRec(otherBib,format,"unavailable"));
 			}
 			for (int i = 0; i < otherBibs.size(); i++) {
 				BibRec bib = otherBibs.get(i);
@@ -93,10 +97,6 @@ public class TitleMatchRSTF implements ResultSetToFields {
 					addField(solrFields,"other_availability_piped"
 							,String.valueOf(bib.bibid)+"|"+bib.format+": "+bib.location);
 			}
-			
-		} finally {
-			if (conn != null)
-				conn.close();
 		}
 		
 		

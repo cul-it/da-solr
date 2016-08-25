@@ -34,9 +34,9 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -344,14 +344,14 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
-			for (Path file: stream) {
-				String filename = file.toString();
-				if (filename.endsWith(".gz")) continue;
-				if (debug) System.out.println("gzipping "+filename);
-				IndexingUtilities.gzipFile(filename,filename+".gz");
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir))) {
+				for (Path file: stream) {
+					String filename = file.toString();
+					if (filename.endsWith(".gz")) continue;
+					if (debug) System.out.println("gzipping "+filename);
+					IndexingUtilities.gzipFile(filename,filename+".gz");
+				}
 			}
-
 		}
 
 		if (isDestDav) uploadOutput();
@@ -365,17 +365,16 @@ public class MarcXmlToRdf {
 	
 	private void uploadOutput() throws Exception {
 		
-		DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
-		for (Path file: stream) {
-			System.out.println(file.getFileName());
-			String targetNTFile = 
-					(destDir != null) ? destDir +"/"+file.getFileName()
-							: destFile;
-			InputStream is = new FileInputStream(file.toString());
-			destDav.saveFile(targetNTFile, is);						
-			System.out.println("MARC N-Triples file saved to " + targetNTFile);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir))) {
+			for (Path file: stream) {
+				System.out.println(file.getFileName());
+				String targetNTFile = 
+						(destDir != null) ? destDir +"/"+file.getFileName() : destFile;
+				try (InputStream is = new FileInputStream(file.toString())) {
+					destDav.saveFile(targetNTFile, is); }
+				System.out.println("MARC N-Triples file saved to " + targetNTFile);
+			}
 		}
-
 	}
 	
 	private OutputStreamWriter openFileForWrite( String f ) throws Exception {
@@ -389,6 +388,7 @@ public class MarcXmlToRdf {
 		return b;
 	}
 
+	@SuppressWarnings("resource")
 	private void sortOutput( String bibid, String output ) throws Exception {
 		OutputStreamWriter out = null;
 		String dirToProcessInto = null;
@@ -493,6 +493,7 @@ public class MarcXmlToRdf {
 					))
 				out.write( outputHeaders );
 			out.write( output );
+			out.close();
 		} else {
 			System.out.println("N-Triples not written to file. Bibid: "+bibid);
 		}
@@ -512,7 +513,7 @@ public class MarcXmlToRdf {
 		XMLStreamReader r  = 
 				input_factory.createXMLStreamReader(xmlstream);
 		while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT)
+			if (r.next() == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
@@ -522,12 +523,14 @@ public class MarcXmlToRdf {
 						if (foundBibs.contains(id)) {
 							System.out.println("Skipping duplicate bib record: "+rec.id);
 							continue;
-						} else foundBibs.add(id);
+						}
+						foundBibs.add(id);
 					} else if (type.equals(RecordType.HOLDINGS)) {
 						if (foundMfhds.contains(id)) {
 							System.out.println("Skipping duplicate holding record: "+rec.id);
 							continue;
-						} else foundMfhds.add(id);
+						}
+						foundMfhds.add(id);
 					}
 					
 					if (isSuppressionBlocked(id, type))
@@ -576,10 +579,11 @@ public class MarcXmlToRdf {
 					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 				doesBibExist.setInt(1,id);
-				ResultSet rs = doesBibExist.executeQuery();
-				rs.next();
-				int count = rs.getInt(1);
-				rs.close();
+				int count;
+				try (ResultSet rs = doesBibExist.executeQuery()) {
+					rs.next();
+					count = rs.getInt(1);
+				}
 				if (count == 0)
 					return true;
 			} else if (type.equals(RecordType.HOLDINGS)) {
@@ -587,10 +591,11 @@ public class MarcXmlToRdf {
 					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?");
 				doesMfhdExist.setInt(1,id);
-				ResultSet rs = doesMfhdExist.executeQuery();
-				rs.next();
-				int count = rs.getInt(1);
-				rs.close();
+				int count;
+				try (ResultSet rs = doesMfhdExist.executeQuery()) {
+					rs.next();
+					count = rs.getInt(1);
+				}
 				if (count == 0)
 					return true;
 			}
@@ -621,15 +626,15 @@ public class MarcXmlToRdf {
 				localProcessFile = bibSrcFile;
 		
 		if (localProcessDir != null) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(
-					Paths.get(localProcessDir));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir))) {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
 				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.BIBLIOGRAPHIC );
-			}
+			}}
 			return;
 		}
 		
@@ -637,8 +642,8 @@ public class MarcXmlToRdf {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
 			System.out.println(localProcessFile);
-			readXml(new FileInputStream(localProcessFile),
-					RecordType.BIBLIOGRAPHIC );
+			try( InputStream is = new FileInputStream(localProcessFile)) {
+				readXml(is,RecordType.BIBLIOGRAPHIC ); }
 			return;
 		}
 		
@@ -675,15 +680,15 @@ public class MarcXmlToRdf {
 				localProcessFile = mfhdSrcFile;
 		
 		if (localProcessDir != null) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(
-					Paths.get(localProcessDir));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir))) {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
 				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.HOLDINGS );
-			}
+			}}
 			return;
 		}
 		
@@ -691,8 +696,8 @@ public class MarcXmlToRdf {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
 			System.out.println(localProcessFile);
-			readXml(new FileInputStream(localProcessFile),
-					RecordType.HOLDINGS );
+			try ( InputStream is = new FileInputStream(localProcessFile)) {
+				readXml(is,RecordType.HOLDINGS ); }
 			return;
 		}
 
@@ -736,9 +741,10 @@ public class MarcXmlToRdf {
 			dirToProcess = bibSrcDir;
 		if (dirToProcess != null) {
 			System.out.println(dirToProcess);
-			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirToProcess));
-			for (Path file: stream)
-				bibids.addAll(collectBibidsFromXmlFile(file));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirToProcess))) {
+				for (Path file: stream)
+					bibids.addAll(collectBibidsFromXmlFile(file));
+			}
 		} else {
 			bibids.addAll(collectBibidsFromXmlFile(Paths.get(bibSrcFile)));
 		}
@@ -756,6 +762,7 @@ public class MarcXmlToRdf {
 			else
 				maxBibid = bibs[bibs.length - 1];
 			System.out.println(batch+": "+maxBibid);
+			@SuppressWarnings("resource")
 			OutputStreamWriter  out = openFileForWrite(dirToProcessInto+"/"+
 					destFilenamePrefix+"."+batch+outFileExt);
 			outsById.put(maxBibid, out);
@@ -764,25 +771,25 @@ public class MarcXmlToRdf {
 
 	}
 	
-	private Collection<Integer> collectBibidsFromXmlFile(Path file) throws XMLStreamException, IOException {
+	private static Collection<Integer> collectBibidsFromXmlFile(Path file) throws XMLStreamException, IOException {
 		Collection<Integer> bibids = new HashSet<Integer>();
 		System.out.println(file.getFileName());
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
-		InputStream is = new FileInputStream(file.toString());
-		XMLStreamReader r = input_factory.createXMLStreamReader(is);
-		EVENT: while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT) {
-				if (r.getLocalName().equals("controlfield")) {
-					for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
-						if (r.getAttributeLocalName(i1).equals("tag")) {
-							if (r.getAttributeValue(i1).equals("001")) 
-								bibids.add(Integer.valueOf(r.getElementText()));
-							continue EVENT;
-						}
+		try (InputStream is = new FileInputStream(file.toString())) {
+			XMLStreamReader r = input_factory.createXMLStreamReader(is);
+			EVENT: while (r.hasNext()) {
+				if (r.next() == XMLStreamConstants.START_ELEMENT) {
+					if (r.getLocalName().equals("controlfield")) {
+						for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
+							if (r.getAttributeLocalName(i1).equals("tag")) {
+								if (r.getAttributeValue(i1).equals("001")) 
+									bibids.add(Integer.valueOf(r.getElementText()));
+								continue EVENT;
+							}
+					}
 				}
 			}
 		}
-		is.close();
 		return bibids;
 	}
 
@@ -873,7 +880,7 @@ public class MarcXmlToRdf {
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
 	*/
 
-	private void surveyForCJKValues( MarcRecord rec ) throws IOException {
+	private static void surveyForCJKValues( MarcRecord rec ) throws IOException {
 		if (logout == null) {
 			FileWriter logstream = new FileWriter(logfile);
 			logout = new BufferedWriter( logstream );
@@ -1159,7 +1166,7 @@ public class MarcXmlToRdf {
 	 * @param rec
 	 * @throws Exception
 	 */
-	private void extractData( MarcRecord rec ) throws Exception {
+	private void extractData( MarcRecord rec ) {
 
 		Boolean isPubPlace = reports.contains(Report.EXTRACT_PUBPLACE);
 		Boolean isSubjPlace = reports.contains(Report.EXTRACT_SUBJPLACE);
@@ -2561,17 +2568,17 @@ public class MarcXmlToRdf {
 			logout.flush();
 	}
 		
-	private MarcRecord processRecord( XMLStreamReader r ) throws Exception {
+	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT) {
+			if (event == XMLStreamConstants.END_ELEMENT) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
 			}
-			if (event == XMLEvent.START_ELEMENT) {
+			if (event == XMLStreamConstants.START_ELEMENT) {
 				if (r.getLocalName().equals("leader")) {
 					rec.leader = r.getElementText();
 				} else if (r.getLocalName().equals("controlfield")) {
@@ -2603,15 +2610,15 @@ public class MarcXmlToRdf {
 		return rec;
 	}
 	
-	private Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
 		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT)
+			if (event == XMLStreamConstants.END_ELEMENT)
 				if (r.getLocalName().equals("datafield"))
 					return fields;
-			if (event == XMLEvent.START_ELEMENT)
+			if (event == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("subfield")) {
 					Subfield f = new Subfield();
 					f.id = ++id;

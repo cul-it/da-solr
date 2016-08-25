@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,169 +51,175 @@ public class DeleteFromSolr {
     public void doTheDelete(SolrBuildConfig config) throws Exception  {
 
         String solrURL = config.getSolrUrl();                                        
-        SolrClient solr = new HttpSolrClient( solrURL );
 
-		Set<Integer> knockOnUpdates = new HashSet<Integer>();
+        System.out.println("Deleting BIB IDs found in queue with: "
+        		+DataChangeUpdateType.DELETE);
+        System.out.println("from Solr at: " + solrURL);
 
-        int lineNum = 0;
-        Connection conn = null;
-        try{
-            System.out.println("Deleting BIB IDs found in queue with: "
-            		+DataChangeUpdateType.DELETE);
-            System.out.println("from Solr at: " + solrURL);
+        try (   SolrClient solr = new HttpSolrClient( solrURL );
+        		Connection conn = config.getDatabaseConnection("Current")  ){
 
-            long countBeforeDel = countOfDocsInSolr( solr );
+        	long countBeforeDel = countOfDocsInSolr( solr );
 
-            config.setDatabasePoolsize("Current", 2);
-            Connection getQueuedConn = config.getDatabaseConnection("Current");
-            PreparedStatement deleteQueueStmt = getQueuedConn.prepareStatement(
-            		"SELECT bib_id FROM "+CurrentDBTable.QUEUE
-            		+" WHERE done_date = 0 AND priority = 0"
-            		+" AND cause = ?");
-            deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
-            ResultSet deleteQueueRS = deleteQueueStmt.executeQuery();
-            if ( ! deleteQueueRS.first() ) {
-            	// no records to delete
-            	deleteQueueRS.close();
-            	deleteQueueStmt.close();
-            	getQueuedConn.close();
-                System.out.println("No record deletes were queued.");
-                return;
-            }
-            deleteQueueRS.beforeFirst();
+        	Set<Integer> deleteQueue = new HashSet<Integer>();
+        	final String getQueuedQuery =
+        			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
+        			+" WHERE done_date = 0 AND priority = 0"
+        			+" AND cause = ?";
+        	try (  PreparedStatement deleteQueueStmt = conn.prepareStatement(getQueuedQuery) ) {
+        		deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
+        		try (  ResultSet deleteQueueRS = deleteQueueStmt.executeQuery()  ) {
 
-            int batchSize = 1000;
-            List<String> ids = new ArrayList<String>(batchSize);
+        			while (deleteQueueRS.next())
+        				deleteQueue.add(deleteQueueRS.getInt(1));
+        		}
+        	}
 
-            conn = config.getDatabaseConnection("Current");
-            conn.setAutoCommit(false);
+        	if ( ! deleteQueue.isEmpty() ) {
+        		System.out.println("No record deletes were queued.");
+        		return;
+        	}
 
-            int commitSize = batchSize * 10;
+        	conn.setAutoCommit(false);
 
-            PreparedStatement bibStmt = conn.prepareStatement(
-            		"UPDATE "+CurrentDBTable.BIB_SOLR+
-            		" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?");
-    		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
-    				"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
-    						+ " WHERE bib_id = ? AND done_date = 0");
-            PreparedStatement workStmt = conn.prepareStatement(
-            		"UPDATE "+CurrentDBTable.BIB2WORK+
-            		" SET active = 0, mod_date = NOW() WHERE bib_id = ?");
-            PreparedStatement mfhdQueryStmt = conn.prepareStatement(
-            		"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+
-            		" WHERE bib_id = ?");
-            PreparedStatement mfhdDelStmt = conn.prepareStatement(
-            		"DELETE FROM "+CurrentDBTable.MFHD_SOLR+
-            		" WHERE bib_id = ?");
-            PreparedStatement itemStmt = conn.prepareStatement(
-            		"DELETE FROM "+CurrentDBTable.ITEM_SOLR+
-            		" WHERE mfhd_id = ?");
-            PreparedStatement knockOnUpdateStmt = conn.prepareStatement(
-            		"SELECT b.bib_id"
-            		+ " FROM "+CurrentDBTable.BIB2WORK+" AS a, "
+        	System.out.println("Expected to delete " + deleteQueue.size() + " documents from Solr index.");
+    		Set<Integer> knockOnUpdates = new HashSet<Integer>();
+        	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
+
+        	System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
+        	solr.commit(true,true,true);
+        	long countAfterDel = countOfDocsInSolr( solr );
+
+        	System.out.println("Solr document count before delete: " + countBeforeDel +
+        			" count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));
+
+        	if ( ! knockOnUpdates.isEmpty()) {
+        		System.out.println(String.valueOf(knockOnUpdates.size())
+        				+" documents identified as needing update because they share a work_id with deleted rec(s).");
+        		final String markBibForUpdateQuery =
+        				"INSERT INTO "+CurrentDBTable.QUEUE
+        				+ " (bib_id, priority, cause) VALUES"
+            			+ " (?, 0, '"+DataChangeUpdateType.TITLELINK+"')";
+        		try (  PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ){
+
+        			for (int bib_id : knockOnUpdates) {
+        				markBibForUpdateStmt.setInt(1,bib_id);
+        				markBibForUpdateStmt.addBatch();
+        			}
+        			markBibForUpdateStmt.executeBatch();
+        		}
+        	}
+
+        	conn.commit();
+        	System.out.println("Success: requested " + deleteQueue.size() + " documents "
+        			+ "to be deleted from solr at " + config.getSolrUrl());
+        } // conn.close() solr.close()
+    }
+
+    private int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
+    		Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
+
+
+		int batchSize = 1000;
+
+		int lineNum = 0;
+		int commitSize = batchSize * 10;
+		List<String> ids = new ArrayList<String>(batchSize);
+
+    	
+       	final String bibQuery =
+    			"UPDATE "+CurrentDBTable.BIB_SOLR+
+    			" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?";
+    	final String markDoneInQueueQuery =
+    			"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
+    					+ " WHERE bib_id = ? AND done_date = 0";
+    	final String workQuery =
+    			"UPDATE "+CurrentDBTable.BIB2WORK+
+    			" SET active = 0, mod_date = NOW() WHERE bib_id = ?";
+    	final String mfhdQuery =
+    			"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    	final String mfhdDelQuery =
+    			"DELETE FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    	final String itemQuery =
+    			"DELETE FROM "+CurrentDBTable.ITEM_SOLR+" WHERE mfhd_id = ?";
+    	final String knockOnUpdateQuery =
+    			"SELECT b.bib_id"
+        			+ " FROM "+CurrentDBTable.BIB2WORK+" AS a, "
             				+CurrentDBTable.BIB2WORK+" AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"
             		+ " AND a.active = 1"
-            		+ " AND b.active = 1");
+            		+ " AND b.active = 1";
+    	try (   PreparedStatement bibStmt = conn.prepareStatement(bibQuery);
+    			PreparedStatement markDoneInQueueStmt = conn.prepareStatement(markDoneInQueueQuery);
+    			PreparedStatement workStmt = conn.prepareStatement(workQuery);
+    			PreparedStatement mfhdStmt = conn.prepareStatement(mfhdQuery);
+    			PreparedStatement mfhdDelStmt = conn.prepareStatement(mfhdDelQuery);
+    			PreparedStatement itemStmt = conn.prepareStatement(itemQuery);
+    			PreparedStatement knockOnUpdateStmt = conn.prepareStatement(knockOnUpdateQuery)  ){
 
-            while (deleteQueueRS.next())   {
-            	int bib_id = deleteQueueRS.getInt(1);
-            	if (bib_id == 0)
-            		continue;
-            	lineNum++;
-            	ids.add( String.valueOf(bib_id) );
-            	knockOnUpdateStmt.setInt(1,bib_id);
-            	ResultSet rs = knockOnUpdateStmt.executeQuery();
-            	while (rs.next()) {
-            		int other_bib_id = rs.getInt(1);
-            		if ( ! ids.contains( String.valueOf(other_bib_id) ))
-            			knockOnUpdates.add(other_bib_id);
-            	}
-            	rs.close();
-            	knockOnUpdates.remove(bib_id);
-            	bibStmt.setInt(1,bib_id);
-            	bibStmt.addBatch();
-            	markDoneInQueueStmt.setInt(1,bib_id);
-            	markDoneInQueueStmt.addBatch();
-            	workStmt.setInt(1,bib_id);
-            	workStmt.addBatch();
-            	mfhdQueryStmt.setInt(1,bib_id);
-            	rs = mfhdQueryStmt.executeQuery();
-            	while (rs.next()) {
-            		itemStmt.setInt(1,rs.getInt(1));
-            		itemStmt.addBatch();
-            	}
-            	rs.close();
-            	mfhdDelStmt.setInt(1,bib_id);
-            	mfhdDelStmt.addBatch();
+    		for (int bib_id : deleteQueue)  {
+			if (bib_id == 0)
+				continue;
+			lineNum++;
+			ids.add( String.valueOf(bib_id) );
+			knockOnUpdateStmt.setInt(1,bib_id);
+			try (  ResultSet rs = knockOnUpdateStmt.executeQuery()  ){
 
-            	if( ids.size() >= batchSize ){
-            		solr.deleteById( ids );
-            		bibStmt.executeBatch();
-            		markDoneInQueueStmt.executeBatch();
-            		workStmt.executeBatch();
-            		mfhdDelStmt.executeBatch();
-            		itemStmt.executeBatch();
-            		ids.clear();
-            	}
+				while (rs.next()) {
+					int other_bib_id = rs.getInt(1);
+					if ( ! ids.contains( String.valueOf(other_bib_id) ))
+						knockOnUpdates.add(other_bib_id);
+				}
+			}
+			knockOnUpdates.remove(bib_id);
+			bibStmt.setInt(1,bib_id);
+			bibStmt.addBatch();
+			markDoneInQueueStmt.setInt(1,bib_id);
+			markDoneInQueueStmt.addBatch();
+			workStmt.setInt(1,bib_id);
+			workStmt.addBatch();
+			mfhdStmt.setInt(1,bib_id);
+			try ( ResultSet rs = mfhdStmt.executeQuery() ) {
 
-            	if( lineNum % commitSize == 0 ){
-            		System.out.println("Requested " + lineNum + " deletes and doing a commit.");
-            		solr.commit();
-            		conn.commit();
-            	}
-            }
-            deleteQueueStmt.close();
-            getQueuedConn.close();
+				while (rs.next()) {
+					itemStmt.setInt(1,rs.getInt(1));
+					itemStmt.addBatch();
+				}
+			}
+			mfhdDelStmt.setInt(1,bib_id);
+			mfhdDelStmt.addBatch();
 
-            if( ids.size() > 0 ){
-                solr.deleteById( ids );
-                bibStmt.executeBatch();
-                markDoneInQueueStmt.executeBatch();
-                workStmt.executeBatch();
-                mfhdDelStmt.executeBatch();
-                itemStmt.executeBatch();
-            }
+			if( ids.size() >= batchSize ){
+				pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+				ids.clear();
+			}
 
-            System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
-            solr.commit(true,true,true);
-            long countAfterDel = countOfDocsInSolr( solr );
+			if( lineNum % commitSize == 0 ){
+				System.out.println("Requested " + lineNum + " deletes and doing a commit.");
+				solr.commit();
+				conn.commit();
+			}
+		}
+		if( ids.size() > 0 )
+			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 
-            System.out.println("Expected to delete " + lineNum + " documents from Solr index.");
-            System.out.println("Solr document count before delete: " + countBeforeDel +
-                    " count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));
-
-            if ( ! knockOnUpdates.isEmpty()) {
-            	System.out.println(String.valueOf(knockOnUpdates.size())
-            			+" documents identified as needing update because they share a work_id with deleted rec(s).");
-            	PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-        				"INSERT INTO "+CurrentDBTable.QUEUE
-        				+ " (bib_id, priority, cause) VALUES"
-        				+ " (?, 0, '"+DataChangeUpdateType.TITLELINK+"')");
-            	for (int bib_id : knockOnUpdates) {
-            		markBibForUpdateStmt.setInt(1,bib_id);
-            		markBibForUpdateStmt.addBatch();
-            	}
-            	markBibForUpdateStmt.executeBatch();
-            	markBibForUpdateStmt.close();
-            }
-
-            conn.commit();
-
-        } catch (Exception e) {
-        	throw new Exception( "Exception while processing deletes, some documents may "
-        			+ "have been deleted from Solr.", e);
-        } finally {
-        	if (conn != null && ! conn.isClosed())
-        		conn.close();
-        }
-
-        System.out.println("Success: requested " + lineNum + " documents "
-                + "to be deleted from solr at " + config.getSolrUrl());
+    	} // preparedStatements.close()
+		return lineNum;
+    	
     }
-
+    private static void pushUpdates(SolrClient solr, List<String> ids, PreparedStatement bibStmt,
+    		PreparedStatement markDoneInQueueStmt, PreparedStatement workStmt,
+    		PreparedStatement mfhdDelStmt, PreparedStatement itemStmt)
+    				throws SolrServerException, IOException, SQLException {
+		solr.deleteById( ids );
+		bibStmt.executeBatch();
+		markDoneInQueueStmt.executeBatch();
+		workStmt.executeBatch();
+		mfhdDelStmt.executeBatch();
+		itemStmt.executeBatch();
+    }
     private static long countOfDocsInSolr( SolrClient solr ) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
         query.set("qt", "standard");

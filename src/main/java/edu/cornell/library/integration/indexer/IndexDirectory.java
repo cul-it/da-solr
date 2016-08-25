@@ -127,33 +127,33 @@ public class IndexDirectory {
         MockOutputCommitter outputCommitter = new MockOutputCommitter();
         MockStatusReporter statusReporter = new MockStatusReporter();
         recordWriter = new MockRecordWriter();
-        MockRecordReader recordReader = new MockRecordReader();
+        try (MockRecordReader recordReader = new MockRecordReader()) {
 
-        BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
-        indexingMapper.doSolrUpdate = true; 
-        indexingMapper.attempts = 1;
-                
-        Mapper<Object,Text,Text,Text>.Context context = 
-            indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
-                    recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
-        
-        Configuration hadoopConfig = context.getConfiguration();
-        hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
-        hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
-        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
-        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
-        
-       	if (config != null) {
-       		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
-       	}
+        	BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
+        	indexingMapper.doSolrUpdate = true; 
+        	indexingMapper.attempts = 1;
 
-        if( tmpDir != null )
-            hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
+        	Mapper<Object,Text,Text,Text>.Context context = 
+        			indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
+        					recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
 
-        indexingMapper.setup(context);
+        	Configuration hadoopConfig = context.getConfiguration();
+        	hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
+        	hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
+        	hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
+        	hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
 
-        indexingMapper.map(null, new Text(inputsURL), context);
+        	if (config != null) {
+        		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
+        	}
 
+        	if( tmpDir != null )
+        		hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
+
+        	indexingMapper.setup(context);
+
+        	indexingMapper.map(null, new Text(inputsURL), context);
+        }
         //can access the result records with recordWriter if needed
         //but right now they not used
         //they would be useful to get error reporting etc.

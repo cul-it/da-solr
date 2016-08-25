@@ -39,9 +39,9 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -90,63 +90,57 @@ public class IndexingUtilities {
 	 */
 	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
 		boolean inBIB_VOY = false;
-		PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyQStmt.setInt(1, bib_id);
-		ResultSet rs = bibVoyQStmt.executeQuery();
-		while (rs.next())
-			inBIB_VOY = true;
-		rs.close();
-		bibVoyQStmt.close();
+		try (PreparedStatement bibVoyQStmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+			bibVoyQStmt.setInt(1, bib_id);
+			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
+				while (rs.next())
+					inBIB_VOY = true;
+			}
+		}
 		if ( ! inBIB_VOY )
 			return;
-		PreparedStatement bibVoyDStmt = current.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyDStmt.setInt(1, bib_id);
-		bibVoyDStmt.executeUpdate();
-		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
-		bibVoyDStmt.close();
+		try (PreparedStatement bibVoyDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+			bibVoyDStmt.setInt(1, bib_id);
+			bibVoyDStmt.executeUpdate();
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
+		}
 	}
 	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
-		PreparedStatement bibQueueStmt = current.prepareStatement(
+		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE
 				+" (bib_id, priority, cause)"
-				+" VALUES (?, ?, ?)");
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setInt(2, type.getPriority().ordinal());
-		bibQueueStmt.setString(3,type.toString());
-		bibQueueStmt.executeUpdate();
-		bibQueueStmt.close();
+				+" VALUES (?, ?, ?)")) {
+			bibQueueStmt.setInt(1, bib_id);
+			bibQueueStmt.setInt(2, type.getPriority().ordinal());
+			bibQueueStmt.setString(3,type.toString());
+			bibQueueStmt.executeUpdate();
+		}
 	}
 	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
 			throws SQLException {
-		PreparedStatement bibQueueDStmt = current.prepareStatement(
+		try (PreparedStatement bibQueueDStmt = current.prepareStatement(
 				"DELETE FROM "+CurrentDBTable.QUEUE
-				+" WHERE bib_id = ? AND done_date = 0");
-		for (Integer bib_id : bib_ids) {
-			bibQueueDStmt.setInt(1, bib_id);
-			bibQueueDStmt.addBatch();
+				+" WHERE bib_id = ? AND done_date = 0")) {
+			for (Integer bib_id : bib_ids) {
+				bibQueueDStmt.setInt(1, bib_id);
+				bibQueueDStmt.addBatch();
+			}
+			bibQueueDStmt.executeBatch();
 		}
-		bibQueueDStmt.executeBatch();
-		bibQueueDStmt.close();
 	}
 
-	public static void optimizeIndex( String solrCoreURL ) {
+	public static void optimizeIndex( String solrCoreURL ) throws MalformedURLException {
 		System.out.println("Optimizing index at: "+solrCoreURL+".");
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
-		try {
-			URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
-			InputStream in = queryUrl.openStream();
-			BufferedReader buff = new BufferedReader(new InputStreamReader(in));
+		URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
+		try (   InputStream in = queryUrl.openStream();
+				BufferedReader buff = new BufferedReader(new InputStreamReader(in))  ) {
 			String line;
 			while ( (line = buff.readLine()) != null ) 
 				System.out.println(line);
-			buff.close();
-			in.close();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			System.exit(1); 
 		} catch (IOException e) {
 			// With the Apache timeout set sufficiently high, an IOException should represent an actual problem.
 			e.printStackTrace();
@@ -161,9 +155,9 @@ public class IndexingUtilities {
      */
     public static void commitIndexChanges(String solrUrl) 
             throws SolrServerException, IOException {
-        SolrClient solr = new  HttpSolrClient( solrUrl );
-        solr.commit(true,true,true);
-        solr.close();
+        try (SolrClient solr = new  HttpSolrClient( solrUrl )) {
+        	solr.commit(true,true,true);
+        }
     }
 
 	/**
@@ -306,8 +300,7 @@ public class IndexingUtilities {
 		Matcher m = yyyymmdd.matcher(date);
 		if (m.find())
 			return m.group(1)+"-"+m.group(2)+"-"+m.group(3);
-		else
-			return date;
+		return date;
 	}
 	static Pattern yyyymmdd = null;
 
@@ -391,16 +384,14 @@ public class IndexingUtilities {
 	public static void gzipFile(String s, String d) throws IOException  {
 			 
 		byte[] buffer = new byte[1024];
-		GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(d));
-		FileInputStream in = new FileInputStream(s);
-
-		int bytes_read;
-		while ((bytes_read = in.read(buffer)) > 0) {
-			out.write(buffer, 0, bytes_read);
+		try (   GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(d));
+				FileInputStream in = new FileInputStream(s)   ) {
+			int bytes_read;
+			while ((bytes_read = in.read(buffer)) > 0) {
+				out.write(buffer, 0, bytes_read);
+			}
+			out.finish();
 		}
-		in.close();
-		out.finish();
-		out.close();
 		FileUtils.deleteQuietly(new File(s));
 	}
 
@@ -410,7 +401,7 @@ public class IndexingUtilities {
 		XMLStreamReader r  = 
 				input_factory.createXMLStreamReader(new StringReader(xml));
 		while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT) {
+			if (r.next() == XMLStreamConstants.START_ELEMENT) {
 				if (r.getLocalName().equals("doc")) {
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("boost"))
@@ -434,7 +425,7 @@ public class IndexingUtilities {
 	}
 	
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
-	public static String prettyXMLFormat(String input, int indent) {
+	public static String prettyXMLFormat(String input) {
 	    try {
 	        Source xmlInput = new StreamSource(new StringReader(input));
 	        StringWriter stringWriter = new StringWriter();
@@ -449,8 +440,5 @@ public class IndexingUtilities {
 	    throw new RuntimeException(e); // simple exception handling, please review it
 	    }
 	}
-	
-	public static String prettyXMLFormat(String input) {
-	    return prettyXMLFormat(input, 2);
-	}
+
 }

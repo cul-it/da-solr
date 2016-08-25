@@ -49,10 +49,10 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 			String recordURI, SolrBuildConfig config)
 			throws Exception {	
 		Map<String,ResultSet> resultSet =
-				super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
+				super.runQueries(recordURI, config);
 		fields.putAll(resultSetsToSolrFields( resultSet, config ));
 		while (( ! mainStoreQueries.isEmpty() ) || ( ! localStoreQueries.isEmpty())) {
-			resultSet =	super.runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);
+			resultSet =	super.runQueries(recordURI, config);
 			fields.putAll(resultSetsToSolrFields( resultSet, config ));
 		}
 		return fields;

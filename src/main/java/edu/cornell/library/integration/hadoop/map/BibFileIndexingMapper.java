@@ -137,19 +137,19 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					//loader.loadGraph((GraphTDB)model.getGraph(), is);
 	
 					String urlString = urlText.toString();
-					InputStream is = getUrl( urlString  );
+					try (InputStream is = getUrl( urlString  )) {
 
-					Lang l ;
-					if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
-						l = Lang.NT;
-					else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
-						l = Lang.N3;
-					else
-						throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
-					RDFDataMgr.read(model, is, l);
-					context.progress();
+						Lang l ;
+						if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+							l = Lang.NT;
+						else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+							l = Lang.N3;
+						else
+							throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+						RDFDataMgr.read(model, is, l);
+						context.progress();
 
-					is.close();
+					}
 
 					TDB.sync( dataset );
 				
@@ -234,7 +234,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     /**
      * Check if ex is an out of space exception.
      */
-    private boolean checkForOutOfSpace( Throwable ex){
+    private static boolean checkForOutOfSpace( Throwable ex){
         return ex != null 
             && ex.getMessage() != null 
             && ex.getMessage().toLowerCase().contains("no space left on device");
@@ -247,12 +247,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	        // skip moveToDone if special value is set for doneDir
 	        if( DO_NOT_MOVE_TO_DONE.equals( context.getConfiguration().get(BibFileToSolr.DONE_DIR) )) {
 	            return;
-	        }else{
-	            String filename = getSplitFileName(context);
-	            FileSystem fs = FileSystem.get( context.getConfiguration() );
-	            FileUtil.copy(fs, new Path(filename),fs, doneDir,
-	                          true, false, fs.getConf()); 
 	        }
+			String filename = getSplitFileName(context);
+			try (FileSystem fs = FileSystem.get( context.getConfiguration() )) {
+				FileUtil.copy(fs, new Path(filename),fs, doneDir,
+						true, false, fs.getConf()); }
         } catch (FileNotFoundException e) {
             // This error is likely caused by the file being moved when it was completed by another worker
             // let's not restart the indexing process in response.
@@ -265,7 +264,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
+	private static SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
@@ -288,8 +287,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			is = davService.getFileAsInputStream(url);
 			if( url.endsWith( ".gz" ) || url.endsWith(".gzip"))
 				return new GZIPInputStream( is );
-			else
-				return is;
+			return is;
 		} catch (Exception e) {
 			throw new IOException("Could not get " + url , e);
 		}		
@@ -323,19 +321,18 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	/** get the filename for the current file (aka input split) that is being worked on. 
 	 * @throws InterruptedException 
 	 * @throws IOException */
-    private String getSplitFileName(Context context) throws IOException, InterruptedException{
+    @SuppressWarnings("static-method")
+	private String getSplitFileName(Context context) throws IOException, InterruptedException{
     	org.apache.hadoop.mapreduce.InputSplit split = context.getInputSplit();
         if( split instanceof  FileSplit ){
             FileSplit fileSplit = (FileSplit)context.getInputSplit();
             return fileSplit.getPath().getName();			
-        }else{
-            String[] locs =  split.getLocations();
-            if( locs != null && locs.length > 0 ){
-                return split.getLocations()[0];
-            }else{
-                return "no_split_location_or_file_found";
-            }
         }
+		String[] locs =  split.getLocations();
+		if( locs != null && locs.length > 0 ){
+		    return split.getLocations()[0];
+		}
+		return "no_split_location_or_file_found";
     }
 
 	@Override
@@ -363,7 +360,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			throw new Error("Cannot connect to solr server at \""+solrURL+"\".",e);
 		}
 		
-		baseModel = loadBaseModel( context );
+		baseModel = loadBaseModel( );
 						
 		davService = new DavServiceImpl(
 				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
@@ -375,15 +372,15 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }
 	}
 	
-	private Model loadBaseModel(Context context) throws IOException {		
+	private Model loadBaseModel() throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
 		String[] baseNtFiles = { "/shadows.nt","/library.nt","/language_code.nt", "/callnumber_map.nt","/fieldGroups.nt"};
 		for( String fileName : baseNtFiles ){		    
-			InputStream in = getClass().getResourceAsStream(fileName);
-			if( in == null )
-			    throw new IOException("While attempting to load base RDF files, could not find resource " + fileName);
-			baseModel.read(in, null, "N-TRIPLE");
-			in.close();
+			try (InputStream in = getClass().getResourceAsStream(fileName)) {
+				if( in == null )
+					throw new IOException("While attempting to load base RDF files, could not find resource " + fileName);
+				baseModel.read(in, null, "N-TRIPLE");
+			}
 			log.info("loaded base model " + fileName);
 		}		
 		return baseModel;

@@ -139,8 +139,10 @@ public class DavServiceImpl implements DavService {
     public String getFileAsString(String url) throws IOException {
         try{
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            InputStream istream = sardine.get(url);      
-            return IOUtils.toString(istream, StandardCharsets.UTF_8);
+            String result;
+            try (InputStream istream = sardine.get(url)) {
+            	result = IOUtils.toString(istream, StandardCharsets.UTF_8); }
+            return result;
         }catch(IOException e){
             throw new IOException("Problem while getting file as a String: " + url ,e );
         }
@@ -164,7 +166,7 @@ public class DavServiceImpl implements DavService {
         try{
             //System.out.println("Getting file: "+ url);
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            InputStream istream = (InputStream) sardine.get(url);
+            InputStream istream = sardine.get(url);
             return istream;
         }catch(IOException e){
             throw new IOException("Problem while getting file as InputStream: " + url ,e );
@@ -174,23 +176,21 @@ public class DavServiceImpl implements DavService {
     public File getFile(String url, String outFile) throws IOException {
         try{
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            InputStream is  = (InputStream) sardine.get(url);   
             File file = new File(outFile); 
-            OutputStream os = new FileOutputStream(file); 
-            int len; 
-            byte buf[] = new byte[1024];
-            while ((len=is.read(buf))>0) {
-                os.write(buf,0,len);   
+            try (   InputStream is  = sardine.get(url);
+            		OutputStream os = new FileOutputStream(file) ) {
+            	int len; 
+            	byte buf[] = new byte[1024];
+            	while ((len=is.read(buf))>0) {
+            		os.write(buf,0,len);   
+            	}
             }
-            os.close(); 
-            is.close();
             return file;
         } catch (SardineException e1) {
            	if (e1.getStatusCode() == 404)
         		return null;
-        	else
-                throw new IOException("Problem while getting file : " 
-                        + url + " to local file " + outFile ,e1 );
+			throw new IOException("Problem while getting file : " 
+			        + url + " to local file " + outFile ,e1 );
         }catch(IOException e){
             throw new IOException("Problem while getting file : " 
                     + url + " to local file " + outFile ,e );
@@ -200,13 +200,15 @@ public class DavServiceImpl implements DavService {
     public Path getNioPath(String url) throws Exception {
         try{
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            InputStream is  = (InputStream) sardine.get(url); 
-            CopyOption[] options = new CopyOption[]{
-                    StandardCopyOption.REPLACE_EXISTING
-            };
-            final Path path = Files.createTempFile("nio-temp", ".tmp");
-            path.toFile().deleteOnExit();
-            Files.copy(is, path, options);	     
+            final Path path;
+            try (InputStream is  = sardine.get(url)) {
+            	CopyOption[] options = new CopyOption[]{
+            			StandardCopyOption.REPLACE_EXISTING
+            	};
+            	path = Files.createTempFile("nio-temp", ".tmp");
+            	path.toFile().deleteOnExit();
+            	Files.copy(is, path, options);	 
+            }
             return path;
         }catch(Exception e){
             throw new Exception("Problem getting file as NIO Path: " + url , e);
@@ -233,9 +235,8 @@ public class DavServiceImpl implements DavService {
         try{
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
             File file = path.toFile();
-            InputStream dataStream = null;    		
-            dataStream = new FileInputStream(file);    		
-            sardine.put(url, dataStream);
+            try (InputStream dataStream = new FileInputStream(file)) {
+            	sardine.put(url, dataStream); }
         }catch(IOException e){       
             throw new IOException("Problem while saving NIO Path to " + url ,e );       
         }

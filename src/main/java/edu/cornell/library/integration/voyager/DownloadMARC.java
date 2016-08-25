@@ -53,7 +53,7 @@ public class DownloadMARC {
 		int recCount = 0;
 		StringBuilder recs = new StringBuilder();
 		for( Integer id : ids ) {
-			String rec = queryVoyager(type,id);
+			String rec = queryVoyager(id);
 			if (rec != null) {
 				recs.append(rec);
 				errorChecking(rec,type,id);
@@ -105,7 +105,7 @@ public class DownloadMARC {
 			throws SQLException, ClassNotFoundException, IOException {
 		voyager = config.getDatabaseConnection("Voy");
 		prepareStatement(type);
-		String rec = queryVoyager(type,id);
+		String rec = queryVoyager(id);
 		pstmt.close();
 		voyager.close();
 		return rec;
@@ -124,44 +124,46 @@ public class DownloadMARC {
 			throws SQLException, ClassNotFoundException, IOException {
 		voyager = config.getDatabaseConnection("Voy");
 		prepareStatement(type);
-		String rec = queryVoyager(type,id);
+		String rec = queryVoyager(id);
 		pstmt.close();
 		voyager.close();
 		return marcToXml(rec);
 	}
 
 
-	private void errorChecking(String rec, RecordType type, Integer id) {
+	private static void errorChecking(String rec, RecordType type, Integer id) {
         if ( rec.contains("\uFFFD") )
         	System.out.println(type.toString()+" MARC contains Unicode Replacement Character (U+FFFD): "+id);
         if ( uPlusHexPattern.matcher(rec).matches() )
         	System.out.println(type.toString()+" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
 	}
-	private String marcToXml( String marc21 ) throws IOException {
-		InputStream in = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8));
-		OutputStream out = new ByteArrayOutputStream();
-		MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(in,true,true);
-		MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
-		writer.setUnicodeNormalization(true);
-		Record record = null;
-        while (reader.hasNext()) {
-            try {
-            	record = reader.next();
-            } catch (MarcException me) {
-            	me.printStackTrace();
-            	continue;
-            } catch (Exception e) {
-            	e.printStackTrace();
-            	continue;
-            }
-            boolean hasInvalidChars = ConvertUtils.dealWithBadCharacters(record);
-            if (! hasInvalidChars)
-            	writer.write(record);
-        }
-        in.close();
-        out.close();
-        writer.close();
-        return out.toString();
+	private static String marcToXml( String marc21 ) throws IOException {
+		String xml = null;
+		try (   InputStream in = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8));
+				OutputStream out = new ByteArrayOutputStream()  ) {
+			MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(in,true,true);
+			MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
+			writer.setUnicodeNormalization(true);
+			Record record = null;
+			while (reader.hasNext()) {
+				try {
+					record = reader.next();
+				} catch (MarcException me) {
+					me.printStackTrace();
+					continue;
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
+				boolean hasInvalidChars = ConvertUtils.dealWithBadCharacters(record);
+				if (! hasInvalidChars)
+					writer.write(record);
+			}
+			writer.close();
+			out.close();
+			xml = out.toString();
+		}
+		return xml;
 	}
 	private void prepareStatement(RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC))
@@ -175,21 +177,21 @@ public class DownloadMARC {
 					"SELECT * FROM AUTH_DATA WHERE AUTH_DATA.AUTH_ID = ? ORDER BY AUTH_DATA.SEQNUM");
 	}
 	private void writeFile(String filename, String recs) throws Exception {
-		InputStream is = new ByteArrayInputStream(recs.toString().getBytes(StandardCharsets.UTF_8));
-		davService.saveFile(filename, is);
-		is.close();
+		try (InputStream is = new ByteArrayInputStream(recs.toString().getBytes(StandardCharsets.UTF_8))) {
+			davService.saveFile(filename, is);
+		}
 	}
-	private String queryVoyager(RecordType type, Integer id)
-			throws SQLException, ClassNotFoundException, IOException {
+	private String queryVoyager(Integer id) throws SQLException, IOException {
 		pstmt.setInt(1, id);
-    	ByteArrayOutputStream bb = new ByteArrayOutputStream();
-    	ResultSet rs = pstmt.executeQuery();
-    	while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
-    	rs.close();
-    	if (bb.size() == 0)
-    		return null;
-    	bb.close();
-    	String marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+		String marcRecord = null;
+		try (   ByteArrayOutputStream bb = new ByteArrayOutputStream();
+				ResultSet rs = pstmt.executeQuery()  ) {
+			while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
+			if (bb.size() == 0)
+				return null;
+			bb.close();
+			marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+		}
     	return marcRecord;
 	}
 }
