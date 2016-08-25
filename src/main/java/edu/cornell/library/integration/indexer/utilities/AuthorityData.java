@@ -22,41 +22,38 @@ public class AuthorityData {
 
 	public AuthorityData( SolrBuildConfig config, String heading, HeadTypeDesc htd) throws ClassNotFoundException, SQLException {
 
-		Connection conn = config.getDatabaseConnection("Headings");
-		PreparedStatement isAuthorizedStmt = conn.prepareStatement(
-				"SELECT main_entry, id, undifferentiated FROM heading WHERE type_desc = ? AND sort = ?");
-		isAuthorizedStmt.setInt(1, htd.ordinal());
-		isAuthorizedStmt.setString(2, getFilingForm(heading));
-		ResultSet rs = isAuthorizedStmt.executeQuery();
-		while (rs.next()) {
-			authorized = rs.getBoolean(1);
-			headingId = rs.getInt(2);
-			undifferentiated = rs.getBoolean(3);
-		}
-		rs.close();
-		isAuthorizedStmt.close();
+		try ( Connection conn = config.getDatabaseConnection("Headings") ){
+			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
+						"SELECT main_entry, id, undifferentiated FROM heading WHERE type_desc = ? AND sort = ?")  ){
+				isAuthorizedStmt.setInt(1, htd.ordinal());
+				isAuthorizedStmt.setString(2, getFilingForm(heading));
+				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
+					while (rs.next()) {
+						authorized = rs.getBoolean(1);
+						headingId = rs.getInt(2);
+						undifferentiated = rs.getBoolean(3);
+					}
+				}
+			}
 
-		if ( ! authorized || undifferentiated) {
-			conn.close();
-			return;
-		}
+			if ( ! authorized || undifferentiated)
+				return;
 
-		PreparedStatement alternateFormsStmt = conn.prepareStatement(
-				"SELECT heading FROM heading, reference "
-				+ "WHERE to_heading = ? "
-				+ "AND from_heading = heading.id "
-				+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
-				+" ORDER BY sort");
-		alternateFormsStmt.setInt(1, headingId);
-		rs = alternateFormsStmt.executeQuery();
-		while (rs.next()) {
-			if (alternateForms == null)
-				alternateForms = new ArrayList<String>();
-			alternateForms.add(rs.getString(1));
+			try ( PreparedStatement alternateFormsStmt = conn.prepareStatement(
+					"SELECT heading FROM heading, reference "
+					+ "WHERE to_heading = ? "
+					+ "AND from_heading = heading.id "
+					+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
+					+" ORDER BY sort") ){
+				alternateFormsStmt.setInt(1, headingId);
+				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){
+					while (rs.next()) {
+						if (alternateForms == null)
+							alternateForms = new ArrayList<String>();
+						alternateForms.add(rs.getString(1));
+					}
+				}
+			}
 		}
-		rs.close();
-		alternateFormsStmt.close();
-		conn.close();
 	}
-
 }

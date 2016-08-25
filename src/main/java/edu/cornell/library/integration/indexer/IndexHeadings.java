@@ -28,11 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
-
-import org.apache.solr.client.solrj.SolrServerException;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
@@ -134,63 +132,68 @@ public class IndexHeadings {
 				blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
 		tempPath.toFile().deleteOnExit();
-		FileOutputStream fos = new FileOutputStream(tempPath.toString());
-		ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream());
-		fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
-		fos.close();
+
+		try (   FileOutputStream fos = new FileOutputStream(tempPath.toString());
+				ReadableByteChannel rbc = Channels.newChannel(queryUrl.openStream())  ){
+
+			fos.getChannel().transferFrom(rbc, 0, Integer.MAX_VALUE); //Integer.MAX_VALUE translates to 2 gigs max download
+		}
 
 		// then read the file back in to process it.
-		FileInputStream fis = new FileInputStream(tempPath.toString());
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
+		try (  FileInputStream fis = new FileInputStream(tempPath.toString())  ){
 
-		// fast forward to response body
-		FF: while (r.hasNext())
-			if (r.next() == XMLEvent.START_ELEMENT)
-				if (r.getLocalName().equals("lst"))
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name")) {
-							String name = r.getAttributeValue(i);
-							if (name.equals("terms")) break FF;
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
+
+			// fast forward to response body
+			FF: while (r.hasNext())
+				if (r.next() == XMLStreamConstants.START_ELEMENT)
+					if (r.getLocalName().equals("lst"))
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name")) {
+								String name = r.getAttributeValue(i);
+								if (name.equals("terms")) break FF;
+							}
+
+			// process actual results
+			String heading = null;
+			Integer recordCount = null;
+			int headingCount = 0;
+			while (r.hasNext())
+				if (r.next() == XMLStreamConstants.START_ELEMENT)
+					if (r.getLocalName().equals("int")) {
+						for (int i = 0; i < r.getAttributeCount(); i++)
+							if (r.getAttributeLocalName(i).equals("name"))
+								heading = r.getAttributeValue(i);
+						recordCount = Integer.valueOf(r.getElementText());
+						addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
+						if (++headingCount % 10_000 == 0) {
+							System.out.printf("%s => %d\n",heading,recordCount);
+							connection.commit();
 						}
-
-		// process actual results
-		String heading = null;
-		Integer recordCount = null;
-		int headingCount = 0;
-		while (r.hasNext())
-			if (r.next() == XMLEvent.START_ELEMENT)
-				if (r.getLocalName().equals("int")) {
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("name"))
-							heading = r.getAttributeValue(i);
-					recordCount = Integer.valueOf(r.getElementText());
-					addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
-					if (++headingCount % 10_000 == 0) {
-						System.out.printf("%s => %d\n",heading,recordCount);
-						connection.commit();
 					}
-				}
-		fis.close();
+		}
 		Files.delete(tempPath);
 	}
 
 
 	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count)
-			throws SolrServerException, SQLException, InterruptedException {
+			throws SQLException, InterruptedException {
 
 		String count_field = blf.headingType().dbField();
 		// update record count in db
 		if ( ! stmts.containsKey("update")) {
-			String query = String.format( "UPDATE heading SET %s = %s + ? "
+			final String updateQuery = String.format( "UPDATE heading SET %s = %s + ? "
 					+ "WHERE type_desc = ? AND sort = ?", count_field, count_field);
-			stmts.put("update", connection.prepareStatement(query));
+			stmts.put("update", connection.prepareStatement(updateQuery));
 		}
-		PreparedStatement stmt = stmts.get("update");
-		stmt.setInt(1, count);
-		stmt.setInt(2, blf.headingTypeDesc().ordinal());
-		stmt.setString(3, headingSort);
-		int rowsAffected = stmt.executeUpdate();
+		int rowsAffected;
+		try ( PreparedStatement stmt = stmts.get("update") ) {
+			stmt.setInt(1, count);
+			stmt.setInt(2, blf.headingTypeDesc().ordinal());
+			stmt.setString(3, headingSort);
+			rowsAffected = stmt.executeUpdate();
+		}
 		
 		// if no rows were affected, this heading is not yet in the database
 		if ( rowsAffected == 0 ) {
@@ -199,17 +202,18 @@ public class IndexHeadings {
 				headingDisplay = getDisplayHeading( blf , headingSort );
 				if (headingDisplay == null) return;
 				if ( ! stmts.containsKey("insert")) {
-					String query = String.format(
+					final String insertQuery = String.format(
 							"INSERT INTO heading (heading, sort, type_desc, %s) " +
 							"VALUES (?, ?, ?, ?)", count_field);
-					stmts.put("insert", connection.prepareStatement(query));
+					stmts.put("insert", connection.prepareStatement(insertQuery));
 				}
-				stmt = stmts.get("insert");
-				stmt.setString(1, headingDisplay);
-				stmt.setString(2, headingSort);
-				stmt.setInt(3, blf.headingTypeDesc().ordinal());
-				stmt.setInt(4, count);
-				stmt.executeUpdate();
+				try (  PreparedStatement stmt = stmts.get("insert") ) {
+					stmt.setString(1, headingDisplay);
+					stmt.setString(2, headingSort);
+					stmt.setInt(3, blf.headingTypeDesc().ordinal());
+					stmt.setInt(4, count);
+					stmt.executeUpdate();
+				}
 			} catch (IOException | XMLStreamException | URISyntaxException e) {
 				System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
 				e.printStackTrace();
@@ -222,23 +226,24 @@ public class IndexHeadings {
 	private void deleteCountsFromDB() throws SQLException {
 
 		int batchsize = 10_000;
-
-		Statement stmt = connection.createStatement();
-		stmt.executeQuery("SELECT MAX(id) FROM heading");
 		int maxId = 0;
-		ResultSet rs = stmt.getResultSet();
-		while (rs.next())
-			maxId = rs.getInt(1);
 
-		PreparedStatement pstmt = connection.prepareStatement
-				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
-						+ "WHERE id BETWEEN ? AND ?");
-		for (int left = 0; left < maxId; left += batchsize) {
-			pstmt.setInt(1, left + 1);
-			pstmt.setInt(2, left + batchsize);
-			pstmt.executeUpdate();
+		try (  Statement stmt = connection.createStatement() ) {
+			stmt.executeQuery("SELECT MAX(id) FROM heading");
+			try ( ResultSet rs = stmt.getResultSet() ) {
+				while (rs.next())
+					maxId = rs.getInt(1); }
 		}
-		pstmt.close();
+
+		try (  PreparedStatement pstmt = connection.prepareStatement
+				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
+						+ "WHERE id BETWEEN ? AND ?")  ){
+			for (int left = 0; left < maxId; left += batchsize) {
+				pstmt.setInt(1, left + 1);
+				pstmt.setInt(2, left + batchsize);
+				pstmt.executeUpdate();
+			}
+		}
 
 	}
 
@@ -252,8 +257,7 @@ public class IndexHeadings {
 
 		// Get the top few facet values matching a search for headingSort
 		String query = buildBLDisplayHeadingQuery
-				(config.getBlacklightSolrUrl(),
-				 blf.fieldName(),
+				(blf.fieldName(),
 				 headingSort,
 				 facet, false);
 
@@ -263,8 +267,7 @@ public class IndexHeadings {
 
 		// If nothing was found, try again with a larger facet response from Solr
 		query = buildBLDisplayHeadingQuery
-				(config.getBlacklightSolrUrl(),
-				 blf.fieldName(),
+				(blf.fieldName(),
 				 headingSort,
 				 facet, true);
 		heading = findHeadingInSolrResponse(query, headingSort, facet);
@@ -282,22 +285,22 @@ public class IndexHeadings {
 		URL queryUrl = uri.toURL();
 
 		while (true) {
-			try{
-				InputStream in = queryUrl.openStream();
+			try (  InputStream in = queryUrl.openStream() ){
+
 				XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
-		
+
 				// fast forward to response body
 				FF: while (r.hasNext())
-					if (r.next() == XMLEvent.START_ELEMENT)
+					if (r.next() == XMLStreamConstants.START_ELEMENT)
 						if (r.getLocalName().equals("lst"))
 							for (int i = 0; i < r.getAttributeCount(); i++)
 								if (r.getAttributeLocalName(i).equals("name"))
 									if (r.getAttributeValue(i).equals(facet)) break FF;
-				
+
 				// process actual results
 				String heading = null;
 				while (r.hasNext())
-					if (r.next() == XMLEvent.START_ELEMENT)
+					if (r.next() == XMLStreamConstants.START_ELEMENT)
 						if (r.getLocalName().equals("int")) {
 							for (int i = 0; i < r.getAttributeCount(); i++)
 								if (r.getAttributeLocalName(i).equals("name"))
@@ -323,7 +326,7 @@ public class IndexHeadings {
 	}
 
 
-	private String buildBLDisplayHeadingQuery(String blacklightSolrUrl,
+	private String buildBLDisplayHeadingQuery(
 			String fieldName, String headingSort, String facet, Boolean fullFacetList) throws UnsupportedEncodingException {
 
 		StringBuilder sb = new StringBuilder();

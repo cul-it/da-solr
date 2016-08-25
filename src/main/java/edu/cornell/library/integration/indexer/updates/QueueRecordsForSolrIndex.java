@@ -44,27 +44,27 @@ public class QueueRecordsForSolrIndex {
 			throw new IllegalArgumentException("Second argument must be a short description (<= 256 bytes) of the cause for the update.\n\n"+usage);
 
 		String filename = args[2];
-
-		Connection conn = config.getDatabaseConnection("Current");
-		PreparedStatement pstmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-				+" (bib_id, cause, priority) VALUES (?, ?, ?)");
-		pstmt.setInt(3, priority.ordinal());
-		pstmt.setString(2, cause);
-
 		int recCount = 0;
-		try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				pstmt.setInt(1, Integer.valueOf(line));
-				pstmt.addBatch();
-				if (++recCount % 1000 == 0)
-					pstmt.executeBatch();
+
+		try (   Connection conn = config.getDatabaseConnection("Current");
+				PreparedStatement pstmt = conn.prepareStatement(
+						"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+						+" (bib_id, cause, priority) VALUES (?, ?, ?)") ){
+
+			pstmt.setInt(3, priority.ordinal());
+			pstmt.setString(2, cause);
+
+			try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+				String line;
+				while ((line = br.readLine()) != null) {
+					pstmt.setInt(1, Integer.valueOf(line));
+					pstmt.addBatch();
+					if (++recCount % 1000 == 0)
+						pstmt.executeBatch();
+				}
 			}
+			pstmt.executeBatch();
 		}
-		pstmt.executeBatch();
-		pstmt.close();
-		conn.close();
 		System.out.println("Queued "+recCount+" bib records for re-index with priority "
 				+priority.toString()+" and reason '"+cause+"'");
 	}

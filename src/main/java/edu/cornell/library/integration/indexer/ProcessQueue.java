@@ -49,7 +49,7 @@ public class ProcessQueue {
 		if (localBaseFilePath != null)
 			localBaseFilePath += "/"+random+"/";
 		DownloadMARC downloader = new DownloadMARC(config);
-		
+
 		Connection current = config.getDatabaseConnection("Current");
 		int i = 0;
 		while (true) {

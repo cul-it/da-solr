@@ -53,16 +53,18 @@ public class Headings2Solr {
 
 		connection = config.getDatabaseConnection("Headings");
 
-		ConcurrentUpdateSolrClient solr =
-				new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5);
-		findWorks(solr, HeadType.SUBJECT);
-		solr.close();
-		solr = new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5);
-		findWorks(solr, HeadType.AUTHOR);
-		solr.close();
-		solr = new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5);
-		findWorks(solr, HeadType.AUTHORTITLE);
-		solr.close();
+		try ( ConcurrentUpdateSolrClient solr =
+				new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
+			findWorks(solr, HeadType.SUBJECT);
+		}
+		try ( ConcurrentUpdateSolrClient solr =
+				new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
+			findWorks(solr, HeadType.AUTHOR);
+		}
+		try ( ConcurrentUpdateSolrClient solr =
+				new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
+			findWorks(solr, HeadType.AUTHORTITLE);
+		}
 		connection.close();
 	}
 
@@ -78,64 +80,65 @@ public class Headings2Solr {
 			+ " WHERE h."+ht.dbField()+" > 0"
 			+ "    OR h2."+ht.dbField()+" > 0"
 			+ " GROUP BY h.id";
+		Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
 		 */
-		Connection connectionFindWorks = config.getDatabaseConnection("Headings");
-		Statement stmt = connectionFindWorks.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-				java.sql.ResultSet.CONCUR_READ_ONLY);
-		stmt.setFetchSize(Integer.MIN_VALUE);
-		stmt.execute(query);
-		ResultSet rs = stmt.getResultSet();
-		int addsSinceCommit= 0;
-		Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
-		while (rs.next()) {
-			int id = rs.getInt("id");
-			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("id", id);
-			doc.addField("heading", rs.getString("heading"));
-			doc.addField("headingSort", rs.getString("sort"));
-			References xrefs = getXRefs(id, ht);
-			if (xrefs.seeJson != null)
-				doc.addField("see", xrefs.seeJson);
-			if (xrefs.seeAlsoJson != null)
-				doc.addField("seeAlso", xrefs.seeAlsoJson);
-			doc.addField("alternateForm", getAltForms(id));
-			HeadTypeDesc htd = HeadTypeDescs[ rs.getInt("type_desc") ];
-			if ( ! ht.equals(HeadType.AUTHORTITLE))
-				doc.addField("headingTypeDesc", htd.toString());
-			if (! blacklightFields.containsKey(ht) || ! blacklightFields.get(ht).containsKey(htd)) {
-				BlacklightField blf = new BlacklightField(ht,htd);
-				if (! blacklightFields.containsKey(ht))
-					blacklightFields.put(ht, new HashMap<HeadTypeDesc,String>());
-				blacklightFields.get(ht).put(htd, blf.browseCtsName());
-			}
-			doc.addField("blacklightField", blacklightFields.get(ht).get(htd));
-			doc.addField("authority", rs.getBoolean("authority"));
-			doc.addField("mainEntry", rs.getBoolean("main_entry"));
-			doc.addField("notes", getNotes(id));
-			String rda = getRda(id);
-			if (rda != null) doc.addField("rda_json", rda);
-			doc.addField("count",rs.getInt(ht.dbField()));
-			doc.addField("counts_json", countsJson(rs));
-			docs.add(doc);
-			if (docs.size() == 5_000) {
-				System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
-				solr.add(docs);
-				docs.clear();
-				addsSinceCommit += 5_000;
-				if (addsSinceCommit >= 200_000) {
-					solr.commit();
-					addsSinceCommit = 0;
+		try (   Connection connectionFindWorks = config.getDatabaseConnection("Headings");
+				Statement stmt = connectionFindWorks.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+						java.sql.ResultSet.CONCUR_READ_ONLY) ) {
+			stmt.setFetchSize(Integer.MIN_VALUE);
+			stmt.execute(query);
+			try ( ResultSet rs = stmt.getResultSet() ) {
+				int addsSinceCommit= 0;
+				while (rs.next()) {
+					int id = rs.getInt("id");
+					SolrInputDocument doc = new SolrInputDocument();
+					doc.addField("id", id);
+					doc.addField("heading", rs.getString("heading"));
+					doc.addField("headingSort", rs.getString("sort"));
+					References xrefs = getXRefs(id, ht);
+					if (xrefs.seeJson != null)
+						doc.addField("see", xrefs.seeJson);
+					if (xrefs.seeAlsoJson != null)
+						doc.addField("seeAlso", xrefs.seeAlsoJson);
+					doc.addField("alternateForm", getAltForms(id));
+					HeadTypeDesc htd = HeadTypeDescs[ rs.getInt("type_desc") ];
+					if ( ! ht.equals(HeadType.AUTHORTITLE))
+						doc.addField("headingTypeDesc", htd.toString());
+					if (! blacklightFields.containsKey(ht) || ! blacklightFields.get(ht).containsKey(htd)) {
+						BlacklightField blf = new BlacklightField(ht,htd);
+						if (! blacklightFields.containsKey(ht))
+							blacklightFields.put(ht, new HashMap<HeadTypeDesc,String>());
+						blacklightFields.get(ht).put(htd, blf.browseCtsName());
+					}
+					doc.addField("blacklightField", blacklightFields.get(ht).get(htd));
+					doc.addField("authority", rs.getBoolean("authority"));
+					doc.addField("mainEntry", rs.getBoolean("main_entry"));
+					doc.addField("notes", getNotes(id));
+					String rda = getRda(id);
+					if (rda != null) doc.addField("rda_json", rda);
+					doc.addField("count",rs.getInt(ht.dbField()));
+					doc.addField("counts_json", countsJson(rs));
+					docs.add(doc);
+					if (docs.size() == 5_000) {
+						System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
+						solr.add(docs);
+						docs.clear();
+						addsSinceCommit += 5_000;
+						if (addsSinceCommit >= 200_000) {
+							solr.commit();
+							addsSinceCommit = 0;
+						}
+					}
 				}
 			}
-		}
-		stmt.close();
 		if ( ! docs.isEmpty() )
 			solr.add(docs);
 		solr.blockUntilFinished();
 		solr.commit();
-		connectionFindWorks.close();
+		}
 	}
 	
 	private static PreparedStatement ref_pstmt = null;
@@ -151,41 +154,42 @@ public class Headings2Solr {
 					+ "ORDER BY h.sort"	);
 		ref_pstmt.setInt(1, id);
 		ref_pstmt.execute();
-		ResultSet rs = ref_pstmt.getResultSet();
-		while (rs.next()) {
-			int count = rs.getInt(ht.dbField());
-			if (count == 0) continue;
-			Map<String,Object> vals = new HashMap<String,Object>();
-			vals.put("count", count);
-			vals.put("worksAbout", rs.getInt("works_about"));
-			vals.put("heading", rs.getString("heading"));
-			int type_desc = rs.getInt("type_desc");
-			if (authorTypes.contains(type_desc))
-				vals.put("worksBy", rs.getInt("works_by"));
-			if (HeadTypeDesc.WORK.ordinal() == type_desc)
-				vals.put("works", rs.getInt("works"));
-			vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
-			String ref_desc = rs.getString("ref_desc");
-			String relationship = null;
-			if (ref_desc != null && ! ref_desc.isEmpty())
-				relationship = ref_desc;
-			else
-				relationship = "";
-			if (ReferenceType.FROM4XX.ordinal() == rs.getInt("ref_type")) {
-				if (! relationship.isEmpty())
-					vals.put("relationship", relationship);
-				seeRefs.add(mapper.writeValueAsString(vals));
-			} else {
-				if (seeAlsoRefs.containsKey(relationship))
-					seeAlsoRefs.get(relationship).add(vals);
-				else {
-					Collection<Object> thisRel = new ArrayList<Object>();
-					thisRel.add(vals);
-					seeAlsoRefs.put(relationship, thisRel);
+		try (  ResultSet rs = ref_pstmt.getResultSet() ) {
+
+			while (rs.next()) {
+				int count = rs.getInt(ht.dbField());
+				if (count == 0) continue;
+				Map<String,Object> vals = new HashMap<String,Object>();
+				vals.put("count", count);
+				vals.put("worksAbout", rs.getInt("works_about"));
+				vals.put("heading", rs.getString("heading"));
+				int type_desc = rs.getInt("type_desc");
+				if (authorTypes.contains(type_desc))
+					vals.put("worksBy", rs.getInt("works_by"));
+				if (HeadTypeDesc.WORK.ordinal() == type_desc)
+					vals.put("works", rs.getInt("works"));
+				vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
+				String ref_desc = rs.getString("ref_desc");
+				String relationship = null;
+				if (ref_desc != null && ! ref_desc.isEmpty())
+					relationship = ref_desc;
+				else
+					relationship = "";
+				if (ReferenceType.FROM4XX.ordinal() == rs.getInt("ref_type")) {
+					if (! relationship.isEmpty())
+						vals.put("relationship", relationship);
+					seeRefs.add(mapper.writeValueAsString(vals));
+				} else {
+					if (seeAlsoRefs.containsKey(relationship))
+						seeAlsoRefs.get(relationship).add(vals);
+					else {
+						Collection<Object> thisRel = new ArrayList<Object>();
+						thisRel.add(vals);
+						seeAlsoRefs.put(relationship, thisRel);
+					}
 				}
 			}
 		}
-		rs.close();
 		References r = new References();
 		if ( ! seeRefs.isEmpty())
 			r.seeJson = seeRefs;
@@ -211,11 +215,11 @@ public class Headings2Solr {
 			note_pstmt = connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
 		note_pstmt.setInt(1, id);
 		note_pstmt.execute();
-		ResultSet rs = note_pstmt.getResultSet();
 		Collection<String> notes = new ArrayList<String>();
-		while (rs.next())
-			notes.add( rs.getString("note") );
-		rs.close();
+		try ( ResultSet rs = note_pstmt.getResultSet() ){
+			while (rs.next())
+				notes.add( rs.getString("note") );
+		}
 		return notes;
 	}
 
@@ -230,11 +234,11 @@ public class Headings2Solr {
 					+ " ORDER BY sort");
 		alt_pstmt.setInt(1, id);
 		alt_pstmt.execute();
-		ResultSet rs = alt_pstmt.getResultSet();
 		Collection<String> forms = new ArrayList<String>();
-		while (rs.next())
-			forms.add( rs.getString("heading") );
-		rs.close();
+		try ( ResultSet rs = alt_pstmt.getResultSet() ){
+			while (rs.next())
+				forms.add( rs.getString("heading") );
+		}
 		return forms;
 	}
 
@@ -244,11 +248,11 @@ public class Headings2Solr {
 			rda_pstmt = connection.prepareStatement("SELECT rda FROM rda WHERE heading_id = ?");
 		rda_pstmt.setInt(1, id);
 		rda_pstmt.execute();
-		ResultSet rs = rda_pstmt.getResultSet();
 		String rda = null;
-		if (rs.next())
-			rda = rs.getString("rda");
-		rs.close();
+		try ( ResultSet rs = rda_pstmt.getResultSet() ) {
+			if (rs.next())
+				rda = rs.getString("rda");
+		}
 		return rda;
 	}
 	
