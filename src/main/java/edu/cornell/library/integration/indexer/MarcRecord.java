@@ -88,7 +88,7 @@ public class MarcRecord {
 		f.tag = nodeToString(sol.get("tag"));
 		f.value = nodeToString(sol.get("value"));
 		if (nonBreaking)
-			f.value = f.value.replaceAll(" ", "\uC2A0");
+			f.value = f.value.replaceAll(" ", "\u00A0");
 		f.id = field_no;
 		this.control_fields.put(field_no, f);
 		if (f.tag.equals("001"))
