@@ -293,35 +293,3 @@ task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
-
-task (OracleTables, dependsOn: 'assemble', type: JavaExec){
-   description="Get Oracle Tables" 
-   main='edu.cornell.library.integration.support.OracleTables'
-   classpath = sourceSets.main.runtimeClasspath
-}
-
-task (OracleTest, dependsOn: 'assemble', type: JavaExec){
-   description="Oracle Test" 
-   main='edu.cornell.library.integration.support.OracleTest'
-   classpath = sourceSets.main.runtimeClasspath
-}
-
-task (OracleQuery, dependsOn: 'assemble', type: JavaExec){
-   description="Oracle Query" 
-   main='edu.cornell.library.integration.support.OracleQuery'
-   classpath = sourceSets.main.runtimeClasspath
-}
-
-task (GetRecordCount, dependsOn:'assemble', type: JavaExec){
-   description='Run GetRecordCount'
-   main='edu.cornell.library.integration.GetRecordCount'
-   classpath = sourceSets.main.runtimeClasspath
-   args = ['http://culdata.library.cornell.edu/data/voyager/bib/bib.mrc.full.done']
-}
-
-task (FindMissingBibId, dependsOn:'assemble', type: JavaExec){
- description='Run FindMissingBibId'
- main='edu.cornell.library.integration.support.FindMissingBibId'
- classpath = sourceSets.main.runtimeClasspath
-  maxHeapSize = '2048m'
-}

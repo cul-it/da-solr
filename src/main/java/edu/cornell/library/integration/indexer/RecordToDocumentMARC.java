@@ -41,7 +41,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSe
 import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
-//import edu.cornell.library.integration.indexer.resultSetToFields.TitleMatchRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
