@@ -228,11 +228,11 @@ public class IndexHeadings {
 		int batchsize = 10_000;
 		int maxId = 0;
 
-		try (  Statement stmt = connection.createStatement() ) {
-			stmt.executeQuery("SELECT MAX(id) FROM heading");
-			try ( ResultSet rs = stmt.getResultSet() ) {
+		try (   Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM heading") ) {
+
 				while (rs.next())
-					maxId = rs.getInt(1); }
+					maxId = rs.getInt(1);
 		}
 
 		try (  PreparedStatement pstmt = connection.prepareStatement
