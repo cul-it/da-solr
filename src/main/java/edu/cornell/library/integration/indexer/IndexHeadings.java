@@ -188,12 +188,11 @@ public class IndexHeadings {
 			stmts.put("update", connection.prepareStatement(updateQuery));
 		}
 		int rowsAffected;
-		try ( PreparedStatement stmt = stmts.get("update") ) {
-			stmt.setInt(1, count);
-			stmt.setInt(2, blf.headingTypeDesc().ordinal());
-			stmt.setString(3, headingSort);
-			rowsAffected = stmt.executeUpdate();
-		}
+		PreparedStatement uStmt = stmts.get("update");
+		uStmt.setInt(1, count);
+		uStmt.setInt(2, blf.headingTypeDesc().ordinal());
+		uStmt.setString(3, headingSort);
+		rowsAffected = uStmt.executeUpdate();
 		
 		// if no rows were affected, this heading is not yet in the database
 		if ( rowsAffected == 0 ) {
@@ -207,13 +206,12 @@ public class IndexHeadings {
 							"VALUES (?, ?, ?, ?)", count_field);
 					stmts.put("insert", connection.prepareStatement(insertQuery));
 				}
-				try (  PreparedStatement stmt = stmts.get("insert") ) {
-					stmt.setString(1, headingDisplay);
-					stmt.setString(2, headingSort);
-					stmt.setInt(3, blf.headingTypeDesc().ordinal());
-					stmt.setInt(4, count);
-					stmt.executeUpdate();
-				}
+				PreparedStatement iStmt = stmts.get("insert");
+				iStmt.setString(1, headingDisplay);
+				iStmt.setString(2, headingSort);
+				iStmt.setInt(3, blf.headingTypeDesc().ordinal());
+				iStmt.setInt(4, count);
+				iStmt.executeUpdate();
 			} catch (IOException | XMLStreamException | URISyntaxException e) {
 				System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
 				e.printStackTrace();
