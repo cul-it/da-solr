@@ -10,10 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import edu.cornell.library.integration.bo.BibData;
-import edu.cornell.library.integration.bo.BibMasterData;
 import edu.cornell.library.integration.bo.MfhdData;
 import edu.cornell.library.integration.util.ConvertUtils;
-import edu.cornell.library.integration.util.ObjectUtils;
 
 @ContextConfiguration(locations={"classpath:test-spring.xml"})
 public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
@@ -63,22 +61,7 @@ public class CatalogDaoTest extends AbstractJUnit4SpringContextTests {
          e.printStackTrace();
       }
    }
-   
-   @Test
-   public void testGetBibMasterData() {
-      System.out.println("testGetBibMasterData");
-      CatalogDao catalogDao = (CatalogDao) applicationContext.getBean("catalogDao");
-      String bibid = "6100933"; 
-      
-      try {
-         BibMasterData bibMasterData = catalogDao.getBibMasterData(bibid);        
-         ObjectUtils.printBusinessObject(bibMasterData);
-      } catch (Exception e) { 
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-   }
-   
+
    @Test
    public void testGetBibData() {
       System.out.println("testGetBibData");
