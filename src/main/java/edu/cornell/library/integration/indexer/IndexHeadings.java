@@ -41,8 +41,8 @@ public class IndexHeadings {
 
 	private Connection connection = null;
 	// This structure should contain only up to six PreparedStatement objects at most.
-	private Map<HeadType,Map<String,PreparedStatement>> statements =
-			new HashMap<HeadType,Map<String,PreparedStatement>>();
+	private Map<HeadType,Map<String,String>> queries =
+			new HashMap<HeadType,Map<String,String>>();
 	SolrBuildConfig config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
@@ -124,8 +124,8 @@ public class IndexHeadings {
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
 
-		if ( ! statements.containsKey(blf.headingType()))
-			statements.put(blf.headingType(), new HashMap<String,PreparedStatement>());
+		if ( ! queries.containsKey(blf.headingType()))
+			queries.put(blf.headingType(), new HashMap<String,String>());
 
 		// save terms info for field to temporary file.
 		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
@@ -166,7 +166,7 @@ public class IndexHeadings {
 							if (r.getAttributeLocalName(i).equals("name"))
 								heading = r.getAttributeValue(i);
 						recordCount = Integer.valueOf(r.getElementText());
-						addCountToDB(blf,statements.get(blf.headingType()),heading, recordCount);
+						addCountToDB(blf,queries.get(blf.headingType()),heading, recordCount);
 						if (++headingCount % 10_000 == 0) {
 							System.out.printf("%s => %d\n",heading,recordCount);
 							connection.commit();
@@ -177,48 +177,47 @@ public class IndexHeadings {
 	}
 
 
-	private void addCountToDB(BlacklightField blf, Map<String, PreparedStatement> stmts, String headingSort, Integer count)
+	private void addCountToDB(BlacklightField blf, Map<String,String> qs, String headingSort, Integer count)
 			throws SQLException, InterruptedException {
 
 		String count_field = blf.headingType().dbField();
 		// update record count in db
-		if ( ! stmts.containsKey("update")) {
-			final String updateQuery = String.format( "UPDATE heading SET %s = %s + ? "
-					+ "WHERE type_desc = ? AND sort = ?", count_field, count_field);
-			stmts.put("update", connection.prepareStatement(updateQuery));
+		if ( ! qs.containsKey("update")) {
+			qs.put("update", String.format( "UPDATE heading SET %s = %s + ? "
+					+ "WHERE type_desc = ? AND sort = ?", count_field, count_field));
 		}
 		int rowsAffected;
-		PreparedStatement uStmt = stmts.get("update");
-		uStmt.setInt(1, count);
-		uStmt.setInt(2, blf.headingTypeDesc().ordinal());
-		uStmt.setString(3, headingSort);
-		rowsAffected = uStmt.executeUpdate();
-		
-		// if no rows were affected, this heading is not yet in the database
-		if ( rowsAffected == 0 ) {
-			String headingDisplay;
-			try {
-				headingDisplay = getDisplayHeading( blf , headingSort );
-				if (headingDisplay == null) return;
-				if ( ! stmts.containsKey("insert")) {
-					final String insertQuery = String.format(
-							"INSERT INTO heading (heading, sort, type_desc, %s) " +
-							"VALUES (?, ?, ?, ?)", count_field);
-					stmts.put("insert", connection.prepareStatement(insertQuery));
+		try ( PreparedStatement uStmt = connection.prepareStatement( qs.get("update") ) ) {
+			uStmt.setInt(1, count);
+			uStmt.setInt(2, blf.headingTypeDesc().ordinal());
+			uStmt.setString(3, headingSort);
+			rowsAffected = uStmt.executeUpdate();
+
+			// if no rows were affected, this heading is not yet in the database
+			if ( rowsAffected == 0 ) {
+				String headingDisplay;
+				try {
+					headingDisplay = getDisplayHeading( blf , headingSort );
+					if (headingDisplay == null) return;
+					if ( ! qs.containsKey("insert")) {
+						qs.put("insert",String.format(
+								"INSERT INTO heading (heading, sort, type_desc, %s) " +
+										"VALUES (?, ?, ?, ?)", count_field));
+					}
+					try ( PreparedStatement iStmt = connection.prepareStatement( qs.get("insert") ) ) {
+						iStmt.setString(1, headingDisplay);
+						iStmt.setString(2, headingSort);
+						iStmt.setInt(3, blf.headingTypeDesc().ordinal());
+						iStmt.setInt(4, count);
+						iStmt.executeUpdate();
+					}
+				} catch (IOException | XMLStreamException | URISyntaxException e) {
+					System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
+					e.printStackTrace();
+					System.exit(1);
 				}
-				PreparedStatement iStmt = stmts.get("insert");
-				iStmt.setString(1, headingDisplay);
-				iStmt.setString(2, headingSort);
-				iStmt.setInt(3, blf.headingTypeDesc().ordinal());
-				iStmt.setInt(4, count);
-				iStmt.executeUpdate();
-			} catch (IOException | XMLStreamException | URISyntaxException e) {
-				System.out.println("IO error retrieving heading display format from Blacklight. Count not recorded for: "+headingSort);
-				e.printStackTrace();
-				System.exit(1);
 			}
 		}
-
 	}
 
 	private void deleteCountsFromDB() throws SQLException {
