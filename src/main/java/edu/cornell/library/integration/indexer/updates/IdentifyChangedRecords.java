@@ -60,6 +60,43 @@ public class IdentifyChangedRecords {
 	Set<Integer> updatedBibs = new HashSet<Integer>();
 	private static Timestamp max_date = null;
 
+	final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY;
+	final static String maxBibQueryOther = "SELECT max(bib_id) FROM "+CurrentDBTable.BIB_VOY;
+	final static String maxMfhdQuery = "SELECT max(mfhd_id) FROM "+CurrentDBTable.MFHD_VOY;
+	final static String maxItemQuery = "SELECT max(item_id) FROM "+CurrentDBTable.ITEM_VOY;
+	final static String recentBibQuery =
+			"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
+					+" where ( BIB_ID > ? or UPDATE_DATE > ?)";
+	final static String recentMfhdQuery =
+			"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
+					+"  from BIB_MFHD, MFHD_MASTER"
+					+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
+					+ "  and SUPPRESS_IN_OPAC = 'N'"
+					+ "  and ( MFHD_MASTER.MFHD_ID > ? or UPDATE_DATE > ?)";
+	final static String recentItemQuery =
+			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
+		    		+"  from MFHD_ITEM, ITEM"
+		    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
+		    		+ "  and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)";
+	final static String bibVoyQuery =
+			"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
+	final static String bibVoyUpdate =
+			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? WHERE bib_id = ?";
+	final static String bibVoyInsert =
+			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date) VALUES (?,?)";
+	final static String mfhdVoyQuery =
+			"SELECT bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
+	final static String mfhdVoyUpdate =
+			"UPDATE "+CurrentDBTable.MFHD_VOY+""+ " SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
+	final static String mfhdVoyInsert =
+			"INSERT INTO "+CurrentDBTable.MFHD_VOY+" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
+	final static String itemVoyQuery =
+			"SELECT mfhd_id, record_date FROM "+CurrentDBTable.ITEM_VOY+" WHERE item_id = ?";
+	final static String itemVoyUpdate =
+			"UPDATE "+CurrentDBTable.ITEM_VOY+" SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
+	final static String itemVoyInsert =
+			"INSERT INTO "+CurrentDBTable.ITEM_VOY+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+
 	public static void main(String[] args)  {
 		boolean thorough = true;
 		if (args.length > 0)
@@ -93,136 +130,120 @@ public class IdentifyChangedRecords {
 
 	private void quickIdentificationOfChanges() throws Exception {
 		updatedBibs.clear();
-		Connection current = config.getDatabaseConnection("Current");
+		try (   Connection current = config.getDatabaseConnection("Current");
+				Statement stmtCurrent = current.createStatement() ) {
 
-		Statement stmtCurrent = current.createStatement();
-		ResultSet rs = null;
-		if (max_date == null)
-			rs = stmtCurrent.executeQuery("SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY);
-		else
-			rs = stmtCurrent.executeQuery("SELECT max(bib_id) FROM "+CurrentDBTable.BIB_VOY);
-		Timestamp ts = null;
-		Integer max_bib = 0, max_mfhd = 0, max_item = 0;
-		while (rs.next()) {
-			if (max_date == null)
-				max_date = rs.getTimestamp(2);
-			ts = max_date;
-			max_bib = rs.getInt(1);
-		}
-		ts.setTime(ts.getTime() - (120/*seconds*/
-				                    * 1000/*millis per second*/));
-		rs.close();
-		rs = stmtCurrent.executeQuery("SELECT max(mfhd_id) FROM "+CurrentDBTable.MFHD_VOY);
-		while (rs.next())
-			max_mfhd = rs.getInt(1);
-		rs.close();
-		rs = stmtCurrent.executeQuery("SELECT max(item_id) FROM "+CurrentDBTable.ITEM_VOY);
-		while (rs.next())
-			max_item = rs.getInt(1);
-		rs.close();
-		
-		Connection voyager = config.getDatabaseConnection("Voy");
-		PreparedStatement pstmt = voyager.prepareStatement(
-				"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
-				+ " where ( BIB_ID > ? or UPDATE_DATE > ?)");
-		pstmt.setInt(1, max_bib);
-		pstmt.setTimestamp(2, ts);
-		rs = pstmt.executeQuery();
-		while (rs.next()) {
-			Timestamp thisTS = rs.getTimestamp(2);
-			String suppress_in_opac = rs.getString(3);
-			int bib_id = rs.getInt(1);
-			if (updatedBibs.contains(bib_id))
-				continue;
-			if (suppress_in_opac != null && suppress_in_opac.equals("N"))
-				queueBib( current, bib_id, thisTS );
+			Integer max_bib = 0, max_mfhd = 0, max_item = 0;
+
+			if ( max_date == null )
+				try ( ResultSet rs = stmtCurrent.executeQuery(maxBibQueryFirstPass) ) {
+					while (rs.next()) {
+						max_bib = rs.getInt(1);
+						max_date = rs.getTimestamp(2);
+					}
+				}
 			else
-				queueBibDelete( current, bib_id );
-			if (thisTS != null && 0 > thisTS.compareTo(max_date))
-				max_date = thisTS;
+				try ( ResultSet rs = stmtCurrent.executeQuery(maxBibQueryOther) ) {
+					while (rs.next())
+						max_bib = rs.getInt(1);
+				}
+			Timestamp ts = max_date;
+			ts.setTime(ts.getTime() - (10/*seconds*/
+										* 1000/*millis per second*/));
+
+			try ( ResultSet rs = stmtCurrent.executeQuery( maxMfhdQuery ) ){
+				while (rs.next())
+					max_mfhd = rs.getInt(1);
+			}
+			try ( ResultSet rs = stmtCurrent.executeQuery( maxItemQuery ) ){
+				while (rs.next())
+					max_item = rs.getInt(1);
+			}
+
+			try ( Connection voyager = config.getDatabaseConnection("Voy") ){
+
+				try ( PreparedStatement pstmt = voyager.prepareStatement(recentBibQuery) ){
+					pstmt.setInt(1, max_bib);
+					pstmt.setTimestamp(2, ts);
+					try ( ResultSet rs = pstmt.executeQuery() ){
+						while (rs.next()) {
+							Timestamp thisTS = rs.getTimestamp(2);
+							String suppress_in_opac = rs.getString(3);
+							int bib_id = rs.getInt(1);
+							if (updatedBibs.contains(bib_id))
+								continue;
+							if (suppress_in_opac != null && suppress_in_opac.equals("N"))
+								queueBib( current, bib_id, thisTS );
+							else
+								queueBibDelete( current, bib_id );
+							if (thisTS != null && 0 > thisTS.compareTo(max_date))
+								max_date = thisTS;
+						}
+					}
+				}
+
+				int bibCount = updatedBibs.size();
+				System.out.println("Queued from poling bib data: "+bibCount);
+
+				try ( PreparedStatement pstmt = voyager.prepareStatement( recentMfhdQuery )){
+					pstmt.setInt(1, max_mfhd);
+					pstmt.setTimestamp(2, ts);
+					try ( ResultSet rs = pstmt.executeQuery() ){
+					while (rs.next())
+						queueMfhd( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
+					}
+				}
+
+				int mfhdCount = updatedBibs.size() - bibCount;
+				System.out.println("Queued from poling holdings data: "+mfhdCount);
+
+				try ( PreparedStatement pstmt = voyager.prepareStatement( recentItemQuery )){
+					pstmt.setInt(1, max_item);
+					pstmt.setTimestamp(2, ts);
+					try ( ResultSet rs = pstmt.executeQuery() ){
+						while (rs.next())
+							queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
+					}
+				}
+
+				int itemCount = updatedBibs.size() - bibCount - mfhdCount;
+				System.out.println("Queued from poling item data: "+itemCount);
+				System.out.println("Total bibs queued: "+updatedBibs.size());
+			}
 		}
-		rs.close();
-		pstmt.close();
-
-		int bibCount = updatedBibs.size();
-		System.out.println("Queued from poling bib data: "+bibCount);
-
-		pstmt = voyager.prepareStatement(
-				"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
-	    		 +"  from BIB_MFHD, MFHD_MASTER"
-	             +" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
-	             + "  and SUPPRESS_IN_OPAC = 'N'"
-	             + " and ( MFHD_MASTER.MFHD_ID > ? or UPDATE_DATE > ?)");
-		pstmt.setInt(1, max_mfhd);
-		pstmt.setTimestamp(2, ts);
-		rs = pstmt.executeQuery();
-		while (rs.next())
-			queueMfhd( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
-		rs.close();
-		pstmt.close();
-
-		int mfhdCount = updatedBibs.size() - bibCount;
-		System.out.println("Queued from poling holdings data: "+mfhdCount);
-
-		pstmt = voyager.prepareStatement(
-				"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
-	    		+"  from MFHD_ITEM, ITEM"
-	    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
-	    		+" and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)");
-		pstmt.setInt(1, max_item);
-		pstmt.setTimestamp(2, ts);
-		rs = pstmt.executeQuery();
-		while (rs.next())
-			queueItem( current, rs.getInt(1), rs.getInt(2), rs.getTimestamp(3));
-		rs.close();
-		pstmt.close();
-
-		int itemCount = updatedBibs.size() - bibCount - mfhdCount;
-		System.out.println("Queued from poling item data: "+itemCount);
-		System.out.println("Total bibs queued: "+updatedBibs.size());
-		current.close();
-		voyager.close();
 	}
 
 	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
-		PreparedStatement bibVoyQStmt = current.prepareStatement(
-					"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyQStmt.setInt(1, bib_id);
-		ResultSet rs = bibVoyQStmt.executeQuery();
-		while (rs.next()) {
-			Timestamp old_date = rs.getTimestamp(1);
-			if (update_date != null
-					&& (old_date == null
-					    || 0 > old_date.compareTo(update_date))) {
-				// bib is already in current, but has been updated
-				PreparedStatement bibVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.BIB_VOY
-							+" SET record_date = ?"
-							+" WHERE bib_id = ?");
-				bibVoyUStmt.setTimestamp(1, update_date);
-				bibVoyUStmt.setInt(2, bib_id);
-				bibVoyUStmt.executeUpdate();
-				bibVoyUStmt.close();
-				if ( ! updatedBibs.contains(bib_id)) {
-					updatedBibs.add(bib_id);
-					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
+			bibVoyQStmt.setInt(1, bib_id);
+			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
+				while (rs.next()) {
+					Timestamp old_date = rs.getTimestamp(1);
+					if (update_date != null
+							&& (old_date == null
+							|| 0 > old_date.compareTo(update_date))) {
+						// bib is already in current, but has been updated
+						try ( PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate ) ){
+							bibVoyUStmt.setTimestamp(1, update_date);
+							bibVoyUStmt.setInt(2, bib_id);
+							bibVoyUStmt.executeUpdate();
+						}
+						if ( ! updatedBibs.contains(bib_id)) {
+							updatedBibs.add(bib_id);
+							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+						}
+					} // else bib is unchanged - do nothing
+					return;
 				}
-			} // else bib is unchanged - do nothing
-			rs.close();
-			bibVoyQStmt.close();
-			return;
+			}
 		}
-		rs.close();
-		bibVoyQStmt.close();
 
 		// bib is not yet in current db
-		PreparedStatement bibVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.BIB_VOY
-					+" (bib_id, record_date) VALUES (?, ?)");
-		bibVoyIStmt.setInt(1, bib_id);
-		bibVoyIStmt.setTimestamp(2, update_date);
-		bibVoyIStmt.executeUpdate();
-		bibVoyIStmt.close();
+		try ( PreparedStatement bibVoyIStmt = current.prepareStatement( bibVoyInsert ) ) {
+			bibVoyIStmt.setInt(1, bib_id);
+			bibVoyIStmt.setTimestamp(2, update_date);
+			bibVoyIStmt.executeUpdate();
+		}
 		if ( ! updatedBibs.contains(bib_id)) {
 			updatedBibs.add(bib_id);
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
@@ -234,53 +255,45 @@ public class IdentifyChangedRecords {
 		if ( ! isBibActive(current,bib_id))
 			return;
 
-		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
-		mfhdVoyQStmt.setInt(1, mfhd_id);
-		ResultSet rs = mfhdVoyQStmt.executeQuery();
-		while (rs.next()) {
-			Timestamp old_date = rs.getTimestamp(2);
-			if (update_date != null
-					&& (old_date == null
-					    || 0 > old_date.compareTo(update_date))) {
-				// mfhd is already in current, but has been updated
-				int old_bib = rs.getInt(1);
-				PreparedStatement mfhdVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.MFHD_VOY
-							+" SET record_date = ?, bib_id = ?"
-							+" WHERE mfhd_id = ?");
-				mfhdVoyUStmt.setTimestamp(1, update_date);
-				mfhdVoyUStmt.setInt(2, bib_id);
-				mfhdVoyUStmt.setInt(3, mfhd_id);
-				mfhdVoyUStmt.executeUpdate();
-				mfhdVoyUStmt.close();
-				if (! updatedBibs.contains(bib_id)) {
-					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
-					updatedBibs.add(bib_id);
-				}
+		try ( PreparedStatement mfhdVoyQStmt = current.prepareStatement(mfhdVoyQuery) ) {
+			mfhdVoyQStmt.setInt(1, mfhd_id);
+			try ( ResultSet rs = mfhdVoyQStmt.executeQuery() ){
+				while (rs.next()) {
+					Timestamp old_date = rs.getTimestamp(2);
+					if (update_date != null
+							&& (old_date == null
+							|| 0 > old_date.compareTo(update_date))) {
+						// mfhd is already in current, but has been updated
+						int old_bib = rs.getInt(1);
+						try ( PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate )){
+							mfhdVoyUStmt.setTimestamp(1, update_date);
+							mfhdVoyUStmt.setInt(2, bib_id);
+							mfhdVoyUStmt.setInt(3, mfhd_id);
+							mfhdVoyUStmt.executeUpdate();
+						}
+						if (! updatedBibs.contains(bib_id)) {
+							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
+							updatedBibs.add(bib_id);
+						}
 
-				if (old_bib != bib_id
-						&& ! updatedBibs.contains(old_bib)) {
-					addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
-					updatedBibs.add(old_bib);
+						if (old_bib != bib_id
+								&& ! updatedBibs.contains(old_bib)) {
+							addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE);
+							updatedBibs.add(old_bib);
+						}
+					} // else mfhd is unchanged - do nothing
+					return;
 				}
-			} // else mfhd is unchanged - do nothing
-			rs.close();
-			mfhdVoyQStmt.close();
-			return;
+			}
 		}
-		rs.close();
-		mfhdVoyQStmt.close();
 
 		// mfhd is not yet in current db
-		PreparedStatement mfhdVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.MFHD_VOY
-					+" (bib_id, mfhd_id, record_date)"
-					+" VALUES (?, ?, ?)");
-		mfhdVoyIStmt.setInt(1, bib_id);
-		mfhdVoyIStmt.setInt(2, mfhd_id);
-		mfhdVoyIStmt.setTimestamp(3, update_date);
-		mfhdVoyIStmt.executeUpdate();
-		mfhdVoyIStmt.close();
+		try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ){
+			mfhdVoyIStmt.setInt(1, bib_id);
+			mfhdVoyIStmt.setInt(2, mfhd_id);
+			mfhdVoyIStmt.setTimestamp(3, update_date);
+			mfhdVoyIStmt.executeUpdate();
+		}
 		if (! updatedBibs.contains(bib_id)) {
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
 			updatedBibs.add(bib_id);
@@ -289,65 +302,55 @@ public class IdentifyChangedRecords {
 
 	private void queueItem(Connection current, int mfhd_id, int item_id,
 			Timestamp update_date) throws SQLException {
-		PreparedStatement itemVoyQStmt = current.prepareStatement(
-					"SELECT mfhd_id, record_date"
-					+" FROM "+CurrentDBTable.ITEM_VOY
-					+" WHERE item_id = ?");
-		itemVoyQStmt.setInt(1, item_id);
-		ResultSet rs = itemVoyQStmt.executeQuery();
-		while (rs.next()) {
-			Timestamp old_date = rs.getTimestamp(2);
-			if (update_date != null
-					&& (old_date == null
-					    || 0 > old_date.compareTo(update_date))) {
-				// item is already in current, but has been updated
-				int old_mfhd = rs.getInt(1);
-				PreparedStatement itemVoyUStmt = current.prepareStatement(
-							"UPDATE "+CurrentDBTable.ITEM_VOY
-							+" SET record_date = ?, mfhd_id = ?"
-							+" WHERE item_id = ?");
-				itemVoyUStmt.setTimestamp(1, update_date);
-				itemVoyUStmt.setInt(2, mfhd_id);
-				itemVoyUStmt.setInt(3, item_id);
-				itemVoyUStmt.executeUpdate();
-				itemVoyUStmt.close();
 
-				int bib_id = getBibIdForMfhd(current, mfhd_id);
-				if (bib_id > 0
-						&& isBibActive(current,bib_id)
-						&& ! updatedBibs.contains(bib_id)) {
-					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
-					updatedBibs.add(bib_id);
-				}
+		try ( PreparedStatement itemVoyQStmt = current.prepareStatement( itemVoyQuery ) ){
+			itemVoyQStmt.setInt(1, item_id);
+			try ( ResultSet rs = itemVoyQStmt.executeQuery() ){
+				while (rs.next()) {
+					Timestamp old_date = rs.getTimestamp(2);
+					if (update_date != null
+							&& (old_date == null
+							|| 0 > old_date.compareTo(update_date))) {
+						// item is already in current, but has been updated
+						int old_mfhd = rs.getInt(1);
+						try ( PreparedStatement itemVoyUStmt = current.prepareStatement(itemVoyUpdate) ){
+							itemVoyUStmt.setTimestamp(1, update_date);
+							itemVoyUStmt.setInt(2, mfhd_id);
+							itemVoyUStmt.setInt(3, item_id);
+							itemVoyUStmt.executeUpdate();
+						}
 
-				if (mfhd_id != old_mfhd) {
-					int old_bib_id = getBibIdForMfhd(current, old_mfhd);
-					if ( old_bib_id > 0
-							&& old_bib_id != bib_id
-							&& isBibActive(current,old_bib_id)
-							&& ! updatedBibs.contains(old_bib_id)) {
-						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
-						updatedBibs.add(old_bib_id);
-					}
+						int bib_id = getBibIdForMfhd(current, mfhd_id);
+						if (bib_id > 0
+								&& isBibActive(current,bib_id)
+								&& ! updatedBibs.contains(bib_id)) {
+							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+							updatedBibs.add(bib_id);
+						}
+
+						if (mfhd_id != old_mfhd) {
+							int old_bib_id = getBibIdForMfhd(current, old_mfhd);
+							if ( old_bib_id > 0
+									&& old_bib_id != bib_id
+									&& isBibActive(current,old_bib_id)
+									&& ! updatedBibs.contains(old_bib_id)) {
+								addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
+								updatedBibs.add(old_bib_id);
+							}
+						}
+					} // else item is unchanged - do nothing
+					return;
 				}
-			} // else item is unchanged - do nothing
-			rs.close();
-			itemVoyQStmt.close();
-			return;
+			}
 		}
-		rs.close();
-		itemVoyQStmt.close();
 
 		// item is not yet in current db
-		PreparedStatement itemVoyIStmt = current.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.ITEM_VOY
-					+" (mfhd_id, item_id, record_date)"
-					+" VALUES (?, ?, ?)");
-		itemVoyIStmt.setInt(1, mfhd_id);
-		itemVoyIStmt.setInt(2, item_id);
-		itemVoyIStmt.setTimestamp(3, update_date);
-		itemVoyIStmt.executeUpdate();
-		itemVoyIStmt.close();
+		try ( PreparedStatement itemVoyIStmt = current.prepareStatement( itemVoyInsert ) ) {
+			itemVoyIStmt.setInt(1, mfhd_id);
+			itemVoyIStmt.setInt(2, item_id);
+			itemVoyIStmt.setTimestamp(3, update_date);
+			itemVoyIStmt.executeUpdate();
+		}
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
 		if (bib_id > 0
 				&& isBibActive(current,bib_id)
@@ -355,37 +358,29 @@ public class IdentifyChangedRecords {
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 			updatedBibs.add(bib_id);
 		}
-		
-	}
-	private boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
-		PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyQStmt.setInt(1, bib_id);
-		ResultSet rs = bibVoyQStmt.executeQuery();
-		boolean exists = false;
-		while (rs.next())
-			exists = true;
-		rs.close();
-		bibVoyQStmt.close();
-		return exists;
-	}
-	private int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
-		PreparedStatement mfhdVoyQStmt = prepareMfhdVoyQStmt(current);
-		mfhdVoyQStmt.setInt(1, mfhd_id);
-		ResultSet rs = mfhdVoyQStmt.executeQuery();
-		Integer bib_id = 0;
-		while (rs.next())
-			bib_id = rs.getInt(1);
-		rs.close();
-		mfhdVoyQStmt.close();
-		return bib_id;
 	}
 
-	private PreparedStatement prepareMfhdVoyQStmt(Connection current) throws SQLException {
-		return current.prepareStatement(
-				"SELECT bib_id, record_date"
-				+" FROM "+CurrentDBTable.MFHD_VOY
-				+" WHERE mfhd_id = ?");
+	private static boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
+		boolean exists = false;
+		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ){
+			bibVoyQStmt.setInt(1, bib_id);
+			try ( ResultSet rs = bibVoyQStmt.executeQuery() ){
+				while (rs.next())
+					exists = true;
+			}
+		}
+		return exists;
+	}
+	private static int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
+		Integer bib_id = 0;
+		try ( PreparedStatement mfhdVoyQStmt = current.prepareStatement(mfhdVoyQuery) ) {
+			mfhdVoyQStmt.setInt(1, mfhd_id);
+			try ( ResultSet rs = mfhdVoyQStmt.executeQuery() ){
+				while (rs.next())
+					bib_id = rs.getInt(1);
+			}
+		}
+		return bib_id;
 	}
 
 	private void thoroughIdentifiationOfChanges() throws Exception {
