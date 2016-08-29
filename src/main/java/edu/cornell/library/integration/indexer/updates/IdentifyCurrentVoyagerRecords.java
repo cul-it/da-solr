@@ -19,11 +19,11 @@ import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
  * of these tables can then be compared with the contents of the Solr index.
  */
 public class IdentifyCurrentVoyagerRecords {
-	
+
 	SolrBuildConfig config;
 
 	public static void main(String[] args)  {
-		
+
 		List<String> requiredArgs = new ArrayList<String>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
@@ -34,8 +34,8 @@ public class IdentifyCurrentVoyagerRecords {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}	
-	
+	}
+
 	public IdentifyCurrentVoyagerRecords(SolrBuildConfig config) throws Exception {
 	    this.config = config;
 

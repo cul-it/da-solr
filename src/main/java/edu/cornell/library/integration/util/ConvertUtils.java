@@ -1,13 +1,12 @@
 package edu.cornell.library.integration.util; 
 
 import static edu.cornell.library.integration.util.MarcToXmlConstants.LN;
-import static edu.cornell.library.integration.util.MarcToXmlConstants.MARC_8_ENCODING;
 import static edu.cornell.library.integration.util.MarcToXmlConstants.WEIRD_CHARACTERS;
 import static edu.cornell.library.integration.util.MarcToXmlConstants.WEIRD_CHARACTERS_PATTERN;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +14,6 @@ import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.marc4j.MarcException;
-import org.marc4j.MarcPermissiveStreamReader;
 import org.marc4j.marc.ControlField;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.Record;
@@ -30,74 +27,7 @@ import org.marc4j.marc.impl.SubfieldImpl;
  *
  */
 public class ConvertUtils {  
-   
-  
-    /**
-     * This converts a single string to a MARC Record object. 
-     * 
-     * This method was written for use in unit tests and may 
-     * work in unexpected ways.   
-     * 
-     * It should be passed a String containing a single MARC
-     * record.        
-     */
-   public static Record getMarcRecord(String mrc){
-       return getMarcRecord(mrc,null);
-   }
-   
-   /**
-    * This converts a single string to a MARC Record object. 
-    * 
-    * This method was written for use in unit tests and may 
-    * work in unexpected ways.   
-    * 
-    * It should be passed a String containing a single MARC
-    * record.    
-    * 
-    * convertEncoding may be null. If it is set to MARC_8_ENCODING
-    * the the Char Coding Scheme in the leader of the records will be set to 'a'. 
-    */
-   public static  Record getMarcRecord(String mrc, String convertEncoding ) {
-	  
-	   Record record = null;
-	   MarcPermissiveStreamReader reader = null;
-	   boolean permissive      = true;
-	   boolean convertToUtf8   = true;
-	   InputStream is = null;
-		  is = stringToInputStream(mrc);
-		  reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
-	      while (reader.hasNext()) {
-	         try {
-	            record = reader.next();
-	         } catch (MarcException me) {
-	            System.out.println("MarcException reading record: " + me.getMessage());
-	            continue;
-	         } catch (Exception e) {
-	            e.printStackTrace();
-	            continue;
-	         }
-//	         String controlNumberOfLastReadRecord = record.getControlNumber();
-	         if (MARC_8_ENCODING.equals( convertEncoding )) {
-	            record.getLeader().setCharCodingScheme('a');
-	         }
-	             	         	        
-	         boolean hasInvalidChars = dealWithBadCharacters(record );
-	         if( hasInvalidChars )
-	             throw new Error( "Could not convert record because it has bad characters.");
 
-	      } 
-	          
-	      try { 
-	         is.close();
-	      } catch (IOException e) {
-	         e.printStackTrace();
-	      } 
-	   return record;
-   }
-   
-   
-   
-   
    /**
     * Replace bad characters in a MARC record.
     * 
@@ -209,70 +139,7 @@ private static void modifyRecord(Record record, RecordLine line,
       }
        
    }
-  
 
-   /**
-    * This converts a string to a MARC Records
-    * and  returns their IDs
-    * 
-    * This method was written for use in unit tests and may 
-    * work in unexpected ways.   
-    * 
-    * It should be passed a String containing a MARC
-    * records.    
-    * 
-    * convertEncoding may be null. If it is set to MARC_8_ENCODING
-    * the the Char Coding Scheme in the leader of the records will be set to 'a'. 
-    */
-    public static List<String> getBibIdFromMarc(String mrc, String convertEncoding) {
-        
-        boolean hasInvalidChars;
-        
-        List<String> f001list = new ArrayList<String>();
-        Record record = null;
-        MarcPermissiveStreamReader reader = null;
-        boolean permissive      = true;
-        boolean convertToUtf8   = true;
-        InputStream is = null;
-        
-           is = ConvertUtils.stringToInputStream(mrc);
-           reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
-           while (reader.hasNext()) {
-              try {
-                 record = reader.next();
-                  
-              } catch (MarcException me) {
-                 System.out.println("MarcException reading record" + me.getMessage());
-                 continue;
-              } catch (Exception e) {
-                 e.printStackTrace();
-                 continue;
-              }
-              
-              //String controlNumberOfLastReadRecord = record.getControlNumber();
-              
-              if (MARC_8_ENCODING.equals( convertEncoding )) {
-                 record.getLeader().setCharCodingScheme('a');
-              }
-                  
-              hasInvalidChars =  ConvertUtils.dealWithBadCharacters(record);
-              if( hasInvalidChars )
-                  System.out.println("Encountered invalid characters");
-              
-              ControlField f001 = (ControlField) record.getVariableField("001");
-              if (f001 != null) {
-                 f001list.add(f001.getData().toString());
-              } 
-           } 
-               
-           try { 
-              is.close();
-           } catch (IOException e) {
-              e.printStackTrace();
-           } 
-        return f001list;
-    }   
-   
    /**
     * @param str
     * @return

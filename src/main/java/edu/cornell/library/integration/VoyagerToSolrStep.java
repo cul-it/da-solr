@@ -7,13 +7,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.service.CatalogService;
 
 public class VoyagerToSolrStep {
 
     ApplicationContext ctx = null;
     private DavService davService;
-    private CatalogService catalogService;
 
     public VoyagerToSolrStep() {
         super();
@@ -31,28 +29,6 @@ public class VoyagerToSolrStep {
         */
     public void setDavService(DavService davService) {
           this.davService = davService;
-       }
-
-    /**
-        * @return the catalogService
-        */
-    public CatalogService getCatalogService() {
-        if( this.catalogService == null ){            
-            if (getContext().containsBean("catalogService")) {
-                this.catalogService = ((CatalogService) ctx.getBean("catalogService"));
-            } else {
-                throw new Error("Could not get catalogService from context");                
-            }
-        }            
-            
-        return this.catalogService;
-    }
-
-    /**
-        * @param catalogService the catalogService to set
-        */
-    public void setCatalogService(CatalogService catalogService) {
-          this.catalogService = catalogService;
        }
 
     protected String getDateString() {
