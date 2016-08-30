@@ -80,6 +80,25 @@ public class IndexingUtilities {
 		public String toString() { return string; }
 	}
 
+    /**
+	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
+     * @throws SQLException 
+	 */
+	public static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
+        Set<Integer> mfhdIds = new HashSet<Integer>();        
+		try (PreparedStatement pstmt = current.prepareStatement(
+				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
+			for (Integer bibid : bibIds) {
+				pstmt.setInt(1,bibid);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next())
+						mfhdIds.add(rs.getInt(1));
+				}
+			}
+		}
+        return mfhdIds;
+	}	
+
 	/**
 	 * bib_id is either already in CurrentDBTable.BIB_VOY and presumably in Solr, or it may have been
 	 * newly inserted as suppressed. If the former, it needs to be queued for delete from Solr. If

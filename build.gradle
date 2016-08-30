@@ -78,28 +78,12 @@ task(step03DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task (step04GetCombinedUpdatesMrc, dependsOn:'assemble', type: JavaExec){
+task (step04RetrieveUpdatesBatch, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Retrieves BIB and MFHD records identified as changed or in need of re-indexing"
- main='edu.cornell.library.integration.GetCombinedUpdatesMrc'
+ main='edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
-}
-
-task (step05ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
- group="Incremental Update Steps"
- description='Run ConvertMarcToXml'
- main='edu.cornell.library.integration.ConvertMarcToXml'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1024m'
-}
-
-task (step06UpdatesMarcXmlToNt, dependsOn: 'assemble', type: JavaExec){
- group="Incremental Update Steps"
-   description="Converts Voyager Updates MARC XML to MARC N-Triples." 
-   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerUpdate'
-   maxHeapSize = '1500m'
-   classpath = sourceSets.main.runtimeClasspath
 }
 
 task(step07IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {

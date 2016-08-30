@@ -67,6 +67,7 @@ public class IndexingUtilitiesTest {
 	    assertTrue(getFilingForm("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
 	    // Orig. string has control characters (hex:200E,200F,202B,202C). Should be stripped.
 	    assertTrue(getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
+	    System.out.println(getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
 	}
 	
 }

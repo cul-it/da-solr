@@ -1,10 +1,10 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.getHoldingsForBibs;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,11 +18,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.voyager.DownloadMARC;
-
-import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
 public class ProcessQueue {
 
@@ -90,24 +86,4 @@ public class ProcessQueue {
 				continue;
 		}
 	}
-	
-    /**
-	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
-     * @throws SQLException 
-	 */
-	private static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
-        Set<Integer> mfhdIds = new HashSet<Integer>();        
-		try (PreparedStatement pstmt = current.prepareStatement(
-				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
-			for (Integer bibid : bibIds) {
-				pstmt.setInt(1,bibid);
-				try (ResultSet rs = pstmt.executeQuery()) {
-					while (rs.next())
-						mfhdIds.add(rs.getInt(1));
-				}
-			}
-		}
-        return mfhdIds;
-	}	
-
 }

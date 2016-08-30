@@ -5,13 +5,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.commit
 import java.util.Calendar;
 import java.util.List;
 
-import edu.cornell.library.integration.ConvertMarcToXml;
-import edu.cornell.library.integration.GetCombinedUpdatesMrc;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 
 public class IterativeUpdateFromVoyager {
 	public static void main(String[] args) throws Exception {
@@ -49,16 +43,7 @@ public class IterativeUpdateFromVoyager {
 			new IdentifyChangedRecords(config,false);
 			DeleteFromSolr dfs = new DeleteFromSolr();
 			dfs.doTheDelete(config);
-			new GetCombinedUpdatesMrc(config);
-			new ConvertMarcToXml(config);
-
-			DavService davService = DavServiceFactory.getDavService(config);
-			MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
-			converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
-			converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
-			converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
-			converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() );
-			converter.run();
+			new RetrieveUpdatesBatch(config);
 
 			new IncrementalBibFileToSolr(config);
 			commitIndexChanges( config.getSolrUrl() );
