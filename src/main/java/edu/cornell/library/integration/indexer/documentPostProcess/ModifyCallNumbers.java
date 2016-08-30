@@ -66,7 +66,7 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 
 	}
 	
-	private boolean isFiction (SolrInputDocument d) {
+	private static boolean isFiction (SolrInputDocument d) {
 		final String fictionField = "subject_content_facet";
 		if ( ! d.containsKey(fictionField))
 			return false;
@@ -78,7 +78,7 @@ public class ModifyCallNumbers implements DocumentPostProcess {
 		return isFiction;
 	}
 	
-	private String getAuthorPrefix (SolrInputDocument d) {
+	private static String getAuthorPrefix (SolrInputDocument d) {
 		final String authorField = "author_display";
 		if ( ! d.containsKey(authorField)) 
 			return null;

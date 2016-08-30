@@ -41,113 +41,117 @@ public class RecordBatchProcessingData {
 		String batchDirUrl = config.getWebdavBaseUrl()+"/"+config.getBatchInfoDir();
 		List<DavResource> resources = davService.getResourceList(batchDirUrl);
 		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd HH:mm:ss");
-		Connection current = config.getDatabaseConnection("Current");
+		try ( Connection current = config.getDatabaseConnection("Current") ) {
 
-
-		for (DavResource resource : resources) {
-			String filename = resource.getName();
-			if (! filename.startsWith("replkeys"))
-				continue;
-			if (batchAlreadyProcessed(current,filename))
-				continue;
-			Date startDate = new Date( 1000 * Long.valueOf(
-					filename.substring(filename.lastIndexOf('.')+1)));
-			Date endDate = resource.getModified();
-			InputStream is = davService.getFileAsInputStream(batchDirUrl+'/'+filename);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			reader.readLine(); // discard first line
-			String secondLine = reader.readLine();
-			String jobCode = StringUtils.split(
-					StringUtils.split(secondLine, '\t')[0] , '=')[1];
-			JobType jt = getJobType(current,jobCode);
-			Set<Integer> bibsToUpdate = new HashSet<Integer>();
-			String line;
-			int bibCount = 0;
-			while ((line = reader.readLine()) != null) {
-				bibCount++;
-				Integer bib = Integer.valueOf(line);
-				if (doesBibHaveMatchigUpdateDate(current,bib,startDate,endDate)) {
-					bibsToUpdate.add(bib);
+			
+			for (DavResource resource : resources) {
+				String filename = resource.getName();
+				if (! filename.startsWith("replkeys"))
+					continue;
+				if (batchAlreadyProcessed(current,filename))
+					continue;
+				Date startDate = new Date( 1000 * Long.valueOf(
+						filename.substring(filename.lastIndexOf('.')+1)));
+				Date endDate = resource.getModified();
+				JobType jt;
+				Set<Integer> bibsToUpdate = new HashSet<Integer>();
+				try ( InputStream is = davService.getFileAsInputStream(batchDirUrl+'/'+filename);
+					BufferedReader reader = new BufferedReader(new InputStreamReader(is)) ){
+					reader.readLine(); // discard first line
+					String secondLine = reader.readLine();
+					String jobCode = StringUtils.split(
+							StringUtils.split(secondLine, '\t')[0] , '=')[1];
+					jt = getJobType(current,jobCode);
+					String line;
+					int bibCount = 0;
+					while ((line = reader.readLine()) != null) {
+						bibCount++;
+						Integer bib = Integer.valueOf(line);
+						if (doesBibHaveMatchigUpdateDate(current,bib,startDate,endDate)) {
+							bibsToUpdate.add(bib);
+						}
+					}
+					System.out.println(filename+'\t'+
+							formatter.format(startDate)+" --> "+
+							formatter.format(endDate)+" ("+jt.description+") "+
+							bibsToUpdate.size()+'/'+bibCount);
 				}
+				updateQueueItems(current,bibsToUpdate,jt);
+				insertRecordOfBatch(current,jt,startDate,endDate,filename,bibsToUpdate.size());
 			}
-			System.out.println(filename+'\t'+
-					formatter.format(startDate)+" --> "+
-					formatter.format(endDate)+" ("+jt.description+") "+
-					bibsToUpdate.size()+'/'+bibCount);
-			reader.close();
-			is.close();
-			updateQueueItems(current,bibsToUpdate,jt);
-			insertRecordOfBatch(current,jt,startDate,endDate,filename,bibsToUpdate.size());
-			/*
-			String bib;
-			while ((bib = reader.readLine()) != null) {
-				
-			}*/
 		}
-
 	}
 
 	PreparedStatement batchAlreadyProcessedPstmt = null;
 	private boolean batchAlreadyProcessed(Connection current, String filename) throws SQLException {
+
 		if (batchAlreadyProcessedPstmt == null)
 			batchAlreadyProcessedPstmt = current.prepareStatement(
 					"SELECT * FROM processedBatch WHERE batch_file = ?");
 		batchAlreadyProcessedPstmt.setString(1,filename);
-		ResultSet rs = batchAlreadyProcessedPstmt.executeQuery();
 		boolean processed = false;
-		while (rs.next())
-			processed = true;
-		rs.close();
+		try ( ResultSet rs = batchAlreadyProcessedPstmt.executeQuery() ){
+			while (rs.next())
+				processed = true;
+		}
 		return processed;
 	}
 
-	private void insertRecordOfBatch(Connection current, JobType jt, Date startDate, Date endDate, String filename,
-			int count) throws SQLException {
-		PreparedStatement pstmt = current.prepareStatement(
+	private static void insertRecordOfBatch(Connection current, JobType jt,
+			Date startDate, Date endDate, String filename, int count) throws SQLException {
+
+		try ( PreparedStatement pstmt = current.prepareStatement(
 				"INSERT INTO processedBatch (batch_file, job_type, bib_count, execution_start, execution_finish)"
-				+ "VALUES (?, ?, ?, ?, ?)");
-		pstmt.setString(1, filename);
-		pstmt.setString(2, jt.code);
-		pstmt.setInt(3, count);
-		pstmt.setTimestamp(4, new Timestamp(startDate.getTime()));
-		pstmt.setTimestamp(5, new Timestamp(endDate.getTime()));
-		pstmt.executeUpdate();
-		pstmt.close();
+					+ "VALUES (?, ?, ?, ?, ?)") ){
+
+			pstmt.setString(1, filename);
+			pstmt.setString(2, jt.code);
+			pstmt.setInt(3, count);
+			pstmt.setTimestamp(4, new Timestamp(startDate.getTime()));
+			pstmt.setTimestamp(5, new Timestamp(endDate.getTime()));
+			pstmt.executeUpdate();
+		}
 	}
 
-	private void updateQueueItems(Connection current, Set<Integer> bibsToUpdate,
+	private static void updateQueueItems(Connection current, Set<Integer> bibsToUpdate,
 			JobType jt) throws SQLException {
-		if (bibsToUpdate == null ||bibsToUpdate.isEmpty())
+		if (bibsToUpdate == null || bibsToUpdate.isEmpty())
 			return;
-		PreparedStatement pstmt = current.prepareStatement(
+
+		try ( PreparedStatement pstmt = current.prepareStatement(
 				"UPDATE "+CurrentDBTable.QUEUE+" SET cause = ? AND priority = ? "+
-				"WHERE bib_id = ? AND cause = '"+DataChangeUpdateType.BIB_UPDATE+"'");
-		pstmt.setString(1,"Batch: "+((jt.description.isEmpty())?jt.code:jt.description));
-		pstmt.setInt(1, jt.priority.ordinal());
-		for (Integer bib : bibsToUpdate) {
-			pstmt.setInt(3, bib);
-			pstmt.addBatch();
+				"WHERE bib_id = ? AND cause = '"+DataChangeUpdateType.BIB_UPDATE+"'") ){
+
+			pstmt.setString(1,"Batch: "+((jt.description.isEmpty())?jt.code:jt.description));
+			pstmt.setInt(1, jt.priority.ordinal());
+			for (Integer bib : bibsToUpdate) {
+				pstmt.setInt(3, bib);
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
 		}
-		pstmt.executeBatch();
-		pstmt.close();
 	}
 
-	private boolean doesBibHaveMatchigUpdateDate(Connection current, Integer bib,
+	private static boolean doesBibHaveMatchigUpdateDate(Connection current, Integer bib,
 			Date startDate, Date endDate) throws SQLException {
-		PreparedStatement pstmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		pstmt.setInt(1, bib);
-		ResultSet rs = pstmt.executeQuery();
+
 		Boolean matching = false;
-		while (rs.next()) {
-			Timestamp recordDate = rs.getTimestamp(1);
-			if (recordDate.before(startDate) || recordDate.after(endDate))
-				matching = false;
-			else
-				matching = true;
+
+		try ( PreparedStatement pstmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?") ){
+
+			pstmt.setInt(1, bib);
+			try ( ResultSet rs = pstmt.executeQuery() ){
+
+				while (rs.next()) {
+					Timestamp recordDate = rs.getTimestamp(1);
+					if (recordDate.before(startDate) || recordDate.after(endDate))
+						matching = false;
+					else
+						matching = true;
+				}
+			}
 		}
-		rs.close();
-		pstmt.close();
 		return matching;
 	}
 
@@ -158,12 +162,13 @@ public class RecordBatchProcessingData {
 				"SELECT * FROM batchType WHERE job_type = ?");
 		identifyBatchPstmt.setString(1, typeCode);
 		JobType jt = null;
-		ResultSet rs = identifyBatchPstmt.executeQuery();
-		while (rs.next()) {
-			jt = new JobType(typeCode,rs.getString("job_description"),
-					IndexQueuePriority.values()[rs.getInt("processing_priority")]);
+		try ( ResultSet rs = identifyBatchPstmt.executeQuery() ){
+
+			while (rs.next()) {
+				jt = new JobType(typeCode,rs.getString("job_description"),
+						IndexQueuePriority.values()[rs.getInt("processing_priority")]);
+			}
 		}
-		rs.close();
 		if (jt == null)
 			jt = new JobType(typeCode,null,IndexQueuePriority.CODECHANGE_PRIORITY1);
 		return jt;
