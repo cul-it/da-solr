@@ -64,7 +64,7 @@ public class DeleteFromSolr {
         	Set<Integer> deleteQueue = new HashSet<Integer>();
         	final String getQueuedQuery =
         			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
-        			+" WHERE done_date = 0 AND priority = 0 and batched+date = 0 "
+        			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 "
         			+" AND cause = ?";
         	try (  PreparedStatement deleteQueueStmt = conn.prepareStatement(getQueuedQuery) ) {
         		deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
@@ -116,7 +116,7 @@ public class DeleteFromSolr {
         } // conn.close() solr.close()
     }
 
-    private int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
+    private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
     		Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
 
 
