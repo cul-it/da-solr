@@ -465,14 +465,14 @@ public class IdentifyChangedRecords {
 		itemsToUpdate.removeAll(bibsToUpdate);
 		itemsToUpdate.removeAll(mfhdsToUpdate);
 		c.queueBibs( itemsToUpdate, DataChangeUpdateType.ITEM_UPDATE );
-		
+		int totalBibsToUpdateCount = bibsToUpdate.size()+mfhdsToUpdate.size()+itemsToUpdate.size();
 
 		bibsToUpdate.addAll(markedBibs);
 		markedBibs.clear();
 		bibsToUpdate.removeAll(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToAdd);
 
-		System.out.println("Bibs To Update in Solr: "+bibsToUpdate.size());		
+		System.out.println("Bibs To Update in Solr: "+totalBibsToUpdateCount);		
 		produceUpdateFile(bibsToUpdate);
 		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
 		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
