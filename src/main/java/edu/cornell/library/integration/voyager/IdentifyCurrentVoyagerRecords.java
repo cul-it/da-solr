@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.updates;
+package edu.cornell.library.integration.voyager;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
 
@@ -16,11 +16,10 @@ import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
  * their modified dates to populate in a set of dated database tables. The contents
- * of these tables can then be compared with the contents of the Solr index.
+ * of these tables can then be compared with the contents of the Solr index. Any existing
+ * set of tables will be replaced.
  */
 public class IdentifyCurrentVoyagerRecords {
-
-	SolrBuildConfig config;
 
 	public static void main(String[] args)  {
 
@@ -29,24 +28,34 @@ public class IdentifyCurrentVoyagerRecords {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyCurrentVoyagerRecords( SolrBuildConfig.loadConfig(args, requiredArgs));
+			new IdentifyCurrentVoyagerRecords( SolrBuildConfig.loadConfig(args, requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
-	public IdentifyCurrentVoyagerRecords(SolrBuildConfig config) throws Exception {
-	    this.config = config;
+	/**
+	 * 
+	 * Pull lists of current (unsuppressed) bib, holding, and item records along with
+	 * their modified dates to populate in a set of dated database tables. The contents
+	 * of these tables can then be compared with the contents of the Solr index. Any existing
+	 * set of tables will be replaced.
+	 * @param config
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
+	 * 
+	 */
+	public IdentifyCurrentVoyagerRecords(SolrBuildConfig config) throws ClassNotFoundException, SQLException{
 
 	    try (   Connection voyager = config.getDatabaseConnection("Voy");
 	    		Connection current = config.getDatabaseConnection("Current") ) {
 
 	    	current.setAutoCommit(false);
 
-	    	buildBibVoyTable( voyager, current );
-	    	buildMfhdVoyTable( voyager, current );
-	    	buildItemVoyTable( voyager, current );
+	    	buildBibVoyTable  ( voyager, current );
+	    	buildMfhdVoyTable ( voyager, current );
+	    	buildItemVoyTable ( voyager, current );
 
 	    	current.commit();
 	    }
@@ -59,13 +68,13 @@ public class IdentifyCurrentVoyagerRecords {
 			c_stmt.execute("SET unique_checks=0");
 
 			// Starting with bibs, create the destination table, then populated it from Voyager
-			c_stmt.execute("drop table if exists "+CurrentDBTable.BIB_VOY.toString());
-			c_stmt.execute("create table "+CurrentDBTable.BIB_VOY.toString()+"( "
+			c_stmt.execute("drop table if exists "+CurrentDBTable.BIB_VOY);
+			c_stmt.execute("create table "+CurrentDBTable.BIB_VOY+"( "
 					+ "bib_id int(10) unsigned not null, "
 					+ "record_date timestamp null, "
 					+ "key (bib_id) ) "
 					+ "ENGINE=InnoDB");
-			c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" disable keys");
+			c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY+" disable keys");
 			current.commit();
 
 			try (   ResultSet rs = v_stmt.executeQuery
@@ -73,7 +82,7 @@ public class IdentifyCurrentVoyagerRecords {
 								+ " from BIB_MASTER"
 								+" where SUPPRESS_IN_OPAC = 'N'");
 					PreparedStatement pstmt = current.prepareStatement
-							("insert into "+CurrentDBTable.BIB_VOY.toString()+
+							("insert into "+CurrentDBTable.BIB_VOY+
 									" (bib_id, record_date) values ( ? , ? )")  ) {
 
 				int i = 0;
@@ -92,10 +101,11 @@ public class IdentifyCurrentVoyagerRecords {
 				pstmt.executeBatch();
 				System.out.println("Bib count: "+i);
 			}
-		    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" disable keys");
+		    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY+" disable keys");
 		    current.commit();
 		}
 	}
+
 
 	private static void buildMfhdVoyTable(Connection voyager, Connection current) throws SQLException {
 		try (   Statement c_stmt = current.createStatement();
@@ -207,5 +217,5 @@ public class IdentifyCurrentVoyagerRecords {
 		}
 		return bibInTable;
 	}
-	
+
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.marc4j.MarcException;
@@ -198,9 +197,8 @@ public class MrcToXmlConverter {
     private String getOutputFileName(int batch) {
     	if (splitSize == 0) {
     	   return fileNameRoot + ".xml";
-       } else {
-    	   return fileNameRoot + "." + batch + ".xml";
-       }
+    	}
+    	return fileNameRoot + "." + batch + ".xml";
     } 
     
     /**
@@ -232,20 +230,16 @@ public class MrcToXmlConverter {
      * @param destXmlFile
      * @throws Exception
      */
-    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
+    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws IOException {
        File srcFile = new File(getTmpDir() +"/"+ destXmlFile);
        String destFile = destDir +"/"+ destXmlFile;
           
-       InputStream isr = null;
-       try {
-          isr = new FileInputStream(srcFile);
+       try ( InputStream isr = new FileInputStream(srcFile) ) {
           davService.saveFile(destFile, isr);
           System.out.println("Saved to webdav: "+ destFile );
           FileUtils.deleteQuietly(srcFile);
-       } catch (Exception ex) {
-          throw new Exception("Could not save from temp file " + srcFile + " to WEBDAV " + destFile, ex);
-       } finally {
-          IOUtils.closeQuietly( isr );
+       } catch (IOException ex) {
+          throw new IOException("Could not save from temp file " + srcFile + " to WEBDAV " + destFile, ex);
        }
     }
     

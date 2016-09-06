@@ -55,31 +55,31 @@ public class IndexRecordListComparison {
 
 	public Map<Integer,ChangedBib> mfhdsAttachedToDifferentBibs() throws SQLException {
 		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
 				+ "FROM "+CurrentDBTable.MFHD_VOY.toString()+" as v, "
 						+CurrentDBTable.MFHD_SOLR.toString()+" as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
-				+ " AND v.bib_id != s.bib_id");
-		while (rs.next())
-			m.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
-		rs.close();
+				+ " AND v.bib_id != s.bib_id") ) {
+			while (rs.next())
+				m.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
+		}
 		return m;
 	}
 	
 	public Map<Integer,ChangedBib> itemsAttachedToDifferentMfhds() throws SQLException {
 		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
 				+ "FROM "+CurrentDBTable.ITEM_VOY.toString()+" as v, "
 						+CurrentDBTable.ITEM_SOLR.toString()+ " as s "
 				+"WHERE v.item_id = s.item_id "
-				+ " AND v.mfhd_id != s.mfhd_id");
-		while (rs.next())
-			m.put(rs.getInt(1),
-					new ChangedBib(getBibForMfhd(CurrentDBTable.MFHD_SOLR,rs.getInt(3)),
-							getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2))));
-		rs.close();
+				+ " AND v.mfhd_id != s.mfhd_id") ){
+			while (rs.next())
+				m.put(rs.getInt(1),
+						new ChangedBib(getBibForMfhd(CurrentDBTable.MFHD_SOLR,rs.getInt(3)),
+								getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2))));
+		}
 		return m;
 	}
 
@@ -87,15 +87,15 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> itemsInVoyagerNotIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// new items
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select v.item_id, v.mfhd_id"
 				+ " from "+CurrentDBTable.ITEM_VOY.toString()+" as v "
 				+ "left join "+CurrentDBTable.ITEM_SOLR.toString()+" as s"
 						+ " on s.item_id = v.item_id "
-				+ "where s.mfhd_id is null");
-		while (rs.next())
-			m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
-		rs.close();
+				+ "where s.mfhd_id is null") ) {
+			while (rs.next())
+				m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+		}
 		return m;
 	}
 
@@ -103,128 +103,126 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> itemsInIndexNotVoyager() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// deleted items
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select s.item_id, s.mfhd_id "
 				+ "from "+CurrentDBTable.ITEM_SOLR.toString()+" as s "
 				+ "left join "+CurrentDBTable.ITEM_VOY.toString()+" as v"
 						+ " on s.item_id = v.item_id "
-				+ "where v.mfhd_id is null");
-		while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
-		rs.close();
+				+ "where v.mfhd_id is null") ){
+			while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+		}
 		return m;
 	}
 	
 	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
 				+ "FROM "+CurrentDBTable.ITEM_VOY.toString()+" as v,"
 						+CurrentDBTable.ITEM_SOLR.toString() + " as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
-				+ "     OR ( v.record_date is not null AND s.record_date is null))");
-		while (rs.next())
-			m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
-		rs.close();
+				+ "     OR ( v.record_date is not null AND s.record_date is null))")){
+			while (rs.next())
+				m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+		}
 		return m;
 	}
 
 	
 	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id"
 				+ " from "+CurrentDBTable.MFHD_VOY.toString()+" as v "
 				+ "left join "+CurrentDBTable.MFHD_SOLR.toString()+" as s"
 						+ " on s.mfhd_id = v.mfhd_id "
-				+ "where s.bib_id is null");
-		while (rs.next())
-			m.put(rs.getInt(1),rs.getInt(2));
-		rs.close();
+				+ "where s.bib_id is null") ) {
+			while (rs.next())
+				m.put(rs.getInt(1),rs.getInt(2));
+		}
 		return m;
 	}
 	
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// deleted mfhds
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id"
 				+ " from "+CurrentDBTable.MFHD_SOLR.toString()+" as s "
 				+ "left join "+CurrentDBTable.MFHD_VOY.toString()+" as v"
 						+ " on s.mfhd_id = v.mfhd_id "
-				+ "where v.bib_id is null");
-		while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
-		rs.close();
+				+ "where v.bib_id is null") ) {
+			while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
+		}
 		return m;
 	}
 	
 	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
 		// updated holdings
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id "
 				+ "FROM "+CurrentDBTable.MFHD_VOY.toString()+" as v,"
 						+CurrentDBTable.MFHD_SOLR.toString() + " as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
-				+ "     OR ( v.record_date is not null AND s.record_date is null))");
-		while (rs.next())
-			m.put(rs.getInt(1),rs.getInt(2));
-		rs.close();
+				+ "     OR ( v.record_date is not null AND s.record_date is null))") ) {
+			while (rs.next())
+				m.put(rs.getInt(1),rs.getInt(2));
+		}
 		return m;
 	}
 	
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
 		Set<Integer> l = new HashSet<Integer>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select v.bib_id from "+CurrentDBTable.BIB_VOY.toString()+" as v "
 				+ "left join "+CurrentDBTable.BIB_SOLR.toString()+" as s"
 						+ " on s.bib_id = v.bib_id "
-				+ "where s.bib_id is null");
-		while (rs.next()) l.add(rs.getInt(1));
-		rs.close();
+				+ "where s.bib_id is null") ) {
+			while (rs.next()) l.add(rs.getInt(1));
+		}
 		return l;
 	}
 	
 	public Set<Integer> bibsInIndexNotVoyager() throws SQLException {
 		
 		Set<Integer> l = new HashSet<Integer>();
-		ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = stmt.executeQuery(
 				"select s.bib_id from "+CurrentDBTable.BIB_SOLR.toString()+" as s "
 				+ "left join "+CurrentDBTable.BIB_VOY.toString()+" as v"
 						+ " on s.bib_id = v.bib_id "
-				+ "where s.active = 1 AND v.bib_id is null");
-		while (rs.next()) l.add(rs.getInt(1));
-		rs.close();
+				+ "where s.active = 1 AND v.bib_id is null") ) {
+			while (rs.next()) l.add(rs.getInt(1));
+		}
 		return l;
 	}
 
 	public Set<Integer> bibsNewerInVoyagerThanIndex() throws SQLException {
 		Set<Integer> l = new HashSet<Integer>();
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(
+		try (   Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(
 				"select v.bib_id"
 				+ " from "+CurrentDBTable.BIB_VOY.toString()+" as v, "
 						+CurrentDBTable.BIB_SOLR.toString()+" as s "
 				+ "WHERE v.bib_id = s.bib_id "
-				+ "  AND v.record_date > date_add(s.record_date,interval 15 second)");
-		while (rs.next()) l.add(rs.getInt(1));
-		rs.close();
-		stmt.close();
+				+ "  AND v.record_date > date_add(s.record_date,interval 15 second)") ) {
+			while (rs.next()) l.add(rs.getInt(1));
+		}
 		return l;
 	}
 
 	public Set<Integer> bibsMarkedAsNeedingReindexingDueToDataChange() throws SQLException {
 		Set<Integer> l = new HashSet<Integer>();
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(
+		try (   Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(
 				"SELECT bib_id FROM "+CurrentDBTable.QUEUE.toString()
 				+ " WHERE done_date = 0"
 				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal()
-				+ " AND cause != '"+DataChangeUpdateType.DELETE.toString()+"'");
-		while (rs.next()) l.add(rs.getInt(1));
-		rs.close();
-		stmt.close();
+				+ " AND cause != '"+DataChangeUpdateType.DELETE.toString()+"'") ){
+			while (rs.next()) l.add(rs.getInt(1));
+		}
 		return l;
 	}
 
@@ -235,12 +233,11 @@ public class IndexRecordListComparison {
 					"SELECT bib_id FROM "+table.toString()+" WHERE mfhd_id = ?"));
 		PreparedStatement pstmt = pstmts.get(statementKey);
 		pstmt.setInt(1, mfhdId);
-		ResultSet rs = pstmt.executeQuery();
 		int bibid = 0;
-		while (rs.next())
-			bibid = rs.getInt(1);
-		rs.close();
-		pstmt = null;
+		try ( ResultSet rs = pstmt.executeQuery() ) {
+			while (rs.next())
+				bibid = rs.getInt(1);
+		}
 		return bibid;
 	}
 

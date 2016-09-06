@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.localDataMaker;
 
+import java.io.IOException;
+
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
@@ -20,5 +22,5 @@ public interface LocalDataMaker {
 	void gather(
 			String recordURI, 
 			RDFService mainStoreQueryService,
-			RDFService localStore) throws RDFServiceException;  
+			RDFService localStore) throws RDFServiceException, IOException;  
 }

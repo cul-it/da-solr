@@ -1,6 +1,7 @@
 package edu.cornell.library.integration;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.xml2SolrInputDocument;
+import edu.cornell.library.integration.voyager.IdentifyCurrentVoyagerRecords;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
+@SuppressWarnings("unused")
 public class GeneralTests {
 
 	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
@@ -52,16 +54,17 @@ public class GeneralTests {
 			System.out.println("Documents differ.");
 		
 		System.out.println(new SimpleDateFormat("EEEEE").format(new Date()));
+
 	}
 
 	public static void main(String[] args) {
 		try {
 			new GeneralTests();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}
