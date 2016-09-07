@@ -49,11 +49,10 @@ public class UpdateVoyagerInventory {
 	    try (   Connection voyager = config.getDatabaseConnection("Voy");
 	    		Connection current = config.getDatabaseConnection("Current") ) {
 
-	    	current.setAutoCommit(false);
     		updateBibVoyTable  ( voyager, current );
     		updateMfhdVoyTable ( voyager, current );
     		updateItemVoyTable ( voyager, current );
-	    	current.commit();
+
 	    }
 
 	}
@@ -98,13 +97,13 @@ public class UpdateVoyagerInventory {
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
 				c_id = c_rs.getInt(1);
 				v_id = v_rs.getInt(1);
+				Boolean v_active = (v_rs.getString(3)=="N")?false:true;
+				Boolean c_active = c_rs.getBoolean(3);
+				Timestamp v_date = v_rs.getTimestamp(2);
+				Timestamp c_date = c_rs.getTimestamp(2);
 
 				if ( c_id == v_id ) {
 
-					Boolean v_active = (v_rs.getString(3)=="N")?false:true;
-					Boolean c_active = c_rs.getBoolean(3);
-					Timestamp v_date = v_rs.getTimestamp(2);
-					Timestamp c_date = c_rs.getTimestamp(2);
 					if ( bibChanged( v_date, c_date, v_active, c_active) ) {
 
 						changedBibs.put(v_id,new DateAndStatus(v_date,v_active));
@@ -121,7 +120,7 @@ public class UpdateVoyagerInventory {
 				} else { // c_id > v_id
 
 					// added to Voyager
-					newBibs.put(v_id,new DateAndStatus(v_rs.getTimestamp(2),(v_rs.getString(3)=="N")?false:true));
+					newBibs.put(v_id,new DateAndStatus(v_date,v_active));
 					v_rs.next();
 
 				}
@@ -155,7 +154,7 @@ public class UpdateVoyagerInventory {
 					bibVoyIStmt.addBatch();
 					if (v_entry.getValue().active)
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
-					}
+				}
 				bibVoyIStmt.executeBatch();
 			}
 		}
