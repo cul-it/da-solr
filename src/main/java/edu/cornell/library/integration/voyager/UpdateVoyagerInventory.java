@@ -266,7 +266,7 @@ public class UpdateVoyagerInventory {
 				} else { // c_id > v_id
 
 					// added to Voyager
-					newMfhds.put(v_id,new DateAndBib(v_rs.getTimestamp(2), v_rs.getInt(2)));
+					newMfhds.put(v_id,new DateAndBib(v_rs.getTimestamp(3), v_rs.getInt(2)));
 					v_rs.next();
 
 				}
@@ -275,7 +275,7 @@ public class UpdateVoyagerInventory {
 			while ( ! v_rs.isAfterLast() ) {
 
 				// added to Voyager
-				newMfhds.put(v_id,new DateAndBib(v_rs.getTimestamp(2), v_rs.getInt(2)));
+				newMfhds.put(v_id,new DateAndBib(v_rs.getTimestamp(3), v_rs.getInt(2)));
 				v_rs.next();
 
 			}
@@ -397,7 +397,7 @@ public class UpdateVoyagerInventory {
 				} else { // c_id > v_id
 
 					// added to Voyager
-					newItems.put(v_id,new DateAndHolding(v_rs.getTimestamp(2), v_rs.getInt(2)));
+					newItems.put(v_id,new DateAndHolding(v_rs.getTimestamp(3), v_rs.getInt(2)));
 					v_rs.next();
 
 				}
@@ -406,7 +406,7 @@ public class UpdateVoyagerInventory {
 			while ( ! v_rs.isAfterLast() ) {
 
 				// added to Voyager
-				newItems.put(v_id,new DateAndHolding(v_rs.getTimestamp(2), v_rs.getInt(2)));
+				newItems.put(v_id,new DateAndHolding(v_rs.getTimestamp(3), v_rs.getInt(2)));
 				v_rs.next();
 
 			}
