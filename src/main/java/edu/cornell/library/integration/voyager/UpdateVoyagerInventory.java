@@ -100,9 +100,10 @@ public class UpdateVoyagerInventory {
 				if ( c_id == v_id ) {
 
 					Boolean v_active = (v_rs.getString(3)=="N")?false:true;
+					Boolean c_active = c_rs.getBoolean(3);
 					Timestamp v_date = v_rs.getTimestamp(2);
-					if ( ! v_date.equals(c_rs.getTimestamp(2)) 
-							|| ! v_active.equals(c_rs.getBoolean(3)) ) {
+					Timestamp c_date = c_rs.getTimestamp(2);
+					if ( bibChanged( v_date, c_date, v_active, c_active) ) {
 
 						// bib changed
 						changedBibs.put(v_id,new DateAndStatus(v_date,v_active));
@@ -471,6 +472,15 @@ public class UpdateVoyagerInventory {
 			}
 		}
 	}
+
+	private static boolean bibChanged(Timestamp v_date, Timestamp c_date, Boolean v_active, Boolean c_active) {
+		if (c_date != null && ! c_date.equals(v_date))
+			return true;
+		if (! c_active.equals(v_active))
+			return true;
+		return false;
+	}
+
 
 	private static boolean isBibActive( Connection current, Integer bib_id ) throws SQLException {
 		boolean bibActive = false;
