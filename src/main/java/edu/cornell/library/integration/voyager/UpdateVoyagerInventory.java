@@ -43,6 +43,11 @@ public class UpdateVoyagerInventory {
 			"UPDATE "+CurrentDBTable.ITEM_VOY+" SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
 	final static String itemVoyInsert =
 			"INSERT INTO "+CurrentDBTable.ITEM_VOY+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+	final static String itemVoyDelete =
+			"DELETE FROM "+CurrentDBTable.ITEM_VOY+" WHERE item_id = ?";
+	final static String bibForMfhdQuery =
+			"SELECT m.bib_id FROM "+CurrentDBTable.MFHD_VOY+" as m , "+CurrentDBTable.BIB_VOY+" as b "
+			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
 	public UpdateVoyagerInventory( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
 	    try (   Connection voyager = config.getDatabaseConnection("Voy");
@@ -413,52 +418,60 @@ public class UpdateVoyagerInventory {
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newItems.isEmpty() ) {
-			try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ) {
+			try ( PreparedStatement itemVoyIStmt = current.prepareStatement( itemVoyInsert ) ) {
 				for ( Entry<Integer,DateAndHolding> v_entry : newItems.entrySet() ) {
-					int mfhd_id = v_entry.getKey();
-					mfhdVoyIStmt.setInt(1, mfhd_id);
-					mfhdVoyIStmt.setInt(2, v_entry.getValue().bib_id);
-					mfhdVoyIStmt.setTimestamp(3, v_entry.getValue().time);
-					mfhdVoyIStmt.addBatch();
+					int item_id = v_entry.getKey();
+					int mfhd_id = v_entry.getValue().mfhd_id;
+					itemVoyIStmt.setInt(1, item_id);
+					itemVoyIStmt.setInt(2, mfhd_id);
+					itemVoyIStmt.setTimestamp(3, v_entry.getValue().time);
+					itemVoyIStmt.addBatch();
 
-					addBibToUpdateQueue(current, v_entry.getValue().bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					Integer bib_id = bibForMfhd(current,mfhd_id);
+					if (bib_id != null)
+						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 				}
-				mfhdVoyIStmt.executeBatch();
+				itemVoyIStmt.executeBatch();
 			}
 		}
 
 		if ( ! deletedItems.isEmpty() ) {
 
-			try (   PreparedStatement mfhdVoyDStmt = current.prepareStatement( mfhdVoyDelete ) ) {
+			try (   PreparedStatement itemVoyDStmt = current.prepareStatement( itemVoyDelete ) ) {
 			
 				for ( Entry<Integer,Integer> v_entry : deletedItems.entrySet() ) {
-					mfhdVoyDStmt.setInt(1, v_entry.getKey());
-					mfhdVoyDStmt.addBatch();
-					addBibToUpdateQueue(current, v_entry.getValue(), DataChangeUpdateType.MFHD_UPDATE);
+					itemVoyDStmt.setInt(1, v_entry.getKey());
+					itemVoyDStmt.addBatch();
+
+					Integer bib_id = bibForMfhd(current,v_entry.getValue());
+					if (bib_id != null)
+						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
 				}
-				mfhdVoyDStmt.executeBatch();
+				itemVoyDStmt.executeBatch();
 			}
 		}
 
 		if ( ! changedItems.isEmpty() ) {
 
-			try (   PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate )) {
+			try (   PreparedStatement itemVoyUStmt = current.prepareStatement( itemVoyUpdate )) {
 
-				for ( Entry<Integer,DateAndBib> v_entry : changedItems.entrySet() ) {
-					int mfhd_id = v_entry.getKey();
-					int bib_id = v_entry.getValue().bib_id;
-					mfhdVoyUStmt.setTimestamp(1, v_entry.getValue().time);
-					mfhdVoyUStmt.setInt(2, bib_id);
-					mfhdVoyUStmt.setInt(3, mfhd_id);
-					mfhdVoyUStmt.addBatch();
-					if (isBibActive(current,bib_id))
-						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE);
-					Integer old_bib_id = v_entry.getValue().old_bib_id;
-					if ( old_bib_id != null && isBibActive(current,old_bib_id))
-						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.MFHD_UPDATE);
+				for ( Entry<Integer,DateAndHolding> v_entry : changedItems.entrySet() ) {
+					int item_id = v_entry.getKey();
+					int mfhd_id = v_entry.getValue().mfhd_id;
+					itemVoyUStmt.setTimestamp(1, v_entry.getValue().time);
+					itemVoyUStmt.setInt(2, mfhd_id);
+					itemVoyUStmt.setInt(3, item_id);
+					itemVoyUStmt.addBatch();
+
+					Integer bib_id = bibForMfhd(current, mfhd_id);
+					if (bib_id != null)
+						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					Integer old_bib_id = bibForMfhd(current, v_entry.getValue().old_mfhd_id);
+					if ( old_bib_id != null )
+						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
 				}
 
-				mfhdVoyUStmt.executeBatch();
+				itemVoyUStmt.executeBatch();
 			}
 		}
 	}
@@ -473,6 +486,17 @@ public class UpdateVoyagerInventory {
 			}
 		}
 		return bibActive;
+	}
+	private static Integer bibForMfhd( Connection current, Integer mfhd_id) throws SQLException {
+		Integer bib_id = null;
+		try ( PreparedStatement bibForMfhdStmt = current.prepareStatement( bibForMfhdQuery )) {
+			bibForMfhdStmt.setInt(1, mfhd_id);
+			try ( ResultSet rs = bibForMfhdStmt.executeQuery() ) {
+				while (rs.next())
+					bib_id = rs.getInt(1);
+			}
+		}
+		return bib_id;
 	}
 	private static class DateAndStatus {
 		Timestamp time;
