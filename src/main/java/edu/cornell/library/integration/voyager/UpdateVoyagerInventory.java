@@ -29,16 +29,12 @@ public class UpdateVoyagerInventory {
 			"SELECT record_date, active FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
 	final static String bibVoyUpdate =
 			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ?, active = ? WHERE bib_id = ?";
-//	final static String mfhdVoyQuery =
-//			"SELECT bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
 	final static String mfhdVoyUpdate =
 			"UPDATE "+CurrentDBTable.MFHD_VOY+""+ " SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
 	final static String mfhdVoyDelete =
 			"DELETE FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
 	final static String mfhdVoyInsert =
 			"INSERT INTO "+CurrentDBTable.MFHD_VOY+" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
-	final static String itemVoyQuery =
-			"SELECT mfhd_id, record_date FROM "+CurrentDBTable.ITEM_VOY+" WHERE item_id = ?";
 	final static String itemVoyUpdate =
 			"UPDATE "+CurrentDBTable.ITEM_VOY+" SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
 	final static String itemVoyInsert =
@@ -105,8 +101,8 @@ public class UpdateVoyagerInventory {
 
 					Boolean v_active = (v_rs.getString(3)=="N")?false:true;
 					Timestamp v_date = v_rs.getTimestamp(2);
-					if ( ! c_rs.getTimestamp(2).equals(v_date) 
-							|| ! v_active.equals(v_rs.getBoolean(3)) ) {
+					if ( ! v_date.equals(c_rs.getTimestamp(2)) 
+							|| ! v_active.equals(c_rs.getBoolean(3)) ) {
 
 						// bib changed
 						changedBibs.put(v_id,new DateAndStatus(v_date,v_active));
