@@ -93,9 +93,11 @@ public class UpdateVoyagerInventory {
 			if ( ! v_rs.next() )
 				throw new SQLException("Error: InventoryDB "+CurrentDBTable.BIB_VOY+
 						" table must not have zero records.");
-			int c_id = c_rs.getInt(1);
-			int v_id = v_rs.getInt(1);
+
+			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
+				c_id = c_rs.getInt(1);
+				v_id = v_rs.getInt(1);
 
 				if ( c_id == v_id ) {
 
@@ -105,7 +107,6 @@ public class UpdateVoyagerInventory {
 					Timestamp c_date = c_rs.getTimestamp(2);
 					if ( bibChanged( v_date, c_date, v_active, c_active) ) {
 
-						// bib changed
 						changedBibs.put(v_id,new DateAndStatus(v_date,v_active));
 					}
 					v_rs.next();
@@ -233,14 +234,17 @@ public class UpdateVoyagerInventory {
 			if ( ! v_rs.next() )
 				throw new SQLException("Error: InventoryDB "+CurrentDBTable.MFHD_VOY+
 						" table must not have zero records.");
-			int c_id = c_rs.getInt(1);
-			int v_id = v_rs.getInt(1);
+
+			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
+				c_id = c_rs.getInt(1);
+				v_id = v_rs.getInt(1);
 
 				if ( c_id == v_id ) {
 
 					Timestamp v_date = v_rs.getTimestamp(3);
-					if ( ! c_rs.getTimestamp(3).equals(v_date) ) {
+					Timestamp c_date = c_rs.getTimestamp(3);
+					if ( v_date != null && ! v_date.equals(c_date) ) {
 
 						// mfhd changed
 						int c_bib_id = c_rs.getInt(2);
@@ -361,14 +365,17 @@ public class UpdateVoyagerInventory {
 			if ( ! v_rs.next() )
 				throw new SQLException("Error: InventoryDB "+CurrentDBTable.ITEM_VOY+
 						" table must not have zero records.");
-			int c_id = c_rs.getInt(1);
-			int v_id = v_rs.getInt(1);
+
+			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
+				c_id = c_rs.getInt(1);
+				v_id = v_rs.getInt(1);
 
 				if ( c_id == v_id ) {
 
 					Timestamp v_date = v_rs.getTimestamp(3);
-					if ( ! c_rs.getTimestamp(3).equals(v_date) ) {
+					Timestamp c_date = c_rs.getTimestamp(3);
+					if ( v_date != null && ! v_date.equals(c_date) ) {
 
 						// item changed
 						int c_mfhd_id = c_rs.getInt(2);
@@ -474,9 +481,9 @@ public class UpdateVoyagerInventory {
 	}
 
 	private static boolean bibChanged(Timestamp v_date, Timestamp c_date, Boolean v_active, Boolean c_active) {
-		if (c_date != null && ! c_date.equals(v_date))
+		if (v_date != null && ! v_date.equals(c_date))
 			return true;
-		if (! c_active.equals(v_active))
+		if (! v_active.equals(c_active))
 			return true;
 		return false;
 	}
