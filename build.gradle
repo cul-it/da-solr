@@ -65,7 +65,7 @@ task (UpdateVoyagerInventory, dependsOn:'assemble', type: JavaExec){
  description="Update local Voyager inventory tables, and queue records for update"
  main='edu.cornell.library.integration.voyager.UpdateVoyagerInventory'
  classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
+ maxHeapSize = '3072m'
 }
 
 task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
