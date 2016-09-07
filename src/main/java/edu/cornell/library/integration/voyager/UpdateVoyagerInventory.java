@@ -500,6 +500,7 @@ public class UpdateVoyagerInventory {
 		return bibActive;
 	}
 	private static Integer bibForMfhd( Connection current, Integer mfhd_id) throws SQLException {
+		if (mfhd_id == null) return null;
 		Integer bib_id = null;
 		try ( PreparedStatement bibForMfhdStmt = current.prepareStatement( bibForMfhdQuery )) {
 			bibForMfhdStmt.setInt(1, mfhd_id);
