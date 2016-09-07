@@ -56,7 +56,14 @@ task list(dependsOn: configurations.compile) << {
 task (step01IdentifyCurrentVoyagerRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item records from the Voyager database"
- main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentVoyagerRecords'
+ main='edu.cornell.library.integration.voyager.IdentifyCurrentVoyagerRecords'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+task (UpdateVoyagerInventory, dependsOn:'assemble', type: JavaExec){
+ group="Incremental Update Steps"
+ description="Update local Voyager inventory tables, and queue records for update"
+ main='edu.cornell.library.integration.voyager.UpdateVoyagerInventory'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
