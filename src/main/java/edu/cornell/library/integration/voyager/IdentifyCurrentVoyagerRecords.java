@@ -89,7 +89,6 @@ public class IdentifyCurrentVoyagerRecords {
 				while (rs.next()) {
 					pstmt.setInt(1, rs.getInt(1) );
 					pstmt.setTimestamp(2, rs.getTimestamp(2) );
-					pstmt.setBoolean(3, ( rs.getString(3).equals("N") )?false:true );
 					pstmt.addBatch();
 					if ((++i % 2048) == 0) {
 						pstmt.executeBatch();
