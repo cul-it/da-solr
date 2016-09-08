@@ -72,23 +72,24 @@ public class IdentifyCurrentVoyagerRecords {
 			c_stmt.execute("create table "+CurrentDBTable.BIB_VOY+"( "
 					+ "bib_id int(10) unsigned not null, "
 					+ "record_date timestamp null, "
+					+ "active int not null default 1, "
 					+ "key (bib_id) ) "
 					+ "ENGINE=InnoDB");
 			c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY+" disable keys");
 			current.commit();
 
 			try (   ResultSet rs = v_stmt.executeQuery
-						("select BIB_ID, UPDATE_DATE "
-								+ " from BIB_MASTER"
-								+" where SUPPRESS_IN_OPAC = 'N'");
+						("select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC "
+								+ " from BIB_MASTER");
 					PreparedStatement pstmt = current.prepareStatement
 							("insert into "+CurrentDBTable.BIB_VOY+
-									" (bib_id, record_date) values ( ? , ? )")  ) {
+									" (bib_id, record_date, active) values ( ? , ? , ? )")  ) {
 
 				int i = 0;
 				while (rs.next()) {
 					pstmt.setInt(1, rs.getInt(1) );
 					pstmt.setTimestamp(2, rs.getTimestamp(2) );
+					pstmt.setBoolean(3, ( rs.getString(3).equals("N") )?false:true );
 					pstmt.addBatch();
 					if ((++i % 2048) == 0) {
 						pstmt.executeBatch();
