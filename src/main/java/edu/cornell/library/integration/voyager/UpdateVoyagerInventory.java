@@ -146,6 +146,8 @@ public class UpdateVoyagerInventory {
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newBibs.isEmpty() ) {
 			try ( PreparedStatement bibVoyIStmt = current.prepareStatement( bibVoyInsert ) ) {
+
+				int i = 0;
 				for ( Entry<Integer,DateAndStatus> v_entry : newBibs.entrySet() ) {
 					int bib_id = v_entry.getKey();
 					bibVoyIStmt.setInt(1, bib_id);
@@ -154,6 +156,8 @@ public class UpdateVoyagerInventory {
 					bibVoyIStmt.addBatch();
 					if (v_entry.getValue().active)
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
+					if ( ++i % 10_000 == 0)
+						bibVoyIStmt.executeBatch();
 				}
 				bibVoyIStmt.executeBatch();
 			}
@@ -163,6 +167,7 @@ public class UpdateVoyagerInventory {
 			try (   PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate );
 					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
 
+				int i = 0;
 				for ( Integer bib_id : deletedBibs ) {
 					bibVoyQStmt.setInt(1, bib_id);
 					Boolean c_active = null;
@@ -180,6 +185,8 @@ public class UpdateVoyagerInventory {
 					bibVoyUStmt.setInt(3, bib_id);
 					bibVoyUStmt.addBatch();
 					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
+					if ( ++i % 10_000 == 0)
+						bibVoyUStmt.executeBatch();
 				}
 
 				for ( Entry<Integer,DateAndStatus> v_entry : changedBibs.entrySet() ) {
@@ -203,6 +210,8 @@ public class UpdateVoyagerInventory {
 					} else if ( c_active ){
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
 					}
+					if ( ++i % 10_000 == 0)
+						bibVoyUStmt.executeBatch();
 				}
 
 				bibVoyUStmt.executeBatch();
@@ -291,6 +300,8 @@ public class UpdateVoyagerInventory {
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newMfhds.isEmpty() ) {
 			try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ) {
+
+				int i = 0;
 				for ( Entry<Integer,DateAndBib> v_entry : newMfhds.entrySet() ) {
 					int mfhd_id = v_entry.getKey();
 					mfhdVoyIStmt.setInt(1, mfhd_id);
@@ -299,6 +310,8 @@ public class UpdateVoyagerInventory {
 					mfhdVoyIStmt.addBatch();
 
 					addBibToUpdateQueue(current, v_entry.getValue().bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					if ( ++i % 10_000 == 0)
+						mfhdVoyIStmt.executeBatch();
 				}
 				mfhdVoyIStmt.executeBatch();
 			}
@@ -308,10 +321,13 @@ public class UpdateVoyagerInventory {
 
 			try (   PreparedStatement mfhdVoyDStmt = current.prepareStatement( mfhdVoyDelete ) ) {
 			
+				int i = 0;
 				for ( Entry<Integer,Integer> v_entry : deletedMfhds.entrySet() ) {
 					mfhdVoyDStmt.setInt(1, v_entry.getKey());
 					mfhdVoyDStmt.addBatch();
 					addBibToUpdateQueue(current, v_entry.getValue(), DataChangeUpdateType.MFHD_UPDATE);
+					if ( ++i % 10_000 == 0)
+						mfhdVoyDStmt.executeBatch();
 				}
 				mfhdVoyDStmt.executeBatch();
 			}
@@ -321,6 +337,7 @@ public class UpdateVoyagerInventory {
 
 			try (   PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate )) {
 
+				int i = 0;
 				for ( Entry<Integer,DateAndBib> v_entry : changedMfhds.entrySet() ) {
 					int mfhd_id = v_entry.getKey();
 					int bib_id = v_entry.getValue().bib_id;
@@ -333,6 +350,8 @@ public class UpdateVoyagerInventory {
 					Integer old_bib_id = v_entry.getValue().old_bib_id;
 					if ( old_bib_id != null && isBibActive(current,old_bib_id))
 						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.MFHD_UPDATE);
+					if ( ++i % 10_000 == 0)
+						mfhdVoyUStmt.executeBatch();
 				}
 
 				mfhdVoyUStmt.executeBatch();
@@ -422,6 +441,8 @@ public class UpdateVoyagerInventory {
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newItems.isEmpty() ) {
 			try ( PreparedStatement itemVoyIStmt = current.prepareStatement( itemVoyInsert ) ) {
+
+				int i = 0;
 				for ( Entry<Integer,DateAndHolding> v_entry : newItems.entrySet() ) {
 					int item_id = v_entry.getKey();
 					int mfhd_id = v_entry.getValue().mfhd_id;
@@ -433,6 +454,8 @@ public class UpdateVoyagerInventory {
 					Integer bib_id = bibForMfhd(current,mfhd_id);
 					if (bib_id != null)
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					if ( ++i % 10_000 == 0)
+						itemVoyIStmt.executeBatch();
 				}
 				itemVoyIStmt.executeBatch();
 			}
@@ -441,7 +464,8 @@ public class UpdateVoyagerInventory {
 		if ( ! deletedItems.isEmpty() ) {
 
 			try (   PreparedStatement itemVoyDStmt = current.prepareStatement( itemVoyDelete ) ) {
-			
+
+				int i = 0;
 				for ( Entry<Integer,Integer> v_entry : deletedItems.entrySet() ) {
 					itemVoyDStmt.setInt(1, v_entry.getKey());
 					itemVoyDStmt.addBatch();
@@ -449,6 +473,8 @@ public class UpdateVoyagerInventory {
 					Integer bib_id = bibForMfhd(current,v_entry.getValue());
 					if (bib_id != null)
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					if ( ++i % 10_000 == 0)
+						itemVoyDStmt.executeBatch();
 				}
 				itemVoyDStmt.executeBatch();
 			}
@@ -458,6 +484,7 @@ public class UpdateVoyagerInventory {
 
 			try (   PreparedStatement itemVoyUStmt = current.prepareStatement( itemVoyUpdate )) {
 
+				int i = 0;
 				for ( Entry<Integer,DateAndHolding> v_entry : changedItems.entrySet() ) {
 					int item_id = v_entry.getKey();
 					int mfhd_id = v_entry.getValue().mfhd_id;
@@ -472,6 +499,8 @@ public class UpdateVoyagerInventory {
 					Integer old_bib_id = bibForMfhd(current, v_entry.getValue().old_mfhd_id);
 					if ( old_bib_id != null )
 						addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE);
+					if ( ++i % 10_000 == 0)
+						itemVoyUStmt.executeBatch();
 				}
 
 				itemVoyUStmt.executeBatch();
