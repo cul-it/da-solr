@@ -227,23 +227,24 @@ public class IndexRecordListComparison {
 		return l;
 	}
 
+	@SuppressWarnings("resource") // for preparedstatement
 	private int getBibForMfhd( CurrentDBTable table, int mfhdId ) throws SQLException {
 		String statementKey = "mfhd2bib_"+table.toString();
 		if ( ! pstmts.containsKey(statementKey))
 			pstmts.put(statementKey, conn.prepareStatement(
 					"SELECT bib_id FROM "+table+" WHERE mfhd_id = ?"));
 		int bibid = 0;
-		try ( PreparedStatement pstmt = pstmts.get(statementKey) ) {
-			pstmt.setInt(1, mfhdId);
-			try ( ResultSet rs = pstmt.executeQuery() ) {
-				while (rs.next())
-					bibid = rs.getInt(1);
-			}
+		PreparedStatement pstmt = pstmts.get(statementKey);
+		pstmt.setInt(1, mfhdId);
+		try ( ResultSet rs = pstmt.executeQuery() ) {
+			while (rs.next())
+				bibid = rs.getInt(1);
 		}
 		return bibid;
 	}
 
 	
+	@SuppressWarnings("resource") // for preparedstatement
 	public void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
 		if (bibsToAdd == null || bibsToAdd.isEmpty())
 			return;
@@ -251,15 +252,14 @@ public class IndexRecordListComparison {
 			pstmts.put("queueBib", conn.prepareStatement(
 					"INSERT INTO "+CurrentDBTable.QUEUE+
 					" (bib_id, priority, cause) VALUES (?, 0, ?)"));
-		try ( PreparedStatement pstmt = pstmts.get("queueBib") ) {
-			pstmt.setString(2, type.toString());
-			for (Integer bib : bibsToAdd) {
-				if (bib == null || bib.equals(0)) continue;
-				pstmt.setInt(1, bib);
-				pstmt.addBatch();
-			}
-			pstmt.executeBatch();
+		PreparedStatement pstmt = pstmts.get("queueBib");
+		pstmt.setString(2, type.toString());
+		for (Integer bib : bibsToAdd) {
+			if (bib == null || bib.equals(0)) continue;
+			pstmt.setInt(1, bib);
+			pstmt.addBatch();
 		}
+		pstmt.executeBatch();
 	}
 
 
