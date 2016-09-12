@@ -2,7 +2,6 @@ package edu.cornell.library.integration.libraryXmlToRdf;
 
 import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForWebdav;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -13,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.IOUtils;
 
@@ -38,7 +37,7 @@ public class LibraryXmlToNTriples {
 	public static String type_p = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
 
 
-	public static void libraryXmlToNTriples(SolrBuildConfig config, String xmlfile, String target) {
+	public static void libraryXmlToNTriples(SolrBuildConfig config, String xmlfile, String target) throws Exception {
 		// priority libraries will match in preference to libraries on the main list.
 		priority_libraries.put("Annex", "Library Annex");
 		priority_libraries.put("Bailey", "Bailey Hortorium");
@@ -71,20 +70,18 @@ public class LibraryXmlToNTriples {
 		
 		DavService davService = DavServiceFactory.getDavService( config );
 		
-		try {
+		StringBuilder sb = new StringBuilder();
+		try ( InputStream is = davService.getFileAsInputStream(xmlfile) ) {
 
 			XMLInputFactory input_factory = XMLInputFactory.newInstance();
-			InputStream is = davService.getFileAsInputStream(xmlfile);
 			XMLStreamReader r  = 
 					input_factory.createXMLStreamReader(is);
-			StringBuilder sb = new StringBuilder();
 
 			sb.append(generateNTriples(priority_libraries));
 			sb.append(generateNTriples(libraries));
 			
 			while (r.hasNext()) {
-				String event = getEventTypeString(r.next());
-				if (event.equals("START_ELEMENT"))
+				if (XMLStreamConstants.START_ELEMENT == r.next())
 					if (r.getLocalName().equals("location")) {
 						Location l = processLocation(r);
 						if (l.suppressInOpac.equals("N"))
@@ -94,18 +91,15 @@ public class LibraryXmlToNTriples {
 										l.locationName + " is suppressed ("+l.mfhdCount+").");
 					}
 			}
-			is.close();
-			davService.saveFile(target, IOUtils.toInputStream(sb.toString(), StandardCharsets.UTF_8));
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		davService.saveFile(target, IOUtils.toInputStream(sb.toString(), StandardCharsets.UTF_8));
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 /*		String destfile = "/users/fbw4/git/integrationLayer/rdf/library.nt";
 		File file = new File( "/users/fbw4/git/integrationLayer/rdf/sources/locations.xml" );
 */
@@ -115,13 +109,13 @@ public class LibraryXmlToNTriples {
 		try {
 			String dir = config.getWebdavBaseUrl()+"/"+config.getLocationDir();
 			libraryXmlToNTriples( config, dir+"/locations.xml",dir+"/locations.nt");
-		} catch (IOException e) {
+		} catch ( Exception e ) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+
 	}
-	
+
 	private static String generateNTriples ( Map<String,String> libraries ) {
 		StringBuilder sb = new StringBuilder();
 		Iterator<String> i = libraries.keySet().iterator();
@@ -167,11 +161,11 @@ public class LibraryXmlToNTriples {
 			}
 		} else
 			sb.append("<"+location_uri+"> " + label_p + " \"" + escapeForNTriples(l.locationName)+ "\".\n");
-		
+
 		sb.append("\n");
 		return sb.toString();
 	}
-		
+
 	public static String escapeForNTriples( String s ) {
 		s = s.replaceAll("\\\\", "\\\\\\\\");
 		s = s.replaceAll("\"", "\\\\\\\"");
@@ -179,18 +173,19 @@ public class LibraryXmlToNTriples {
 		s = s.replaceAll("\t","\\\\t");
 		return s;
 	}
-		
+
 	private static Location processLocation( XMLStreamReader r ) throws Exception {
-		
+
 		Location l = new Location();
 
 		while (r.hasNext()) {
-			String event = getEventTypeString(r.next());
-			if (event.equals("END_ELEMENT")) {
+			int event = r.next();
+
+			if (event == XMLStreamConstants.END_ELEMENT) {
 				if (r.getLocalName().equals("location")) 
 					return l;
 			}
-			if (event.equals("START_ELEMENT")) {
+			if (event == XMLStreamConstants.START_ELEMENT) {
 				if (r.getLocalName().equals("locationId")) {
 					l.locationId = Integer.valueOf(r.getElementText());
 				} else if (r.getLocalName().equals("locationName")) {
@@ -215,41 +210,9 @@ public class LibraryXmlToNTriples {
 		}
 		return l;
 	}
-	
-	private final static String getEventTypeString(int  eventType)
-	{
-	  switch  (eventType)
-	    {
-	        case XMLEvent.START_ELEMENT:
-	          return "START_ELEMENT";
-	        case XMLEvent.END_ELEMENT:
-	          return "END_ELEMENT";
-	        case XMLEvent.PROCESSING_INSTRUCTION:
-	          return "PROCESSING_INSTRUCTION";
-	        case XMLEvent.CHARACTERS:
-	          return "CHARACTERS";
-	        case XMLEvent.COMMENT:
-	          return "COMMENT";
-	        case XMLEvent.START_DOCUMENT:
-	          return "START_DOCUMENT";
-	        case XMLEvent.END_DOCUMENT:
-	          return "END_DOCUMENT";
-	        case XMLEvent.ENTITY_REFERENCE:
-	          return "ENTITY_REFERENCE";
-	        case XMLEvent.ATTRIBUTE:
-	          return "ATTRIBUTE";
-	        case XMLEvent.DTD:
-	          return "DTD";
-	        case XMLEvent.CDATA:
-	          return "CDATA";
-	        case XMLEvent.SPACE:
-	          return "SPACE";
-	    }
-	  return  "UNKNOWN_EVENT_TYPE ,   "+ eventType;
-	}
-	
+
 	static class Location {
-		
+
 		// Fields from location table in Voyager database
 		public Integer locationId; // unique
 		public String  locationName;
@@ -261,5 +224,5 @@ public class LibraryXmlToNTriples {
 		public String  locationOpac;
 		public String  locationSpineLabel;
 	}
-	
+
 }

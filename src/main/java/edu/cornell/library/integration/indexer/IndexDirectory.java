@@ -175,7 +175,7 @@ public class IndexDirectory {
         public void write(Text key, Text value) throws IOException, InterruptedException {
             results.put(key.toString(), value.toString());
         }
-    };  
+    }  
 
     final static class MockRecordReader extends RecordReader<Text, Text> {
         public void close() throws IOException { }
@@ -192,7 +192,7 @@ public class IndexDirectory {
         public boolean nextKeyValue() throws IOException, InterruptedException {
             return false;
         }
-    };
+    }
 
     final static class MockStatusReporter extends StatusReporter {
         private Counters counters = new Counters();
@@ -210,7 +210,7 @@ public class IndexDirectory {
         public Counter getCounter(Enum<?> arg0) {
             return null;
         }
-    };
+    }
 
     final static class MockInputSplit extends InputSplit {
         String name;
@@ -226,7 +226,7 @@ public class IndexDirectory {
         public long getLength() throws IOException, InterruptedException {
             return 1;
         }
-    };
+    }
 
     final static class MockOutputCommitter extends OutputCommitter {
         public void setupTask(TaskAttemptContext arg0) throws IOException { }
@@ -237,6 +237,6 @@ public class IndexDirectory {
         public void commitTask(TaskAttemptContext arg0) throws IOException { }
         public void cleanupJob(JobContext arg0) throws IOException { }
         public void abortTask(TaskAttemptContext arg0) throws IOException { }
-    };
+    }
 
 }

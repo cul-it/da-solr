@@ -20,7 +20,7 @@ public class SingleValueField implements DocumentPostProcess {
 			firstValue, //use the first value 
 			concatenate, // concatenate the values together with spaces between
 			throwException // throw an exception
-	};
+	}
 
 	public SingleValueField(String fieldName, Correction correction) {
 		super();

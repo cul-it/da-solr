@@ -149,12 +149,11 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				" and codes " + marcSubfieldCodes;
 	}
 	
-	private String calcVernFieldName( String fieldName ) {
+	private static String calcVernFieldName( String fieldName ) {
 		if (fieldName.lastIndexOf('_') >= 0) {
 			return fieldName.substring(0, fieldName.lastIndexOf('_')) + "_vern" + fieldName.substring(fieldName.lastIndexOf('_'));
-		} else {
-			return fieldName + "_vern";
 		}
+		return fieldName + "_vern";
 	}
 	
 	@Override
@@ -404,11 +403,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			String value = f.concatenateSubfieldsOtherThan("6");
 			if (unwantedChars != null) {
 				return removeTrailingPunctuation(value,unwantedChars);
-			} else {
-				return value;
 			}
+			return value;
 		}
-	};
+	}
 
 	private final String queryKey = "query";
 	
