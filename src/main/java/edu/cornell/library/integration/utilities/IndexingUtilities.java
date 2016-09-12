@@ -2,16 +2,12 @@ package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -150,24 +146,17 @@ public class IndexingUtilities {
 		}
 	}
 
-	public static void optimizeIndex( String solrCoreURL ) throws MalformedURLException {
+	public static void optimizeIndex( String solrCoreURL ) throws IOException, SolrServerException {
 		System.out.println("Optimizing index at: "+solrCoreURL+".");
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
-		URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
-		try (   InputStream in = queryUrl.openStream();
-				BufferedReader buff = new BufferedReader(new InputStreamReader(in))  ) {
-			String line;
-			while ( (line = buff.readLine()) != null ) 
-				System.out.println(line);
-		} catch (IOException e) {
-			// With the Apache timeout set sufficiently high, an IOException should represent an actual problem.
-			e.printStackTrace();
-			System.exit(1);
+		try ( SolrClient solr = new HttpSolrClient( solrCoreURL ) ) {
+			solr.optimize();
 		}
 		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
-    /**
+
+	/**
      * Do a hard and soft commit. This should commit the changes to the index (hard commit)
      * and also open new searchers on the Solr server so the search results are
      * visible (soft commit). 
