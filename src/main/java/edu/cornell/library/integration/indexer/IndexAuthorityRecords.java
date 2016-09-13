@@ -499,7 +499,7 @@ public class IndexAuthorityRecords {
 			HeadTypeDesc htd, Boolean isUndifferentiated) throws SQLException {
 
 		Integer recordId = null;
-		Boolean undifferentiated = null;
+		boolean undifferentiated = false;
 
 		try ( PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id, undifferentiated FROM heading " +
@@ -608,7 +608,7 @@ public class IndexAuthorityRecords {
 	}
 
 
-	private int getRelationshipHeadingId(Relation r ) throws SQLException {
+	private Integer getRelationshipHeadingId(Relation r ) throws SQLException {
 
 		Integer recordId = null;
 

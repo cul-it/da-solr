@@ -52,14 +52,14 @@ public class SingleValueField implements DocumentPostProcess {
 		}		
 	}
 
-	private SolrInputField fixConcatenate(SolrInputField field) {
+	private static SolrInputField fixConcatenate(SolrInputField field) {
 		SolrInputField newField = new SolrInputField( field.getName());
 		String str = StringUtils.join(field.getValues(), " ");
 		newField.setValue(str, 1.0f);
 		return  newField;
 	}
 
-	private SolrInputField fixToFirstValue(SolrInputField field) {
+	private static SolrInputField fixToFirstValue(SolrInputField field) {
 		SolrInputField newField = new SolrInputField( field.getName());		
 		newField.setValue(field.getFirstValue(), 1.0f);
 		return  newField;

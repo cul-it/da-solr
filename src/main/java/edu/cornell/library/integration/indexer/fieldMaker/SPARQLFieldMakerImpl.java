@@ -89,8 +89,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	}		
 
 	/* debug utility */
-	private void dumpFieldsToStdout(
-			Map<String,SolrInputField> newFields) {
+	private static void dumpFieldsToStdout( Map<String,SolrInputField> newFields ) {
 		for (Entry<String,SolrInputField> entry : newFields.entrySet()) {
 			System.out.println(entry.getKey());
 			for (Object value : entry.getValue().getValues())

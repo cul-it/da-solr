@@ -101,13 +101,10 @@ public class MrcToXmlConverter {
        String tmpFilePath = getTmpDir() + "/"+ srcFile;
        File f = davService.getFile(srcDir +"/"+ srcFile, tmpFilePath);
        fileNameRoot = srcFile.replaceAll(".mrc$", "");
-       FileInputStream is = new FileInputStream(f);
-        
-       MarcPermissiveStreamReader reader = null;
+
        boolean permissive      = true;
        boolean convertToUtf8   = true;
        List<String> f001list = new ArrayList<String>();
-       reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
         
        destXmlFile = getOutputFileName(batch);
        writer = getWriter(destXmlFile);       
@@ -116,8 +113,10 @@ public class MrcToXmlConverter {
           writer.setUnicodeNormalization(true);
        }
         
-       try {
-          while (reader.hasNext()) {
+       try ( FileInputStream is = new FileInputStream(f) ){
+
+    	   MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
+    	   while (reader.hasNext()) {
              try {
                 record = reader.next();
              } catch (MarcException me) {
@@ -176,14 +175,6 @@ public class MrcToXmlConverter {
           if (total > 0) {
              moveXmlToDav(davService, destDir, destXmlFile);
           }
-          
-       } finally {
-           
-          try { 
-             is.close();
-          } catch (IOException e) {
-             e.printStackTrace();
-          } 
        }
        
        FileUtils.deleteQuietly(f);

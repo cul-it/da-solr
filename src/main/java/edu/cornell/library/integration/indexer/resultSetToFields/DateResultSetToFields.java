@@ -98,7 +98,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 	 * all represent the same year, then we'll display just the year instead of the duplicates.
 	 * DISCOVERYACCESS-1539
 	 */
-	private Collection<String> dedupe_pub_dates(Collection<String> l) {
+	private static Collection<String> dedupe_pub_dates(Collection<String> l) {
 		if (l.size() < 2) return l;
 		Collection<String> years = new HashSet<String>(); //hashset drops duplicates
 		for (String date : l) {

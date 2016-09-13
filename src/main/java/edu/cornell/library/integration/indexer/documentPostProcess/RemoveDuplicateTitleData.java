@@ -34,7 +34,7 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		
 	}
 
-	private void removeDuplicates( SolrInputDocument document, String vernFieldName, String mainFieldName) {
+	private static void removeDuplicates( SolrInputDocument document, String vernFieldName, String mainFieldName) {
 
 		
 		if ( (! document.containsKey(vernFieldName)) || (! document.containsKey(mainFieldName)))

@@ -58,8 +58,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 				}
 			
 				return fields;
-			} else {
-				return null;
 			}
+			return null;
 		}
 	}

@@ -129,7 +129,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 							relation = "related_work";
 						}
 						final String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
-						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,true,
+						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 								relation+"_display",workField,ctsVals.title,ctsVals.author));
 						addField(solrFields,"title_uniform_t",standardizeApostrophes(ctsVals.title));
 					}					continue; //next datafield
@@ -361,7 +361,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			display = f;
 			cts1 = click1;
 		}
-		public CtsField (final boolean vernacular, final boolean authortitle, final String rel,
+		public CtsField (final boolean vernacular, final String rel,
 				final String f, final String click1, final String click2) {
 			vern = vernacular;
 			relation = rel;
