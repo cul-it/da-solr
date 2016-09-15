@@ -467,8 +467,8 @@ public class UpdateVoyagerInventory {
 					if (bib_id == null)
 						continue;
 
-					itemVoyIStmt.setInt(1, item_id);
-					itemVoyIStmt.setInt(2, mfhd_id);
+					itemVoyIStmt.setInt(1, mfhd_id);
+					itemVoyIStmt.setInt(2, item_id);
 					itemVoyIStmt.setTimestamp(3, v_entry.getValue().time);
 					itemVoyIStmt.addBatch();
 					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE);
