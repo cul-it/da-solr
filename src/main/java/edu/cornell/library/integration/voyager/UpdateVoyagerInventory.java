@@ -145,6 +145,7 @@ public class UpdateVoyagerInventory {
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newBibs.isEmpty() ) {
+			System.out.println(newBibs.size()+" new bibs.");
 			try ( PreparedStatement bibVoyIStmt = current.prepareStatement( bibVoyInsert ) ) {
 
 				int i = 0;
@@ -163,6 +164,8 @@ public class UpdateVoyagerInventory {
 			}
 		}
 		if ( ! deletedBibs.isEmpty() || ! changedBibs.isEmpty() ) {
+			System.out.println(deletedBibs.size()+" deleted bibs.");
+			System.out.println(changedBibs.size()+" changed bibs.");
 
 			try (   PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate );
 					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
@@ -299,6 +302,7 @@ public class UpdateVoyagerInventory {
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newMfhds.isEmpty() ) {
+			System.out.println(newMfhds.size()+" new mfhds.");
 			try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ) {
 
 				int i = 0;
@@ -322,6 +326,7 @@ public class UpdateVoyagerInventory {
 		}
 
 		if ( ! deletedMfhds.isEmpty() ) {
+			System.out.println(deletedMfhds.size()+" deleted mfhds.");
 
 			try (   PreparedStatement mfhdVoyDStmt = current.prepareStatement( mfhdVoyDelete ) ) {
 			
@@ -338,6 +343,7 @@ public class UpdateVoyagerInventory {
 		}
 
 		if ( ! changedMfhds.isEmpty() ) {
+			System.out.println(changedMfhds.size()+" changed mfhds.");
 
 			try (   PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate );
 					PreparedStatement mfhdVoyDStmt = current.prepareStatement( mfhdVoyDelete )) {
@@ -449,6 +455,7 @@ public class UpdateVoyagerInventory {
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newItems.isEmpty() ) {
+			System.out.println(newItems.size()+" new items.");
 			try ( PreparedStatement itemVoyIStmt = current.prepareStatement( itemVoyInsert ) ) {
 
 				int i = 0;
@@ -473,6 +480,7 @@ public class UpdateVoyagerInventory {
 		}
 
 		if ( ! deletedItems.isEmpty() ) {
+			System.out.println(deletedItems.size()+" deleted items.");
 
 			try (   PreparedStatement itemVoyDStmt = current.prepareStatement( itemVoyDelete ) ) {
 
@@ -492,6 +500,7 @@ public class UpdateVoyagerInventory {
 		}
 
 		if ( ! changedItems.isEmpty() ) {
+			System.out.println(changedItems.size()+" changed items.");
 
 			try (   PreparedStatement itemVoyUStmt = current.prepareStatement( itemVoyUpdate );
 					PreparedStatement itemVoyDStmt = current.prepareStatement( itemVoyDelete )) {
