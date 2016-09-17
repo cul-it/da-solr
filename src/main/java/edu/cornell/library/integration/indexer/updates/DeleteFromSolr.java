@@ -86,8 +86,6 @@ public class DeleteFromSolr {
     		Set<Integer> knockOnUpdates = new HashSet<Integer>();
         	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
 
-        	System.out.println("Doing end of batch commit and reopening Solr server's searchers.");
-        	solr.commit(true,true,true);
         	long countAfterDel = countOfDocsInSolr( solr );
 
         	System.out.println("Solr document count before delete: " + countBeforeDel +
