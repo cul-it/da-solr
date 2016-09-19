@@ -157,6 +157,11 @@
 <http://da-rdf.library.cornell.edu/individual/loc_21> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
 <http://da-rdf.library.cornell.edu/individual/loc_21> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_annex>.
 
+<http://da-rdf.library.cornell.edu/individual/loc_25> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent"^^<http://www.w3.org/2001/XMLSchema#string>.
+<http://da-rdf.library.cornell.edu/individual/loc_25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
+<http://da-rdf.library.cornell.edu/individual/loc_25> <http://www.w3.org/2000/01/rdf-schema#label> "Mann Library New Book Shelf".
+<http://da-rdf.library.cornell.edu/individual/loc_25> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_mann>.
+
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "ent,anx"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
 <http://da-rdf.library.cornell.edu/individual/loc_26> <http://www.w3.org/2000/01/rdf-schema#label> "Library Annex".
@@ -417,7 +422,7 @@
 
 <http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys"^^<http://www.w3.org/2001/XMLSchema#string>.
 <http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Location>.
-<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/2000/01/rdf-schema#label> "Spacecraft Planetary Imaging Facility 317 Space Science Bldg".
+<http://da-rdf.library.cornell.edu/individual/loc_115> <http://www.w3.org/2000/01/rdf-schema#label> "Spacecraft Planetary Imaging Facility (Non-Circulating)".
 <http://da-rdf.library.cornell.edu/individual/loc_115> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/hasLibrary> <http://da-rdf.library.cornell.edu/individual/lib_spacesci>.
 
 <http://da-rdf.library.cornell.edu/individual/loc_116> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> "phys,anx"^^<http://www.w3.org/2001/XMLSchema#string>.
