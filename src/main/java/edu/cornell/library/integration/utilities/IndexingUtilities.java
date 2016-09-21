@@ -274,7 +274,7 @@ public class IndexingUtilities {
 		}
 		if (ref.title == null && doc.containsKey("title_vern_display"))
 			ref.title = (String)doc.getFieldValues("title_vern_display").iterator().next();
-		if (ref.title == null)
+		if (ref.title == null && doc.containsKey("title_display"))
 			ref.title = (String)doc.getFieldValues("title_display").iterator().next();
 
 		return ref;
