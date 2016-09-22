@@ -565,8 +565,12 @@ public class IdentifyChangedRecords {
 	public static enum DataChangeUpdateType {
 		ADD("Added Record",IndexQueuePriority.DATACHANGE),
 		BIB_UPDATE("Bibliographic Record Update",IndexQueuePriority.DATACHANGE),
+		MFHD_ADD("Holdings Record Added",IndexQueuePriority.DATACHANGE),
 		MFHD_UPDATE("Holdings Record Change",IndexQueuePriority.DATACHANGE),
+		MFHD_DELETE("Holdings Record Removed",IndexQueuePriority.DATACHANGE),
+		ITEM_ADD("Item Record Added",IndexQueuePriority.DATACHANGE),
 		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
+		ITEM_DELETE("Item Record Removed",IndexQueuePriority.DATACHANGE),
 		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
 		TITLELINK("Title Link Update",IndexQueuePriority.CODECHANGE_PRIORITY1),
 		
