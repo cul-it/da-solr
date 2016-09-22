@@ -31,12 +31,7 @@ public class IterativeUpdateFromVoyager {
     	requiredArgs.add("solrUrl");
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 
-		switch (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-		case Calendar.SATURDAY:
-		case Calendar.SUNDAY:
-			config.setTargetBatchSize(5_000); break;
-		default: config.setTargetBatchSize(1_000);
-		}
+		config.setTargetBatchSize(1_000);
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
