@@ -341,7 +341,9 @@ public class UpdateVoyagerInventory {
 				for ( Entry<Integer,Integer> v_entry : deletedMfhds.entrySet() ) {
 					mfhdVoyDStmt.setInt(1, v_entry.getKey());
 					mfhdVoyDStmt.addBatch();
-					addBibToUpdateQueue(current, v_entry.getValue(), DataChangeUpdateType.MFHD_DELETE);
+					int v_bib_id = v_entry.getValue();
+					if ( isBibActive( current , v_bib_id ))
+						addBibToUpdateQueue(current, v_bib_id, DataChangeUpdateType.MFHD_DELETE);
 					if ( ++i % 10_000 == 0)
 						mfhdVoyDStmt.executeBatch();
 				}
