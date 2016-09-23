@@ -255,15 +255,22 @@ public class UpdateVoyagerInventory {
 
 					Timestamp v_date = v_rs.getTimestamp(3);
 					Timestamp c_date = c_rs.getTimestamp(3);
-					if ( v_date != null && ! v_date.equals(c_date) ) {
+					int c_bib_id = c_rs.getInt(2);
+					if ( ! isBibActive(current,c_bib_id) ) {
+
+						// if bib is now suppressed treat this as though the mfhd is gone
+						// regardless of whether the mfhd has been modified
+						deletedMfhds.put(c_id, c_bib_id);
+
+					} else if ( v_date != null && ! v_date.equals(c_date) ) {
 
 						// mfhd changed
-						int c_bib_id = c_rs.getInt(2);
 						int v_bib_id = v_rs.getInt(2);
 						if ( c_bib_id == v_bib_id )
 							changedMfhds.put(v_id,new DateAndBib(v_date,v_bib_id));
 						else
 							changedMfhds.put(v_id,new DateAndBib(v_date,v_bib_id,c_bib_id));
+
 					}
 					v_rs.next();
 					c_rs.next();
