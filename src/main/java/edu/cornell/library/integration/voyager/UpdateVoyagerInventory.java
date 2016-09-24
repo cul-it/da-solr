@@ -232,7 +232,10 @@ public class UpdateVoyagerInventory {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();
 				ResultSet c_rs = c_stmt.executeQuery(
-						"SELECT mfhd_id, bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" ORDER BY 1");
+						"SELECT mfhd_id, m.bib_id, m.record_date, b.active"
+						+ " FROM "+CurrentDBTable.MFHD_VOY+" AS m"
+						+ " LEFT JOIN "+CurrentDBTable.BIB_VOY+"AS b ON b.bib_id = m.bib_id"
+						+ " ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select MFHD_MASTER.MFHD_ID, BIB_MFHD.BIB_ID, UPDATE_DATE"
 			    				+"  from BIB_MFHD, MFHD_MASTER"
@@ -256,7 +259,7 @@ public class UpdateVoyagerInventory {
 					Timestamp v_date = v_rs.getTimestamp(3);
 					Timestamp c_date = c_rs.getTimestamp(3);
 					int c_bib_id = c_rs.getInt(2);
-					if ( ! isBibActive(current,c_bib_id) ) {
+					if ( ! c_rs.getBoolean(4) ) {
 
 						// if bib is now suppressed treat this as though the mfhd is gone
 						// regardless of whether the mfhd has been modified
