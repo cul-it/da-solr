@@ -41,13 +41,13 @@ public class ConvertUtils {
         if (!matcher.find())
             return false;
 
-        List<Integer> invalidCharsIndex = new ArrayList<Integer>();
+        List<Integer> invalidCharsIndex = new ArrayList<>();
         do {
             invalidCharsIndex.add(matcher.start());
         } while (matcher.find());
 
         StringBuffer badCharLocator = new StringBuffer();
-        List<String> invalidChars = new ArrayList<String>();
+        List<String> invalidChars = new ArrayList<>();
         for (Integer i : invalidCharsIndex) {
             RecordLine line = new RecordLine(recordString, i);
 
@@ -109,8 +109,8 @@ private static void modifyRecord(Record record, RecordLine line,
 	
 	         // subfields
 	         List<Subfield> sfs = fd.getSubfields();
-	         List<Subfield> newSfs = new ArrayList<Subfield>();
-	         List<Subfield> oldSfs = new ArrayList<Subfield>();
+	         List<Subfield> newSfs = new ArrayList<>();
+	         List<Subfield> oldSfs = new ArrayList<>();
 	         // replace the subfields' weird characters
 	         for (Subfield sf : sfs) {
 	            oldSfs.add(sf);

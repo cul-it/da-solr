@@ -41,8 +41,7 @@ public class IndexHeadings {
 
 	private Connection connection = null;
 	// This structure should contain only up to six PreparedStatement objects at most.
-	private Map<HeadType,Map<String,String>> queries =
-			new HashMap<HeadType,Map<String,String>>();
+	private Map<HeadType,Map<String,String>> queries = new HashMap<>();
 	SolrBuildConfig config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
@@ -95,7 +94,7 @@ public class IndexHeadings {
 		deleteCountsFromDB();
 		connection.setAutoCommit(false);
 
-		Collection<BlacklightField> blFields = new ArrayList<BlacklightField>();
+		Collection<BlacklightField> blFields = new ArrayList<>();
 		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.PERSNAME));
 		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.CORPNAME));
 		blFields.add(new BlacklightField(HeadType.AUTHOR, HeadTypeDesc.EVENT));
@@ -310,7 +309,7 @@ public class IndexHeadings {
 						}
 				in.close();
 				return null;
-			} catch (IOException e) {
+			} catch (@SuppressWarnings("unused") IOException e) {
 				/* The only way the while(true) loop is repeated, is if an error is
 				 * thrown and execution ends up in this block. In that case, we will just
 				 * wait a few seconds and try again.

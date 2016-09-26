@@ -55,14 +55,14 @@ public class SolrBuildConfig {
 
 	protected static boolean debug = false;
 
-	private Map<String,String> values = new HashMap<String,String>();
-	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
-	private Map<String,RDFService> rdfservices = new HashMap<String,RDFService>();
+	private Map<String,String> values = new HashMap<>();
+	private Map<String,ComboPooledDataSource> databases = new HashMap<>();
+	private Map<String,RDFService> rdfservices = new HashMap<>();
     static DavService davService = null;
-    private List<Class<?>> debugRSTFs = new ArrayList<Class<?>>();
+    private List<Class<?>> debugRSTFs = new ArrayList<>();
     
     public static List<String> getRequiredArgsForDB( String db ) {
-    	List<String> list = new ArrayList<String>();
+    	List<String> list = new ArrayList<>();
     	if (db == null) return null;
     	if (db.isEmpty()) return null;
     	list.add("DatabaseDriver"+db);
@@ -73,7 +73,7 @@ public class SolrBuildConfig {
     }
 
     public static List<String> getRequiredArgsForWebdav() {
-    	List<String> list = new ArrayList<String>();
+    	List<String> list = new ArrayList<>();
     	list.add("webdavBaseUrl");
     	list.add("webdavUser");
     	list.add("webdavPassword");
@@ -635,6 +635,7 @@ public class SolrBuildConfig {
         					Class.forName("edu.cornell.library.integration.indexer.resultSetToFields."+className));
 				} catch (ClassNotFoundException e) {
 					System.out.println("Debug for class "+className+" failed due to ClassNotFoundException.");
+					e.printStackTrace();
 				}
         	}
         }
@@ -663,7 +664,7 @@ public class SolrBuildConfig {
      */
     @Deprecated
     public static SolrBuildConfig loadConfig( String[] argv ) {
-    	Collection<String> requiredFields = new HashSet<String>();
+    	Collection<String> requiredFields = new HashSet<>();
         return loadConfig(argv,requiredFields);        
     }
     
@@ -721,7 +722,7 @@ public class SolrBuildConfig {
 
 
     private static SolrBuildConfig loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
-    	List<InputStream> inputStreams = new ArrayList<InputStream>();
+    	List<InputStream> inputStreams = new ArrayList<>();
     	for (String arg : argv) {
     		if (arg.endsWith(".properties")) {
     			if (debug) System.out.println("loading from command line arg: "+arg);
@@ -740,7 +741,7 @@ public class SolrBuildConfig {
         System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
         String[] names = value.split(",");
-        List<InputStream> inputStreams = new ArrayList<InputStream>();
+        List<InputStream> inputStreams = new ArrayList<>();
         for (String name : names)
         	inputStreams.add(getFile(name));
         return loadFromPropertiesFile( inputStreams );

@@ -65,7 +65,7 @@ public class ConvertMarcToXml {
    private static void convertDir( String srcDir, String destDir) throws IOException {
 
       // get list of daily mrc files
-      List<String> srcList = new ArrayList<String>();
+      List<String> srcList = new ArrayList<>();
       //System.out.println("Getting list of marc files");
       srcList = davService.getFileList(srcDir);
       MrcToXmlConverter converter = new MrcToXmlConverter();

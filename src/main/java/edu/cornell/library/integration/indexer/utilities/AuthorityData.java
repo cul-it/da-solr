@@ -49,7 +49,7 @@ public class AuthorityData {
 				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){
 					while (rs.next()) {
 						if (alternateForms == null)
-							alternateForms = new ArrayList<String>();
+							alternateForms = new ArrayList<>();
 						alternateForms.add(rs.getString(1));
 					}
 				}

@@ -37,9 +37,9 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		Collection<String> facet_langs = new HashSet<String>();
-		List<String> display_langs = new ArrayList<String>();
+		Map<String,SolrInputField> fields = new HashMap<>();
+		Collection<String> facet_langs = new HashSet<>();
+		List<String> display_langs = new ArrayList<>();
 
 		// Suppress "Undetermined" and "No Linguistic Content"
 		// from facet and display (DISCOVERYACCESS-822)
@@ -75,7 +75,7 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 		MarcRecord rec = new MarcRecord();
 		rec.addDataFieldResultSet(results.get("language_note"),"546");
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-		List<String> notes = new ArrayList<String>();
+		List<String> notes = new ArrayList<>();
 		for (FieldSet fs : sortedFields.values()) {
 			String value880 = null;
 			String valueMain = null;

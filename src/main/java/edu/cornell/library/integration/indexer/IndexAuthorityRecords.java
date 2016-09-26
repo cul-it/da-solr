@@ -83,6 +83,7 @@ public class IndexAuthorityRecords {
 					processedFile = true;
 				} catch (ConnectionClosedException e) {
 					System.out.println("Lost access to xml file read. Waiting 2 minutes, and will try again.\n");
+					e.printStackTrace();
 					Thread.sleep(120 /* s */ * 1000 /* ms/s */);
 				}
 			}
@@ -186,11 +187,11 @@ public class IndexAuthorityRecords {
 		String heading = null;
 		String headingSort = null;
 		HeadTypeDesc htd = null;
-		Collection<Relation> sees = new HashSet<Relation>();
-		Collection<Relation> seeAlsos = new HashSet<Relation>();
-		Collection<String> expectedNotes = new HashSet<String>();
-		Collection<String> foundNotes = new HashSet<String>();
-		Collection<String> notes = new HashSet<String>();
+		Collection<Relation> sees = new HashSet<>();
+		Collection<Relation> seeAlsos = new HashSet<>();
+		Collection<String> expectedNotes = new HashSet<>();
+		Collection<String> foundNotes = new HashSet<>();
+		Collection<String> notes = new HashSet<>();
 		RdaData rdaData = new RdaData();
 		
 		Boolean isUndifferentiated = false;
@@ -286,7 +287,7 @@ public class IndexAuthorityRecords {
 				case "374":
 				case "375": {
 					String start = null, end = null, field = null;
-					List<String> values = new ArrayList<String>();
+					List<String> values = new ArrayList<>();
 					switch (f.tag) {
 					case "372": field = "Field"; break;
 					case "373": field = "Group/Organization"; break;
@@ -454,7 +455,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private static String buildJsonNote(DataField f) throws JsonProcessingException {
-		List<Object> textBlocks = new ArrayList<Object>();
+		List<Object> textBlocks = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('b')) {
@@ -462,7 +463,7 @@ public class IndexAuthorityRecords {
 					textBlocks.add(sb.toString());
 					sb.setLength(0);
 				}
-				Map<String,String> header = new HashMap<String,String>();
+				Map<String,String> header = new HashMap<>();
 				header.put("header", sf.value);
 				textBlocks.add(header);
 			} else {
@@ -818,7 +819,7 @@ public class IndexAuthorityRecords {
 	static final ObjectMapper mapper = new ObjectMapper();
 	private static class RdaData {
 
-		Map<String,Collection<String>> data = new HashMap<String,Collection<String>>();
+		Map<String,Collection<String>> data = new HashMap<>();
 
 		public void add(String field, String value) {
 			if ( ! data.containsKey(field))
@@ -840,8 +841,8 @@ public class IndexAuthorityRecords {
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
 		public HeadTypeDesc headingTypeDesc = null;
-		public Collection<RecordSet> applicableContexts = new HashSet<RecordSet>();
-		public Collection<String> expectedNotes = new HashSet<String>();
+		public Collection<RecordSet> applicableContexts = new HashSet<>();
+		public Collection<String> expectedNotes = new HashSet<>();
 		boolean display = true;
 	}
 	
@@ -900,7 +901,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
+		Map<Integer,Subfield> fields = new HashMap<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();

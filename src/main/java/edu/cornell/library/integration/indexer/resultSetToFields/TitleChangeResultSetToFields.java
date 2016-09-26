@@ -45,7 +45,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 
 		//This method needs to return a map of fields:
-		final Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		final Map<String,SolrInputField> solrFields = new HashMap<>();
 
 		final MarcRecord rec = new MarcRecord();
 
@@ -61,11 +61,11 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		for( final Integer id: ids) {
 			final FieldSet fs = sortedFields.get(id);
 			final DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			final Collection<CtsField> cts_fields = new ArrayList<CtsField>();
-			final Collection<String> valuesPersAFacet = new ArrayList<String>();
-			final Collection<String> valuesCorpAFacet = new ArrayList<String>();
-			final Collection<String> valuesEventAFacet = new ArrayList<String>();
-			final Collection<String> valuesATFacet = new ArrayList<String>();
+			final Collection<CtsField> cts_fields = new ArrayList<>();
+			final Collection<String> valuesPersAFacet = new ArrayList<>();
+			final Collection<String> valuesCorpAFacet = new ArrayList<>();
+			final Collection<String> valuesEventAFacet = new ArrayList<>();
+			final Collection<String> valuesATFacet = new ArrayList<>();
 			HeadTypeDesc htd = null;
 			String relation = null;
 			for (final DataField f: dataFields) {
@@ -274,7 +274,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
 					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
 							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
-					final Map<String,Object> json = new HashMap<String,Object>();
+					final Map<String,Object> json = new HashMap<>();
 					json.put("name1", vernField.display);
 					json.put("search1", vernField.cts1);
 					json.put("name2", romanField.display);
@@ -320,12 +320,12 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		return solrFields;
 	}
 
-	public void addCtsField(final SolrBuildConfig config, final Map<String,SolrInputField> solrFields, final CtsField f, final HeadTypeDesc htd) throws Exception {
+	public static void addCtsField(final SolrBuildConfig config, final Map<String,SolrInputField> solrFields, final CtsField f, final HeadTypeDesc htd) throws Exception {
 		if (f.relation.equals("author_addl")) {
 			addField(solrFields,"author_addl_display",f.display);
 			addField(solrFields,"author_addl_cts",String.format("%s|%s",
 					f.display,f.cts1));
-			final Map<String,Object> json = new HashMap<String,Object>();
+			final Map<String,Object> json = new HashMap<>();
 			json.put("name1", f.display);
 			json.put("search1", f.cts1);
 			json.put("type", htd.toString());

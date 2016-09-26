@@ -34,14 +34,14 @@ public class DateResultSetToFields implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 
 		//Checking to avoid duplicate sort/facet dates due to a very small number of records
 		// with duplicate 008 fields.
 		Boolean found_single_date = false;
 
 		//Collecting all of the display dates to provide further deduping, then concatenation.
-		Collection<String> pub_date_display = new HashSet<String>(); //hashset drops duplicates
+		Collection<String> pub_date_display = new HashSet<>(); //hashset drops duplicates
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
@@ -100,7 +100,7 @@ public class DateResultSetToFields implements ResultSetToFields {
 	 */
 	private static Collection<String> dedupe_pub_dates(Collection<String> l) {
 		if (l.size() < 2) return l;
-		Collection<String> years = new HashSet<String>(); //hashset drops duplicates
+		Collection<String> years = new HashSet<>(); //hashset drops duplicates
 		for (String date : l) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0 ; i < date.length() ; i++) {

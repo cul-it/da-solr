@@ -47,7 +47,7 @@ public class DownloadMARC {
 	 */
 	public Set<Integer> saveXml (RecordType type, Set<Integer> ids, String dir) throws Exception {
 		voyager = config.getDatabaseConnection("Voy");
-		Set<Integer> notFoundIds = new HashSet<Integer>();
+		Set<Integer> notFoundIds = new HashSet<>();
 		prepareStatement(type);
 		int fileSeqNo = 1;
 		int recCount = 0;

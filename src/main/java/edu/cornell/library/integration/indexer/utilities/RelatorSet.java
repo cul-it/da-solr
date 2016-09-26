@@ -12,7 +12,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
 public class RelatorSet {
 
-	Set<String> relators = new HashSet<String>();
+	Set<String> relators = new HashSet<>();
 
 	public RelatorSet(DataField f) {
 		boolean isEventField = f.mainTag.endsWith("11");
@@ -21,7 +21,7 @@ public class RelatorSet {
 				String code = sf.value.toLowerCase().replaceAll("[^a-z]", "");
 				try {
 					relators.add(Relator.valueOf(code).toString());
-				} catch (IllegalArgumentException e) {
+				} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
 					System.out.println("Unexpected relator code: \""+sf.value+"\".");
 				}
 			}

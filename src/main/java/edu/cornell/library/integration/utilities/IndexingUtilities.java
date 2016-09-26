@@ -81,7 +81,7 @@ public class IndexingUtilities {
      * @throws SQLException 
 	 */
 	public static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
-        Set<Integer> mfhdIds = new HashSet<Integer>();        
+        Set<Integer> mfhdIds = new HashSet<>();        
 		try (PreparedStatement pstmt = current.prepareStatement(
 				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
 			for (Integer bibid : bibIds) {
@@ -176,7 +176,7 @@ public class IndexingUtilities {
 	public static String identifyOnlineServices(Collection<Object> urls) {
 		if (urlPatterns == null)
 			loadUrlPatterns();
-		List<String> identifiedSites = new ArrayList<String>();
+		List<String> identifiedSites = new ArrayList<>();
 		for (Object url_o : urls) {
 			String url = url_o.toString().toLowerCase();
 			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
@@ -192,7 +192,7 @@ public class IndexingUtilities {
 	}
 	private static void loadUrlPatterns() {
 		URL url = ClassLoader.getSystemResource("online_site_identifications.txt");
-		urlPatterns = new HashMap<String,String>();
+		urlPatterns = new HashMap<>();
 		try {
 			Path p = Paths.get(url.toURI());
 			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
@@ -218,7 +218,7 @@ public class IndexingUtilities {
 	public static String eliminateDuplicateLocations(Collection<Object> location_facet) {
 		if (location_facet == null) return "";
 		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<Object>();
+		Collection<Object> foundValues = new HashSet<>();
 		boolean first = true;
 		for (Object val : location_facet) {
 			if (foundValues.contains(val))

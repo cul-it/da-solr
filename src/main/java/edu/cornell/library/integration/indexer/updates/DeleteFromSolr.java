@@ -38,17 +38,16 @@ public class DeleteFromSolr {
 
     public static void main(String[] argv) throws Exception{
 
-		List<String> requiredArgs = new ArrayList<String>();
+		List<String> requiredArgs = new ArrayList<>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
 
         SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
 
-        DeleteFromSolr dfs = new DeleteFromSolr();
-        dfs.doTheDelete(config);
+        DeleteFromSolr.doTheDelete(config);
     }
 
-    public void doTheDelete(SolrBuildConfig config) throws Exception  {
+    public static void doTheDelete(SolrBuildConfig config) throws Exception  {
 
         String solrURL = config.getSolrUrl();                                        
 
@@ -61,7 +60,7 @@ public class DeleteFromSolr {
 
         	long countBeforeDel = countOfDocsInSolr( solr );
 
-        	Set<Integer> deleteQueue = new HashSet<Integer>();
+        	Set<Integer> deleteQueue = new HashSet<>();
         	final String getQueuedQuery =
         			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
         			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 "
@@ -83,7 +82,7 @@ public class DeleteFromSolr {
         	conn.setAutoCommit(false);
 
         	System.out.println("Expected to delete " + deleteQueue.size() + " documents from Solr index.");
-    		Set<Integer> knockOnUpdates = new HashSet<Integer>();
+    		Set<Integer> knockOnUpdates = new HashSet<>();
         	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
 
         	long countAfterDel = countOfDocsInSolr( solr );
@@ -122,7 +121,7 @@ public class DeleteFromSolr {
 
 		int lineNum = 0;
 		int commitSize = batchSize * 10;
-		List<String> ids = new ArrayList<String>(batchSize);
+		List<String> ids = new ArrayList<>(batchSize);
 
     	
        	final String bibQuery =

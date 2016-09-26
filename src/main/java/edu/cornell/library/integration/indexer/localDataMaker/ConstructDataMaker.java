@@ -13,7 +13,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
 public class ConstructDataMaker implements LocalDataMaker{
 	
-	List<String> SPARQLConstructs = new ArrayList<String>();
+	List<String> SPARQLConstructs = new ArrayList<>();
 	
 	public LocalDataMaker addSPARQLConstruct(String construct){
 		this.SPARQLConstructs.add(construct);

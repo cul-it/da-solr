@@ -37,7 +37,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	final static Boolean debug = false;
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
-	private Set<Long> workids = new HashSet<Long>();
+	private Set<Long> workids = new HashSet<>();
 	static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
@@ -125,7 +125,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		SolrInputField workidFacet = new SolrInputField("workid_facet");
 		SolrInputField otherAvailPiped = new SolrInputField("other_availability_piped");
 		SolrInputField otherAvailJson = new SolrInputField("other_availability_json");
-		Map<Integer,TitleMatchReference> refs = new HashMap<Integer,TitleMatchReference>();
+		Map<Integer,TitleMatchReference> refs = new HashMap<>();
 		TitleMatchReference thisTitle = null;
 		try (   PreparedStatement recordsForWorkStmt = conn.prepareStatement(recordsForWorkQuery);
 				PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ) {
@@ -195,7 +195,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		
 	}
 	private static String generateJsonAvailability(TitleMatchReference ref)  throws Exception {
-		Map<String,Object> json = new HashMap<String,Object>();
+		Map<String,Object> json = new HashMap<>();
 		json.put("bibid", ref.id);
 		json.put("format", ref.format);
 		if (ref.sites != null && ! ref.sites.isEmpty())
@@ -250,7 +250,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private List<HoldingRecord> extractHoldingsFromSolrField(
 			Collection<Object> fieldValues) throws ParseException {
-		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
+		List<HoldingRecord> holdings = new ArrayList<>();
 		if (fieldValues == null) return holdings;
 		for (Object holding_obj : fieldValues) {
 			String holding = holding_obj.toString();
@@ -271,7 +271,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private List<ItemRecord> extractItemsFromSolrField(
 			Collection<Object> fieldValues) throws ParseException {
-		List<ItemRecord> items = new ArrayList<ItemRecord>();
+		List<ItemRecord> items = new ArrayList<>();
 		for (Object item_obj : fieldValues) {
 			String item = item_obj.toString();
 			Timestamp modified = null;
@@ -286,14 +286,14 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	}
 
 	private static Set<Integer> extractOclcIdsFromSolrField(Collection<Object> fieldValues) {
-		Set<Integer> oclcIds = new HashSet<Integer>();
+		Set<Integer> oclcIds = new HashSet<>();
 		if (fieldValues == null) return oclcIds;
 		for (Object id_obj : fieldValues) {
 			String id = id_obj.toString();
 			if (id.startsWith("(OCoLC)")) {
 				try {
 					oclcIds.add(Integer.valueOf(id.substring(7)));
-				} catch (NumberFormatException e) {
+				} catch (@SuppressWarnings("unused") NumberFormatException e) {
 					// Ignore the value if it's invalid
 				}
 			}
@@ -391,9 +391,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			oclcIds = extractOclcIdsFromSolrField(
 					document.getFieldValues("other_id_display"));
 		} else {
-			oclcIds = new HashSet<Integer>();
+			oclcIds = new HashSet<>();
 		}
-		Set<Integer> previousOclcIds = new HashSet<Integer>();
+		Set<Integer> previousOclcIds = new HashSet<>();
 		final String origWorksQuery =
 				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK+
 				" WHERE bib_id = ? AND active = 1";
@@ -409,12 +409,12 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 
 		// new
-		Set<Integer> newOclcIds = new HashSet<Integer>(oclcIds);
+		Set<Integer> newOclcIds = new HashSet<>(oclcIds);
 		newOclcIds.removeAll(previousOclcIds);
 		populateWorkInfo(conn, newOclcIds, bibid);
 
 		// removed
-		Set<Integer> removedOclcIds = new HashSet<Integer>(previousOclcIds);
+		Set<Integer> removedOclcIds = new HashSet<>(previousOclcIds);
 		removedOclcIds.removeAll(oclcIds);
 		deactivateWorkInfo(conn, removedOclcIds, bibid);
 
@@ -625,7 +625,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private static List<HoldingRecord> removeOrigHoldingsDataFromDB(
 			Connection conn, int bibid) throws SQLException {
-		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
+		List<HoldingRecord> holdings = new ArrayList<>();
 		final String origMfhdQuery =
 				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
 		final String deleteItemQuery =

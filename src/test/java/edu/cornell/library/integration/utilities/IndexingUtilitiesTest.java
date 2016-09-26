@@ -10,7 +10,7 @@ import org.junit.Test;
 public class IndexingUtilitiesTest {
 
 	@Test
-	public void insertSpaceAfterCommasTest() {
+	public static void insertSpaceAfterCommasTest() {
 	 assertTrue(true);
 	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
 	 assertTrue(insertSpaceAfterCommas("hello,world").equals("hello, world"));
@@ -20,7 +20,7 @@ public class IndexingUtilitiesTest {
 	}
 	
 	@Test
-	public void getSortHeadingTest() {
+	public static void getSortHeadingTest() {
 		assertTrue(getFilingForm("hello").equals("hello"));
 		assertTrue(getFilingForm("Hello").equals("hello"));
 		assertTrue(getFilingForm("Hello,").equals("hello"));

@@ -91,7 +91,7 @@ public class DavServiceImpl implements DavService {
      */
     public List<String> getFileList(String url) throws IOException {
         try{
-            List<String> filelist = new ArrayList<String>();
+            List<String> filelist = new ArrayList<>();
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
             List<DavResource> resources = sardine.list(url);
             for (DavResource res : resources) {
@@ -108,7 +108,7 @@ public class DavServiceImpl implements DavService {
 
     public List<String> getFileUrlList(String url) throws Exception {
         try{
-            List<String> filelist = new ArrayList<String>();
+            List<String> filelist = new ArrayList<>();
             Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
             String host = new String();
             String scheme = new String();

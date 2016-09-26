@@ -31,7 +31,7 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 
 		MarcRecord rec = new MarcRecord();
 
@@ -49,8 +49,8 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
 			String relation;
 			String publisher = null;
 			String pubplace = null;

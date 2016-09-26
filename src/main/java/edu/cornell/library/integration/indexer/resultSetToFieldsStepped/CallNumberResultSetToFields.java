@@ -35,11 +35,11 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		//were created by the fieldMaker objects.
 		
 		FieldMakerStep step = new FieldMakerStep();
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		ArrayList<String> callnos = new ArrayList<String>();
-		ArrayList<String> letters = new ArrayList<String>();
+		Map<String,SolrInputField> fields = new HashMap<>();
+		ArrayList<String> callnos = new ArrayList<>();
+		ArrayList<String> letters = new ArrayList<>();
 		String sort_callno = null;
-		ArrayList<Classification> classes = new ArrayList<Classification>();
+		ArrayList<Classification> classes = new ArrayList<>();
 		String non_lc_callno = null; // We only need up to one of these
 		
 		/*
@@ -161,7 +161,7 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 		
 		// new bl5-compatible hierarchical facet
 		int classCount = classes.size();
-		Collection<String> lc_callnum_facet = new HashSet<String>(); // hashset eliminates dupes
+		Collection<String> lc_callnum_facet = new HashSet<>(); // hashset eliminates dupes
 		if ( classCount != 0 ) {
 			try (   Connection conn = config.getDatabaseConnection("CallNos");
 					PreparedStatement pstmt = conn.prepareStatement

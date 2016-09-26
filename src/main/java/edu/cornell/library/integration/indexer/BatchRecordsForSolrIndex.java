@@ -32,7 +32,7 @@ public class BatchRecordsForSolrIndex {
 	 */
 	public static Set<Integer> getBibsToIndex( Connection current, String solrUrl, int minCount, int maxCount ) throws Exception {
 
-        Set<Integer> addedBibs = new HashSet<Integer>(minCount);
+        Set<Integer> addedBibs = new HashSet<>(minCount);
 
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE"); }
@@ -99,7 +99,7 @@ public class BatchRecordsForSolrIndex {
 	 * [2] http://mathforum.org/library/drmath/view/64874.html
 	 */
 	private static ArrayList<Integer> generatePrimeNumberList(int number) {
-		ArrayList<Integer> primeNumbers = new ArrayList<Integer>(number);
+		ArrayList<Integer> primeNumbers = new ArrayList<>(number);
 		int i = 0;
 		MAIN: while (primeNumbers.size() < number) {
 			int halfOfI = ++i/2;

@@ -46,7 +46,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 
 		MarcRecord rec = new MarcRecord();
 
@@ -65,9 +65,9 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			Set<String> valuesFacet = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
+			Set<String> valuesFacet = new HashSet<>();
 			String suffixes = "";
 			String dates = "";
 			String cts = "";
@@ -163,7 +163,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						String author_display = sb_disp.toString();
 						addField(solrFields,"author_display",removeTrailingPunctuation(author_display,", "));
 						addField(solrFields,"author_cts",sb_piped.toString());
-						Map<String,Object> json = new HashMap<String,Object>();
+						Map<String,Object> json = new HashMap<>();
 						json.put("name1", s);
 						json.put("search1", cts880);
 						if (suffixes.isEmpty())
@@ -195,7 +195,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					}
 			} else {
 				for (String s: values880) {
-					Map<String,Object> json = new HashMap<String,Object>();
+					Map<String,Object> json = new HashMap<>();
 					if (suffixes.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts880);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));
@@ -225,7 +225,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
 				}
 				for (String s: valuesMain) {
-					Map<String,Object> json = new HashMap<String,Object>();
+					Map<String,Object> json = new HashMap<>();
 					if (suffixes.isEmpty()) {
 						addField(solrFields,"author_cts",s+"|"+cts);
 						addField(solrFields,"author_display",removeTrailingPunctuation(s,", "));

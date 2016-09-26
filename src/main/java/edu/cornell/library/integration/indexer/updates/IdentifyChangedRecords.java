@@ -57,7 +57,7 @@ public class IdentifyChangedRecords {
 	DavService davService;
 	SolrBuildConfig config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-	Set<Integer> updatedBibs = new HashSet<Integer>();
+	Set<Integer> updatedBibs = new HashSet<>();
 	private static Timestamp max_date = null;
 
 	final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY;
@@ -407,13 +407,13 @@ public class IdentifyChangedRecords {
 
 		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
 		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
-		Set<Integer> mfhdsToUpdate = new HashSet<Integer>();
+		Set<Integer> mfhdsToUpdate = new HashSet<>();
 		mfhdsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.itemsNewerInVoyagerThanIndex();
 		System.out.println("\titemsNewerInVoyagerThanIndex: "+tempMap.size());
-		Set<Integer> itemsToUpdate = new HashSet<Integer>();
+		Set<Integer> itemsToUpdate = new HashSet<>();
 		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 

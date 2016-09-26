@@ -36,10 +36,8 @@ public class MarcRecord {
 
 	public String leader = " ";
 	public String modified_date = null;
-	public Map<Integer,ControlField> control_fields
-	= new HashMap<Integer,ControlField>();
-	public Map<Integer,DataField> data_fields
-	= new HashMap<Integer,DataField>();
+	public Map<Integer,ControlField> control_fields = new HashMap<>();
+	public Map<Integer,DataField> data_fields = new HashMap<>();
 	public RecordType type;
 	public String id;
 	public String bib_id;
@@ -158,8 +156,8 @@ public class MarcRecord {
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
-		final Map<Integer,FieldSet> matchedFields  = new HashMap<Integer,FieldSet>();
-		final Map<Integer,FieldSet> sortedFields = new HashMap<Integer,FieldSet>();
+		final Map<Integer,FieldSet> matchedFields  = new HashMap<>();
+		final Map<Integer,FieldSet> sortedFields = new HashMap<>();
 		final Integer[] ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
 		Arrays.sort( ids );
 		for( final Integer id: ids) {
@@ -270,7 +268,7 @@ public class MarcRecord {
 		public String alttag; //subfield 6 tag number for an 880 field
 		public Character ind1 = ' ';
 		public Character ind2 = ' ';
-		public Map<Integer,Subfield> subfields = new HashMap<Integer,Subfield>();
+		public Map<Integer,Subfield> subfields = new HashMap<>();
 
 		public Integer linkOccurrenceNumber; //from MARC subfield 6
 		public String mainTag = null;
@@ -373,7 +371,7 @@ public class MarcRecord {
 		 * will fail for RTL Subfields appearing before the appropriate subfield $6.
 		 */
 		public List<String> valueListForSpecificSubfields(final String subfields) {
-			final List<String> l = new ArrayList<String>();
+			final List<String> l = new ArrayList<>();
 			Boolean rtl = false;
 			for (final Subfield sf : this.subfields.values()) {
 				if (sf.code.equals('6'))
@@ -454,8 +452,8 @@ public class MarcRecord {
 		 * @return FieldValues
 		 */
 		public FieldValues getFieldValuesForNameMaybeTitleField(String subfields) {
-			List<String> authorSubfields = new ArrayList<String>();
-			List<String> titleSubfields = new ArrayList<String>();
+			List<String> authorSubfields = new ArrayList<>();
+			List<String> titleSubfields = new ArrayList<>();
 			boolean foundTitle = false;
 			for(Subfield sf : this.subfields.values()) {
 				if (subfields != null && -1 == subfields.indexOf(sf.code))
@@ -502,7 +500,7 @@ public class MarcRecord {
 	public static class FieldSet {
 		Integer minFieldNo;
 		Integer linkOccurrenceNumber;
-		public Set<DataField> fields = new HashSet<DataField>();
+		public Set<DataField> fields = new HashSet<>();
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();

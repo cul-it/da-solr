@@ -33,7 +33,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		MarcRecord rec = new MarcRecord();
 		
 		for( String resultKey: results.keySet()){
@@ -47,9 +47,9 @@ public class URLResultSetToFields implements ResultSetToFields {
 		Arrays.sort( ids );
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			Set<String> urls = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
+			Set<String> urls = new HashSet<>();
 			for (DataField f : fs.fields) {
 				urls.addAll(f.valueListForSpecificSubfields("u"));
 				String linkLabel = f.concatenateSpecificSubfields("3yz");

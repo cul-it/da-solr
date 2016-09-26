@@ -45,7 +45,7 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}
 
 	@AfterClass
-	public static void down() throws Exception{
+	public static void down(){
 		takeDownSolr();
 	}
 	
@@ -60,76 +60,75 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	
 	@Test
 	@Ignore
-	public void testBronte() throws SolrServerException, IOException{
-		
-		/* make sure that we have the document in the index before we do anything */			
+	public static void testBronte() throws SolrServerException, IOException{
+
+		/* make sure that we have the document in the index before we do anything */
 		testQueryGetsDocs("Expect to find Bronte document by doc:id 4696",
 				new SolrQuery().setQuery("id:4696").setParam("qt", "standard"),
-				new String[]{ "4696" } ) ;			
-		
+				new String[]{ "4696" } ) ;
+
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'bronte'",
 				new SolrQuery().setQuery("bronte"),
 				new String[]{ "4696" } ) ;
-				
+
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems'",
 				new SolrQuery().setQuery( "Selected Bronte\u0308 poems") ,
 				new String[]{ "4696" } ) ;
-				
+
 		testQueryGetsDocs("Expect to find doc:id 4696 when searching for 'Selected Bronte\u0308 poems' all in quotes",
 				new SolrQuery().setQuery( "\"Selected Bronte\u0308 poems\"") ,
-				new String[]{ "4696" } ) ;		
-	}		
-	
-	@Test
-	@Ignore 
-	public void testUnicode() throws SolrServerException, IOException{
-		testQueryGetsDocs("Expect to find document by doc:id 3309",
-				new SolrQuery().setQuery("id:3309").setParam("qt", "standard"),
-				new String[]{ "3309" } ) ;
-		
-		SolrQuery q = new SolrQuery().setQuery("id:3309").setParam("qt", "standard");
-		QueryResponse sqr = solr.query(q);		
-		String v = (String) sqr.getResults().get(0).getFirstValue("pub_info_display");		
-		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("Xuân Thu"));						
-
-		testQueryGetsDocs("Expect to find document by doc:id 1322952",
-				new SolrQuery().setQuery("id:1322952").setParam("qt", "standard"),
-				new String[]{ "1322952" } ) ;
-		
-		q = new SolrQuery().setQuery("id:1322952").setParam("qt", "standard");
-		sqr = solr.query(q);		
-		v = (String) sqr.getResults().get(0).getFieldValue("title_vern_display");
-		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("台湾経済叢書"));		
+				new String[]{ "4696" } ) ;
 	}
 
 	@Test
 	@Ignore
-	public void testLanguageSearchFacet() throws SolrServerException, IOException{
+	public static void testUnicode() throws SolrServerException, IOException{
+		testQueryGetsDocs("Expect to find document by doc:id 3309",
+				new SolrQuery().setQuery("id:3309").setParam("qt", "standard"),
+				new String[]{ "3309" } ) ;
 
-		try {
-			InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> ?f." +
+		SolrQuery q = new SolrQuery().setQuery("id:3309").setParam("qt", "standard");
+		QueryResponse sqr = solr.query(q);
+		String v = (String) sqr.getResults().get(0).getFirstValue("pub_info_display");
+		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("Xuân Thu"));
+
+		testQueryGetsDocs("Expect to find document by doc:id 1322952",
+				new SolrQuery().setQuery("id:1322952").setParam("qt", "standard"),
+				new String[]{ "1322952" } ) ;
+
+		q = new SolrQuery().setQuery("id:1322952").setParam("qt", "standard");
+		sqr = solr.query(q);
+		v = (String) sqr.getResults().get(0).getFieldValue("title_vern_display");
+		assertTrue("Expected string to contain utf8 but it was " + v, v.contains("台湾経済叢書"));
+	}
+
+	@Test
+	@Ignore
+	public static void testLanguageSearchFacet() throws SolrServerException, IOException{
+
+		try ( InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { <http://da-rdf.library.cornell.edu/individual/b4696> <http://marcrdf.library.cornell.edu/canonical/0.1/hasField008> ?f." +
 					"?f <http://marcrdf.library.cornell.edu/canonical/0.1/value> ?val. " +
 					"?l <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://da-rdf.library.cornell.edu/integrationLayer/0.1/Language>. " +
 					"?l <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?langcode. " +
 					"FILTER( SUBSTR( ?val,36,3) = ?langcode ) " +
-					"?l <http://www.w3.org/2000/01/rdf-schema#label> ?language.}",RDFService.ResultFormat.TEXT);
+					"?l <http://www.w3.org/2000/01/rdf-schema#label> ?language.}",RDFService.ResultFormat.TEXT) ) {
 			String language = convertStreamToString(is);
 			assertTrue("Record was expected to be mappable to English language.",language.contains("English"));
 		} catch (RDFServiceException e) {
+			e.printStackTrace();
 			assertTrue("failed to query rdf service",false);
 		}
 
-		
 		//"Expected English for language_facet on document 4696, " +
 		//"it is likely the language mapping RDF is not loaded.",
 		SolrQuery q = new SolrQuery().setQuery("bronte");
-		QueryResponse resp = solr.query(q);				
+		QueryResponse resp = solr.query(q);
 		SolrDocumentList sdl = resp.getResults();
-		assertNotNull("expected to find doc 4696", sdl);		
-		assertEquals(1, sdl.size());		
-		
-		FacetField ff = resp.getFacetField("language_facet");		
-		assertNotNull( ff );		
+		assertNotNull("expected to find doc 4696", sdl);
+		assertEquals(1, sdl.size());
+
+		FacetField ff = resp.getFacetField("language_facet");
+		assertNotNull( ff );
 		boolean englishFound = false;
 		boolean englishGTEOne = false;
 		for( Count ffc : ff.getValues()){
@@ -141,10 +140,10 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 		assertTrue("English should be a facet", englishFound);
 		assertTrue("doc 4696 should be English", englishGTEOne);
 	}
-	
+
 	@Test
 	@Ignore
-	public void testCallnumSearchFacet() throws SolrServerException, IOException{
+	public static void testCallnumSearchFacet() throws SolrServerException, IOException{
 		
 		//"Expected "P - Language & Literature" for lc_1letter_facet on document 4696."
 		SolrQuery q = new SolrQuery().setQuery("bronte");
@@ -168,10 +167,11 @@ public class RecordToDocumentMARCTest extends SolrLoadingTestBase {
 	}
 
 	public static String convertStreamToString(java.io.InputStream is) {
-	    java.util.Scanner s = new java.util.Scanner(is);
-	    s.useDelimiter("\\A");
-	    String val = s.hasNext() ? s.next() : "";
-	    s.close();
+		String val;
+	    try ( java.util.Scanner s = new java.util.Scanner(is) ) {
+	    	s.useDelimiter("\\A");
+	    	val = s.hasNext() ? s.next() : "";
+	    }
 	    return val;
 	}
 }

@@ -24,7 +24,7 @@ public class NameFieldsAsColumnsRSTF implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) {
 
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);

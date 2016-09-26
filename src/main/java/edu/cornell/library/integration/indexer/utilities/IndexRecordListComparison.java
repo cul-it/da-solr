@@ -36,11 +36,11 @@ public class IndexRecordListComparison {
 
 	private Connection conn = null;
 	private Statement stmt = null;
-	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
+	private Map<String,PreparedStatement> pstmts = new HashMap<>();
 
 	
 	public static List<String> requiredArgs() {
-		List<String> l = new ArrayList<String>();
+		List<String> l = new ArrayList<>();
 		l.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
 		l.add("solrUrl");
 		return l;
@@ -54,7 +54,7 @@ public class IndexRecordListComparison {
 	}
 
 	public Map<Integer,ChangedBib> mfhdsAttachedToDifferentBibs() throws SQLException {
-		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
+		Map<Integer,ChangedBib> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
 				+ "FROM "+CurrentDBTable.MFHD_VOY+" as v, "
@@ -68,7 +68,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Map<Integer,ChangedBib> itemsAttachedToDifferentMfhds() throws SQLException {
-		Map<Integer,ChangedBib> m = new HashMap<Integer,ChangedBib>();
+		Map<Integer,ChangedBib> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
 				+ "FROM "+CurrentDBTable.ITEM_VOY+" as v, "
@@ -85,7 +85,7 @@ public class IndexRecordListComparison {
 
 	
 	public Map<Integer,Integer> itemsInVoyagerNotIndex() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		// new items
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.item_id, v.mfhd_id"
@@ -101,7 +101,7 @@ public class IndexRecordListComparison {
 
 	
 	public Map<Integer,Integer> itemsInIndexNotVoyager() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		// deleted items
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.item_id, s.mfhd_id "
@@ -115,7 +115,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
 				+ "FROM "+CurrentDBTable.ITEM_VOY+" as v,"
@@ -131,7 +131,7 @@ public class IndexRecordListComparison {
 
 	
 	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id"
 				+ " from "+CurrentDBTable.MFHD_VOY+" as v "
@@ -145,7 +145,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		// deleted mfhds
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id"
@@ -159,7 +159,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> m = new HashMap<>();
 		// updated holdings
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id "
@@ -175,7 +175,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
-		Set<Integer> l = new HashSet<Integer>();
+		Set<Integer> l = new HashSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.bib_id from "+CurrentDBTable.BIB_VOY+" as v "
 				+ "left join "+CurrentDBTable.BIB_SOLR+" as s"
@@ -188,7 +188,7 @@ public class IndexRecordListComparison {
 	
 	public Set<Integer> bibsInIndexNotVoyager() throws SQLException {
 		
-		Set<Integer> l = new HashSet<Integer>();
+		Set<Integer> l = new HashSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.bib_id from "+CurrentDBTable.BIB_SOLR+" as s "
 				+ "left join "+CurrentDBTable.BIB_VOY+" as v"
@@ -200,7 +200,7 @@ public class IndexRecordListComparison {
 	}
 
 	public Set<Integer> bibsNewerInVoyagerThanIndex() throws SQLException {
-		Set<Integer> l = new HashSet<Integer>();
+		Set<Integer> l = new HashSet<>();
 		try (   Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(
 				"SELECT v.bib_id"
@@ -215,7 +215,7 @@ public class IndexRecordListComparison {
 	}
 
 	public Set<Integer> bibsMarkedAsNeedingReindexingDueToDataChange() throws SQLException {
-		Set<Integer> l = new HashSet<Integer>();
+		Set<Integer> l = new HashSet<>();
 		try (   Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(
 				"SELECT bib_id FROM "+CurrentDBTable.QUEUE

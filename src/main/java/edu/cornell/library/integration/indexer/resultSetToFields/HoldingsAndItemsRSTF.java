@@ -46,13 +46,13 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	private Boolean debug = false;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");
 	LocationSet locations = new LocationSet();
-	Collection<String> holding_ids = new HashSet<String>();
-	Map<String,Holdings> holdings = new HashMap<String,Holdings>();
-	Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-	Collection<String> descriptions = new HashSet<String>();
+	Collection<String> holding_ids = new HashSet<>();
+	Map<String,Holdings> holdings = new HashMap<>();
+	Map<String,SolrInputField> fields = new HashMap<>();
+	Collection<String> descriptions = new HashSet<>();
 	boolean description_with_e = false;
 	String rectypebiblvl = null;
-	Collection<Map<String,Object>> boundWiths = new ArrayList<Map<String,Object>>();
+	Collection<Map<String,Object>> boundWiths = new ArrayList<>();
 	Connection conn = null;
 	static ObjectMapper mapper = new ObjectMapper();
 	
@@ -60,7 +60,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 		
-		Map<String,MarcRecord> recs = new HashMap<String,MarcRecord>();
+		Map<String,MarcRecord> recs = new HashMap<>();
 
 		for( String resultKey: results.keySet()){
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
@@ -119,13 +119,13 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
 
-			Collection<String> loccodes = new HashSet<String>();
-			Collection<String> callnos = new HashSet<String>();
-			List<String> holdingDescs = new ArrayList<String>();
-			List<String> recentHoldings = new ArrayList<String>();
-			List<String> supplementalHoldings = new ArrayList<String>();
-			List<String> indexHoldings = new ArrayList<String>();
-			List<String> notes = new ArrayList<String>();
+			Collection<String> loccodes = new HashSet<>();
+			Collection<String> callnos = new HashSet<>();
+			List<String> holdingDescs = new ArrayList<>();
+			List<String> recentHoldings = new ArrayList<>();
+			List<String> supplementalHoldings = new ArrayList<>();
+			List<String> indexHoldings = new ArrayList<>();
+			List<String> notes = new ArrayList<>();
 			String copyNo = null;
 			
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
@@ -281,7 +281,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				if (item_id == 0) return;
 			}
 		}
-		Map<String,Object> boundWith = new HashMap<String,Object>();
+		Map<String,Object> boundWith = new HashMap<>();
 		boundWith.put("item_id", item_id);
 		boundWith.put("mfhd_id", mfhd_id);
 		boundWith.put("item_enum", item_enum);
@@ -300,8 +300,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			return;
 		}
 		
-		Map<String,LocationEnumStats> enumStats = new HashMap<String,LocationEnumStats>();
-		Collection<Map<String,Object>> items = new HashSet<Map<String,Object>>();
+		Map<String,LocationEnumStats> enumStats = new HashMap<>();
+		Collection<Map<String,Object>> items = new HashSet<>();
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
 			if (debug)
@@ -321,18 +321,17 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			if (debug)
 				System.out.println(query);
 
-	        Statement stmt = null;
-	        java.sql.ResultSet rs = null;
+	        
+	        
 	        ResultSetMetaData rsmd = null;
-	        try {
-	        	stmt = conn.createStatement();
-	
-	        	rs = stmt.executeQuery(query);
+	        try (Statement stmt = conn.createStatement();
+	        		java.sql.ResultSet rs = stmt.executeQuery(query)) {
+
 	        	rsmd = rs.getMetaData();
 	        	int mdcolumnCount = rsmd.getColumnCount();
 	        	while (rs.next()) {
 		        	   
-	        		Map<String,Object> record = new HashMap<String,Object>();
+	        		Map<String,Object> record = new HashMap<>();
 	        		record.put("mfhd_id",h.id);
 	        		String loc = null;
 	        		
@@ -414,14 +413,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	        } catch (SQLException ex) {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
-	        } catch (Exception ex) {
-	        	ex.printStackTrace();
-	        } finally {
-	       
-	           try {
-	              if (stmt != null) stmt.close();
-	              if (rs != null) rs.close();
-	           } catch (Exception ex) {}
 	        }
         
 		}
@@ -436,7 +427,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		}
 		
 		if (!multivol && enumStats.size() > 1) {
-			Collection<String> nonBlankEnums = new HashSet<String>();
+			Collection<String> nonBlankEnums = new HashSet<>();
 			for (LocationEnumStats stats : enumStats.values())
 				if (! stats.aFoundEnum.equals(""))
 					if ( ! nonBlankEnums.contains(stats.aFoundEnum))
@@ -638,8 +629,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	}
 	
 	public static class LocationSet {
-		private Map<String,Location> _byCode = new HashMap<String,Location>();
-		private Map<Integer,Location> _byNumber = new HashMap<Integer,Location>();
+		private Map<String,Location> _byCode = new HashMap<>();
+		private Map<Integer,Location> _byNumber = new HashMap<>();
 		
 		public void add(Location l) {
 			_byCode.put(l.code, l);

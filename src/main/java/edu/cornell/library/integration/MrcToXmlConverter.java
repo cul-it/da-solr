@@ -104,7 +104,7 @@ public class MrcToXmlConverter {
 
        boolean permissive      = true;
        boolean convertToUtf8   = true;
-       List<String> f001list = new ArrayList<String>();
+       List<String> f001list = new ArrayList<>();
         
        destXmlFile = getOutputFileName(batch);
        writer = getWriter(destXmlFile);       

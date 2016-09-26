@@ -32,8 +32,7 @@ public class Headings2Solr {
 			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
 	static final ObjectMapper mapper = new ObjectMapper();
-	private final Map<HeadType, HashMap<HeadTypeDesc, String>> blacklightFields =
-			new HashMap<HeadType,HashMap<HeadTypeDesc,String>>();
+	private final Map<HeadType,HashMap<HeadTypeDesc,String>> blacklightFields = new HashMap<>();
 
 	public static void main(String[] args) {
 		try {
@@ -80,7 +79,7 @@ public class Headings2Solr {
 			+ " WHERE h."+ht.dbField()+" > 0"
 			+ "    OR h2."+ht.dbField()+" > 0"
 			+ " GROUP BY h.id";
-		Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+		Collection<SolrInputDocument> docs = new ArrayList<>();
 
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
@@ -143,8 +142,8 @@ public class Headings2Solr {
 	
 	private static PreparedStatement ref_pstmt = null;
 	private References getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
-		Collection<String> seeRefs = new ArrayList<String>();
-		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<String,Collection<Object>>();
+		Collection<String> seeRefs = new ArrayList<>();
+		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<>();
 		if (ref_pstmt == null)
 			ref_pstmt = connection.prepareStatement(
 					" SELECT r.ref_type, r.ref_desc, h.* "
@@ -159,7 +158,7 @@ public class Headings2Solr {
 			while (rs.next()) {
 				int count = rs.getInt(ht.dbField());
 				if (count == 0) continue;
-				Map<String,Object> vals = new HashMap<String,Object>();
+				Map<String,Object> vals = new HashMap<>();
 				vals.put("count", count);
 				vals.put("worksAbout", rs.getInt("works_about"));
 				vals.put("heading", rs.getString("heading"));
@@ -183,7 +182,7 @@ public class Headings2Solr {
 					if (seeAlsoRefs.containsKey(relationship))
 						seeAlsoRefs.get(relationship).add(vals);
 					else {
-						Collection<Object> thisRel = new ArrayList<Object>();
+						Collection<Object> thisRel = new ArrayList<>();
 						thisRel.add(vals);
 						seeAlsoRefs.put(relationship, thisRel);
 					}
@@ -215,7 +214,7 @@ public class Headings2Solr {
 			note_pstmt = connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
 		note_pstmt.setInt(1, id);
 		note_pstmt.execute();
-		Collection<String> notes = new ArrayList<String>();
+		Collection<String> notes = new ArrayList<>();
 		try ( ResultSet rs = note_pstmt.getResultSet() ){
 			while (rs.next())
 				notes.add( rs.getString("note") );
@@ -234,7 +233,7 @@ public class Headings2Solr {
 					+ " ORDER BY sort");
 		alt_pstmt.setInt(1, id);
 		alt_pstmt.execute();
-		Collection<String> forms = new ArrayList<String>();
+		Collection<String> forms = new ArrayList<>();
 		try ( ResultSet rs = alt_pstmt.getResultSet() ){
 			while (rs.next())
 				forms.add( rs.getString("heading") );

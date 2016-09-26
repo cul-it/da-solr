@@ -30,7 +30,7 @@ public class FactOrFictionResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		String chars6and7 = "";
 		String char33 = "";
 

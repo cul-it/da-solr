@@ -83,19 +83,19 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	public static void setupSolr() throws Exception{		
 		setupRdf();
 		solr = new HttpSolrClient("http://da-dev-solr.library.cornell.edu/solr/test");
-		indexStandardTestRecords( solr, rdf );		
+		indexStandardTestRecords( solr );		
 	}
 	
-	public static void takeDownSolr() throws Exception{		
+	public static void takeDownSolr() {		
 		solrTmpFolder.delete();		
 	}
 	
-	public void testSolrWasStarted() throws SolrServerException, IOException {
+	public static void testSolrWasStarted() throws SolrServerException, IOException {
 		assertNotNull( solr );
 		solr.ping();
 	}
 	
-	public void testRadioactiveIds() throws SolrServerException, IOException{	
+	public static void testRadioactiveIds() throws SolrServerException, IOException{	
 		String[] ids = new String[]{				
 				"UNTRadMARC001", 		
 				"UNTRadMARC002",
@@ -135,7 +135,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	 * Test that a document with the given IDs are in the results for the query. 
 	 * @throws SolrServerException 
 	 * @throws IOException */
-	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException, IOException{
+	static void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException, IOException{
 		assertNotNull(errmsg + " but query was null", query);
 		assertNotNull(errmsg + " but docIds was null", docIds );
 									
@@ -143,7 +143,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		if( resp == null )
 			fail( errmsg + " but Could not get a solr response");
 		
-		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
+		Set<String> expecteIds = new HashSet<>(Arrays.asList( docIds ));
 		for( SolrDocument doc : resp.getResults()){
 			assertNotNull(errmsg + ": solr doc was null", doc);
 			String id = (String) doc.getFirstValue("id");
@@ -171,12 +171,14 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 	    return answer;
 	}
 
-	private static void indexStandardTestRecords( SolrClient solr , RDFService rdfService) throws Exception {
+	private static void indexStandardTestRecords( SolrClient solr) throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
-		InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { ?bib  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" +
+		String bib_xml;
+		try ( InputStream is = rdf.sparqlSelectQuery("SELECT * WHERE { ?bib  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" +
 				"             <http://marcrdf.library.cornell.edu/canonical/0.1/BibliographicRecord> .}",
-				 RDFService.ResultFormat.TEXT);
-		String bib_xml = convertStreamToString(is);
+				 RDFService.ResultFormat.TEXT) ) {
+			bib_xml = convertStreamToString(is);
+		}
 		System.out.println(bib_xml);
 		Pattern p = Pattern.compile("<([^>]*)>");
 		Matcher m = p.matcher(bib_xml);
@@ -199,6 +201,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 			} catch (Exception e) {
 				System.out.println("Failed adding doc to solr for uri:" + uri);				
 				System.out.println( IndexingUtilities.toString( doc ) + "\n\n" );
+				e.printStackTrace();
 //				throw e;
 			}
 		}

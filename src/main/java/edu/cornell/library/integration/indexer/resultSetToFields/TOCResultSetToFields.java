@@ -37,7 +37,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 		MarcRecord rec = new MarcRecord();
 		
 		for( String resultKey: results.keySet()){
@@ -52,9 +52,9 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			List<String> values880 = new ArrayList<String>();
-			List<Boolean> isCJK = new ArrayList<Boolean>();
-			List<String> valuesMain = new ArrayList<String>();
+			List<String> values880 = new ArrayList<>();
+			List<Boolean> isCJK = new ArrayList<>();
+			List<String> valuesMain = new ArrayList<>();
 			String relation = null;
 			String subfields = "atr";
 			for (DataField f: dataFields) {

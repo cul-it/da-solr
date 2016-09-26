@@ -16,7 +16,7 @@ import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.ResultSe
 public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 	
 	List<ResultSetToFieldsStepped> resultSetToFieldsStepped;
-	Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
+	Map<String, SolrInputField> fields = new HashMap<>();
 
 	public SPARQLFieldMakerStepped setName(String name){
 		super.name = name;
@@ -25,21 +25,21 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 	
 	public SPARQLFieldMakerStepped addLocalStoreQuery(String key, String query){
 		if( this.localStoreQueries == null )			
-			this.localStoreQueries = new HashMap<String,String>();
+			this.localStoreQueries = new HashMap<>();
 		this.localStoreQueries.put(key,query);
 		return this;
 	}
 
 	public SPARQLFieldMakerStepped addMainStoreQuery(String key, String query){
 		if( this.mainStoreQueries == null )
-			this.mainStoreQueries = new HashMap<String, String>();
+			this.mainStoreQueries = new HashMap<>();
 		this.mainStoreQueries.put(key, query);
 		return this;		
 	}
 
 	public SPARQLFieldMakerStepped  addResultSetToFieldsStepped(ResultSetToFieldsStepped rs2f) {
 		if( this.resultSetToFieldsStepped == null )
-			this.resultSetToFieldsStepped = new ArrayList<ResultSetToFieldsStepped>();		
+			this.resultSetToFieldsStepped = new ArrayList<>();		
 		this.resultSetToFieldsStepped.add( rs2f );
 		return this;
 	}
@@ -67,9 +67,9 @@ public class SPARQLFieldMakerStepped extends SPARQLFieldMakerBase{
 		resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 		throws Exception {
 		
-		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
-		mainStoreQueries = new HashMap<String,String>();
-		localStoreQueries = new HashMap<String,String>();
+		Map<String, SolrInputField> fields = new HashMap<>();
+		mainStoreQueries = new HashMap<>();
+		localStoreQueries = new HashMap<>();
 		
 		for( ResultSetToFieldsStepped r2f : resultSetToFieldsStepped ){
 			

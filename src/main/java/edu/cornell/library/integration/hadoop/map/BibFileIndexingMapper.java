@@ -114,7 +114,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				Dataset dataset = null;
 				Model model = null;
 				
-				try{
+				try {
 
 					context.progress();
 
@@ -164,7 +164,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					config.setRDFService("main", rdf);
 	                int n = 0;
 	
-	                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+	                Collection<SolrInputDocument> docs = new HashSet<>();
 	                for( String bibUri: bibUris){	
 	                    n++;
 	                    System.out.println("indexing " + n + " out of " + total 
@@ -188,7 +188,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						if ( ! docs.isEmpty() ) {
 							if( doSolrUpdate ){
 								//in solr an update is a delete followed by an add
-				            	List<String> ids = new ArrayList<String>();
+				            	List<String> ids = new ArrayList<>();
 				            	for (SolrInputDocument doc : docs)
 				            		ids.add((String)doc.getFieldValue("id"));
 				            	solr.deleteById(ids);
@@ -218,9 +218,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					continue; //failed... retry
 	
 				}finally{			
-					FileUtils.deleteDirectory( tmpDir );			
-					model.close();
-					dataset.close();
+					FileUtils.deleteDirectory( tmpDir );
+					if ( model != null )
+						model.close();
+					if ( dataset != null )
+						dataset.close();
 				}
 				
 				return; // success, break out of loop
@@ -295,7 +297,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 	/** Attempt to get all the bib record URIs from model. */
 	private Set<String> getURIsInModel(  Model model ) {
-		Set<String>bibUris = new HashSet<String>();
+		Set<String>bibUris = new HashSet<>();
 		for( String queryStr : idQueries){
 			try{
 				Query query = QueryFactory.create(queryStr) ;

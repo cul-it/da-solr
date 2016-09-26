@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.Clob;
@@ -23,8 +24,8 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 public class BarcodeSearch implements DocumentPostProcess{
 
 	final static Boolean debug = false;
-	Collection<String> barcodes = new HashSet<String>();
-	
+	Collection<String> barcodes = new HashSet<>();
+
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
@@ -54,14 +55,11 @@ public class BarcodeSearch implements DocumentPostProcess{
 					"  AND CORNELLDB.MFHD_ITEM.MFHD_ID = \'" + mfhd_id + "\'";
 			if (debug)
 				System.out.println(query);
-	
-	        Statement stmt = null;
-	        ResultSet rs = null;
-	        ResultSetMetaData rsmd = null;
-	        try {
-	        	stmt = conn.createStatement();
-	
-	        	rs = stmt.executeQuery(query);
+
+			ResultSetMetaData rsmd = null;
+	        try (Statement stmt = conn.createStatement();
+	        		ResultSet rs = stmt.executeQuery(query); ) {
+
 	        	rsmd = rs.getMetaData();
 	        	int mdcolumnCount = rsmd.getColumnCount();
 	        	while (rs.next()) {
@@ -86,17 +84,10 @@ public class BarcodeSearch implements DocumentPostProcess{
 	       				}
 	        		}
 	        	}
-	        } catch (SQLException ex) {
+	        } catch (SQLException | IOException ex) {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
-	        } catch (Exception ex) {
-	        	ex.printStackTrace();
-	        } finally {
-	       
-	           try {
-	              if (stmt != null) stmt.close();
-	              if (rs != null) rs.close();
-	           } catch (Exception ex) {}
+	           System.exit(1);
 	        }
         
 		}
@@ -115,7 +106,7 @@ public class BarcodeSearch implements DocumentPostProcess{
 		document.put("barcode_t",newF);
 	}
 
-	private static String convertClobToString(Clob clob) throws Exception {
+	private static String convertClobToString(Clob clob) throws IOException, SQLException {
         StringWriter writer = new StringWriter();
         try (  InputStream inputStream = clob.getAsciiStream() ){
         	IOUtils.copy(inputStream, writer, "utf-8"); }

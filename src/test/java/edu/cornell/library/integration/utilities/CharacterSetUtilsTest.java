@@ -12,7 +12,7 @@ import org.junit.Test;
 public class CharacterSetUtilsTest {
 	
 	@Test
-	public void testIsCJK() {
+	public static void testIsCJK() {
 		assertFalse(isCJK("Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© : Ø´Ù…Ø³ Ù„Ù„Ù†Ø´Ø± ÙˆØ§Ù„ØªÙˆØ²ÙŠØ¹ØŒ 2012.â€�â€¬â€Ž")); // Arabic publication info
 		//Japanese title with English Translation
 		assertTrue(isCJK("è«–ç©¶ã‚¸ãƒ¥ãƒªã‚¹ãƒˆ = Quarterly jurist"));
@@ -29,7 +29,7 @@ public class CharacterSetUtilsTest {
 	 * which should return true instead of false.
 	 */
 	@Test
-	public void testHasCJK() {
+	public static void testHasCJK() {
 		assertFalse(hasCJK("Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© : Ø´Ù…Ø³ Ù„Ù„Ù†Ø´Ø± ÙˆØ§Ù„ØªÙˆØ²ÙŠØ¹ØŒ 2012.â€�â€¬â€Ž")); 
 		assertTrue(hasCJK("è«–ç©¶ã‚¸ãƒ¥ãƒªã‚¹ãƒˆ = Quarterly jurist"));
 		assertTrue(hasCJK("ä¸€ä¹�äº”ã€‡å¹´ä»£çš„å�°ç�£"));
@@ -40,7 +40,7 @@ public class CharacterSetUtilsTest {
 	}
 	
 	@Test
-	public void testTrimInternationally() {
+	public static void testTrimInternationally() {
 		// tests involving standard ASCII spacing
 		assertTrue(trimInternationally(" abc ").equals("abc"));
 		assertTrue(trimInternationally("   ").equals(""));

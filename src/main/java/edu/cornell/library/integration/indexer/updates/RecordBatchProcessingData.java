@@ -54,7 +54,7 @@ public class RecordBatchProcessingData {
 						filename.substring(filename.lastIndexOf('.')+1)));
 				Date endDate = resource.getModified();
 				JobType jt;
-				Set<Integer> bibsToUpdate = new HashSet<Integer>();
+				Set<Integer> bibsToUpdate = new HashSet<>();
 				try ( InputStream is = davService.getFileAsInputStream(batchDirUrl+'/'+filename);
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is)) ){
 					reader.readLine(); // discard first line

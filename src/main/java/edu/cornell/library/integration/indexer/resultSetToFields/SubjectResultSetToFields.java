@@ -47,7 +47,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 
 		//This method needs to return a map of fields:
-		final Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		final Map<String,SolrInputField> solrFields = new HashMap<>();
 
 		final MarcRecord rec = new MarcRecord();
 
@@ -58,11 +58,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 
-		final Collection<Heading> taggedFields = new LinkedHashSet<Heading>();
-		final Collection<String> subjectDisplay = new LinkedHashSet<String>();
-		final Collection<String> subjectJson = new LinkedHashSet<String>();
-		final Collection<String> authorityAltForms = new HashSet<String>();
-		final Collection<String> authorityAltFormsCJK = new HashSet<String>();
+		final Collection<Heading> taggedFields = new LinkedHashSet<>();
+		final Collection<String> subjectDisplay = new LinkedHashSet<>();
+		final Collection<String> subjectJson = new LinkedHashSet<>();
+		final Collection<String> authorityAltForms = new HashSet<>();
+		final Collection<String> authorityAltFormsCJK = new HashSet<>();
 
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
@@ -91,13 +91,13 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		}
 		for( final Heading h : taggedFields) {
 			final DataField[] dataFields = h.fs.fields.toArray( new DataField[ h.fs.fields.size() ]);
-			final Set<String> values880_piped = new HashSet<String>();
-			final Set<String> valuesMain_piped = new HashSet<String>();
-			final Set<String> values880_breadcrumbed = new HashSet<String>();
-			final Set<String> valuesMain_breadcrumbed = new HashSet<String>();
-			final Set<String> values_browse = new HashSet<String>();
-			final Set<String> valuesMain_json = new HashSet<String>();
-			final Set<String> values880_json = new HashSet<String>();
+			final Set<String> values880_piped = new HashSet<>();
+			final Set<String> valuesMain_piped = new HashSet<>();
+			final Set<String> values880_breadcrumbed = new HashSet<>();
+			final Set<String> valuesMain_breadcrumbed = new HashSet<>();
+			final Set<String> values_browse = new HashSet<>();
+			final Set<String> valuesMain_json = new HashSet<>();
+			final Set<String> values880_json = new HashSet<>();
 			HeadTypeDesc htd = HeadTypeDesc.GENHEAD; //default
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
@@ -206,8 +206,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					final StringBuilder sb_breadcrumbed = new StringBuilder();
 					sb_piped.append(primarySubjectTerm);
 					sb_breadcrumbed.append(primarySubjectTerm);
-					final List<Object> json = new ArrayList<Object>();
-					final Map<String,Object> subj1 = new HashMap<String,Object>();
+					final List<Object> json = new ArrayList<>();
+					final Map<String,Object> subj1 = new HashMap<>();
 					subj1.put("subject", primarySubjectTerm);
 					subj1.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,htd);
@@ -227,7 +227,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						addField(solrFields,"sixfivethree",sb_piped.toString());
 					}
 					for (final String dashed_term : dashed_terms) {
-						final Map<String,Object> subj = new HashMap<String,Object>();
+						final Map<String,Object> subj = new HashMap<>();
 						sb_piped.append("|"+dashed_term);
 						sb_breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);

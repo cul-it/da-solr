@@ -23,7 +23,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 	public static void main(String[] args)  {
 
-		List<String> requiredArgs = new ArrayList<String>();
+		List<String> requiredArgs = new ArrayList<>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 

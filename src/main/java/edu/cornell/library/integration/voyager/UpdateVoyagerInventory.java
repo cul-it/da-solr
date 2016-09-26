@@ -59,7 +59,7 @@ public class UpdateVoyagerInventory {
 
 	public static void main(String[] args) {
 
-		List<String> requiredArgs = new ArrayList<String>();
+		List<String> requiredArgs = new ArrayList<>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
@@ -74,9 +74,9 @@ public class UpdateVoyagerInventory {
 	private static void updateBibVoyTable(Connection voyager, Connection current) throws SQLException {
 
 		// Step 1: Compare bib lists between the two databases, and compile change lists.
-		Map<Integer,DateAndStatus> newBibs = new HashMap<Integer,DateAndStatus>();
-		Map<Integer,DateAndStatus> changedBibs = new HashMap<Integer,DateAndStatus>();
-		Set<Integer> deletedBibs = new HashSet<Integer>();
+		Map<Integer,DateAndStatus> newBibs = new HashMap<>();
+		Map<Integer,DateAndStatus> changedBibs = new HashMap<>();
+		Set<Integer> deletedBibs = new HashSet<>();
 
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();
@@ -225,9 +225,9 @@ public class UpdateVoyagerInventory {
 	private static void updateMfhdVoyTable(Connection voyager, Connection current) throws SQLException {
 
 		// Step 1: Compare mfhd lists between the two databases, and compile change lists.
-		Map<Integer,DateAndBib> newMfhds = new HashMap<Integer,DateAndBib>();
-		Map<Integer,DateAndBib> changedMfhds = new HashMap<Integer,DateAndBib>();
-		Map<Integer,Integer> deletedMfhds = new HashMap<Integer,Integer>();
+		Map<Integer,DateAndBib> newMfhds = new HashMap<>();
+		Map<Integer,DateAndBib> changedMfhds = new HashMap<>();
+		Map<Integer,Integer> deletedMfhds = new HashMap<>();
 
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();
@@ -392,9 +392,9 @@ public class UpdateVoyagerInventory {
 	private static void updateItemVoyTable(Connection voyager, Connection current) throws SQLException {
 
 		// Step 1: Compare mfhd lists between the two databases, and compile change lists.
-		Map<Integer,DateAndHolding> newItems = new HashMap<Integer,DateAndHolding>();
-		Map<Integer,DateAndHolding> changedItems = new HashMap<Integer,DateAndHolding>();
-		Map<Integer,Integer> deletedItems = new HashMap<Integer,Integer>();
+		Map<Integer,DateAndHolding> newItems = new HashMap<>();
+		Map<Integer,DateAndHolding> changedItems = new HashMap<>();
+		Map<Integer,Integer> deletedItems = new HashMap<>();
 
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();

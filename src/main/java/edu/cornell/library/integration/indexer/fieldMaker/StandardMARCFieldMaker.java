@@ -207,7 +207,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			if (sortedFields.keySet().size() == 0)
 				return Collections.emptyMap();
 
-			Map<String,SolrInputField> fieldmap = new HashMap<String,SolrInputField>();
+			Map<String,SolrInputField> fieldmap = new HashMap<>();
 			
 			SolrInputField solrField = new SolrInputField(solrFieldName);
 			fieldmap.put(solrFieldName, solrField);
@@ -262,15 +262,15 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					}
 			    // If more than one field in a group, there are several options.
 				} else {
-					Map<Integer,DataField> reordered = new HashMap<Integer,DataField>();
+					Map<Integer,DataField> reordered = new HashMap<>();
 					for (DataField f: fields) {
 						reordered.put(f.id, f);
 					}
 					Integer[] field_ids = reordered.keySet().toArray( new Integer[ reordered.keySet().size() ]);
 					Arrays.sort(field_ids);
-					Set<String> values880 = new HashSet<String>();
-					Set<String> valuesMain = new HashSet<String>();
-					Set<String> valuesCJK = new HashSet<String>();
+					Set<String> values880 = new HashSet<>();
+					Set<String> valuesMain = new HashSet<>();
+					Set<String> valuesCJK = new HashSet<>();
 					for (Integer fid: field_ids) {
 						DataField f = reordered.get(fid);
 						String value = trimInternationally( concatenateSubfields(f) );
@@ -376,7 +376,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				}
 			}
 			
-			Map<String,SolrInputField> populatedFields = new HashMap<String,SolrInputField>();
+			Map<String,SolrInputField> populatedFields = new HashMap<>();
 			for(String fieldName: fieldmap.keySet()) {
 				if (fieldmap.get(fieldName).getValueCount() > 0)
 					populatedFields.put(fieldName, fieldmap.get(fieldName));

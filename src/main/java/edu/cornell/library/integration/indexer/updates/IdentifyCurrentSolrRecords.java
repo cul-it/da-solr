@@ -39,7 +39,7 @@ public class IdentifyCurrentSolrRecords {
 	private int mfhdCount = 0;
 	private int itemCount = 0;
 	private int workCount = 0;
-	private Map<String,PreparedStatement> pstmts = new HashMap<String,PreparedStatement>();
+	private Map<String,PreparedStatement> pstmts = new HashMap<>();
 
 	public static void main(String[] args)  {
 
@@ -197,13 +197,13 @@ public class IdentifyCurrentSolrRecords {
 		if (ids == null)
 			return;
 
-		Set<Integer> oclcIds = new HashSet<Integer>();
+		Set<Integer> oclcIds = new HashSet<>();
 		for (Object obj : ids) {
 			String id = (String) obj;
 			if (id.startsWith("(OCoLC)")) {
 				try {
 					oclcIds.add(Integer.valueOf(id.substring(7)));
-				} catch (NumberFormatException e) {
+				} catch (@SuppressWarnings("unused") NumberFormatException e) {
 					// Ignore the value if it's invalid
 				}
 			}

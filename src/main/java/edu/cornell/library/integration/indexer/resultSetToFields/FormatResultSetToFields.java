@@ -33,7 +33,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		String category ="";
 		String record_type ="";
 		String bibliographic_level ="";
@@ -41,12 +41,12 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		Boolean isThesis = false;
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;
-		Collection<String> sf653as = new HashSet<String>();
-		Collection<String> sf245hs = new HashSet<String>();
-		Collection<String> sf948fs = new HashSet<String>();
-		Collection<String> loccodes = new HashSet<String>();
+		Collection<String> sf653as = new HashSet<>();
+		Collection<String> sf245hs = new HashSet<>();
+		Collection<String> sf948fs = new HashSet<>();
+		Collection<String> loccodes = new HashSet<>();
 		
-		Collection<String> rareLocCodes = new HashSet<String>();
+		Collection<String> rareLocCodes = new HashSet<>();
 		rareLocCodes.add("asia,ranx");
 		rareLocCodes.add("asia,rare");
 		rareLocCodes.add("ech,rare");

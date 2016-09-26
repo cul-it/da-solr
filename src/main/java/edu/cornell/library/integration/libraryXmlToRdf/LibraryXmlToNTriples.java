@@ -23,13 +23,13 @@ import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 
 public class LibraryXmlToNTriples {
 	
-	public static Collection<Integer> foundRecs = new HashSet<Integer>();
-	public static Collection<Integer> suppressedRecs = new HashSet<Integer>();
-	public static Collection<Integer> unsuppressedRecs = new HashSet<Integer>();
+	public static Collection<Integer> foundRecs = new HashSet<>();
+	public static Collection<Integer> suppressedRecs = new HashSet<>();
+	public static Collection<Integer> unsuppressedRecs = new HashSet<>();
 	public static Long recordCount = new Long(0);
-	public static Collection<Integer> no245a = new HashSet<Integer>();
-	public static Map<String,String> priority_libraries = new HashMap<String,String>();
-	public static Map<String,String> libraries = new HashMap<String,String>();
+	public static Collection<Integer> no245a = new HashSet<>();
+	public static Map<String,String> priority_libraries = new HashMap<>();
+	public static Map<String,String> libraries = new HashMap<>();
 
 	public static String uri_host = "http://da-rdf.library.cornell.edu/individual/";
 	public static String integration_prefix = "http://da-rdf.library.cornell.edu/integrationLayer/0.1/";

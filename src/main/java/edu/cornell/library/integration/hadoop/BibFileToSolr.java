@@ -232,7 +232,7 @@ public class BibFileToSolr extends Configured implements Tool {
             if( stat != null && stat.isDir() )
                 return true;
 			return false;
-        }catch( FileNotFoundException fnoe){
+        }catch( @SuppressWarnings("unused") FileNotFoundException fnoe){
             return false;
         }
     }

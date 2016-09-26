@@ -129,7 +129,7 @@ public class IndexDirectory {
         recordWriter = new MockRecordWriter();
         try (MockRecordReader recordReader = new MockRecordReader()) {
 
-        	BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
+        	BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<>();
         	indexingMapper.doSolrUpdate = true; 
         	indexingMapper.attempts = 1;
 
@@ -161,7 +161,7 @@ public class IndexDirectory {
 
     public final static class MockRecordWriter extends RecordWriter<Text, Text> {
         
-        HashMap<String,String> results = new HashMap<String,String>();
+        HashMap<String,String> results = new HashMap<>();
         
         public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { 
             //nothing to do here

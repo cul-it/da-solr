@@ -31,9 +31,9 @@ public class LocationResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		Collection<String> facets = new HashSet<String>();
-		Collection<String> displays = new HashSet<String>();
+		Map<String,SolrInputField> fields = new HashMap<>();
+		Collection<String> facets = new HashSet<>();
+		Collection<String> displays = new HashSet<>();
 		
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);

@@ -24,8 +24,8 @@ public class Collections implements DocumentPostProcess{
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		Collection<String> loccodes = new HashSet<String>();
-		Collection<String> lc_alphas = new HashSet<String>();
+		Collection<String> loccodes = new HashSet<>();
+		Collection<String> lc_alphas = new HashSet<>();
 		SolrInputField collections = new SolrInputField("collection");
 
 		if (document.containsKey("holdings_record_display")) {

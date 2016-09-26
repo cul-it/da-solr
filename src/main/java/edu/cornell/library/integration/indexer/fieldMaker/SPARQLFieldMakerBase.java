@@ -35,7 +35,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	protected boolean debug = false;
 	
 	public SPARQLFieldMakerBase() {
-		this.defaultPrefixes = new HashMap<String,String>();
+		this.defaultPrefixes = new HashMap<>();
 		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
 		defaultPrefixes.put("intlayer","http://da-rdf.library.cornell.edu/integrationLayer/0.1/");
 		defaultPrefixes.put("rdfs",    "http://www.w3.org/2000/01/rdf-schema#");		                           
@@ -73,7 +73,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	protected Map<String,ResultSet> runQueries( 
 			String recordURI, 
 			SolrBuildConfig config) throws Exception {
-		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
+		Map<String, ResultSet> results = new HashMap<>();
 
 		//run local queries
 		RDFService localStore = config.getRDFService("local");
@@ -160,7 +160,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 			throws Exception;
 	
 	
-	protected ResultSet sparqlSelectQuery(String query, RDFService rdfService) throws Exception {
+	protected static ResultSet sparqlSelectQuery(String query, RDFService rdfService) throws Exception {
 		ResultSet resultSet = null;
 		try ( InputStream resultStream = rdfService.sparqlSelectQuery(query,RDFService.ResultFormat.JSON) ) {
 			resultSet = ResultSetFactory.fromJSON(resultStream);
