@@ -46,13 +46,15 @@ public class ProcessQueue {
 			localBaseFilePath += "/"+random+"/";
 		DownloadMARC downloader = new DownloadMARC(config);
 
-		Connection current = config.getDatabaseConnection("Current");
+		try ( Connection current = config.getDatabaseConnection("Current") ){
 		int i = 0;
 		while (true) {
 			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
 			if (localBaseFilePath != null)
 				config.setLocalBaseFilePath(localBaseFilePath+i);
 			Set<Integer> bibIds = getBibsToIndex(current,config.getSolrUrl(),0,batchSize);
+			if (bibIds.size() == 0)
+				break;
 			Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
 
 			Set<Integer> deletedBibs = downloader.saveXml(
@@ -83,7 +85,8 @@ public class ProcessQueue {
 			new IncrementalBibFileToSolr(config);
 
 			if (bibIds.size() < batchSize)
-				continue;
+				break;
+		}
 		}
 	}
 }
