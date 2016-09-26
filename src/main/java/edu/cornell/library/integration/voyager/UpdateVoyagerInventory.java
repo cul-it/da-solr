@@ -234,7 +234,7 @@ public class UpdateVoyagerInventory {
 				ResultSet c_rs = c_stmt.executeQuery(
 						"SELECT mfhd_id, m.bib_id, m.record_date, b.active"
 						+ " FROM "+CurrentDBTable.MFHD_VOY+" AS m"
-						+ " LEFT JOIN "+CurrentDBTable.BIB_VOY+"AS b ON b.bib_id = m.bib_id"
+						+ " LEFT JOIN "+CurrentDBTable.BIB_VOY+" AS b ON b.bib_id = m.bib_id"
 						+ " ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select MFHD_MASTER.MFHD_ID, BIB_MFHD.BIB_ID, UPDATE_DATE"
