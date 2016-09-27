@@ -60,7 +60,7 @@ public class MarcToNT {
 		
 		converter.run();
 	
-		if (reportList != null) {
+		if (reports != null && reports.length > 0) {
 			for (String report : reports) {
 				String reportResult = converter.getReport(Report.valueOf(report));
 				System.out.println(report);

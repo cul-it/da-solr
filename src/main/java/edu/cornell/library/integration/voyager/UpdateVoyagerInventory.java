@@ -181,7 +181,7 @@ public class UpdateVoyagerInventory {
 							c_active = rs.getBoolean(2);
 						}
 					}
-					if ( ! c_active )
+					if ( c_active != null && ! c_active )
 						continue;
 					bibVoyUStmt.setTimestamp(1, c_time);
 					bibVoyUStmt.setBoolean(2, false);
@@ -206,11 +206,11 @@ public class UpdateVoyagerInventory {
 					bibVoyUStmt.setInt(3, bib_id);
 					bibVoyUStmt.addBatch();
 					if (v_entry.getValue().active) {
-						if (c_active)
+						if ( c_active != null && c_active )
 							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
 						else
 							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
-					} else if ( c_active ){
+					} else if ( c_active != null && c_active ){
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
 					}
 					if ( ++i % 10_000 == 0)
