@@ -104,7 +104,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -116,7 +115,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -130,7 +128,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -141,7 +138,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
@@ -156,7 +152,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -171,7 +166,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -246,7 +240,6 @@
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{Punct}¿¡「」]" replacement="" replace="all"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
     </fieldType>
