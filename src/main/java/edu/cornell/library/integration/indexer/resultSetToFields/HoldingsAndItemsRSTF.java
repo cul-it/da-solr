@@ -395,6 +395,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		        			String enumeration = record.get("item_enum").toString() + 
 		        					record.get("chron") + record.get("year");
 		        			enumeration.replaceAll("c\\.[\\d+]", "");
+		        			enumeration.replaceAll("Bound with", "");
 		        			if (stats.aFoundEnum == null)
 		        				stats.aFoundEnum = enumeration;
 		        			if (! stats.aFoundEnum.equals(enumeration))
