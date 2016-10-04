@@ -129,7 +129,7 @@ public class UpdateVoyagerInventory {
 			while ( ! v_rs.isAfterLast() ) {
 
 				// added to Voyager
-				newBibs.put(v_id,new DateAndStatus(v_rs.getTimestamp(2),(v_rs.getString(3).equals("N"))?true:false));
+				newBibs.put(v_rs.getInt(1),new DateAndStatus(v_rs.getTimestamp(2),(v_rs.getString(3).equals("N"))?true:false));
 				v_rs.next();
 
 			}
@@ -137,7 +137,7 @@ public class UpdateVoyagerInventory {
 			while ( ! c_rs.isAfterLast() ) {
 
 				// deleted from Voyager
-				deletedBibs.add(c_id);
+				deletedBibs.add(c_rs.getInt(1));
 				c_rs.next();
 
 			}
@@ -296,7 +296,7 @@ public class UpdateVoyagerInventory {
 			while ( ! v_rs.isAfterLast() ) {
 
 				// added to Voyager
-				newMfhds.put(v_id,new DateAndBib(v_rs.getTimestamp(3), v_rs.getInt(2)));
+				newMfhds.put(v_rs.getInt(1),new DateAndBib(v_rs.getTimestamp(3), v_rs.getInt(2)));
 				v_rs.next();
 
 			}
@@ -304,7 +304,7 @@ public class UpdateVoyagerInventory {
 			while ( ! c_rs.isAfterLast() ) {
 
 				// deleted from Voyager
-				deletedMfhds.put(c_id,c_rs.getInt(2));
+				deletedMfhds.put(c_rs.getInt(1),c_rs.getInt(2));
 				c_rs.next();
 
 			}
@@ -454,7 +454,7 @@ public class UpdateVoyagerInventory {
 			while ( ! v_rs.isAfterLast() ) {
 
 				// added to Voyager
-				newItems.put(v_id,new DateAndHolding(v_rs.getTimestamp(3), v_rs.getInt(2)));
+				newItems.put(v_rs.getInt(1),new DateAndHolding(v_rs.getTimestamp(3), v_rs.getInt(2)));
 				v_rs.next();
 
 			}
@@ -462,7 +462,7 @@ public class UpdateVoyagerInventory {
 			while ( ! c_rs.isAfterLast() ) {
 
 				// deleted from Voyager
-				deletedItems.put(c_id,c_rs.getInt(2));
+				deletedItems.put(c_rs.getInt(1),c_rs.getInt(2));
 				c_rs.next();
 
 			}
