@@ -722,7 +722,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		        	addResultSetToFields( new NewBooksRSTF()),
 
 		        	
-				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1,'1'),"3ac"),
+				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1," 1"),"3ac"),
 				new StandardMARCFieldMaker("donor_display","902","b"),
 
 				new StandardMARCFieldMaker("frequency_display","310","a"),
