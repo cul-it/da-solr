@@ -151,7 +151,7 @@ task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
 
 task( QueueRecordsForSolrIndex, dependsOn: 'assemble', type: JavaExec) {
  description = "Takes input file of bib ids, and queues them for update in Solr."
- args = [ 4, 'Add 899 display field', 'bibsContaining899.txt' ]
+ args = [ 4, 'Add more 541 fields to donor search', 'bibs.txt' ]
  maxHeapSize = '512m'  
  main = 'edu.cornell.library.integration.indexer.updates.QueueRecordsForSolrIndex'
  classpath = sourceSets.main.runtimeClasspath
