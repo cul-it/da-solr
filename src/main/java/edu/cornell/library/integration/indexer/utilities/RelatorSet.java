@@ -22,7 +22,7 @@ public class RelatorSet {
 				try {
 					relators.add(Relator.valueOf(code).toString());
 				} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
-					Relator r = Relator.valueOfString(sf.value);
+					Relator r = Relator.valueOfString(sf.value.toLowerCase().replaceAll("\\.", ""));
 					if ( r != null ) {
 						System.out.println("Relator value \""+sf.value+"\" provided in $4.");
 						relators.add( r.toString() );
