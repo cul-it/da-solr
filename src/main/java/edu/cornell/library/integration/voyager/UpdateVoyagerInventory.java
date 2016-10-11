@@ -323,8 +323,8 @@ public class UpdateVoyagerInventory {
 					if ( ! isBibActive(current,bib_id))
 						continue;
 
-					mfhdVoyIStmt.setInt(1, mfhd_id);
-					mfhdVoyIStmt.setInt(2, bib_id);
+					mfhdVoyIStmt.setInt(1, bib_id);
+					mfhdVoyIStmt.setInt(2, mfhd_id);
 					mfhdVoyIStmt.setTimestamp(3, v_entry.getValue().time);
 					mfhdVoyIStmt.addBatch();
 					addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_ADD);
