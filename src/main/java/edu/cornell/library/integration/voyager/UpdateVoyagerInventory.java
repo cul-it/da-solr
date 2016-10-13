@@ -231,9 +231,9 @@ public class UpdateVoyagerInventory {
 				if ( queuedCountUpd > 0 )
 					System.out.println("\t"+queuedCountUpd+" bib updates queued.");
 				if ( queuedCountAdd > 0 )
-					System.out.println("\t"+queuedCountAdd+" bib updates queued.");
+					System.out.println("\t"+queuedCountAdd+" bib adds queued.");
 				if ( queuedCountDel > 0 )
-					System.out.println("\t"+queuedCountDel+" bib updates queued.");
+					System.out.println("\t"+queuedCountDel+" bib deletes queued.");
 
 				bibVoyUStmt.executeBatch();
 			}
