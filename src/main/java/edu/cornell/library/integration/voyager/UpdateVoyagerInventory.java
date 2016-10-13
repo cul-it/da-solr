@@ -168,7 +168,6 @@ public class UpdateVoyagerInventory {
 		}
 		if ( ! deletedBibs.isEmpty() || ! changedBibs.isEmpty() ) {
 			System.out.println(deletedBibs.size()+" deleted bibs.");
-			System.out.println(changedBibs.size()+" changed bibs.");
 
 			try (   PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate );
 					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
@@ -196,11 +195,12 @@ public class UpdateVoyagerInventory {
 					if ( ++i % 10_000 == 0)
 						bibVoyUStmt.executeBatch();
 				}
-				System.out.println("\t"+queuedCount+" bibs queued.");
+				System.out.println("\t"+queuedCount+" bibs deletes queued.");
 
 				int queuedCountUpd = 0;
 				int queuedCountAdd = 0;
 				int queuedCountDel = 0;
+				System.out.println(changedBibs.size()+" changed bibs.");
 				for ( Entry<Integer,DateAndStatus> v_entry : changedBibs.entrySet() ) {
 					int bib_id = v_entry.getKey();
 					bibVoyQStmt.setInt(1, bib_id);
