@@ -400,6 +400,8 @@ public class MarcXmlToRdf {
 			dirToProcessInto = destDir;
 		
 		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
+			if (bibid == null || bibid.isEmpty() )
+				throw new IllegalArgumentException(missingBibMsg);
 			Integer batchid;
 			try {
 				batchid = Integer.valueOf(bibid) / groupsize;
@@ -434,6 +436,8 @@ public class MarcXmlToRdf {
 			}
 
 		} else if (mode.equals(Mode.RECORD_COUNT_BATCHES)) {
+			if (bibid == null || bibid.isEmpty() )
+				throw new IllegalArgumentException(missingBibMsg);
 			Integer outputBatch = 100_000_000;
 			Iterator<Integer> i = outsById.keySet().iterator();
 			Integer id = Integer.valueOf(bibid);
@@ -2608,6 +2612,9 @@ public class MarcXmlToRdf {
 		}
 		return rec;
 	}
+
+	private final static String missingBibMsg =
+			"Argument bibid is required for processing in this mode; may be missing from record.";
 	
 	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
 		Map<Integer,Subfield> fields = new HashMap<>();
