@@ -120,7 +120,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		final String markBibForUpdateQuery =
 				"INSERT INTO "+CurrentDBTable.QUEUE
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK+"')";
+				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
 		SolrInputField workidDisplay = new SolrInputField("workid_display");
 		SolrInputField workidFacet = new SolrInputField("workid_facet");
 		SolrInputField otherAvailPiped = new SolrInputField("other_availability_piped");
@@ -525,7 +526,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 				+ "  AND active = 1";
 		final String markBibForUpdateQuery =
 				"INSERT INTO "+CurrentDBTable.QUEUE+" (bib_id, priority, cause)"
-				+ " VALUES (?, 1, '"+DataChangeUpdateType.TITLELINK+"')";
+				+ " VALUES (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
 
 		try (   PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(findWorksForOclcIdQuery);
 				PreparedStatement checkForDeactivatedBibWorkMappingStmt =
@@ -600,7 +602,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		final String markBibForUpdateQuery =
 				"INSERT INTO "+CurrentDBTable.QUEUE
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK+"')";
+				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
 		try (   PreparedStatement updateBibWorkMappingStmt = conn.prepareStatement(updateBibWorkMappingQuery);
 				PreparedStatement findBibsForDeactivatedWorksStmt = conn.prepareStatement(findBibsForDeactivatedWorksQuery);
 				PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)   ){
