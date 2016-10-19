@@ -178,7 +178,7 @@
       -->
      <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
   </indexConfig>
-
+<!-- 
 <requestHandler name="/replication" class="solr.ReplicationHandler" >
     <lst name="master">
         <str name="enable">${enable.master:false}</str>
@@ -192,7 +192,7 @@
         <str name="pollInterval">01:00:00</str>
     </lst>
 </requestHandler>
-
+-->
   <updateHandler class="solr.DirectUpdateHandler2" >
     <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
          Auto Commit behavior except it enables/ensures that changes are
