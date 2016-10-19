@@ -39,7 +39,7 @@ public class DownloadMARC {
 		if (uPlusHexPattern == null)
 			uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 		if (htmlEntityPattern == null)
-			htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]+|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
+			htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]{2,}|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
 	}
 	/**
 	 * Retrieve specified MARC records from Voyager, convert to XML and save.

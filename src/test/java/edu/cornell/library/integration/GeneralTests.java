@@ -21,7 +21,7 @@ import org.apache.solr.common.SolrInputDocument;
 public class GeneralTests {
 
 	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
-	private static final Pattern htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]+|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
+	private static final Pattern htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]{2,}|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
 
 
 	public GeneralTests() throws IOException, XMLStreamException {
@@ -47,7 +47,8 @@ public class GeneralTests {
 			 "&#x00A1;",
 			 "&#X00A1;",
 			 "&#00A1;",
-			 "&#xTT01;"
+			 "&#xTT01;",
+			 "&c;"
 			};
 		for (String test : testStrings2) {
 			Boolean matches = htmlEntityPattern.matcher(test).matches();
