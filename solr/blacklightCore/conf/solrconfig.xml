@@ -314,17 +314,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
@@ -338,17 +337,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
@@ -368,17 +366,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
@@ -392,17 +389,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
@@ -1432,9 +1428,6 @@
       <str name="facet.field">online</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
-      <str name="facet.field">pub_date_facet</str>
-      <str name="facet.field">author_facet</str>
-      <str name="facet.field">subject_content_facet</str>
       
       <str name="spellcheck">true</str>
       <str name="spellcheck.dictionary">default</str>
