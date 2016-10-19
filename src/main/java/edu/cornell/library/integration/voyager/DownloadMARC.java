@@ -31,12 +31,15 @@ public class DownloadMARC {
 	PreparedStatement pstmt;
 	DavService davService;
 	private static Pattern uPlusHexPattern = null;
+	private static Pattern htmlEntityPattern = null;
 
 	public DownloadMARC(SolrBuildConfig config) {
 		davService = DavServiceFactory.getDavService(config);
 		this.config = config;
 		if (uPlusHexPattern == null)
 			uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
+		if (htmlEntityPattern == null)
+			htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]+|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
 	}
 	/**
 	 * Retrieve specified MARC records from Voyager, convert to XML and save.
@@ -133,9 +136,11 @@ public class DownloadMARC {
 
 	private static void errorChecking(String rec, RecordType type, Integer id) {
         if ( rec.contains("\uFFFD") )
-        	System.out.println(type.toString()+" MARC contains Unicode Replacement Character (U+FFFD): "+id);
+        	System.out.println(type.toString().toLowerCase()+" MARC contains Unicode Replacement Character (U+FFFD): "+id);
         if ( uPlusHexPattern.matcher(rec).matches() )
-        	System.out.println(type.toString()+" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
+        	System.out.println(type.toString().toLowerCase()+" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
+        if ( htmlEntityPattern.matcher(rec).matches() )
+        	System.out.println(type.toString().toLowerCase()+" MARC contains at least one HTML entity: "+id);
 	}
 	private static String marcToXml( String marc21 ) throws IOException {
 		String xml = null;

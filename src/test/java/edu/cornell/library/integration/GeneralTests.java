@@ -21,6 +21,8 @@ import org.apache.solr.common.SolrInputDocument;
 public class GeneralTests {
 
 	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
+	private static final Pattern htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]+|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
+
 
 	public GeneralTests() throws IOException, XMLStreamException {
 		String[] testStrings =
@@ -30,6 +32,25 @@ public class GeneralTests {
 			 "u+abcd should this one?"};
 		for (String test : testStrings) {
 			Boolean matches = uPlusHexPattern.matcher(test).matches();
+			System.out.println(test + ((matches)?": matches.":": doesn't match."));
+		}
+		String[] testStrings2 =
+			{"String Doesn't match U+00c0",
+			 "String matches &amp; should be reported as matching.",
+			 "String &#doesnot; match",
+			 "String &does; match",
+			 "String does match: &#1234;",
+			 "&#x0001;",
+			 "&#x001;",
+			 "&#x01;",
+			 "&#x010001;",
+			 "&#x00A1;",
+			 "&#X00A1;",
+			 "&#00A1;",
+			 "&#xTT01;"
+			};
+		for (String test : testStrings2) {
+			Boolean matches = htmlEntityPattern.matcher(test).matches();
 			System.out.println(test + ((matches)?": matches.":": doesn't match."));
 		}
 		SolrInputDocument doc = new SolrInputDocument();
