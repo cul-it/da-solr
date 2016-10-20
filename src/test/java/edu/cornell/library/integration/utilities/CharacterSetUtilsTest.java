@@ -49,4 +49,68 @@ public class CharacterSetUtilsTest {
 		// CJK spacing
 		assertTrue(trimInternationally("　　俄国　东正教　侵　华　史略　").equals("俄国　东正教　侵　华　史略"));
 	}
+
+
+	private final String titlePrefixChars = "[.\"";
+	@Test
+	public void testStripBytesFromString(){
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"1234", 0, titlePrefixChars).equals("1234"));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"1234", 3, titlePrefixChars).equals("4"));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"1234", 4, titlePrefixChars).equals(""));
+
+		/* The following examples come from the Library of Congress examples for encoding of
+		 * non-filing characters. The stripped forms do not. http://www.loc.gov/marc/bibliographic/bd245.html
+		 * The last example appears appears in a modified form, using standard ASCII quotes in the title
+		 * rather than the Unicode left and right quotes used on LoC's web page. The original form
+		 * is problematic because the Unicode quotes are two-bytes wide, making the prescribed non-
+		 * filing character count of 5 include the first byte but not the second byte of the quote. 
+		 * If this ever becomes an issue in our actual catalog, we may need to make an adaptive exception
+		 * to the logic for the Unicode left double quote character. */
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"The Year book of medicine.",4,titlePrefixChars)
+				.equals("Year book of medicine."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"A report to the legislature for the year ...", 2, titlePrefixChars)
+				.equals("report to the legislature for the year ..."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"L'enfant criminal.", 2, titlePrefixChars)
+				.equals("enfant criminal."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"[The Part of Pennsylvania that ... townships].", 5, titlePrefixChars)
+				.equals("[Part of Pennsylvania that ... townships]."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"--the serpent--snapping eye", 6, titlePrefixChars)
+				.equals("serpent--snapping eye"));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"The ... annual report to the Governor.", 8, titlePrefixChars)
+				.equals("...annual report to the Governor."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"L'été.", 2, titlePrefixChars).equals("été."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"Hē Monē tou Horous Sina.", 4, titlePrefixChars)
+				.equals("Monē tou Horous Sina."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"Tōn meionotētōn eunoia :", 5, titlePrefixChars)
+				.equals("meionotētōn eunoia :"));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"Tōn Diōnos Rōmaikōn historiōn eikositria biblia =", 5, titlePrefixChars)
+				.equals("Diōnos Rōmaikōn historiōn eikositria biblia ="));
+//		assertTrue(CharacterSetUtils.stripBytesFromString(
+//				"The “winter mind” :", 5, titlePrefixChars).equals("“winter mind” :"));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"The \"winter mind\" :", 5, titlePrefixChars)
+				.equals("\"winter mind\" :"));
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public void testStripBytesFromStringSplitWideCharacterException(){
+		CharacterSetUtils.stripBytesFromString("Hē Monē tou Horous Sina.", 2, titlePrefixChars);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public void testStripBytesFromStringTooGreedyException(){
+		CharacterSetUtils.stripBytesFromString("Hē Monē tou Horous Sina.", 50, titlePrefixChars);
+	}
+
 }

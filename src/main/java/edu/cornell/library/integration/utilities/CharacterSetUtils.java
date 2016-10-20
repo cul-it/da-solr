@@ -1,7 +1,10 @@
 package edu.cornell.library.integration.utilities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CharacterSetUtils {
 
@@ -76,4 +79,60 @@ public class CharacterSetUtils {
 		return nonStandardApostrophes_pattern.matcher(s).replaceAll("'");
 	}
 
+	/**
+	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
+	 * <b>b</b> bytes of the UTF-8 representation of <b>s</b>. Any characters found in 
+	 * <b>reserves</b> will not be removed, but will still count toward the <b>b</b> bytes.<br/><br/>
+	 * The implementation attempts to identify the target character count without actually casting
+	 * the string to UTF-8. Logic for predicting the UTF-8 byte size of Java char values is adapted
+	 * from http://stackoverflow.com/questions/8511490
+	 * @param s
+	 *  Original string
+	 * @param b
+	 *  Number of UTF-8 bytes to remove from the beginning of string
+	 * @param reserves
+	 *  Characters that should not be removed, but will still count toward the target <b>b</b> bytes.
+	 * @return
+	 *  Stripped string
+	 * @throws IllegalArgumentException
+	 *  will be thrown in two conditions:<br/>
+	 *  <ul><li> <b>b</b> &gt; <b>s</b>.getBytes(StandardCharsets.UTF-8).length </li>
+	 *      <li> byte number <b>b</b> is not the last byte of its containing character</li></ul>
+	 */
+	public static String stripBytesFromString( String s, Integer b, String reserves )
+			throws IllegalArgumentException {
+
+		int pos = 0;
+		int byteCount = 0;
+		List<Character> foundReserves = new ArrayList<>();
+		while (pos < s.length() && byteCount < b) {
+			char c = s.charAt(pos);
+			int charSize = 0;
+
+			if (c <= 0x7F)
+				charSize = 1;
+			else if (c < 0x7FF)
+				charSize = 2;
+			else if (Character.isHighSurrogate(c))
+				charSize = 4;
+			else
+				charSize = 3;
+
+			if (charSize + byteCount <= b) {
+				pos += (charSize == 4)?2:1;
+				byteCount+=charSize;
+				if (reserves.indexOf(c) != -1)
+					foundReserves.add(c);					
+			} else
+				throw new IllegalArgumentException(
+						"Requested bytes to strip would divide a wide character");
+		}
+		if ( byteCount < b )
+			throw new IllegalArgumentException(
+					"Requested bytes to strip is longer than string in UTF-8");
+
+		return foundReserves.stream().map(Object::toString).collect(Collectors.joining())
+				+ s.substring(pos);
+
+	}
 }

@@ -26,6 +26,7 @@ import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
+import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 /*
  *  MarcRecord Handler Class
@@ -422,6 +423,8 @@ public class MarcRecord {
 		 * so that the calling method can have access to the title WITH the article.
 		 */
 		public String getStringWithoutInitialArticle(final String fulltitle) {
+			final String titlePrefixChars = "[.\"";
+
 			Character nonFilingCharInd = null;
 			switch (this.mainTag) {
 			case "130":
@@ -442,7 +445,13 @@ public class MarcRecord {
 			if (Character.isDigit(nonFilingCharInd)) {
 				final int nonFilingCharCount = Character.digit(nonFilingCharInd, 10);
 				if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle.length())
-					return fulltitle.substring(nonFilingCharCount);
+					try {
+						return CharacterSetUtils.stripBytesFromString(
+								fulltitle, nonFilingCharCount, titlePrefixChars);
+					} catch (IllegalArgumentException e) {
+						System.out.println("Initial article not stripped from title: "+
+								e.getMessage()+" "+nonFilingCharCount+"/"+fulltitle);
+					}
 			}
 			return fulltitle;
 		}
