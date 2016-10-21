@@ -446,6 +446,11 @@ public class MarcRecord {
 				final int nonFilingCharCount = Character.digit(nonFilingCharInd, 10);
 				if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle.length())
 					try {
+						if (fulltitle.startsWith(RLE_openRTL))
+							return RLE_openRTL+
+									CharacterSetUtils.stripBytesFromString(
+									fulltitle.substring(RLE_openRTL.length()),
+									nonFilingCharCount, titlePrefixChars);
 						return CharacterSetUtils.stripBytesFromString(
 								fulltitle, nonFilingCharCount, titlePrefixChars);
 					} catch (IllegalArgumentException e) {
