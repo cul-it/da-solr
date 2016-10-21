@@ -107,7 +107,8 @@ public class CharacterSetUtilsTest {
 		/* The following tests are designed to test the case where the number of specified bytes to
 		 * strip would end with stripping only part of a UTF-8 character. It looks like the most
 		 * common cause for this error is when a cataloger has used a wide character without knowing
-		 * it. Rather than throw an exception 
+		 * it. Rather than throw an exception, stripping the entire character seems like a solution
+		 * more likely to be correct.
 		 */
 		assertTrue(CharacterSetUtils.stripBytesFromString(
 				"Hē Monē tou Horous Sina.", 2, titlePrefixChars)
