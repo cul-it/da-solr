@@ -82,7 +82,9 @@ public class CharacterSetUtils {
 	/**
 	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
 	 * <b>b</b> bytes of the UTF-8 representation of <b>s</b>. Any characters found in 
-	 * <b>reserves</b> will not be removed, but will still count toward the <b>b</b> bytes.<br/><br/>
+	 * <b>reserves</b> will not be removed, but will still count toward the <b>b</b> bytes.
+	 * If byte number <b>b</b> is not the last byte of its containing character, the entire
+	 * partial character will be removed.<br/><br/>
 	 * The implementation attempts to identify the target character count without actually casting
 	 * the string to UTF-8. Logic for predicting the UTF-8 byte size of Java char values is adapted
 	 * from http://stackoverflow.com/questions/8511490
@@ -95,9 +97,7 @@ public class CharacterSetUtils {
 	 * @return
 	 *  Stripped string
 	 * @throws IllegalArgumentException
-	 *  will be thrown in two conditions:<br/>
-	 *  <ul><li> <b>b</b> &gt; <b>s</b>.getBytes(StandardCharsets.UTF-8).length </li>
-	 *      <li> byte number <b>b</b> is not the last byte of its containing character</li></ul>
+	 *  will be thrown if <b>b</b> &gt; <b>s</b>.getBytes(StandardCharsets.UTF-8).length.
 	 */
 	public static String stripBytesFromString( String s, Integer b, String reserves )
 			throws IllegalArgumentException {
@@ -118,14 +118,10 @@ public class CharacterSetUtils {
 			else
 				charSize = 3;
 
-			if (charSize + byteCount <= b) {
-				pos += (charSize == 4)?2:1;
-				byteCount+=charSize;
-				if (reserves.indexOf(c) != -1)
-					foundReserves.add(c);					
-			} else
-				throw new IllegalArgumentException(
-						"Requested bytes to strip would divide a wide character");
+			pos += (charSize == 4)?2:1;
+			byteCount+=charSize;
+			if (reserves.indexOf(c) != -1)
+				foundReserves.add(c);
 		}
 		if ( byteCount < b )
 			throw new IllegalArgumentException(

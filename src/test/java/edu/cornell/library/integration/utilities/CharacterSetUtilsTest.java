@@ -103,10 +103,19 @@ public class CharacterSetUtilsTest {
 		assertTrue(CharacterSetUtils.stripBytesFromString(
 				"The \"winter mind\" :", 5, titlePrefixChars)
 				.equals("\"winter mind\" :"));
-	}
-	@Test(expected=IllegalArgumentException.class)
-	public void testStripBytesFromStringSplitWideCharacterException(){
-		CharacterSetUtils.stripBytesFromString("Hē Monē tou Horous Sina.", 2, titlePrefixChars);
+
+		/* The following tests are designed to test the case where the number of specified bytes to
+		 * strip would end with stripping only part of a UTF-8 character. It looks like the most
+		 * common cause for this error is when a cataloger has used a wide character without knowing
+		 * it. Rather than throw an exception 
+		 */
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"Hē Monē tou Horous Sina.", 2, titlePrefixChars)
+				.equals(" Monē tou Horous Sina."));
+		assertTrue(CharacterSetUtils.stripBytesFromString(
+				"ʻImma, ou, Rites, coutumes et croyances...", 1, titlePrefixChars)
+				.equals("Imma, ou, Rites, coutumes et croyances..."));
+
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public void testStripBytesFromStringTooGreedyException(){
