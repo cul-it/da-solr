@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -132,13 +133,27 @@ public final class Locations {
 	private static String getLibrary(String name) {
 		if (name == null)
 			return null;
+		String lcName = name.toLowerCase();
 		Iterator<String> i = libraryPatterns.keySet().iterator();
 		while (i.hasNext()) {
 			String pattern = i.next();
-			if (name.contains(pattern))
+			if (lcName.contains(pattern))
 				return libraryPatterns.get(pattern);
 		}
 		return null;
 	}
 	static Map<String,String> libraryPatterns = null;
+
+	public static void main( String[] args ) throws Exception {
+		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForDB("Voy");
+		Locations locations = new Locations( SolrBuildConfig.loadConfig(args,requiredFields) );
+		System.out.println(libraryPatterns.size()+" patterns");
+		for (String pattern : libraryPatterns.keySet()) {
+			System.out.println(pattern+" => "+libraryPatterns.get(pattern));
+		}
+		Location l = locations.getByCode("fine,res");
+		System.out.println(l.toString());
+		l = locations.getByNumber(33);
+		System.out.println(l.toString());
+	}
 }

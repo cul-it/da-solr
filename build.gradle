@@ -276,6 +276,12 @@ task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
+task (TestLocations, dependsOn:'assemble', type: JavaExec){
+ description="Test Voyager Locations Module"
+ main='edu.cornell.library.integration.voyager.Locations'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 
 task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
  description="Automatically identify a test suite of records to be used for display\

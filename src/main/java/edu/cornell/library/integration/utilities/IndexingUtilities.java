@@ -25,8 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -192,7 +192,7 @@ public class IndexingUtilities {
 	}
 	public static Map<String,String> loadPatternMap(String filename) {
 		URL url = ClassLoader.getSystemResource(filename);
-		Map<String,String> patternMap = new HashMap<>();
+		Map<String,String> patternMap = new LinkedHashMap<>();
 		try {
 			Path p = Paths.get(url.toURI());
 			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
