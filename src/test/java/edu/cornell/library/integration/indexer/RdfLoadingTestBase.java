@@ -37,7 +37,7 @@ public class RdfLoadingTestBase {
 	static final String standardRDFDir =  "rdfToSolr/build/resources/main/";
 		
 	
-	static final String[] standardFiles = { "shadows.nt", "language_code.nt", "library.nt", "callnumber_map.nt", "fieldGroups.nt" };
+	static final String[] standardFiles = { "shadows.nt", "language_code.nt", "callnumber_map.nt", "fieldGroups.nt" };
 	
     public static TemporaryFolder folder = null;
 		
