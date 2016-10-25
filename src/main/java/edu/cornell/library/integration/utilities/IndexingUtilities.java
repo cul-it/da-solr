@@ -175,7 +175,7 @@ public class IndexingUtilities {
 	 */
 	public static String identifyOnlineServices(Collection<Object> urls) {
 		if (urlPatterns == null)
-			loadUrlPatterns();
+			urlPatterns = loadPatternMap("online_site_identifications.txt");
 		List<String> identifiedSites = new ArrayList<>();
 		for (Object url_o : urls) {
 			String url = url_o.toString().toLowerCase();
@@ -190,9 +190,9 @@ public class IndexingUtilities {
 			return null;
 		return StringUtils.join(identifiedSites, ", ");
 	}
-	private static void loadUrlPatterns() {
-		URL url = ClassLoader.getSystemResource("online_site_identifications.txt");
-		urlPatterns = new HashMap<>();
+	public static Map<String,String> loadPatternMap(String filename) {
+		URL url = ClassLoader.getSystemResource(filename);
+		Map<String,String> patternMap = new HashMap<>();
 		try {
 			Path p = Paths.get(url.toURI());
 			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
@@ -200,7 +200,7 @@ public class IndexingUtilities {
 				String[] parts = site.split("\\t", 2);
 				if (parts.length < 2)
 					continue;
-				urlPatterns.put(parts[0].toLowerCase(), parts[1]);
+				patternMap.put(parts[0].toLowerCase(), parts[1]);
 			}
 		} catch (URISyntaxException e) {
 			// This should never happen since the URI syntax is machine generated.
@@ -210,6 +210,7 @@ public class IndexingUtilities {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		return patternMap;
 	}
 	static Map<String,String> urlPatterns = null;
 

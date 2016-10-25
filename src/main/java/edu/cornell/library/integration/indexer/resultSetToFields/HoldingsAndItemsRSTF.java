@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,7 +34,8 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
-import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
+import edu.cornell.library.integration.voyager.Locations;
+import edu.cornell.library.integration.voyager.Locations.Location;
 
 /**
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
@@ -45,7 +45,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 	private Boolean debug = false;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");
-	LocationSet locations = new LocationSet();
 	Collection<String> holding_ids = new HashSet<>();
 	Map<String,Holdings> holdings = new HashMap<>();
 	Map<String,SolrInputField> fields = new HashMap<>();
@@ -55,33 +54,22 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	Collection<Map<String,Object>> boundWiths = new ArrayList<>();
 	Connection conn = null;
 	static ObjectMapper mapper = new ObjectMapper();
+	Locations locations;
+	Collection<String> workLibraries = new HashSet<>();
 	
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		Map<String,MarcRecord> recs = new HashMap<>();
+		locations = new Locations(config);
 
 		for( String resultKey: results.keySet()){
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
 			while( rs.hasNext() ){
 				QuerySolution sol = rs.nextSolution();
 
-				if (resultKey.equals("location")) {
-					if (debug) System.out.println("**"+sol.toString());
-					Location l = new Location();
-					l.code = nodeToString(sol.get("code"));
-					l.name = nodeToString(sol.get("name"));
-					l.library = nodeToString(sol.get("library"));
-					Matcher m = p.matcher(nodeToString(sol.get("locuri")));
-					if (m.matches()) {
-						l.number = Integer.valueOf(m.group(1));
-					} else {
-						System.out.println("location not identified for code='"+l.code+"'.");
-					}
-					locations.add(l);
-					
-				} else if ( resultKey.equals("description")) {
+				if ( resultKey.equals("description")) {
 					
 					MarcRecord rec = new MarcRecord();
 					rec.addDataFieldQuerySolution(sol);
@@ -119,7 +107,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
 
-			Collection<String> loccodes = new HashSet<>();
+			Collection<Location> holdingLocations = new HashSet<>();
 			Collection<String> callnos = new HashSet<>();
 			List<String> holdingDescs = new ArrayList<>();
 			List<String> recentHoldings = new ArrayList<>();
@@ -163,7 +151,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 						for (Subfield sf: f.subfields.values()) {
 							CODE: switch (sf.code) {
 							case 'b':
-								loccodes.add(sf.value); break CODE;
+								Location l = locations.getByCode(sf.value.trim());
+								if (l != null)
+									holdingLocations.add(l);
+								else
+									System.out.println("location not identified for code='"+sf.value+"'.");
+								break CODE;
 							case 'h':
 								// If there is a subfield ‡h, then there is a call number. So we will record
 								// a concatenation of all the call number fields. If there are (erroneously)
@@ -200,7 +193,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			Holdings holding = new Holdings();
 			holding.id = rec.id;
 			holding.copy_number = copyNo;
-			if ( ! loccodes.contains("serv,remo")) {
+			if ( ! holdingLocations.contains(locations.getByCode("serv,remo")) ) {
 				holding.callnos = callnos.toArray(new String[ callnos.size() ]);
 			}
 			holding.notes = notes.toArray(new String[ notes.size() ]);
@@ -208,20 +201,14 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			holding.recent_holdings_desc = recentHoldings.toArray(new String[ recentHoldings.size() ]);
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
-			holding.locations = new Location[loccodes.size()];
+			holding.locations = holdingLocations.toArray(new Location[ holdingLocations.size() ]);
 			if (rec.modified_date != null) {
 				if (rec.modified_date.length() >= 14)
 					holding.modified_date = rec.modified_date.substring(0, 14);
 				else
 					holding.modified_date = rec.modified_date;
 			}
-			Iterator<String> iter = loccodes.iterator();
-			int i = 0;
-			while (iter.hasNext()) {
-				String loccode = iter.next();
-				holding.locations[i] = locations.getByCode(loccode);
-				i++;
-			}
+
 			if (holding.modified_date != null)
 				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
 			else
@@ -248,10 +235,13 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		try {
 			if (conn == null)
 				conn = config.getDatabaseConnection("Voy");
-			loadItemData(conn,config);
+			loadItemData(conn);
 		} finally {
 			if (conn != null) conn.close();
 		}
+
+		for (String lib : workLibraries)
+			addField(fields,"location_facet",lib);
 
 		return fields;
 	}
@@ -289,7 +279,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		boundWiths.add(boundWith);
 	}
 
-	private void loadItemData(Connection conn, SolrBuildConfig config) throws Exception {
+	private void loadItemData(Connection conn) throws Exception {
 		
 		Boolean multivol = false;
 		SolrInputField multivolField = new SolrInputField("multivol_b");
@@ -304,6 +294,15 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		Collection<Map<String,Object>> items = new HashSet<>();
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
+
+			String holdingsLibrary = null;
+			for (int i = 0; i < h.locations.length; i++) {
+				Location l = h.locations[i];
+				if (l.library != null)
+					holdingsLibrary = l.library;
+			}
+        	boolean foundItems = false;
+
 			if (debug)
 				System.out.println(h.id);
 			String query = 
@@ -321,8 +320,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			if (debug)
 				System.out.println(query);
 
-	        
-	        
 	        ResultSetMetaData rsmd = null;
 	        try (Statement stmt = conn.createStatement();
 	        		java.sql.ResultSet rs = stmt.executeQuery(query)) {
@@ -330,10 +327,11 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	        	rsmd = rs.getMetaData();
 	        	int mdcolumnCount = rsmd.getColumnCount();
 	        	while (rs.next()) {
-		        	   
+
 	        		Map<String,Object> record = new HashMap<>();
 	        		record.put("mfhd_id",h.id);
 	        		String loc = null;
+	        		String tempLibrary = null;
 	        		
 	        		if (debug) 
 	        			System.out.println();
@@ -372,9 +370,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	       						&& ! value.equals("0")) {
 	       					if (debug)
 	       						System.out.println(colname+": "+value);
-	       					Location l = getLocation(config,Integer.valueOf(value));
+	       					Location l = locations.getByNumber(Integer.valueOf(value));
 	       					if (l != null) {
-		       					if (colname.equals("perm_location")) loc = l.code;
+		       					if (colname.equals("perm_location"))
+		       						loc = l.code;
+		       					else if ( l.library != null )
+		       						tempLibrary = l.library;
 	       						record.put(colname, l);
 	       					} else record.put(colname, value);
 	       				} else {
@@ -410,13 +411,20 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		        		enumStats.put(loc, stats);
 	        		}
 	        		items.add(record);
+	        		foundItems = true;
+	        		if (tempLibrary != null)
+	        			workLibraries.add(tempLibrary);
+	        		else if (holdingsLibrary != null)
+	        			workLibraries.add(holdingsLibrary);
 	        	}
 	        } catch (SQLException ex) {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
 	        }
-        
+	        if ( ! foundItems )
+	        	workLibraries.add(holdingsLibrary);
 		}
+
 		// if we have diverse enumeration within a single loc, it's a multivol
 		Boolean blankEnum = false;
 		Boolean nonBlankEnum = false;
@@ -426,7 +434,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			if (l.blankEnumFound) blankEnum = true;
 			if ( ! l.aFoundEnum.equals("")) nonBlankEnum = true;
 		}
-		
+
 		if (!multivol && enumStats.size() > 1) {
 			Collection<String> nonBlankEnums = new HashSet<>();
 			for (LocationEnumStats stats : enumStats.values())
@@ -436,7 +444,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			// nonBlankEnums differ between locations
 			if (nonBlankEnums.size() > 1)
 				multivol = true;
-			
+
 			// enumeration is consistent across locations
 			else if ( ! blankEnum )
 				multivol = false;
@@ -494,7 +502,6 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			}
 		}
 
-		
 		if (blankEnum && multivol) {
 			SolrInputField multivolWithBlank = new SolrInputField("multivolwblank_b");
 			multivolWithBlank.setValue(true, 1.0f);
@@ -508,13 +515,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				}
 			}
 		}
-		
+
 		multivolField.setValue(multivol, 1.0f);
 		fields.put("multivol_b", multivolField);
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
-		
-		
+
 		for (Map<String,Object> record : items) {
 	 		String json = mapper.writeValueAsString(record);
 			if (debug)
@@ -552,103 +558,23 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			if (singlevolDesc == null) singlevolDesc = Pattern.compile("^([^0-9\\-\\[\\]  ] )?p\\.");
 			if (singlevolDesc.matcher(desc).find()) return false;
 		}
-		
+
 		return null;
 	}
 
-	private Location getLocation (SolrBuildConfig config, Integer id) throws Exception{
-
-		Location l = locations.getByNumber(id);
-		if (l != null) return l;
-		
-		String loc_uri = "<http://da-rdf.library.cornell.edu/individual/loc_"+id+">";
-		if (debug)
-			System.out.println(loc_uri);
-		SPARQLFieldMakerImpl fm = new SPARQLFieldMakerImpl().
-        setName("location").
-        addMainStoreQuery("location",
-		   	"SELECT DISTINCT ?name ?library ?code \n"+
-		   	"WHERE {\n"+
-		    "  "+loc_uri+" rdf:type intlayer:Location.\n" +
-		    "  "+loc_uri+" intlayer:code ?code.\n" +
-		    "  "+loc_uri+" rdfs:label ?name.\n" +
-		    "  OPTIONAL {\n" +
-		    "    "+loc_uri+" intlayer:hasLibrary ?liburi.\n" +
-		    "    ?liburi rdfs:label ?library.\n" +
-		    "}}").
-        addResultSetToFields( new NameFieldsAsColumnsRSTF());
-		Map<? extends String, ? extends SolrInputField> tempfields = 
-				fm.buildFields("", config);
-		if (debug) {
-			System.out.println(tempfields.toString());
-			System.out.println(tempfields.get("name").getValue());
-		}
-		if (! tempfields.containsKey("code"))
-			return null;
-		l = new Location();
-		l.code = tempfields.get("code").getValue().toString();
-		l.name = tempfields.get("name").getValue().toString();
-		if (tempfields.containsKey("library"))
-			l.library = tempfields.get("library").getValue().toString();
-		else
-			System.out.println("No location found for loc code "+l.code+".");
-		l.number = id;
-		locations.add(l);
-		return l;
-	}
-	
     private static String convertClobToString(Clob clob) throws Exception {
         StringWriter writer = new StringWriter();
         try (  InputStream inputStream = clob.getAsciiStream() ) {
         	IOUtils.copy(inputStream, writer, "utf-8"); }
         return writer.toString();
      }
-	
-	private static class Location {
-		public String code;
-		public Integer number;
-		public String name;
-		public String library;
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("code: ");
-			sb.append(this.code);
-			sb.append("; number: ");
-			sb.append(this.number);
-			sb.append("; name: ");
-			sb.append(this.name);
-			sb.append("; library: ");
-			sb.append(this.library);
-			return sb.toString();
-		}
-	}
-	
+
 	private static class LocationEnumStats {
 		public String aFoundEnum = null;
 		public Boolean blankEnumFound = false;
 		public Boolean diverseEnumFound = false;
 	}
-	
-	public static class LocationSet {
-		private Map<String,Location> _byCode = new HashMap<>();
-		private Map<Integer,Location> _byNumber = new HashMap<>();
-		
-		public void add(Location l) {
-			_byCode.put(l.code, l);
-			_byNumber.put(l.number, l);
-		}
-		public Location getByCode( String code ) {
-			if (_byCode.containsKey(code))
-				return _byCode.get(code);
-			return null;
-		}
-		public Location getByNumber( int number ) {
-			if (_byNumber.containsKey(number))
-				return _byNumber.get(number);
-			return null;
-		}
-	}
-	
+
 	public static class Holdings {
 		public String id;
 		public String modified_date = null;

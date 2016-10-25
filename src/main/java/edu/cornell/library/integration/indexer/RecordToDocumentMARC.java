@@ -31,7 +31,6 @@ import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSet
 import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.LocationResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
@@ -96,22 +95,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
-			        addMainStoreQuery("location",
-					   	"SELECT DISTINCT ?code ?name ?library ?locuri \n"+
-					   	"WHERE {\n"+
-		                "  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"+
-					   	"  ?mfhd marcrdf:hasField852 ?mfhd852.\n" +
-					    "  ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n" +
-					    "  ?mfhd852b marcrdf:code \"b\"^^xsd:string.\n" +
-                        "  ?mfhd852b marcrdf:value ?code. \n" +
-					    "  OPTIONAL {\n" +
-					    "    ?locuri rdf:type intlayer:Location.\n" +
-					    "    ?locuri intlayer:code ?code.\n" +
-					    "    ?locuri rdfs:label ?name.\n" +
-					    "    OPTIONAL {\n" +
-					    "      ?locuri intlayer:hasLibrary ?liburi.\n" +
-					    "      ?liburi rdfs:label ?library.\n" +
-					    "}}}").
 				    addMainStoreQuery("description",
 						"SELECT *\n" +
 						" WHERE { $recordURI$ marcrdf:hasField300 ?field.\n" +
@@ -517,30 +500,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        		"  ?sf marcrdf:code \"a\"^^xsd:string.\n" +
 			        		"  ?sf marcrdf:value ?v. }").
 		        	addResultSetToFields( new DBCodeRSTF()),
-	        
-	        
-			    new SPARQLFieldMakerImpl().
-			        setName("Locations").
-			        addMainStoreQuery("location",
-			        	"SELECT ?loccode ?location_name ?library_name ?group_name \n"+
-			        	"WHERE {\n"+
-                        "    ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"+
-			        	"    ?hold marcrdf:hasField852 ?hold852.\n" +
-			        	"    ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-			        	"    ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
-			        	"    ?hold852b marcrdf:value ?loccode.\n" +
-			        	"    ?location intlayer:code ?loccode.\n" +
-			        	"    ?location rdf:type intlayer:Location.\n" +
-			        	"    ?location rdfs:label ?location_name.\n" +
-			        	"    OPTIONAL {\n" +
-			        	"      ?location intlayer:hasLibrary ?library.\n" +
-			        	"      ?library rdfs:label ?library_name.\n" +
-			        	"      OPTIONAL {\n" +
-			        	"        ?library intlayer:hasGroup ?libgroup.\n" +
-			        	"        ?libgroup rdfs:label ?group_name.\n" +
-			        	"}}}").
-			        addResultSetToFields( new LocationResultSetToFields() ),
-			        
+
 			    new SPARQLFieldMakerImpl().
 			    	setName("citation_reference_note").
 			    	addMainStoreQuery("field510", 
