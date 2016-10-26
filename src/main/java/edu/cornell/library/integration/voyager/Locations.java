@@ -47,12 +47,20 @@ public final class Locations {
 
 	/**
 	 * Structure containing values relating to holdings location. <b>Name</b> and <b>library</b>
-	 * may potentially be null.<br/>
+	 * may potentially be null.<br/><br/>
+	 * <b>Fields</b><hr/>
 	 * <dl>
 	 *  <dt>code</dt><dd>Location code, as appears in holdings 852$b, e.g. "fine,res"</dd>
 	 *  <dt>number</dt><dd>Location number, as appears in item record, e.g. 33</dd>
 	 *  <dt>name</dt><dd>Location name, e.g. "Fine Arts Library Reserve"</dd>
 	 *  <dt>library</dt><dd>Unit Library name, e.g. "Fine Arts Library"</dd>
+	 * </dl>
+	 * <b>Methods</b><hr/>
+	 * <dl>
+	 *  <dt>toString()</dt><dd>Returns display value of Location, primarily for diagnostic use,
+	 *     e.g. "code: fine,res; number: 33; name: Fine Arts Library Reserve; library: Fine Arts Library"</dd>
+	 *  <dt>equals( Location other )</dt><dd>returns <b>true</b> if this.number == other.number; else <b>false</b></dd>
+	 *  <dt>compareTo( Location other )</dt><dd>returns this.number.compareTo(other.number)</dd>
 	 * </dl>
 	 */
 	public static class Location implements Comparable<Location>{
@@ -60,6 +68,12 @@ public final class Locations {
 		public final Integer number;
 		public final String name;
 		public final String library;
+		/**
+		 * @return
+		 *  Display value of Location, primarily for diagnostic use,
+		 *     e.g. "code: fine,res; number: 33; name: Fine Arts Library Reserve; library: Fine Arts Library"
+		 */
+		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("code: ").append(this.code);
@@ -68,11 +82,21 @@ public final class Locations {
 			sb.append("; library: ").append(this.library);
 			return sb.toString();
 		}
+		/**
+		 * @param other
+		 * @return
+		 *    <b>true</b> if this.number == other.number; else <b>false</b>
+		 */
 		public boolean equals( final Location other ) {
 			if (other == null) return false;
 			if (other.number == this.number) return true;
 			return false;
 		}
+		/**
+		 * @param other
+		 * @return
+		 *    this.number.compareTo(other.number)
+		 */
 		@Override
 		public int compareTo( final Location other ) {
 			return this.number.compareTo(other.number);
