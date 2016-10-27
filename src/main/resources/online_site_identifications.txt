@@ -1,6 +1,7 @@
 ABI/INFORM	ABI/INFORM
 ACLS Humanities	ACLS Humanities
 www.aspresolver.com	Alexander Street Press
+biodiversitylibrary.org	Biodiversity Heritage Library
 set=Books24x7	Books24x7
 Brepols Miscellanea	Brepols Miscellanea
 Business Insights	Business Insights
