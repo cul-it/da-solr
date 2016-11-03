@@ -459,6 +459,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -518,6 +519,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -660,6 +662,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -719,6 +722,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -793,6 +797,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -836,6 +841,7 @@
         author_addl_startsC^75     author_addl_startsP^75      author_addl_startsCJK^5
         lc_callnum_full^100
         publisher_startsC^75       publisher_startsP^75        publisher_startsCJK^10
+        pub_date_facet^25
         subject_addl_startsC^125   subject_addl_startsP^125    subject_addl_startsCJK^5
         title_series_startsC^25    title_series_startsP^25     title_series_startsCJK
         isbn_startsC               isbn_startsP        isbn_startsCJK       isbn_startsNum
@@ -868,6 +874,7 @@
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t_cjk^5
@@ -924,6 +931,7 @@
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t^50             publisher_tP^50
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t^25           author_addl_tP^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
@@ -978,6 +986,7 @@
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
         publisher_t_cjk^10
+        pub_date_facet^25
         author_addl_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
         subject_addl_t_cjk^5
