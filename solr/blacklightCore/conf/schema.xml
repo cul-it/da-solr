@@ -432,6 +432,7 @@
   <copyField source="*_t_cjk" dest="*_startsCJK"/>
   <copyField source="issn_t" dest="issn_startsNum"/>
   <copyField source="isbn_t" dest="isbn_startsNum"/>
+  <copyField source="pub_date_t" dest="pub_date_startsNum"/>
   <copyField source="eightninenine_t" dest="eightninenine_startsNum"/>
   <copyField source="barcode_t" dest="barcode_startsNum"/>
   <copyField source="barcode_addl_t" dest="barcode_addl_startsNum"/>
