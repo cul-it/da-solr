@@ -93,13 +93,12 @@ public class DateResultSetToFields implements ResultSetToFields {
 				}
 			}
 		}
-		for (String date : machine_dates)
-			addField(fields,"pub_date_t",date);
-		for (String date : pub_date_display)
-			addField(fields,"pub_date_t",date);
 		pub_date_display = dedupe_pub_dates(pub_date_display);
 		if (pub_date_display.size() > 0)
 			addField(fields,"pub_date_display",StringUtils.join(" ", pub_date_display));
+		machine_dates.addAll(pub_date_display);
+		for (String date : machine_dates)
+			addField(fields,"pub_date_t",date);
 		return fields;
 	}
 
