@@ -437,8 +437,6 @@
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
@@ -475,7 +473,6 @@
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -588,8 +585,6 @@
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
@@ -626,7 +621,6 @@
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -671,8 +665,6 @@
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
@@ -762,7 +754,6 @@
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000           subtitle_t_cjk^1000
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -860,8 +851,6 @@
         title_unstemC^250          title_unstemP^250
         title_uniform_t^12         title_uniform_tP^12       title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
-        subtitle_t^50              subtitle_tP^50            subtitle_t_cjk^10
-        subtitle_unstemC^125       subtitle_unstemP^125
         title_addl_t^12            title_addl_tP^12          title_addl_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t            title_series_t_cjk
@@ -876,8 +865,6 @@
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
-        subtitle_t^50              subtitle_tP^50           subtitle_t_cjk^10
-        subtitle_unstemC^125       subtitle_unstemP^125
         title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t           title_series_t_cjk   
