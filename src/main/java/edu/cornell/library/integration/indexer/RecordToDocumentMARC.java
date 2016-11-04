@@ -30,6 +30,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionRe
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.InstrumentationRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
@@ -514,6 +515,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
 			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()), //IndicatorReq Needed!
+			    new SPARQLFieldMakerImpl().
+			    	setName("instrumentation").
+			    	addMainStoreQuery("instrumentation", 
+			    			"SELECT *\n" +
+			    			" WHERE {\n" +
+			    			"  $recordURI$ marcrdf:hasField382 ?field.\n" +
+			    			"  ?field marcrdf:tag ?tag.\n" +
+			    			"  ?field marcrdf:ind1 ?ind1.\n" +
+			    			"  ?field marcrdf:ind2 ?ind2.\n" +
+			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
+			    			"  ?sfield marcrdf:code ?code.\n" +
+			    			"  ?sfield marcrdf:value ?value. }").
+			    	addResultSetToFields( new InstrumentationRSTF()),
 			    
 			    new StandardMARCFieldMaker("notes","362","a"),
 				new StandardMARCFieldMaker("notes_t","362","a",VernMode.SEARCH),
