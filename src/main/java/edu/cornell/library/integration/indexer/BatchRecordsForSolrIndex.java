@@ -35,7 +35,7 @@ public class BatchRecordsForSolrIndex {
         Set<Integer> addedBibs = new HashSet<>(minCount);
 
         try (Statement stmt = current.createStatement()) {
-        	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE"); }
+        	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "+CurrentDBTable.QUEUE+" AS q READ"); }
         try (PreparedStatement pstmt = current.prepareStatement(
         		" SELECT q.bib_id, cause"
         		+"  FROM "+CurrentDBTable.QUEUE+" AS q"
