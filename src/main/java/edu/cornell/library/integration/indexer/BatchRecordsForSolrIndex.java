@@ -37,17 +37,19 @@ public class BatchRecordsForSolrIndex {
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE"); }
         try (PreparedStatement pstmt = current.prepareStatement(
-        		"SELECT * FROM "+CurrentDBTable.QUEUE
-        		+" WHERE done_date = 0 AND batched_date = 0"
+        		" SELECT q.bib_id, cause"
+        		+"  FROM "+CurrentDBTable.QUEUE+" AS q"
+        		+"  JOIN "+CurrentDBTable.BIB_VOY+" AS v ON q.bib_id = v.bib_id"
+        		+" WHERE done_date = 0 AND batched_date = 0 AND active = 1"
         		+" ORDER BY priority"
         		+" LIMIT " + Math.round(maxCount*1.125));
         		ResultSet rs = pstmt.executeQuery()) {
         	final String delete = DataChangeUpdateType.DELETE.toString();
 
         	while (rs.next() && addedBibs.size() < maxCount) {
-        		if (rs.getString("cause").equals(delete))
+        		if (rs.getString(2).equals(delete))
         			continue;
-        		int bib_id = rs.getInt("bib_id");
+        		int bib_id = rs.getInt(1);
         		addedBibs.add(bib_id);
         	}
         }
