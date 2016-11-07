@@ -56,11 +56,11 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	static ObjectMapper mapper = new ObjectMapper();
 	Locations locations;
 	Collection<String> workLibraries = new HashSet<>();
-	
+
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
-		
+
 		Map<String,MarcRecord> recs = new HashMap<>();
 		locations = new Locations(config);
 
@@ -70,7 +70,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 				QuerySolution sol = rs.nextSolution();
 
 				if ( resultKey.equals("description")) {
-					
+
 					MarcRecord rec = new MarcRecord();
 					rec.addDataFieldQuerySolution(sol);
 					for (DataField f : rec.data_fields.values()) {
@@ -98,12 +98,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 						rec.addDataFieldQuerySolution(sol);
 					}
 					recs.put(recordURI, rec);
-					
+
 				}
 			}
 //			rec.addDataFieldResultSet(rs);
 		}
-		
+
 		for( String holdingURI: recs.keySet() ) {
 			MarcRecord rec = recs.get(holdingURI);
 
@@ -115,9 +115,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			List<String> indexHoldings = new ArrayList<>();
 			List<String> notes = new ArrayList<>();
 			String copyNo = null;
-			
+
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-			
+
 			Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
 			Arrays.sort( ids );
 			for( Integer id: ids) {
@@ -189,7 +189,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 						callnos.add(callno);
 				}
 			}
-			
+
 			Holdings holding = new Holdings();
 			holding.id = rec.id;
 			holding.copy_number = copyNo;
@@ -242,10 +242,12 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 		for (String lib : workLibraries)
 			addField(fields,"location_facet",lib);
+		if ( ! workLibraries.isEmpty() )
+			addField(fields,"online","At the Library");
 
 		return fields;
 	}
-	
+
 	private void registerBoundWith(SolrBuildConfig config, String mfhd_id, DataField f) throws Exception {
 		String item_enum = "";
 		String barcode = null;
