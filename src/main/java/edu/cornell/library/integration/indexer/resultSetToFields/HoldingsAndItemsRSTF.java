@@ -423,7 +423,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
 	        }
-	        if ( ! foundItems )
+	        if ( ! foundItems && holdingsLibrary != null )
 	        	workLibraries.add(holdingsLibrary);
 		}
 
