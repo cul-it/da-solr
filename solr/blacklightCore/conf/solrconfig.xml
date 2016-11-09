@@ -434,6 +434,7 @@
       <str name="q.alt">*</str>
       <str name="facet.mincount">1</str>
       <str name="mm">100%</str>
+      <str name="q.op">OR</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
         title_t^12500              title_tP^12500             title_t_cjk^2500
