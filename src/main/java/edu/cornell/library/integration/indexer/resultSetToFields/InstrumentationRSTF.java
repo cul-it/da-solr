@@ -52,41 +52,54 @@ public class InstrumentationRSTF implements ResultSetToFields {
 
 			for (DataField f: dataFields) {
 				String total_performers = null;
-				StringBuilder sb = new StringBuilder("For ");
+				StringBuilder sb = new StringBuilder();
+				boolean forAppended = false;
 				for ( Subfield sf : f.subfields.values() ) {
 					switch (sf.code) {
 					case 'a':
-						if (sb.length() > 4) sb.append("; ");
+						if (forAppended) sb.append("; ");
+						else{ sb.append(FOR); forAppended = true; }
 						sb.append(sf.value);
 						break;
 					case 'b':
-						if (sb.length() > 4) sb.append("; ");
+						if (forAppended) sb.append("; ");
+						else{ sb.append(FOR); forAppended = true; }
 						sb.append("solo ").append(sf.value);
 						break;
 					case 'd':
-						sb.append('/').append(sf.value);
+						if (forAppended) sb.append('/');
+						else{ sb.append(FOR); forAppended = true; }
+						sb.append(sf.value);
 						break;
 					case 'n':
 					case 'e':
 						try {
 							int count = Integer.valueOf(sf.value);
 							if (count > 1) {
-								if (sb.length() > 4) sb.append(' ');
+								if (forAppended) sb.append(' ');
+								else{ sb.append(FOR); forAppended = true; }
 								sb.append('(').append(count).append(')');
 							}
 						} catch (@SuppressWarnings("unused") NumberFormatException e) {
-							System.out.println("382$n is not an integer ("+sf.value+").");
+							System.out.println("382$n/e is not an integer ("+sf.value+").");
 						}
 						break;
 					case 'p':
-						sb.append(" or ").append(sf.value);
+						if (forAppended) sb.append(" or ");
+						else{ sb.append(FOR); forAppended = true; }
+						sb.append(sf.value);
 						break;
 					case 's':
 						total_performers = sf.value;
 						break;
 					case 'v':
-						if (sb.length() > 4) sb.append(' ');
-						sb.append('[').append(sf.value).append(']');
+						if (forAppended){
+							sb.append(" [").append(sf.value).append(']');
+						}
+						else{
+							sb.append('[').append(sf.value).append("]: For");
+							forAppended = true;
+						}
 						break;
 					}
 				}
@@ -109,4 +122,5 @@ public class InstrumentationRSTF implements ResultSetToFields {
 		return fields;
 	}
 
+	private static final String FOR = "For ";
 }
