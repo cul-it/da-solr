@@ -81,7 +81,7 @@ public class IdentifyChangedRecords {
 	final static String bibVoyQuery =
 			"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
 	final static String bibVoyUpdate =
-			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? WHERE bib_id = ?";
+			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? , active = ? WHERE bib_id = ?";
 	final static String bibVoyInsert =
 			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date) VALUES (?,?)";
 	final static String mfhdVoyQuery =
@@ -173,7 +173,7 @@ public class IdentifyChangedRecords {
 							if (updatedBibs.contains(bib_id))
 								continue;
 							if (suppress_in_opac != null && suppress_in_opac.equals("N"))
-								queueBib( current, bib_id, thisTS );
+								queueBib( current, bib_id, thisTS, true );
 							else
 								queueBibDelete( current, bib_id );
 							if (thisTS != null && 0 > thisTS.compareTo(max_date))
@@ -213,7 +213,7 @@ public class IdentifyChangedRecords {
 		}
 	}
 
-	private void queueBib(Connection current, int bib_id, Timestamp update_date) throws SQLException {
+	private void queueBib(Connection current, int bib_id, Timestamp update_date, Boolean isActive) throws SQLException {
 		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
 			bibVoyQStmt.setInt(1, bib_id);
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
@@ -225,7 +225,8 @@ public class IdentifyChangedRecords {
 						// bib is already in current, but has been updated
 						try ( PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate ) ){
 							bibVoyUStmt.setTimestamp(1, update_date);
-							bibVoyUStmt.setInt(2, bib_id);
+							bibVoyUStmt.setBoolean(2, isActive);
+							bibVoyUStmt.setInt(3, bib_id);
 							bibVoyUStmt.executeUpdate();
 						}
 						if ( ! updatedBibs.contains(bib_id)) {
