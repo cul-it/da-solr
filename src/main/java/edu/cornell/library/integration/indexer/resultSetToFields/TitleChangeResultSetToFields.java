@@ -227,7 +227,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					title_cts = f.concatenateSpecificSubfields("s");
 					if (title_cts.isEmpty())
 						title_cts = f.concatenateSpecificSubfields("t");
-					final String subfields = "atbcdegkqrs";
+					final String subfields = "atbcegkqrs";
 					final String value = f.concatenateSpecificSubfields(subfields);
 					final String valueWOarticle = f.getStringWithoutInitialArticle(value);
 					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
