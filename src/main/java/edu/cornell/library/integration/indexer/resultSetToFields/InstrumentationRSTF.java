@@ -93,17 +93,13 @@ public class InstrumentationRSTF implements ResultSetToFields {
 						total_performers = sf.value;
 						break;
 					case 'v':
-						if (forAppended){
+						if (forAppended)
 							sb.append(" [").append(sf.value).append(']');
-						}
-						else{
-							sb.append('[').append(sf.value).append("]: For");
-							forAppended = true;
-						}
+						else
+							sb.append('[').append(sf.value).append("]: ");
 						break;
 					}
 				}
-				if (sb.length() == 4) sb.setLength(0);
 				if (total_performers != null) {
 					if (sb.length() > 0) sb.append(". ");
 					sb.append("Total performers: ").append(total_performers);
