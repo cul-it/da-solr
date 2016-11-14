@@ -27,6 +27,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.CitationReferen
 import edu.cornell.library.integration.indexer.resultSetToFields.DBCodeRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.FindingAidsRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
@@ -603,8 +604,19 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","540","3abcu",VernMode.SEARCH),
 				new StandardMARCFieldMaker("cite_as_display","524","a3"),
 				new StandardMARCFieldMaker("notes_t","524","a3",VernMode.SEARCH),
-				new StandardMARCFieldMaker("finding_aids_display","555","3abcdu"),
-				new StandardMARCFieldMaker("notes_t","555","3abcdu",VernMode.SEARCH),
+			    new SPARQLFieldMakerImpl().
+			    	setName("finding_aids_index_notes").
+			    	addMainStoreQuery("finding_aids_index_notes", 
+		    			"SELECT *\n" +
+		    			" WHERE {\n" +
+		    			"  $recordURI$ marcrdf:hasField555 ?field.\n" +
+		    			"  ?field marcrdf:tag ?tag.\n" +
+		    			"  ?field marcrdf:ind1 ?ind1.\n" +
+		    			"  ?field marcrdf:ind2 ?ind2.\n" +
+		    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
+		    			"  ?sfield marcrdf:code ?code.\n" +
+		    			"  ?sfield marcrdf:value ?value. }").
+			    	addResultSetToFields( new FindingAidsRSTF()),
 				new StandardMARCFieldMaker("historical_note_display","545","3abcu"),
 				new StandardMARCFieldMaker("notes_t","545","3abcu",VernMode.SEARCH),
 				
