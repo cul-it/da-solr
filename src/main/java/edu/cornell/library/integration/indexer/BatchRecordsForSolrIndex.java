@@ -43,7 +43,7 @@ public class BatchRecordsForSolrIndex {
         		+"  JOIN "+CurrentDBTable.BIB_VOY+" AS v ON q.bib_id = v.bib_id"
         		+" WHERE done_date = 0 AND batched_date = 0 AND active = 1"
         		+" ORDER BY priority"
-        		+" LIMIT " + Math.round(maxCount*1.125));
+        		+" LIMIT " + Math.round(maxCount*2));
         		ResultSet rs = pstmt.executeQuery()) {
         	final String delete = DataChangeUpdateType.DELETE.toString();
 
