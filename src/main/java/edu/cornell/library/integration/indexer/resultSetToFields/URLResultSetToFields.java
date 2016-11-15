@@ -105,6 +105,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 					urlRelation = "bookplate";
 					if (! linkDescription.isEmpty())
 						addField(fields,"donor_t",standardizeApostrophes(linkDescription));
+					addField(fields,"donor_s",url.substring(url.lastIndexOf('/')+1));
 				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
 					urlRelation = "pda";
 				}
