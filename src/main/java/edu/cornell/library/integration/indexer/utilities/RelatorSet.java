@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.utilities;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,7 +12,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
 public class RelatorSet {
 
-	Set<String> relators = new HashSet<>();
+	Set<String> relators = new LinkedHashSet<>();
 
 	public RelatorSet(DataField f) {
 		boolean isEventField = f.mainTag.endsWith("11");
