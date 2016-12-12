@@ -83,7 +83,7 @@ public class IdentifyChangedRecords {
 	final static String bibVoyUpdate =
 			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? , active = ? WHERE bib_id = ?";
 	final static String bibVoyInsert =
-			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date,active) VALUES (?,?)";
+			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date,active) VALUES (?,?,?)";
 	final static String mfhdVoyQuery =
 			"SELECT bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
 	final static String mfhdVoyUpdate =
