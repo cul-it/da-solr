@@ -79,11 +79,11 @@ public class IdentifyChangedRecords {
 		    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 		    		+ "  and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)";
 	final static String bibVoyQuery =
-			"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
+			"SELECT record_date, active FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
 	final static String bibVoyUpdate =
 			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? , active = ? WHERE bib_id = ?";
 	final static String bibVoyInsert =
-			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date) VALUES (?,?)";
+			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date,active) VALUES (?,?)";
 	final static String mfhdVoyQuery =
 			"SELECT bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
 	final static String mfhdVoyUpdate =
@@ -172,10 +172,8 @@ public class IdentifyChangedRecords {
 							int bib_id = rs.getInt(1);
 							if (updatedBibs.contains(bib_id))
 								continue;
-							if (suppress_in_opac != null && suppress_in_opac.equals("N"))
-								queueBib( current, bib_id, thisTS, true );
-							else
-								queueBibDelete( current, bib_id );
+							queueBib( current, bib_id, thisTS, 
+									suppress_in_opac != null && suppress_in_opac.equals("N") );
 							if (thisTS != null && 0 > thisTS.compareTo(max_date))
 								max_date = thisTS;
 						}
@@ -219,6 +217,7 @@ public class IdentifyChangedRecords {
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
 				while (rs.next()) {
 					Timestamp old_date = rs.getTimestamp(1);
+					Boolean previouslyActive = rs.getBoolean(2);
 					if (update_date != null
 							&& (old_date == null
 							|| 0 > old_date.compareTo(update_date))) {
@@ -231,7 +230,18 @@ public class IdentifyChangedRecords {
 						}
 						if ( ! updatedBibs.contains(bib_id)) {
 							updatedBibs.add(bib_id);
-							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+
+							if (isActive) {
+								if (previouslyActive) 
+									addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
+								else
+									addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
+							} else {
+								if (previouslyActive)
+									queueBibDelete( current, bib_id );
+								// else - ignore change to suppressed record
+							}
+							
 						}
 					} // else bib is unchanged - do nothing
 					return;
@@ -243,11 +253,13 @@ public class IdentifyChangedRecords {
 		try ( PreparedStatement bibVoyIStmt = current.prepareStatement( bibVoyInsert ) ) {
 			bibVoyIStmt.setInt(1, bib_id);
 			bibVoyIStmt.setTimestamp(2, update_date);
+			bibVoyIStmt.setBoolean(3, isActive);
 			bibVoyIStmt.executeUpdate();
 		}
 		if ( ! updatedBibs.contains(bib_id)) {
 			updatedBibs.add(bib_id);
-			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
+			if (isActive)
+				addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
 		}
 	}
 
@@ -367,7 +379,7 @@ public class IdentifyChangedRecords {
 			bibVoyQStmt.setInt(1, bib_id);
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ){
 				while (rs.next())
-					exists = true;
+					exists = rs.getBoolean(2);
 			}
 		}
 		return exists;
