@@ -78,7 +78,8 @@ public class BatchRecordsForSolrIndex {
             }
         }
         try (PreparedStatement batchStmt = current.prepareStatement(
-        		"UPDATE "+CurrentDBTable.QUEUE+" SET batched_date = NOW() WHERE bib_id = ? AND batched_date = 0")) {
+        		"UPDATE "+CurrentDBTable.QUEUE
+        		+" SET batched_date = NOW() WHERE bib_id = ? AND done_date = 0 AND batched_date = 0")) {
         	for (int bib_id : addedBibs) {
         		batchStmt.setInt(1,bib_id);
         		batchStmt.addBatch();
