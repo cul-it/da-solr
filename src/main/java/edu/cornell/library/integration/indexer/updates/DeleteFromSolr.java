@@ -158,50 +158,53 @@ public class DeleteFromSolr {
     			PreparedStatement knockOnUpdateStmt = conn.prepareStatement(knockOnUpdateQuery)  ){
 
     		for (int bib_id : deleteQueue)  {
-			if (bib_id == 0)
-				continue;
-			lineNum++;
-			ids.add( String.valueOf(bib_id) );
-			knockOnUpdateStmt.setInt(1,bib_id);
-			try (  ResultSet rs = knockOnUpdateStmt.executeQuery()  ){
-
-				while (rs.next()) {
-					int other_bib_id = rs.getInt(1);
-					if ( ! ids.contains( String.valueOf(other_bib_id) ))
-						knockOnUpdates.add(other_bib_id);
+    			if (bib_id == 0)
+    				continue;
+				lineNum++;
+				ids.add( String.valueOf(bib_id) );
+				knockOnUpdateStmt.setInt(1,bib_id);
+				try (  ResultSet rs = knockOnUpdateStmt.executeQuery()  ){
+	
+					while (rs.next()) {
+						int other_bib_id = rs.getInt(1);
+						if ( ! ids.contains( String.valueOf(other_bib_id) ))
+							knockOnUpdates.add(other_bib_id);
+					}
 				}
-			}
-			knockOnUpdates.remove(bib_id);
-			bibStmt.setInt(1,bib_id);
-			bibStmt.addBatch();
-			markDoneInQueueStmt.setInt(1,bib_id);
-			markDoneInQueueStmt.addBatch();
-			workStmt.setInt(1,bib_id);
-			workStmt.addBatch();
-			mfhdStmt.setInt(1,bib_id);
-			try ( ResultSet rs = mfhdStmt.executeQuery() ) {
-
-				while (rs.next()) {
-					itemStmt.setInt(1,rs.getInt(1));
-					itemStmt.addBatch();
+				knockOnUpdates.remove(bib_id);
+				bibStmt.setInt(1,bib_id);
+				bibStmt.addBatch();
+				markDoneInQueueStmt.setInt(1,bib_id);
+				markDoneInQueueStmt.addBatch();
+				workStmt.setInt(1,bib_id);
+				workStmt.addBatch();
+				mfhdStmt.setInt(1,bib_id);
+				try ( ResultSet rs = mfhdStmt.executeQuery() ) {
+	
+					while (rs.next()) {
+						itemStmt.setInt(1,rs.getInt(1));
+						itemStmt.addBatch();
+					}
 				}
-			}
-			mfhdDelStmt.setInt(1,bib_id);
-			mfhdDelStmt.addBatch();
-
-			if( ids.size() >= batchSize ){
-				pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
-				ids.clear();
-			}
-
-			if( lineNum % commitSize == 0 ){
-				System.out.println("Requested " + lineNum + " deletes and doing a commit.");
+				mfhdDelStmt.setInt(1,bib_id);
+				mfhdDelStmt.addBatch();
+	
+				if( ids.size() >= batchSize ){
+					pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+					ids.clear();
+				}
+	
+				if( lineNum % commitSize == 0 ){
+					System.out.println("Requested " + lineNum + " deletes and doing a commit.");
+					solr.commit();
+					conn.commit();
+				}
+    		}
+    		if( ids.size() > 0 ) {
+    			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 				solr.commit();
 				conn.commit();
-			}
-		}
-		if( ids.size() > 0 )
-			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+    		}
 
     	} // preparedStatements.close()
 		return lineNum;
