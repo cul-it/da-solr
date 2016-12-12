@@ -229,9 +229,9 @@ public class IdentifyChangedRecords {
 							bibVoyUStmt.executeUpdate();
 						}
 						if ( ! updatedBibs.contains(bib_id)) {
-							updatedBibs.add(bib_id);
 
 							if (isActive) {
+								updatedBibs.add(bib_id);
 								if (previouslyActive) 
 									addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE);
 								else
@@ -256,10 +256,9 @@ public class IdentifyChangedRecords {
 			bibVoyIStmt.setBoolean(3, isActive);
 			bibVoyIStmt.executeUpdate();
 		}
-		if ( ! updatedBibs.contains(bib_id)) {
+		if ( isActive && ! updatedBibs.contains(bib_id) ) {
 			updatedBibs.add(bib_id);
-			if (isActive)
-				addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD);
 		}
 	}
 
