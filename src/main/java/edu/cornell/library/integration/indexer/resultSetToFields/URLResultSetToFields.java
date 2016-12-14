@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
@@ -104,7 +103,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 				if (url_lc.contains("://plates.library.cornell.edu")) {
 					urlRelation = "bookplate";
 					if (! linkDescription.isEmpty())
-						addField(fields,"donor_t",standardizeApostrophes(linkDescription));
+						addField(fields,"donor_t",linkDescription);
 					addField(fields,"donor_s",url.substring(url.lastIndexOf('/')+1));
 				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
 					urlRelation = "pda";

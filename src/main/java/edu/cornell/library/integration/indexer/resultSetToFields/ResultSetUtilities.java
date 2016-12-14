@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
+
 import java.util.Iterator;
 import java.util.Map;
 
@@ -31,6 +33,8 @@ public class ResultSetUtilities {
 		if ((value == null) || (value.equals(""))) return;
 		value = value.trim();
 		if (value.equals("")) return;
+		if (fieldName.endsWith("_t")) // DISCOVERYACCESS-1408
+			value = standardizeApostrophes(value);
 		SolrInputField field = fields.get(fieldName);
 		if( field == null ){
 			field = new SolrInputField(fieldName);

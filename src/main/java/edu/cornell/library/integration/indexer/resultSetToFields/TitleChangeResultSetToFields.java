@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -131,7 +130,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						final String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
 						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 								relation+"_display",workField,ctsVals.title,ctsVals.author));
-						addField(solrFields,"title_uniform_t",standardizeApostrophes(ctsVals.title));
+						addField(solrFields,"title_uniform_t",ctsVals.title);
 					}					continue; //next datafield
 				}
 				String title_cts = null;
@@ -144,7 +143,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						title_cts = f.concatenateSubfieldsOtherThan("6");
 						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
 						final String searchField = f.concatenateSpecificSubfields("abcdefghjklmnopqrstuvwxyz");
-						addField(solrFields,"title_uniform_t",standardizeApostrophes(searchField));
+						addField(solrFields,"title_uniform_t",searchField);
 					} else {
 						title_cts = f.concatenateSpecificSubfields("ab");
 						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
@@ -230,8 +229,8 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 					final String subfields = "atbcegkqrs";
 					final String value = f.concatenateSpecificSubfields(subfields);
 					final String valueWOarticle = f.getStringWithoutInitialArticle(value);
-					addField(solrFields,"title_uniform_t",standardizeApostrophes(value));
-					addField(solrFields,"title_uniform_t",standardizeApostrophes(valueWOarticle));
+					addField(solrFields,"title_uniform_t",value);
+					addField(solrFields,"title_uniform_t",valueWOarticle);
 					if (f.tag.equals("880")) {
 						if (f.getScript().equals(MarcRecord.Script.CJK)) {
 							addField(solrFields,"title_uniform_t_cjk",value);
