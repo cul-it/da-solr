@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
@@ -336,8 +337,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			addField(solrFields,"fulltitle_display",fulltitle);
 			addField(solrFields,"title_t",fulltitle);
 			addField(solrFields,"title_t",titleWOArticle);
-			addField(solrFields,"title_exact",fulltitle);
-			addField(solrFields,"title_exact",titleWOArticle);
+			addField(solrFields,"title_exact",standardizeApostrophes(fulltitle));
+			addField(solrFields,"title_exact",standardizeApostrophes(titleWOArticle));
 			responsibility = title.concatenateSpecificSubfields("c");
 
 			// title alpha buckets
