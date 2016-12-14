@@ -80,6 +80,35 @@ public class CharacterSetUtils {
 	}
 
 	/**
+	 * Removes any whitespace characters from the front and end of the string, while replacing
+	 * any interior sequences of consecutive whitespace characters with single, standard spaces.
+	 * @param s
+	 * Original String
+	 * @return
+	 * Standardized String
+	 */
+	public static String standardizeSpaces( String s ) {
+		if (s == null) return null;
+		StringBuilder sb = new StringBuilder();
+		boolean prevSpace = true;
+		for (int i = 0; i < s.length(); i++){
+			char c = s.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (prevSpace)
+					continue;
+				prevSpace = true;
+				sb.append(' ');
+			} else {
+				sb.append(c);
+				prevSpace = false;
+			}
+		}
+		if (prevSpace && sb.length() > 0)
+			sb.setLength(sb.length() - 1);
+		return sb.toString();
+	}
+
+	/**
 	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
 	 * <b>b</b> bytes of the UTF-8 representation of <b>s</b>. Any characters found in 
 	 * <b>reserves</b> will not be removed, but will still count toward the <b>b</b> bytes.

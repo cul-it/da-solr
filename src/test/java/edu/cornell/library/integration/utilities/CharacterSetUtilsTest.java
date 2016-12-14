@@ -123,4 +123,15 @@ public class CharacterSetUtilsTest {
 		CharacterSetUtils.stripBytesFromString("Hē Monē tou Horous Sina.", 50, titlePrefixChars);
 	}
 
+	@Test
+	public void testStandardizeSpaces() {
+		assertTrue(CharacterSetUtils.standardizeSpaces(" hello ").equals("hello"));
+		assertTrue(CharacterSetUtils.standardizeSpaces(" hello  world!").equals("hello world!"));
+		assertTrue(CharacterSetUtils.standardizeSpaces("　　俄国　东正教　侵　华　史略　").equals("俄国 东正教 侵 华 史略"));
+		assertTrue(CharacterSetUtils.standardizeSpaces("").equals(""));
+		assertTrue(CharacterSetUtils.standardizeSpaces(" ").equals(""));
+		assertTrue(CharacterSetUtils.standardizeSpaces("  ").equals(""));
+		assertTrue(CharacterSetUtils.standardizeSpaces("　　").equals(""));
+	}
+
 }
