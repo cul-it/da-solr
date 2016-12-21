@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,21 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 public class FormatResultSetToFields implements ResultSetToFields {
 
 	protected boolean debug = false;
-	
+
+	private static Collection<String> rareLocCodes = Arrays.asList(
+			"asia,ranx","asia,rare",
+			"ech,rare","ech,ranx",
+			"ent,rare","ent,rar2",
+			"gnva,rare",
+			"hote,rare",
+			"ilr,kanx","ilr,lmdc","ilr,lmdr","ilr,rare",
+			"lawr","lawr,anx",
+			"mann,spec",
+			"rmc","rmc,anx","rmc,hsci","rmc,icer","rmc,ref",
+			"sasa,ranx","sasa,rare",
+			"vet,rare",
+			"was,rare","was,ranx");
+
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
@@ -45,33 +60,7 @@ public class FormatResultSetToFields implements ResultSetToFields {
 		Collection<String> sf245hs = new HashSet<>();
 		Collection<String> sf948fs = new HashSet<>();
 		Collection<String> loccodes = new HashSet<>();
-		
-		Collection<String> rareLocCodes = new HashSet<>();
-		rareLocCodes.add("asia,ranx");
-		rareLocCodes.add("asia,rare");
-		rareLocCodes.add("ech,rare");
-		rareLocCodes.add("ech,ranx");
-		rareLocCodes.add("ent,rare");
-		rareLocCodes.add("ent,rar2");
-		rareLocCodes.add("gnva,rare");
-		rareLocCodes.add("hote,rare");
-		rareLocCodes.add("ilr,kanx");
-		rareLocCodes.add("ilr,lmdc");
-		rareLocCodes.add("ilr,lmdr");
-		rareLocCodes.add("ilr,rare");
-		rareLocCodes.add("lawr");
-		rareLocCodes.add("lawr,anx");
-		rareLocCodes.add("mann,spec");
-		rareLocCodes.add("rmc");
-		rareLocCodes.add("rmc,anx");
-		rareLocCodes.add("rmc,hsci");
-		rareLocCodes.add("rmc,icer");
-		rareLocCodes.add("rmc,ref");
-		rareLocCodes.add("sasa,ranx");
-		rareLocCodes.add("sasa,rare");
-		rareLocCodes.add("vet,rare");
-		rareLocCodes.add("was,rare");
-		rareLocCodes.add("was,ranx");
+
 		String format = null;
 		Boolean online = false;
 
