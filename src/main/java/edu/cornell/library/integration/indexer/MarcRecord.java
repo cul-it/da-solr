@@ -9,11 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -262,7 +262,7 @@ public class MarcRecord {
 		public String value;
 	}
 
-	public static class DataField {
+	public static class DataField implements Comparable<DataField> {
 
 		public int id;
 		public String tag;
@@ -487,6 +487,16 @@ public class MarcRecord {
 					StringUtils.join(authorSubfields, ' '),
 					StringUtils.join(titleSubfields, ' '));
 		}
+
+		@Override
+		public int compareTo(final DataField other) {
+			return Integer.compare(this.id, other.id);
+		}
+		public boolean equals( final DataField other ) {
+			if (other == null) return false;
+			if (other.id == this.id) return true;
+			return false;
+		}
 	}
 
 	public static class Subfield {
@@ -514,7 +524,7 @@ public class MarcRecord {
 	public static class FieldSet {
 		Integer minFieldNo;
 		Integer linkOccurrenceNumber;
-		public Set<DataField> fields = new HashSet<>();
+		public Set<DataField> fields = new TreeSet<>();
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();

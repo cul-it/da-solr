@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,8 +47,8 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 	private Boolean debug = false;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");
-	Collection<String> holding_ids = new HashSet<>();
-	Map<String,Holdings> holdings = new HashMap<>();
+	Collection<String> holding_ids = new TreeSet<>();
+	Map<String,Holdings> holdings = new TreeMap<>();
 	Map<String,SolrInputField> fields = new HashMap<>();
 	Collection<String> descriptions = new HashSet<>();
 	boolean description_with_e = false;
@@ -293,7 +295,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		}
 		
 		Map<String,LocationEnumStats> enumStats = new HashMap<>();
-		Collection<Map<String,Object>> items = new HashSet<>();
+		Map<Integer,Map<String,Object>> items = new TreeMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
 
@@ -412,7 +414,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		        		}
 		        		enumStats.put(loc, stats);
 	        		}
-	        		items.add(record);
+	        		items.put(Integer.valueOf((String)record.get("item_id")),record);
 	        		foundItems = true;
 	        		if (tempLibrary != null)
 	        			workLibraries.add(tempLibrary);
@@ -508,7 +510,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			SolrInputField multivolWithBlank = new SolrInputField("multivolwblank_b");
 			multivolWithBlank.setValue(true, 1.0f);
 			fields.put("multivolwblank_b", multivolWithBlank);
-			for (Map<String,Object> record : items) {
+			for (Map<String,Object> record : items.values()) {
 				String enumeration = record.get("item_enum").toString() + 
     					record.get("chron") + record.get("year");
 				if (enumeration.isEmpty()) {
@@ -523,7 +525,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 		SolrInputField itemField = new SolrInputField("item_record_display");
 		SolrInputField itemlist = new SolrInputField("item_display");
 
-		for (Map<String,Object> record : items) {
+		for (Map<String,Object> record : items.values()) {
 	 		String json = mapper.writeValueAsString(record);
 			if (debug)
 				System.out.println(json);

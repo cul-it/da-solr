@@ -68,13 +68,13 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
-			Set<String> valuesFacet = new HashSet<>();
+			Set<String> authFacetVals = new HashSet<>();
+			String authFilingType = null;
 			String suffixes = "";
 			String dates = "";
 			String cts = "";
 			String cts880 = "";
 			String mainTag = null;
-			String filing_type = null;
 			HeadTypeDesc htd = null;
 		
 			for (DataField f: dataFields) {
@@ -95,17 +95,17 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					if (mainTag.equals("100")) {
 						subfields = "abcq";
 						ctsSubfields = "abcdq";
-						filing_type = "pers";
+						authFilingType = "pers";
 						htd = HeadTypeDesc.PERSNAME;
 					} else if (mainTag.equals("110")) {
 						subfields = "abcdfghijklmnopqrstuvwxyz";
 						ctsSubfields = "ab";
-						filing_type = "corp";
+						authFilingType = "corp";
 						htd = HeadTypeDesc.CORPNAME;
 					} else {
 						subfields = "abcdefghiklmnopqrstuvwxyz";
 						ctsSubfields = "abe";
-						filing_type = "event";
+						authFilingType = "event";
 						htd = HeadTypeDesc.EVENT;
 					}
 					String value = f.concatenateSpecificSubfields(subfields);
@@ -114,7 +114,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							values880.add(value);
 							cts880 = f.concatenateSpecificSubfields(ctsSubfields);
 							if ( ! cts880.isEmpty() )
-								valuesFacet.add(cts880);
+								authFacetVals.add(cts880);
 						} else {
 							RelatorSet relators = new RelatorSet(f);
 							if (mainTag.equals("100"))
@@ -134,7 +134,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							valuesMain.add(value);
 							cts = f.concatenateSpecificSubfields(ctsSubfields);
 							if ( ! cts.isEmpty() )
-								valuesFacet.add(cts);
+								authFacetVals.add(cts);
 						}
 					}
 				}
@@ -256,9 +256,9 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 					addField(solrFields,"author_json",jsonstream.toString("UTF-8"));
 				}
 			}
-			for (String s : valuesFacet) {
+			for (String s : authFacetVals) {
 				String sort = getFilingForm(s);
-				addField(solrFields,"author_"+filing_type+"_filing",sort);
+				addField(solrFields,"author_"+authFilingType+"_filing",sort);
 				addField(solrFields,"author_facet",removeTrailingPunctuation(s,"., "));
 			}
 				
