@@ -423,7 +423,7 @@ public class MarcRecord {
 		 * so that the calling method can have access to the title WITH the article.
 		 */
 		public String getStringWithoutInitialArticle(final String fulltitle) {
-			final String titlePrefixChars = "[.\"";
+			final String titlePrefixChars = "[.\"“";
 
 			Character nonFilingCharInd = null;
 			switch (this.mainTag) {
@@ -448,10 +448,10 @@ public class MarcRecord {
 					try {
 						if (fulltitle.startsWith(RLE_openRTL))
 							return RLE_openRTL+
-									CharacterSetUtils.stripBytesFromString(
+									CharacterSetUtils.stripLeadCharsFromString(
 									fulltitle.substring(RLE_openRTL.length()),
 									nonFilingCharCount, titlePrefixChars);
-						return CharacterSetUtils.stripBytesFromString(
+						return CharacterSetUtils.stripLeadCharsFromString(
 								fulltitle, nonFilingCharCount, titlePrefixChars);
 					} catch (IllegalArgumentException e) {
 						System.out.println("Initial article not stripped from title: "+

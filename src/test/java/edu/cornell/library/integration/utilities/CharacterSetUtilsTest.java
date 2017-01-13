@@ -51,14 +51,14 @@ public class CharacterSetUtilsTest {
 	}
 
 
-	private final String titlePrefixChars = "[.\"";
+	private final String titlePrefixChars = "[.\"“";
 	@Test
-	public void testStripBytesFromString(){
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+	public void testStripLeadCharsFromString(){
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"1234", 0, titlePrefixChars).equals("1234"));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"1234", 3, titlePrefixChars).equals("4"));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"1234", 4, titlePrefixChars).equals(""));
 
 		/* The following examples come from the Library of Congress examples for encoding of
@@ -69,58 +69,53 @@ public class CharacterSetUtilsTest {
 		 * filing character count of 5 include the first byte but not the second byte of the quote. 
 		 * If this ever becomes an issue in our actual catalog, we may need to make an adaptive exception
 		 * to the logic for the Unicode left double quote character. */
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"The Year book of medicine.",4,titlePrefixChars)
 				.equals("Year book of medicine."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"A report to the legislature for the year ...", 2, titlePrefixChars)
 				.equals("report to the legislature for the year ..."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"L'enfant criminal.", 2, titlePrefixChars)
 				.equals("enfant criminal."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"[The Part of Pennsylvania that ... townships].", 5, titlePrefixChars)
 				.equals("[Part of Pennsylvania that ... townships]."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"--the serpent--snapping eye", 6, titlePrefixChars)
 				.equals("serpent--snapping eye"));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"The ... annual report to the Governor.", 8, titlePrefixChars)
 				.equals("...annual report to the Governor."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"L'été.", 2, titlePrefixChars).equals("été."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"Hē Monē tou Horous Sina.", 4, titlePrefixChars)
 				.equals("Monē tou Horous Sina."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"Tōn meionotētōn eunoia :", 5, titlePrefixChars)
 				.equals("meionotētōn eunoia :"));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"Tōn Diōnos Rōmaikōn historiōn eikositria biblia =", 5, titlePrefixChars)
 				.equals("Diōnos Rōmaikōn historiōn eikositria biblia ="));
-//		assertTrue(CharacterSetUtils.stripBytesFromString(
-//				"The “winter mind” :", 5, titlePrefixChars).equals("“winter mind” :"));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
+				"The “winter mind” :", 5, titlePrefixChars).equals("“winter mind” :"));
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"The \"winter mind\" :", 5, titlePrefixChars)
 				.equals("\"winter mind\" :"));
-
-		/* The following tests are designed to test the case where the number of specified bytes to
-		 * strip would end with stripping only part of a UTF-8 character. It looks like the most
-		 * common cause for this error is when a cataloger has used a wide character without knowing
-		 * it. Rather than throw an exception, stripping the entire character seems like a solution
-		 * more likely to be correct.
-		 */
-		assertTrue(CharacterSetUtils.stripBytesFromString(
-				"Hē Monē tou Horous Sina.", 2, titlePrefixChars)
-				.equals(" Monē tou Horous Sina."));
-		assertTrue(CharacterSetUtils.stripBytesFromString(
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
 				"ʻImma, ou, Rites, coutumes et croyances...", 1, titlePrefixChars)
 				.equals("Imma, ou, Rites, coutumes et croyances..."));
 
+		// An incorrectly coded count of characters to remove may leave a floating diacritic.
+		// That diacritic should also be removed.
+		assertTrue(CharacterSetUtils.stripLeadCharsFromString(
+				"Hē Monē tou Horous Sina.", 2, titlePrefixChars)
+				.equals(" Monē tou Horous Sina."));
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public void testStripBytesFromStringTooGreedyException(){
-		CharacterSetUtils.stripBytesFromString("Hē Monē tou Horous Sina.", 50, titlePrefixChars);
+		CharacterSetUtils.stripLeadCharsFromString("Hē Monē tou Horous Sina.", 50, titlePrefixChars);
 	}
 
 	@Test

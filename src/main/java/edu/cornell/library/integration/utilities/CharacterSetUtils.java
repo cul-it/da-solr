@@ -1,10 +1,8 @@
 package edu.cornell.library.integration.utilities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CharacterSetUtils {
 
@@ -110,54 +108,50 @@ public class CharacterSetUtils {
 
 	/**
 	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
-	 * <b>b</b> bytes of the UTF-8 representation of <b>s</b>. Any characters found in 
-	 * <b>reserves</b> will not be removed, but will still count toward the <b>b</b> bytes.
-	 * If byte number <b>b</b> is not the last byte of its containing character, the entire
+	 * <b>targetCount</b> characters <b>s</b>, counting combining diacritics as separate characters.
+	 * Any characters found in <b>reserves</b> will not be removed, but will still count toward the
+	 * <b>targetCount</b> characters.<br/><br/>
+	 * If character number <b>targetCount</b> is not the last byte of its containing grapheme, the entire
 	 * partial character will be removed.<br/><br/>
-	 * The implementation attempts to identify the target character count without actually casting
-	 * the string to UTF-8. Logic for predicting the UTF-8 byte size of Java char values is adapted
-	 * from http://stackoverflow.com/questions/8511490
+	 * The implementation will return the shortened string in Unicode NFC form, even if it was not supplied
+	 * that way.
 	 * @param s
 	 *  Original string
-	 * @param b
-	 *  Number of UTF-8 bytes to remove from the beginning of string
+	 * @param targetCount
+	 *  Number of characters (counting combining diacritics separately) to remove from the beginning of string
 	 * @param reserves
-	 *  Characters that should not be removed, but will still count toward the target <b>b</b> bytes.
+	 *  Characters that should not be removed, but will still count toward the <b>targetCount</b> characters.
 	 * @return
 	 *  Stripped string
 	 * @throws IllegalArgumentException
-	 *  will be thrown if <b>b</b> &gt; <b>s</b>.getBytes(StandardCharsets.UTF-8).length.
+	 *  will be thrown if <b>targetCount</b> characters exceeds the length of string <b>s</b>.
 	 */
-	public static String stripBytesFromString( String s, Integer b, String reserves )
+	public static String stripLeadCharsFromString( String s, Integer targetCount, String reserves )
 			throws IllegalArgumentException {
 
 		int pos = 0;
-		int byteCount = 0;
-		List<Character> foundReserves = new ArrayList<>();
-		while (pos < s.length() && byteCount < b) {
-			char c = s.charAt(pos);
-			int charSize = 0;
-
-			if (c <= 0x7F)
-				charSize = 1;
-			else if (c < 0x7FF)
-				charSize = 2;
-			else if (Character.isHighSurrogate(c))
-				charSize = 4;
-			else
-				charSize = 3;
-
-			pos += (charSize == 4)?2:1;
-			byteCount+=charSize;
-			if (reserves.indexOf(c) != -1)
-				foundReserves.add(c);
-		}
-		if ( byteCount < b )
+		int count = 0;
+		StringBuilder foundReserves = new StringBuilder();
+		s = Normalizer.normalize(s, Normalizer.Form.NFD);
+		if ( s.length() < targetCount )
 			throw new IllegalArgumentException(
 					"Requested bytes to strip is longer than string in UTF-8");
+		while (count < targetCount) {
+			char c = s.charAt(pos);
 
-		return foundReserves.stream().map(Object::toString).collect(Collectors.joining())
-				+ s.substring(pos);
+			if (Character.isHighSurrogate(c))
+				pos++;
+			pos++;
+			count++;
+			if (reserves.indexOf(c) != -1)
+				foundReserves.append(c);
+		}
+		String substr = s.substring(pos);
+		while (substr.length() > 0 &&
+				Character.getType(substr.charAt(0)) == Character.NON_SPACING_MARK)
+			substr = substr.substring(1);
+		return foundReserves.toString()
+				+ Normalizer.normalize(substr,Normalizer.Form.NFC);
 
 	}
 }
