@@ -103,19 +103,19 @@ public class URLResultSetToFields implements ResultSetToFields {
 				if (url_lc.contains("://plates.library.cornell.edu")) {
 					urlRelation = "bookplate";
 					if (! linkDescription.isEmpty())
-						addField(fields,"donor_t",linkDescription);
-					addField(fields,"donor_s",url.substring(url.lastIndexOf('/')+1));
+						addField(fields,"donor_t",linkDescription, true);
+					addField(fields,"donor_s",url.substring(url.lastIndexOf('/')+1), true);
 				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
 					urlRelation = "pda";
 				}
 				if (linkDescription.isEmpty()) {
-					addField(fields,"url_"+urlRelation+"_display",url);						
+					addField(fields,"url_"+urlRelation+"_display",url, true);						
 				} else {
-					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription);
+					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription, true);
 				}
 			}
 			if (! urls.isEmpty())
-				addField(fields,"notes_t",linkDescription);
+				addField(fields,"notes_t",linkDescription, true);
 		}
 
 		return fields;

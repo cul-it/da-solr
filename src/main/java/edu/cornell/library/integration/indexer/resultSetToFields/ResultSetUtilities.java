@@ -30,7 +30,12 @@ public class ResultSetUtilities {
 		return node.toString();
 	}
 
-	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value) {
+	public static void addField( Map<String, SolrInputField> fields, String fieldName, String value ) {
+		addField(fields, fieldName, value, false);
+	}
+
+	public static void addField( Map<String, SolrInputField> fields,
+			String fieldName, String value, Boolean dedupeValue ) {
 		if ((value == null) || (value.equals(""))) return;
 		value = value.trim();
 		if (value.equals("")) return;
@@ -43,7 +48,8 @@ public class ResultSetUtilities {
 			field = new SolrInputField(fieldName);
 			fields.put(fieldName,field);
 		}
-		field.addValue(value,1.0f);
+		if ( ! dedupeValue || ! field.getValues().contains(value) )
+			field.addValue(value,1.0f);
 	}
 
 	/** 
