@@ -161,11 +161,16 @@ public class IndexingUtilities {
      * and also open new searchers on the Solr server so the search results are
      * visible (soft commit). 
      */
-    public static void commitIndexChanges(String solrUrl) 
-            throws SolrServerException, IOException {
-        try (SolrClient solr = new  HttpSolrClient( solrUrl )) {
-        	solr.commit(true,true,true);
-        }
+    public static void commitIndexChanges(String solrUrl) {
+    	Runnable r = () -> {
+    		try (SolrClient solr = new  HttpSolrClient( solrUrl )) {
+    			solr.commit(true,true,true);
+    		} catch (SolrServerException | IOException e) {
+				e.printStackTrace();
+    		}
+    	};
+    	Thread t = new Thread( r, "solr commit thread" );
+    	t.start();
     }
 
 	/**

@@ -10,11 +10,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrDocument;
-
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -36,7 +31,9 @@ public class BatchRecordsForSolrIndex {
 
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
-        			+CurrentDBTable.QUEUE+" AS q READ, "+CurrentDBTable.BIB_VOY+" AS v READ"); }
+        			+CurrentDBTable.QUEUE+" AS q READ, "
+        			+CurrentDBTable.BIB_SOLR+" AS s READ, "
+        			+CurrentDBTable.BIB_VOY+" AS v READ"); }
         try (PreparedStatement pstmt = current.prepareStatement(
         		" SELECT q.bib_id, cause"
         		+"  FROM "+CurrentDBTable.QUEUE+" AS q"
@@ -56,26 +53,25 @@ public class BatchRecordsForSolrIndex {
         }
 
         if (addedBibs.size() < minCount) {
-            try (HttpSolrClient solr = new HttpSolrClient(solrUrl)) {
-            	SolrQuery query = new SolrQuery();
-            	query.setRequestHandler("standard");
-            	query.setQuery("*:*");
-            	query.setSort("timestamp", ORDER.asc);
-            	query.setFields("id");
-            	if (primeNumbers == null)
-            		primeNumbers = generatePrimeNumberList(minCount);
-            	query.setRows(primeNumbers.get(minCount-addedBibs.size()-1));
+        	if (primeNumbers == null)
+        		primeNumbers = generatePrimeNumberList(minCount);
+        	try (PreparedStatement pstmt = current.prepareStatement(
+        			"SELECT bib_id FROM "+CurrentDBTable.BIB_SOLR+" AS s"
+        			+" WHERE active = 1"
+        			+" ORDER BY index_date"
+        			+" LIMIT "+primeNumbers.get(minCount-addedBibs.size()-1));
+        			ResultSet rs = pstmt.executeQuery()) {
             	int i = 0;
-            	for (SolrDocument doc : solr.query(query).getResults()) {
+        		while (rs.next() && addedBibs.size() < minCount) {
             		if ( ! primeNumbers.contains(++i) ) continue;
-            		int bib_id = Integer.valueOf(
-            				doc.getFieldValues("id").iterator().next().toString());
+        			int bib_id = rs.getInt(1);
             		if ( ! addedBibs.contains(bib_id) ) {
             			addedBibs.add(bib_id);
             			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
             		}      		
-            	}
-            }
+        		}
+        		
+        	}
         }
         try (PreparedStatement batchStmt = current.prepareStatement(
         		"UPDATE "+CurrentDBTable.QUEUE
