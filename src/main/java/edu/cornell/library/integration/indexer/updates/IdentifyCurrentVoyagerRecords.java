@@ -78,7 +78,7 @@ public class IdentifyCurrentVoyagerRecords {
 		pstmt.executeBatch();
 		pstmt.close();
 		current.commit();
-	    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" disable keys");
+	    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY.toString()+" enable keys");
 		rs.close();
 		System.out.println("Bib count: "+i);
 		
