@@ -127,6 +127,13 @@ task (step10Headings2Solr, dependsOn: 'assemble', type: JavaExec){
    classpath = sourceSets.main.runtimeClasspath
 }
 
+task (PushToSolr, dependsOn:'assemble', type: JavaExec){
+ description="Push documents to Solr"
+ main='edu.cornell.library.integration.indexer.PushSolrDocumentsToSolr'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '2048m'
+}
+
 task( RecordBatchProcessingData, dependsOn: 'assemble', type: JavaExec) {
  description = "Pull batch processing logs into update queue."
  maxHeapSize = '500m'
