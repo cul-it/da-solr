@@ -11,42 +11,10 @@
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <!-- lib directives can be used to instruct Solr to load an Jars identified
-       and use them to resolve any "plugins" specified in your solrconfig.xml or
-       schema.xml (ie: Analyzers, Request Handlers, etc...).
+  <lib dir="/cul/data/solr/instancelibs/bl1/"/>
 
-       All directories and paths are resolved relative the instanceDir.
-
-       If a "./lib" directory exists in your instanceDir, all files found in it
-       are included as if you had used the following syntax...
-
-              <lib dir="./lib" />
-    -->
-  <!-- A dir option by itself adds any files found in the directory to the
-       classpath, this is useful for including all jars in a directory.
-    -->
-  <!-- <lib dir="../../contrib/extraction/lib" /> -->
-  <!-- When a regex is specified in addition to a directory, only the files in that
-       directory which completely match the regex (anchored on both ends)
-       will be included.
-    -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" /> -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" /> -->
-  <!-- If a dir option (with or without a regex) is used and nothing is found
-       that matches, it will be ignored
-    -->
-  <!-- <lib dir="../../contrib/clustering/lib/downloads/" /> -->
-  
   <dataDir>${solr.data.dir:}</dataDir>
 
-
- <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       Index Config - These settings control low-level behavior of indexing
-       Most example settings here show the default value, but are commented
-       out, to more easily see where customizations have been made.
-       
-       Note: This replaces <indexDefaults> and <mainIndex> from older versions
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <indexConfig>
     <!-- maxFieldLength was removed in 4.0. To get similar behavior, include a 
          LimitTokenCountFilterFactory in your fieldType definition. E.g. 
@@ -201,18 +169,6 @@
      <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
   </indexConfig>
 
-<requestHandler name="/replication" class="solr.ReplicationHandler" >
-    <lst name="master">
-        <str name="enable">${enable.master:false}</str>
-        <str name="replicateAfter">startup,optimize</str>
-        <str name="confFiles">schema.xml,protwords.txt,synonyms.txt</str>
-    </lst>
-    <lst name="slave">
-        <str name="enable">${enable.slave:false}</str>
-        <str name="masterUrl">${master.url}</str>
-    </lst>
-</requestHandler>
-
   <updateHandler class="solr.DirectUpdateHandler2" >
     <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
          Auto Commit behavior except it enables/ensures that changes are
@@ -258,49 +214,7 @@
          <maxTime>1000</maxTime> 
        </autoSoftCommit>
       -->
-
-    <!-- Update Related Event Listeners
-         
-         Various IndexWriter related events can trigger Listeners to
-         take actions.
-
-         postCommit - fired after every commit or optimize command
-         postOptimize - fired after every optimize command
-      -->
-    <!-- The RunExecutableListener executes an external command from a
-         hook such as postCommit or postOptimize.
-         
-         exe - the name of the executable to run
-         dir - dir to use as the current working directory. (default=".")
-         wait - the calling thread waits until the executable returns. 
-                (default="true")
-         args - the arguments to pass to the program.  (default is none)
-         env - environment variables to set.  (default is none)
-      -->
-    <!-- This example shows how RunExecutableListener could be used
-         with the script based replication...
-         http://wiki.apache.org/solr/CollectionDistribution
-      -->
-    <!--
-       <listener event="postCommit" class="solr.RunExecutableListener">
-         <str name="exe">solr/bin/snapshooter</str>
-         <str name="dir">.</str>
-         <bool name="wait">true</bool>
-         <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
-         <arr name="env"> <str>MYVAR=val1</str> </arr>
-       </listener>
-      -->
   </updateHandler>
-
-  <!-- Once we define ‘updateLog ‘ configuration and it also requires
-       a Near-Realtime Handler too -->
-  <requestHandler name="/get" class="solr.RealTimeGetHandler">
-    <lst name="defaults">
-      <str name="omitHeader">true</str>
-      <str name="wt">json</str>
-      <str name="indent">true</str>
-    </lst>
-  </requestHandler>
 
   <!-- query time configurations -->
   <query>
@@ -430,28 +344,5 @@
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
-<!--
-  <requestHandler name="/dataimport"
-    class="org.apache.solr.handler.dataimport.DataImportHandler">
-    <lst name="defaults">
-      <str name="config">dataConfig.xml</str>
-      <str name="update.chain">skip-empty</str>
-    </lst>
-  </requestHandler>
-  -->
-  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
-  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 
-<!-- this caused a problem with solr 4.1 -->
-<!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
-
-  <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
-    <lst name="defaults">
-     <str name="echoParams">explicit</str>
-     <str name="echoHandler">true</str>
-    </lst>
-  </requestHandler>
-
-  <!-- used for admin analysis tool -->
-  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
 </config>

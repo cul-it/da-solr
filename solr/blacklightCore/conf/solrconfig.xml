@@ -11,42 +11,10 @@
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <!-- lib directives can be used to instruct Solr to load an Jars identified
-       and use them to resolve any "plugins" specified in your solrconfig.xml or
-       schema.xml (ie: Analyzers, Request Handlers, etc...).
+  <lib dir="/cul/data/solr/instancelibs/bl1/"/>
 
-       All directories and paths are resolved relative the instanceDir.
-
-       If a "./lib" directory exists in your instanceDir, all files found in it
-       are included as if you had used the following syntax...
-
-              <lib dir="./lib" />
-    -->
-  <!-- A dir option by itself adds any files found in the directory to the
-       classpath, this is useful for including all jars in a directory.
-    -->
-  <!-- <lib dir="../../contrib/extraction/lib" /> -->
-  <!-- When a regex is specified in addition to a directory, only the files in that
-       directory which completely match the regex (anchored on both ends)
-       will be included.
-    -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" /> -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" /> -->
-  <!-- If a dir option (with or without a regex) is used and nothing is found
-       that matches, it will be ignored
-    -->
-  <!-- <lib dir="../../contrib/clustering/lib/downloads/" /> -->
-  
   <dataDir>${solr.data.dir:}</dataDir>
 
-
- <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       Index Config - These settings control low-level behavior of indexing
-       Most example settings here show the default value, but are commented
-       out, to more easily see where customizations have been made.
-       
-       Note: This replaces <indexDefaults> and <mainIndex> from older versions
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <indexConfig>
     <!-- maxFieldLength was removed in 4.0. To get similar behavior, include a 
          LimitTokenCountFilterFactory in your fieldType definition. E.g. 
@@ -238,49 +206,8 @@
          <maxTime>1000</maxTime> 
        </autoSoftCommit>
       -->
-
-    <!-- Update Related Event Listeners
-         
-         Various IndexWriter related events can trigger Listeners to
-         take actions.
-
-         postCommit - fired after every commit or optimize command
-         postOptimize - fired after every optimize command
-      -->
-    <!-- The RunExecutableListener executes an external command from a
-         hook such as postCommit or postOptimize.
-         
-         exe - the name of the executable to run
-         dir - dir to use as the current working directory. (default=".")
-         wait - the calling thread waits until the executable returns. 
-                (default="true")
-         args - the arguments to pass to the program.  (default is none)
-         env - environment variables to set.  (default is none)
-      -->
-    <!-- This example shows how RunExecutableListener could be used
-         with the script based replication...
-         http://wiki.apache.org/solr/CollectionDistribution
-      -->
-    <!--
-       <listener event="postCommit" class="solr.RunExecutableListener">
-         <str name="exe">solr/bin/snapshooter</str>
-         <str name="dir">.</str>
-         <bool name="wait">true</bool>
-         <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
-         <arr name="env"> <str>MYVAR=val1</str> </arr>
-       </listener>
-      -->
   </updateHandler>
 
-  <!-- Once we define ‘updateLog ‘ configuration and it also requires
-       a Near-Realtime Handler too -->
-  <requestHandler name="/get" class="solr.RealTimeGetHandler">
-    <lst name="defaults">
-      <str name="omitHeader">true</str>
-      <str name="wt">json</str>
-      <str name="indent">true</str>
-    </lst>
-  </requestHandler>
 
   <!-- query time configurations -->
   <query>
@@ -665,8 +592,49 @@
       <str name="df">title_t</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250             subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
+        pub_date_facet^25
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
+        donor_s
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
+      </str>
+      <str name="pf">
+        title_unstemC^25000        title_unstemP^25000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
@@ -753,33 +721,7 @@
         authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
         authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="pf">
-        title_t^12500              title_tP^12500             title_t_cjk^2500
-        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
-        subject_t^250              subject_tP^250             subject_t_cjk^50
-        author_t^50                author_tP^50               author_t_cjk^10
-        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
-        lc_callnum_full^100
-        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
-        pub_date_facet^25
-        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
-        title_series_t^5           title_series_t^5           title_series_t_cjk
-        isbn_t                     isbn_tP                    isbn_t_cjk
-        issn_t                     issn_tP                    issn_t_cjk
-        donor_s
-        donor_t                    donor_tP                   donor_t_cjk
-        pubplace_t                 pubplace_tP                pubplace_t_cjk
-        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
-        notes_t                    notes_tP                   notes_t_cjk
-        summary_t                  summary_tP                 summary_t_cjk
-        toc_t                      toc_tP                     toc_t_cjk
-        author_245c_t              author_245c_tP             author_245c_t_cjk
-        barcode_t^10               barcode_tP^10
-        barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP        authority_author_t_cjk
-        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
-      </str>
+      <str name="pf"> </str>
       <str name="f.starts.pf"> </str>
       <str name="f.quoted.pf">
         title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
@@ -848,15 +790,17 @@
       </str>
 
       <str name="f.title.qf">
-        title_t^125                title_tP^125              title_t_cjk^25
+        title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_uniform_t^12         title_uniform_tP^12       title_uniform_t_cjk^3
+    	title_startsC^125          title_startsP^125        title_startsCJK^12
+		title_exact^500
+        title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
-        title_addl_t^12            title_addl_tP^12          title_addl_t_cjk^3
+        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
+        title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25
-        title_series_t             title_series_t            title_series_t_cjk
+        title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
-        title_ngram
       </str>
       <str name="f.title.pf">
         title_t^125                title_tP^125             title_t_cjk^25
@@ -877,19 +821,19 @@
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
         title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
       </str>
-      <str name="f.title_starts.pf"> </str>
+      <str name="f.title_starts.pf">
+        title_startsC^250          title_startsP^250        title_startsCJK^25
+        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
+        title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
+        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
+      </str>
       <str name="f.title_quoted.qf">
         title_unstemC^250          title_unstemP^250        title_t_cjk^25
         title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25    title_addl_t_cjk^3
         title_series_unstemC^3     title_series_unstemP^3   title_series_t_cjk   
       </str>
-      <str name="f.title_quoted.pf">
-        title_unstemC^250          title_unstemP^250        title_t_cjk^25
-        title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
-        title_addl_unstemC^25      title_addl_unstemP^25    title_addl_t_cjk^3
-        title_series_unstemC^3     title_series_unstemP^3   title_series_t_cjk   
-      </str>
+      <str name="f.title_quoted.pf"> </str>
 
       <str name="f.subject.qf">
         subject_unstemC^200        subject_unstemP^200
@@ -1160,19 +1104,4 @@
     </lst>
   </searchComponent>
 
-  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
-  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
-
-<!-- this caused a problem with solr 4.1 -->
-<!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
-
-  <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
-    <lst name="defaults">
-     <str name="echoParams">explicit</str>
-     <str name="echoHandler">true</str>
-    </lst>
-  </requestHandler>
-
-  <!-- used for admin analysis tool -->
-  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
-</config>
+ </config>
