@@ -185,17 +185,9 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	                }
 
 					try{
-						if ( ! docs.isEmpty() ) {
-							if( doSolrUpdate ){
-								//in solr an update is a delete followed by an add
-				            	List<String> ids = new ArrayList<>();
-				            	for (SolrInputDocument doc : docs)
-				            		ids.add((String)doc.getFieldValue("id"));
-				            	solr.deleteById(ids);
-				            }
-							solr.add(docs);				
-						}
-		
+						if ( ! docs.isEmpty() )
+							solr.add(docs);
+
 						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
 						for (SolrInputDocument doc : docs)
 							context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
