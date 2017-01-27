@@ -54,12 +54,15 @@ public class PushSolrDocumentsToSolr {
 					}
 					cursor += batchSize;
 					System.out.println( cursor );
-					solr.add(docs);
-					docs.clear();
+					if (! docs.isEmpty()) {
+						solr.add(docs);
+						docs.clear();
+					}
 					if ( ++batchCount % batchesToCommit == 0)
 						solr.commit(true, true, true);
 				}
-				solr.add(docs);
+				if (! docs.isEmpty())
+					solr.add(docs);
 				solr.commit(true, true, true);
 			}
 		}
