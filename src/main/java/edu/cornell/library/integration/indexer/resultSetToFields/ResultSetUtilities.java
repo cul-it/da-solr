@@ -48,7 +48,8 @@ public class ResultSetUtilities {
 			field = new SolrInputField(fieldName);
 			fields.put(fieldName,field);
 		}
-		if ( ! dedupeValue || ! field.getValues().contains(value) )
+		if ( ! dedupeValue || 
+				( field.getValueCount() > 0 && ! field.getValues().contains(value) ) )
 			field.addValue(value,1.0f);
 	}
 
