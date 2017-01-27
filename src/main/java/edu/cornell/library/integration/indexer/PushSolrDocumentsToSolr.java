@@ -1,9 +1,14 @@
 package edu.cornell.library.integration.indexer;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +35,9 @@ public class PushSolrDocumentsToSolr {
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
 		requiredArgs.add("sorlUrl");
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
-		
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        System.out.println("Populating Solr index at: "+config.getSolrUrl());
+
 		try ( SolrClient solr = new HttpSolrClient( config.getSolrUrl() );
 			  Connection current = config.getDatabaseConnection("Current")) {
 			int maxBib = 0;
@@ -53,17 +60,23 @@ public class PushSolrDocumentsToSolr {
 							docs.add( xml2SolrInputDocument(  rs.getString(1) ) );
 					}
 					cursor += batchSize;
-					System.out.println( cursor );
 					if (! docs.isEmpty()) {
 						solr.add(docs);
-						docs.clear();
 					}
-					if ( ++batchCount % batchesToCommit == 0)
+					System.out.println( String.valueOf(cursor) +": "+
+							new BigDecimal((double)docs.size()/batchSize*100).setScale(1,RoundingMode.HALF_UP)+"%");
+					docs.clear();
+					if ( ++batchCount % batchesToCommit == 0) {
+						System.out.print(dateFormat.format(Calendar.getInstance().getTime())+" Committing...");
 						solr.commit(true, true, true);
+						System.out.println(" DONE");
+					}
 				}
 				if (! docs.isEmpty())
 					solr.add(docs);
+				System.out.print(dateFormat.format(Calendar.getInstance().getTime())+" Committing...");
 				solr.commit(true, true, true);
+				System.out.println(" DONE");
 			}
 		}
 	}
