@@ -437,6 +437,12 @@ public class SolrBuildConfig {
     	}
 		return null;
     }
+    public String getLeaderShards() {
+    	if (values.containsKey("leaderShards")) {
+    		return values.get("leaderShards");
+    	}
+		return null;
+    }
     public Integer getTargetBatchSize() {
     	if (values.containsKey("targetBatchSize"))
     		return Integer.valueOf(values.get("targetBatchSize"));

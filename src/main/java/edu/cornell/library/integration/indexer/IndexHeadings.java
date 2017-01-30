@@ -44,6 +44,7 @@ public class IndexHeadings {
 	private Map<HeadType,Map<String,String>> queries = new HashMap<>();
 	SolrBuildConfig config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+	private String shardArgs;
 
 
 	/**
@@ -65,6 +66,7 @@ public class IndexHeadings {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
+//		requiredArgs.add("leaderShards");
 	            
 		config = SolrBuildConfig.loadConfig(null,requiredArgs);
 		if (args.length > 0) {
@@ -110,6 +112,9 @@ public class IndexHeadings {
 
 		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
+		String shards = config.getLeaderShards();
+		shardArgs = (shards != null) ? "&shards.qt=/terms&shards="+shards : null;
+
 		for (BlacklightField blf : blFields) {
 			
 			processBlacklightFieldHeaderData( blf );
@@ -128,7 +133,7 @@ public class IndexHeadings {
 
 		// save terms info for field to temporary file.
 		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
-				blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
+				blf.fieldName() + "&terms.sort=index&terms.limit=100000000" + shardArgs);
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
 		tempPath.toFile().deleteOnExit();
 
