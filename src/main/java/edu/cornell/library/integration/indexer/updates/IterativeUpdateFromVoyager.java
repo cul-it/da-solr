@@ -36,11 +36,12 @@ public class IterativeUpdateFromVoyager {
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
 		config.setDatabasePoolsize("Current", 2);
-		int quittingTime = ( config.getExtendedIndexingMode() ) ? 23 : 18;
+		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();
+		if (quittingTime == null) quittingTime = 19;
 		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
 
 		int i = 0;
-		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < quittingTime
+		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) == quittingTime
 				|| isQueueRemaining(config) ) {
 
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );

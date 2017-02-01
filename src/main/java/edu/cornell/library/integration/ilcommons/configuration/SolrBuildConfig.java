@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import javax.naming.ConfigurationException;
+
 import org.apache.hadoop.conf.Configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -460,18 +460,23 @@ public class SolrBuildConfig {
     	}
     	return false;
     }
-    public Boolean getExtendedIndexingMode() {
-    	if (values.containsKey("extendedIndexingMode")) {
-    		String val = values.get("extendedIndexingMode");
-    		if (val.equals("true") || val.equals("1"))
-    			return true;
-    		String dayOfWeek = new SimpleDateFormat("EEEEE").format(new Date());
-    		String[] parts = StringUtils.split(val,',');
-    		for( String part : parts )
-    			if( part.equals(dayOfWeek) )
-    				return true;
+
+    public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
+    	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
+    			+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
+				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
+    	if (values.containsKey("endOfIterativeCatalogUpdates")) {
+    		try  {
+    			Integer hour = Integer.valueOf(values.get("endOfIterativeCatalogUpdates"));
+    			if (hour < 1 || hour > 24)
+        			throw new ConfigurationException(usage);
+    			return hour;
+    		} catch ( NumberFormatException e ) {
+    			e.printStackTrace();
+    			throw new ConfigurationException(usage);
+    		}
     	}
-    	return false;
+    	return null;
     }
 
     /**
