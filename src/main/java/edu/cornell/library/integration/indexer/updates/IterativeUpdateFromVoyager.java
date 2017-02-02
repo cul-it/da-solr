@@ -47,6 +47,7 @@ public class IterativeUpdateFromVoyager {
 				if ( Calendar.getInstance().get(Calendar.HOUR_OF_DAY) == quittingTime)
 					timeToQuit = true;
 			} else {
+				// If four hours past quitting time, cancel quit (run straight through to the next day).
 				if ( (24 + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 4) % 24 == quittingTime)
 					timeToQuit = false;
 			}
