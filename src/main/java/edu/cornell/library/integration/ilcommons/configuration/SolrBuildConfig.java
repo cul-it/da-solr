@@ -443,14 +443,6 @@ public class SolrBuildConfig {
     	}
 		return null;
     }
-    public Integer getTargetBatchSize() {
-    	if (values.containsKey("targetBatchSize"))
-    		return Integer.valueOf(values.get("targetBatchSize"));
-		return null;
-    }
-    public void setTargetBatchSize(Integer count) {
-    	values.put("targetBatchSize",String.valueOf(count));
-    }
 
     public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
     	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "

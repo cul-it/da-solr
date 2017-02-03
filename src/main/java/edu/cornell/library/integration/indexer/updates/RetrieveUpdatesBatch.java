@@ -24,13 +24,7 @@ public class RetrieveUpdatesBatch {
 	public RetrieveUpdatesBatch(SolrBuildConfig config, BatchLogic b) throws Exception {
 
 		try ( Connection current = config.getDatabaseConnection("Current")) {
-			Integer batchsize = config.getTargetBatchSize();
-	        if (batchsize != null) {
-	        	System.out.println("Target updates bib count set to "+batchsize);
-	        } else {
-	        	batchsize = 1_000;
-	        	System.out.println("Target batch size not found, defaulting to "+batchsize);
-	        }
+
 	        Set<Integer> bibIds = identifyBibBatch(current,b);
 	        Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
 

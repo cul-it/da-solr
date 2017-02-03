@@ -32,8 +32,6 @@ public class IterativeUpdateFromVoyager {
     	requiredArgs.add("solrUrl");
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 
-		config.setTargetBatchSize(1_000);
-
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
 		config.setDatabasePoolsize("Current", 2);
