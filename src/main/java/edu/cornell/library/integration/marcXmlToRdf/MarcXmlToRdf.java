@@ -65,7 +65,7 @@ public class MarcXmlToRdf {
 	
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
-	private static Integer groupsize = 1000;
+	private Integer groupsize = 1000;
 	private OutputFormat outFormat = OutputFormat.NT_GZ;
 	private String outFileExt = ".nt.gz";
 	
@@ -159,6 +159,14 @@ public class MarcXmlToRdf {
 		dbForUnsuppressedIdFiltering = c;
 	}
 
+	/**
+	 * Set the number of bibliographic records to group into a file. 1,000 is the default.
+	 * Very high or very low numbers may sacrifice efficiency.
+	 * @param size
+	 */
+	public void setGroupSize( Integer size ) {
+		groupsize = size;
+	}
 	/**
 	 * @param Collection<Integer> ids : Collection of Integer record IDs for unsuppressed Bibs.
 	 * @param Boolean filter : Should suppressed records be filtered out?

@@ -47,15 +47,17 @@ public class RetrieveUpdatesBatch {
 						+ " will be (re)indexed without their data. "+StringUtils.join(deletedMfhds,", "));
 			}
 
+			DavService davService = DavServiceFactory.getDavService(config);
+			MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
+			int count = bibIds.size();
+			if (count > 1_000 && count <= 2_000)
+				converter.setGroupSize(count);
+			converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
+			converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
+			converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
+			converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() );
+			converter.run();
 		}
-
-		DavService davService = DavServiceFactory.getDavService(config);
-		MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
-		converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
-		converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
-		converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
-		converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() );
-		converter.run();
 
 	}
 
