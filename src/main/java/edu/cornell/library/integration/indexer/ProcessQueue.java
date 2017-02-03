@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -60,15 +59,13 @@ public class ProcessQueue {
 			}
 		};
 
-		try ( Connection current = config.getDatabaseConnection("Current") ){
-			int i = 0;
-			while (i < 20) {
-				config.setWebdavBaseUrl(webdavBaseUrl+(++i));
-				if (localBaseFilePath != null)
-					config.setLocalBaseFilePath(localBaseFilePath+i);
-				new RetrieveUpdatesBatch(config, b);
-				new IncrementalBibFileToSolr(config);
-			}
+		int i = 0;
+		while (i < 20) {
+			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
+			if (localBaseFilePath != null)
+				config.setLocalBaseFilePath(localBaseFilePath+i);
+			new RetrieveUpdatesBatch(config, b);
+			new IncrementalBibFileToSolr(config);
 		}
 	}
 }
