@@ -437,9 +437,9 @@ public class SolrBuildConfig {
     	}
 		return null;
     }
-    public String getLeaderShards() {
-    	if (values.containsKey("leaderShards")) {
-    		return values.get("leaderShards");
+    public String[] getBlacklightSolrShards() {
+    	if (values.containsKey("blacklightSolrShards")) {
+    		return values.get("blacklightSolrShards").split(",");
     	}
 		return null;
     }

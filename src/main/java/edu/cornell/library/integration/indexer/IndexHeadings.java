@@ -44,8 +44,6 @@ public class IndexHeadings {
 	private Map<HeadType,Map<String,String>> queries = new HashMap<>();
 	SolrBuildConfig config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-	private String shardArgs;
-
 
 	/**
 	 * @param args
@@ -66,7 +64,7 @@ public class IndexHeadings {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
-//		requiredArgs.add("leaderShards");
+//		requiredArgs.add("blacklightSolrShards");
 	            
 		config = SolrBuildConfig.loadConfig(null,requiredArgs);
 		if (args.length > 0) {
@@ -112,9 +110,6 @@ public class IndexHeadings {
 
 		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
-		String shards = config.getLeaderShards();
-		shardArgs = (shards != null) ? "&shards.qt=/terms&shards="+shards : null;
-
 		for (BlacklightField blf : blFields) {
 			
 			processBlacklightFieldHeaderData( blf );
@@ -122,7 +117,11 @@ public class IndexHeadings {
 		}
 	}
 
-	
+	/* If available, use config.getBlacklightSolrShards() to identify Solr shards and query
+	 * them individually. If not available, use config.getBlacklightSolrUrl() to get the
+	 * url for the combined collection to query all at once. For sharded Solr indexes, the
+	 * separated queries are less stressful for Solr.
+	 */
 	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
@@ -131,9 +130,21 @@ public class IndexHeadings {
 		if ( ! queries.containsKey(blf.headingType()))
 			queries.put(blf.headingType(), new HashMap<String,String>());
 
+		String[] shards = config.getBlacklightSolrShards();
+		if (shards == null)
+			shards = new String[]{ config.getBlacklightSolrUrl() };
+
+		for (int i = 0; i < shards.length; i++) {
+			System.out.println(String.valueOf(i+1)+"/"+shards.length+": "+shards[i]);
+			addShardCountsToDB( shards[i], blf );
+		}
+	}
+
+	private void addShardCountsToDB(String shard, BlacklightField blf) throws Exception {
+
 		// save terms info for field to temporary file.
-		URL queryUrl = new URL(config.getBlacklightSolrUrl() + "/terms?terms.fl=" +
-				blf.fieldName() + "&terms.sort=index&terms.limit=100000000" + shardArgs);
+		URL queryUrl = new URL(shard + "/terms?terms.fl=" +
+				blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
 		tempPath.toFile().deleteOnExit();
 
