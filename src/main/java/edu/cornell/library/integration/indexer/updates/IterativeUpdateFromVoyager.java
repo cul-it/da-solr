@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class IterativeUpdateFromVoyager {
@@ -41,6 +42,16 @@ public class IterativeUpdateFromVoyager {
 		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
 		boolean timeToQuit = false;
 
+		BatchLogic b = new BatchLogic() {
+			public boolean addQueuedItemToBatch(ResultSet rs) { return true; }
+			public int targetBatchSize() { return 500; }
+			public int unqueuedTargetCount(int currentBatchSize) {
+				if (currentBatchSize == 0) return 500;
+				if (currentBatchSize >= 300) return 0;
+				return 300 - currentBatchSize;
+			}
+		};
+
 		int i = 0;
 		while ( ! timeToQuit || isQueueRemaining(config) ) {
 			if ( ! timeToQuit ) {
@@ -55,8 +66,7 @@ public class IterativeUpdateFromVoyager {
 			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
 			DeleteFromSolr.doTheDelete(config);
-			new RetrieveUpdatesBatch(config);
-
+			new RetrieveUpdatesBatch(config, b);
 			new IncrementalBibFileToSolr(config);
 			commitIndexChanges( config.getSolrUrl() );
 		}

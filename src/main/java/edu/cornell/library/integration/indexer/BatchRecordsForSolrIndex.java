@@ -5,8 +5,8 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.addBib
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,15 +19,14 @@ public class BatchRecordsForSolrIndex {
 	 * Gets a list of BIB IDs at the top of the queue for indexing, and marks those queue items
 	 * as batched. The next request will skip these records.
 	 * @param current Open DB Connection to the current records Solr inventory DB.
-     * @param solrUrl Base URL for Solr queries
-     * @param minCount Minimum number of records to include in batch
-     * @param maxCount Maximum number of records to include in batch
+     * @param b BatchLogic object allowing determination of size and rules for target batch
 	 * @throws Exception 
 	 * 
 	 */
-	public static Set<Integer> getBibsToIndex( Connection current, String solrUrl, int minCount, int maxCount ) throws Exception {
+	public static Set<Integer> getBibsToIndex( Connection current, BatchLogic b) throws Exception {
 
-        Set<Integer> addedBibs = new HashSet<>(minCount);
+		int startingTarget = b.targetBatchSize();
+		Set<Integer> addedBibs = new HashSet<>(startingTarget);
 
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
@@ -35,35 +34,35 @@ public class BatchRecordsForSolrIndex {
         			+CurrentDBTable.BIB_SOLR+" AS s READ, "
         			+CurrentDBTable.BIB_VOY+" AS v READ"); }
         try (PreparedStatement pstmt = current.prepareStatement(
-        		" SELECT q.bib_id, cause"
+        		" SELECT q.bib_id, cause, priority"
         		+"  FROM "+CurrentDBTable.QUEUE+" AS q"
         		+"  JOIN "+CurrentDBTable.BIB_VOY+" AS v ON q.bib_id = v.bib_id"
         		+" WHERE done_date = 0 AND batched_date = 0 AND active = 1"
         		+" ORDER BY priority"
-        		+" LIMIT " + Math.round(maxCount*2));
+        		+" LIMIT " + startingTarget*2);
         		ResultSet rs = pstmt.executeQuery()) {
         	final String delete = DataChangeUpdateType.DELETE.toString();
 
-        	while (rs.next() && addedBibs.size() < maxCount) {
+        	while (rs.next() && addedBibs.size() < startingTarget) {
         		if (rs.getString(2).equals(delete))
+        			continue;
+        		if (! b.addQueuedItemToBatch(rs))
         			continue;
         		int bib_id = rs.getInt(1);
         		addedBibs.add(bib_id);
         	}
         }
 
-        if (addedBibs.size() < minCount) {
-        	if (primeNumbers == null)
-        		primeNumbers = generatePrimeNumberList(minCount);
+        int remainingTarget = b.unqueuedTargetCount(addedBibs.size());
+        if (remainingTarget > 0) {
+        	int adjustedTotalTarget = addedBibs.size() + remainingTarget;
         	try (PreparedStatement pstmt = current.prepareStatement(
         			"SELECT bib_id FROM "+CurrentDBTable.BIB_SOLR+" AS s"
         			+" WHERE active = 1"
         			+" ORDER BY index_date"
-        			+" LIMIT "+primeNumbers.get(minCount-addedBibs.size()-1));
+        			+" LIMIT "+remainingTarget);
         			ResultSet rs = pstmt.executeQuery()) {
-            	int i = 0;
-        		while (rs.next() && addedBibs.size() < minCount) {
-            		if ( ! primeNumbers.contains(++i) ) continue;
+        		while (rs.next() && addedBibs.size() < adjustedTotalTarget) {
         			int bib_id = rs.getInt(1);
             		if ( ! addedBibs.contains(bib_id) ) {
             			addedBibs.add(bib_id);
@@ -86,29 +85,10 @@ public class BatchRecordsForSolrIndex {
         	stmt.executeQuery("UNLOCK TABLES"); }
         return addedBibs;
     }
-	private static ArrayList<Integer> primeNumbers = null;
-	/**
-	 * Generate an ArrayList&lt;Integer&gt; of the first &lt;number&gt; primes,
-	 * including 1. While modern math theory firmly excludes 1 from the set of prime
-	 * numbers, this was not originally the case[1][2]. For this particular use case,
-	 * it made sense to include it. It may need to be excluded if the code is repurposed.
-	 * This is also not an efficient algorithm for large values of &lt;number&gt;, and
-	 * a sieve might be preferable at scale.<br/><br/>
-	 * 
-	 * [1] http://mathworld.wolfram.com/PrimeNumber.html <br/>
-	 * [2] http://mathforum.org/library/drmath/view/64874.html
-	 */
-	private static ArrayList<Integer> generatePrimeNumberList(int number) {
-		ArrayList<Integer> primeNumbers = new ArrayList<>(number);
-		int i = 0;
-		MAIN: while (primeNumbers.size() < number) {
-			int halfOfI = ++i/2;
-			for (int j=2;j<=halfOfI;j++)
-				if (i%j==0)
-					continue MAIN;
-			primeNumbers.add(i);
-		}
-		return primeNumbers;
-	}
 
+	public interface BatchLogic {
+		public int targetBatchSize();
+		public boolean addQueuedItemToBatch( ResultSet rs ) throws SQLException;
+		public int unqueuedTargetCount( int currentBatchSize );
+	}
 }

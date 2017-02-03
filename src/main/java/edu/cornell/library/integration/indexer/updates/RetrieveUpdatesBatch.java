@@ -1,7 +1,10 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.getHoldingsForBibs;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+
 import java.sql.Connection;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -9,18 +12,16 @@ import org.apache.commons.lang.StringUtils;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.voyager.DownloadMARC;
 
-import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.getHoldingsForBibs;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
-
 public class RetrieveUpdatesBatch {
 
-	public RetrieveUpdatesBatch(SolrBuildConfig config) throws Exception {
+	
+	public RetrieveUpdatesBatch(SolrBuildConfig config, BatchLogic b) throws Exception {
 
 		try ( Connection current = config.getDatabaseConnection("Current")) {
 			Integer batchsize = config.getTargetBatchSize();
@@ -30,8 +31,7 @@ public class RetrieveUpdatesBatch {
 	        	batchsize = 1_000;
 	        	System.out.println("Target batch size not found, defaulting to "+batchsize);
 	        }
-	        boolean minimal = config.getMinimalMaintenanceMode();
-	        Set<Integer> bibIds = identifyBibBatch(config,current,batchsize,minimal);
+	        Set<Integer> bibIds = identifyBibBatch(current,b);
 	        Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
 
 	        DownloadMARC downloader = new DownloadMARC(config);
@@ -65,26 +65,9 @@ public class RetrieveUpdatesBatch {
 
 	}
 
-	public static void main(String[] args) throws Exception {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
-		requiredArgs.add("solrUrl");
-		requiredArgs.add("dailyBibMrcXmlDir");
-		requiredArgs.add("dailyMfhdMrcXmlDir");
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
-
-		new RetrieveUpdatesBatch(config);
-	}
-
-	private static Set<Integer> identifyBibBatch (SolrBuildConfig config, Connection current,
-			Integer batchsize, Boolean minimal) throws Exception {
-		while (true) {
-			Set<Integer> bibIds = getBibsToIndex(current,config.getSolrUrl(),(minimal)?0:batchsize,batchsize);
-			if ( ! bibIds.isEmpty() )
-				return bibIds;
-			Thread.sleep(5_000);// 5 seconds
-		}
+	private static Set<Integer> identifyBibBatch (Connection current, BatchLogic b) throws Exception {
+		Set<Integer> bibIds = getBibsToIndex(current,b);
+		return bibIds;
 	}
 
 }

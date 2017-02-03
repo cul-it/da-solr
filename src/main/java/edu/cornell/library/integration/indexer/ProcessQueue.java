@@ -1,24 +1,17 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.getHoldingsForBibs;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
-
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
+import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
-import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
-import edu.cornell.library.integration.voyager.DownloadMARC;
+import edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch;
+import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 public class ProcessQueue {
 
@@ -37,56 +30,45 @@ public class ProcessQueue {
 	}
 
 	public ProcessQueue(SolrBuildConfig config) throws Exception {
-		int batchSize = 800;
+		int batchSize = 1200;
 
 		String random = RandomStringUtils.randomAlphanumeric(12);
 		String webdavBaseUrl = config.getWebdavBaseUrl()+"/"+random+"/";
 		String localBaseFilePath = config.getLocalBaseFilePath();
 		if (localBaseFilePath != null)
 			localBaseFilePath += "/"+random+"/";
-		DownloadMARC downloader = new DownloadMARC(config);
+		BatchLogic b = new BatchLogic() {
+			private boolean priorityZeroInBatch = false;
+			public int targetBatchSize() {
+				priorityZeroInBatch = false;
+				return batchSize;
+			}
+			public boolean addQueuedItemToBatch(ResultSet rs) throws SQLException {
+				if ( rs.getInt("priority") == IndexQueuePriority.DATACHANGE.ordinal() ) {
+					priorityZeroInBatch = true;
+					return true;
+				}
+				if (priorityZeroInBatch) {
+					rs.afterLast();
+					return false;
+				}
+				return true;
+			}
+			public int unqueuedTargetCount(int currentBatchSize) {
+				if (priorityZeroInBatch) return 0;
+				return batchSize - currentBatchSize;
+			}
+		};
 
 		try ( Connection current = config.getDatabaseConnection("Current") ){
-		int i = 0;
-		while (true) {
-			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
-			if (localBaseFilePath != null)
-				config.setLocalBaseFilePath(localBaseFilePath+i);
-			Set<Integer> bibIds = getBibsToIndex(current,config.getSolrUrl(),0,batchSize);
-			if (bibIds.size() == 0)
-				break;
-			Set<Integer> mfhdIds = getHoldingsForBibs(current,bibIds);
-
-			Set<Integer> deletedBibs = downloader.saveXml(
-					RecordType.BIBLIOGRAPHIC, bibIds, config.getDailyBibMrcXmlDir());
-			Set<Integer> deletedMfhds = downloader.saveXml(
-					RecordType.HOLDINGS, mfhdIds, config.getDailyMfhdMrcXmlDir());
-			if ( ! deletedBibs.isEmpty() ) {
-				System.out.println(deletedBibs.size()+" bibs queued in this batch appear to"
-						+ " have been deleted from Voyager and will be removed from the queue,"
-						+ " and from Solr if applicable. "+StringUtils.join(deletedBibs, ", "));
-				for (int id : deletedBibs)
-					queueBibDelete( current, id );
+			int i = 0;
+			while (i < 20) {
+				config.setWebdavBaseUrl(webdavBaseUrl+(++i));
+				if (localBaseFilePath != null)
+					config.setLocalBaseFilePath(localBaseFilePath+i);
+				new RetrieveUpdatesBatch(config, b);
+				new IncrementalBibFileToSolr(config);
 			}
-			if ( ! deletedMfhds.isEmpty() ) {
-				System.out.println(deletedMfhds.size()+ " holdings records queued in this batch"
-						+ " appear to have been deleted from Voyager. Their bibs, if still present,"
-						+ " will be (re)indexed without their data. "+StringUtils.join(deletedMfhds,", "));
-			}
-
-			DavService davService = DavServiceFactory.getDavService(config);
-			MarcXmlToRdf converter = new MarcXmlToRdf(Mode.RECORD_COUNT_BATCHES);
-			converter.setBibSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyBibMrcXmlDir(), davService);
-			converter.setMfhdSrcDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMfhdMrcXmlDir(), davService);
-			converter.setDestDavDir(config.getWebdavBaseUrl() + "/" + config.getDailyMrcNtDir(),davService);
-			converter.setDestFilenamePrefix( config.getDailyMrcNtFilenamePrefix() );
-			converter.run();
-
-			new IncrementalBibFileToSolr(config);
-
-			if (bibIds.size() < batchSize)
-				break;
-		}
 		}
 	}
 }

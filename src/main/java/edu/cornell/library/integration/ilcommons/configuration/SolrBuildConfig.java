@@ -451,15 +451,6 @@ public class SolrBuildConfig {
     public void setTargetBatchSize(Integer count) {
     	values.put("targetBatchSize",String.valueOf(count));
     }
-    // minimal maintenance means not indexing records that aren't queued
-    public Boolean getMinimalMaintenanceMode() {
-    	if (values.containsKey("minimalMaintenanceMode")) {
-    		String val = values.get("minimalMaintenanceMode");
-    		if (val.equals("true") || val.equals("1"))
-    			return true;
-    	}
-    	return false;
-    }
 
     public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
     	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "

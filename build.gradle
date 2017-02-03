@@ -77,29 +77,13 @@ task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
-task(step03DeleteFromSolr, dependsOn: 'assemble', type: JavaExec) {
- group="Incremental Update Steps" 
- description = 'Deletes the Bib Records identified in step 2 from the Solr Index.'
-
- main = 'edu.cornell.library.integration.indexer.updates.DeleteFromSolr'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task (step04RetrieveUpdatesBatch, dependsOn:'assemble', type: JavaExec){
+task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
- description="Retrieves BIB and MFHD records identified as changed or in need of re-indexing"
- main='edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch'
+ description="Uses the quick method to identify changed records in Voyager,\
+  and updates them in Solr. Continues until the time is after 5pm."
+ main='edu.cornell.library.integration.indexer.updates.IterativeUpdateFromVoyager'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
-}
-
-task(step07IndexDirectoryCmd, dependsOn: 'assemble', type: JavaExec) {
- group="Incremental Update Steps"
- description = "Builds Solr Documents for MARC\
- n-Triples from step 5 and adds them to the Solr index."
- maxHeapSize = '1000m'
- main = 'edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr'
- classpath = sourceSets.main.runtimeClasspath
 }
 
 task( step08ConfirmSolrIndexCompleteness, dependsOn: 'assemble', type: JavaExec) {
@@ -145,13 +129,6 @@ task( processQueue, dependsOn: 'assemble', type: JavaExec) {
  description = "Process records from the index queue until there's no backlog. "
  maxHeapSize = '500m'
  main = 'edu.cornell.library.integration.indexer.ProcessQueue'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task( libraryXmlToNTriples, dependsOn: 'assemble', type: JavaExec) {
- description = "Convert XML extract of Voyager location table to XML. "
- maxHeapSize = '500m'
- main = 'edu.cornell.library.integration.libraryXmlToRdf.LibraryXmlToNTriples'
  classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -274,15 +251,6 @@ task (QuickIdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '512m'
 }
-task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
- group="Incremental Update Steps"
- description="Uses the quick method to identify changed records in Voyager,\
-  and updates them in Solr. Continues until the time is after 5pm."
- main='edu.cornell.library.integration.indexer.updates.IterativeUpdateFromVoyager'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
-}
-
 task (TestLocations, dependsOn:'assemble', type: JavaExec){
  description="Test Voyager Locations Module"
  main='edu.cornell.library.integration.voyager.Locations'
