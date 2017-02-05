@@ -100,7 +100,7 @@ task (step09IndexHeadings, dependsOn: 'assemble', type: JavaExec){
    description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
    main='edu.cornell.library.integration.indexer.IndexHeadings'
    maxHeapSize = '3000m'
-   args = [ 2, 20 ] // fail if launched before 2 am or after 8 pm
+   //args = [ 2, 20 ] // fail if launched before 2 am or after 8 pm
    classpath = sourceSets.main.runtimeClasspath
 }
 task (step10Headings2Solr, dependsOn: 'assemble', type: JavaExec){
