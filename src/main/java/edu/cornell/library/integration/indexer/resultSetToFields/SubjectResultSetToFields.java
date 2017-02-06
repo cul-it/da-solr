@@ -75,13 +75,15 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			final DataField f = fs.fields.iterator().next();
 			if (f.ind2.equals('7')) {
 				for ( final Subfield sf : f.subfields.values() )
-					if (sf.code.equals('2')
-							&& (sf.value.equalsIgnoreCase("fast")
-									|| sf.value.equalsIgnoreCase("fast/NIC")
-									|| sf.value.equalsIgnoreCase("fast/NIC/NAC"))) {
-						recordHasFAST = true;
-						h.isFAST = true;
-
+					if (sf.code.equals('2')) {
+						if (sf.value.equalsIgnoreCase("fast")
+								|| sf.value.equalsIgnoreCase("fast/NIC")
+								|| sf.value.equalsIgnoreCase("fast/NIC/NAC")) {
+							recordHasFAST = true;
+							h.isFAST = true;
+						} else if (sf.value.equalsIgnoreCase("lcgft")) {
+							h.isLCGFT = true;
+						}
 					}
 			} else if (f.ind2.equals('0')) {
 				recordHasLCSH = true;
@@ -268,7 +270,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			for (final String s: valuesMain_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
 				addField(solrFields,"subject_addl_t",s);
-				if (h.isFAST)
+				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
 					subjectDisplay.add(disp);
@@ -309,6 +311,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 
 	private class Heading {
 		boolean isFAST = false;
+		boolean isLCGFT = false;
 		FieldSet fs = null;
 	}
 
