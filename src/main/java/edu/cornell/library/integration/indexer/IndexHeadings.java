@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.optimizeIndex;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -110,9 +111,16 @@ public class IndexHeadings {
 
 		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
+		String[] shards = config.getBlacklightSolrShards();
+		if (shards == null)
+			shards = new String[]{ config.getBlacklightSolrUrl() };
+		for (String shard : shards) {
+        	optimizeIndex( shard );
+		}
+
 		for (BlacklightField blf : blFields) {
 			
-			processBlacklightFieldHeaderData( blf );
+			processBlacklightFieldHeaderData( blf, shards );
 			connection.commit();
 		}
 	}
@@ -122,17 +130,13 @@ public class IndexHeadings {
 	 * url for the combined collection to query all at once. For sharded Solr indexes, the
 	 * separated queries are less stressful for Solr.
 	 */
-	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
+	private void processBlacklightFieldHeaderData(BlacklightField blf, String[] shards) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
 
 		if ( ! queries.containsKey(blf.headingType()))
 			queries.put(blf.headingType(), new HashMap<String,String>());
-
-		String[] shards = config.getBlacklightSolrShards();
-		if (shards == null)
-			shards = new String[]{ config.getBlacklightSolrUrl() };
 
 		for (int i = 0; i < shards.length; i++) {
 			System.out.println(String.valueOf(i+1)+"/"+shards.length+": "+shards[i]);

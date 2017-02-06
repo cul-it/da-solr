@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.optimizeIndex;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -54,8 +52,6 @@ public class ConfirmSolrIndexCompleteness  {
         SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
-        if (numberOfMissingBibs == 0) 
-        	optimizeIndex( config.getSolrUrl() );
         System.exit(numberOfMissingBibs);  //any bibs missing from index should cause failure status
 	}
 	
