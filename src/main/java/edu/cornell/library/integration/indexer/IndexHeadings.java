@@ -131,7 +131,7 @@ public class IndexHeadings {
 		int currentOffset = 0;
 		while (numFound > 0) {
 			URL queryUrl = new URL(blacklightSolrUrl+
-					"/select?qt=standard&q=id:*&facet=true&facet.sort=index&facet.limit=-1&facet.field=" +
+					"/select?qt=standard&q=id:*&facet=true&facet.sort=index&facet.field=" +
 					blf.fieldName() +"&facet.limit="+batchSize+"&facet.offset="+currentOffset);
 			numFound = addCountsToDB( queryUrl, blf );
 			currentOffset += batchSize;
