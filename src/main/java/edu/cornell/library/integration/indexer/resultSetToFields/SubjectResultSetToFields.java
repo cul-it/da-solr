@@ -114,7 +114,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					vals = f.getFieldValuesForNameMaybeTitleField("ab;tklnpmors");
+					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";

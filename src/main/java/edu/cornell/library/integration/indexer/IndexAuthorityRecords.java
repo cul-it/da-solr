@@ -229,7 +229,7 @@ public class IndexAuthorityRecords {
 				case "110":
 				case "111":
 					for (Subfield sf : f.subfields.values() )
-						if (sf.code.equals('t')) {
+						if (sf.code.equals('t') || sf.code.equals('k')) {
 							htd = HeadTypeDesc.WORK;
 							break MAIN;
 						}
@@ -441,9 +441,9 @@ public class IndexAuthorityRecords {
 				if (f.tag.endsWith("00"))
 					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
 				else if (f.tag.endsWith("10"))
-					vals = f.getFieldValuesForNameMaybeTitleField("ab;tklnpmors");
+					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
 				else // 11
-					vals = f.getFieldValuesForNameMaybeTitleField("abe;tklnpmors");
+					vals = f.getFieldValuesForNameMaybeTitleField("abde;tklnpmors");
 				heading = vals.author+" | "+vals.title;
 			}
 		} else {

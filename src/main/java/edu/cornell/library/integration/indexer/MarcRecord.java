@@ -475,7 +475,7 @@ public class MarcRecord {
 				if (foundTitle)
 					titleSubfields.add(sf.value);
 				else
-					if (sf.code.equals('t')) {
+					if (sf.code.equals('t') || sf.code.equals('k')) {
 						foundTitle = true;
 						titleSubfields.add(sf.value);
 					} else

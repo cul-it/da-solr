@@ -78,10 +78,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 						ctsVals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
 						htd = HeadTypeDesc.PERSNAME;
 					} else if (f.mainTag.equals("710")) {
-						ctsVals = f.getFieldValuesForNameMaybeTitleField("ab;tklnpmors");
+						ctsVals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
 						htd = HeadTypeDesc.CORPNAME;
 					} else {
-						ctsVals = f.getFieldValuesForNameMaybeTitleField("abe;tklpmors");
+						ctsVals = f.getFieldValuesForNameMaybeTitleField("abde;tklpmors");
 						htd = HeadTypeDesc.EVENT;
 					}
 
