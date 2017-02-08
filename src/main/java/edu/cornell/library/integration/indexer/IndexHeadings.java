@@ -1,7 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.optimizeIndex;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -65,7 +64,6 @@ public class IndexHeadings {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
-//		requiredArgs.add("blacklightSolrShards");
 	            
 		config = SolrBuildConfig.loadConfig(null,requiredArgs);
 		if (args.length > 0) {
@@ -111,26 +109,14 @@ public class IndexHeadings {
 
 		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
-		String[] shards = config.getBlacklightSolrShards();
-		if (shards == null)
-			shards = new String[]{ config.getBlacklightSolrUrl() };
-		for (String shard : shards) {
-        	optimizeIndex( shard );
-		}
-
 		for (BlacklightField blf : blFields) {
-			
-			processBlacklightFieldHeaderData( blf, shards );
+
+			processBlacklightFieldHeaderData( blf );
 			connection.commit();
 		}
 	}
 
-	/* If available, use config.getBlacklightSolrShards() to identify Solr shards and query
-	 * them individually. If not available, use config.getBlacklightSolrUrl() to get the
-	 * url for the combined collection to query all at once. For sharded Solr indexes, the
-	 * separated queries are less stressful for Solr.
-	 */
-	private void processBlacklightFieldHeaderData(BlacklightField blf, String[] shards) throws Exception {
+	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
@@ -138,18 +124,23 @@ public class IndexHeadings {
 		if ( ! queries.containsKey(blf.headingType()))
 			queries.put(blf.headingType(), new HashMap<String,String>());
 
-		for (int i = 0; i < shards.length; i++) {
-			System.out.println(String.valueOf(i+1)+"/"+shards.length+": "+shards[i]);
-			addShardCountsToDB( shards[i], blf );
+		String blacklightSolrUrl = config.getBlacklightSolrUrl();
+
+		int batchSize = 1_000_000;
+		int numFound = 1;
+		int currentOffset = 0;
+		while (numFound > 0) {
+			URL queryUrl = new URL(blacklightSolrUrl+
+					"/select?qt=standard&q=id:*&facet=true&facet.sort=index&facet.limit=-1&facet.field=" +
+					blf.fieldName() +"&facet.limit="+batchSize+"&facet.offset="+currentOffset);
+			numFound = addCountsToDB( queryUrl, blf );
+			currentOffset += batchSize;
 		}
 	}
 
-	private void addShardCountsToDB(String shard, BlacklightField blf) throws Exception {
+	private int addCountsToDB(URL queryUrl, BlacklightField blf) throws Exception {
 
 		// save terms info for field to temporary file.
-		URL queryUrl = new URL(shard +
-				"/select?qt=standard&q=id:*&facet=true&facet.sort=index&facet.limit=-1&facet.field=" +
-				blf.fieldName() );
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
 		tempPath.toFile().deleteOnExit();
 
@@ -160,6 +151,7 @@ public class IndexHeadings {
 		}
 
 		// then read the file back in to process it.
+		int headingCount = 0;
 		try (  FileInputStream fis = new FileInputStream(tempPath.toString())  ){
 
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -178,7 +170,6 @@ public class IndexHeadings {
 			// process actual results
 			String heading = null;
 			Integer recordCount = null;
-			int headingCount = 0;
 			while (r.hasNext())
 				if (r.next() == XMLStreamConstants.START_ELEMENT)
 					if (r.getLocalName().equals("int")) {
@@ -192,8 +183,10 @@ public class IndexHeadings {
 							connection.commit();
 						}
 					}
+			connection.commit();
 		}
 		Files.delete(tempPath);
+		return headingCount;
 	}
 
 

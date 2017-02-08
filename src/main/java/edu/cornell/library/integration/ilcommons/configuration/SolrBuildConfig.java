@@ -437,12 +437,6 @@ public class SolrBuildConfig {
     	}
 		return null;
     }
-    public String[] getBlacklightSolrShards() {
-    	if (values.containsKey("blacklightSolrShards")) {
-    		return values.get("blacklightSolrShards").split(",");
-    	}
-		return null;
-    }
 
     public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
     	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
