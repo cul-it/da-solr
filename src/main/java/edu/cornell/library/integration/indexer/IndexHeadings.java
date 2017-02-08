@@ -147,8 +147,9 @@ public class IndexHeadings {
 	private void addShardCountsToDB(String shard, BlacklightField blf) throws Exception {
 
 		// save terms info for field to temporary file.
-		URL queryUrl = new URL(shard + "/terms?terms.fl=" +
-				blf.fieldName() + "&terms.sort=index&terms.limit=100000000");
+		URL queryUrl = new URL(shard +
+				"/select?qt=standard&q=id:*&facet=true&facet.sort=index&facet.limit=-1&facet.field=" +
+				blf.fieldName() );
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
 		tempPath.toFile().deleteOnExit();
 
@@ -171,7 +172,7 @@ public class IndexHeadings {
 						for (int i = 0; i < r.getAttributeCount(); i++)
 							if (r.getAttributeLocalName(i).equals("name")) {
 								String name = r.getAttributeValue(i);
-								if (name.equals("terms")) break FF;
+								if (name.equals(blf.fieldName())) break FF;
 							}
 
 			// process actual results
