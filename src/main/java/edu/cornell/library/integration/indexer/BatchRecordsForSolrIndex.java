@@ -57,8 +57,12 @@ public class BatchRecordsForSolrIndex {
         if (remainingTarget > 0) {
         	int adjustedTotalTarget = addedBibs.size() + remainingTarget;
         	try (PreparedStatement pstmt = current.prepareStatement(
-        			"SELECT bib_id FROM "+CurrentDBTable.BIB_SOLR+" AS s"
+        			"SELECT s.bib_id"
+        			+" FROM "+CurrentDBTable.BIB_SOLR+" AS s"
+        			+" LEFT JOIN "+CurrentDBTable.QUEUE+" AS q"
+        					+ " ON (s.bib_id = q.bib_id AND q.done_date = 0)"
         			+" WHERE active = 1"
+        			+" AND queued_date IS NULL"
         			+" ORDER BY index_date"
         			+" LIMIT "+remainingTarget);
         			ResultSet rs = pstmt.executeQuery()) {
