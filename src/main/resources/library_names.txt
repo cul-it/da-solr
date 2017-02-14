@@ -1,0 +1,28 @@
+Annex	Library Annex
+Bailey	Bailey Hortorium
+Kheel	ILR Library Kheel Center
+Manuscripts	Kroch Library Rare & Manuscripts
+Adelson	Adelson Library
+Africana	Africana Library
+Biochem	Biochem Reading Room (Biotech)
+CISER	CISER Data Archive
+Engineering	Ag Engineering Library
+Entomology	Entomology Library
+Fine	Fine Arts Library
+Food	Food Science Library
+Geneva	Geneva Library
+ILR	ILR Library
+Kroch	Kroch Library Asia
+Law	Law Library
+Legal	Law Library
+Management	Sage Hall Management Library
+Mann	Mann Library
+Mathematics	Mathematics Library
+Mountain	Iron Mountain
+Music	Music Library
+Nestle	Nestle Library
+Olin	Olin Library
+Physical	Physical Sciences Library
+Space	Space Sciences Building
+Uris	Uris Library
+Veterinary	Veterinary Library

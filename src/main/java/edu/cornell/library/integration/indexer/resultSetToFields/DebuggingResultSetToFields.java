@@ -30,7 +30,7 @@ public class DebuggingResultSetToFields implements ResultSetToFields {
 		return innerRstf.toFields(results, config);
 	}
 
-	String makeDebugStr(Map<String, ResultSet> results) {
+	static String makeDebugStr(Map<String, ResultSet> results) {
 		if( results == null )
 			return "The Map of ResultSets was Null!";
 		String out ="";
@@ -41,7 +41,7 @@ public class DebuggingResultSetToFields implements ResultSetToFields {
 		return out;
 	}
 
-	private String resultsToStr(ResultSet resultSet) {
+	private static String resultsToStr(ResultSet resultSet) {
 		if( resultSet == null ){
 			return "    null";
 		}
@@ -53,7 +53,7 @@ public class DebuggingResultSetToFields implements ResultSetToFields {
 		return out;
 	}
 
-	private String qsToStr(QuerySolution qs) {
+	private static String qsToStr(QuerySolution qs) {
 		if(qs == null )
 			return  "    null QuerySolution\n";
 		

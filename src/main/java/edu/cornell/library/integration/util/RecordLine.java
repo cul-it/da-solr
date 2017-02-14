@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.util;
-import java.io.UnsupportedEncodingException;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Information about one line in a MARC record's textual presentation: 
@@ -136,12 +137,7 @@ public class RecordLine {
     * @return
     */
    public static String charToHexa(char a) {
-      byte[] bytes;
-      try {
-         bytes = String.valueOf(a).getBytes("UTF-8");
-      } catch(UnsupportedEncodingException e) {
-         return null;
-      }
+      byte[] bytes = String.valueOf(a).getBytes(StandardCharsets.UTF_8);
       
       StringBuffer sb = new StringBuffer();
       sb.append("'\\u");

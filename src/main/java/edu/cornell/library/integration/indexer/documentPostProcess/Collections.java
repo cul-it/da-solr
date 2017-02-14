@@ -24,8 +24,8 @@ public class Collections implements DocumentPostProcess{
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		Collection<String> loccodes = new HashSet<String>();
-		Collection<String> lc_alphas = new HashSet<String>();
+		Collection<String> loccodes = new HashSet<>();
+		Collection<String> lc_alphas = new HashSet<>();
 		SolrInputField collections = new SolrInputField("collection");
 
 		if (document.containsKey("holdings_record_display")) {
@@ -45,8 +45,8 @@ public class Collections implements DocumentPostProcess{
 			}
 		}
 		
-		if (document.containsKey("lc_alpha_facet")) {
-			SolrInputField f = document.getField("lc_alpha_facet");
+		if (document.containsKey("lc_callnum_facet")) {
+			SolrInputField f = document.getField("lc_callnum_facet");
 			for (Object v : f.getValues()) {
 				String val = v.toString();
 				lc_alphas.add(val.substring(0, val.indexOf(' ')));

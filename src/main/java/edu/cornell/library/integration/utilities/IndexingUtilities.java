@@ -2,16 +2,12 @@ package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +34,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -47,7 +47,10 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.common.SolrDocument;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -73,6 +76,25 @@ public class IndexingUtilities {
 		public String toString() { return string; }
 	}
 
+    /**
+	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
+     * @throws SQLException 
+	 */
+	public static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
+        Set<Integer> mfhdIds = new HashSet<>();        
+		try (PreparedStatement pstmt = current.prepareStatement(
+				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
+			for (Integer bibid : bibIds) {
+				pstmt.setInt(1,bibid);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next())
+						mfhdIds.add(rs.getInt(1));
+				}
+			}
+		}
+        return mfhdIds;
+	}	
+
 	/**
 	 * bib_id is either already in CurrentDBTable.BIB_VOY and presumably in Solr, or it may have been
 	 * newly inserted as suppressed. If the former, it needs to be queued for delete from Solr. If
@@ -83,70 +105,73 @@ public class IndexingUtilities {
 	 */
 	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
 		boolean inBIB_VOY = false;
-		PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyQStmt.setInt(1, bib_id);
-		ResultSet rs = bibVoyQStmt.executeQuery();
-		while (rs.next())
-			inBIB_VOY = true;
-		rs.close();
-		bibVoyQStmt.close();
+		try (PreparedStatement bibVoyQStmt = current.prepareStatement(
+				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+			bibVoyQStmt.setInt(1, bib_id);
+			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
+				while (rs.next())
+					inBIB_VOY = true;
+			}
+		}
 		if ( ! inBIB_VOY )
 			return;
-		PreparedStatement bibVoyDStmt = current.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
-		bibVoyDStmt.setInt(1, bib_id);
-		bibVoyDStmt.executeUpdate();
-		addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
-		bibVoyDStmt.close();
+		try (PreparedStatement bibVoyDStmt = current.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+			bibVoyDStmt.setInt(1, bib_id);
+			bibVoyDStmt.executeUpdate();
+			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
+		}
 	}
 	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
-		PreparedStatement bibQueueStmt = current.prepareStatement(
+		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO "+CurrentDBTable.QUEUE
 				+" (bib_id, priority, cause)"
-				+" VALUES (?, ?, ?)");
-		bibQueueStmt.setInt(1, bib_id);
-		bibQueueStmt.setInt(2, type.getPriority().ordinal());
-		bibQueueStmt.setString(3,type.toString());
-		bibQueueStmt.executeUpdate();
-		bibQueueStmt.close();
+				+" VALUES (?, ?, ?)")) {
+			bibQueueStmt.setInt(1, bib_id);
+			bibQueueStmt.setInt(2, type.getPriority().ordinal());
+			bibQueueStmt.setString(3,type.toString());
+			bibQueueStmt.executeUpdate();
+		}
 	}
 	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
 			throws SQLException {
-		PreparedStatement bibQueueDStmt = current.prepareStatement(
+		try (PreparedStatement bibQueueDStmt = current.prepareStatement(
 				"DELETE FROM "+CurrentDBTable.QUEUE
-				+" WHERE bib_id = ? AND done_date = 0");
-		for (Integer bib_id : bib_ids) {
-			bibQueueDStmt.setInt(1, bib_id);
-			bibQueueDStmt.addBatch();
+				+" WHERE bib_id = ? AND done_date = 0")) {
+			for (Integer bib_id : bib_ids) {
+				bibQueueDStmt.setInt(1, bib_id);
+				bibQueueDStmt.addBatch();
+			}
+			bibQueueDStmt.executeBatch();
 		}
-		bibQueueDStmt.executeBatch();
-		bibQueueDStmt.close();
 	}
 
-	public static void optimizeIndex( String solrCoreURL ) {
+	public static void optimizeIndex( String solrCoreURL ) throws IOException, SolrServerException {
 		System.out.println("Optimizing index at: "+solrCoreURL+".");
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
-		try {
-			URL queryUrl = new URL(solrCoreURL + "/update?optimize=true");
-			InputStream in = queryUrl.openStream();
-			BufferedReader buff = new BufferedReader(new InputStreamReader(in));
-			String line;
-			while ( (line = buff.readLine()) != null ) 
-				System.out.println(line);
-			buff.close();
-			in.close();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			System.exit(1); 
-		} catch (IOException e) {
-			// With the Apache timeout set sufficiently high, an IOException should represent an actual problem.
-			e.printStackTrace();
-			System.exit(1);
+		try ( SolrClient solr = new HttpSolrClient( solrCoreURL ) ) {
+			solr.optimize();
 		}
 		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
 	}
+
+	/**
+     * Do a hard and soft commit. This should commit the changes to the index (hard commit)
+     * and also open new searchers on the Solr server so the search results are
+     * visible (soft commit). 
+     */
+    public static void commitIndexChanges(String solrUrl) {
+    	Runnable r = () -> {
+    		try (SolrClient solr = new  HttpSolrClient( solrUrl )) {
+    			solr.commit(true,true,true);
+    		} catch (SolrServerException | IOException e) {
+				e.printStackTrace();
+    		}
+    	};
+    	Thread t = new Thread( r, "solr commit thread" );
+    	t.start();
+    }
 
 	/**
 	 * 
@@ -155,8 +180,8 @@ public class IndexingUtilities {
 	 */
 	public static String identifyOnlineServices(Collection<Object> urls) {
 		if (urlPatterns == null)
-			loadUrlPatterns();
-		List<String> identifiedSites = new ArrayList<String>();
+			urlPatterns = loadPatternMap("online_site_identifications.txt");
+		List<String> identifiedSites = new ArrayList<>();
 		for (Object url_o : urls) {
 			String url = url_o.toString().toLowerCase();
 			for (Map.Entry<String, String> pattern : urlPatterns.entrySet())
@@ -170,9 +195,9 @@ public class IndexingUtilities {
 			return null;
 		return StringUtils.join(identifiedSites, ", ");
 	}
-	private static void loadUrlPatterns() {
-		URL url = ClassLoader.getSystemResource("online_site_identifications.txt");
-		urlPatterns = new HashMap<String,String>();
+	public static Map<String,String> loadPatternMap(String filename) {
+		URL url = ClassLoader.getSystemResource(filename);
+		Map<String,String> patternMap = new LinkedHashMap<>();
 		try {
 			Path p = Paths.get(url.toURI());
 			List<String> sites = Files.readAllLines(p, StandardCharsets.UTF_8);
@@ -180,7 +205,7 @@ public class IndexingUtilities {
 				String[] parts = site.split("\\t", 2);
 				if (parts.length < 2)
 					continue;
-				urlPatterns.put(parts[0].toLowerCase(), parts[1]);
+				patternMap.put(parts[0].toLowerCase(), parts[1]);
 			}
 		} catch (URISyntaxException e) {
 			// This should never happen since the URI syntax is machine generated.
@@ -190,15 +215,16 @@ public class IndexingUtilities {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		return patternMap;
 	}
 	static Map<String,String> urlPatterns = null;
 
 
 
-	public static String eliminateDuplicateLocations(ArrayList<Object> location_facet) {
+	public static String eliminateDuplicateLocations(Collection<Object> location_facet) {
 		if (location_facet == null) return "";
 		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<Object>();
+		Collection<Object> foundValues = new HashSet<>();
 		boolean first = true;
 		for (Object val : location_facet) {
 			if (foundValues.contains(val))
@@ -214,74 +240,38 @@ public class IndexingUtilities {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static TitleMatchReference pullReferenceFields(SolrDocument doc) throws ParseException {
+	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
-		Object bibid_display = doc.getFieldValue("bibid_display");
-		if (bibid_display.getClass().equals(String.class)) {
-			String[] parts = ((String)bibid_display).split("\\|", 2);
-			ref.id = Integer.valueOf(parts[0]);
-			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
-		} else {
-			ArrayList<Object> solrBib = (ArrayList<Object>) bibid_display;
-			String[] parts = ((String)solrBib.get(0)).split("\\|", 2);
-			ref.id = Integer.valueOf(parts[0]);
-			ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
-		}
-		Object format = doc.getFieldValue("format");
-		if (format.getClass().equals(String.class))
-			ref.format = (String)format;
-		else
-			ref.format = StringUtils.join((ArrayList<Object>)format,',');
-		boolean online = doc.containsKey("url_access_display");
-		if (online) {
-			Object url_access_display = doc.getFieldValue("url_access_display");
-			if (url_access_display.getClass().equals(String.class)) {
-				ArrayList<Object> urls = new ArrayList<Object>();
-				urls.add(url_access_display);
-				ref.sites = identifyOnlineServices(urls);
-			} else {
-				ref.sites = identifyOnlineServices((ArrayList<Object>)url_access_display);
-			}
+
+		Collection<Object> bibid_display = doc.getFieldValues("bibid_display");
+		String[] parts = ((String)bibid_display.iterator().next()).split("\\|", 2);
+		ref.id = Integer.valueOf(parts[0]);
+		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+
+		ref.format = StringUtils.join(doc.getFieldValues("format"),',');
+
+		if (doc.containsKey("url_access_display")) {
+			ref.sites = identifyOnlineServices(doc.getFieldValues("url_access_display"));
 			if (ref.sites == null)
 				ref.sites = "Online";
 		}
-		if (doc.containsKey("location_facet")) {
-			Object location_facet = doc.getFieldValue("location_facet");
-			if (location_facet.getClass().equals(String.class)) {
-				ref.libraries = (String) location_facet;
-			} else {
-				ref.libraries = eliminateDuplicateLocations((ArrayList<Object>)location_facet);			
-			}
-		}
-		if (doc.containsKey("edition_display")) {
-			Object edition_display = doc.getFieldValue("edition_display");
-			if (edition_display.getClass().equals(String.class)) {
-				ref.edition = (String) edition_display;
-			} else {
-				ref.edition = StringUtils.join((ArrayList<Object>)edition_display ,"; ");
-			}
-		}
-		if (doc.containsKey("pub_date_display")) {
-			Object pub_date_display = doc.getFieldValue("pub_date_display");
-			if (pub_date_display.getClass().equals(String.class))
-				ref.pub_date = (String) pub_date_display;
-			else 
-				ref.pub_date = StringUtils.join((ArrayList<Object>)pub_date_display ,", ");
-		}
-		if (doc.containsKey("language_facet")) {
-			Object language_facet = doc.getFieldValue("language_facet");
-			if (language_facet.getClass().equals(String.class))
-				ref.language = (String) language_facet;
-			else
-				ref.language = StringUtils.join((ArrayList<Object>)language_facet,',');
-		}
+
+		if (doc.containsKey("location_facet"))
+			ref.libraries = eliminateDuplicateLocations(
+					doc.getFieldValues("location_facet"));
+
+		if (doc.containsKey("edition_display"))
+			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
+
+		if (doc.containsKey("pub_date_display"))
+			ref.pub_date = StringUtils.join(doc.getFieldValues("pub_date_display"),", ");
+
+		if (doc.containsKey("language_facet"))
+			ref.language = StringUtils.join(doc.getFieldValues("language_facet"),',');
+
 		if (doc.containsKey("title_uniform_display")) {
-			Object title_uniform_display = doc.getFieldValue("title_uniform_display");
-			String uniformTitle;
-			if (title_uniform_display.getClass().equals(String.class))
-				uniformTitle = (String) title_uniform_display;
-			else 
-				uniformTitle = (String)((ArrayList<Object>)title_uniform_display ).get(0);
+			String uniformTitle = (String)doc.getFieldValues
+					("title_uniform_display").iterator().next();
 			int pipePos = uniformTitle.indexOf('|');
 			if (pipePos == -1)
 				ref.title = uniformTitle;
@@ -289,9 +279,10 @@ public class IndexingUtilities {
 				ref.title = uniformTitle.substring(0, pipePos);
 		}
 		if (ref.title == null && doc.containsKey("title_vern_display"))
-			ref.title = (String) doc.getFieldValue("title_vern_display");
-		if (ref.title == null)
-			ref.title = (String) doc.getFieldValue("title_display");
+			ref.title = (String)doc.getFieldValues("title_vern_display").iterator().next();
+		if (ref.title == null && doc.containsKey("title_display"))
+			ref.title = (String)doc.getFieldValues("title_display").iterator().next();
+
 		return ref;
 	}
 	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -323,8 +314,7 @@ public class IndexingUtilities {
 		Matcher m = yyyymmdd.matcher(date);
 		if (m.find())
 			return m.group(1)+"-"+m.group(2)+"-"+m.group(3);
-		else
-			return date;
+		return date;
 	}
 	static Pattern yyyymmdd = null;
 
@@ -408,21 +398,48 @@ public class IndexingUtilities {
 	public static void gzipFile(String s, String d) throws IOException  {
 			 
 		byte[] buffer = new byte[1024];
-		GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(d));
-		FileInputStream in = new FileInputStream(s);
-
-		int bytes_read;
-		while ((bytes_read = in.read(buffer)) > 0) {
-			out.write(buffer, 0, bytes_read);
+		try (   GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(d));
+				FileInputStream in = new FileInputStream(s)   ) {
+			int bytes_read;
+			while ((bytes_read = in.read(buffer)) > 0) {
+				out.write(buffer, 0, bytes_read);
+			}
+			out.finish();
 		}
-		in.close();
-		out.finish();
-		out.close();
 		FileUtils.deleteQuietly(new File(s));
+	}
+
+	public static SolrInputDocument xml2SolrInputDocument(String xml) throws XMLStreamException {
+		SolrInputDocument doc = new SolrInputDocument();
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = 
+				input_factory.createXMLStreamReader(new StringReader(xml));
+		while (r.hasNext()) {
+			if (r.next() == XMLStreamConstants.START_ELEMENT) {
+				if (r.getLocalName().equals("doc")) {
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("boost"))
+							doc.setDocumentBoost(Float.valueOf(r.getAttributeValue(i)));
+				} else if (r.getLocalName().equals("field")) {
+					String fieldName = null;
+					Float boost = null;
+					for (int i = 0; i < r.getAttributeCount(); i++)
+						if (r.getAttributeLocalName(i).equals("name"))
+							fieldName = r.getAttributeValue(i);
+						else if (r.getAttributeLocalName(i).equals("boost"))
+							boost = Float.valueOf(r.getAttributeValue(i));
+					if (boost != null)
+						doc.addField(fieldName, r.getElementText(), boost);
+					else
+						doc.addField(fieldName, r.getElementText());
+				}
+			}
+		}
+		return doc;
 	}
 	
 	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
-	public static String prettyXMLFormat(String input, int indent) {
+	public static String prettyXMLFormat(String input) {
 	    try {
 	        Source xmlInput = new StreamSource(new StringReader(input));
 	        StringWriter stringWriter = new StringWriter();
@@ -437,8 +454,5 @@ public class IndexingUtilities {
 	    throw new RuntimeException(e); // simple exception handling, please review it
 	    }
 	}
-	
-	public static String prettyXMLFormat(String input) {
-	    return prettyXMLFormat(input, 2);
-	}
+
 }

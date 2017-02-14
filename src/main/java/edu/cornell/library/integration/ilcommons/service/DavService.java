@@ -79,7 +79,7 @@ public interface DavService {
     * @param dataStream
     * @throws Exception
     */
-   public void saveFile(String url, InputStream dataStream) throws Exception;
+   public void saveFile(String url, InputStream dataStream) throws IOException;
    
 	/**
 	 * @param url

@@ -38,7 +38,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	boolean debug = false;
 	
 	/** Factory for empty local in-memory RDF stores. */
-	RDFServiceFactory getLocalStoreFactory(){		
+	static RDFServiceFactory getLocalStoreFactory(){		
 		return new RDFServiceFactory(){
 			@Override
 			public RDFService getRDFService() {
@@ -62,12 +62,13 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	/** list of objects to construct a local RDF graph. 
 	 * Return empty list if no local data is needed. */
-	List<LocalDataMaker> getLocalDataMakers(){ 
+	static List<LocalDataMaker> getLocalDataMakers(){ 
 		return Collections.emptyList(); 
 	}		
 	
 	/** list of object to post process the solr document. Return empty
 	 * list if not needed. */
+	@SuppressWarnings("static-method")
 	List<? extends DocumentPostProcess> getDocumentPostProcess(){	
 		return Collections.emptyList(); 
 	}	

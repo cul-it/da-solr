@@ -13,18 +13,15 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.rules.TemporaryFolder;
-import org.xml.sax.SAXException;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
@@ -33,7 +30,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
 public class SolrLoadingTestBase extends RdfLoadingTestBase {
 			
-	static SolrServer solr = null;		
+	static SolrClient solr = null;		
 		
 	/**
 	 * These are the path prefixes to try to use 
@@ -90,16 +87,16 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		indexStandardTestRecords( solr, rdf );		
 	}
 	
-	public static void takeDownSolr() throws Exception{		
+	public static void takeDownSolr(){		
 		solrTmpFolder.delete();		
 	}
 	
-	public void testSolrWasStarted() throws SolrServerException, IOException {
+	public static void testSolrWasStarted() throws SolrServerException, IOException {
 		assertNotNull( solr );
 		solr.ping();
 	}
 	
-	public void testRadioactiveIds() throws SolrServerException{	
+	public static void testRadioactiveIds() throws SolrServerException, IOException{	
 		String[] ids = new String[]{				
 				"UNTRadMARC001", 		
 				"UNTRadMARC002",
@@ -137,8 +134,9 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	
 	/** 
 	 * Test that a document with the given IDs are in the results for the query. 
-	 * @throws SolrServerException */
-	void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException{
+	 * @throws SolrServerException 
+	 * @throws IOException */
+	static void testQueryGetsDocs(String errmsg, SolrQuery query, String[] docIds) throws SolrServerException, IOException{
 		assertNotNull(errmsg + " but query was null", query);
 		assertNotNull(errmsg + " but docIds was null", docIds );
 									
@@ -146,7 +144,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		if( resp == null )
 			fail( errmsg + " but Could not get a solr response");
 		
-		Set<String> expecteIds = new HashSet<String>(Arrays.asList( docIds ));
+		Set<String> expecteIds = new HashSet<>(Arrays.asList( docIds ));
 		for( SolrDocument doc : resp.getResults()){
 			assertNotNull(errmsg + ": solr doc was null", doc);
 			String id = (String) doc.getFirstValue("id");
@@ -183,9 +181,9 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		URL url = getResource("/testSolr.properties");
 		Properties props = new Properties();
 		if (null != url) {            
-            InputStream in = url.openStream();
-            props = new Properties();
-            props.load(in);           
+            try ( InputStream in = url.openStream() ) {
+            	props.load(in);
+            }
 		}
 
 		String solrTemplateDir = props.getProperty(key);
@@ -205,8 +203,8 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 		FileUtils.copyDirectory(new File(solrTemplateDir), base );				
 		return base;
 	}
-	
-	private static SolrServer setupSolrIndex(File solrBase) throws ParserConfigurationException, IOException, SAXException{
+
+	private static SolrClient setupSolrIndex(File solrBase) {//throws ParserConfigurationException, IOException, SAXException{
 //		System.setProperty("solr.solr.home", solrBase.getAbsolutePath());
 //		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
 //		CoreContainer coreContainer = initializer.initialize();
@@ -215,9 +213,9 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	    //I think that this might have been removed from solr 4.x
 	    return null;
 	}
-		
 
-	private static void indexStandardTestRecords( SolrServer solr , RDFService rdfService) throws Exception {
+
+	private static void indexStandardTestRecords( SolrClient solr , RDFService rdfService) throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
 		
 		SolrBuildConfig config = SolrBuildConfig.loadConfig( new String[2] );

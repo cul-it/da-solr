@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.http.ConnectionClosedException;
 
@@ -33,6 +33,7 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
@@ -75,32 +76,31 @@ public class IndexAuthorityRecords {
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
-			InputStream xmlstream = davService.getFileAsInputStream(srcFile);
-			XMLInputFactory input_factory = XMLInputFactory.newInstance();
-			XMLStreamReader r  = 
-					input_factory.createXMLStreamReader(xmlstream);
-			try {
-				processRecords(r);
-			} catch (ConnectionClosedException e) {
-				System.out.println("Lost access to xml file read. Waiting 2 minutes, and will try again.\n");
+			boolean processedFile = false;
+			while ( ! processedFile ) {
 				try {
-				    Thread.sleep(120 /* s */ * 1000 /* ms/s */);
-				} catch(InterruptedException ex) {
-				    Thread.currentThread().interrupt();
+					processFile( srcFile );
+					processedFile = true;
+				} catch (ConnectionClosedException e) {
+					System.out.println("Lost access to xml file read. Waiting 2 minutes, and will try again.\n");
+					e.printStackTrace();
+					Thread.sleep(120 /* s */ * 1000 /* ms/s */);
 				}
-				System.out.println("Attempting to re-open xml file input.");
-				xmlstream = davService.getFileAsInputStream(srcFile);
-				input_factory = XMLInputFactory.newInstance();
-				r  = input_factory.createXMLStreamReader(xmlstream);
-				processRecords(r);
 			}
-			xmlstream.close();
         }
         connection.close();
 	}
-	
+
+	private void processFile( String srcFile ) throws Exception {
+		try (  InputStream xmlstream = davService.getFileAsInputStream(srcFile)  ) {
+			XMLInputFactory input_factory = XMLInputFactory.newInstance();
+			XMLStreamReader r  = 
+				input_factory.createXMLStreamReader(xmlstream);
+			processRecords(r);
+		}
+	}
 	private void setUpDatabase() throws SQLException {
-		Statement stmt = connection.createStatement();
+		try ( Statement stmt = connection.createStatement() ) {
 
 		stmt.execute("DROP TABLE IF EXISTS `heading`");
 		stmt.execute("CREATE TABLE `heading` ("
@@ -154,31 +154,28 @@ public class IndexAuthorityRecords {
 				+ "`rda` text NOT NULL, "
 				+ "KEY `heading_id` (`heading_id`)) "
 				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+		}
 
-		PreparedStatement insertDesc = connection.prepareStatement(
-				"INSERT INTO type_desc (id,name) VALUES (? , ?)");
+		try ( PreparedStatement insertDesc = connection.prepareStatement(
+				"INSERT INTO type_desc (id,name) VALUES (? , ?)") ) {
 		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
 			insertDesc.executeUpdate();
-		}
+		}}
 
-		PreparedStatement insertRefType = connection.prepareStatement(
-				"INSERT INTO ref_type (id,name) VALUES (? , ?)");
+		try ( PreparedStatement insertRefType = connection.prepareStatement(
+				"INSERT INTO ref_type (id,name) VALUES (? , ?)") ) {
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
 			insertRefType.setString(2, rt.toString());
 			insertRefType.executeUpdate();
-		}
-
-		stmt.close();
-		insertDesc.close();
-		insertRefType.close();
+		}}
 	}
 
 	private void processRecords (XMLStreamReader r) throws Exception {
 		while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT)
+			if (r.next() == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					createHeadingRecordsFromAuthority(rec);
@@ -190,11 +187,11 @@ public class IndexAuthorityRecords {
 		String heading = null;
 		String headingSort = null;
 		HeadTypeDesc htd = null;
-		Collection<Relation> sees = new HashSet<Relation>();
-		Collection<Relation> seeAlsos = new HashSet<Relation>();
-		Collection<String> expectedNotes = new HashSet<String>();
-		Collection<String> foundNotes = new HashSet<String>();
-		Collection<String> notes = new HashSet<String>();
+		Collection<Relation> sees = new HashSet<>();
+		Collection<Relation> seeAlsos = new HashSet<>();
+		Collection<String> expectedNotes = new HashSet<>();
+		Collection<String> foundNotes = new HashSet<>();
+		Collection<String> notes = new HashSet<>();
 		RdaData rdaData = new RdaData();
 		
 		Boolean isUndifferentiated = false;
@@ -232,7 +229,7 @@ public class IndexAuthorityRecords {
 				case "110":
 				case "111":
 					for (Subfield sf : f.subfields.values() )
-						if (sf.code.equals('t')) {
+						if (sf.code.equals('t') || sf.code.equals('k')) {
 							htd = HeadTypeDesc.WORK;
 							break MAIN;
 						}
@@ -244,7 +241,7 @@ public class IndexAuthorityRecords {
 						htd = HeadTypeDesc.EVENT;
 					break;
 				case "130":
-					htd = HeadTypeDesc.GENHEAD;
+					htd = HeadTypeDesc.WORK;
 					break;
 				case "148":
 					htd = HeadTypeDesc.CHRONTERM;
@@ -290,7 +287,7 @@ public class IndexAuthorityRecords {
 				case "374":
 				case "375": {
 					String start = null, end = null, field = null;
-					List<String> values = new ArrayList<String>();
+					List<String> values = new ArrayList<>();
 					switch (f.tag) {
 					case "372": field = "Field"; break;
 					case "373": field = "Group/Organization"; break;
@@ -433,22 +430,22 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
-	private String dashedHeading(DataField f, HeadTypeDesc htd) {
+	private static String dashedHeading(DataField f, HeadTypeDesc htd) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
 		if (htd.equals(HeadTypeDesc.WORK)) {
-			StringBuilder sb = new StringBuilder();
-			if (f.tag.endsWith("00"))
-				sb.append(f.concatenateSpecificSubfields("abcdq"));
-			else if (f.tag.endsWith("10"))
-				sb.append(f.concatenateSpecificSubfields("ab"));
-			else // 11
-				sb.append(f.concatenateSpecificSubfields("abe"));
-			sb.append(" | ");
-			sb.append(f.concatenateSpecificSubfields("tklnpmors"));
-			heading = sb.toString();
-		} else if (htd.equals(HeadTypeDesc.GENHEAD)) {
-			heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
+			if (f.tag.endsWith("30"))
+				heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
+			else {
+				FieldValues vals;
+				if (f.tag.endsWith("00"))
+					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+				else if (f.tag.endsWith("10"))
+					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
+				else // 11
+					vals = f.getFieldValuesForNameMaybeTitleField("abde;tklnpmors");
+				heading = vals.author+" | "+vals.title;
+			}
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		}
@@ -457,8 +454,8 @@ public class IndexAuthorityRecords {
 		return heading;
 	}
 
-	private String buildJsonNote(DataField f) throws JsonProcessingException {
-		List<Object> textBlocks = new ArrayList<Object>();
+	private static String buildJsonNote(DataField f) throws JsonProcessingException {
+		List<Object> textBlocks = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		for (Subfield sf : f.subfields.values()) {
 			if (sf.code.equals('b')) {
@@ -466,7 +463,7 @@ public class IndexAuthorityRecords {
 					textBlocks.add(sb.toString());
 					sb.setLength(0);
 				}
-				Map<String,String> header = new HashMap<String,String>();
+				Map<String,String> header = new HashMap<>();
 				header.put("header", sf.value);
 				textBlocks.add(header);
 			} else {
@@ -482,73 +479,78 @@ public class IndexAuthorityRecords {
 	private void populateRdaInfo(Integer heading_id, RdaData data) throws SQLException, JsonProcessingException {
 		String json = data.json();
 		if (json == null) return;
-		PreparedStatement stmt = connection.prepareStatement(
-				"INSERT INTO rda (heading_id, rda) VALUES (?, ?)");
-		stmt.setInt(1, heading_id);
-		stmt.setString(2, json);
-		stmt.executeUpdate();
-		stmt.close();
+		try ( PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO rda (heading_id, rda) VALUES (?, ?)") ){
+			stmt.setInt(1, heading_id);
+			stmt.setString(2, json);
+			stmt.executeUpdate();
+		}
 	}
 
 	private void insertNote(Integer heading_id, String note) throws SQLException {
-		PreparedStatement stmt = connection.prepareStatement(
-				"INSERT INTO note (heading_id, note) VALUES (? , ?)");
-		stmt.setInt(1, heading_id);
-		stmt.setString(2, note);
-		stmt.executeUpdate();
-		stmt.close();
+		try ( PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO note (heading_id, note) VALUES (? , ?)") ){
+			stmt.setInt(1, heading_id);
+			stmt.setString(2, note);
+			stmt.executeUpdate();
+		}
 	}
 
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
 			HeadTypeDesc htd, Boolean isUndifferentiated) throws SQLException {
-		PreparedStatement pstmt = connection.prepareStatement(
-				"SELECT id, undifferentiated FROM heading " +
-				"WHERE type_desc = ? AND sort = ?");
-		pstmt.setInt(1, htd.ordinal());
-		pstmt.setString(2, headingSort);
-		ResultSet resultSet = pstmt.executeQuery();
+
 		Integer recordId = null;
-		Boolean undifferentiated = null;
-		while (resultSet.next()) {
-			recordId = resultSet.getInt(1);
-			undifferentiated = resultSet.getBoolean(2);
+		boolean undifferentiated = false;
+
+		try ( PreparedStatement pstmt = connection.prepareStatement(
+				"SELECT id, undifferentiated FROM heading " +
+				"WHERE type_desc = ? AND sort = ?") ){
+			pstmt.setInt(1, htd.ordinal());
+			pstmt.setString(2, headingSort);
+			try ( ResultSet resultSet = pstmt.executeQuery() ) {
+				while (resultSet.next()) {
+					recordId = resultSet.getInt(1);
+					undifferentiated = resultSet.getBoolean(2);
+				}
+			}
 		}
-		pstmt.close();
 		if (recordId != null) {
 			// update sql record to make sure it's a main entry now; heading overrides
 			// possibly different heading form populated from xref
-			PreparedStatement pstmt1 = connection.prepareStatement(
-					"UPDATE heading SET main_entry = 1, heading = ? WHERE id = ?");
-			pstmt1.setString(1, heading); 
-			pstmt1.setInt(2, recordId);
-			pstmt1.executeUpdate();
-			pstmt1.close();
+			try ( PreparedStatement pstmt = connection.prepareStatement(
+					"UPDATE heading SET main_entry = 1, heading = ? WHERE id = ?") ){
+				pstmt.setString(1, heading); 
+				pstmt.setInt(2, recordId);
+				pstmt.executeUpdate();
+			}
 			// if the record was inserted as differentiated, but this one is undifferentiated
 			// the update it.
 			if (isUndifferentiated && ! undifferentiated) {
-				pstmt1 = connection.prepareStatement(
-						"UPDATE heading SET undifferentiated = 1 WHERE id = ?");
-				pstmt1.setInt(1, recordId);
-				pstmt1.executeUpdate();
-				pstmt1.close();
+				try ( PreparedStatement pstmt = connection.prepareStatement(
+						"UPDATE heading SET undifferentiated = 1 WHERE id = ?") ) {
+					pstmt.setInt(1, recordId);
+					pstmt.executeUpdate();
+				}
 			}
 		} else {
+
 			// create new record
-			PreparedStatement pstmt1 = connection.prepareStatement(
+			try (PreparedStatement pstmt = connection.prepareStatement(
 					"INSERT INTO heading (heading, sort, type_desc, authority, main_entry, undifferentiated) " +
 					"VALUES (?, ?, ?, 1, 1, ?)",
-                    Statement.RETURN_GENERATED_KEYS);
-			pstmt1.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
-			pstmt1.setString(2, headingSort);
-			pstmt1.setInt(3, htd.ordinal());
-			pstmt1.setBoolean(4, isUndifferentiated);
-			int affectedCount = pstmt1.executeUpdate();
-			if (affectedCount < 1) 
-				throw new SQLException("Creating Heading Record Failed.");
-			ResultSet generatedKeys = pstmt1.getGeneratedKeys();
-			if (generatedKeys.next())
-				recordId = generatedKeys.getInt(1);
-			pstmt1.close();
+                    Statement.RETURN_GENERATED_KEYS) ) {
+
+				pstmt.setString(1, Normalizer.normalize(heading, Normalizer.Form.NFC));
+				pstmt.setString(2, headingSort);
+				pstmt.setInt(3, htd.ordinal());
+				pstmt.setBoolean(4, isUndifferentiated);
+				int affectedCount = pstmt.executeUpdate();
+				if (affectedCount < 1) 
+					throw new SQLException("Creating Heading Record Failed.");
+				try ( ResultSet generatedKeys = pstmt.getGeneratedKeys() ) {
+					if (generatedKeys.next())
+						recordId = generatedKeys.getInt(1); }
+			}
 		}
  		
 		return recordId;
@@ -557,7 +559,7 @@ public class IndexAuthorityRecords {
 	/* If there are no more than 5 non-period characters in the heading,
 	 * and all of those are capital letters, then this is an acronym.
 	 */
-	private void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
+	private static void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
 		String heading = dashedHeading(f, r.headingTypeDesc);
 		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
@@ -592,56 +594,59 @@ public class IndexAuthorityRecords {
 	private void insertRef(int from_id, int to_id,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
-		PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = connection.prepareStatement(
 				"REPLACE INTO reference (from_heading, to_heading, ref_type, ref_desc)"
-				+ " VALUES (?, ?, ?, ?)");
-		pstmt.setInt(1, from_id);
-		pstmt.setInt(2, to_id);
-		pstmt.setInt(3, rt.ordinal());
-		if (relationshipDescription == null)
-			pstmt.setString(4, "");
-		else
-			pstmt.setString(4, relationshipDescription);
-		pstmt.executeUpdate();
-		pstmt.close();
+				+ " VALUES (?, ?, ?, ?)")  ){
+			pstmt.setInt(1, from_id);
+			pstmt.setInt(2, to_id);
+			pstmt.setInt(3, rt.ordinal());
+			if (relationshipDescription == null)
+				pstmt.setString(4, "");
+			else
+				pstmt.setString(4, relationshipDescription);
+			pstmt.executeUpdate();
+		}
 	}
 
 
-	private int getRelationshipHeadingId(Relation r ) throws SQLException {
-		PreparedStatement pstmt = connection.prepareStatement(
-				"SELECT id FROM heading " +
-				"WHERE type_desc = ? and sort = ?");
-		pstmt.setInt(1, r.headingTypeDesc.ordinal());
-		pstmt.setString(2, r.headingSort);
-		ResultSet resultSet = pstmt.executeQuery();
+	private Integer getRelationshipHeadingId(Relation r ) throws SQLException {
+
 		Integer recordId = null;
-		while (resultSet.next()) {
-			recordId = resultSet.getInt("id");
+
+		try ( PreparedStatement pstmt = connection.prepareStatement(
+				"SELECT id FROM heading " +
+				"WHERE type_desc = ? and sort = ?") ) {
+
+			pstmt.setInt(1, r.headingTypeDesc.ordinal());
+			pstmt.setString(2, r.headingSort);
+			try ( ResultSet resultSet = pstmt.executeQuery() ) {
+				while (resultSet.next())
+					recordId = resultSet.getInt("id");
+			}
 		}
-		pstmt.close();
 		if (recordId == null) {
 			// create new record
-			PreparedStatement pstmt1 = connection.prepareStatement(
+			try ( PreparedStatement pstmt = connection.prepareStatement(
 					"INSERT INTO heading (heading, sort, type_desc, authority) " +
 					"VALUES (?, ?, ?, 1)",
-                    Statement.RETURN_GENERATED_KEYS);
-			pstmt1.setString(1, r.heading);
-			pstmt1.setString(2, r.headingSort);
-			pstmt1.setInt(3, r.headingTypeDesc.ordinal());
-			int affectedCount = pstmt1.executeUpdate();
-			if (affectedCount < 1) 
-				throw new SQLException("Creating Heading Record Failed.");
-			ResultSet generatedKeys = pstmt1.getGeneratedKeys();
-			if (generatedKeys.next())
-				recordId = generatedKeys.getInt(1);
-			pstmt1.close();
+                    Statement.RETURN_GENERATED_KEYS) ) {
+				pstmt.setString(1, r.heading);
+				pstmt.setString(2, r.headingSort);
+				pstmt.setInt(3, r.headingTypeDesc.ordinal());
+				int affectedCount = pstmt.executeUpdate();
+				if (affectedCount < 1) 
+					throw new SQLException("Creating Heading Record Failed.");
+				try ( ResultSet generatedKeys = pstmt.getGeneratedKeys() ) {
+				if (generatedKeys.next())
+					recordId = generatedKeys.getInt(1); }
+			}
 		}
  		
 		return recordId;
 	}
 
 
-	private Relation determineRelationship( DataField f ) {
+	private static Relation determineRelationship( DataField f ) {
 		// Is there a subfield w? The relationship note in subfield w
 		// describes the 4XX or 5XX heading, and must be reversed for the
 		// from tracing.
@@ -668,7 +673,7 @@ public class IndexAuthorityRecords {
 					r.headingTypeDesc = HeadTypeDesc.WORK;
 			break;
 		case "30":
-			r.headingTypeDesc = HeadTypeDesc.GENHEAD;	break;
+			r.headingTypeDesc = HeadTypeDesc.WORK;	break;
 		case "50":
 			r.headingTypeDesc = HeadTypeDesc.TOPIC;		break;
 		case "48":
@@ -814,7 +819,7 @@ public class IndexAuthorityRecords {
 	static final ObjectMapper mapper = new ObjectMapper();
 	private static class RdaData {
 
-		Map<String,Collection<String>> data = new HashMap<String,Collection<String>>();
+		Map<String,Collection<String>> data = new HashMap<>();
 
 		public void add(String field, String value) {
 			if ( ! data.containsKey(field))
@@ -836,24 +841,24 @@ public class IndexAuthorityRecords {
 		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
 		public HeadTypeDesc headingTypeDesc = null;
-		public Collection<RecordSet> applicableContexts = new HashSet<RecordSet>();
-		public Collection<String> expectedNotes = new HashSet<String>();
+		public Collection<RecordSet> applicableContexts = new HashSet<>();
+		public Collection<String> expectedNotes = new HashSet<>();
 		boolean display = true;
 	}
 	
 	// general MARC methods and classes start here
 	
-	private MarcRecord processRecord( XMLStreamReader r ) throws Exception {
+	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT) {
+			if (event == XMLStreamConstants.END_ELEMENT) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
 			}
-			if (event == XMLEvent.START_ELEMENT) {
+			if (event == XMLStreamConstants.START_ELEMENT) {
 				String element = r.getLocalName();
 				switch (element) {
 				
@@ -896,14 +901,14 @@ public class IndexAuthorityRecords {
 	}
 
 	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
+		Map<Integer,Subfield> fields = new HashMap<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT)
+			if (event == XMLStreamConstants.END_ELEMENT)
 				if (r.getLocalName().equals("datafield"))
 					return fields;
-			if (event == XMLEvent.START_ELEMENT)
+			if (event == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("subfield")) {
 					Subfield f = new Subfield();
 					f.id = ++id;

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.marc4j.MarcException;
@@ -102,13 +101,10 @@ public class MrcToXmlConverter {
        String tmpFilePath = getTmpDir() + "/"+ srcFile;
        File f = davService.getFile(srcDir +"/"+ srcFile, tmpFilePath);
        fileNameRoot = srcFile.replaceAll(".mrc$", "");
-       FileInputStream is = new FileInputStream(f);
-        
-       MarcPermissiveStreamReader reader = null;
+
        boolean permissive      = true;
        boolean convertToUtf8   = true;
-       List<String> f001list = new ArrayList<String>();
-       reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
+       List<String> f001list = new ArrayList<>();
         
        destXmlFile = getOutputFileName(batch);
        writer = getWriter(destXmlFile);       
@@ -117,8 +113,10 @@ public class MrcToXmlConverter {
           writer.setUnicodeNormalization(true);
        }
         
-       try {
-          while (reader.hasNext()) {
+       try ( FileInputStream is = new FileInputStream(f) ){
+
+    	   MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is, permissive, convertToUtf8);
+    	   while (reader.hasNext()) {
              try {
                 record = reader.next();
              } catch (MarcException me) {
@@ -177,14 +175,6 @@ public class MrcToXmlConverter {
           if (total > 0) {
              moveXmlToDav(davService, destDir, destXmlFile);
           }
-          
-       } finally {
-           
-          try { 
-             is.close();
-          } catch (IOException e) {
-             e.printStackTrace();
-          } 
        }
        
        FileUtils.deleteQuietly(f);
@@ -198,9 +188,8 @@ public class MrcToXmlConverter {
     private String getOutputFileName(int batch) {
     	if (splitSize == 0) {
     	   return fileNameRoot + ".xml";
-       } else {
-    	   return fileNameRoot + "." + batch + ".xml";
-       }
+    	}
+    	return fileNameRoot + "." + batch + ".xml";
     } 
     
     /**
@@ -232,20 +221,16 @@ public class MrcToXmlConverter {
      * @param destXmlFile
      * @throws Exception
      */
-    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws Exception {
+    private void moveXmlToDav(DavService davService, String destDir, String destXmlFile) throws IOException {
        File srcFile = new File(getTmpDir() +"/"+ destXmlFile);
        String destFile = destDir +"/"+ destXmlFile;
           
-       InputStream isr = null;
-       try {
-          isr = new FileInputStream(srcFile);
+       try ( InputStream isr = new FileInputStream(srcFile) ) {
           davService.saveFile(destFile, isr);
           System.out.println("Saved to webdav: "+ destFile );
           FileUtils.deleteQuietly(srcFile);
-       } catch (Exception ex) {
-          throw new Exception("Could not save from temp file " + srcFile + " to WEBDAV " + destFile, ex);
-       } finally {
-          IOUtils.closeQuietly( isr );
+       } catch (IOException ex) {
+          throw new IOException("Could not save from temp file " + srcFile + " to WEBDAV " + destFile, ex);
        }
     }
     

@@ -31,9 +31,9 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 				Map<String, ResultSet> results, SolrBuildConfig config) {
 
 			//This method needs to return a map of fields:
-			Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+			Map<String,SolrInputField> fields = new HashMap<>();
 			
-			Set<String> s = new HashSet<String>();
+			Set<String> s = new HashSet<>();
 			
 			for( String resultKey: results.keySet()){
 				ResultSet rs = results.get(resultKey);
@@ -58,8 +58,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 				}
 			
 				return fields;
-			} else {
-				return null;
 			}
+			return null;
 		}
 	}

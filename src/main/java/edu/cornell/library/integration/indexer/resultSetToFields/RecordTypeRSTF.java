@@ -35,9 +35,9 @@ public class RecordTypeRSTF implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
-		Collection<String> sf948hs = new HashSet<String>();
-		Collection<String> sf852xs = new HashSet<String>();
+		Map<String,SolrInputField> fields = new HashMap<>();
+		Collection<String> sf948hs = new HashSet<>();
+		Collection<String> sf852xs = new HashSet<>();
 		Boolean isShadow = false;
 		
 

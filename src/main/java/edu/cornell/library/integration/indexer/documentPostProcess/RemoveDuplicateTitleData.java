@@ -34,7 +34,7 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		
 	}
 
-	private void removeDuplicates( SolrInputDocument document, String vernFieldName, String mainFieldName) {
+	private static void removeDuplicates( SolrInputDocument document, String vernFieldName, String mainFieldName) {
 
 		
 		if ( (! document.containsKey(vernFieldName)) || (! document.containsKey(mainFieldName)))
@@ -55,7 +55,7 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		}
 		String[] mainTitleParts = field.getFirstValue().toString().split(" *= *");
 		String[] vernTitleParts = vernTitle.split(" *= *");
-		Collection<String> newVernTitleParts = new HashSet<String>();
+		Collection<String> newVernTitleParts = new HashSet<>();
 		if ( (mainTitleParts.length == 1) && (vernTitleParts.length == 1)) {
 			if (mainTitleParts[0].equals(vernTitleParts[0])) {
 				document.remove(vernFieldName);

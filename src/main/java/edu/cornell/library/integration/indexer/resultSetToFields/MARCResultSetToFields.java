@@ -28,7 +28,7 @@ public class MARCResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();		
+		Map<String,SolrInputField> fields = new HashMap<>();		
 
 		MarcRecord rec = new MarcRecord();
 				
@@ -45,7 +45,7 @@ public class MARCResultSetToFields implements ResultSetToFields {
 		
 		if (results.containsKey("marc_control_fields")) {
 			ResultSet marc_control_fields = results.get("marc_control_fields");
-			rec.addControlFieldResultSet(marc_control_fields);
+			rec.addControlFieldResultSet(marc_control_fields,true);
 		}
 		
 		if (results.containsKey("marc_data_fields")) {

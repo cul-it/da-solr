@@ -5,47 +5,16 @@
     an extensively commented version of this file. 
 -->
 <config>
-<!-- Admin Handlers - This will register all the standard admin RequestHandlers. -->
 
-  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
+  <luceneMatchVersion>6.0</luceneMatchVersion>
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
-  
-  <!-- lib directives can be used to instruct Solr to load an Jars identified
-       and use them to resolve any "plugins" specified in your solrconfig.xml or
-       schema.xml (ie: Analyzers, Request Handlers, etc...).
 
-       All directories and paths are resolved relative the instanceDir.
+  <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-       If a "./lib" directory exists in your instanceDir, all files found in it
-       are included as if you had used the following syntax...
+  <lib dir="/cul/data/solr/instancelibs/bl1/"/>
 
-              <lib dir="./lib" />
-    -->
-  <!-- A dir option by itself adds any files found in the directory to the
-       classpath, this is useful for including all jars in a directory.
-    -->
-  <!-- <lib dir="../../contrib/extraction/lib" /> -->
-  <!-- When a regex is specified in addition to a directory, only the files in that
-       directory which completely match the regex (anchored on both ends)
-       will be included.
-    -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" /> -->
-  <!-- <lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" /> -->
-  <!-- If a dir option (with or without a regex) is used and nothing is found
-       that matches, it will be ignored
-    -->
-  <!-- <lib dir="../../contrib/clustering/lib/downloads/" /> -->
-  
   <dataDir>${solr.data.dir:}</dataDir>
 
-
- <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       Index Config - These settings control low-level behavior of indexing
-       Most example settings here show the default value, but are commented
-       out, to more easily see where customizations have been made.
-       
-       Note: This replaces <indexDefaults> and <mainIndex> from older versions
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <indexConfig>
     <!-- maxFieldLength was removed in 4.0. To get similar behavior, include a 
          LimitTokenCountFilterFactory in your fieldType definition. E.g. 
@@ -177,7 +146,7 @@
       -->
      <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
   </indexConfig>
-
+<!-- 
 <requestHandler name="/replication" class="solr.ReplicationHandler" >
     <lst name="master">
         <str name="enable">${enable.master:false}</str>
@@ -191,7 +160,7 @@
         <str name="pollInterval">01:00:00</str>
     </lst>
 </requestHandler>
-
+-->
   <updateHandler class="solr.DirectUpdateHandler2" >
     <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
          Auto Commit behavior except it enables/ensures that changes are
@@ -237,49 +206,8 @@
          <maxTime>1000</maxTime> 
        </autoSoftCommit>
       -->
-
-    <!-- Update Related Event Listeners
-         
-         Various IndexWriter related events can trigger Listeners to
-         take actions.
-
-         postCommit - fired after every commit or optimize command
-         postOptimize - fired after every optimize command
-      -->
-    <!-- The RunExecutableListener executes an external command from a
-         hook such as postCommit or postOptimize.
-         
-         exe - the name of the executable to run
-         dir - dir to use as the current working directory. (default=".")
-         wait - the calling thread waits until the executable returns. 
-                (default="true")
-         args - the arguments to pass to the program.  (default is none)
-         env - environment variables to set.  (default is none)
-      -->
-    <!-- This example shows how RunExecutableListener could be used
-         with the script based replication...
-         http://wiki.apache.org/solr/CollectionDistribution
-      -->
-    <!--
-       <listener event="postCommit" class="solr.RunExecutableListener">
-         <str name="exe">solr/bin/snapshooter</str>
-         <str name="dir">.</str>
-         <bool name="wait">true</bool>
-         <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
-         <arr name="env"> <str>MYVAR=val1</str> </arr>
-       </listener>
-      -->
   </updateHandler>
 
-  <!-- Once we define ‘updateLog ‘ configuration and it also requires
-       a Near-Realtime Handler too -->
-  <requestHandler name="/get" class="solr.RealTimeGetHandler">
-    <lst name="defaults">
-      <str name="omitHeader">true</str>
-      <str name="wt">json</str>
-      <str name="indent">true</str>
-    </lst>
-  </requestHandler>
 
   <!-- query time configurations -->
   <query>
@@ -313,17 +241,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
@@ -337,17 +264,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
@@ -367,17 +293,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
         <!-- query for single document to populate filter cache -->
@@ -391,17 +316,16 @@
           <str name="facet.limit">10</str>
           <str name="facet.field">format</str>
           <str name="facet.field">online</str>
-          <str name="facet.field">lc_1letter_facet</str>
-          <str name="f.lc_1letter_facet.facet.sort">false</str>
-          <str name="facet.field">lc_alpha_facet</str>
-          <str name="facet.field">lc_b4cutter_facet</str>
+          <str name="facet.field">lc_callnum_facet</str>
+          <str name="f.lc_callnum_facet.facet.sort">false</str>
           <str name="facet.field">language_facet</str>
           <str name="facet.field">location_facet</str>
           <str name="facet.field">pub_date_facet</str>
           <str name="facet.field">author_facet</str>
-          <str name="facet.field">subject_era_facet</str>
-          <str name="facet.field">subject_geo_facet</str>
-          <str name="facet.field">subject_topic_facet</str>
+          <str name="facet.field">fast_era_facet</str>
+          <str name="facet.field">fast_geo_facet</str>
+          <str name="facet.field">fast_genre_facet</str>
+          <str name="facet.field">fast_topic_facet</str>
           <str name="facet.field">subject_content_facet</str>
         </lst>
       </arr>
@@ -437,125 +361,73 @@
       <str name="q.alt">*</str>
       <str name="facet.mincount">1</str>
       <str name="mm">100%</str>
+      <str name="q.op">OR</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500 
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
+        subject_t^250              subject_tP^250             subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
       <str name="pf">
-        title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
-        subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+        title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
+        subject_t^250              subject_tP^250             subject_t_cjk^50
+        author_t^50                author_tP^50               author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
         lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
     </lst>
     <lst name="appends">
@@ -642,123 +514,70 @@
       <str name="q">*</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500 
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
+        subject_t^250              subject_tP^250             subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
       <str name="pf">
-        title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
-        subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+        title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
+        subject_t^250              subject_tP^250             subject_t_cjk^50
+        author_t^50                author_tP^50               author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
         lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
     </lst>
   	<lst name="appends">
@@ -777,65 +596,83 @@
       <str name="df">title_t</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500 
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
+        subject_t^250              subject_tP^250             subject_t_cjk^50
         author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
         lc_callnum_full^100
         publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
         subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
-      <str name="starts_qf">
+      <str name="pf">
+        title_unstemC^25000        title_unstemP^25000
+        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250             subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
+        pub_date_facet^25
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
+        donor_s
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
+      </str>
+      <str name="f.starts.qf">
         title_startsC^25000        title_startsP^25000         title_startsCJK^2500
         title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
         title_addl_startsC^2500    title_addl_startsP^2500     title_addl_startsCJK^250
@@ -845,6 +682,7 @@
         lc_callnum_full^100
         publisher_startsC^75       publisher_startsP^75        publisher_startsCJK^10
         pub_date_facet^25
+        pub_date_startsC^25        pub_date_startsP^25 pub_date_startsCJK^5 pub_date_t_startsNum^5
         subject_addl_startsC^125   subject_addl_startsP^125    subject_addl_startsCJK^5
         title_series_startsC^25    title_series_startsP^25     title_series_startsCJK
         isbn_startsC               isbn_startsP        isbn_startsCJK       isbn_startsNum
@@ -859,552 +697,309 @@
         barcode_startsC            barcode_startsP         barcode_startsNum
         barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
-      <str name="quot_qf">
-        title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t_cjk^2500
-        subtitle_t_cjk^1000
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t_cjk^250
-        title_addl_t_cjk^250
-        title_ngram^1000
-        subject_unstemC^375        subject_unstemP^375
-        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^10
+      <str name="f.quoted.qf">
+        title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
+        title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
+        subject_unstemC^375        subject_unstemP^375        subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125         author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75     author_addl_t_cjk^5
         lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75
-        publisher_t_cjk^10
+        publisher_unstemC^75       publisher_unstemP^75       publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk
-        isbn_unstemC               isbn_unstemP
-        issn_unstemC               issn_unstemP
-        isbn_t_cjk
-        issn_t_cjk
+        pub_date_unstemC^25        pub_date_unstemP^25        pub_date_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125   subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25    title_series_t_cjk
+        isbn_unstemC               isbn_unstemP               isbn_t_cjk
+        issn_unstemC               issn_unstemP               issn_t_cjk
         donor_s
-        donor_unstemC              donor_unstemP
-        donor_t_cjk
-        pubplace_unstemC           pubplace_unstemP
-        pubplace_t_cjk
-        eightninenine_unstemC      eightninenine_unstemP
-        eightninenine_t_cjk
-        notes_unstemC              notes_unstemP
-        notes_t_cjk
-        summary_unstemC            summary_unstemP
-        summary_t_cjk
-        toc_unstemC                toc_unstemP
-        toc_t_cjk
-        author_245c_unstemC        author_245c_unstemP
-        author_245c_t_cjk
+        donor_unstemC              donor_unstemP              donor_t_cjk
+        pubplace_unstemC           pubplace_unstemP           pubplace_t_cjk
+        eightninenine_unstemC      eightninenine_unstemP      eightninenine_t_cjk
+        notes_unstemC              notes_unstemP              notes_t_cjk
+        summary_unstemC            summary_unstemP            summary_t_cjk
+        toc_unstemC                toc_unstemP                toc_t_cjk
+        author_245c_unstemC        author_245c_unstemP        author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
+        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="pf">
-        title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t^12500              title_tP^12500     
-        title_t_cjk^2500
-        subtitle_t^5000            subtitle_tP^5000
-        subtitle_t_cjk^1000
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t^1250       title_uniform_tP^1250
-        title_uniform_t_cjk^250
-        title_addl_t^1250          title_addl_tP^1250
-        title_addl_t_cjk^250
-        title_ngram^1000
-        subject_unstemC^375        subject_unstemP^375
-        subject_t^250              subject_tP^250
-        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
+      <str name="pf"> </str>
+      <str name="f.starts.pf"> </str>
+      <str name="f.quoted.pf">
+        title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
+        title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
+        subject_unstemC^375        subject_unstemP^375        subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125         author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75     author_addl_t_cjk^5
         lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75
-        publisher_t^50             publisher_tP^50
-        publisher_t_cjk^10
+        publisher_unstemC^75       publisher_unstemP^75       publisher_t_cjk^10
         pub_date_facet^25
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t^25          subject_addl_tP^25
-        subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+        pub_date_unstemC^25        pub_date_unstemP^25        pub_date_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125   subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25    title_series_t_cjk
+        isbn_unstemC               isbn_unstemP               isbn_t_cjk
+        issn_unstemC               issn_unstemP               issn_t_cjk
         donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        notes_t                    notes_tP
-        notes_t_cjk
-        summary_t                  summary_tP
-        summary_t_cjk
-        toc_t                      toc_tP
-        toc_t_cjk
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
-        barcode_t^10               barcode_tP^10
-        barcode_addl_t             barcode_addl_tP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
-      </str>
-      <str name="starts_pf">
-
-      </str>
-      <str name="quot_pf">
-        title_unstemC^25000        title_unstemP^25000
-        subtitle_unstemC^12500     subtitle_unstemP^12500
-        title_t_cjk^2500
-        subtitle_t_cjk^1000
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_addl_unstemC^2500    title_addl_unstemP^2500
-        title_uniform_t_cjk^250
-        title_addl_t_cjk^250
-        subject_unstemC^375        subject_unstemP^375
-        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^10
-        lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75
-        publisher_t_cjk^10
-        pub_date_facet^25
-        author_addl_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125
-        subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk
-        isbn_unstemC               isbn_unstemP
-        issn_unstemC               issn_unstemP
-        isbn_t_cjk
-        issn_t_cjk
-        donor_s
-        donor_unstemC              donor_unstemP
-        donor_t_cjk
-        pubplace_unstemC           pubplace_unstemP
-        pubplace_t_cjk
-        eightninenine_unstemC      eightninenine_unstemP
-        eightninenine_t_cjk
-        notes_unstemC              notes_unstemP
-        notes_t_cjk
-        summary_unstemC            summary_unstemP
-        summary_t_cjk
-        toc_unstemC                toc_unstemP
-        toc_t_cjk
-        author_245c_unstemC        author_245c_unstemP
-        author_245c_t_cjk
+        donor_unstemC              donor_unstemP              donor_t_cjk
+        pubplace_unstemC           pubplace_unstemP           pubplace_t_cjk
+        eightninenine_unstemC      eightninenine_unstemP      eightninenine_t_cjk
+        notes_unstemC              notes_unstemP              notes_t_cjk
+        summary_unstemC            summary_unstemP            summary_t_cjk
+        toc_unstemC                toc_unstemP                toc_t_cjk
+        author_245c_unstemC        author_245c_unstemP        author_245c_t_cjk
         barcode_unstemC^10         barcode_unstemP^10
         barcode_addl_unstemC       barcode_addl_unstemP
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
+        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
       
-      <str name="author_qf">
+      <str name="f.author.qf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
+        author_t^50                author_tP^50        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25   author_addl_t_cjk^5
+        author_245c_t              author_245c_tP      author_245c_t_cjk
+        authority_author_t         authority_author_tP authority_author_t_cjk
      </str>
-      <str name="author_pf">
+      <str name="f.author.pf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
-        author_t^50                author_tP^50
-        author_t_cjk^10
-        author_addl_t^25           author_addl_tP^25
-        author_addl_t_cjk^5
-        author_245c_t              author_245c_tP
-        author_245c_t_cjk
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk      </str>
-      <str name="author_starts_qf">
+        author_t^50                author_tP^50        author_t_cjk^10
+        author_addl_t^25           author_addl_tP^25   author_addl_t_cjk^5
+        author_245c_t              author_245c_tP      author_245c_t_cjk
+        authority_author_t         authority_author_tP authority_author_t_cjk
+      </str>
+      <str name="f.author_starts.qf">
         author_startsC^125         author_startsP^125        author_startsCJK^10
         author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
       </str>
-      <str name="author_starts_pf">
-
+      <str name="f.author_starts.pf"> </str>
+      <str name="f.author_cts.qf"> author_pers_browse author_corp_browse author_event_browse </str>
+      <str name="f.author_cts.pf"> author_pers_browse author_corp_browse author_event_browse </str>
+      <str name="f.author_quoted.qf">
+        author_unstemC^125         author_unstemP^125        author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
+        author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
+        authority_author_unstemC   authority_author_unstemP  authority_author_t_cjk
       </str>
-      <str name="author_cts_qf">
-        author_pers_browse author_corp_browse author_event_browse
-      </str>
-      <str name="author_cts_pf">
-        author_pers_browse author_corp_browse author_event_browse
-      </str>
-      <str name="author_quot_qf">
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^10
-        author_addl_t_cjk^5
-        author_245c_unstemC        author_245c_unstemP
-        author_245c_t_cjk
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
-      </str>
-      <str name="author_quot_pf">
-        author_unstemC^125         author_unstemP^125
-        author_addl_unstemC^75     author_addl_unstemP^75
-        author_t_cjk^10
-        author_addl_t_cjk^5
-        author_245c_unstemC        author_245c_unstemP
-        author_245c_t_cjk
-        authority_author_t         authority_author_tP
-        authority_author_t_cjk
+      <str name="f.author_quoted.pf">
+        author_unstemC^125         author_unstemP^125        author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
+        author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
+        authority_author_unstemC   authority_author_unstemP  authority_author_t_cjk
       </str>
 
-
-      <str name="title_qf">
-        title_t^125                title_tP^125              title_t_cjk^25
-        title_unstemC^250          title_unstemP^250
-        title_uniform_t^12         title_uniform_tP^12       title_uniform_t_cjk^3
-        title_uniform_unstemC^25   title_uniform_unstemP^25
-        subtitle_t^50              subtitle_tP^50            subtitle_t_cjk^10
-        subtitle_unstemC^125       subtitle_unstemP^125
-        title_addl_t^12            title_addl_tP^12          title_addl_t_cjk^3
-        title_addl_unstemC^25      title_addl_unstemP^25
-        title_series_t             title_series_t            title_series_t_cjk
-        title_series_unstemC^3     title_series_unstemP^3
-        title_ngram
-      </str>
-      <str name="title_pf">
+      <str name="f.title.qf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-    	title_startsC^125          title_startsP^125        title_startsCJK^12
+    	title_startsC^400          title_startsP^400        title_startsCJK^40
 		title_exact^500
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
-        subtitle_t^50              subtitle_tP^50           subtitle_t_cjk^10
-        subtitle_unstemC^125       subtitle_unstemP^125
         title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
       </str>
-      <str name="title_starts_qf">
+      <str name="f.title.pf">
+        title_t^125                title_tP^125             title_t_cjk^25
+        title_unstemC^250          title_unstemP^250
+    	title_startsC^400          title_startsP^400        title_startsCJK^40
+		title_exact^500
+        title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^25
+        title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_series_t             title_series_t           title_series_t_cjk   
+        title_series_unstemC^3     title_series_unstemP^3
+      </str>
+      <str name="f.title_starts.qf">
         title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
         title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
       </str>
-      <str name="title_starts_pf">
+      <str name="f.title_starts.pf">
         title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
         title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
       </str>
-      <str name="title_quot_qf">
-        title_unstemC^250          title_unstemP^250
-        subtitle_unstemC^125       subtitle_unstemP^125
-        title_t_cjk^25
-        subtitle_t_cjk^10
-        title_uniform_unstemC^25   title_uniform_unstemP^25
-        title_addl_unstemC^25      title_addl_unstemP^25
-        title_uniform_t_cjk^3
-        title_addl_t_cjk^3
-        title_series_unstemC^3     title_series_unstemP^3
-        title_series_t_cjk   
+      <str name="f.title_quoted.qf">
+        title_unstemC^250          title_unstemP^250        title_t_cjk^25
+        title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
+        title_addl_unstemC^25      title_addl_unstemP^25    title_addl_t_cjk^3
+        title_series_unstemC^3     title_series_unstemP^3   title_series_t_cjk   
       </str>
-      <str name="title_quot_pf">
-        title_unstemC^250          title_unstemP^250
-        subtitle_unstemC^125       subtitle_unstemP^125
-        title_t_cjk^25
-        subtitle_t_cjk^10
-        title_uniform_unstemC^25   title_uniform_unstemP^25
-        title_addl_unstemC^25      title_addl_unstemP^25
-        title_uniform_t_cjk^3
-        title_addl_t_cjk^3
-        title_series_unstemC^3     title_series_unstemP^3
-        title_series_t_cjk   
-      </str>
+      <str name="f.title_quoted.pf"> </str>
 
-      <str name="subject_qf">
+      <str name="f.subject.qf">
         subject_unstemC^200        subject_unstemP^200
-        subject_t^25               subject_tP^25
-        subject_t_cjk^5
+        subject_t^25               subject_tP^25        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t             subject_addl_tP
-        subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        subject_addl_t             subject_addl_tP      subject_addl_t_cjk
+        authority_subject_t        authority_subject_tP authority_subject_t_cjk
       </str>
-      <str name="subject_pf">
+      <str name="f.subject.pf">
         subject_unstemC^200        subject_unstemP^200
-        subject_t^25               subject_tP^25
-        subject_t_cjk^5
+        subject_t^25               subject_tP^25        subject_t_cjk^5
         subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t             subject_addl_tP
-        subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+        subject_addl_t             subject_addl_tP      subject_addl_t_cjk
+        authority_subject_t        authority_subject_tP authority_subject_t_cjk
       </str>
-      <str name="subject_starts_qf">
+      <str name="f.subject_starts.qf">
         subject_startsC^200        subject_startsP^200        subject_startsCJK^5
         subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
       </str>
-      <str name="subject_starts_pf">
-      </str>
-      <str name="subject_cts_qf">
+      <str name="f.subject_starts.pf"> </str>
+      <str name="f.subject_cts.qf">
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
         subject_genr_browse
         subject_work_browse
       </str>
-      <str name="subject_cts_pf">
+      <str name="f.subject_cts.pf">
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
+        subject_gen_browse
         subject_topic_browse
         subject_geo_browse
         subject_era_browse
         subject_genr_browse
         subject_work_browse
       </str>
-      <str name="subject_quot_qf">
-        subject_unstemC^200        subject_unstemP^200
-        subject_t_cjk^5
-        subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+      <str name="f.subject_quoted.qf">
+        subject_unstemC^200        subject_unstemP^200        subject_t_cjk^5
+        subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
+        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="subject_quot_pf">
-        subject_unstemC^200        subject_unstemP^200
-        subject_t_cjk^5
-        subject_addl_unstemC^50    subject_addl_unstemP^50
-        subject_addl_t_cjk
-        authority_subject_t         authority_subject_tP
-        authority_subject_t_cjk
+      <str name="f.subject_quoted.pf">
+        subject_unstemC^200        subject_unstemP^200        subject_t_cjk^5
+        subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
+        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
       
-      <str name="publisher_qf">
+      <str name="f.publisher.qf">
         publisher_unstemC^10       publisher_unstemP^10
-        publisher_t                publisher_tP
-        publisher_t_cjk
+        publisher_t                publisher_tP        publisher_t_cjk
       </str>
-      <str name="publisher_pf">
+      <str name="f.publisher.pf">
         publisher_unstemC^10       publisher_unstemP^10
-        publisher_t                publisher_tP
-        publisher_t_cjk
+        publisher_t                publisher_tP        publisher_t_cjk
       </str>
-      <str name="publisher_starts_qf">
-        publisher_startsC^10  publisher_startsP^10 publisher_startsCJK
-      </str>
-      <str name="publisher_starts_pf">
-        publisher_startsC^10  publisher_startsP^10 publisher_startsCJK
-      </str>
-      <str name="publisher_quot_qf">
-        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk
-      </str>
-      <str name="publisher_quot_pf">
-        publisher_unstemC^10  publisher_unstemP^10 publisher_t_cjk
-      </str>
+      <str name="f.publisher_starts.qf">publisher_startsC^10 publisher_startsP^10 publisher_startsCJK</str>
+      <str name="f.publisher_starts.pf"> </str>
+      <str name="f.publisher_quoted.qf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
+      <str name="f.publisher_quoted.pf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
 
-      <str name="pubplace_qf">
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-      </str>
-      <str name="pubplace_pf">
-        pubplace_t                 pubplace_tP
-        pubplace_t_cjk
-      </str>
-      <str name="pubplace_starts_qf">
-        pubplace_startsC     pubplace_startsP   pubplace_startsCJK
-      </str>
-      <str name="pubplace_starts_pf">
-        pubplace_startsC     pubplace_startsP   pubplace_startsCJK
-      </str>
-      <str name="pubplace_quot_qf">
-        pubplace_unstemC           pubplace_unstemP
-        pubplace_t_cjk
-      </str>
-      <str name="pubplace_quot_pf">
-        pubplace_unstemC           pubplace_unstemP
-        pubplace_t_cjk
-      </str>
+      <str name="f.pubplace.qf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
+      <str name="f.pubplace.pf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
+      <str name="f.pubplace_starts.qf"> pubplace_startsC pubplace_startsP pubplace_startsCJK </str>
+      <str name="f.pubplace_starts.pf"> </str>
+      <str name="f.pubplace_quoted.qf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
+      <str name="f.pubplace_quoted.pf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
       
-      <str name="lc_callnum_qf">
-        lc_callnum_full
-      </str>
-      <str name="lc_callnum_pf">
-        lc_callnum_full
-      </str>
-      <str name="lc_callnum_starts_qf"> lc_callnum_full </str>
-      <str name="lc_callnum_starts_pf"> lc_callnum_full </str>
+      <str name="f.lc_callnum.qf"> lc_callnum_full </str>
+      <str name="f.lc_callnum.pf"> lc_callnum_full </str>
+      <str name="f.lc_callnum_starts.qf"> lc_callnum_full </str>
+      <str name="f.lc_callnum_starts.pf"> </str>
 
-      <str name="donor_qf">
-        donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-      </str>
-      <str name="donor_pf">
-        donor_s
-        donor_t                    donor_tP
-        donor_t_cjk
-      </str>
-      <str name="donor_starts_qf">
-        donor_startsC    donor_startsP    donor_startsCJK
-      </str>
-      <str name="donor_starts_pf">
-        donor_startsC    donor_startsP    donor_startsCJK
-      </str>
-      <str name="donor_quot_qf">
-        donor_s
-        donor_unstemC              donor_unstemP
-        donor_t_cjk
-      </str>
-      <str name="donor_quot_pf">
-        donor_s
-        donor_unstemC              donor_unstemP
-        donor_t_cjk
-      </str>
+      <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
+      <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
+      <str name="f.donor_starts.qf"> donor_startsC donor_startsP donor_startsCJK </str>
+      <str name="f.donor_starts.pf"> </str>
+      <str name="f.donor_quoted.qf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
+      <str name="f.donor_quoted.pf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
 
-      <str name="isbnissn_qf">
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+      <str name="f.isbnissn.qf">
+        isbn_t   isbn_tP   isbn_t_cjk
+        issn_t   issn_tP   issn_t_cjk
       </str>
-      <str name="isbnissn_pf">
-        isbn_t                     isbn_tP
-        issn_t                     issn_tP
-        isbn_t_cjk
-        issn_t_cjk
+      <str name="f.isbnissn.pf">
+        isbn_t   isbn_tP   isbn_t_cjk
+        issn_t   issn_tP   issn_t_cjk
       </str>
-      <str name="isbnissn_starts_qf">
+      <str name="f.isbnissn_starts.qf">
         isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
         issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
       </str>
-      <str name="isbnissn_starts_pf">
-        isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
-        issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
+      <str name="f.isbnissn_starts.pf"> </str>
+      <str name="f.isbnissn_quoted.qf">
+        isbn_unstemC   isbn_unstemP   isbn_t_cjk
+        issn_unstemC   issn_unstemP   issn_t_cjk
       </str>
-      <str name="isbnissn_quot_qf">
-        isbn_unstemC               isbn_unstemP
-        issn_unstemC               issn_unstemP
-        isbn_t_cjk
-        issn_t_cjk
+      <str name="f.isbnissn_quoted.pf">
+        isbn_unstemC   isbn_unstemP   isbn_t_cjk
+        issn_unstemC   issn_unstemP   issn_t_cjk
       </str>
-      <str name="isbnissn_quot_pf">
-        isbn_unstemC               isbn_unstemP
-        issn_unstemC               issn_unstemP
-        isbn_t_cjk
-        issn_t_cjk
-      </str>
-      
 
-      <str name="number_qf">
-        id_t                       id_tP
-        id_t_cjk
+      <str name="f.number.qf">
+        id_t             id_tP                   id_t_cjk
         id
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        barcode_t^10               barcode_tP^10
-        barcode_addl_t             barcode_addl_tP
+        eightninenine_t  eightninenine_tP        eightninenine_t_cjk
+        barcode_t^10     barcode_tP^10
+        barcode_addl_t   barcode_addl_tP
       </str>
-      <str name="number_pf">
-        id_t                       id_tP
-        id_t_cjk
+      <str name="f.number.pf">
+        id_t             id_tP                   id_t_cjk
         id
-        eightninenine_t            eightninenine_tP
-        eightninenine_t_cjk
-        barcode_t^10               barcode_tP^10
-        barcode_addl_t             barcode_addl_tP
+        eightninenine_t  eightninenine_tP        eightninenine_t_cjk
+        barcode_t^10     barcode_tP^10
+        barcode_addl_t   barcode_addl_tP
       </str>
-      <str name="number_starts_qf">
+      <str name="f.number_starts.qf">
       	id_startsNum
         eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
         barcode_startsC            barcode_startsP         barcode_startsNum
         barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
-      <str name="number_starts_pf">
-      	id_startsNum
-        eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
-        barcode_startsC            barcode_startsP         barcode_startsNum
-        barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
-      </str>
-      <str name="number_quot_qf">
-        id_unstemC                 id_unstemP
-        id_t_cjk
+      <str name="f.number_starts.pf">  </str>
+      <str name="f.number_quoted.qf">
+        id_unstemC             id_unstemP              id_t_cjk
         id
-        eightninenine_unstemC      eightninenine_unstemP
-        eightninenine_t_cjk
-        barcode_unstemC^10         barcode_unstemP^10
-        barcode_addl_unstemC       barcode_addl_unstemP
+        eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
+        barcode_unstemC^10     barcode_unstemP^10
+        barcode_addl_unstemC   barcode_addl_unstemP
       </str>
-      <str name="number_quot_pf">
-        id_unstemC                 id_unstemP
-        id_t_cjk
+      <str name="f.number_quoted.pf">
+        id_unstemC             id_unstemP              id_t_cjk
         id
-        eightninenine_unstemC      eightninenine_unstemP
-        eightninenine_t_cjk
-        barcode_unstemC^10         barcode_unstemP^10
-        barcode_addl_unstemC       barcode_addl_unstemP
+        eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
+        barcode_unstemC^10     barcode_unstemP^10
+        barcode_addl_unstemC   barcode_addl_unstemP
       </str>
 
-      <str name="series_qf">
+      <str name="f.series.qf">
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
+        title_series_t^5           title_series_t^5        title_series_t_cjk
       </str>
-      <str name="series_pf">
+      <str name="f.series.pf">
         title_series_unstemC^25    title_series_unstemP^25
-        title_series_t^5           title_series_t^5
-        title_series_t_cjk
+        title_series_t^5           title_series_t^5        title_series_t_cjk
       </str>
-      <str name="series_starts_qf">
-        title_series_startsC^25    title_series_startsP^25     title_series_startsCJK
-      </str>
-      <str name="series_starts_pf">
-        title_series_startsC^25    title_series_startsP^25     title_series_startsCJK
-      </str>
-      <str name="series_quot_qf">
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk
-      </str>
-      <str name="series_quot_pf">
-        title_series_unstemC^25    title_series_unstemP^25
-        title_series_t_cjk
-      </str>
+      <str name="f.series_starts.qf">title_series_startsC^25 title_series_startsP^25 title_series_startsCJK</str>
+      <str name="f.series_starts.pf"> </str>
+      <str name="f.series_quoted.qf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
+      <str name="f.series_quoted.pf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
 
- 	  <str name="notes_qf">notes_t notes_tP notes_t_cjk</str>
- 	  <str name="notes_pf">notes_t notes_tP notes_t_cjk</str>
- 	  <str name="notes_starts_qf">notes_startsC notes_startsP notes_startsCJK</str>
- 	  <str name="notes_starts_pf">notes_startsC notes_startsP notes_startsCJK</str>
- 	  <str name="notes_quot_qf">notes_unstemC notes_unstemP notes_t_cjk</str>
- 	  <str name="notes_quot_pf">notes_unstemC notes_unstemP notes_t_cjk</str>
+ 	  <str name="f.notes_qf.qf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="f.notes_qf.pf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="f.notes_starts.qf">notes_startsC notes_startsP notes_startsCJK</str>
+ 	  <str name="f.notes_starts.pf">notes_startsC notes_startsP notes_startsCJK</str>
+ 	  <str name="f.notes_quoted.qf">notes_unstemC notes_unstemP notes_t_cjk</str>
+ 	  <str name="f.notes_quoted.pf">notes_unstemC notes_unstemP notes_t_cjk</str>
 
       <int name="ps">2</int>
       <float name="tie">0.01</float>
@@ -1438,9 +1033,6 @@
       <str name="facet.field">online</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
-      <str name="facet.field">pub_date_facet</str>
-      <str name="facet.field">author_facet</str>
-      <str name="facet.field">subject_content_facet</str>
       
       <str name="spellcheck">true</str>
       <str name="spellcheck.dictionary">default</str>
@@ -1516,31 +1108,4 @@
     </lst>
   </searchComponent>
 
-  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
-  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
-
-<!-- this caused a problem with solr 4.1 -->
-<!--  <requestHandler name="/analysis" class="solr.AnalysisRequestHandler" /> -->
-
-  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
-  <requestHandler name="/admin/ping" class="PingRequestHandler">
-    <lst name="defaults">
-      <str name="qt">search</str>
-      <str name="q">book</str>
-      <str name="echoParams">all</str>
-    </lst>
-  </requestHandler>
-  <admin>
-    <defaultQuery>book</defaultQuery>
-  </admin>
-
-  <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
-    <lst name="defaults">
-     <str name="echoParams">explicit</str>
-     <str name="echoHandler">true</str>
-    </lst>
-  </requestHandler>
-
-  <!-- used for admin analysis tool -->
-  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
-</config>
+ </config>

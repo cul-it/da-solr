@@ -35,7 +35,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	protected boolean debug = false;
 	
 	public SPARQLFieldMakerBase() {
-		this.defaultPrefixes = new HashMap<String,String>();
+		this.defaultPrefixes = new HashMap<>();
 		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
 		defaultPrefixes.put("intlayer","http://da-rdf.library.cornell.edu/integrationLayer/0.1/");
 		defaultPrefixes.put("rdfs",    "http://www.w3.org/2000/01/rdf-schema#");		                           
@@ -68,15 +68,12 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	/**
 	 * Substitute in recordURI to queries and run them against their stores, then
 	 * return all the result sets. This method works with the assumption that the 
-	 * query strings do not have the recordURI substituted in. 
-	 * @param config TODO
-	 * 
+	 * query strings do not have the recordURI substituted in.
 	 */
 	protected Map<String,ResultSet> runQueries( 
 			String recordURI, 
-			Map<String,String>localQueries,
-			Map<String,String>remoteQueries, SolrBuildConfig config) throws Exception {
-		Map<String, ResultSet> results = new HashMap<String,ResultSet>();
+			SolrBuildConfig config) throws Exception {
+		Map<String, ResultSet> results = new HashMap<>();
 
 		//run local queries
 		RDFService localStore = config.getRDFService("local");
@@ -109,9 +106,8 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					String query = querybuild.toString();
 					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, mainStore);
-					if (debug) {
-						if (query.contains("loccode")) {
-							InputStream is = mainStore.sparqlSelectQuery(query,	 RDFService.ResultFormat.TEXT);
+					if (debug && query.contains("loccode")) {
+						try ( InputStream is = mainStore.sparqlSelectQuery(query, RDFService.ResultFormat.TEXT) ) {
 							String bib_xml = convertStreamToString(is);
 							System.out.println(bib_xml);
 						}
@@ -124,9 +120,12 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	}
 	
 	public static String convertStreamToString(java.io.InputStream is) {
-	    @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    return s.hasNext() ? s.next() : "";
+		String answer = null;
+		try (java.util.Scanner scanner = new java.util.Scanner(is)) {
+			scanner.useDelimiter("\\A");
+			answer =  scanner.hasNext() ? scanner.next() : "";
+		}
+	    return answer;
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 			String recordURI, 
 			SolrBuildConfig config) throws Exception {
 		
-		Map<String, ResultSet> resultSets = runQueries(recordURI, getLocalStoreQueries(), getMainStoreQueries(), config);  
+		Map<String, ResultSet> resultSets = runQueries(recordURI, config);  
 
 		return resultSetsToSolrFields( resultSets, config );				  
 	}	
@@ -154,24 +153,22 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 
 	/**
 	 * Convert the result sets generated from running the SPARQL queries to
-	 * SolrInputFields. 
-	 * @param config TODO
+	 * SolrInputFields.
 	 */
 	protected abstract Map<? extends String, ? extends SolrInputField> 
 	    resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 			throws Exception;
 	
 	
-	protected ResultSet sparqlSelectQuery(String query, RDFService rdfService) throws Exception {
+	protected static ResultSet sparqlSelectQuery(String query, RDFService rdfService) throws Exception {
 		ResultSet resultSet = null;
-		try {
-			InputStream resultStream = rdfService.sparqlSelectQuery(query,RDFService.ResultFormat.JSON);			
+		try ( InputStream resultStream = rdfService.sparqlSelectQuery(query,RDFService.ResultFormat.JSON) ) {
 			resultSet = ResultSetFactory.fromJSON(resultStream);
-			return resultSet;
 		} catch (Exception e) {
 			throw new Exception("error executing sparql select query: \n"+
 					query + "\n" + e.getMessage(),e);
 		}
+		return resultSet;
 	}
 	
 

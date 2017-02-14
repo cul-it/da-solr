@@ -30,7 +30,7 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 
 		MarcRecord rec = new MarcRecord();
 		rec.addDataFieldResultSet(results.get("seriesaddedentry"));
-		Set<String> workFacet = new HashSet<String>();
+		Set<String> workFacet = new HashSet<>();
 		for( DataField f: rec.data_fields.values() ) {
 			String title_cts = f.concatenateSpecificSubfields("tklnpmors");
 			String author_cts = null;
@@ -41,10 +41,10 @@ public class SeriesAddedEntryRSTF implements ResultSetToFields {
 			} else {
 				author_cts = f.concatenateSpecificSubfields("abe");
 			}
-			workFacet.add(author_cts+" | "+title_cts);
+			workFacet.add(author_cts+" | "+f.getStringWithoutInitialArticle(title_cts));
 		}
 		
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		for (String s : workFacet) {
 			addField(fields,"authortitle_filing",getFilingForm(s));
 			addField(fields,"authortitle_facet",removeTrailingPunctuation(s,";,. "));

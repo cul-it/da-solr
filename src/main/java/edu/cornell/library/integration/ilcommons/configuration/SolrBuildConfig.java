@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import javax.naming.ConfigurationException;
+
 import org.apache.hadoop.conf.Configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -55,14 +55,14 @@ public class SolrBuildConfig {
 
 	protected static boolean debug = false;
 
-	private Map<String,String> values = new HashMap<String,String>();
-	private Map<String,ComboPooledDataSource> databases = new HashMap<String,ComboPooledDataSource>();
-	private Map<String,RDFService> rdfservices = new HashMap<String,RDFService>();
+	private Map<String,String> values = new HashMap<>();
+	private Map<String,ComboPooledDataSource> databases = new HashMap<>();
+	private Map<String,RDFService> rdfservices = new HashMap<>();
     static DavService davService = null;
-    private List<Class<?>> debugRSTFs = new ArrayList<Class<?>>();
+    private List<Class<?>> debugRSTFs = new ArrayList<>();
     
     public static List<String> getRequiredArgsForDB( String db ) {
-    	List<String> list = new ArrayList<String>();
+    	List<String> list = new ArrayList<>();
     	if (db == null) return null;
     	if (db.isEmpty()) return null;
     	list.add("DatabaseDriver"+db);
@@ -73,7 +73,7 @@ public class SolrBuildConfig {
     }
 
     public static List<String> getRequiredArgsForWebdav() {
-    	List<String> list = new ArrayList<String>();
+    	List<String> list = new ArrayList<>();
     	list.add("webdavBaseUrl");
     	list.add("webdavUser");
     	list.add("webdavPassword");
@@ -91,9 +91,8 @@ public class SolrBuildConfig {
     	if (values.containsKey("dailyBibUpdates")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibUpdates"));
     		return values.get("dailyBibUpdates");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public void setDailyBibUpdates(String str) {
@@ -104,9 +103,8 @@ public class SolrBuildConfig {
     	if (values.containsKey("dailyBibDeletes")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibDeletes"));
     		return values.get("dailyBibDeletes");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public void setDailyBibDeletes(String str) {
         values.put("dailyBibDeletes", insertIterationContext(str));
@@ -116,17 +114,15 @@ public class SolrBuildConfig {
     	if (values.containsKey("dailyBibAdds")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibAdds"));
     		return values.get("dailyBibAdds");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getWebdavBaseUrl() {
     	if (values.containsKey("webdavBaseUrl")) {
     		return values.get("webdavBaseUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public void setWebdavBaseUrl(String url) {
     	values.put("webdavBaseUrl",url);
@@ -135,9 +131,8 @@ public class SolrBuildConfig {
     public String getLocalBaseFilePath() {
     	if (values.containsKey("localBaseFilePath")) {
     		return values.get("localBaseFilePath");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public void setLocalBaseFilePath(String path) {
     		values.put("localBaseFilePath",path);
@@ -146,217 +141,192 @@ public class SolrBuildConfig {
     public String getWebdavUser() {
     	if (values.containsKey("webdavUser")) {
     		return values.get("webdavUser");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getWebdavPassword() {
     	if (values.containsKey("webdavPassword")) {
     		return values.get("webdavPassword");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getLocationDir() throws IOException {
     	if (values.containsKey("locationDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("locationDir"));
     		return values.get("locationDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
-    public String getBatchInfoDir() throws IOException {
+    public String getBatchInfoDir() {
     	if (values.containsKey("batchInfoDir")) {
     		return values.get("batchInfoDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getFullMrcBibDir() throws IOException {
     	if (values.containsKey("fullMrcBibDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcBibDir"));
     		return values.get("fullMrcBibDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getFullMrcMfhdDir() throws IOException {
     	if (values.containsKey("fullMrcMfhdDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullMrcMfhdDir"));
     		return values.get("fullMrcMfhdDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getFullXmlBibDir() throws IOException {
     	if (values.containsKey("fullXmlBibDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullXmlBibDir"));
     		return values.get("fullXmlBibDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getFullXmlMfhdDir() throws IOException {
     	if (values.containsKey("fullXmlMfhdDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullXmlMfhdDir"));
     		return values.get("fullXmlMfhdDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getFullNtDir() throws IOException {
     	if (values.containsKey("fullNtDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("fullNtDir"));
     		return values.get("fullNtDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdDir() throws IOException {
     	if (values.containsKey("dailyMfhdDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdDir"));
     		return values.get("dailyMfhdDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMrcDir() throws IOException {
     	if (values.containsKey("dailyMrcDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMrcDir"));
     		return values.get("dailyMrcDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
         
     public String getDailyBibMrcXmlDir() throws IOException {
     	if (values.containsKey("dailyBibMrcXmlDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibMrcXmlDir"));
     		return values.get("dailyBibMrcXmlDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdMrcXmlDir() throws IOException {
     	if (values.containsKey("dailyMfhdMrcXmlDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdMrcXmlDir"));
     		return values.get("dailyMfhdMrcXmlDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMrcNtDir() throws IOException {
     	if (values.containsKey("dailyMrcNtDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMrcNtDir"));
     		return values.get("dailyMrcNtDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMrcNtFilenamePrefix() {
     	if (values.containsKey("dailyMrcNtFilenamePrefix")) {
     		return values.get("dailyMrcNtFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyBibSuppressedDir() throws IOException {
     	if (values.containsKey("dailyBibSuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibSuppressedDir"));
     		return values.get("dailyBibSuppressedDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyBibSuppressedFilenamePrefix() {
     	if (values.containsKey("dailyBibSuppressedFilenamePrefix")) {
     		return values.get("dailyBibSuppressedFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyBibUnsuppressedDir() throws IOException {
     	if (values.containsKey("dailyBibUnsuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibUnsuppressedDir"));
     		return values.get("dailyBibUnsuppressedDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyBibUnsuppressedFilenamePrefix() {
     	if (values.containsKey("dailyBibUnsuppressedFilenamePrefix")) {
     		return values.get("dailyBibUnsuppressedFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyItemDir() throws IOException {
     	if (values.containsKey("dailyItemDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyItemDir"));
     		return values.get("dailyItemDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyItemFilenamePrefix() {
     	if (values.containsKey("dailyItemFilenamePrefix")) {
     		return values.get("dailyItemFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdSuppressedDir() throws IOException {
     	if (values.containsKey("dailyMfhdSuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdSuppressedDir"));
     		return values.get("dailyMfhdSuppressedDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdSuppressedFilenamePrefix() {
     	if (values.containsKey("dailyMfhdSuppressedFilenamePrefix")) {
     		return values.get("dailyMfhdSuppressedFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdUnsuppressedDir() throws IOException {
     	if (values.containsKey("dailyMfhdUnsuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdUnsuppressedDir"));
     		return values.get("dailyMfhdUnsuppressedDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getDailyMfhdUnsuppressedFilenamePrefix() {
     	if (values.containsKey("dailyMfhdUnsuppressedFilenamePrefix")) {
     		return values.get("dailyMfhdUnsuppressedFilenamePrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     
     public String[] getMarc2XmlDirs() throws IOException {
@@ -382,136 +352,118 @@ public class SolrBuildConfig {
     	if (values.containsKey("xmlDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("xmlDir"));
     		return values.get("xmlDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     
     public String getNtDir() throws IOException {
     	if (values.containsKey("ntDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("ntDir"));
     		return values.get("ntDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getN3Dir() throws IOException {
     	if (values.containsKey("n3Dir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("n3Dir"));
     		return values.get("n3Dir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getTxtDir() throws IOException {
     	if (values.containsKey("txtDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("txtDir"));
     		return values.get("txtDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getTdfDir() throws IOException {
     	if (values.containsKey("tdfDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("tdfDir"));
     		return values.get("tdfDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getNonVoyUriPrefix() {
     	if (values.containsKey("nonVoyUriPrefix")) {
     		return values.get("nonVoyUriPrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getNonVoyIdPrefix() {
     	if (values.containsKey("nonVoyIdPrefix")) {
     		return values.get("nonVoyIdPrefix");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getReportList() {
     	if (values.containsKey("reportList")) {
     		return values.get("reportList");
-    	} else {
-    		return null;
     	}
+		return null;
     }
 
     public String getSolrUrl() {
     	if (values.containsKey("solrUrl")) {
     		return values.get("solrUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getAuthorSolrUrl() {
     	if (values.containsKey("authorSolrUrl")) {
     		return values.get("authorSolrUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getAuthorTitleSolrUrl() {
     	if (values.containsKey("authorTitleSolrUrl")) {
     		return values.get("authorTitleSolrUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getSubjectSolrUrl() {
     	if (values.containsKey("subjectSolrUrl")) {
     		return values.get("subjectSolrUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     public String getBlacklightSolrUrl() {
     	if (values.containsKey("blacklightSolrUrl")) {
     		return values.get("blacklightSolrUrl");
-    	} else {
-    		return null;
     	}
+		return null;
     }
-    public Integer getTargetDailyUpdatesBibCount() {
-    	if (values.containsKey("targetDailyUpdatesBibCount"))
-    		return Integer.valueOf(values.get("targetDailyUpdatesBibCount"));
-    	else
-    		return null;
-    }
-    public Boolean getExtendedIndexingMode() {
-    	if (values.containsKey("extendedIndexingMode")) {
-    		String val = values.get("extendedIndexingMode");
-    		if (val.equals("true"))
-    			return true;
-    		String dayOfWeek = new SimpleDateFormat("EEEEE").format(new Date());
-    		String[] parts = StringUtils.split(val,',');
-    		for( String part : parts )
-    			if( part.equals(dayOfWeek) )
-    				return true;
+
+    public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
+    	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
+    			+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
+				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
+    	if (values.containsKey("endOfIterativeCatalogUpdates")) {
+    		try  {
+    			Integer hour = Integer.valueOf(values.get("endOfIterativeCatalogUpdates"));
+    			if (hour < 1 || hour > 24)
+        			throw new ConfigurationException(usage);
+    			return hour;
+    		} catch ( NumberFormatException e ) {
+    			e.printStackTrace();
+    			throw new ConfigurationException(usage);
+    		}
     	}
-    	return false;
+    	return null;
     }
-    public void setTargetDailyUpdatesBibCount(Integer count) {
-    	values.put("targetDailyUpdatesBibCount",String.valueOf(count));
-    }
-    
+
     /**
      * @return the tmpDir on local file system
      */
     public String getTmpDir() {
     	if (values.containsKey("tmpDir")) {
     		return values.get("tmpDir");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     
     
@@ -595,22 +547,23 @@ public class SolrBuildConfig {
 	    	if (debug) System.out.println("Connection pool established. Obtaining and returning connection.");
 	    	Connection c = databases.get(id).getConnection();
         	if (driver.contains("mysql")) {
-            	Statement stmt = c.createStatement();
-        		stmt.executeUpdate("SET NAMES utf8");
+            	try (Statement stmt = c.createStatement()) {
+            		stmt.executeUpdate("SET NAMES utf8");
+            	}
         	}
 	    	return c;
-    	} else {
-        	Class.forName(driver);
- 		   
-        	if (debug) System.out.println("Establishing database connection.");
-        	Connection c = DriverManager.getConnection(url,user,pass);
-        	if (debug) System.out.println("database connection established.");
-        	if (driver.contains("mysql")) {
-            	Statement stmt = c.createStatement();
-        		stmt.executeUpdate("SET NAMES utf8");
-        	}
-        	return c;    		
     	}
+		Class.forName(driver);
+	   
+		if (debug) System.out.println("Establishing database connection.");
+		Connection c = DriverManager.getConnection(url,user,pass);
+		if (debug) System.out.println("database connection established.");
+		if (driver.contains("mysql")) {
+			try (Statement stmt = c.createStatement()) {
+				stmt.executeUpdate("SET NAMES utf8");
+			}
+		}
+		return c;
     }
     public void setDatabasePoolsize(String id, int size) {
     	values.put("databasePoolsize"+id, String.valueOf(size));
@@ -626,9 +579,8 @@ public class SolrBuildConfig {
     	if (values.containsKey("dailyReports")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyReports"));
     		return values.get("dailyReports");
-    	} else {
-    		return null;
     	}
+		return null;
     }
     
     public void setDailyReports(String reports){
@@ -671,6 +623,7 @@ public class SolrBuildConfig {
         					Class.forName("edu.cornell.library.integration.indexer.resultSetToFields."+className));
 				} catch (ClassNotFoundException e) {
 					System.out.println("Debug for class "+className+" failed due to ClassNotFoundException.");
+					e.printStackTrace();
 				}
         	}
         }
@@ -699,7 +652,7 @@ public class SolrBuildConfig {
      */
     @Deprecated
     public static SolrBuildConfig loadConfig( String[] argv ) {
-    	Collection<String> requiredFields = new HashSet<String>();
+    	Collection<String> requiredFields = new HashSet<>();
         return loadConfig(argv,requiredFields);        
     }
     
@@ -757,7 +710,7 @@ public class SolrBuildConfig {
 
 
     private static SolrBuildConfig loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
-    	List<InputStream> inputStreams = new ArrayList<InputStream>();
+    	List<InputStream> inputStreams = new ArrayList<>();
     	for (String arg : argv) {
     		if (arg.endsWith(".properties")) {
     			if (debug) System.out.println("loading from command line arg: "+arg);
@@ -776,7 +729,7 @@ public class SolrBuildConfig {
         System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
         String[] names = value.split(",");
-        List<InputStream> inputStreams = new ArrayList<InputStream>();
+        List<InputStream> inputStreams = new ArrayList<>();
         for (String name : names)
         	inputStreams.add(getFile(name));
         return loadFromPropertiesFile( inputStreams );
@@ -837,9 +790,8 @@ public class SolrBuildConfig {
     			today = new SimpleDateFormat("yyyy-MM-dd").format(now.getTime());
     		}
     		return value.replace("XXXX", today);
-    	} else {
-    		return value;
     	}
+		return value;
     }
 	static String today = null;
  
@@ -911,8 +863,7 @@ public class SolrBuildConfig {
     private static String checkExists(String value , String propName) {
        if( value == null || value.trim().isEmpty() )
            return "The property " + propName + " must not be empty or null.\n";
-       else
-           return "";
+       return "";
     }
 
     private static String checkSolrUrl(String solrUrl){
@@ -961,13 +912,11 @@ public class SolrBuildConfig {
         File f = new File(name);
         if( f.exists() ){
             return new FileInputStream(f);
-        }else{
-            InputStream is = SolrBuildConfig.class.getClassLoader().getResourceAsStream(name);
-            if( is == null )
-                throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
-            else
-                return is;
-        }                        
+        }
+		InputStream is = SolrBuildConfig.class.getClassLoader().getResourceAsStream(name);
+		if( is == null )
+		    throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
+		return is;                        
     }
     
     

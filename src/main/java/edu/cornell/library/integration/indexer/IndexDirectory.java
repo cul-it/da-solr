@@ -127,33 +127,33 @@ public class IndexDirectory {
         MockOutputCommitter outputCommitter = new MockOutputCommitter();
         MockStatusReporter statusReporter = new MockStatusReporter();
         recordWriter = new MockRecordWriter();
-        MockRecordReader recordReader = new MockRecordReader();
+        try (MockRecordReader recordReader = new MockRecordReader()) {
 
-        BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<Object>();
-        indexingMapper.doSolrUpdate = true; 
-        indexingMapper.attempts = 1;
-                
-        Mapper<Object,Text,Text,Text>.Context context = 
-            indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
-                    recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
-        
-        Configuration hadoopConfig = context.getConfiguration();
-        hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
-        hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
-        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
-        hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
-        
-       	if (config != null) {
-       		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
-       	}
+        	BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<>();
+        	indexingMapper.doSolrUpdate = true; 
+        	indexingMapper.attempts = 1;
 
-        if( tmpDir != null )
-            hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
+        	Mapper<Object,Text,Text,Text>.Context context = 
+        			indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
+        					recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
 
-        indexingMapper.setup(context);
+        	Configuration hadoopConfig = context.getConfiguration();
+        	hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
+        	hadoopConfig.set( BibFileToSolr.SOLR_SERVICE_URL, solrURL);
+        	hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_USER, davUser);
+        	hadoopConfig.set( BibFileToSolr.BIB_WEBDAV_PASSWORD, davPass);
 
-        indexingMapper.map(null, new Text(inputsURL), context);
+        	if (config != null) {
+        		hadoopConfig = config.valuesToHadoopConfig(hadoopConfig);
+        	}
 
+        	if( tmpDir != null )
+        		hadoopConfig.set( BibFileToSolr.TMP_DIR, tmpDir);
+
+        	indexingMapper.setup(context);
+
+        	indexingMapper.map(null, new Text(inputsURL), context);
+        }
         //can access the result records with recordWriter if needed
         //but right now they not used
         //they would be useful to get error reporting etc.
@@ -161,7 +161,7 @@ public class IndexDirectory {
 
     public final static class MockRecordWriter extends RecordWriter<Text, Text> {
         
-        HashMap<String,String> results = new HashMap<String,String>();
+        HashMap<String,String> results = new HashMap<>();
         
         public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { 
             //nothing to do here
@@ -175,7 +175,7 @@ public class IndexDirectory {
         public void write(Text key, Text value) throws IOException, InterruptedException {
             results.put(key.toString(), value.toString());
         }
-    };  
+    }  
 
     final static class MockRecordReader extends RecordReader<Text, Text> {
         public void close() throws IOException { }
@@ -192,7 +192,7 @@ public class IndexDirectory {
         public boolean nextKeyValue() throws IOException, InterruptedException {
             return false;
         }
-    };
+    }
 
     final static class MockStatusReporter extends StatusReporter {
         private Counters counters = new Counters();
@@ -210,7 +210,7 @@ public class IndexDirectory {
         public Counter getCounter(Enum<?> arg0) {
             return null;
         }
-    };
+    }
 
     final static class MockInputSplit extends InputSplit {
         String name;
@@ -226,7 +226,7 @@ public class IndexDirectory {
         public long getLength() throws IOException, InterruptedException {
             return 1;
         }
-    };
+    }
 
     final static class MockOutputCommitter extends OutputCommitter {
         public void setupTask(TaskAttemptContext arg0) throws IOException { }
@@ -237,6 +237,6 @@ public class IndexDirectory {
         public void commitTask(TaskAttemptContext arg0) throws IOException { }
         public void cleanupJob(JobContext arg0) throws IOException { }
         public void abortTask(TaskAttemptContext arg0) throws IOException { }
-    };
+    }
 
 }

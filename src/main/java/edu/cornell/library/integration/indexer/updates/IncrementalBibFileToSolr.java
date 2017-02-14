@@ -1,20 +1,16 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.IndexDirectory;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
 
 /**
  * Index all the MARC n-Triple BIB files for the incremental update. 
@@ -31,7 +27,9 @@ public class IncrementalBibFileToSolr {
     	List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
     	requiredArgs.add("dailyMrcNtDir");
     	requiredArgs.add("solrUrl");
-    	new IncrementalBibFileToSolr( SolrBuildConfig.loadConfig(argv,requiredArgs) );
+    	SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
+    	new IncrementalBibFileToSolr( config );
+    	commitIndexChanges( config.getSolrUrl() );
 
     }
      
@@ -78,7 +76,6 @@ public class IncrementalBibFileToSolr {
 	            //ARQ.setExecutionLogging(Explain.InfoLevel.ALL) ;
 	
 	            indexer.indexDocuments();            
-	            commitAndMakeAvaiableForSearch( config.getSolrUrl() );
 	            
 	        }catch(Exception e){
 	        	e.printStackTrace();
@@ -90,17 +87,6 @@ public class IncrementalBibFileToSolr {
         }
         System.out.println("All updates batches loaded as of " + dateFormat.format(Calendar.getInstance().getTime()));
 
-    }
-
-    /**
-     * Do a hard and soft commit. This should commit the changes to the index (hard commit)
-     * and also open new searchers on the Solr server so the search results are
-     * visible (soft commit). 
-     */
-    private static void commitAndMakeAvaiableForSearch(String solrUrl) 
-            throws SolrServerException, IOException {
-        SolrServer solr = new  HttpSolrServer( solrUrl );
-        solr.commit(true,true,true);        
     }
 
 

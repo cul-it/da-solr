@@ -294,5 +294,12 @@ public enum Relator {
 		this.string = string;
 	}
 
+	public static Relator valueOfString( String string ) {
+		for ( Relator r : Relator.values() ) {
+			if (r.toString().equals(string))
+				return r;
+		}
+		return null;
+	}
 	public String toString() { return string; }
 }

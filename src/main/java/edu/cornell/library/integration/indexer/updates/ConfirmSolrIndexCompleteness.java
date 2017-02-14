@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.optimizeIndex;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -54,8 +52,6 @@ public class ConfirmSolrIndexCompleteness  {
         SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
-        if (numberOfMissingBibs == 0) 
-        	optimizeIndex( config.getSolrUrl() );
         System.exit(numberOfMissingBibs);  //any bibs missing from index should cause failure status
 	}
 	
@@ -64,7 +60,7 @@ public class ConfirmSolrIndexCompleteness  {
 		        + "with contents of index at: " + coreUrl);
 
 		IndexRecordListComparison c = new IndexRecordListComparison(config);
-		produceReport(davUrl,c);
+		produceReport(c);
 		
 		return c.bibsInVoyagerNotIndex().size();
 	}
@@ -72,7 +68,7 @@ public class ConfirmSolrIndexCompleteness  {
 	// Based on the IndexRecordListComparison, bib records to be updated and deleted are printed to STDOUT
 	// and also written to report files on the webdav server in the /updates/bib.deletes and /updates/bibupdates
 	// folders. The report files have post-pended dates in their file names.
-	private void produceReport(  String davUrl, IndexRecordListComparison c ) throws Exception {
+	private void produceReport(  IndexRecordListComparison c ) throws Exception {
 
 		System.out.println();
 		
@@ -97,7 +93,7 @@ public class ConfirmSolrIndexCompleteness  {
 		Arrays.sort( ids );
 				
 		StringBuilder sb = new StringBuilder();
-		List<String> display_examples = new ArrayList<String>();
+		List<String> display_examples = new ArrayList<>();
 		for( int i = 0; i < ids.length; i++ ) {
 			Integer id = ids[i];
 			String pair = id +" ("+idMap.get(id)+")";
@@ -121,13 +117,10 @@ public class ConfirmSolrIndexCompleteness  {
 		idMap.clear();
 
 		// Save file on WEBDAV		 
-		try {
-			ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
+		try ( ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)) ) {
 			getDavService().saveFile( url,is);
-			is.close();
-		} catch (Exception e) {
-		    throw new Exception("Problem saving report " + url ,e);
 		}
+
 	}
 
 	
@@ -136,7 +129,7 @@ public class ConfirmSolrIndexCompleteness  {
 		Arrays.sort( ids );
 	
 		StringBuilder sb = new StringBuilder();
-		List<Integer> display_examples = new ArrayList<Integer>();
+		List<Integer> display_examples = new ArrayList<>();
 		for( int i = 0; i < ids.length; i++ ) {
 			Integer id = ids[i];
 			if (i < 10) {

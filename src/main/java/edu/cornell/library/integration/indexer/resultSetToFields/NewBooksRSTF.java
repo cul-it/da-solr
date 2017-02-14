@@ -34,10 +34,10 @@ public class NewBooksRSTF implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		
-	  	Collection<String> f948as = new HashSet<String>();
-	  	Collection<String> loccodes = new HashSet<String>();
+	  	Collection<String> f948as = new HashSet<>();
+	  	Collection<String> loccodes = new HashSet<>();
 	  	
 	  	Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
 	  	

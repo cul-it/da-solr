@@ -62,16 +62,15 @@ public class ConvertMarcToXml {
 	   }
    }
 	   
-   private void convertDir( String srcDir, String destDir) throws IOException {
-      
+   private static void convertDir( String srcDir, String destDir) throws IOException {
+
       // get list of daily mrc files
-      List<String> srcList = new ArrayList<String>();
+      List<String> srcList = new ArrayList<>();
       //System.out.println("Getting list of marc files");
       srcList = davService.getFileList(srcDir);
       MrcToXmlConverter converter = new MrcToXmlConverter();
       converter.setDestDir(destDir);
-      
-      
+
       // iterate over mrc files
       int totalRecordCount = 0;
       if (srcList.size() == 0) {
@@ -88,6 +87,6 @@ public class ConvertMarcToXml {
    		}
       }
       System.out.println("Total record count for directory: "+totalRecordCount);
-      
+
    }
 }

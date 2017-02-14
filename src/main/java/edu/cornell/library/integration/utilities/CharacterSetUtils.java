@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.utilities;
 
+import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,4 +77,81 @@ public class CharacterSetUtils {
 		return nonStandardApostrophes_pattern.matcher(s).replaceAll("'");
 	}
 
+	/**
+	 * Removes any whitespace characters from the front and end of the string, while replacing
+	 * any interior sequences of consecutive whitespace characters with single, standard spaces.
+	 * @param s
+	 * Original String
+	 * @return
+	 * Standardized String
+	 */
+	public static String standardizeSpaces( String s ) {
+		if (s == null) return null;
+		StringBuilder sb = new StringBuilder();
+		boolean prevSpace = true;
+		for (int i = 0; i < s.length(); i++){
+			char c = s.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (prevSpace)
+					continue;
+				prevSpace = true;
+				sb.append(' ');
+			} else {
+				sb.append(c);
+				prevSpace = false;
+			}
+		}
+		if (prevSpace && sb.length() > 0)
+			sb.setLength(sb.length() - 1);
+		return sb.toString();
+	}
+
+	/**
+	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
+	 * <b>targetCount</b> characters <b>s</b>, counting combining diacritics as separate characters.
+	 * Any characters found in <b>reserves</b> will not be removed, but will still count toward the
+	 * <b>targetCount</b> characters.<br/><br/>
+	 * If character number <b>targetCount</b> is not the last byte of its containing grapheme, the entire
+	 * partial character will be removed.<br/><br/>
+	 * The implementation will return the shortened string in Unicode NFC form, even if it was not supplied
+	 * that way.
+	 * @param s
+	 *  Original string
+	 * @param targetCount
+	 *  Number of characters (counting combining diacritics separately) to remove from the beginning of string
+	 * @param reserves
+	 *  Characters that should not be removed, but will still count toward the <b>targetCount</b> characters.
+	 * @return
+	 *  Stripped string
+	 * @throws IllegalArgumentException
+	 *  will be thrown if <b>targetCount</b> characters exceeds the length of string <b>s</b>.
+	 */
+	public static String stripLeadCharsFromString( String s, Integer targetCount, String reserves )
+			throws IllegalArgumentException {
+
+		int pos = 0;
+		int count = 0;
+		StringBuilder foundReserves = new StringBuilder();
+		s = Normalizer.normalize(s, Normalizer.Form.NFD);
+		if ( s.length() < targetCount )
+			throw new IllegalArgumentException(
+					"Requested bytes to strip is longer than string in UTF-8");
+		while (count < targetCount) {
+			char c = s.charAt(pos);
+
+			if (Character.isHighSurrogate(c))
+				pos++;
+			pos++;
+			count++;
+			if (reserves.indexOf(c) != -1)
+				foundReserves.append(c);
+		}
+		String substr = s.substring(pos);
+		while (substr.length() > 0 &&
+				Character.getType(substr.charAt(0)) == Character.NON_SPACING_MARK)
+			substr = substr.substring(1);
+		return foundReserves.toString()
+				+ Normalizer.normalize(substr,Normalizer.Form.NFC);
+
+	}
 }

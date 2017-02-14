@@ -29,10 +29,10 @@ public class DBCodeRSTF implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 
-		Set<String> dbcodes = new HashSet<String>();
-		Set<String> providercodes = new HashSet<String>();
+		Set<String> dbcodes = new HashSet<>();
+		Set<String> providercodes = new HashSet<>();
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			if( rs != null){

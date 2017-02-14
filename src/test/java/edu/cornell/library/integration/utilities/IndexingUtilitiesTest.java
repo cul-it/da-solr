@@ -10,7 +10,7 @@ import org.junit.Test;
 public class IndexingUtilitiesTest {
 
 	@Test
-	public void insertSpaceAfterCommasTest() {
+	public static void insertSpaceAfterCommasTest() {
 	 assertTrue(true);
 	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
 	 assertTrue(insertSpaceAfterCommas("hello,world").equals("hello, world"));
@@ -20,7 +20,7 @@ public class IndexingUtilitiesTest {
 	}
 	
 	@Test
-	public void getSortHeadingTest() {
+	public static void getSortHeadingTest() {
 		assertTrue(getFilingForm("hello").equals("hello"));
 		assertTrue(getFilingForm("Hello").equals("hello"));
 		assertTrue(getFilingForm("Hello,").equals("hello"));
@@ -67,6 +67,7 @@ public class IndexingUtilitiesTest {
 	    assertTrue(getFilingForm("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
 	    // Orig. string has control characters (hex:200E,200F,202B,202C). Should be stripped.
 	    assertTrue(getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
+	    System.out.println(getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
 	}
 	
 }

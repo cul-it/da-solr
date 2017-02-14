@@ -31,7 +31,7 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 
 		MarcRecord rec = new MarcRecord();
 
@@ -49,24 +49,20 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			String relation = null;
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
+			String relation;
 			String publisher = null;
 			String pubplace = null;
 			String publisherVern = null;
 			String pubplaceVern = null;
-			for (DataField f: dataFields) {
-				if (relation == null) {
-					switch (f.ind2) {
-					case '0': relation = "pub_prod"; break;
-					case '1': relation = "pub_info"; break;
-					case '2': relation = "pub_dist"; break;
-					case '3': relation = "pub_manu"; break;
-					case '4': relation = "pub_copy"; break;
-					default: relation = "pub_info";
-					}
-				}
+			switch (dataFields[0].ind2) {
+			case '0': relation = "pub_prod"; break;
+			case '1': relation = "pub_info"; break;
+			case '2': relation = "pub_dist"; break;
+			case '3': relation = "pub_manu"; break;
+			case '4': relation = "pub_copy"; break;
+			default: relation = "pub_info";
 			}
 			for (DataField f: dataFields) {
 				if (f.tag.equals("880")) {
@@ -83,12 +79,10 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 					}
 				}
 			}
-			if (relation != null) {
-				for (String s: values880)
-					addField(solrFields,relation+"_display",s);	
-				for (String s: valuesMain)
-					addField(solrFields,relation+"_display",s);
-			}
+			for (String s: values880)
+				addField(solrFields,relation+"_display",s);	
+			for (String s: valuesMain)
+				addField(solrFields,relation+"_display",s);
 			if (pubplace != null) {
 				if (pubplaceVern != null)
 					addField(solrFields,"pubplace_display",pubplaceVern +" / "+ pubplace);

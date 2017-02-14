@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -25,13 +25,15 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 
 /**
  * process subject field values into display, facet, search, and browse/filing fields
- * 
+ *
  */
 public class SubjectResultSetToFields implements ResultSetToFields {
 
@@ -39,43 +41,49 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
+			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
+
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
-		
+
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		final Map<String,SolrInputField> solrFields = new HashMap<>();
 
-		MarcRecord rec = new MarcRecord();
+		final MarcRecord rec = new MarcRecord();
 
-		for( String resultKey: results.keySet()){
+		for( final String resultKey: results.keySet()){
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		final Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
-		
-		Collection<Heading> taggedFields = new LinkedHashSet<Heading>();
-		
+
+		final Collection<Heading> taggedFields = new LinkedHashSet<>();
+		final Collection<String> subjectDisplay = new LinkedHashSet<>();
+		final Collection<String> subjectJson = new LinkedHashSet<>();
+		final Collection<String> authorityAltForms = new HashSet<>();
+		final Collection<String> authorityAltFormsCJK = new HashSet<>();
+
 		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
 		// but with organization determined by vernMode.
-		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
+		final Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
 		Arrays.sort( ids );
-		for( Integer id: ids) {
-			FieldSet fs = sortedFields.get(id);
+		for( final Integer id: ids) {
+			final FieldSet fs = sortedFields.get(id);
 			// First DataField in each FieldSet should be representative, so we'll examine that.
-			Heading h = new Heading();
-			DataField f = fs.fields.iterator().next();
+			final Heading h = new Heading();
+			final DataField f = fs.fields.iterator().next();
 			if (f.ind2.equals('7')) {
-				for ( Subfield sf : f.subfields.values() )
-					if (sf.code.equals('2') 
-							&& (sf.value.equalsIgnoreCase("fast")
-									|| sf.value.equalsIgnoreCase("fast/NIC")
-									|| sf.value.equalsIgnoreCase("fast/NIC/NAC"))) {
-						recordHasFAST = true;
-						h.isFAST = true;
-						
+				for ( final Subfield sf : f.subfields.values() )
+					if (sf.code.equals('2')) {
+						if (sf.value.equalsIgnoreCase("fast")
+								|| sf.value.equalsIgnoreCase("fast/NIC")
+								|| sf.value.equalsIgnoreCase("fast/NIC/NAC")) {
+							recordHasFAST = true;
+							h.isFAST = true;
+						} else if (sf.value.equalsIgnoreCase("lcgft")) {
+							h.isLCGFT = true;
+						}
 					}
 			} else if (f.ind2.equals('0')) {
 				recordHasLCSH = true;
@@ -83,82 +91,59 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			h.fs = fs;
 			taggedFields.add(h);
 		}
-		for( Heading h : taggedFields) {
-			DataField[] dataFields = h.fs.fields.toArray( new DataField[ h.fs.fields.size() ]);
-			Set<String> values880_piped = new HashSet<String>();
-			Set<String> valuesMain_piped = new HashSet<String>();
-			Set<String> values880_breadcrumbed = new HashSet<String>();
-			Set<String> valuesMain_breadcrumbed = new HashSet<String>();
-			Set<String> values_browse = new HashSet<String>();
-			Set<String> valuesMain_json = new HashSet<String>();
-			Set<String> values880_json = new HashSet<String>();
-			HeadTypeDesc htd = HeadTypeDesc.TOPIC; //default
-		
-			String main_fields = "", dashed_fields = "", facet_type = "topic", filing_type = null, title_fields = null;
-			for (DataField f: dataFields) {
-				
+		for( final Heading h : taggedFields) {
+			final DataField[] dataFields = h.fs.fields.toArray( new DataField[ h.fs.fields.size() ]);
+			final Set<String> values880_piped = new HashSet<>();
+			final Set<String> valuesMain_piped = new HashSet<>();
+			final Set<String> values880_breadcrumbed = new HashSet<>();
+			final Set<String> valuesMain_breadcrumbed = new HashSet<>();
+			final Set<String> values_browse = new HashSet<>();
+			final Set<String> valuesMain_json = new HashSet<>();
+			final Set<String> values880_json = new HashSet<>();
+			HeadTypeDesc htd = HeadTypeDesc.GENHEAD; //default
+
+			String main_fields = null, dashed_fields = "", facet_type = "topic";
+			FieldValues vals = null;
+			for (final DataField f: dataFields) {
+
 				switch (f.mainTag) {
 				case "600":
-					if ( isWork(f) ) {
-						main_fields = "abcdq";
-						title_fields = "tklnpmors";
-						filing_type = "work";
-						htd = HeadTypeDesc.WORK;
-					} else {
-						main_fields = "abcdeghjnqu";
-						filing_type = "pers";
-						htd = HeadTypeDesc.PERSNAME;
-					}
+					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+					htd = (vals.type.equals(HeadType.AUTHOR)) ?
+							HeadTypeDesc.PERSNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					if ( isWork(f) ) {
-						main_fields = "ab";
-						title_fields = "tklnpmors";
-						filing_type = "work";
-						htd = HeadTypeDesc.WORK;
-					} else {
-						main_fields = "abcdeghu";
-						filing_type = "corp";
-						htd = HeadTypeDesc.CORPNAME;
-					}
+					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
+					htd = (vals.type.equals(HeadType.AUTHOR)) ?
+							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "611":
-					if ( isWork(f) ) {
-						main_fields = "abcden";
-						title_fields = "tklpmors";
-						filing_type = "work";
-						htd = HeadTypeDesc.WORK;
-					} else {
-						main_fields = "acdeghnqu";
-						filing_type = "event";
-						htd = HeadTypeDesc.EVENT;
-					}
+					vals = f.getFieldValuesForNameMaybeTitleField("abcden;tklpmors");
+					htd = (vals.type.equals(HeadType.AUTHOR)) ?
+							HeadTypeDesc.EVENT : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "630":
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
-					htd = HeadTypeDesc.GENHEAD;
+					htd = HeadTypeDesc.WORK;
 					break;
 				case "648":
 					main_fields = "a";
 					dashed_fields = "vxyz";
-					filing_type = "era";
 					facet_type = "era";
 					htd = HeadTypeDesc.CHRONTERM;
 					break;
 				case "650":
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
-					filing_type = "topic";
 					htd = HeadTypeDesc.TOPIC;
 					break;
 				case "651":
 					main_fields = "a";
 					dashed_fields = "vxyz";
-					filing_type = "geo";
 					facet_type = "geo";
 					htd = HeadTypeDesc.GEONAME;
 					break;
@@ -169,12 +154,11 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "654":
 					main_fields = "abe";
 					dashed_fields = "vyz";
-					
+					htd = HeadTypeDesc.TOPIC;
 					break;
 				case "655":
 					main_fields = "ab"; //655 facet_type over-ridden for FAST facet
 					dashed_fields = "vxyz";
-					filing_type = "genr";
 					facet_type = "genre";
 					htd = HeadTypeDesc.GENRE;
 					break;
@@ -192,7 +176,6 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				case "662":
 					main_fields = "abcdfgh";
 					facet_type = "geo";
-					filing_type = "geo";
 					htd = HeadTypeDesc.GEONAME;
 					break;
 				case "690":
@@ -210,43 +193,43 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 					main_fields = "a";
 					break;
 				}
-				if (! main_fields.equals("")) {
-					StringBuilder sb_piped = new StringBuilder();
-					StringBuilder sb_breadcrumbed = new StringBuilder();
-					String mainFields = null;
-					if (htd.equals(HeadTypeDesc.WORK)) {
-						StringBuilder sb = new StringBuilder();
-						sb.append(f.concatenateSpecificSubfields(main_fields));
-						sb.append(" | ");
-						sb.append(f.concatenateSpecificSubfields(title_fields));
-						mainFields = sb.toString();
-					} else {
-						mainFields = f.concatenateSpecificSubfields(main_fields);
-					}
-					sb_piped.append(mainFields);
-					sb_breadcrumbed.append(mainFields);
-					List<Object> json = new ArrayList<Object>();
-					Map<String,Object> subj1 = new HashMap<String,Object>();
-					subj1.put("subject", mainFields);
+				String primarySubjectTerm = null;
+				if (vals != null) {
+					final StringBuilder sb = new StringBuilder();
+					sb.append(vals.author);
+					if (vals.type.equals(HeadType.AUTHORTITLE))
+						sb.append(" | ").append(vals.title);
+					primarySubjectTerm = sb.toString();
+				} else if (main_fields != null) {
+					primarySubjectTerm = f.concatenateSpecificSubfields(main_fields);
+				}
+				if (primarySubjectTerm != null) {
+					final StringBuilder sb_piped = new StringBuilder();
+					final StringBuilder sb_breadcrumbed = new StringBuilder();
+					sb_piped.append(primarySubjectTerm);
+					sb_breadcrumbed.append(primarySubjectTerm);
+					final List<Object> json = new ArrayList<>();
+					final Map<String,Object> subj1 = new HashMap<>();
+					subj1.put("subject", primarySubjectTerm);
 					subj1.put("type", htd.toString());
-					AuthorityData authData = new AuthorityData(config,mainFields,htd);
+					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,htd);
 					subj1.put("authorized", authData.authorized);
 					if (authData.authorized && authData.alternateForms != null)
-						for (String altForm : authData.alternateForms) {
-							addField(solrFields,"authority_subject_t",altForm);
+						for (final String altForm : authData.alternateForms) {
+							authorityAltForms.add(altForm);
 							if (hasCJK(altForm))
-								addField(solrFields,"authority_subject_t_cjk",altForm);								
+								authorityAltFormsCJK.add(altForm);
 						}
 					json.add(subj1);
 
 					values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
-					List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
-//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
+					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
+					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (f.mainTag.equals("653")) {
 						addField(solrFields,"sixfivethree",sb_piped.toString());
 					}
-					for (String dashed_term : dashed_terms) {
-						Map<String,Object> subj = new HashMap<String,Object>();
+					for (final String dashed_term : dashed_terms) {
+						final Map<String,Object> subj = new HashMap<>();
 						sb_piped.append("|"+dashed_term);
 						sb_breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);
@@ -254,14 +237,14 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 						authData = new AuthorityData(config,sb_breadcrumbed.toString(),htd);
 						subj.put("authorized", authData.authorized);
 						if (authData.authorized && authData.alternateForms != null)
-							for (String altForm : authData.alternateForms) {
-								addField(solrFields,"authority_subject_t",altForm);
+							for (final String altForm : authData.alternateForms) {
+								authorityAltForms.add(altForm);
 								if (hasCJK(altForm))
-									addField(solrFields,"authority_subject_t_cjk",altForm);								
+									authorityAltFormsCJK.add(altForm);
 							}
 						json.add(subj);
 					}
-					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					if (f.tag.equals("880")) {
 						values880_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
@@ -275,65 +258,60 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 				}
 			}
 
-			
-			for (String s: values880_breadcrumbed) {
-				String disp = removeTrailingPunctuation(s,".");
+
+			for (final String s: values880_breadcrumbed) {
+				final String disp = removeTrailingPunctuation(s,".");
 				addField(solrFields,"subject_addl_t",s);
 				if (h.isFAST)
 					addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",disp);
+					subjectDisplay.add(disp);
 			}
-			for (String s: valuesMain_breadcrumbed) {
-				String disp = removeTrailingPunctuation(s,".");
+			for (final String s: valuesMain_breadcrumbed) {
+				final String disp = removeTrailingPunctuation(s,".");
 				addField(solrFields,"subject_addl_t",s);
-				if (h.isFAST)
+				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					addField(solrFields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
-					addField(solrFields,"subject_display",disp);
+					subjectDisplay.add(disp);
 			}
-			for (String s: values_browse)
-				if (filing_type != null) {
-					addField(solrFields,"subject_"+filing_type+"_facet",removeTrailingPunctuation(s,"."));
-					addField(solrFields,"subject_"+filing_type+"_filing",getFilingForm(s));
+			for (final String s: values_browse)
+				if (htd != null) {
+					addField(solrFields,"subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,"."));
+					addField(solrFields,"subject_"+htd.abbrev()+"_filing",getFilingForm(s));
 				}
 
 			if ( ! h.isFAST || ! recordHasLCSH) {
-				for (String s: values880_piped)
+				for (final String s: values880_piped)
 					addField(solrFields,"subject_cts",s);
-				for (String s: valuesMain_piped)
+				for (final String s: valuesMain_piped)
 					addField(solrFields,"subject_cts",s);
-				for (String s: values880_json)
-					addField(solrFields,"subject_json",s);
-				for (String s: valuesMain_json)
-					addField(solrFields,"subject_json",s);
+				for (final String s: values880_json)
+					subjectJson.add( s );
+				for (final String s: valuesMain_json)
+					subjectJson.add( s );
 			}
 		}
-		
-		SolrInputField field = new SolrInputField("fast_b");
+
+		final SolrInputField field = new SolrInputField("fast_b");
 		field.setValue(recordHasFAST, 1.0f);
 		solrFields.put("fast_b", field);
-		
+
+		for (String json : subjectJson)
+			addField(solrFields,"subject_json",json);
+		for (String display : subjectDisplay)
+			addField(solrFields,"subject_display",display);
+		for (String altForm : authorityAltForms)
+			addField(solrFields,"authority_subject_t",altForm);
+		for (String altForm : authorityAltFormsCJK)
+			addField(solrFields,"authority_subject_t_cjk",altForm);
+
 		return solrFields;
 	}
-	
-	
-	private boolean isWork(DataField f) {
-		for (Subfield sf : f.subfields.values())
-			switch (sf.code) {
-			case 't': case 'k': case 'l':
-			case 'p': case 'm': case 'o': case 'r': case 's':
-				return true;
-			case 'n':
-				if ( ! f.mainTag.equals("611"))
-					return true;
-			}
-		return false;
-	}
-
 
 	private class Heading {
 		boolean isFAST = false;
+		boolean isLCGFT = false;
 		FieldSet fs = null;
 	}
 

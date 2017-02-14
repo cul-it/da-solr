@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,9 +34,9 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -64,7 +65,7 @@ public class MarcXmlToRdf {
 	
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
-	private static Integer groupsize = 1000;
+	private Integer groupsize = 1000;
 	private OutputFormat outFormat = OutputFormat.NT_GZ;
 	private String outFileExt = ".nt.gz";
 	
@@ -101,15 +102,15 @@ public class MarcXmlToRdf {
 	private String idPrefix = null;
 	private Boolean processingBibs = null;
 	private Boolean processingMfhds = null;
-	private Collection<Integer> foundBibs = new HashSet<Integer>();
-	private Collection<Integer> foundMfhds = new HashSet<Integer>();
+	private Collection<Integer> foundBibs = new HashSet<>();
+	private Collection<Integer> foundMfhds = new HashSet<>();
 	
 	// Reports fields
-	private Collection<Report> reports = new HashSet<Report>();
-	private Map<Report,String> reportResults = new HashMap<Report,String>();
-	private Map<String,FieldStats> fieldStatsByTag = new HashMap<String,FieldStats>();
+	private Collection<Report> reports = new HashSet<>();
+	private Map<Report,String> reportResults = new HashMap<>();
+	private Map<String,FieldStats> fieldStatsByTag = new HashMap<>();
 	private static Long recordCount = new Long(0);
-	private Collection<Integer> no245a = new HashSet<Integer>();
+	private Collection<Integer> no245a = new HashSet<>();
 	private Map<String,String> extractVals = null;
 	private String outputHeaders = null;
 	private int extractCols = 0;
@@ -158,6 +159,14 @@ public class MarcXmlToRdf {
 		dbForUnsuppressedIdFiltering = c;
 	}
 
+	/**
+	 * Set the number of bibliographic records to group into a file. 1,000 is the default.
+	 * Very high or very low numbers may sacrifice efficiency.
+	 * @param size
+	 */
+	public void setGroupSize( Integer size ) {
+		groupsize = size;
+	}
 	/**
 	 * @param Collection<Integer> ids : Collection of Integer record IDs for unsuppressed Bibs.
 	 * @param Boolean filter : Should suppressed records be filtered out?
@@ -305,9 +314,9 @@ public class MarcXmlToRdf {
 		
 		if (simultaneousWrite)
 			if (mode.equals(Mode.NAME_AS_SOURCE))
-				outsByName = new HashMap<String,OutputStreamWriter>();
+				outsByName = new HashMap<>();
 			else
-				outsById = new HashMap<Integer, OutputStreamWriter>();
+				outsById = new HashMap<>();
 		
 		// If the destination is local, we can build N-Triples directly to there.
 		// Otherwise, we need a temporary build directory.
@@ -343,14 +352,14 @@ public class MarcXmlToRdf {
 			singleOut.close();
 		
 		if (! simultaneousWrite && outFormat.toString().endsWith("GZ")) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
-			for (Path file: stream) {
-				String filename = file.toString();
-				if (filename.endsWith(".gz")) continue;
-				if (debug) System.out.println("gzipping "+filename);
-				IndexingUtilities.gzipFile(filename,filename+".gz");
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir))) {
+				for (Path file: stream) {
+					String filename = file.toString();
+					if (filename.endsWith(".gz")) continue;
+					if (debug) System.out.println("gzipping "+filename);
+					IndexingUtilities.gzipFile(filename,filename+".gz");
+				}
 			}
-
 		}
 
 		if (isDestDav) uploadOutput();
@@ -364,30 +373,30 @@ public class MarcXmlToRdf {
 	
 	private void uploadOutput() throws Exception {
 		
-		DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir));
-		for (Path file: stream) {
-			System.out.println(file.getFileName());
-			String targetNTFile = 
-					(destDir != null) ? destDir +"/"+file.getFileName()
-							: destFile;
-			InputStream is = new FileInputStream(file.toString());
-			destDav.saveFile(targetNTFile, is);						
-			System.out.println("MARC N-Triples file saved to " + targetNTFile);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(tempDestDir))) {
+			for (Path file: stream) {
+				System.out.println(file.getFileName());
+				String targetNTFile = 
+						(destDir != null) ? destDir +"/"+file.getFileName() : destFile;
+				try (InputStream is = new FileInputStream(file.toString())) {
+					destDav.saveFile(targetNTFile, is); }
+				System.out.println("MARC N-Triples file saved to " + targetNTFile);
+			}
 		}
-
 	}
 	
 	private OutputStreamWriter openFileForWrite( String f ) throws Exception {
 		OutputStreamWriter b = null;
 		if (outFileExt.endsWith(".gz")) 
 			b =  new OutputStreamWriter(new GZIPOutputStream(
-					new FileOutputStream(f,true)),"UTF-8");
+					new FileOutputStream(f,true)),StandardCharsets.UTF_8);
 		else {
-			b =  new OutputStreamWriter(new FileOutputStream(f,true),"UTF-8");
+			b =  new OutputStreamWriter(new FileOutputStream(f,true),StandardCharsets.UTF_8);
 		}
 		return b;
 	}
 
+	@SuppressWarnings("resource")
 	private void sortOutput( String bibid, String output ) throws Exception {
 		OutputStreamWriter out = null;
 		String dirToProcessInto = null;
@@ -399,6 +408,8 @@ public class MarcXmlToRdf {
 			dirToProcessInto = destDir;
 		
 		if (mode.equals(Mode.ID_RANGE_BATCHES)) {
+			if (bibid == null || bibid.isEmpty() )
+				throw new IllegalArgumentException(missingBibMsg);
 			Integer batchid;
 			try {
 				batchid = Integer.valueOf(bibid) / groupsize;
@@ -406,6 +417,7 @@ public class MarcXmlToRdf {
 				// If the bib id isn't a valid integer, skip the record
 				System.out.println("Skipping record conversion due to invalid bib id.");
 				System.out.println(output.substring(0,120));
+				e.printStackTrace();
 				return;
 			}
 			String file = dirToProcessInto+"/"+destFilenamePrefix+"."+batchid+outFileExt;
@@ -432,6 +444,8 @@ public class MarcXmlToRdf {
 			}
 
 		} else if (mode.equals(Mode.RECORD_COUNT_BATCHES)) {
+			if (bibid == null || bibid.isEmpty() )
+				throw new IllegalArgumentException(missingBibMsg);
 			Integer outputBatch = 100_000_000;
 			Iterator<Integer> i = outsById.keySet().iterator();
 			Integer id = Integer.valueOf(bibid);
@@ -511,7 +525,7 @@ public class MarcXmlToRdf {
 		XMLStreamReader r  = 
 				input_factory.createXMLStreamReader(xmlstream);
 		while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT)
+			if (r.next() == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
 					MarcRecord rec = processRecord(r);
 					rec.type = type;
@@ -521,12 +535,14 @@ public class MarcXmlToRdf {
 						if (foundBibs.contains(id)) {
 							System.out.println("Skipping duplicate bib record: "+rec.id);
 							continue;
-						} else foundBibs.add(id);
+						}
+						foundBibs.add(id);
 					} else if (type.equals(RecordType.HOLDINGS)) {
 						if (foundMfhds.contains(id)) {
 							System.out.println("Skipping duplicate holding record: "+rec.id);
 							continue;
-						} else foundMfhds.add(id);
+						}
+						foundMfhds.add(id);
 					}
 					
 					if (isSuppressionBlocked(id, type))
@@ -575,10 +591,11 @@ public class MarcXmlToRdf {
 					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
 				doesBibExist.setInt(1,id);
-				ResultSet rs = doesBibExist.executeQuery();
-				rs.next();
-				int count = rs.getInt(1);
-				rs.close();
+				int count;
+				try (ResultSet rs = doesBibExist.executeQuery()) {
+					rs.next();
+					count = rs.getInt(1);
+				}
 				if (count == 0)
 					return true;
 			} else if (type.equals(RecordType.HOLDINGS)) {
@@ -586,10 +603,11 @@ public class MarcXmlToRdf {
 					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
 						("SELECT COUNT(*) FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?");
 				doesMfhdExist.setInt(1,id);
-				ResultSet rs = doesMfhdExist.executeQuery();
-				rs.next();
-				int count = rs.getInt(1);
-				rs.close();
+				int count;
+				try (ResultSet rs = doesMfhdExist.executeQuery()) {
+					rs.next();
+					count = rs.getInt(1);
+				}
 				if (count == 0)
 					return true;
 			}
@@ -608,7 +626,7 @@ public class MarcXmlToRdf {
 	}
 	
 	private void processBibs(  ) throws Exception {
-		
+
 		String localProcessDir = null;
 		String localProcessFile = null;
 		if (tempBibSrcDir != null)
@@ -618,29 +636,29 @@ public class MarcXmlToRdf {
 				localProcessDir = bibSrcDir;
 			else
 				localProcessFile = bibSrcFile;
-		
+
 		if (localProcessDir != null) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(
-					Paths.get(localProcessDir));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir))) {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
 				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.BIBLIOGRAPHIC );
-			}
+			}}
 			return;
 		}
-		
+
 		if (localProcessFile != null) {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
 			System.out.println(localProcessFile);
-			readXml(new FileInputStream(localProcessFile),
-					RecordType.BIBLIOGRAPHIC );
+			try( InputStream is = new FileInputStream(localProcessFile)) {
+				readXml(is,RecordType.BIBLIOGRAPHIC ); }
 			return;
 		}
-		
+
 		// At this point we're looking for Dav sources
 		if (bibSrcDir != null) {
 			List<String> files = bibSrcDav.getFileUrlList(bibSrcDir);
@@ -652,7 +670,7 @@ public class MarcXmlToRdf {
 			}
 			return;
 		}
-		
+
 		if (bibSrcFile != null) {
 			currentInputFile = bibSrcFile.substring(bibSrcFile.lastIndexOf('/')+1);
 			System.out.println(bibSrcFile);
@@ -660,9 +678,9 @@ public class MarcXmlToRdf {
 					RecordType.BIBLIOGRAPHIC );
 			return;
 		}		
-		
+
 	}
-	
+
 	private void processMfhds( ) throws Exception {
 		String localProcessDir = null;
 		String localProcessFile = null;
@@ -674,15 +692,15 @@ public class MarcXmlToRdf {
 				localProcessFile = mfhdSrcFile;
 		
 		if (localProcessDir != null) {
-			DirectoryStream<Path> stream = Files.newDirectoryStream(
-					Paths.get(localProcessDir));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+					Paths.get(localProcessDir))) {
 			for (Path file: stream) {
 				currentInputFile = file.toString().substring(
 						file.toString().lastIndexOf(File.separator)+1);
 				System.out.println(file);
 				readXml(new FileInputStream(file.toString()),
 						RecordType.HOLDINGS );
-			}
+			}}
 			return;
 		}
 		
@@ -690,8 +708,8 @@ public class MarcXmlToRdf {
 			currentInputFile = localProcessFile.substring(
 					localProcessFile.lastIndexOf(File.separator)+1);
 			System.out.println(localProcessFile);
-			readXml(new FileInputStream(localProcessFile),
-					RecordType.HOLDINGS );
+			try ( InputStream is = new FileInputStream(localProcessFile)) {
+				readXml(is,RecordType.HOLDINGS ); }
 			return;
 		}
 
@@ -727,7 +745,7 @@ public class MarcXmlToRdf {
 		else
 			throw new IllegalArgumentException("Don't know where to put files!");
 
-		Collection<Integer> bibids = new HashSet<Integer>();
+		Collection<Integer> bibids = new HashSet<>();
 
 		if (tempBibSrcDir != null)
 			dirToProcess = tempBibSrcDir;
@@ -735,13 +753,14 @@ public class MarcXmlToRdf {
 			dirToProcess = bibSrcDir;
 		if (dirToProcess != null) {
 			System.out.println(dirToProcess);
-			DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirToProcess));
-			for (Path file: stream)
-				bibids.addAll(collectBibidsFromXmlFile(file));
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirToProcess))) {
+				for (Path file: stream)
+					bibids.addAll(collectBibidsFromXmlFile(file));
+			}
 		} else {
 			bibids.addAll(collectBibidsFromXmlFile(Paths.get(bibSrcFile)));
 		}
-		
+
 		// Sort list of bib record IDs and determine ranges for batches of size groupsize.
 		System.out.println(bibids.size() + " bibids in set.\n");
 		Integer[] bibs = bibids.toArray(new Integer[ bibids.size() ]);
@@ -755,6 +774,7 @@ public class MarcXmlToRdf {
 			else
 				maxBibid = bibs[bibs.length - 1];
 			System.out.println(batch+": "+maxBibid);
+			@SuppressWarnings("resource")
 			OutputStreamWriter  out = openFileForWrite(dirToProcessInto+"/"+
 					destFilenamePrefix+"."+batch+outFileExt);
 			outsById.put(maxBibid, out);
@@ -763,25 +783,25 @@ public class MarcXmlToRdf {
 
 	}
 	
-	private Collection<Integer> collectBibidsFromXmlFile(Path file) throws XMLStreamException, IOException {
-		Collection<Integer> bibids = new HashSet<Integer>();
+	private static Collection<Integer> collectBibidsFromXmlFile(Path file) throws XMLStreamException, IOException {
+		Collection<Integer> bibids = new HashSet<>();
 		System.out.println(file.getFileName());
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
-		InputStream is = new FileInputStream(file.toString());
-		XMLStreamReader r = input_factory.createXMLStreamReader(is);
-		EVENT: while (r.hasNext()) {
-			if (r.next() == XMLEvent.START_ELEMENT) {
-				if (r.getLocalName().equals("controlfield")) {
-					for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
-						if (r.getAttributeLocalName(i1).equals("tag")) {
-							if (r.getAttributeValue(i1).equals("001")) 
-								bibids.add(Integer.valueOf(r.getElementText()));
-							continue EVENT;
-						}
+		try (InputStream is = new FileInputStream(file.toString())) {
+			XMLStreamReader r = input_factory.createXMLStreamReader(is);
+			EVENT: while (r.hasNext()) {
+				if (r.next() == XMLStreamConstants.START_ELEMENT) {
+					if (r.getLocalName().equals("controlfield")) {
+						for (int i1 = 0; i1 < r.getAttributeCount(); i1++)
+							if (r.getAttributeLocalName(i1).equals("tag")) {
+								if (r.getAttributeValue(i1).equals("001")) 
+									bibids.add(Integer.valueOf(r.getElementText()));
+								continue EVENT;
+							}
+					}
 				}
 			}
 		}
-		is.close();
 		return bibids;
 	}
 
@@ -872,7 +892,7 @@ public class MarcXmlToRdf {
 	private static Collection<String> shadowLinkedRecs = new HashSet<String>();
 	*/
 
-	private void surveyForCJKValues( MarcRecord rec ) throws IOException {
+	private static void surveyForCJKValues( MarcRecord rec ) throws IOException {
 		if (logout == null) {
 			FileWriter logstream = new FileWriter(logfile);
 			logout = new BufferedWriter( logstream );
@@ -933,7 +953,7 @@ public class MarcXmlToRdf {
 	}
 	
 	private void populateExtractHeaders( Report rep ) {
-		List<String> v = new ArrayList<String>();
+		List<String> v = new ArrayList<>();
 		if (rep.equals(Report.EXTRACT_LANGUAGE)) {
 			v.add("f001");   //1
 			v.add("leader");
@@ -1158,7 +1178,7 @@ public class MarcXmlToRdf {
 	 * @param rec
 	 * @throws Exception
 	 */
-	private void extractData( MarcRecord rec ) throws Exception {
+	private void extractData( MarcRecord rec ) {
 
 		Boolean isPubPlace = reports.contains(Report.EXTRACT_PUBPLACE);
 		Boolean isSubjPlace = reports.contains(Report.EXTRACT_SUBJPLACE);
@@ -1173,12 +1193,12 @@ public class MarcXmlToRdf {
 				&& ! isCitations)
 			return;
 
-		List<String> pubplaces = new ArrayList<String>();
+		List<String> pubplaces = new ArrayList<>();
 		
 		if (extractVals != null)
 			extractVals.clear();
 		else
-			extractVals = new HashMap<String,String>();
+			extractVals = new HashMap<>();
 			
 		if (isPubPlace || isSubjPlace || isLanguage) {
 			extractVals.put("02", rec.leader);
@@ -1277,11 +1297,11 @@ public class MarcXmlToRdf {
 					String i2 = f.ind2.toString();
 					if (i2.trim().isEmpty()) i2 = "<null>";
 					putOrAppendToExtract("22","|",i2);
-					List<String> bs = new ArrayList<String>();
-					List<String> cs = new ArrayList<String>();
+					List<String> bs = new ArrayList<>();
+					List<String> cs = new ArrayList<>();
 					
 					String b = null;
-					List<String> c = new ArrayList<String>();
+					List<String> c = new ArrayList<>();
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('b')) {
 							if (b != null) {
@@ -1347,7 +1367,7 @@ public class MarcXmlToRdf {
 					putOrAppendToExtract("24","|",i2);
 					
 					String two = null;
-					HashMap<Character,List<String>> codes = new HashMap<Character,List<String>>();
+					HashMap<Character,List<String>> codes = new HashMap<>();
 					
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1357,7 +1377,7 @@ public class MarcXmlToRdf {
 							if (codes.containsKey(sf.code)) {
 								charCodes = codes.get(sf.code);
 							} else {
-								charCodes = new ArrayList<String>();
+								charCodes = new ArrayList<>();
 							}
 							if (sf.value.length() == 3) {
 								charCodes.add(sf.value);
@@ -1372,7 +1392,7 @@ public class MarcXmlToRdf {
 							}
 							codes.put(sf.code, charCodes);
 						}
-					HashMap<Character,String> columns = new HashMap<Character,String>();
+					HashMap<Character,String> columns = new HashMap<>();
 					columns.put('a',"25");	columns.put('b',"26");
 					columns.put('c',"27");	columns.put('d',"28");
 					columns.put('e',"29");	columns.put('f',"30");
@@ -1412,8 +1432,8 @@ public class MarcXmlToRdf {
 			
 			if (isPubPlace)
 				if (f.tag.equals("044")) {
-					List<String> a = new ArrayList<String>();
-					List<String> c = new ArrayList<String>();
+					List<String> a = new ArrayList<>();
+					List<String> c = new ArrayList<>();
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a'))
 							a.add(sf.value);
@@ -1449,12 +1469,12 @@ public class MarcXmlToRdf {
 			if (isSubjPlace) 
 				if (f.tag.equals("052") && ! f.ind1.equals('7')) {
 
-					List<String> as = new ArrayList<String>();
-					List<String> bs = new ArrayList<String>();
+					List<String> as = new ArrayList<>();
+					List<String> bs = new ArrayList<>();
 					String src = null;
 					
 					String a = null;
-					List<String> b = new ArrayList<String>();
+					List<String> b = new ArrayList<>();
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('a')) {
 							if (a != null) {
@@ -1728,7 +1748,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("600")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1747,7 +1767,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("600")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1772,7 +1792,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("610")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1791,7 +1811,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("610")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1816,7 +1836,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("611")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1835,7 +1855,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("611")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1860,7 +1880,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("630")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1879,7 +1899,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("630")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1903,7 +1923,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("650")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1926,7 +1946,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("650")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1954,8 +1974,8 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("651")) {
-					List<String> a = new ArrayList<String>();
-					List<String> z = new ArrayList<String>();
+					List<String> a = new ArrayList<>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -1976,8 +1996,8 @@ public class MarcXmlToRdf {
 					putOrAppendToExtract("80","|",two);
 				}
 				if (f.alttag != null && f.alttag.equals("651")) {
-					List<String> a = new ArrayList<String>();
-					List<String> z = new ArrayList<String>();
+					List<String> a = new ArrayList<>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -2015,7 +2035,7 @@ public class MarcXmlToRdf {
 
 			if (isSubjPlace) {
 				if (f.tag.equals("655")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -2038,7 +2058,7 @@ public class MarcXmlToRdf {
 					}
 				}
 				if (f.alttag != null && f.alttag.equals("655")) {
-					List<String> z = new ArrayList<String>();
+					List<String> z = new ArrayList<>();
 					String two = null;
 					for (Subfield sf : f.subfields.values())
 						if (sf.code.equals('2'))
@@ -2149,9 +2169,8 @@ public class MarcXmlToRdf {
 	
 	private void tabulateFieldData( MarcRecord rec ) throws Exception {
 		
-		Map<String,Integer> fieldtagcounts = new HashMap<String,Integer>();
-		Map<String,HashMap<Character,Integer>> codeCounts = 
-				new HashMap<String,HashMap<Character,Integer>>();
+		Map<String,Integer> fieldtagcounts = new HashMap<>();
+		Map<String,HashMap<Character,Integer>> codeCounts = new HashMap<>();
 		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
 		
 		if (logout == null) {
@@ -2215,7 +2234,7 @@ public class MarcXmlToRdf {
 					}
 					codeCounts.put(f.tag, tagCounts);
 				} else {
-					HashMap<Character,Integer> tagCounts = new HashMap<Character,Integer>();
+					HashMap<Character,Integer> tagCounts = new HashMap<>();
 					tagCounts.put(sf.code, 1);
 					codeCounts.put(f.tag, tagCounts);
 				}
@@ -2493,9 +2512,9 @@ public class MarcXmlToRdf {
 	} */
 
 	private void mapNonRomanFieldsToRomanizedFields( MarcRecord rec ) throws Exception {
-		Map<Integer,Integer> linkedeighteighties = new HashMap<Integer,Integer>();
-//		Map<Integer,String> unlinkedeighteighties = new HashMap<Integer,String>();
-		Map<Integer,Integer> others = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> linkedeighteighties = new HashMap<>();
+//		Map<Integer,String> unlinkedeighteighties = new HashMap<>();
+		Map<Integer,Integer> others = new HashMap<>();
 		String rec_id = rec.control_fields.get(1).value;
 		Pattern p = Pattern.compile("^[0-9]{3}.[0-9]{2}.*");
 		
@@ -2560,17 +2579,17 @@ public class MarcXmlToRdf {
 			logout.flush();
 	}
 		
-	private MarcRecord processRecord( XMLStreamReader r ) throws Exception {
+	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 		
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT) {
+			if (event == XMLStreamConstants.END_ELEMENT) {
 				if (r.getLocalName().equals("record")) 
 					return rec;
 			}
-			if (event == XMLEvent.START_ELEMENT) {
+			if (event == XMLStreamConstants.START_ELEMENT) {
 				if (r.getLocalName().equals("leader")) {
 					rec.leader = r.getElementText();
 				} else if (r.getLocalName().equals("controlfield")) {
@@ -2601,16 +2620,19 @@ public class MarcXmlToRdf {
 		}
 		return rec;
 	}
+
+	private final static String missingBibMsg =
+			"Argument bibid is required for processing in this mode; may be missing from record.";
 	
-	private Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Map<Integer,Subfield> fields = new HashMap<Integer,Subfield>();
+	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+		Map<Integer,Subfield> fields = new HashMap<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
-			if (event == XMLEvent.END_ELEMENT)
+			if (event == XMLStreamConstants.END_ELEMENT)
 				if (r.getLocalName().equals("datafield"))
 					return fields;
-			if (event == XMLEvent.START_ELEMENT)
+			if (event == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("subfield")) {
 					Subfield f = new Subfield();
 					f.id = ++id;
@@ -2630,23 +2652,23 @@ public class MarcXmlToRdf {
 		public Long instanceCount = new Long(0);
 
 		// tabulating how many of a particular field appear in a record
-		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();
-		public Map<Integer,Integer> exampleByCount = new HashMap<Integer,Integer>();
+		public Map<Integer,Integer> countByCount = new HashMap<>();
+		public Map<Integer,Integer> exampleByCount = new HashMap<>();
 
 		// tabulating frequency of particular indicator values
-		public Map<Character,Integer> countBy1st = new HashMap<Character,Integer>();
-		public Map<Character,Integer> exampleBy1st = new HashMap<Character,Integer>();
-		public Map<Character,Integer> countBy2nd = new HashMap<Character,Integer>();
-		public Map<Character,Integer> exampleBy2nd = new HashMap<Character,Integer>();
-		public Map<String,Integer> countByBoth = new HashMap<String,Integer>();
-		public Map<String,Integer> exampleByBoth = new HashMap<String,Integer>();
+		public Map<Character,Integer> countBy1st = new HashMap<>();
+		public Map<Character,Integer> exampleBy1st = new HashMap<>();
+		public Map<Character,Integer> countBy2nd = new HashMap<>();
+		public Map<Character,Integer> exampleBy2nd = new HashMap<>();
+		public Map<String,Integer> countByBoth = new HashMap<>();
+		public Map<String,Integer> exampleByBoth = new HashMap<>();
 		
 		// tabulating frequency of subfields
-		public Map<Character,SubfieldStats> subfieldStatsByCode = new HashMap<Character,SubfieldStats>();
+		public Map<Character,SubfieldStats> subfieldStatsByCode = new HashMap<>();
 		
 		// tabulating frequency of subfield pattern
-		public Map<String,Integer> countBySubfieldPattern = new HashMap<String,Integer>();
-		public Map<String,Integer> exampleBySubfieldPattern = new HashMap<String,Integer>();
+		public Map<String,Integer> countBySubfieldPattern = new HashMap<>();
+		public Map<String,Integer> exampleBySubfieldPattern = new HashMap<>();
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
@@ -2725,8 +2747,8 @@ public class MarcXmlToRdf {
 		public Long instanceCount = new Long(0);
 		
 		// tabulating how many of a particular subfield appear in a field
-		public Map<Integer,Integer> countByCount = new HashMap<Integer,Integer>();
-		public Map<Integer,Integer> exampleByCount = new HashMap<Integer,Integer>();
+		public Map<Integer,Integer> countByCount = new HashMap<>();
+		public Map<Integer,Integer> exampleByCount = new HashMap<>();
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(" Code: "+this.code+ " ("+this.instanceCount + " instances in " + this.fieldCount + 

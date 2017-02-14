@@ -29,8 +29,8 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 public class HathiLinksRSTF implements ResultSetToFields {
 
 	protected boolean debug = false;
-	Map<String,Collection<String>> availableHathiMaterials = new HashMap<String,Collection<String>>();
-	Collection<String> denyTitles = new HashSet<String>();
+	Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
+	Collection<String> denyTitles = new HashSet<>();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -39,8 +39,8 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 
-		Collection<String> oclcids = new HashSet<String>();
-		Collection<String> barcodes = new HashSet<String>();
+		Collection<String> oclcids = new HashSet<>();
+		Collection<String> barcodes = new HashSet<>();
 
 		for( String resultKey: results.keySet()){
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
@@ -68,20 +68,15 @@ public class HathiLinksRSTF implements ResultSetToFields {
 				}
 		}
 		
-		Connection conn = null;
-		try {
-			conn = config.getDatabaseConnection("Hathi");
+		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {			
 			return generateFields(conn, oclcids, barcodes);
-		} finally {
-			if (conn != null)
-				conn.close();
 		}
 	}
 
 	private Map<String,SolrInputField> generateFields(Connection conn,
-			Collection<String> oclcids, Collection<String> barcodes ) throws SQLException {
+			@SuppressWarnings("unused") Collection<String> oclcids, Collection<String> barcodes ) throws SQLException {
 		
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 
 /*		if (oclcids.size() > 0) {
  			PreparedStatement pstmt = conn.prepareStatement
@@ -96,29 +91,29 @@ public class HathiLinksRSTF implements ResultSetToFields {
 		} */
 		
 		if (barcodes.size() > 0) {
-			PreparedStatement pstmt = conn.prepareStatement
+			try (  PreparedStatement pstmt = conn.prepareStatement
 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
-					+ " WHERE Volume_Identifier = ?");
-			for (String barcode : barcodes ) {
-				pstmt.setString(1, "coo."+barcode);
-				java.sql.ResultSet rs = pstmt.executeQuery();
-				tabulateResults(rs);
+					+ " WHERE Volume_Identifier = ?")  ) {
+				for (String barcode : barcodes ) {
+					pstmt.setString(1, "coo."+barcode);
+					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+						tabulateResults(rs); }
+				}
 			}
-			pstmt.close();
 		}
 		
 		for ( String title : availableHathiMaterials.keySet() ) {
 			Collection<String> volumes = availableHathiMaterials.get(title);
 			int count = volumes.size();
 			if (count == 1) {
-				PreparedStatement pstmt = conn.prepareStatement
+				try ( PreparedStatement pstmt = conn.prepareStatement
 						("SELECT COUNT(*) as count FROM raw_hathi"
-						+ " WHERE UofM_Record_Number = ?");
-				pstmt.setString(1, title);
-				java.sql.ResultSet rs = pstmt.executeQuery();
-				while (rs.next())
-					count = rs.getInt("count");
-				pstmt.close();
+						+ " WHERE UofM_Record_Number = ?")  ) {
+					pstmt.setString(1, title);
+					try (  java.sql.ResultSet rs = pstmt.executeQuery()  ) {
+						while (rs.next())
+							count = rs.getInt("count"); }
+				}
 			}
 			if (count == 1) {
 				// volume link

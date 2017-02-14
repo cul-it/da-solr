@@ -8,7 +8,7 @@ import org.junit.Test;
 public class VoyagerToSolrConfigurationTest {
 
 	@Test
-	public void testInsertDate() {
+	public static void testInsertDate() {
 		String test = "No replacement";
 		assertTrue(SolrBuildConfig.insertIterationContext(test).equals(test));
 		test = "should/XXXX/replace";

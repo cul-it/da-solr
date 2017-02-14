@@ -39,7 +39,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	
 	public SPARQLFieldMakerImpl addLocalStoreQuery(String key, String query){
 		if( this.localStoreQueries == null )			
-			this.localStoreQueries = new HashMap<String,String>();
+			this.localStoreQueries = new HashMap<>();
 		
 		this.localStoreQueries.put(key,query);
 		return this;
@@ -47,14 +47,14 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 
 	public SPARQLFieldMakerImpl addMainStoreQuery(String key, String query){
 		if( this.mainStoreQueries == null )
-			this.mainStoreQueries = new HashMap<String, String>();
+			this.mainStoreQueries = new HashMap<>();
 		this.mainStoreQueries.put(key, query);
 		return this;		
 	}
 
 	public SPARQLFieldMakerImpl  addResultSetToFields(ResultSetToFields rs2f) {
 		if( this.resultSetToFields == null )
-			this.resultSetToFields = new ArrayList<ResultSetToFields>();		
+			this.resultSetToFields = new ArrayList<>();		
 		this.resultSetToFields.add( rs2f );
 		return this;
 	}
@@ -69,7 +69,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 		throws Exception {
 		
-		Map<String, SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String, SolrInputField> fields = new HashMap<>();
 		
 		if( resultSetToFields != null){
 			for( ResultSetToFields r2f : resultSetToFields ){
@@ -89,8 +89,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	}		
 
 	/* debug utility */
-	private void dumpFieldsToStdout(
-			Map<String,SolrInputField> newFields) {
+	private static void dumpFieldsToStdout( Map<String,SolrInputField> newFields ) {
 		for (Entry<String,SolrInputField> entry : newFields.entrySet()) {
 			System.out.println(entry.getKey());
 			for (Object value : entry.getValue().getValues())

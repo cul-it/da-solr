@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.Arrays;
@@ -33,7 +32,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> fields = new HashMap<>();
 		MarcRecord rec = new MarcRecord();
 		
 		for( String resultKey: results.keySet()){
@@ -47,9 +46,9 @@ public class URLResultSetToFields implements ResultSetToFields {
 		Arrays.sort( ids );
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
-			Set<String> urls = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
+			Set<String> urls = new HashSet<>();
 			for (DataField f : fs.fields) {
 				urls.addAll(f.valueListForSpecificSubfields("u"));
 				String linkLabel = f.concatenateSpecificSubfields("3yz");
@@ -104,18 +103,19 @@ public class URLResultSetToFields implements ResultSetToFields {
 				if (url_lc.contains("://plates.library.cornell.edu")) {
 					urlRelation = "bookplate";
 					if (! linkDescription.isEmpty())
-						addField(fields,"donor_t",standardizeApostrophes(linkDescription));
+						addField(fields,"donor_t",linkDescription, true);
+					addField(fields,"donor_s",url.substring(url.lastIndexOf('/')+1), true);
 				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
 					urlRelation = "pda";
 				}
 				if (linkDescription.isEmpty()) {
-					addField(fields,"url_"+urlRelation+"_display",url);						
+					addField(fields,"url_"+urlRelation+"_display",url, true);						
 				} else {
-					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription);
+					addField(fields,"url_"+urlRelation+"_display",url + "|" + linkDescription, true);
 				}
 			}
 			if (! urls.isEmpty())
-				addField(fields,"notes_t",linkDescription);
+				addField(fields,"notes_t",linkDescription, true);
 		}
 
 		return fields;

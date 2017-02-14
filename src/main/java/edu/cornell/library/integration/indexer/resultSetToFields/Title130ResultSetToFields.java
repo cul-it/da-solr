@@ -31,7 +31,7 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 		//The results object is a Map of query names to ResultSets that
 		//were created by the fieldMaker objects.
 		
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 						
 		MarcRecord rec = new MarcRecord();
 
@@ -49,8 +49,8 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
 			for (DataField f: dataFields) {
 				String field = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String cts = f.concatenateSpecificSubfields("adfgklmnoprst");

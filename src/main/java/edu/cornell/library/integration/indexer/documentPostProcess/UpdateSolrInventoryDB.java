@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
+import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 
 /** Evaluate populated fields for conditions of membership for any collections.
  * (Currently only "Law Library".)
@@ -37,30 +37,30 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	final static Boolean debug = false;
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
-	private Set<Long> workids = new HashSet<Long>();
+	private Set<Long> workids = new HashSet<>();
 	static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public void p(String recordURI, SolrBuildConfig config,
 			SolrInputDocument document) throws Exception {
 
-		Connection conn = config.getDatabaseConnection("Current");
+		try (Connection conn = config.getDatabaseConnection("Current")) {
 
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
 		String bibid_display = document.getField("bibid_display").getValue().toString();
 		String[] tmp = bibid_display.split("\\|",2);
 		Integer bibid = Integer.valueOf(tmp[0]);
-		PreparedStatement origBibDateStmt = conn.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_SOLR.toString()
-				+" WHERE bib_id = ?");
-		origBibDateStmt.setInt(1, bibid);
-		ResultSet rs = origBibDateStmt.executeQuery();
 		Timestamp origBibDate = null;
-		while (rs.next()) {
-			origBibDate = rs.getTimestamp(1);
+		final String origBibDateQuery =
+				"SELECT record_date FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
+		try (PreparedStatement origBibDateStmt = conn.prepareStatement(origBibDateQuery)) {
+			origBibDateStmt.setInt(1, bibid);
+			try (ResultSet rs = origBibDateStmt.executeQuery()) {
+				while (rs.next()) {
+					origBibDate = rs.getTimestamp(1);
+				}
+			}
 		}
-		rs.close();
-		origBibDateStmt.close();
 		Boolean knockOnUpdatesNeeded;
 		if (origBibDate == null) {
 			// bib is new in Solr
@@ -71,7 +71,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 					document.getFieldValues("other_id_display")), bibid );
 			knockOnUpdatesNeeded = true;
 		} else {
-			removeOrigHoldingsDataFromDB( conn, document, bibid );
+			removeOrigHoldingsDataFromDB( conn, bibid );
 			knockOnUpdatesNeeded = updateBibField( conn, document, bibid);
 			populateHoldingFields( conn, document, bibid );
 			populateItemFields( conn, document );
@@ -80,16 +80,28 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		addWorkIdLinksToDocument(conn,document,bibid,knockOnUpdatesNeeded);
 		markBibAsDoneInIndexQueue(conn,bibid);
-		conn.close();
+		pushSolrDocumentToDatabase(conn,document,bibid);
+		}
 	}
 
-	private void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
-		PreparedStatement markDoneInQueueStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.QUEUE.toString()+" SET done_date = NOW()"
-						+ " WHERE bib_id = ? AND done_date = 0");
+	private static void pushSolrDocumentToDatabase(Connection conn, SolrInputDocument document, Integer bibid) throws SQLException {
+		final String solrDocumentToDBQuery = 
+				"UPDATE "+CurrentDBTable.BIB_SOLR+" SET solr_document = ? WHERE bib_id = ?";
+		try (PreparedStatement solrDocumentToDB = conn.prepareStatement(solrDocumentToDBQuery)) {
+		solrDocumentToDB.setString(1,ClientUtils.toXML(document).replaceAll("</field>","$0\n"));
+		solrDocumentToDB.setInt(2,bibid);
+		solrDocumentToDB.executeUpdate();
+		}
+	}
+
+	private static void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
+		final String markDoneInQueueQuery =
+				"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
+						+ " WHERE bib_id = ? AND done_date = 0";
+		try (PreparedStatement markDoneInQueueStmt = conn.prepareStatement(markDoneInQueueQuery)) {
 		markDoneInQueueStmt.setInt(1, bibid);
 		markDoneInQueueStmt.executeUpdate();
-		markDoneInQueueStmt.close();
+		}
 	}
 
 	private void addWorkIdLinksToDocument(Connection conn,
@@ -98,70 +110,74 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			return;
 		if (workids.size() > 1)
 			System.out.println("bib with multiple associated works: "+bibid);
-		
-		PreparedStatement recordsForWorkStmt = conn.prepareStatement(
-				"SELECT bib.* FROM "+CurrentDBTable.BIB_SOLR.toString()+" AS bib, "
-						+CurrentDBTable.BIB2WORK.toString()+" AS works "
+
+		final String recordsForWorkQuery =
+				"SELECT bib.* FROM "+CurrentDBTable.BIB_SOLR+" AS bib, "
+						+CurrentDBTable.BIB2WORK+" AS works "
 				+ "WHERE works.bib_id = bib.bib_id "
 				+ "AND works.work_id = ? "
-				+ "AND bib.active = 1 AND works.active = 1 ");
-		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+ "AND bib.active = 1 AND works.active = 1 ";
+		final String markBibForUpdateQuery =
+				"INSERT INTO "+CurrentDBTable.QUEUE
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
-		Map<Integer,TitleMatchReference> refs = new HashMap<Integer,TitleMatchReference>();
-		TitleMatchReference thisTitle = null;
+				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
 		SolrInputField workidDisplay = new SolrInputField("workid_display");
 		SolrInputField workidFacet = new SolrInputField("workid_facet");
 		SolrInputField otherAvailPiped = new SolrInputField("other_availability_piped");
 		SolrInputField otherAvailJson = new SolrInputField("other_availability_json");
-		for (long workid : workids) {
-			workidFacet.addValue(workid, 1);
-			recordsForWorkStmt.setLong(1, workid);
-			ResultSet rs = recordsForWorkStmt.executeQuery();
-			int referenceCount = 0;
-			while (rs.next()) {
-				int refBibid = rs.getInt("bib_id");
-				if (bibid == refBibid) {
-					if (thisTitle == null) {
-						thisTitle = new TitleMatchReference();
-						thisTitle.id = bibid;
-						thisTitle.format = rs.getString("format");
-						thisTitle.sites = rs.getString("sites");
-						thisTitle.libraries = rs.getString("libraries");
-						thisTitle.edition = rs.getString("edition");
-						thisTitle.pub_date = rs.getString("pub_date");
-						thisTitle.language = rs.getString("language");
-						thisTitle.title = rs.getString("title");
-					}
-				} else {
-					if ( ! refs.containsKey(refBibid) ) {
-						TitleMatchReference ref = new TitleMatchReference();
-						ref.id = refBibid;
-						ref.format = rs.getString("format");
-						ref.sites = rs.getString("sites");
-						ref.libraries = rs.getString("libraries");
-						ref.edition = rs.getString("edition");
-						ref.pub_date = rs.getString("pub_date");
-						ref.language = rs.getString("language");
-						ref.title = rs.getString("title");
-						refs.put(refBibid, ref);
-					}
-					referenceCount++;
-					if (knockOnUpdatesNeeded) {
-						markBibForUpdateStmt.setInt(1,refBibid);
-						markBibForUpdateStmt.addBatch();
+		Map<Integer,TitleMatchReference> refs = new HashMap<>();
+		TitleMatchReference thisTitle = null;
+		try (   PreparedStatement recordsForWorkStmt = conn.prepareStatement(recordsForWorkQuery);
+				PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ) {
+
+			for (long workid : workids) {
+				workidFacet.addValue(workid, 1);
+				recordsForWorkStmt.setLong(1, workid);
+				int referenceCount = 0;
+				try (   ResultSet rs = recordsForWorkStmt.executeQuery()   ) {
+
+					while (rs.next()) {
+						int refBibid = rs.getInt("bib_id");
+						if (bibid == refBibid) {
+							if (thisTitle == null) {
+								thisTitle = new TitleMatchReference();
+								thisTitle.id = bibid;
+								thisTitle.format = rs.getString("format");
+								thisTitle.sites = rs.getString("sites");
+								thisTitle.libraries = rs.getString("libraries");
+								thisTitle.edition = rs.getString("edition");
+								thisTitle.pub_date = rs.getString("pub_date");
+								thisTitle.language = rs.getString("language");
+								thisTitle.title = rs.getString("title");
+							}
+						} else {
+							if ( ! refs.containsKey(refBibid) ) {
+								TitleMatchReference ref = new TitleMatchReference();
+								ref.id = refBibid;
+								ref.format = rs.getString("format");
+								ref.sites = rs.getString("sites");
+								ref.libraries = rs.getString("libraries");
+								ref.edition = rs.getString("edition");
+								ref.pub_date = rs.getString("pub_date");
+								ref.language = rs.getString("language");
+								ref.title = rs.getString("title");
+								refs.put(refBibid, ref);
+							}
+							referenceCount++;
+							if (knockOnUpdatesNeeded) {
+								markBibForUpdateStmt.setInt(1,refBibid);
+								markBibForUpdateStmt.addBatch();
+							}
+						}
 					}
 				}
+				if (referenceCount >= 1)
+					workidDisplay.addValue(String.valueOf(workid)+"|"
+							+String.valueOf(referenceCount+1), 1);
 			}
-			if (referenceCount >= 1)
-				workidDisplay.addValue(String.valueOf(workid)+"|"
-						+String.valueOf(referenceCount+1), 1);
-			rs.close();
+			markBibForUpdateStmt.executeBatch();
 		}
-		recordsForWorkStmt.close();
-		markBibForUpdateStmt.executeBatch();
-		markBibForUpdateStmt.close();
 
 		document.put("workid_facet", workidFacet);
 
@@ -179,9 +195,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 		
 	}
-	private String generateJsonAvailability(
-			TitleMatchReference ref)  throws Exception {
-		Map<String,Object> json = new HashMap<String,Object>();
+	private static String generateJsonAvailability(TitleMatchReference ref)  throws Exception {
+		Map<String,Object> json = new HashMap<>();
 		json.put("bibid", ref.id);
 		json.put("format", ref.format);
 		if (ref.sites != null && ! ref.sites.isEmpty())
@@ -201,9 +216,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return jsonstream.toString("UTF-8");
 	}
 
-	private String generatePipedAvailability(
-			TitleMatchReference thisTitle,
-			TitleMatchReference ref) {
+	private static String generatePipedAvailability(TitleMatchReference thisTitle,TitleMatchReference ref) {
 		StringBuilder sb = new StringBuilder();
 		if ( ! stringsEqual(thisTitle.format,ref.format)) {
 			sb.append(ref.format);
@@ -238,7 +251,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private List<HoldingRecord> extractHoldingsFromSolrField(
 			Collection<Object> fieldValues) throws ParseException {
-		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
+		List<HoldingRecord> holdings = new ArrayList<>();
 		if (fieldValues == null) return holdings;
 		for (Object holding_obj : fieldValues) {
 			String holding = holding_obj.toString();
@@ -259,7 +272,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private List<ItemRecord> extractItemsFromSolrField(
 			Collection<Object> fieldValues) throws ParseException {
-		List<ItemRecord> items = new ArrayList<ItemRecord>();
+		List<ItemRecord> items = new ArrayList<>();
 		for (Object item_obj : fieldValues) {
 			String item = item_obj.toString();
 			Timestamp modified = null;
@@ -273,16 +286,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return items;
 	}
 
-	private Set<Integer> extractOclcIdsFromSolrField(
-			Collection<Object> fieldValues) {
-		Set<Integer> oclcIds = new HashSet<Integer>();
+	private static Set<Integer> extractOclcIdsFromSolrField(Collection<Object> fieldValues) {
+		Set<Integer> oclcIds = new HashSet<>();
 		if (fieldValues == null) return oclcIds;
 		for (Object id_obj : fieldValues) {
 			String id = id_obj.toString();
 			if (id.startsWith("(OCoLC)")) {
 				try {
 					oclcIds.add(Integer.valueOf(id.substring(7)));
-				} catch (NumberFormatException e) {
+				} catch (@SuppressWarnings("unused") NumberFormatException e) {
 					// Ignore the value if it's invalid
 				}
 			}
@@ -291,7 +303,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	}
 
 	/* s1.equals(s2) will produce NPE if s1 is null. */
-	private boolean stringsEqual( String s1, String s2 ) {
+	private static boolean stringsEqual( String s1, String s2 ) {
 		if ( s1 == null ) {
 			if ( s2 == null || s2.isEmpty() )
 				return true;
@@ -304,63 +316,67 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		return false;
 	}
 
-	private Boolean updateBibField(Connection conn, SolrInputDocument document,
+	private static Boolean updateBibField(Connection conn, SolrInputDocument document,
 			Integer bibid) throws SQLException, ParseException {
 
-		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
+		TitleMatchReference ref = pullReferenceFields(document);
 
 		// pull existing values from DB are the descriptive fields changed?
-		PreparedStatement origDescStmt = conn.prepareStatement(
+		final String origDescQuery =
 				"SELECT format, sites, libraries, edition,"
-				+ " pub_date, title, language, active"
-				+ " FROM "+CurrentDBTable.BIB_SOLR.toString()+" WHERE bib_id = ?");
-		origDescStmt.setInt(1, bibid);
-		ResultSet origDescRS = origDescStmt.executeQuery();
+						+ " pub_date, title, language, active"
+						+ " FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
 		boolean descChanged = false;
-		while (origDescRS.next())
-			if (  ! stringsEqual(ref.format,origDescRS.getString("format"))
-					|| ! stringsEqual(ref.sites,origDescRS.getString("sites"))
-					|| ! stringsEqual(ref.libraries,origDescRS.getString("libraries"))
-					|| ! stringsEqual(ref.edition,origDescRS.getString("edition"))
-					|| ! stringsEqual(ref.pub_date,origDescRS.getString("pub_date"))
-					|| ! stringsEqual(ref.title,origDescRS.getString("title"))
-					|| ! stringsEqual(ref.language,origDescRS.getString("language"))
-					|| ! origDescRS.getBoolean("active"))
-				descChanged = true;
-		origDescRS.close();
-		origDescStmt.close();
+		try (  PreparedStatement origDescStmt = conn.prepareStatement( origDescQuery )  ) {
+
+			origDescStmt.setInt(1, bibid);
+			try (  ResultSet origDescRS = origDescStmt.executeQuery()  ) {
+				while (origDescRS.next())
+					if (  ! stringsEqual(ref.format,origDescRS.getString("format"))
+							|| ! stringsEqual(ref.sites,origDescRS.getString("sites"))
+							|| ! stringsEqual(ref.libraries,origDescRS.getString("libraries"))
+							|| ! stringsEqual(ref.edition,origDescRS.getString("edition"))
+							|| ! stringsEqual(ref.pub_date,origDescRS.getString("pub_date"))
+							|| ! stringsEqual(ref.title,origDescRS.getString("title"))
+							|| ! stringsEqual(ref.language,origDescRS.getString("language"))
+							|| ! origDescRS.getBoolean("active"))
+						descChanged = true;
+			}
+		}
 
 		// update db appropriately
 		if (descChanged) {
-			PreparedStatement updateDescStmt = conn.prepareStatement(
-					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
+			final String updateDescQuery =
+					"UPDATE "+CurrentDBTable.BIB_SOLR
 					+" SET record_date = ?, format = ?, "
 					+ "sites = ?, libraries = ?, "
 					+ "edition = ?, pub_date = ?, title = ?, language = ?, "
 					+ "index_date = NOW(), linking_mod_date = NOW(), "
 					+ "active = 1 "
-					+ "WHERE bib_id = ?");
-			updateDescStmt.setTimestamp(1, ref.timestamp);
-			updateDescStmt.setString(2, ref.format);
-			updateDescStmt.setString(3, ref.sites);
-			updateDescStmt.setString(4, ref.libraries);
-			updateDescStmt.setString(5, ref.edition);
-			updateDescStmt.setString(6, ref.pub_date);
-			updateDescStmt.setString(7, ref.title);
-			updateDescStmt.setString(8, ref.language);
-			updateDescStmt.setInt(9, bibid);
-			updateDescStmt.executeUpdate();
-			updateDescStmt.close();
+					+ "WHERE bib_id = ?";
+			try (PreparedStatement updateDescStmt = conn.prepareStatement(updateDescQuery)) {
+				updateDescStmt.setTimestamp(1, ref.timestamp);
+				updateDescStmt.setString(2, ref.format);
+				updateDescStmt.setString(3, ref.sites);
+				updateDescStmt.setString(4, ref.libraries);
+				updateDescStmt.setString(5, ref.edition);
+				updateDescStmt.setString(6, ref.pub_date);
+				updateDescStmt.setString(7, ref.title);
+				updateDescStmt.setString(8, ref.language);
+				updateDescStmt.setInt(9, bibid);
+				updateDescStmt.executeUpdate();
+			}
 		}
 		if ( ! descChanged ) {
-			PreparedStatement updateIndexedDateStmt = conn.prepareStatement(
-					"UPDATE "+CurrentDBTable.BIB_SOLR.toString()
+			final String updateIndexedDateQuery =
+					"UPDATE "+CurrentDBTable.BIB_SOLR
 					+" SET record_date = ?, index_date = NOW(), active = 1 "
-					+"WHERE bib_id = ?");
-			updateIndexedDateStmt.setTimestamp(1, ref.timestamp);
-			updateIndexedDateStmt.setInt(2, bibid);
-			updateIndexedDateStmt.executeUpdate();
-			updateIndexedDateStmt.close();
+					+"WHERE bib_id = ?";
+			try (  PreparedStatement updateIndexedDateStmt = conn.prepareStatement(updateIndexedDateQuery)  ) {
+				updateIndexedDateStmt.setTimestamp(1, ref.timestamp);
+				updateIndexedDateStmt.setInt(2, bibid);
+				updateIndexedDateStmt.executeUpdate();
+			}
 		}
 		
 		return descChanged;
@@ -376,27 +392,30 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			oclcIds = extractOclcIdsFromSolrField(
 					document.getFieldValues("other_id_display"));
 		} else {
-			oclcIds = new HashSet<Integer>();
+			oclcIds = new HashSet<>();
 		}
-		Set<Integer> previousOclcIds = new HashSet<Integer>();
-		PreparedStatement origWorksStmt = conn.prepareStatement(
-				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK.toString()+
-				" WHERE bib_id = ? AND active = 1");
-		origWorksStmt.setInt(1, bibid);
-		ResultSet rs = origWorksStmt.executeQuery();
-		while (rs.next()) {
-			previousOclcIds.add(rs.getInt(1));
+		Set<Integer> previousOclcIds = new HashSet<>();
+		final String origWorksQuery =
+				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK+
+				" WHERE bib_id = ? AND active = 1";
+		try (  PreparedStatement origWorksStmt = conn.prepareStatement(origWorksQuery)  ){
+
+			origWorksStmt.setInt(1, bibid);
+			try (  ResultSet rs = origWorksStmt.executeQuery()  ) {
+
+				while (rs.next()) {
+					previousOclcIds.add(rs.getInt(1));
+				}
+			}
 		}
-		rs.close();
-		origWorksStmt.close();
 
 		// new
-		Set<Integer> newOclcIds = new HashSet<Integer>(oclcIds);
+		Set<Integer> newOclcIds = new HashSet<>(oclcIds);
 		newOclcIds.removeAll(previousOclcIds);
 		populateWorkInfo(conn, newOclcIds, bibid);
 
 		// removed
-		Set<Integer> removedOclcIds = new HashSet<Integer>(previousOclcIds);
+		Set<Integer> removedOclcIds = new HashSet<>(previousOclcIds);
 		removedOclcIds.removeAll(oclcIds);
 		deactivateWorkInfo(conn, removedOclcIds, bibid);
 
@@ -405,25 +424,26 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		identifyRetainedWorkIds(conn, oclcIds);
 	}
 
-	private void populateBibField(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
-		TitleMatchReference ref = pullReferenceFields(ClientUtils.toSolrDocument(document));
+	private static void populateBibField(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
+		TitleMatchReference ref = pullReferenceFields(document);
 
-		PreparedStatement insertBibStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.BIB_SOLR.toString()+
+		final String insertBibQuery =
+				"INSERT INTO "+CurrentDBTable.BIB_SOLR+
 				" (bib_id, record_date, format, sites, libraries, "
 				+ "index_date, edition, pub_date, title, language) "
-						+ "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)");
-		insertBibStmt.setInt(1, ref.id);
-		insertBibStmt.setTimestamp(2, ref.timestamp);
-		insertBibStmt.setString(3, ref.format);
-		insertBibStmt.setString(4, ref.sites);
-		insertBibStmt.setString(5, ref.libraries);
-		insertBibStmt.setString(6, ref.edition);
-		insertBibStmt.setString(7, ref.pub_date);
-		insertBibStmt.setString(8, ref.title);
-		insertBibStmt.setString(9, ref.language);
-		insertBibStmt.executeUpdate();
-		insertBibStmt.close();
+						+ "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
+		try (  PreparedStatement insertBibStmt = conn.prepareStatement(insertBibQuery) ){
+			insertBibStmt.setInt(1, ref.id);
+			insertBibStmt.setTimestamp(2, ref.timestamp);
+			insertBibStmt.setString(3, ref.format);
+			insertBibStmt.setString(4, ref.sites);
+			insertBibStmt.setString(5, ref.libraries);
+			insertBibStmt.setString(6, ref.edition);
+			insertBibStmt.setString(7, ref.pub_date);
+			insertBibStmt.setString(8, ref.title);
+			insertBibStmt.setString(9, ref.language);
+			insertBibStmt.executeUpdate();
+		}
 	}
 
 	private void populateHoldingFields(Connection conn, SolrInputDocument document,
@@ -431,17 +451,19 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		List<HoldingRecord> holdings = extractHoldingsFromSolrField(
 				document.getFieldValues("holdings_display"));
-		PreparedStatement insertMfhdStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.MFHD_SOLR.toString()+" (bib_id, mfhd_id, record_date) "
-						+ "VALUES (?, ?, ?)");
-		for (HoldingRecord holding : holdings ) {
-			insertMfhdStmt.setInt(1, bibid);
-			insertMfhdStmt.setInt(2, holding.id);
-			insertMfhdStmt.setTimestamp(3, holding.modified);
-			insertMfhdStmt.addBatch();
+		final String insertMfhdQuery =
+				"INSERT INTO "+CurrentDBTable.MFHD_SOLR+" (bib_id, mfhd_id, record_date) "
+						+ "VALUES (?, ?, ?)";
+		try (  PreparedStatement insertMfhdStmt = conn.prepareStatement(insertMfhdQuery)  ){
+
+			for (HoldingRecord holding : holdings ) {
+				insertMfhdStmt.setInt(1, bibid);
+				insertMfhdStmt.setInt(2, holding.id);
+				insertMfhdStmt.setTimestamp(3, holding.modified);
+				insertMfhdStmt.addBatch();
+			}
+			insertMfhdStmt.executeBatch();
 		}
-		insertMfhdStmt.executeBatch();
-		insertMfhdStmt.close();
 	}
 
 	private void populateItemFields(Connection conn, SolrInputDocument document) throws SQLException, ParseException {
@@ -450,172 +472,187 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			return;
 		List<ItemRecord> items = extractItemsFromSolrField(
 				document.getFieldValues("item_display"));
-		PreparedStatement insertItemStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.ITEM_SOLR.toString()+
-				" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)");
-		for (ItemRecord item : items ) {
-			insertItemStmt.setInt(1, item.mfhdid);
-			insertItemStmt.setInt(2, item.id);
-			insertItemStmt.setTimestamp(3, item.modified);
-			insertItemStmt.addBatch();
+		final String insertItemQuery =
+				"INSERT INTO "+CurrentDBTable.ITEM_SOLR+
+				" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+		try (  PreparedStatement insertItemStmt = conn.prepareStatement(insertItemQuery)  ){
+
+			for (ItemRecord item : items ) {
+				insertItemStmt.setInt(1, item.mfhdid);
+				insertItemStmt.setInt(2, item.id);
+				insertItemStmt.setTimestamp(3, item.modified);
+				insertItemStmt.addBatch();
+			}
+			insertItemStmt.executeBatch();
 		}
-		insertItemStmt.executeBatch();
-		insertItemStmt.close();
 	}
 
 	private void identifyRetainedWorkIds(Connection conn, Set<Integer> oclcIds) throws SQLException {
 
-		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
-				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
+		final String findWorksForOclcIdQuery =
+			"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?";
+		try (  PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(findWorksForOclcIdQuery)  ){
 
-		for (int oclcId : oclcIds) {
-			findWorksForOclcIdStmt.setInt(1, oclcId);
-			ResultSet rs = findWorksForOclcIdStmt.executeQuery();
-			while (rs.next())
-				workids.add(rs.getLong(1));
-			rs.close();
+			for (int oclcId : oclcIds) {
+				findWorksForOclcIdStmt.setInt(1, oclcId);
+				try ( ResultSet rs = findWorksForOclcIdStmt.executeQuery()  ) {
+
+					while (rs.next())
+						workids.add(rs.getLong(1));
+				}
+			}
 		}
-		findWorksForOclcIdStmt.close();
 	}
 	private void populateWorkInfo(Connection conn, Set<Integer> oclcIds, int bibid) throws SQLException {
 
-		PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(
-				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?");
-		PreparedStatement checkForDeactivatedBibWorkMappingStmt = conn.prepareStatement(
+		final String findWorksForOclcIdQuery =
+			"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?";
+		final String checkForDeactivatedBibWorkMappingQuery =
 				"SELECT * FROM "+CurrentDBTable.BIB2WORK+
-				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?");
-		PreparedStatement activateBibWorkMappingStmt = conn.prepareStatement(
+				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?";
+		final String activateBibWorkMappingQuery =
 				"UPDATE "+CurrentDBTable.BIB2WORK+
 				"  SET active = 1, mod_date = NOW() "+
-				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?");
-		PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.BIB2WORK.toString()+
-				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)");
-		PreparedStatement findBibsForAddedWorksStmt = conn.prepareStatement(
+				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?";
+		final String insertBibWorkMappingQuery =
+				"INSERT INTO "+CurrentDBTable.BIB2WORK+
+				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)";
+		final String findBibsForAddedWorksQuery =
 				"SELECT bib_id"
-				+ " FROM "+CurrentDBTable.BIB2WORK.toString()
+				+ " FROM "+CurrentDBTable.BIB2WORK
 				+" WHERE work_id = ?"
 				+ "  AND oclc_id = ?"
 				+ "  AND bib_id != ?"
-				+ "  AND active = 1");
-		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
+				+ "  AND active = 1";
+		final String markBibForUpdateQuery =
+				"INSERT INTO "+CurrentDBTable.QUEUE+" (bib_id, priority, cause)"
+				+ " VALUES (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
+
+		try (   PreparedStatement findWorksForOclcIdStmt = conn.prepareStatement(findWorksForOclcIdQuery);
+				PreparedStatement checkForDeactivatedBibWorkMappingStmt =
+						conn.prepareStatement(checkForDeactivatedBibWorkMappingQuery);
+				PreparedStatement activateBibWorkMappingStmt = conn.prepareStatement(activateBibWorkMappingQuery);
+				PreparedStatement insertBibWorkMappingStmt = conn.prepareStatement(insertBibWorkMappingQuery);
+				PreparedStatement findBibsForAddedWorksStmt = conn.prepareStatement(findBibsForAddedWorksQuery);
+				PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ) {
 
 		for (int oclcId : oclcIds) {
 			findWorksForOclcIdStmt.setInt(1, oclcId);
-			ResultSet rs = findWorksForOclcIdStmt.executeQuery();
-			while (rs.next()) {
-				long workid = rs.getLong(1);
-				// Is the mapping already present, but deactivated?
-				checkForDeactivatedBibWorkMappingStmt.setInt(1, bibid);
-				checkForDeactivatedBibWorkMappingStmt.setInt(2, oclcId);
-				checkForDeactivatedBibWorkMappingStmt.setLong(3, workid);
-				ResultSet isDeactivatedRS = checkForDeactivatedBibWorkMappingStmt.executeQuery();
-				boolean isDeactivated = false;
-				while (isDeactivatedRS.next())
-					isDeactivated = true;
-				isDeactivatedRS.close();
+			try (  ResultSet rs = findWorksForOclcIdStmt.executeQuery()  ){
+				while (rs.next()) {
+					long workid = rs.getLong(1);
+					// Is the mapping already present, but deactivated?
+					checkForDeactivatedBibWorkMappingStmt.setInt(1, bibid);
+					checkForDeactivatedBibWorkMappingStmt.setInt(2, oclcId);
+					checkForDeactivatedBibWorkMappingStmt.setLong(3, workid);
+					boolean isDeactivated = false;
+					try (  ResultSet isDeactivatedRS = checkForDeactivatedBibWorkMappingStmt.executeQuery()  ){
+						while (isDeactivatedRS.next())
+							isDeactivated = true;
+					}
 
-				if (isDeactivated) {
-					// If it's present but deactivated, then "adding" it means activating it.
-					activateBibWorkMappingStmt.setInt(1, bibid);
-					activateBibWorkMappingStmt.setInt(2, oclcId);
-					activateBibWorkMappingStmt.setLong(3, workid);
-					activateBibWorkMappingStmt.addBatch();
-				} else {
-					// If it's not present at all, then adding it involves an insert.
-					insertBibWorkMappingStmt.setInt(1, bibid);
-					insertBibWorkMappingStmt.setInt(2, oclcId);
-					insertBibWorkMappingStmt.setLong(3, workid);
-					insertBibWorkMappingStmt.addBatch();
+					if (isDeactivated) {
+						// If it's present but deactivated, then "adding" it means activating it.
+						activateBibWorkMappingStmt.setInt(1, bibid);
+						activateBibWorkMappingStmt.setInt(2, oclcId);
+						activateBibWorkMappingStmt.setLong(3, workid);
+						activateBibWorkMappingStmt.addBatch();
+					} else {
+						// If it's not present at all, then adding it involves an insert.
+						insertBibWorkMappingStmt.setInt(1, bibid);
+						insertBibWorkMappingStmt.setInt(2, oclcId);
+						insertBibWorkMappingStmt.setLong(3, workid);
+						insertBibWorkMappingStmt.addBatch();
+					}
+					workids.add(workid);
+					findBibsForAddedWorksStmt.setLong(1, workid);
+					findBibsForAddedWorksStmt.setInt(2, oclcId);
+					findBibsForAddedWorksStmt.setInt(3, bibid);
+					try (  ResultSet knockOnRS = findBibsForAddedWorksStmt.executeQuery()  ){
+						while (knockOnRS.next()) {
+							markBibForUpdateStmt.setInt(1, knockOnRS.getInt(1));
+							markBibForUpdateStmt.addBatch();
+						}
+					}
 				}
-				workids.add(workid);
-				findBibsForAddedWorksStmt.setLong(1, workid);
-				findBibsForAddedWorksStmt.setInt(2, oclcId);
-				findBibsForAddedWorksStmt.setInt(3, bibid);
-				ResultSet knockOnRS = findBibsForAddedWorksStmt.executeQuery();
-				while (knockOnRS.next()) {
-					markBibForUpdateStmt.setInt(1, knockOnRS.getInt(1));
-					markBibForUpdateStmt.addBatch();
-				}
-				knockOnRS.close();
 			}
-			rs.close();
 		}
-		findWorksForOclcIdStmt.close();
 		insertBibWorkMappingStmt.executeBatch();
-		insertBibWorkMappingStmt.close();
 		activateBibWorkMappingStmt.executeBatch();
-		activateBibWorkMappingStmt.close();
 		markBibForUpdateStmt.executeBatch();
-		markBibForUpdateStmt.close();
-		findBibsForAddedWorksStmt.close();
+		}
 	}
 
-	private void deactivateWorkInfo(Connection conn, Set<Integer> removedOclcIds, int bibid) throws SQLException {
+	private static void deactivateWorkInfo(Connection conn, Set<Integer> removedOclcIds, int bibid) throws SQLException {
 
 		if (removedOclcIds.isEmpty()) 
 			return;
-		PreparedStatement updateBibWorkMappingStmt = conn.prepareStatement(
-				"UPDATE "+CurrentDBTable.BIB2WORK.toString()+
-				" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?");
-		PreparedStatement findBibsForDeactivatedWorksStmt = conn.prepareStatement(
+		final String updateBibWorkMappingQuery =
+				"UPDATE "+CurrentDBTable.BIB2WORK+
+				" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?";
+		final String findBibsForDeactivatedWorksQuery =
 				"SELECT distinct b.bib_id"
-				+ " FROM "+CurrentDBTable.BIB2WORK.toString()+" as a, "
-						+CurrentDBTable.BIB2WORK.toString()+" as b"
+				+ " FROM "+CurrentDBTable.BIB2WORK+" as a, "
+						+CurrentDBTable.BIB2WORK+" as b"
 				+ " WHERE a.work_id = b.work_id"
 				+ "   AND a.bib_id = ? AND a.oclc_id = ?"
 				+ "   AND b.bib_id != a.bib_id"
-				+ "   AND b.active = 1");
-		PreparedStatement markBibForUpdateStmt = conn.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE.toString()
+				+ "   AND b.active = 1";
+		final String markBibForUpdateQuery =
+				"INSERT INTO "+CurrentDBTable.QUEUE
 				+ " (bib_id, priority, cause) VALUES"
-				+ " (?, 1, '"+DataChangeUpdateType.TITLELINK.toString()+"')");
-		for (int oclcid : removedOclcIds) {
-			updateBibWorkMappingStmt.setInt(1, bibid);
-			updateBibWorkMappingStmt.setInt(2, oclcid);
-			updateBibWorkMappingStmt.addBatch();
-			findBibsForDeactivatedWorksStmt.setInt(1, bibid);
-			findBibsForDeactivatedWorksStmt.setInt(2, oclcid);
-			ResultSet rs = findBibsForDeactivatedWorksStmt.executeQuery();
-			while (rs.next()) {
-				markBibForUpdateStmt.setInt(1, rs.getInt(1));
-				markBibForUpdateStmt.addBatch();
+				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
+						+DataChangeUpdateType.TITLELINK+"')";
+		try (   PreparedStatement updateBibWorkMappingStmt = conn.prepareStatement(updateBibWorkMappingQuery);
+				PreparedStatement findBibsForDeactivatedWorksStmt = conn.prepareStatement(findBibsForDeactivatedWorksQuery);
+				PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)   ){
+
+			for (int oclcid : removedOclcIds) {
+				updateBibWorkMappingStmt.setInt(1, bibid);
+				updateBibWorkMappingStmt.setInt(2, oclcid);
+				updateBibWorkMappingStmt.addBatch();
+				findBibsForDeactivatedWorksStmt.setInt(1, bibid);
+				findBibsForDeactivatedWorksStmt.setInt(2, oclcid);
+				try (  ResultSet rs = findBibsForDeactivatedWorksStmt.executeQuery()  ){
+					while (rs.next()) {
+						markBibForUpdateStmt.setInt(1, rs.getInt(1));
+						markBibForUpdateStmt.addBatch();
+					}
+				}
 			}
-			rs.close();
+			updateBibWorkMappingStmt.executeBatch();
+			markBibForUpdateStmt.executeBatch();
 		}
-		updateBibWorkMappingStmt.executeBatch();
-		updateBibWorkMappingStmt.close();
-		markBibForUpdateStmt.executeBatch();
-		markBibForUpdateStmt.close();
-		findBibsForDeactivatedWorksStmt.close();
 	}
 
-	private List<HoldingRecord> removeOrigHoldingsDataFromDB(
-			Connection conn, SolrInputDocument document, int bibid) throws SQLException {
-		List<HoldingRecord> holdings = new ArrayList<HoldingRecord>();
-		PreparedStatement origMfhdStmt = conn.prepareStatement(
-				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR.toString()+" WHERE bib_id = ?");
-		PreparedStatement deleteItemStmt = conn.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.ITEM_SOLR.toString()+" WHERE mfhd_id = ?");
-		origMfhdStmt.setInt(1, bibid);
-		ResultSet mfhdRs = origMfhdStmt.executeQuery();
-		while (mfhdRs.next()) {
-			deleteItemStmt.setInt(1, mfhdRs.getInt(1));
-			deleteItemStmt.addBatch();
-		}
-		mfhdRs.close();
-		origMfhdStmt.close();
-		deleteItemStmt.executeBatch();
-		deleteItemStmt.close();
+	private static List<HoldingRecord> removeOrigHoldingsDataFromDB(
+			Connection conn, int bibid) throws SQLException {
+		List<HoldingRecord> holdings = new ArrayList<>();
+		final String origMfhdQuery =
+				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+		final String deleteItemQuery =
+				"DELETE FROM "+CurrentDBTable.ITEM_SOLR+" WHERE mfhd_id = ?";
+		try (   PreparedStatement origMfhdStmt = conn.prepareStatement(origMfhdQuery);
+				PreparedStatement deleteItemStmt = conn.prepareStatement(deleteItemQuery)   ){
 
-		PreparedStatement deleteMfhdStmt = conn.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.MFHD_SOLR.toString()+" WHERE bib_id = ?");
-		deleteMfhdStmt.setInt(1, bibid);
-		deleteMfhdStmt.executeUpdate();
-		deleteMfhdStmt.close();
+			origMfhdStmt.setInt(1, bibid);
+			try (  ResultSet mfhdRs = origMfhdStmt.executeQuery()  ){
+
+				while (mfhdRs.next()) {
+					deleteItemStmt.setInt(1, mfhdRs.getInt(1));
+					deleteItemStmt.addBatch();
+				}
+			}
+			deleteItemStmt.executeBatch();
+		}
+
+		try (  PreparedStatement deleteMfhdStmt = conn.prepareStatement(
+				"DELETE FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?")  ){
+
+			deleteMfhdStmt.setInt(1, bibid);
+			deleteMfhdStmt.executeUpdate();
+		}
 
 		return holdings;
 	}

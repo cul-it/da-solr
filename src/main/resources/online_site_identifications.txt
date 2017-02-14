@@ -1,6 +1,7 @@
 ABI/INFORM	ABI/INFORM
 ACLS Humanities	ACLS Humanities
 www.aspresolver.com	Alexander Street Press
+biodiversitylibrary.org	Biodiversity Heritage Library
 set=Books24x7	Books24x7
 Brepols Miscellanea	Brepols Miscellanea
 Business Insights	Business Insights
@@ -40,3 +41,4 @@ U.S. Government Printing Office	U.S. Government Printing Office
 .gpo.gov	U.S. Government Printing Office
 .fldp.gov	U.S. Government Printing Office
 .fdlp.gov	U.S. Government Printing Office
+Wiley-Blackwell Online Books	Wiley-Blackwell Online Books

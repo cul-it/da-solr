@@ -37,7 +37,7 @@ public class RdfLoadingTestBase {
 	static final String standardRDFDir =  "rdfToSolr/build/resources/main/";
 		
 	
-	static final String[] standardFiles = { "shadows.nt", "language_code.nt", "library.nt", "callnumber_map.nt", "fieldGroups.nt" };
+	static final String[] standardFiles = { "shadows.nt", "language_code.nt", "callnumber_map.nt", "fieldGroups.nt" };
 	
     public static TemporaryFolder folder = null;
 		
@@ -49,7 +49,7 @@ public class RdfLoadingTestBase {
 	static RDFService loadRdf() throws Exception {		
 		
 		//load all files in test dir
-		List<File> files = new LinkedList<File>(Arrays.asList(new File("./"+testRDFDir).listFiles()));		
+		List<File> files = new LinkedList<>(Arrays.asList(new File("./"+testRDFDir).listFiles()));		
 		assertNotNull("no test RDF files found",files);
 		assertTrue("no test RDF files found", files.size() > 0 );
 		
@@ -61,20 +61,16 @@ public class RdfLoadingTestBase {
 		
 		Model model = ModelFactory.createDefaultModel();
 		for (File file : files ){
-			InputStream in = FileManager.get().open( file.getAbsolutePath() );	
-			assertNotNull("Could not load file " + file.getAbsolutePath(), in );
-			try{
+			try (InputStream in = FileManager.get().open( file.getAbsolutePath() )) {
+				assertNotNull("Could not load file " + file.getAbsolutePath(), in );
 				model.read(in,null,"N-TRIPLE");
-			}catch(Throwable th){
-				throw new Exception( "Could not load file " + file.getAbsolutePath() , th);
-			}finally{
-				in.close();
 			}
 		}				
 				
 		return new RDFServiceModel( model );
 	}
 		
+	@SuppressWarnings("static-method")
 	public void testLanguageMappingsInRDF() throws RDFServiceException{
 		String englishURI = "<http://da-rdf.library.cornell.edu/individual/leng>";
 		assertTrue("Expected to find statements about English mappings in the RDF. " +
@@ -83,7 +79,8 @@ public class RdfLoadingTestBase {
                    "ASK WHERE { " + englishURI  
                    + " <http://da-rdf.library.cornell.edu/integrationLayer/0.1/code> ?a }"));
 	}
-			
+
+	@SuppressWarnings("static-method")
 	public void testCallnumberMappingsInRDF() throws RDFServiceException{
 		String englishURI = "<http://da-rdf.library.cornell.edu/individual/lc_A>";
 		assertTrue("Expected to find statements about lc callnumber prefix "+

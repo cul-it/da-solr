@@ -28,7 +28,7 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 		
 		FieldMakerStep step = new FieldMakerStep();
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 		
 		MarcRecord rec = new MarcRecord();
 		String tag = "";
@@ -45,8 +45,8 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			Set<String> values880 = new HashSet<String>();
-			Set<String> valuesMain = new HashSet<String>();
+			Set<String> values880 = new HashSet<>();
+			Set<String> valuesMain = new HashSet<>();
 			String cts880 = null, ctsMain = null;
 			for (DataField f: dataFields)
 				if (f.tag.equals("880")) {
@@ -82,18 +82,17 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 
 		if (nexttag.equals("")) {
 			return step;
-		} else {
-			step.addMainStoreQuery("title_series_"+nexttag, 
-					"SELECT *\n" +
-				    " WHERE {\n" +
-			        "  $recordURI$ marcrdf:hasField"+nexttag+" ?field.\n" +
-				    "  ?field marcrdf:tag ?tag.\n" +
-				    "  ?field marcrdf:ind2 ?ind2.\n" +
-				   	"  ?field marcrdf:ind1 ?ind1.\n" +
-					"  ?field marcrdf:hasSubfield ?sfield.\n" +
-					"  ?sfield marcrdf:code ?code.\n" +
-					"  ?sfield marcrdf:value ?value. }");
-			return step;
 		}
+		step.addMainStoreQuery("title_series_"+nexttag, 
+				"SELECT *\n" +
+			    " WHERE {\n" +
+		        "  $recordURI$ marcrdf:hasField"+nexttag+" ?field.\n" +
+			    "  ?field marcrdf:tag ?tag.\n" +
+			    "  ?field marcrdf:ind2 ?ind2.\n" +
+			   	"  ?field marcrdf:ind1 ?ind1.\n" +
+				"  ?field marcrdf:hasSubfield ?sfield.\n" +
+				"  ?sfield marcrdf:code ?code.\n" +
+				"  ?sfield marcrdf:value ?value. }");
+		return step;
 	}
 }

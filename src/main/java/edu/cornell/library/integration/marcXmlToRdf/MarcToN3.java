@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -61,13 +62,13 @@ public class MarcToN3 {
 		
 		converter.run();
 	
-		if (reportList != null) {
+		if (reports != null && reports.length > 0) {
 			for (String report : reports) {
 				String reportResult = converter.getReport(Report.valueOf(report));
 				System.out.println(report);
 				FileUtils.writeStringToFile(
 						new File (config.getNonVoyIdPrefix() + "-"+ report + ".txt"),
-						reportResult, "UTF-8", false);
+						reportResult, StandardCharsets.UTF_8, false);
 				System.out.println(reportResult);
 			}
 		}

@@ -25,7 +25,7 @@ public class SuppressUnwantedValues implements DocumentPostProcess{
 	}
 
 	/* Eliminate value from field fieldName, if it appears. */
-	public void eliminateFieldValue(SolrInputDocument document, String fieldName, String value) {
+	public static void eliminateFieldValue(SolrInputDocument document, String fieldName, String value) {
 		if (! document.containsKey(fieldName)) {
 			return;
 		}

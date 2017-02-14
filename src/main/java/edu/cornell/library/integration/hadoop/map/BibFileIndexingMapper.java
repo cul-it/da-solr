@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,9 +29,9 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.google.common.io.Files;
@@ -76,7 +75,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     Path doneDir;
 	
 	String solrURL;
-	SolrServer solr;
+	SolrClient solr;
 
     /** If true, attempt to delete the document from solr before adding them
         in order to do an update. */
@@ -114,7 +113,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				Dataset dataset = null;
 				Model model = null;
 				
-				try{
+				try {
 
 					context.progress();
 
@@ -137,19 +136,19 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					//loader.loadGraph((GraphTDB)model.getGraph(), is);
 	
 					String urlString = urlText.toString();
-					InputStream is = getUrl( urlString  );
+					try (InputStream is = getUrl( urlString  )) {
 
-					Lang l ;
-					if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
-						l = Lang.NT;
-					else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
-						l = Lang.N3;
-					else
-						throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
-					RDFDataMgr.read(model, is, l);
-					context.progress();
+						Lang l ;
+						if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+							l = Lang.NT;
+						else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+							l = Lang.N3;
+						else
+							throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+						RDFDataMgr.read(model, is, l);
+						context.progress();
 
-					is.close();
+					}
 
 					TDB.sync( dataset );
 				
@@ -164,7 +163,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					config.setRDFService("main", rdf);
 	                int n = 0;
 	
-	                Collection<SolrInputDocument> docs = new HashSet<SolrInputDocument>();
+	                Collection<SolrInputDocument> docs = new HashSet<>();
 	                for( String bibUri: bibUris){	
 	                    n++;
 	                    System.out.println("indexing " + n + " out of " + total 
@@ -185,17 +184,9 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	                }
 
 					try{
-						if ( ! docs.isEmpty() ) {
-							if( doSolrUpdate ){
-								//in solr an update is a delete followed by an add
-				            	List<String> ids = new ArrayList<String>();
-				            	for (SolrInputDocument doc : docs)
-				            		ids.add((String)doc.getFieldValue("id"));
-				            	solr.deleteById(ids);
-				            }
-							solr.add(docs);				
-						}
-		
+						if ( ! docs.isEmpty() )
+							solr.add(docs);
+
 						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
 						for (SolrInputDocument doc : docs)
 							context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
@@ -218,9 +209,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					continue; //failed... retry
 	
 				}finally{			
-					FileUtils.deleteDirectory( tmpDir );			
-					model.close();
-					dataset.close();
+					FileUtils.deleteDirectory( tmpDir );
+					if ( model != null )
+						model.close();
+					if ( dataset != null )
+						dataset.close();
 				}
 				
 				return; // success, break out of loop
@@ -234,7 +227,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     /**
      * Check if ex is an out of space exception.
      */
-    private boolean checkForOutOfSpace( Throwable ex){
+    private static boolean checkForOutOfSpace( Throwable ex){
         return ex != null 
             && ex.getMessage() != null 
             && ex.getMessage().toLowerCase().contains("no space left on device");
@@ -247,12 +240,11 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	        // skip moveToDone if special value is set for doneDir
 	        if( DO_NOT_MOVE_TO_DONE.equals( context.getConfiguration().get(BibFileToSolr.DONE_DIR) )) {
 	            return;
-	        }else{
-	            String filename = getSplitFileName(context);
-	            FileSystem fs = FileSystem.get( context.getConfiguration() );
-	            FileUtil.copy(fs, new Path(filename),fs, doneDir,
-	                          true, false, fs.getConf()); 
 	        }
+			String filename = getSplitFileName(context);
+			try (FileSystem fs = FileSystem.get( context.getConfiguration() )) {
+				FileUtil.copy(fs, new Path(filename),fs, doneDir,
+						true, false, fs.getConf()); }
         } catch (FileNotFoundException e) {
             // This error is likely caused by the file being moved when it was completed by another worker
             // let's not restart the indexing process in response.
@@ -265,7 +257,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
+	private static SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
@@ -288,8 +280,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			is = davService.getFileAsInputStream(url);
 			if( url.endsWith( ".gz" ) || url.endsWith(".gzip"))
 				return new GZIPInputStream( is );
-			else
-				return is;
+			return is;
 		} catch (Exception e) {
 			throw new IOException("Could not get " + url , e);
 		}		
@@ -297,7 +288,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 
 	/** Attempt to get all the bib record URIs from model. */
 	private Set<String> getURIsInModel(  Model model ) {
-		Set<String>bibUris = new HashSet<String>();
+		Set<String>bibUris = new HashSet<>();
 		for( String queryStr : idQueries){
 			try{
 				Query query = QueryFactory.create(queryStr) ;
@@ -323,19 +314,18 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	/** get the filename for the current file (aka input split) that is being worked on. 
 	 * @throws InterruptedException 
 	 * @throws IOException */
-    private String getSplitFileName(Context context) throws IOException, InterruptedException{
+    @SuppressWarnings("static-method")
+	private String getSplitFileName(Context context) throws IOException, InterruptedException{
     	org.apache.hadoop.mapreduce.InputSplit split = context.getInputSplit();
         if( split instanceof  FileSplit ){
             FileSplit fileSplit = (FileSplit)context.getInputSplit();
             return fileSplit.getPath().getName();			
-        }else{
-            String[] locs =  split.getLocations();
-            if( locs != null && locs.length > 0 ){
-                return split.getLocations()[0];
-            }else{
-                return "no_split_location_or_file_found";
-            }
         }
+		String[] locs =  split.getLocations();
+		if( locs != null && locs.length > 0 ){
+		    return split.getLocations()[0];
+		}
+		return "no_split_location_or_file_found";
     }
 
 	@Override
@@ -357,13 +347,13 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					+ BibFileToSolr.SOLR_SERVICE_URL);
 				
 		//solr = new ConcurrentUpdateSolrServer(solrURL, 100, 2);
-        solr = new HttpSolrServer(solrURL);
+        solr = new HttpSolrClient(solrURL);
 		
 		try { solr.ping(); } catch (SolrServerException e) {
 			throw new Error("Cannot connect to solr server at \""+solrURL+"\".",e);
 		}
 		
-		baseModel = loadBaseModel( context );
+		baseModel = loadBaseModel( );
 						
 		davService = new DavServiceImpl(
 				conf.get(BibFileToSolr.BIB_WEBDAV_USER),
@@ -375,15 +365,15 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }
 	}
 	
-	private Model loadBaseModel(Context context) throws IOException {		
+	private Model loadBaseModel() throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
-		String[] baseNtFiles = { "/shadows.nt","/library.nt","/language_code.nt", "/callnumber_map.nt","/fieldGroups.nt"};
+		String[] baseNtFiles = { "/shadows.nt","/language_code.nt", "/callnumber_map.nt","/fieldGroups.nt"};
 		for( String fileName : baseNtFiles ){		    
-			InputStream in = getClass().getResourceAsStream(fileName);
-			if( in == null )
-			    throw new IOException("While attempting to load base RDF files, could not find resource " + fileName);
-			baseModel.read(in, null, "N-TRIPLE");
-			in.close();
+			try (InputStream in = getClass().getResourceAsStream(fileName)) {
+				if( in == null )
+					throw new IOException("While attempting to load base RDF files, could not find resource " + fileName);
+				baseModel.read(in, null, "N-TRIPLE");
+			}
 			log.info("loaded base model " + fileName);
 		}		
 		return baseModel;

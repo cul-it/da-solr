@@ -2,7 +2,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
@@ -37,7 +36,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		//were created by the fieldMaker objects.
 		
 		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<String,SolrInputField>();
+		Map<String,SolrInputField> solrFields = new HashMap<>();
 		MarcRecord rec = new MarcRecord();
 		
 		for( String resultKey: results.keySet()){
@@ -52,9 +51,9 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		for( Integer id: ids) {
 			FieldSet fs = sortedFields.get(id);
 			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-			List<String> values880 = new ArrayList<String>();
-			List<Boolean> isCJK = new ArrayList<Boolean>();
-			List<String> valuesMain = new ArrayList<String>();
+			List<String> values880 = new ArrayList<>();
+			List<Boolean> isCJK = new ArrayList<>();
+			List<String> valuesMain = new ArrayList<>();
 			String relation = null;
 			String subfields = "atr";
 			for (DataField f: dataFields) {
@@ -98,7 +97,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 							else {
 								if (hasCJK(item))
 									addField(solrFields,"toc_t_cjk",item);
-								addField(solrFields,"toc_t",standardizeApostrophes(item));
+								addField(solrFields,"toc_t",item);
 							}
 						}
 					} else {
@@ -108,7 +107,7 @@ public class TOCResultSetToFields implements ResultSetToFields {
 						else {
 							if (hasCJK(s))
 								addField(solrFields,"toc_t_cjk",s);
-							addField(solrFields,"toc_t",standardizeApostrophes(s));
+							addField(solrFields,"toc_t",s);
 						}
 					}
 				}
@@ -116,13 +115,13 @@ public class TOCResultSetToFields implements ResultSetToFields {
 					if (valuesMain.size() == 1) {
 						for (String item: s.split(" *-- *")) {
 							addField(solrFields,relation+"_display",item);
-							addField(solrFields,"toc_t",standardizeApostrophes(item));
+							addField(solrFields,"toc_t",item);
 							if (isCJK(item))
 								addField(solrFields,"toc_t_cjk",item);
 						}
 					} else {
 						addField(solrFields,relation+"_display",s);
-						addField(solrFields,"toc_t",standardizeApostrophes(s));
+						addField(solrFields,"toc_t",s);
 						if (isCJK(s))
 							addField(solrFields,"toc_t_cjk",s);
 					}
