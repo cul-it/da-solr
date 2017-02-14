@@ -1,7 +1,10 @@
 package edu.cornell.library.integration.indexer;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -59,13 +62,17 @@ public class ProcessQueue {
 			}
 		};
 
+		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();
+		if (quittingTime == null) quittingTime = 19;
+		System.out.println("Processing Voyager records until: "+quittingTime+":00.");
 		int i = 0;
-		while (i < 20) {
+		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime) {
 			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
 			if (localBaseFilePath != null)
 				config.setLocalBaseFilePath(localBaseFilePath+i);
 			new RetrieveUpdatesBatch(config, b);
 			new IncrementalBibFileToSolr(config);
 		}
+		commitIndexChanges( config.getSolrUrl() );
 	}
 }
