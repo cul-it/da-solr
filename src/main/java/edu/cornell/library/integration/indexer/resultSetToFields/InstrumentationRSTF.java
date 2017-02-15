@@ -92,6 +92,7 @@ public class InstrumentationRSTF implements ResultSetToFields {
 					case 's':
 						total_performers = sf.value;
 						break;
+					case '3':
 					case 'v':
 						if (forAppended)
 							sb.append(" [").append(sf.value).append(']');
