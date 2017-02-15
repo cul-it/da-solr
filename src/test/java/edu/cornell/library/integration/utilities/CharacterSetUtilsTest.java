@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+@SuppressWarnings("static-method")
 public class CharacterSetUtilsTest {
 	
 	@Test

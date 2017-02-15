@@ -170,7 +170,7 @@ public class RecordBatchProcessingData {
 			}
 		}
 		if (jt == null)
-			jt = new JobType(typeCode,null,IndexQueuePriority.CODECHANGE_PRIORITY1);
+			jt = new JobType(typeCode,null,IndexQueuePriority.DATACHANGE_SECONDARY);
 		return jt;
 	}
 

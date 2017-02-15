@@ -584,7 +584,7 @@ public class IdentifyChangedRecords {
 		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
 		ITEM_DELETE("Item Record Removed",IndexQueuePriority.DATACHANGE),
 		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
-		TITLELINK("Title Link Update",IndexQueuePriority.CODECHANGE_PRIORITY1),
+		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE_SECONDARY),
 		
 		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
 

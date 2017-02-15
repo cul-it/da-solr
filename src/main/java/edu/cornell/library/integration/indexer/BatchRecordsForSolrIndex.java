@@ -25,6 +25,7 @@ public class BatchRecordsForSolrIndex {
 	 */
 	public static Set<Integer> getBibsToIndex( Connection current, BatchLogic b) throws Exception {
 
+		b.startNewBatch();
 		int startingTarget = b.targetBatchSize();
 		Set<Integer> addedBibs = new HashSet<>(startingTarget);
 
@@ -46,7 +47,7 @@ public class BatchRecordsForSolrIndex {
         	while (rs.next() && addedBibs.size() < startingTarget) {
         		if (rs.getString(2).equals(delete))
         			continue;
-        		if (! b.addQueuedItemToBatch(rs))
+        		if (! b.addQueuedItemToBatch(rs,addedBibs.size()))
         			continue;
         		int bib_id = rs.getInt(1);
         		addedBibs.add(bib_id);
@@ -91,8 +92,9 @@ public class BatchRecordsForSolrIndex {
     }
 
 	public interface BatchLogic {
+		public void startNewBatch();
 		public int targetBatchSize();
-		public boolean addQueuedItemToBatch( ResultSet rs ) throws SQLException;
+		public boolean addQueuedItemToBatch( ResultSet rs, int currentBatchSize ) throws SQLException;
 		public int unqueuedTargetCount( int currentBatchSize );
 	}
 }

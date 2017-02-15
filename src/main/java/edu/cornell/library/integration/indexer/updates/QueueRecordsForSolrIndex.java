@@ -13,7 +13,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePri
 public class QueueRecordsForSolrIndex {
 
 	public static String usage = "QueueRecordsForSolrIndex <level> <cause> <inputfile>\n"
-			+ "<level> : 1, 2, 3, 4\n"
+			+ "<level> : 2, 3, 4\n"
 			+ "<cause> : e.g. 'Add new field for xyzzy'\n"
 			+ "<inputfile> : path to text file containing list of affected bibs.";
 	public static void main(String[] args) {
@@ -32,12 +32,11 @@ public class QueueRecordsForSolrIndex {
 		}
 		IndexQueuePriority priority = null;
 		switch (args[0]) {
-		case "1": priority = IndexQueuePriority.CODECHANGE_PRIORITY1; break;
 		case "2": priority = IndexQueuePriority.CODECHANGE_PRIORITY2; break;
 		case "3": priority = IndexQueuePriority.CODECHANGE_PRIORITY3; break;
 		case "4": priority = IndexQueuePriority.CODECHANGE_PRIORITY4; break;
 		default:
-			throw new IllegalArgumentException("First argument must be 1, 2, 3, or 4, where 1 is the highest priority.\n\n"+usage);
+			throw new IllegalArgumentException("First argument must be 2, 3, or 4, where 2 is the highest allowable priority.\n\n"+usage);
 		}
 		String cause = args[1];
 		if (cause.length() > 256)

@@ -61,7 +61,7 @@ public class IndexingUtilities {
 
 	public static enum IndexQueuePriority {
 		DATACHANGE("Data Change"),
-		CODECHANGE_PRIORITY1("Code Change 1"),
+		DATACHANGE_SECONDARY("Secondary Data Change"),
 		CODECHANGE_PRIORITY2("Code Change 2"),
 		CODECHANGE_PRIORITY3("Code Change 3"),
 		CODECHANGE_PRIORITY4("Code Change 4"),

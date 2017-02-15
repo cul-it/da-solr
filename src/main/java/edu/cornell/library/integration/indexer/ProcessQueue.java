@@ -39,13 +39,17 @@ public class ProcessQueue {
 		String localBaseFilePath = config.getLocalBaseFilePath();
 		if (localBaseFilePath != null)
 			localBaseFilePath += "/"+random+"/";
+
+		/* If any priority 0 items are queued, no other items will be accepted into the queue even
+		 * if the total queue size ends up below the default batchSize.
+		 */
 		BatchLogic b = new BatchLogic() {
 			private boolean priorityZeroInBatch = false;
-			public int targetBatchSize() {
+			public void startNewBatch() {
 				priorityZeroInBatch = false;
-				return batchSize;
 			}
-			public boolean addQueuedItemToBatch(ResultSet rs) throws SQLException {
+			public int targetBatchSize() { return batchSize; }
+			public boolean addQueuedItemToBatch(ResultSet rs,int currentBatchSize) throws SQLException {
 				if ( rs.getInt("priority") == IndexQueuePriority.DATACHANGE.ordinal() ) {
 					priorityZeroInBatch = true;
 					return true;
