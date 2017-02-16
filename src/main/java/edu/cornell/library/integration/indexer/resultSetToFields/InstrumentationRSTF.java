@@ -21,7 +21,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 /**
  * Generate instrumentation_display values from 382 fields, according to display recommendations at
  * http://musicoclcusers.org/wp-content/uploads/WCD_Medium_Report_201504291.pdf
- * Subfields $r and $v are recently added fields, and are not included in this display logic.
+ * Subfields $r and $t are recently added fields, and are not included in this display logic.
  * DISCOVERYACCESS-1608
  */
 public class InstrumentationRSTF implements ResultSetToFields {
