@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,7 +58,7 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 	Connection conn = null;
 	static ObjectMapper mapper = new ObjectMapper();
 	Locations locations;
-	Collection<String> workLibraries = new HashSet<>();
+	Collection<String> workLibraries = new LinkedHashSet<>();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
