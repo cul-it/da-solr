@@ -712,7 +712,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("donor_display","902","b"),
 
 				new StandardMARCFieldMaker("frequency_display","310","a"),
-				new StandardMARCFieldMaker("isbn_display","020","a"),				
+				new StandardMARCFieldMaker("isbn_display","020","aq"),				
 				new StandardMARCFieldMaker("issn_display","022","a"),
 
 				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),
