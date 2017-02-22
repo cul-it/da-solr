@@ -133,10 +133,8 @@ public class MarcRecord {
 			} else if (mainTag != null)
 				f.mainTag = mainTag;
 		}
-		final Subfield sf = new Subfield();
-		sf.id = sfield_no;
-		sf.code = nodeToString( sol.get("code")).charAt(0);
-		sf.value = nodeToString( sol.get("value"));
+		final Subfield sf = new Subfield(sfield_no,
+				nodeToString( sol.get("code")).charAt(0), nodeToString( sol.get("value")));
 		if (sf.code.equals('6')) {
 			if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
 					&& Character.isDigit(sf.value.charAt(5))) {
@@ -519,6 +517,12 @@ public class MarcRecord {
 			return sb.toString();
 		}
 
+		public Subfield( int id, char code, String value ) {
+			this.id = id;
+			this.code = code;
+			this.value = value;
+		}
+		public Subfield() {}
 	}
 
 	public static class FieldSet {

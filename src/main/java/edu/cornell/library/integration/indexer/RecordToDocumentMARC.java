@@ -31,6 +31,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.FindingAidsRSTF
 import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.ISBN;
 import edu.cornell.library.integration.indexer.resultSetToFields.InstrumentationRSTF;
 import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
 import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
@@ -712,10 +713,22 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("donor_display","902","b"),
 
 				new StandardMARCFieldMaker("frequency_display","310","a"),
-				new StandardMARCFieldMaker("isbn_display","020","aq"),				
-				new StandardMARCFieldMaker("issn_display","022","a"),
 
-				new StandardMARCFieldMaker("isbn_t","020","a",VernMode.SEARCH),
+				new SPARQLFieldMakerImpl().
+		    	setName("isbn").
+		    	addMainStoreQuery("isbn", 
+		    			"SELECT *\n" +
+		    			" WHERE {\n" +
+		    			"  $recordURI$ marcrdf:hasField020 ?field.\n" +
+		    			"  ?field marcrdf:tag ?tag.\n" +
+		    			"  ?field marcrdf:ind1 ?ind1.\n" +
+		    			"  ?field marcrdf:ind2 ?ind2.\n" +
+		    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
+		    			"  ?sfield marcrdf:code ?code.\n" +
+		    			"  ?sfield marcrdf:value ?value. }").
+		    	addResultSetToFields( new ISBN()),
+
+		    	new StandardMARCFieldMaker("issn_display","022","a"),
 				new StandardMARCFieldMaker("issn_t","022","a",VernMode.SEARCH),
 				new StandardMARCFieldMaker("issn_t","022","l",VernMode.SEARCH),
 
