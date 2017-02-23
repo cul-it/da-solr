@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
 
+@SuppressWarnings("static-method")
 public class ISBNTest {
 
 	@Test

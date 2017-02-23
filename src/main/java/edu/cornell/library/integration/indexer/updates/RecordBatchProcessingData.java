@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.googlecode.sardine.DavResource;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -59,8 +57,7 @@ public class RecordBatchProcessingData {
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is)) ){
 					reader.readLine(); // discard first line
 					String secondLine = reader.readLine();
-					String jobCode = StringUtils.split(
-							StringUtils.split(secondLine, '\t')[0] , '=')[1];
+					String jobCode = secondLine.split("\t")[0].split("=")[1];
 					jt = getJobType(current,jobCode);
 					String line;
 					int bibCount = 0;

@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
@@ -131,7 +133,7 @@ public class IndexRecordListComparison {
 
 	
 	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<>();
+		Map<Integer,Integer> m = new TreeMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id"
 				+ " from "+CurrentDBTable.MFHD_VOY+" as v "
@@ -145,7 +147,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager() throws SQLException {
-		Map<Integer,Integer> m = new HashMap<>();
+		Map<Integer,Integer> m = new TreeMap<>();
 		// deleted mfhds
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id"
@@ -175,7 +177,7 @@ public class IndexRecordListComparison {
 	}
 	
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
-		Set<Integer> l = new HashSet<>();
+		Set<Integer> l = new TreeSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.bib_id from "+CurrentDBTable.BIB_VOY+" as v "
 				+ "left join "+CurrentDBTable.BIB_SOLR+" as s"
@@ -188,7 +190,7 @@ public class IndexRecordListComparison {
 	
 	public Set<Integer> bibsInIndexNotVoyager() throws SQLException {
 		
-		Set<Integer> l = new HashSet<>();
+		Set<Integer> l = new TreeSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.bib_id from "+CurrentDBTable.BIB_SOLR+" as s "
 				+ "left join "+CurrentDBTable.BIB_VOY+" as v"

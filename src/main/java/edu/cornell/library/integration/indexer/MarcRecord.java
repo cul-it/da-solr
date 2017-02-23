@@ -19,8 +19,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
@@ -480,10 +478,10 @@ public class MarcRecord {
 						authorSubfields.add(sf.value);
 			}
 			if ( titleSubfields.isEmpty() )
-				return new FieldValues( StringUtils.join(authorSubfields, ' '));
+				return new FieldValues( String.join(" ",authorSubfields));
 			return new FieldValues(
-					StringUtils.join(authorSubfields, ' '),
-					StringUtils.join(titleSubfields, ' '));
+					String.join(" ",authorSubfields),
+					String.join(" ",titleSubfields));
 		}
 
 		@Override

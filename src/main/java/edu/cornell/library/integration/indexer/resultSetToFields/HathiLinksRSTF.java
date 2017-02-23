@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -135,8 +135,10 @@ public class HathiLinksRSTF implements ResultSetToFields {
 			addField(fields,"online","Online");
 		
 		if (debug)
-			for (SolrInputField f : fields.values())
-				System.out.println( f.getName() +": "+StringUtils.join(f.getValues(), ", "));
+			for (SolrInputField f : fields.values()) {
+				Collection<String> values = f.getValues().stream().map(Object::toString).collect(Collectors.toList());
+				System.out.println( f.getName() +": "+String.join(", ",values));
+			}
 		
 		return fields;
 	}

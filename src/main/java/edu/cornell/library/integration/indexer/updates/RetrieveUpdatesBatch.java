@@ -6,8 +6,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.queueB
 
 import java.sql.Connection;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -37,14 +36,16 @@ public class RetrieveUpdatesBatch {
 			if ( ! deletedBibs.isEmpty() ) {
 				System.out.println(deletedBibs.size()+" bibs queued in this batch appear to"
 						+ " have been deleted from Voyager and will be removed from the queue,"
-						+ " and from Solr if applicable. "+StringUtils.join(deletedBibs, ", "));
+						+ " and from Solr if applicable. "+String.join(", ",deletedBibs.stream()
+								.map(Object::toString).collect(Collectors.toList())));
 				for (int id : deletedBibs)
 					queueBibDelete( current, id );
 			}
 			if ( ! deletedMfhds.isEmpty() ) {
 				System.out.println(deletedMfhds.size()+ " holdings records queued in this batch"
 						+ " appear to have been deleted from Voyager. Their bibs, if still present,"
-						+ " will be (re)indexed without their data. "+StringUtils.join(deletedMfhds,", "));
+						+ " will be (re)indexed without their data. "+String.join(", ",deletedMfhds.stream()
+								.map(Object::toString).collect(Collectors.toList())));
 			}
 
 			DavService davService = DavServiceFactory.getDavService(config);

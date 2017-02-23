@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -130,7 +129,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 								suffixes += ' '+relators.toString();
 							}
 							if (suffixes.isEmpty())
-								value = StringUtils.chomp(value,",");
+								value = removeTrailingPunctuation(value,",");
 							valuesMain.add(value);
 							cts = f.concatenateSpecificSubfields(ctsSubfields);
 							if ( ! cts.isEmpty() )
@@ -191,8 +190,8 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 							author_vern = s+" "+dates;
 							author = t+" "+dates;
 						}
-						author_vern = StringUtils.chomp(author_vern,",");
-						author = StringUtils.chomp(author,",");
+						author_vern = removeTrailingPunctuation(author_vern,",");
+						author = removeTrailingPunctuation(author,",");
 					}
 			} else {
 				for (String s: values880) {
@@ -210,7 +209,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						author_vern = s;
 					else
 						author_vern = s+" "+dates;
-					author_vern = StringUtils.chomp(author_vern,",");
+					author_vern = removeTrailingPunctuation(author_vern,",");
 					json.put("search1", cts880);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts880,htd);
@@ -240,7 +239,7 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 						author = s;
 					else
 						author = s+" "+dates;
-					author = StringUtils.chomp(author,",");
+					author = removeTrailingPunctuation(author,",");
 					json.put("search1", cts);
 					json.put("type", htd.toString());
 					AuthorityData authData = new AuthorityData(config,cts,htd);

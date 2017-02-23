@@ -47,7 +47,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -194,7 +193,7 @@ public class IndexingUtilities {
 		}
 		if (identifiedSites.isEmpty())
 			return null;
-		return StringUtils.join(identifiedSites, ", ");
+		return String.join(", ",identifiedSites);
 	}
 	public static Map<String,String> loadPatternMap(String filename) {
 		URL url = ClassLoader.getSystemResource(filename);
@@ -229,7 +228,7 @@ public class IndexingUtilities {
 		ref.id = Integer.valueOf(parts[0]);
 		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
 
-		ref.format = StringUtils.join(doc.getFieldValues("format"),',');
+		ref.format = String.join(",",doc.getFieldValues("format"));
 
 		if (doc.containsKey("url_access_display")) {
 			ref.sites = identifyOnlineServices(doc.getFieldValues("url_access_display"));
@@ -238,19 +237,19 @@ public class IndexingUtilities {
 		}
 
 		if (doc.containsKey("location_facet")) {
-			Collection<Object> libraries = new LinkedHashSet<>();
+			Collection<String> libraries = new LinkedHashSet<>();
 			libraries.addAll(doc.getFieldValues("location_facet"));
-			ref.libraries = StringUtils.join(libraries,", ");
+			ref.libraries = String.join(", ",libraries);
 		}
 
 		if (doc.containsKey("edition_display"))
 			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
 
 		if (doc.containsKey("pub_date_display"))
-			ref.pub_date = StringUtils.join(doc.getFieldValues("pub_date_display"),", ");
+			ref.pub_date = String.join(", ",doc.getFieldValues("pub_date_display"));
 
 		if (doc.containsKey("language_facet"))
-			ref.language = StringUtils.join(doc.getFieldValues("language_facet"),',');
+			ref.language = String.join(",",doc.getFieldValues("language_facet"));
 
 		if (doc.containsKey("title_uniform_display")) {
 			String uniformTitle = (String)doc.getFieldValues

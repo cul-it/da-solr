@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
@@ -60,7 +59,7 @@ public class URLResultSetToFields implements ResultSetToFields {
 					valuesMain.add(linkLabel);
 			}
 			values880.addAll(valuesMain);
-			String linkDescription = StringUtils.join(values880,' ');
+			String linkDescription = String.join(" ",values880);
 			String relation ="access"; //this is a default and may change later
 			String lc = linkDescription.toLowerCase();
 			if (lc.contains("table of contents")

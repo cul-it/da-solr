@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -111,7 +110,7 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 		Iterator<String> i = facet_langs.iterator();
 		while (i.hasNext()) addField(fields,"language_facet",i.next());
 		if ( ! display_langs.isEmpty())
-			addField(fields, "language_display",StringUtils.join(display_langs, ", "));
+			addField(fields, "language_display",String.join(", ",display_langs));
 		for (String note : notes)
 			addField(fields, "language_display",note);
 			

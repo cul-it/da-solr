@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.documentPostProcess;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
+
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -54,7 +55,7 @@ public class SingleValueField implements DocumentPostProcess {
 
 	private static SolrInputField fixConcatenate(SolrInputField field) {
 		SolrInputField newField = new SolrInputField( field.getName());
-		String str = StringUtils.join(field.getValues(), " ");
+		String str = String.join(" ",field.getValues().stream().map(Object::toString).collect(Collectors.toList()));
 		newField.setValue(str, 1.0f);
 		return  newField;
 	}

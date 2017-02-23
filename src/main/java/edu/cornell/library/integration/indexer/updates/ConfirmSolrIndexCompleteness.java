@@ -3,13 +3,10 @@ package edu.cornell.library.integration.indexer.updates;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -87,79 +84,52 @@ public class ConfirmSolrIndexCompleteness  {
 	}
 
 	private void reportList(Map<Integer,Integer> idMap, String reportFilename, String reportDesc) throws Exception {
-	    
-		Set<Integer> idList = idMap.keySet();
-		Integer[] ids = idList.toArray(new Integer[ idList.size() ]);
-		Arrays.sort( ids );
-				
-		StringBuilder sb = new StringBuilder();
-		List<String> display_examples = new ArrayList<>();
-		for( int i = 0; i < ids.length; i++ ) {
-			Integer id = ids[i];
-			String pair = id +" ("+idMap.get(id)+")";
-			if (i < 10) {
-				display_examples.add( pair );
-			}
-			sb.append(pair).append('\n');
-		}
-		
+
+		List<String> ids = idMap.keySet().stream().map(id->id+" ("+idMap.get(id)+")")
+				.collect(Collectors.toList());
+
 		String url = reportsUrl + reportFilename;
-		
+
 		// Print summary to stdout
-		if (idList.size() > 0){
+		if (ids.size() > 0){
+			List<String> display_examples = ids.stream().limit(10).collect(Collectors.toList());
             System.out.println(reportDesc);
-            System.out.println( StringUtils.join(display_examples, ", ") );
-            if (idList.size() > 10)
+            System.out.println( String.join(", ",display_examples));
+            if (ids.size() > 10)
                 System.out.println("(for the full list, see "+ url + ")");
             System.out.println("");
-		}		           
+		}
 		
 		idMap.clear();
 
-		// Save file on WEBDAV		 
-		try ( ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)) ) {
-			getDavService().saveFile( url,is);
+		// Save file on WEBDAV
+		try ( ByteArrayInputStream is = new ByteArrayInputStream(
+				String.join("\n",ids).getBytes(StandardCharsets.UTF_8)) ) {
+			davService.saveFile( url,is);
 		}
 
 	}
 
-	
 	private void reportList( Set<Integer> idList, String reportFilename, String reportDesc) throws Exception {
-		Integer[] ids = idList.toArray(new Integer[ idList.size() ]);
-		Arrays.sort( ids );
 	
-		StringBuilder sb = new StringBuilder();
-		List<Integer> display_examples = new ArrayList<>();
-		for( int i = 0; i < ids.length; i++ ) {
-			Integer id = ids[i];
-			if (i < 10) {
-				display_examples.add(id);				
-			}
-			sb.append(id).append("\n");
-		}
-				
+		List<String> ids = idList.stream().map(Object::toString).collect(Collectors.toList());
 		String url = reportsUrl + reportFilename;
+
 		// Print summary to Stdout
-		if (idList.size() > 0){
+		if (ids.size() > 0){
+			List<String> display_examples = ids.stream().limit(10).collect(Collectors.toList());
 		    System.out.println(reportDesc);
-		    System.out.println( StringUtils.join( display_examples, ", ") );
-		    if (idList.size() > 10)
+		    System.out.println( String.join(", ",display_examples) );
+		    if (ids.size() > 10)
 	            System.out.println("(for the full list, see "+ url +")");
 		    System.out.println("");
 		}				        
-		
-		// Save file on WEBDAV
-		try {
-			getDavService().saveFile( url , 
-					new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
-		} catch (Exception e) {
-		    throw new Exception("Problem saving report " + url, e);			
+
+		try ( ByteArrayInputStream is = new ByteArrayInputStream(
+				String.join("\n",ids).getBytes(StandardCharsets.UTF_8)) ) {
+			davService.saveFile( url,is);
 		}
-		
+
 	}
-	
-	private DavService getDavService(){
-	    return davService;	
-	}
-	
+
 }
