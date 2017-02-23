@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -219,26 +220,6 @@ public class IndexingUtilities {
 	}
 	static Map<String,String> urlPatterns = null;
 
-
-
-	public static String eliminateDuplicateLocations(Collection<Object> location_facet) {
-		if (location_facet == null) return "";
-		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<>();
-		boolean first = true;
-		for (Object val : location_facet) {
-			if (foundValues.contains(val))
-				continue;
-			foundValues.add(val);
-			if (first)
-				first = false;
-			else
-				sb.append(", ");
-			sb.append(val.toString());
-		}
-		return sb.toString();
-	}
-
 	@SuppressWarnings("unchecked")
 	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
@@ -256,9 +237,11 @@ public class IndexingUtilities {
 				ref.sites = "Online";
 		}
 
-		if (doc.containsKey("location_facet"))
-			ref.libraries = eliminateDuplicateLocations(
-					doc.getFieldValues("location_facet"));
+		if (doc.containsKey("location_facet")) {
+			Collection<Object> libraries = new LinkedHashSet<>();
+			libraries.addAll(doc.getFieldValues("location_facet"));
+			ref.libraries = StringUtils.join(libraries,", ");
+		}
 
 		if (doc.containsKey("edition_display"))
 			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
