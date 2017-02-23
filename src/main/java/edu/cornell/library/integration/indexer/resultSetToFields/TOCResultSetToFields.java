@@ -7,7 +7,6 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_op
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,19 +43,14 @@ public class TOCResultSetToFields implements ResultSetToFields {
 		}
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-		// but with organization determined by vernMode.
-		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( Integer id: ids) {
-			FieldSet fs = sortedFields.get(id);
-			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+		for( FieldSet fs: sortedFields.values() ) {
+
 			List<String> values880 = new ArrayList<>();
 			List<Boolean> isCJK = new ArrayList<>();
 			List<String> valuesMain = new ArrayList<>();
 			String relation = null;
 			String subfields = "atr";
-			for (DataField f: dataFields) {
+			for (DataField f: fs.fields) {
 				if(relation == null) {
 					if (f.ind1.equals('1') || f.ind1.equals('8')) {
 						relation = "contents";

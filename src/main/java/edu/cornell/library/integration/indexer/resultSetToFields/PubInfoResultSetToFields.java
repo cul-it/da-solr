@@ -2,7 +2,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,13 +41,8 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 		
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-		// but with organization determined by vernMode.
-		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( Integer id: ids) {
-			FieldSet fs = sortedFields.get(id);
-			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+		for( FieldSet fs: sortedFields.values() ) {
+
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
 			String relation;
@@ -56,7 +50,7 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			String pubplace = null;
 			String publisherVern = null;
 			String pubplaceVern = null;
-			switch (dataFields[0].ind2) {
+			switch (fs.fields.iterator().next().ind2) {
 			case '0': relation = "pub_prod"; break;
 			case '1': relation = "pub_info"; break;
 			case '2': relation = "pub_dist"; break;
@@ -64,7 +58,7 @@ public class PubInfoResultSetToFields implements ResultSetToFields {
 			case '4': relation = "pub_copy"; break;
 			default: relation = "pub_info";
 			}
-			for (DataField f: dataFields) {
+			for (DataField f: fs.fields) {
 				if (f.tag.equals("880")) {
 					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {

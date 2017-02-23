@@ -8,7 +8,6 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,13 +52,8 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 		}
 		final Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-		// but with organization determined by vernMode.
-		final Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( final Integer id: ids) {
-			final FieldSet fs = sortedFields.get(id);
-			final DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+		for( FieldSet fs: sortedFields.values() ) {
+
 			final Collection<CtsField> cts_fields = new ArrayList<>();
 			final Collection<String> valuesPersAFacet = new ArrayList<>();
 			final Collection<String> valuesCorpAFacet = new ArrayList<>();
@@ -67,7 +61,7 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 			final Collection<String> valuesATFacet = new ArrayList<>();
 			HeadTypeDesc htd = null;
 			String relation = null;
-			for (final DataField f: dataFields) {
+			for (final DataField f: fs.fields) {
 
 				// added entry names with or without title metadata
 				if (f.mainTag.equals("700") ||

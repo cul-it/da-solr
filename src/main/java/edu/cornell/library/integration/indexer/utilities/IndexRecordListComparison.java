@@ -202,7 +202,7 @@ public class IndexRecordListComparison {
 	}
 
 	public Set<Integer> bibsNewerInVoyagerThanIndex() throws SQLException {
-		Set<Integer> l = new HashSet<>();
+		Set<Integer> l = new TreeSet<>();
 		try (   Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(
 				"SELECT v.bib_id"

@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -39,11 +38,8 @@ public class ISBN implements ResultSetToFields {
 		}
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( Integer id: ids) {
+		for( FieldSet fs: sortedFields.values() ) {
 
-			FieldSet fs = sortedFields.get(id);
 			SolrFieldValueSet vals = generateSolrFields( fs );
 
 			for ( String s : vals.display880 )

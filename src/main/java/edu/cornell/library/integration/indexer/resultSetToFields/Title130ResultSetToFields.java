@@ -3,7 +3,6 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,16 +41,11 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 		
 		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-		// but with organization determined by vernMode.
-		Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( Integer id: ids) {
-			FieldSet fs = sortedFields.get(id);
-			DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
+		for( FieldSet fs: sortedFields.values() ) {
+
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
-			for (DataField f: dataFields) {
+			for (DataField f: fs.fields) {
 				String field = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String cts = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String titleWOarticle = f.getStringWithoutInitialArticle(field);

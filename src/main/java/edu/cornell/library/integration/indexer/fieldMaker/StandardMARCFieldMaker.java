@@ -8,13 +8,13 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_cl
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -220,17 +220,11 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				solrField = new SolrInputField(solrFieldName + "_cjk");
 				fieldmap.put(solrFieldName+"_cjk", solrField);
 			}
-			
-			// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-			// but with organization determined by vernMode.
-			Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-			Arrays.sort( ids );
-			for( Integer id: ids) {
-				FieldSet fs = sortedFields.get(id);
-				DataField[] fields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-				// If a "group" contains only one field, the organization is more straightforward.
+
+			for( FieldSet fs: sortedFields.values()) {
+
 				if (fs.fields.size() == 1) {
-					DataField f = fields[0];
+					DataField f = fs.fields.iterator().next();
 					String val = trimInternationally( concatenateSubfields(f) );
 					if (val.length() == 0) continue;
 					if ((vernMode.equals(VernMode.VERNACULAR)
@@ -262,17 +256,15 @@ public class StandardMARCFieldMaker implements FieldMaker {
 					}
 			    // If more than one field in a group, there are several options.
 				} else {
-					Map<Integer,DataField> reordered = new HashMap<>();
-					for (DataField f: fields) {
+					Map<Integer,DataField> reordered = new TreeMap<>();
+					for (DataField f: fs.fields) {
 						reordered.put(f.id, f);
 					}
-					Integer[] field_ids = reordered.keySet().toArray( new Integer[ reordered.keySet().size() ]);
-					Arrays.sort(field_ids);
 					Set<String> values880 = new HashSet<>();
 					Set<String> valuesMain = new HashSet<>();
 					Set<String> valuesCJK = new HashSet<>();
-					for (Integer fid: field_ids) {
-						DataField f = reordered.get(fid);
+
+					for (DataField f: reordered.values()) {
 						String value = trimInternationally( concatenateSubfields(f) );
 						if (value.length() == 0) continue;
 						if (f.tag.equals("880")) {

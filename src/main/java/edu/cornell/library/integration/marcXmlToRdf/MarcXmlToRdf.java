@@ -22,15 +22,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLInputFactory;
@@ -107,7 +109,7 @@ public class MarcXmlToRdf {
 	// Reports fields
 	private Collection<Report> reports = new HashSet<>();
 	private Map<Report,String> reportResults = new HashMap<>();
-	private Map<String,FieldStats> fieldStatsByTag = new HashMap<>();
+	private Map<String,FieldStats> fieldStatsByTag = new TreeMap<>();
 	private static Long recordCount = new Long(0);
 	private Collection<Integer> no245a = new HashSet<>();
 	private Map<String,String> extractVals = null;
@@ -744,7 +746,7 @@ public class MarcXmlToRdf {
 		else
 			throw new IllegalArgumentException("Don't know where to put files!");
 
-		Collection<Integer> bibids = new HashSet<>();
+		List<Integer> bibids = new ArrayList<>();
 
 		if (tempBibSrcDir != null)
 			dirToProcess = tempBibSrcDir;
@@ -761,17 +763,14 @@ public class MarcXmlToRdf {
 		}
 
 		// Sort list of bib record IDs and determine ranges for batches of size groupsize.
-		System.out.println(bibids.size() + " bibids in set.\n");
-		Integer[] bibs = bibids.toArray(new Integer[ bibids.size() ]);
-		bibids.clear();
-		Arrays.sort( bibs );
-		int batchCount = (bibs.length + groupsize - 1) / groupsize;
+		int batchCount = (bibids.size() + groupsize - 1) / groupsize;
+		Collections.sort(bibids);
 		for (int batch = 1; batch <= batchCount; batch++) {
 			Integer maxBibid;
-			if (batch*groupsize < bibs.length)
-				maxBibid = bibs[batch*groupsize-1];
+			if (batch*groupsize < bibids.size())
+				maxBibid = bibids.get(batch*groupsize-1);
 			else
-				maxBibid = bibs[bibs.length - 1];
+				maxBibid = bibids.get(bibids.size() - 1);
 			System.out.println(batch+": "+maxBibid);
 			@SuppressWarnings("resource")
 			OutputStreamWriter  out = openFileForWrite(dirToProcessInto+"/"+
@@ -2153,17 +2152,10 @@ public class MarcXmlToRdf {
 	}
 
 	private String buildGenFreqReport() {
-		String[] tags = fieldStatsByTag.keySet().toArray(new String[ fieldStatsByTag.keySet().size() ]);
-		Arrays.sort( tags );
-		StringBuilder sb = new StringBuilder();
-		Boolean first = true;
-		for( String tag: tags) {
-			if (first) first = false;
-			else sb.append("-------------------------------\n");
-			sb.append(fieldStatsByTag.get(tag).toString());
-		}
+		String report = fieldStatsByTag.values().stream().map(Object::toString)
+				.collect(Collectors.joining("-------------------------------\n"));
 		fieldStatsByTag.clear();
-		return sb.toString();
+		return report;
 	}
 	
 	private void tabulateFieldData( MarcRecord rec ) throws Exception {
@@ -2218,11 +2210,9 @@ public class MarcXmlToRdf {
 				fs.countByBoth.put(indpair, 1);
 				fs.exampleByBoth.put(indpair,rec_id);
 			}
-			Integer[] subfields = f.subfields.keySet().toArray(new Integer[ f.subfields.keySet().size() ]);
-			Arrays.sort( subfields );
+
 			StringBuilder sb = new StringBuilder();
-			for (Integer sfid: subfields) {
-				Subfield sf = f.subfields.get(sfid);
+			for (Subfield sf: f.subfields.values()) {
 				sb.append(sf.code);
 				if (codeCounts.containsKey(f.tag)) {
 					HashMap<Character,Integer> tagCounts = codeCounts.get(f.tag);
@@ -2651,32 +2641,30 @@ public class MarcXmlToRdf {
 		public Long instanceCount = new Long(0);
 
 		// tabulating how many of a particular field appear in a record
-		public Map<Integer,Integer> countByCount = new HashMap<>();
+		public Map<Integer,Integer> countByCount = new TreeMap<>();
 		public Map<Integer,Integer> exampleByCount = new HashMap<>();
 
 		// tabulating frequency of particular indicator values
-		public Map<Character,Integer> countBy1st = new HashMap<>();
+		public Map<Character,Integer> countBy1st = new TreeMap<>();
 		public Map<Character,Integer> exampleBy1st = new HashMap<>();
-		public Map<Character,Integer> countBy2nd = new HashMap<>();
+		public Map<Character,Integer> countBy2nd = new TreeMap<>();
 		public Map<Character,Integer> exampleBy2nd = new HashMap<>();
-		public Map<String,Integer> countByBoth = new HashMap<>();
+		public Map<String,Integer> countByBoth = new TreeMap<>();
 		public Map<String,Integer> exampleByBoth = new HashMap<>();
 		
 		// tabulating frequency of subfields
 		public Map<Character,SubfieldStats> subfieldStatsByCode = new HashMap<>();
 		
 		// tabulating frequency of subfield pattern
-		public Map<String,Integer> countBySubfieldPattern = new HashMap<>();
+		public Map<String,Integer> countBySubfieldPattern = new TreeMap<>();
 		public Map<String,Integer> exampleBySubfieldPattern = new HashMap<>();
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Tag: "+this.tag+ " ("+ this.instanceCount+ " instances in "  +this.recordCount + " ("+
 					(double)Math.round(1000 * this.recordCount / (double) MarcXmlToRdf.recordCount)/10 +"%) records)\nField Frequencies: ");
-			Integer[] fcounts = this.countByCount.keySet().toArray(
-					                                   new Integer[ this.countByCount.keySet().size() ]);
-			Arrays.sort( fcounts );
-			for (Integer count: fcounts ) {
+
+			for (Integer count: this.countByCount.keySet() ) {
 				sb.append("\n   "+count + " instance(s) of the field occurred in " + 
 						this.countByCount.get(count) + " record(s). (Example record id: " +
 						this.exampleByCount.get(count) + ")");
@@ -2684,10 +2672,8 @@ public class MarcXmlToRdf {
 			
 			if (! this.countBy1st.isEmpty()) {
 				sb.append("\n First Indicators: ");
-				Character[] inds = this.countBy1st.keySet().toArray(
-						                                     new Character[ this.countBy1st.keySet().size() ]);
-				Arrays.sort( inds );
-				for (Character ind: inds ) {
+
+				for (Character ind: this.countBy1st.keySet() ) {
 					sb.append("\n   \""+ ind + "\" occurred in " + this.countBy1st.get(ind) + 
 							" field(s). (Example record id: " +  this.exampleBy1st.get(ind) + ")");
 				}
@@ -2695,10 +2681,8 @@ public class MarcXmlToRdf {
 			
 			if (! this.countBy2nd.isEmpty()) {
 				sb.append("\n Second Indicators: ");
-				Character[] inds = this.countBy2nd.keySet().toArray(
-	                    new Character[ this.countBy2nd.keySet().size() ]);
-				Arrays.sort( inds );
-				for (Character ind: inds) {
+
+				for (Character ind: this.countBy2nd.keySet()) {
 					sb.append("\n   \""+ind + "\" occurred in " + this.countBy2nd.get(ind) + 
 							" field(s). (Example record id: " +  this.exampleBy2nd.get(ind) + ")");
 				}
@@ -2706,10 +2690,8 @@ public class MarcXmlToRdf {
 			
 			if (! this.countByBoth.isEmpty()) {
 				sb.append("\n Pairs of Indicators: ");
-				String[] indpairs = this.countByBoth.keySet().toArray(
-	                    new String[ this.countByBoth.keySet().size() ]);
-				Arrays.sort( indpairs );
-				for (String indpair: indpairs) {
+
+				for (String indpair: this.countByBoth.keySet()) {
 					sb.append("\n   \""+indpair + "\" occurred in " + this.countByBoth.get(indpair) + 
 							" field(s). (Example record id: " +  this.exampleByBoth.get(indpair) + ")");
 				}
@@ -2717,20 +2699,15 @@ public class MarcXmlToRdf {
 				
 			if (! this.countBySubfieldPattern.isEmpty()) {
 				sb.append("\n Subfield Patterns: ");
-				String[] s = this.countBySubfieldPattern.keySet().toArray(
-	                    new String[ this.countBySubfieldPattern.keySet().size() ]);
-				Arrays.sort( s );
-				for (String subs: s) {
+
+				for (String subs: this.countBySubfieldPattern.keySet()) {
 					sb.append("\n   \""+subs + "\" occurred in " + this.countBySubfieldPattern.get(subs) +
 							" field(s). (Example record id: " + this.exampleBySubfieldPattern.get(subs) + ")");
 				}
 			}
 				
 /*			sb.append("\n Specific Subfields: \n");
-			Character[] codes = this.subfieldStatsByCode.keySet().toArray(
-                    new Character[ this.subfieldStatsByCode.keySet().size() ]);
-			Arrays.sort( codes );
-			for (Character code: codes) {
+			for (Character code: this.subfieldStatsByCode.keySet()) {
 				sb.append(this.subfieldStatsByCode.get(code).toString());
 			} */
 			
@@ -2746,17 +2723,14 @@ public class MarcXmlToRdf {
 		public Long instanceCount = new Long(0);
 		
 		// tabulating how many of a particular subfield appear in a field
-		public Map<Integer,Integer> countByCount = new HashMap<>();
+		public Map<Integer,Integer> countByCount = new TreeMap<>();
 		public Map<Integer,Integer> exampleByCount = new HashMap<>();
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(" Code: "+this.code+ " ("+this.instanceCount + " instances in " + this.fieldCount + 
 					" fields in " + this.recordCount + " records)\n  Subfield Frequencies: ");
-			Integer[] sfcounts = this.countByCount.keySet().toArray(
-                    new Integer[ this.countByCount.keySet().size() ]);
-			Arrays.sort( sfcounts );
 
-			for (Integer count: sfcounts) {
+			for (Integer count: this.countByCount.keySet()) {
 				sb.append(count + "(" + this.countByCount.get(count) + "/" + this.exampleByCount.get(count)
 						+ ") ");
 			}

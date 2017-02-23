@@ -7,7 +7,6 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,12 +63,8 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 		final Collection<String> authorityAltForms = new HashSet<>();
 		final Collection<String> authorityAltFormsCJK = new HashSet<>();
 
-		// For each field and/of field group, add to SolrInputFields in precedence (field id) order,
-		// but with organization determined by vernMode.
-		final Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( final Integer id: ids) {
-			final FieldSet fs = sortedFields.get(id);
+		for( FieldSet fs: sortedFields.values() ) {
+
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
 			final DataField f = fs.fields.iterator().next();
@@ -92,7 +87,6 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 			taggedFields.add(h);
 		}
 		for( final Heading h : taggedFields) {
-			final DataField[] dataFields = h.fs.fields.toArray( new DataField[ h.fs.fields.size() ]);
 			final Set<String> values880_piped = new HashSet<>();
 			final Set<String> valuesMain_piped = new HashSet<>();
 			final Set<String> values880_breadcrumbed = new HashSet<>();
@@ -104,7 +98,7 @@ public class SubjectResultSetToFields implements ResultSetToFields {
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
-			for (final DataField f: dataFields) {
+			for (final DataField f: h.fs.fields) {
 
 				switch (f.mainTag) {
 				case "600":

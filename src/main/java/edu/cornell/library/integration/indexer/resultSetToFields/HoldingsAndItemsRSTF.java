@@ -13,7 +13,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,12 +120,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 
 			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-			Integer[] ids = sortedFields.keySet().toArray( new Integer[ sortedFields.keySet().size() ]);
-			Arrays.sort( ids );
-			for( Integer id: ids) {
-				FieldSet fs = sortedFields.get(id);
-				DataField[] dataFields = fs.fields.toArray( new DataField[ fs.fields.size() ]);
-				for (DataField f: dataFields) {
+			for( FieldSet fs: sortedFields.values() ) {
+
+				for (DataField f: fs.fields) {
 					String callno = null;
 					switch (f.tag) {
 					case "506":
