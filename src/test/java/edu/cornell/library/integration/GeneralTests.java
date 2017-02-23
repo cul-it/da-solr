@@ -1,30 +1,24 @@
 package edu.cornell.library.integration;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.xml2SolrInputDocument;
-import edu.cornell.library.integration.voyager.IdentifyCurrentVoyagerRecords;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 
-@SuppressWarnings("unused")
 public class GeneralTests {
 
 	private static final Pattern uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 	private static final Pattern htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]{2,}|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
 
-
-	public GeneralTests() throws IOException, XMLStreamException {
+	public GeneralTests() throws XMLStreamException {
 		String[] testStrings =
 			{"String Matches U+00C0",
 			 "String Doesn't match U+HI!",
@@ -63,7 +57,7 @@ public class GeneralTests {
 		doc.addField("mv", "2");
 		doc.addField("mv",3,2);
 		doc.setDocumentBoost(0.5f);
-		List<String> multival = new ArrayList<String>();
+		List<String> multival = new ArrayList<>();
 		multival.add("value 1, 2, 3");
 		multival.add("value 4, 5, 6");
 		doc.addField("multival", multival);
@@ -82,10 +76,7 @@ public class GeneralTests {
 	public static void main(String[] args) {
 		try {
 			new GeneralTests();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}

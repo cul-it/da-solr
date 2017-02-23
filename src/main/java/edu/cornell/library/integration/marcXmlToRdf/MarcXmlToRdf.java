@@ -39,7 +39,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -949,7 +948,7 @@ public class MarcXmlToRdf {
 		for (int i = 0; i < extractCols; i++) values[i] = "";
 		for (String key : extractVals.keySet())
 			values[Integer.valueOf(key)-1] = extractVals.get(key).replaceAll("\\t", " ");
-		return StringUtils.join(values, '\t')+"\n";
+		return String.join("\t",values)+"\n";
 	}
 	
 	private void populateExtractHeaders( Report rep ) {
@@ -1168,7 +1167,7 @@ public class MarcXmlToRdf {
 			v.add("edition");
 			v.add("extent");
 		}
-		outputHeaders = StringUtils.join(v,"\t")+"\n";
+		outputHeaders = String.join("\t",v)+"\n";
 		extractCols = v.size();
 	}
 	
@@ -1309,7 +1308,7 @@ public class MarcXmlToRdf {
 								if (c.isEmpty())
 									cs.add("<null>");
 								else 
-									cs.add(StringUtils.join(c, ";"));
+									cs.add(String.join(";",c));
 							}
 							b = sf.value;
 							c.clear();
@@ -1321,10 +1320,10 @@ public class MarcXmlToRdf {
 						if (c.isEmpty())
 							cs.add("<null>");
 						else 
-							cs.add(StringUtils.join(c, ";"));
+							cs.add(String.join(";",c));
 					}
-					putOrAppendToExtract("23","|",StringUtils.join(bs,"~"));
-					putOrAppendToExtract("24","|",StringUtils.join(cs,"~"));
+					putOrAppendToExtract("23","|",String.join("~",bs));
+					putOrAppendToExtract("24","|",String.join("~",cs));
 				}
 							
 			
@@ -1401,7 +1400,7 @@ public class MarcXmlToRdf {
 					columns.put('m',"35");	columns.put('n',"36");
 					for (Character col : columns.keySet())
 						if (codes.containsKey(col))
-							putOrAppendToExtract(columns.get(col),"|",StringUtils.join(codes.get(col),'~'));
+							putOrAppendToExtract(columns.get(col),"|",String.join("~",codes.get(col)));
 					putOrAppendToExtract("37","|",two);
 				}
 
@@ -1443,13 +1442,13 @@ public class MarcXmlToRdf {
 						putOrAppendToExtract("27","|",a.get(0));
 						a.remove(0);
 						if (! a.isEmpty())
-							putOrAppendToExtract("29","|",StringUtils.join(a,'~'));
+							putOrAppendToExtract("29","|",String.join("~",a));
 					}
 					if (! c.isEmpty()) {
 						putOrAppendToExtract("28","|",c.get(0));
 						c.remove(0);
 						if (! c.isEmpty())
-							putOrAppendToExtract("30","|",StringUtils.join(c,'~'));
+							putOrAppendToExtract("30","|",String.join("~",c));
 					}
 				}
 			
@@ -1482,7 +1481,7 @@ public class MarcXmlToRdf {
 								if (b.isEmpty())
 									bs.add("<null>");
 								else 
-									bs.add(StringUtils.join(b, ";"));
+									bs.add(String.join(";",b));
 							}
 							a = sf.value;
 							b.clear();
@@ -1496,10 +1495,10 @@ public class MarcXmlToRdf {
 						if (b.isEmpty())
 							bs.add("<null>");
 						else 
-							bs.add(StringUtils.join(b, ";"));
+							bs.add(String.join(";",b));
 					}
-					putOrAppendToExtract("32","|",StringUtils.join(as,"~"));
-					putOrAppendToExtract("33","|",StringUtils.join(bs,"~"));
+					putOrAppendToExtract("32","|",String.join("~",as));
+					putOrAppendToExtract("33","|",String.join("~",bs));
 					if (src != null)
 						putOrAppendToExtract("34","|",src);
 					else 
@@ -1761,7 +1760,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("45","|",i2);
 						
-						putOrAppendToExtract("46","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("46","|",String.join("~",z));
 						
 						putOrAppendToExtract("47","|",two);
 					}
@@ -1782,7 +1781,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("48","|",i2);
 						
-						putOrAppendToExtract("49","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("49","|",String.join("~",z));
 						
 						putOrAppendToExtract("50","|",two);
 					}
@@ -1805,7 +1804,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("51","|",i2);
 						
-						putOrAppendToExtract("52","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("52","|",String.join("~",z));
 						
 						putOrAppendToExtract("53","|",two);
 					}
@@ -1826,7 +1825,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("54","|",i2);
 						
-						putOrAppendToExtract("55","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("55","|",String.join("~",z));
 						
 						putOrAppendToExtract("56","|",two);
 					}
@@ -1849,7 +1848,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("57","|",i2);
 						
-						putOrAppendToExtract("58","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("58","|",String.join("~",z));
 						
 						putOrAppendToExtract("59","|",two);
 					}
@@ -1870,7 +1869,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("60","|",i2);
 						
-						putOrAppendToExtract("61","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("61","|",String.join("~",z));
 						
 						putOrAppendToExtract("62","|",two);
 					}
@@ -1893,7 +1892,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("63","|",i2);
 						
-						putOrAppendToExtract("64","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("64","|",String.join("~",z));
 						
 						putOrAppendToExtract("65","|",two);
 					}
@@ -1914,7 +1913,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("66","|",i2);
 						
-						putOrAppendToExtract("67","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("67","|",String.join("~",z));
 						
 						putOrAppendToExtract("68","|",two);
 					}
@@ -1940,7 +1939,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("70","|",i2);
 						
-						putOrAppendToExtract("71","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("71","|",String.join("~",z));
 						
 						putOrAppendToExtract("72","|",two);
 					}
@@ -1965,7 +1964,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("74","|",i2);
 						
-						putOrAppendToExtract("75","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("75","|",String.join("~",z));
 						
 						putOrAppendToExtract("76","|",two);
 					}
@@ -1989,9 +1988,9 @@ public class MarcXmlToRdf {
 					if (i2.trim().isEmpty()) i2 = "<null>";
 					putOrAppendToExtract("77","|",i2);
 					
-					putOrAppendToExtract("78","|",StringUtils.join(a,'~'));
+					putOrAppendToExtract("78","|",String.join("~",a));
 
-					putOrAppendToExtract("79","|",StringUtils.join(z,'~'));
+					putOrAppendToExtract("79","|",String.join("~",z));
 					
 					putOrAppendToExtract("80","|",two);
 				}
@@ -2012,9 +2011,9 @@ public class MarcXmlToRdf {
 					if (i2.trim().isEmpty()) i2 = "<null>";
 					putOrAppendToExtract("81","|",i2);
 						
-					putOrAppendToExtract("82","|",StringUtils.join(a,'~'));
+					putOrAppendToExtract("82","|",String.join("~",a));
 
-					putOrAppendToExtract("83","|",StringUtils.join(z,'~'));
+					putOrAppendToExtract("83","|",String.join("~",z));
 						
 					putOrAppendToExtract("84","|",two);
 				}
@@ -2052,7 +2051,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("88","|",i2);
 						
-						putOrAppendToExtract("89","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("89","|",String.join("~",z));
 						
 						putOrAppendToExtract("90","|",two);
 					}
@@ -2077,7 +2076,7 @@ public class MarcXmlToRdf {
 						if (i2.trim().isEmpty()) i2 = "<null>";
 						putOrAppendToExtract("92","|",i2);
 						
-						putOrAppendToExtract("93","|",StringUtils.join(z,'~'));
+						putOrAppendToExtract("93","|",String.join("~",z));
 						
 						putOrAppendToExtract("94","|",two);
 					}
@@ -2138,7 +2137,7 @@ public class MarcXmlToRdf {
 			extractVals.put("07",pubplaces.get(0));
 			if (pubplaces.size() > 1) {
 				pubplaces.remove(0);
-				extractVals.put("08", StringUtils.join(pubplaces,"; "));
+				extractVals.put("08", String.join("; ",pubplaces));
 			}
 		}
 	

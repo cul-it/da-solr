@@ -5,8 +5,6 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 
@@ -41,17 +39,17 @@ public class RelatorSet {
 		return this.relators.isEmpty();
 	}
 	public String toString() {
-		return StringUtils.join(this.relators,", ");
+		return String.join(", ",this.relators);
 	}
-	public static String validateForConcatWRelators( String orig ) {
-		if (orig.endsWith("-,")) {
-			orig = StringUtils.chop(orig);
-		} else if (orig.endsWith(",")
-				|| orig.endsWith("-")) {
+	public static String validateForConcatWRelators( String s ) {
+		if (s.endsWith("-,")) {
+			s = s.substring(0,s.length()-1);
+		} else if (s.endsWith(",")
+				|| s.endsWith("-")) {
 			// this is correct - do nothing
 		} else {
-			orig += ',';
+			s += ',';
 		}
-		return orig;
+		return s;
 	}
 }
