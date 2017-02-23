@@ -25,6 +25,22 @@ public class ISBNTest {
 	}
 
 	@Test
+	public void testOldStyleC() {
+		MarcRecord.DataField f = new MarcRecord.DataField();
+		f.id = 1;
+		f.tag = "020";
+		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "9782709656825 (pbk.) :"));
+		f.subfields.put(2, new MarcRecord.Subfield(2, 'c', "19,00 EUR"));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
+		fs.fields.add(f);
+		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
+		assertTrue(vals.display880.isEmpty());
+		assertTrue(vals.search880.isEmpty());
+		assertTrue(vals.displayMain.iterator().next().equals("9782709656825 (pbk.)"));
+		assertTrue(vals.searchMain.iterator().next().equals("9782709656825"));
+	}
+
+	@Test
 	public void testOldStyle880() {
 		MarcRecord.DataField f1 = new MarcRecord.DataField();
 		f1.id = 1;

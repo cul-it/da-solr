@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -111,10 +112,11 @@ public class ISBN implements ResultSetToFields {
 				prevSubfield = sf.code;
 			}
 			if (aFound) {
+				String s = removeTrailingPunctuation(sbDisplay.toString()," :;");
 				if (f.tag.equals("880"))
-					vals.display880.add(sbDisplay.toString());
+					vals.display880.add(s);
 				else
-					vals.displayMain.add(sbDisplay.toString());
+					vals.displayMain.add(s);
 			}
 		}
 		return vals;
