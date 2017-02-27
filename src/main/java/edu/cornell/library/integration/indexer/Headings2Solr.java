@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,22 +57,25 @@ public class Headings2Solr {
 
 		connection = config.getDatabaseConnection("Headings");
 
-		try ( ConcurrentUpdateSolrClient solr =
-				new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
-			findWorks(solr, HeadType.SUBJECT);
+		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getSubjectSolrUrl());
+				ConcurrentUpdateSolrClient solr_u =
+						new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
+			findWorks(solr_u, solr_q, HeadType.SUBJECT);
 		}
-		try ( ConcurrentUpdateSolrClient solr =
-				new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
-			findWorks(solr, HeadType.AUTHOR);
+		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorSolrUrl());
+				ConcurrentUpdateSolrClient solr_u =
+						new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
+			findWorks(solr_u, solr_q, HeadType.AUTHOR);
 		}
-		try ( ConcurrentUpdateSolrClient solr =
-				new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
-			findWorks(solr, HeadType.AUTHORTITLE);
+		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorTitleSolrUrl());
+				ConcurrentUpdateSolrClient solr_u =
+						new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
+			findWorks(solr_u, solr_q, HeadType.AUTHORTITLE);
 		}
 		connection.close();
 	}
 
-	private void findWorks(ConcurrentUpdateSolrClient solr, HeadType ht) throws Exception  {
+	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadType ht) throws Exception  {
 		String query =
 			"SELECT h.* "
 			+ "FROM heading as h"
@@ -80,6 +88,9 @@ public class Headings2Solr {
 			+ "    OR h2."+ht.dbField()+" > 0"
 			+ " GROUP BY h.id";
 		Collection<SolrInputDocument> docs = new ArrayList<>();
+		String mostRecentDate = getMostRecentSolrDate( solr_q );
+		if (mostRecentDate != null)
+			System.out.println("Before processing, the most recent timestamp in Solr is "+mostRecentDate);
 
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
@@ -123,23 +134,34 @@ public class Headings2Solr {
 					docs.add(doc);
 					if (docs.size() == 5_000) {
 						System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
-						solr.add(docs);
+						solr_u.add(docs);
 						docs.clear();
 						addsSinceCommit += 5_000;
 						if (addsSinceCommit >= 200_000) {
-							solr.commit();
+							solr_u.commit();
 							addsSinceCommit = 0;
 						}
 					}
 				}
 			}
 		if ( ! docs.isEmpty() )
-			solr.add(docs);
-		solr.blockUntilFinished();
-		solr.commit();
+			solr_u.add(docs);
+		solr_u.blockUntilFinished();
+		solr_u.commit();
 		}
 	}
 	
+	private static String getMostRecentSolrDate(HttpSolrClient solr_q) throws SolrServerException, IOException {
+		SolrQuery q = new SolrQuery("*:*");
+		q.setRows(1);
+		q.setSort("timestamp", SolrQuery.ORDER.desc);
+		q.setFields("timestamp");
+		for (SolrDocument doc : solr_q.query(q).getResults()) {
+			return (String) doc.getFieldValue("timestamp");
+		}
+		return null;
+	}
+
 	private static PreparedStatement ref_pstmt = null;
 	private References getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
 		Collection<String> seeRefs = new ArrayList<>();
