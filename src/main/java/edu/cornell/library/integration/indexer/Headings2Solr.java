@@ -6,9 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +90,10 @@ public class Headings2Solr {
 			+ "    OR h2."+ht.dbField()+" > 0"
 			+ " GROUP BY h.id";
 		Collection<SolrInputDocument> docs = new ArrayList<>();
-		String mostRecentDate = getMostRecentSolrDate( solr_q );
+		Date mostRecentDate = getMostRecentSolrDate( solr_q );
 		if (mostRecentDate != null)
-			System.out.println("Before processing, the most recent timestamp in Solr is "+mostRecentDate);
+			System.out.println("Before processing, the most recent timestamp in Solr is "+
+					new SimpleDateFormat("yyyy-MM-dd").format(mostRecentDate));
 
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
@@ -151,13 +154,13 @@ public class Headings2Solr {
 		}
 	}
 	
-	private static String getMostRecentSolrDate(HttpSolrClient solr_q) throws SolrServerException, IOException {
+	private static Date getMostRecentSolrDate(HttpSolrClient solr_q) throws SolrServerException, IOException {
 		SolrQuery q = new SolrQuery("*:*");
 		q.setRows(1);
 		q.setSort("timestamp", SolrQuery.ORDER.desc);
 		q.setFields("timestamp");
 		for (SolrDocument doc : solr_q.query(q).getResults()) {
-			return (String) doc.getFieldValue("timestamp");
+			return (Date) doc.getFieldValue("timestamp");
 		}
 		return null;
 	}
