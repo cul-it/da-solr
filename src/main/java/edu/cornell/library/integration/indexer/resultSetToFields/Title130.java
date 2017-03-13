@@ -19,10 +19,9 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
- * Build Call number display and facet fields in two steps. 
- * All code is executed in each pass, so it needs to have necessary conditionals.
+ * Process Uniform title in field 130.
  */
-public class Title130ResultSetToFields implements ResultSetToFields {
+public class Title130 implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

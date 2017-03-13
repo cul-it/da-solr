@@ -18,11 +18,9 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * Add various series fields to author-title browse
  */
-public class SeriesAddedEntryRSTF implements ResultSetToFields {
+public class SeriesAddedEntry implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

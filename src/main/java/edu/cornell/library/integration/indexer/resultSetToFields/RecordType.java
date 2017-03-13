@@ -23,7 +23,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * so only records that should NOT be returned in Blacklight work-level searches should
  * vary from this.
  */
-public class RecordTypeRSTF implements ResultSetToFields {
+public class RecordType implements ResultSetToFields {
 
 	protected boolean debug = false;
 	

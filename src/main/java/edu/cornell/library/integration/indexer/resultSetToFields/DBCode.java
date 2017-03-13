@@ -19,7 +19,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * 856‡i should be access instructions, but has been used to store code keys
  * that map database records to information about access restrictions
  */
-public class DBCodeRSTF implements ResultSetToFields {
+public class DBCode implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

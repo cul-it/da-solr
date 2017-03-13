@@ -43,7 +43,7 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
  * For a bib record with multiple holdings records, each holdings record will have it's own holdings_record_display.
  */
-public class HoldingsAndItemsRSTF implements ResultSetToFields {
+public class HoldingsAndItems implements ResultSetToFields {
 
 	private Boolean debug = false;
 	static final Pattern p = Pattern.compile(".*_([0-9]+)");

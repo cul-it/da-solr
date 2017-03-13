@@ -26,7 +26,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  * processing into contents_display and partial_contents_display
  * 
  */
-public class TOCResultSetToFields implements ResultSetToFields {
+public class TOC implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

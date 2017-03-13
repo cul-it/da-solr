@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
+package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
@@ -19,35 +19,24 @@ import com.hp.hpl.jena.query.QuerySolution;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
- * Build Call number display and facet fields in two steps. 
- * All code is executed in each pass, so it needs to have necessary conditionals.
+ * Build Call number display and facet fields.
  */
-public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
+public class CallNumber implements ResultSetToFields {
 
 	
 	final boolean debug = false;
 	
 	@Override
-	public FieldMakerStep toFields(
+	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		FieldMakerStep step = new FieldMakerStep();
+
 		Map<String,SolrInputField> fields = new HashMap<>();
 		ArrayList<String> callnos = new ArrayList<>();
 		ArrayList<String> letters = new ArrayList<>();
 		String sort_callno = null;
 		ArrayList<Classification> classes = new ArrayList<>();
 		String non_lc_callno = null; // We only need up to one of these
-		
-		/*
-		 * Step 1. 
-		 * Retrieve call number list, and identify initial call number letters for facet.
-		 * Build queries to retrieve subject names for the initial letters found.
-		 */
-				
+
 		for( String resultKey: results.keySet()){
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
 			if (debug)
@@ -144,21 +133,10 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
         // only in the holdings data, but all call numbers are still populated in the call number search.
 		for (int i = 0; i < callnos.size(); i++)
 			addField(fields,"lc_callnum_full",callnos.get(i));
-		
-		if (sort_callno != null) 
+
+		if (sort_callno != null)
 			addField(fields,"callnum_sort",sort_callno);
-				
-		for (int i = 0; i < letters.size(); i++) {
-			String l = letters.get(i);
-			String query = 
-		    		"SELECT ?code ?subject\n" +
-		    		"WHERE {\n" +
-		    		" ?lc intlayer:code \""+l+"\".\n" +
-		    		" ?lc intlayer:code ?code.\n" +
-		    		" ?lc rdfs:label ?subject. }\n";
-			step.addMainStoreQuery("letter_subject_"+l,query );
-		}
-		
+
 		// new bl5-compatible hierarchical facet
 		int classCount = classes.size();
 		Collection<String> lc_callnum_facet = new HashSet<>(); // hashset eliminates dupes
@@ -190,33 +168,10 @@ public class CallNumberResultSetToFields implements ResultSetToFieldsStepped {
 			for (String facetVal : lc_callnum_facet )
 				addField(fields,"lc_callnum_facet",facetVal);
 		}
-		
-		/*
-		 * Step 2
-		 * Add facet fields by concatenating initial letters with their subject names.
-		 */
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			
-			if ( resultKey.startsWith("letter_subject")) {
-				if( rs != null){
-					while(rs.hasNext()){
-						QuerySolution sol = rs.nextSolution();
-						String l = nodeToString( sol.get("code") );
-						String subject = nodeToString( sol.get("subject") );
-						if (l.length() == 1)
-							addField(fields,"lc_1letter_facet",l+" - "+subject);
-						addField(fields,"lc_alpha_facet",l+" - "+subject);
-					}
-				}
-			}
-		}
-		
-		
-		step.setFields(fields);
-		return step;
+
+		return fields;
 	}
-	
+
 	private class Classification {
 		public Classification (String letters, String numbers) {
 			l = letters;

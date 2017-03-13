@@ -26,7 +26,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * so only records that should NOT be returned in Blacklight work-level searches should
  * vary from this.
  */
-public class HathiLinksRSTF implements ResultSetToFields {
+public class HathiLinks implements ResultSetToFields {
 
 	protected boolean debug = false;
 	Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();

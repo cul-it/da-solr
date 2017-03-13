@@ -23,7 +23,7 @@ import edu.cornell.library.integration.utilities.CharacterSetUtils;
  * according to the value of the first indicator. All permutations go to notes_t and/or notes_t_cjk
  * for searching, because we don't currently need to distinguish.
  */
-public class FindingAidsRSTF implements ResultSetToFields {
+public class FindingAids implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

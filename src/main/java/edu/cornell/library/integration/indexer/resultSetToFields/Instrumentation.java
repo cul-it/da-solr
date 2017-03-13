@@ -23,7 +23,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
  * Subfields $r and $t are recently added fields, and are not included in this display logic.
  * DISCOVERYACCESS-1608
  */
-public class InstrumentationRSTF implements ResultSetToFields {
+public class Instrumentation implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

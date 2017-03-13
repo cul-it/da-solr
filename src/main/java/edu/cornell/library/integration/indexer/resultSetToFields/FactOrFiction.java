@@ -16,11 +16,11 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * Using control fixed fields present in Book type MARC bib records to identify
+ * Fact and Fiction records. Some control field values, such as 'poetry' are
+ * ambiguous.
  */
-public class FactOrFictionResultSetToFields implements ResultSetToFields {
+public class FactOrFiction implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

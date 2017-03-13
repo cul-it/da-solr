@@ -21,7 +21,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  * Build Call number display and facet fields in two steps. 
  * All code is executed in each pass, so it needs to have necessary conditionals.
  */
-public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
+public class TitleSeries implements ResultSetToFieldsStepped {
 
 	@Override
 	public FieldMakerStep toFields(

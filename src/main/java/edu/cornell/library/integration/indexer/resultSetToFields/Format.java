@@ -22,7 +22,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * processing various query results into complicated determination of item format,
  * and "online" status.  
  */
-public class FormatResultSetToFields implements ResultSetToFields {
+public class Format implements ResultSetToFields {
 
 	protected boolean debug = false;
 

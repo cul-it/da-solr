@@ -20,7 +20,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  * Process 856 fields from both bibliographic and holdings fields into various URL Solr fields.
  * 
  */
-public class URLResultSetToFields implements ResultSetToFields {
+public class URL implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

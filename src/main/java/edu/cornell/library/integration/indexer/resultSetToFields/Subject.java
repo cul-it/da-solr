@@ -32,7 +32,7 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDes
  * process subject field values into display, facet, search, and browse/filing fields
  *
  */
-public class SubjectResultSetToFields implements ResultSetToFields {
+public class Subject implements ResultSetToFields {
 
 	static ObjectMapper mapper = new ObjectMapper();
 

@@ -19,10 +19,12 @@ import com.hp.hpl.jena.query.ResultSet;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 
 /**
- * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
+ * Look for various factors to identify books on new books shelves and acquisition
+ * dates for recently acquired materials. Acquisition dates are less reliable the
+ * more time has passed.
  * 
  */
-public class NewBooksRSTF implements ResultSetToFields {
+public class NewBooks implements ResultSetToFields {
 	
 	final static Boolean debug = false;
 
@@ -151,11 +153,12 @@ public class NewBooksRSTF implements ResultSetToFields {
 	  		if (acquiredDate == null || acquiredDate < date)
 	  			acquiredDate = date;
 	  	}
-	  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
-	  	String date_s = acquiredDate.toString();
-		addField(fields,"acquired",date_s);
-		addField(fields,"acquired_month",date_s.substring(0,6));
-
+	  	if (acquiredDate != null) {
+		  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
+		  	String date_s = acquiredDate.toString();
+			addField(fields,"acquired",date_s);
+			addField(fields,"acquired_month",date_s.substring(0,6));
+	  	}
 		return fields;
 	}
 	

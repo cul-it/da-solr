@@ -24,7 +24,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * processing date result sets into fields pub_date_facet, pub_date_sort, pub_date_display
  * 
  */
-public class DateResultSetToFields implements ResultSetToFields {
+public class Date implements ResultSetToFields {
 
 	static final Pattern p = Pattern.compile("^[0-9]{4}$");
 	static final int current_year = Calendar.getInstance().get(Calendar.YEAR);

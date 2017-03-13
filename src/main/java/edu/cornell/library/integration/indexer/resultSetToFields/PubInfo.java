@@ -20,7 +20,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
  */
-public class PubInfoResultSetToFields implements ResultSetToFields {
+public class PubInfo implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

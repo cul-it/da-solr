@@ -22,11 +22,9 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
- * processing title result sets into fields title_t, title_vern_display, subtitle_t, 
- * subtitle_vern_display, and title_sort. The rest of the title fields don't require 
- * specialized handling. 
+ * Process language data into language_display and language_facet
  */
-public class LanguageResultSetToFields implements ResultSetToFields {
+public class Language implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

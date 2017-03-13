@@ -31,7 +31,7 @@ import edu.cornell.library.integration.indexer.utilities.RelatorSet;
  * process the whole 7xx range into a wide variety of fields
  *
  */
-public class TitleChangeResultSetToFields implements ResultSetToFields {
+public class TitleChange implements ResultSetToFields {
 
 	static ObjectMapper mapper = new ObjectMapper();
 

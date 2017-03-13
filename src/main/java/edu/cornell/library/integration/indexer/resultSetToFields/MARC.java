@@ -15,10 +15,10 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord;
 
 /**
- * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
+ * processing all bibliographic MARC data into a MARC XML blob to insert into Solr doc
  * 
  */
-public class MARCResultSetToFields implements ResultSetToFields {
+public class MARC implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

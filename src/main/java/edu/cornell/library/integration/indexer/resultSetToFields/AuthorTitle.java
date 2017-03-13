@@ -34,7 +34,7 @@ import edu.cornell.library.integration.indexer.utilities.RelatorSet;
  * error, but a post-processor will remove extra values before submission leading
  * to a successful submission.
  */
-public class AuthorTitleResultSetToFields implements ResultSetToFields {
+public class AuthorTitle implements ResultSetToFields {
 
 	static ObjectMapper mapper = new ObjectMapper();
 

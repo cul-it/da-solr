@@ -24,7 +24,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  * indexed_in_its_entirety_by_display, and indexed_selectively_by_display
  * 
  */
-public class CitationReferenceNoteResultSetToFields implements ResultSetToFields {
+public class CitationReferenceNote implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(

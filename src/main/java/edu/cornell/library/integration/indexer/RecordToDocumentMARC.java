@@ -22,30 +22,30 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerSteppe
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 import edu.cornell.library.integration.indexer.resultSetToFields.AllResultsToField;
-import edu.cornell.library.integration.indexer.resultSetToFields.AuthorTitleResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.CitationReferenceNoteResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.DBCodeRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.DateResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFictionResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.FindingAidsRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.FormatResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinksRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItemsRSTF;
+import edu.cornell.library.integration.indexer.resultSetToFields.AuthorTitle;
+import edu.cornell.library.integration.indexer.resultSetToFields.CitationReferenceNote;
+import edu.cornell.library.integration.indexer.resultSetToFields.DBCode;
+import edu.cornell.library.integration.indexer.resultSetToFields.Date;
+import edu.cornell.library.integration.indexer.resultSetToFields.FactOrFiction;
+import edu.cornell.library.integration.indexer.resultSetToFields.FindingAids;
+import edu.cornell.library.integration.indexer.resultSetToFields.Format;
+import edu.cornell.library.integration.indexer.resultSetToFields.HathiLinks;
+import edu.cornell.library.integration.indexer.resultSetToFields.HoldingsAndItems;
 import edu.cornell.library.integration.indexer.resultSetToFields.ISBN;
-import edu.cornell.library.integration.indexer.resultSetToFields.InstrumentationRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.LanguageResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.MARCResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.NewBooksRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.PubInfoResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.RecordTypeRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.SeriesAddedEntryRSTF;
-import edu.cornell.library.integration.indexer.resultSetToFields.SubjectResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.TOCResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.Title130ResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.TitleChangeResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFields.URLResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.CallNumberResultSetToFields;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeriesResultSetToFields;
+import edu.cornell.library.integration.indexer.resultSetToFields.Instrumentation;
+import edu.cornell.library.integration.indexer.resultSetToFields.Language;
+import edu.cornell.library.integration.indexer.resultSetToFields.MARC;
+import edu.cornell.library.integration.indexer.resultSetToFields.NewBooks;
+import edu.cornell.library.integration.indexer.resultSetToFields.PubInfo;
+import edu.cornell.library.integration.indexer.resultSetToFields.RecordType;
+import edu.cornell.library.integration.indexer.resultSetToFields.SeriesAddedEntry;
+import edu.cornell.library.integration.indexer.resultSetToFields.Subject;
+import edu.cornell.library.integration.indexer.resultSetToFields.TOC;
+import edu.cornell.library.integration.indexer.resultSetToFields.Title130;
+import edu.cornell.library.integration.indexer.resultSetToFields.TitleChange;
+import edu.cornell.library.integration.indexer.resultSetToFields.URL;
+import edu.cornell.library.integration.indexer.resultSetToFields.CallNumber;
+import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeries;
 
 /**
  * An example RecordToDocument implementation. 
@@ -111,7 +111,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    addMainStoreQuery("rectypebiblvl",
 						"SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n" +
 						" WHERE { $recordURI$ marcrdf:leader ?leader. }").
-		            addResultSetToFields( new HoldingsAndItemsRSTF()),
+		            addResultSetToFields( new HoldingsAndItems()),
 		        /*
 		        new SPARQLFieldMakerImpl().
 		        	addMainStoreQuery("bib_id","SELECT ?id WHERE { $recordURI$ rdfs:label ?id}").
@@ -151,7 +151,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?field marcrdf:hasSubfield ?sfield.\n" +
 				    		"   ?sfield marcrdf:code ?code.\n" +
 				    		"   ?sfield marcrdf:value ?value. }").
-				    addResultSetToFields( new MARCResultSetToFields() ),
+				    addResultSetToFields( new MARC() ),
 
 				new SPARQLFieldMakerImpl().
 				    setName("rec_type").
@@ -168,7 +168,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"        ?f marcrdf:hasSubfield ?sf.\n" +
 							"        ?sf marcrdf:code \"x\"^^xsd:string.\n" +
 							"        ?sf marcrdf:value ?sf852x. }").
-				    addResultSetToFields( new RecordTypeRSTF() ),                  
+				    addResultSetToFields( new RecordType() ),                  
 				    		
 				new SPARQLFieldMakerImpl().
 					setName("format").
@@ -214,11 +214,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				        	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
 					    	"  ?hold852b marcrdf:value ?loccode.\n" +
 							"}").
-					addResultSetToFields( new FormatResultSetToFields() ),
-										
+					addResultSetToFields( new Format() ),
+
 				getLanguageFieldMaker(),
-				    		
-			    new SPARQLFieldMakerStepped().
+
+			    new SPARQLFieldMakerImpl().
 			        setName("call_numbers").
 			        addMainStoreQuery("holdings_callno",
 			        	"SELECT ?part1 ?part2 ?prefix ?ind1 ?loc\n"+
@@ -265,7 +265,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				            "    ?f950b marcrdf:code \"b\"^^xsd:string.\n" +
 				            "    ?f950b marcrdf:value ?part2. }\n" +
 				    		"}").
-			        addResultSetToFieldsStepped( new CallNumberResultSetToFields() ),
+				    addResultSetToFields( new CallNumber() ),
 			    	
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
@@ -288,7 +288,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?s marcrdf:value ?date. \n" +
 				    		"        ?f marcrdf:ind2 ?ind2. \n" +
 				    		" } ").
-				    addResultSetToFields( new DateResultSetToFields() ) ,
+				    addResultSetToFields( new Date() ) ,
 				    
 				new StandardMARCFieldMaker("pub_info_display","260","3abc"),
 			    new SPARQLFieldMakerImpl().
@@ -303,7 +303,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new PubInfoResultSetToFields()), // IndicatorReq to be added?
+			    	addResultSetToFields( new PubInfo() ), // IndicatorReq to be added?
 				
 			    // publisher_display and pubplace_display from field 260 handled by PubInfoResultSetToField
 			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED,"/:,， "),
@@ -351,7 +351,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 							"        ?sfield marcrdf:code ?code.\n" +
 							"        ?sfield marcrdf:value ?value.\n" +
 							" }").
-					addResultSetToFields( new Title130ResultSetToFields()),
+					addResultSetToFields( new Title130() ),
 
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
@@ -367,7 +367,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"        ?sfield marcrdf:code ?code.\n" +
 				    		"        ?sfield marcrdf:value ?value.\n" +
 				    		" }").
-			        addResultSetToFields( new TitleChangeResultSetToFields()),
+			        addResultSetToFields( new TitleChange() ),
 			    new StandardMARCFieldMaker("map_format_display","255","abcdefg"),
 			    new StandardMARCFieldMaker("in_display","773","abdghikmnopqrstuw"),
 
@@ -384,7 +384,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			     	"  ?sfield marcrdf:code ?code.\n" +
 				 	"  ?sfield marcrdf:value ?value. }").
-			        addResultSetToFieldsStepped( new TitleSeriesResultSetToFields()),
+			        addResultSetToFieldsStepped( new TitleSeries() ),
 
 			    new SPARQLFieldMakerImpl().
 			    	setName("author and main title").
@@ -418,7 +418,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 						    "        ?field marcrdf:hasSubfield ?sfield .\n" +
 						    "        ?sfield marcrdf:code ?code.\n" +
 						    "        ?sfield marcrdf:value ?value. }").
-			        addResultSetToFields( new AuthorTitleResultSetToFields()),
+			        addResultSetToFields( new AuthorTitle() ),
 
 				new SPARQLFieldMakerImpl().
 				    	setName("seriesaddedentry").
@@ -433,7 +433,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "        ?sfield marcrdf:code ?code.\n" +
 					    "        ?sfield marcrdf:value ?value.\n" +
 					    " }").
-					    addResultSetToFields( new SeriesAddedEntryRSTF()),
+					    addResultSetToFields( new SeriesAddedEntry() ),
 
 
 			    new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
@@ -456,7 +456,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
-			        addResultSetToFields( new TOCResultSetToFields()),
+			        addResultSetToFields( new TOC() ),
 
 			   new SPARQLFieldMakerImpl().
 			        setName("urls").
@@ -481,7 +481,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
-		        addResultSetToFields( new URLResultSetToFields()),
+		        addResultSetToFields( new URL() ),
 
 		        getHathiLinks(),
 
@@ -502,7 +502,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        		"  ?f marcrdf:hasSubfield ?sf.\n" +
 			        		"  ?sf marcrdf:code \"a\"^^xsd:string.\n" +
 			        		"  ?sf marcrdf:value ?v. }").
-		        	addResultSetToFields( new DBCodeRSTF()),
+		        	addResultSetToFields( new DBCode()),
 
 			    new SPARQLFieldMakerImpl().
 			    	setName("citation_reference_note").
@@ -516,7 +516,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new CitationReferenceNoteResultSetToFields()), //IndicatorReq Needed!
+			    	addResultSetToFields( new CitationReferenceNote() ), //IndicatorReq Needed!
 			    new SPARQLFieldMakerImpl().
 			    	setName("instrumentation").
 			    	addMainStoreQuery("instrumentation", 
@@ -529,7 +529,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			    			"  ?sfield marcrdf:code ?code.\n" +
 			    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new InstrumentationRSTF()),
+			    	addResultSetToFields( new Instrumentation()),
 			    
 			    new StandardMARCFieldMaker("notes","362","a"),
 				new StandardMARCFieldMaker("notes_t","362","a",VernMode.SEARCH),
@@ -617,7 +617,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 		    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
 		    			"  ?sfield marcrdf:code ?code.\n" +
 		    			"  ?sfield marcrdf:value ?value. }").
-			    	addResultSetToFields( new FindingAidsRSTF()),
+			    	addResultSetToFields( new FindingAids()),
 				new StandardMARCFieldMaker("historical_note_display","545","3abcu"),
 				new StandardMARCFieldMaker("notes_t","545","3abcu",VernMode.SEARCH),
 				
@@ -637,7 +637,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					addMainStoreQuery("record_type",
 				    	"SELECT (SUBSTR(?l,7,2) as ?char67) \n" +
 				   		"WHERE { $recordURI$ marcrdf:leader ?l. } \n").
-			    	addResultSetToFields( new FactOrFictionResultSetToFields() ) ,
+			    	addResultSetToFields( new FactOrFiction() ) ,
 
 		    	// subject_t is essentially a boost field. Should eventually be dropped or
 		    	// population moved to SubjectRSTF.
@@ -664,7 +664,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    "        ?sfield marcrdf:code ?code.\n" +
 				    "        ?sfield marcrdf:value ?value.\n" +
 				    " }").
-		        	addResultSetToFields( new SubjectResultSetToFields()),
+		        	addResultSetToFields( new Subject() ),
 
 			  new SPARQLFieldMakerImpl().
 			    	setName("newbooks").
@@ -706,7 +706,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 					    "  ?mfhd852k marcrdf:code \"k\"^^xsd:string.\n" +
 				        "  ?mfhd852k marcrdf:value ?callnumprefix. \n" +
 						" }").
-		        	addResultSetToFields( new NewBooksRSTF()),
+		        	addResultSetToFields( new NewBooks() ),
 
 		        	
 				new StandardMARCFieldMaker("donor_display","541",new IndicatorReq(1," 1"),"3ac"),
@@ -761,7 +761,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	    		"        ?f marcrdf:hasSubfield ?s."
 	    		+ "      ?s marcrdf:code \"p\"^^xsd:string."
 	    		+ "      ?s marcrdf:value ?barcode } \n" ).
-	    addResultSetToFields( new HathiLinksRSTF() );
+	    addResultSetToFields( new HathiLinks() );
 
 	}
 	
@@ -799,7 +799,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	            "        ?l intlayer:code ?langcode.\n" +
 	            "        ?l rdfs:label ?language.\n" +
 	            "}").
-	    addResultSetToFields( new LanguageResultSetToFields());
+	    addResultSetToFields( new Language() );
 	}
 
 }
