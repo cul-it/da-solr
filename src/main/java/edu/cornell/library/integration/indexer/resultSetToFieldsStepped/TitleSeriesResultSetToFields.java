@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,9 +37,9 @@ public class TitleSeriesResultSetToFields implements ResultSetToFieldsStepped {
 			tag = resultKey.substring(resultKey.length() - 3);
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		for( FieldSet fs: sortedFields.values() ) {
+		for( FieldSet fs: sortedFields ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

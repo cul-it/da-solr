@@ -7,6 +7,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,25 +41,17 @@ public class AuthorTitleResultSetToFields implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<>();
 
-		MarcRecord rec = new MarcRecord();
+		Map<String,String> queryNameToField = new HashMap<>();
+		queryNameToField.put("title","245");
+		queryNameToField.put("title_240","240");
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,queryNameToField);
 
-		rec.addDataFieldResultSet(results.get("main_entry"));
-		rec.addDataFieldResultSet(results.get("title"),"245");
-		rec.addDataFieldResultSet(results.get("title_240"),"240");
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-		
-		
 		DataField title = null, title_vern = null, uniform_title = null, uniform_title_vern = null;
 		String author = null, author_vern = null;
 
-		for( FieldSet fs: sortedFields.values() ) {
+		Map<String,SolrInputField> solrFields = new HashMap<>();
+		for( FieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

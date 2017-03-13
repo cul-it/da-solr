@@ -73,9 +73,9 @@ public class LanguageResultSetToFields implements ResultSetToFields {
 		// language note
 		MarcRecord rec = new MarcRecord();
 		rec.addDataFieldResultSet(results.get("language_note"),"546");
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
 		List<String> notes = new ArrayList<>();
-		for (FieldSet fs : sortedFields.values()) {
+		for (FieldSet fs : sortedFields) {
 			String value880 = null;
 			String valueMain = null;
 			for (DataField f: fs.fields) {

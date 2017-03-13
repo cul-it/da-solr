@@ -118,9 +118,9 @@ public class HoldingsAndItemsRSTF implements ResultSetToFields {
 			List<String> notes = new ArrayList<>();
 			String copyNo = null;
 
-			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
+			Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-			for( FieldSet fs: sortedFields.values() ) {
+			for( FieldSet fs: sortedFields ) {
 
 				for (DataField f: fs.fields) {
 					String callno = null;

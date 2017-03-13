@@ -7,6 +7,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_op
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,20 +31,11 @@ public class TOCResultSetToFields implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> solrFields = new HashMap<>();
-		MarcRecord rec = new MarcRecord();
-		
-		for( String resultKey: results.keySet()){
-			rec.addDataFieldResultSet(results.get(resultKey));
-		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		for( FieldSet fs: sortedFields.values() ) {
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+
+		Map<String,SolrInputField> solrFields = new HashMap<>();
+		for( FieldSet fs: sets ) {
 
 			List<String> values880 = new ArrayList<>();
 			List<Boolean> isCJK = new ArrayList<>();

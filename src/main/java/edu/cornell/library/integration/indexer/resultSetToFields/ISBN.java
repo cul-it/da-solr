@@ -1,8 +1,8 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -13,7 +13,6 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
@@ -29,27 +28,23 @@ public class ISBN implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
+		Map<String,String> q2f = new HashMap<>();
+		q2f.put("isbn","020");
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,q2f);
+
 		Map<String,SolrInputField> fields = new HashMap<>();
-		MarcRecord rec = new MarcRecord();
-
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			rec.addDataFieldResultSet(rs,"020");
-		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		for( FieldSet fs: sortedFields.values() ) {
+		for( FieldSet fs: sets ) {
 
 			SolrFieldValueSet vals = generateSolrFields( fs );
 
 			for ( String s : vals.display880 )
-				addField(fields,"isbn_display",s,true);
+				ResultSetUtilities.addField(fields,"isbn_display",s,true);
 			for ( String s : vals.displayMain )
-				addField(fields,"isbn_display",s,true);
+				ResultSetUtilities.addField(fields,"isbn_display",s,true);
 			for ( String s : vals.search880 )
-				addField(fields,"isbn_t",s,true);
+				ResultSetUtilities.addField(fields,"isbn_t",s,true);
 			for ( String s : vals.searchMain )
-				addField(fields,"isbn_t",s,true);
+				ResultSetUtilities.addField(fields,"isbn_t",s,true);
 		}
 
 		return fields;

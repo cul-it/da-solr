@@ -7,6 +7,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_op
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -139,17 +140,17 @@ public class MarcRecord {
 
 	}
 
-	public Map<Integer,FieldSet> matchAndSortDataFields() {
+	public Collection<FieldSet> matchAndSortDataFields() {
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
-	public Map<Integer,FieldSet> matchAndSortDataFields(final VernMode vernMode) {
+	public Collection<FieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
 		final Map<Integer,FieldSet> matchedFields  = new HashMap<>();
-		final Map<Integer,FieldSet> sortedFields = new TreeMap<>();
+		final Collection<FieldSet> sortedFields = new TreeSet<>();
 
 		for( final DataField f: this.data_fields.values()) {
 
@@ -159,19 +160,19 @@ public class MarcRecord {
 				FieldSet fs;
 				if (matchedFields.containsKey(f.linkOccurrenceNumber)) {
 					fs = matchedFields.get(f.linkOccurrenceNumber);
-					if (fs.minFieldNo > f.id) fs.minFieldNo = f.id;
+					if (fs.id > f.id) fs.id = f.id;
 				} else {
 					fs = new FieldSet();
 					fs.linkOccurrenceNumber = f.linkOccurrenceNumber;
-					fs.minFieldNo = f.id;
+					fs.id = f.id;
 				}
 				fs.fields.add(f);
 				matchedFields.put(fs.linkOccurrenceNumber, fs);
 			} else {
 				final FieldSet fs = new FieldSet();
-				fs.minFieldNo = f.id;
+				fs.id = f.id;
 				fs.fields.add(f);
-				sortedFields.put(f.id, fs);
+				sortedFields.add(fs);
 			}
 		}
 		// Take groups linked by occurrence number, and add them as groups to the sorted fields
@@ -179,7 +180,7 @@ public class MarcRecord {
 		// that highest precedence of the lowest field id.
 		for( final Integer linkOccurrenceNumber : matchedFields.keySet() ) {
 			final FieldSet fs = matchedFields.get(linkOccurrenceNumber);
-			sortedFields.put(fs.minFieldNo, fs);
+			sortedFields.add(fs);
 		}
 		return sortedFields;
 
@@ -500,20 +501,30 @@ public class MarcRecord {
 		public Subfield() {}
 	}
 
-	public static class FieldSet {
-		Integer minFieldNo;
+	public static class FieldSet implements Comparable<FieldSet> {
+		Integer id;
 		Integer linkOccurrenceNumber;
 		public Set<DataField> fields = new TreeSet<>();
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(this.fields.size() + "fields / link occurrence number: " +
-					this.linkOccurrenceNumber +"/ min field no: " + this.minFieldNo);
+					this.linkOccurrenceNumber +"/ min field no: " + this.id);
 			final Iterator<DataField> i = this.fields.iterator();
 			while (i.hasNext()) {
 				sb.append(i.next().toString() + "\n");
 			}
 			return sb.toString();
+		}
+
+		@Override
+		public int compareTo(final FieldSet other) {
+			return Integer.compare(this.id, other.id);
+		}
+		public boolean equals( final FieldSet other ) {
+			if (other == null) return false;
+			if (other.id == this.id) return true;
+			return false;
 		}
 	}
 

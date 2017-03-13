@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,7 +13,6 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
@@ -29,17 +29,12 @@ public class InstrumentationRSTF implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		//This method needs to return a map of fields:
+		Map<String,String> queryNameToField = new HashMap<>();
+		queryNameToField.put("instrumentation","382");
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+
 		Map<String,SolrInputField> fields = new HashMap<>();
-		MarcRecord rec = new MarcRecord();
-
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			rec.addDataFieldResultSet(rs,"382");
-		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		for( FieldSet fs: sortedFields.values() ) {
+		for( FieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

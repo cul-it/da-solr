@@ -39,20 +39,10 @@ public class TitleChangeResultSetToFields implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
 
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
-		//This method needs to return a map of fields:
-		final Map<String,SolrInputField> solrFields = new HashMap<>();
-
-		final MarcRecord rec = new MarcRecord();
-
-		for( final String resultKey: results.keySet()){
-			rec.addDataFieldResultSet(results.get(resultKey));
-		}
-		final Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		for( FieldSet fs: sortedFields.values() ) {
+		Map<String,SolrInputField> solrFields = new HashMap<>();
+		for( FieldSet fs: sets ) {
 
 			final Collection<CtsField> cts_fields = new ArrayList<>();
 			final Collection<String> valuesPersAFacet = new ArrayList<>();

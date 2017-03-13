@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,12 +13,11 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 /**
- * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
+ * Process 856 fields from both bibliographic and holdings fields into various URL Solr fields.
  * 
  */
 public class URLResultSetToFields implements ResultSetToFields {
@@ -25,20 +25,11 @@ public class URLResultSetToFields implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();
-		MarcRecord rec = new MarcRecord();
-		
-		for( String resultKey: results.keySet()){
-			rec.addDataFieldResultSet(results.get(resultKey));
-		}
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		for( FieldSet fs: sortedFields.values() ) {
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+
+		Map<String,SolrInputField> fields = new HashMap<>();
+		for( FieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

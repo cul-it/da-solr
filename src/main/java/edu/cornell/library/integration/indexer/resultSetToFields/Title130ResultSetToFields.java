@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,22 +27,13 @@ public class Title130ResultSetToFields implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
+
+		Map<String,String> q2f = new HashMap<>();
+		q2f.put("title130","130");
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,q2f);
+
 		Map<String,SolrInputField> solrFields = new HashMap<>();
-						
-		MarcRecord rec = new MarcRecord();
-
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			rec.addDataFieldResultSet(rs,"130");
-		}
-		
-		Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		for( FieldSet fs: sortedFields.values() ) {
+		for( FieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

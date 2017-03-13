@@ -8,6 +8,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_cl
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -202,9 +203,9 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			MarcRecord rec = new MarcRecord();
 			rec.addDataFieldResultSet(results.get(queryKey),marcFieldTag);
 			
-			Map<Integer,FieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
+			Collection<FieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
 			
-			if (sortedFields.keySet().size() == 0)
+			if (sortedFields.isEmpty())
 				return Collections.emptyMap();
 
 			Map<String,SolrInputField> fieldmap = new HashMap<>();
@@ -221,7 +222,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				fieldmap.put(solrFieldName+"_cjk", solrField);
 			}
 
-			for( FieldSet fs: sortedFields.values()) {
+			for( FieldSet fs: sortedFields ) {
 
 				if (fs.fields.size() == 1) {
 					DataField f = fs.fields.iterator().next();
