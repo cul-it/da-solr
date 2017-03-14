@@ -28,7 +28,7 @@ public class Title130 implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		Map<String,String> q2f = new HashMap<>();
-		q2f.put("title130","130");
+		q2f.put("title_130","130");
 		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,q2f);
 
 		Map<String,SolrInputField> solrFields = new HashMap<>();
