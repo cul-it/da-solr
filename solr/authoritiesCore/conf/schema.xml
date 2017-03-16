@@ -157,7 +157,7 @@
   	<!-- The combination of headingSort, headingType and headingTypeDesc together form a unique key for each
   	     record. The id is the md5 checksum of the concatenation of these three. --> 
     <field name="id" type="string" indexed="true" stored="true" required="true" />
-<!--    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/> -->
+    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
     <!-- required for updateLog and NRT indexing -->
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
 

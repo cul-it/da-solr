@@ -9,12 +9,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
@@ -497,15 +497,9 @@ public class IdentifyChangedRecords {
 
 		// Write a file of BIBIDs that are in the Solr index but not voyager
 		if ( bibsToDelete != null && bibsToDelete.size() > 0) {
-			Integer[] arr = bibsToDelete.toArray(new Integer[ bibsToDelete.size() ]);
-			Arrays.sort( arr );
-			StringBuilder sb = new StringBuilder();
-			for( Integer id: arr ) {
-				sb.append(id);
-				sb.append("\n");
-			}
+			String deleteReport = bibsToDelete.stream().map(Object::toString)
+					.collect(Collectors.joining("\n", "", "\n"));
 
-			String deleteReport = sb.toString(); 
 			String deleteReportFile = 
 			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() + "/"
 			        + "bibListForDelete-"+ currentDate + ".txt";			
@@ -524,15 +518,9 @@ public class IdentifyChangedRecords {
 
 		// Write a file of BIBIDs that are in Voyager but not in the Solr index
 		if ( bibsToAdd != null && bibsToAdd.size() > 0) {
-			Integer[] arr = bibsToAdd.toArray(new Integer[ bibsToAdd.size() ]);
-			Arrays.sort( arr );
-			StringBuilder sb = new StringBuilder();
-			for( Integer id: arr ) {
-				sb.append(id);
-				sb.append("\n");
-			}
 
-			String addReport = sb.toString();
+			String addReport = bibsToAdd.stream().map(Object::toString)
+					.collect(Collectors.joining("\n", "", "\n"));
 			String addReportFile =
 			        config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
 			        + "bibListToAdd-"+ currentDate + ".txt";
@@ -549,17 +537,10 @@ public class IdentifyChangedRecords {
 
 	private void produceUpdateFile( Set<Integer> bibsToUpdate) throws Exception {
 
-		if (bibsToUpdate != null && bibsToUpdate.size() > 0){			
-			
-			Integer[] arr = bibsToUpdate.toArray(new Integer[ bibsToUpdate.size() ]);
-			Arrays.sort( arr );
-			StringBuilder sb = new StringBuilder();
-			for( Integer id: arr ) {
-				sb.append(id);
-				sb.append("\n");
-			}
+		if (bibsToUpdate != null && bibsToUpdate.size() > 0){
 
-			String updateReport = sb.toString();
+			String updateReport = bibsToUpdate.stream().map(Object::toString)
+					.collect(Collectors.joining("\n", "", "\n"));
 
 			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
 			        + "bibListForUpdate-"+ currentDate + ".txt";
@@ -584,7 +565,7 @@ public class IdentifyChangedRecords {
 		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
 		ITEM_DELETE("Item Record Removed",IndexQueuePriority.DATACHANGE),
 		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
-		TITLELINK("Title Link Update",IndexQueuePriority.CODECHANGE_PRIORITY1),
+		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE_SECONDARY),
 		
 		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
 

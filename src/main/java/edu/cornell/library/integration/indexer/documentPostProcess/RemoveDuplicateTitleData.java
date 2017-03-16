@@ -6,7 +6,6 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_op
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
@@ -76,9 +75,9 @@ public class RemoveDuplicateTitleData implements DocumentPostProcess {
 		if (newVernTitleParts.size() < vernTitleParts.length) {
 			String newVernTitle = null;
 			if (isRTL) {
-				newVernTitle = RLE_openRTL + StringUtils.join(newVernTitleParts," = ") + PDF_closeRTL;
+				newVernTitle = RLE_openRTL + String.join(" = ",newVernTitleParts) + PDF_closeRTL;
 			} else {
-				newVernTitle = StringUtils.join(newVernTitleParts," = ");
+				newVernTitle = String.join(" = ",newVernTitleParts);
 			}
 			vern_field.setValue(newVernTitle, 1.0f);
 //			document.remove("title_vern_display");

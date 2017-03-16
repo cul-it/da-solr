@@ -3,16 +3,17 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeSpaces;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
+
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 
 
@@ -52,47 +53,21 @@ public class ResultSetUtilities {
 			field.addValue(value,1.0f);
 	}
 
-	/** 
-	 * This method will take a key and a ResultSet and will return
-	 * the QuerySolution where the column value named 'key' matches the
-	 * value of the key argument.
-	 * 
-	 * Null is returned if the key is not found or if rs or key are null.
-	 * @throws Exception if no key column found this throws an exception.
-	 */
-	public static QuerySolution findRow ( ResultSet rs, String key) throws Exception{
-		if( rs==null || key == null) return null;
-
-		while(rs.hasNext()){
-			QuerySolution qs = rs.nextSolution();
-			RDFNode node = qs.get("key");
-
-			if( node == null ){
-				throw new Exception("findRow() requires a column named 'key', " +
-						"but none was found in columns: " + getVarNames(qs));
-			}
-
-			if( node.isLiteral() ){
-				if( key.equals( ((Literal)node).getLexicalForm() ) ){
-					return qs;
-				}
-			}else if( node.isURIResource() ){
-				if( key.equals( ((Resource)node).getURI() )){
-					return qs;
-				}
-			}
-		}
-		//nothing found,
-		return null;
+	public static Collection<FieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
+		return resultSetsToSetsofMarcFields(results,null);
 	}
-
-	/** Gets the var names for a QuerySolution separated by spaces. */
-	protected static String getVarNames( QuerySolution qs){
-		Iterator<String> it = qs.varNames();
-		String names = "";
-		while(it.hasNext()){
-			names = names + " " +it.next();
+	public static Collection<FieldSet> resultSetsToSetsofMarcFields(
+			Map<String, ResultSet> results, Map<String,String> q2f ) {
+		MarcRecord rec = new MarcRecord();
+		for( String resultKey: results.keySet()){
+			ResultSet rs = results.get(resultKey);
+			if (q2f != null && q2f.containsKey(resultKey))
+				rec.addDataFieldResultSet(rs,q2f.get(resultKey));
+			else
+				rec.addDataFieldResultSet(rs);
 		}
-		return names;
+		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
+
+		return sortedFields;
 	}
 }

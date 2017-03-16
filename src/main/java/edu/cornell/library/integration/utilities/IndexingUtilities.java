@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -61,7 +61,7 @@ public class IndexingUtilities {
 
 	public static enum IndexQueuePriority {
 		DATACHANGE("Data Change"),
-		CODECHANGE_PRIORITY1("Code Change 1"),
+		DATACHANGE_SECONDARY("Secondary Data Change"),
 		CODECHANGE_PRIORITY2("Code Change 2"),
 		CODECHANGE_PRIORITY3("Code Change 3"),
 		CODECHANGE_PRIORITY4("Code Change 4"),
@@ -193,7 +193,7 @@ public class IndexingUtilities {
 		}
 		if (identifiedSites.isEmpty())
 			return null;
-		return StringUtils.join(identifiedSites, ", ");
+		return String.join(", ",identifiedSites);
 	}
 	public static Map<String,String> loadPatternMap(String filename) {
 		URL url = ClassLoader.getSystemResource(filename);
@@ -219,26 +219,6 @@ public class IndexingUtilities {
 	}
 	static Map<String,String> urlPatterns = null;
 
-
-
-	public static String eliminateDuplicateLocations(Collection<Object> location_facet) {
-		if (location_facet == null) return "";
-		StringBuilder sb = new StringBuilder();
-		Collection<Object> foundValues = new HashSet<>();
-		boolean first = true;
-		for (Object val : location_facet) {
-			if (foundValues.contains(val))
-				continue;
-			foundValues.add(val);
-			if (first)
-				first = false;
-			else
-				sb.append(", ");
-			sb.append(val.toString());
-		}
-		return sb.toString();
-	}
-
 	@SuppressWarnings("unchecked")
 	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
@@ -248,7 +228,7 @@ public class IndexingUtilities {
 		ref.id = Integer.valueOf(parts[0]);
 		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
 
-		ref.format = StringUtils.join(doc.getFieldValues("format"),',');
+		ref.format = String.join(",",doc.getFieldValues("format"));
 
 		if (doc.containsKey("url_access_display")) {
 			ref.sites = identifyOnlineServices(doc.getFieldValues("url_access_display"));
@@ -256,18 +236,20 @@ public class IndexingUtilities {
 				ref.sites = "Online";
 		}
 
-		if (doc.containsKey("location_facet"))
-			ref.libraries = eliminateDuplicateLocations(
-					doc.getFieldValues("location_facet"));
+		if (doc.containsKey("location_facet")) {
+			Collection<String> libraries = new LinkedHashSet<>();
+			libraries.addAll(doc.getFieldValues("location_facet"));
+			ref.libraries = String.join(", ",libraries);
+		}
 
 		if (doc.containsKey("edition_display"))
 			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
 
 		if (doc.containsKey("pub_date_display"))
-			ref.pub_date = StringUtils.join(doc.getFieldValues("pub_date_display"),", ");
+			ref.pub_date = String.join(", ",doc.getFieldValues("pub_date_display"));
 
 		if (doc.containsKey("language_facet"))
-			ref.language = StringUtils.join(doc.getFieldValues("language_facet"),',');
+			ref.language = String.join(",",doc.getFieldValues("language_facet"));
 
 		if (doc.containsKey("title_uniform_display")) {
 			String uniformTitle = (String)doc.getFieldValues

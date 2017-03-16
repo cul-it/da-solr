@@ -7,19 +7,18 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_op
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -37,8 +36,8 @@ public class MarcRecord {
 
 	public String leader = " ";
 	public String modified_date = null;
-	public Map<Integer,ControlField> control_fields = new HashMap<>();
-	public Map<Integer,DataField> data_fields = new HashMap<>();
+	public Map<Integer,ControlField> control_fields = new TreeMap<>();
+	public Map<Integer,DataField> data_fields = new TreeMap<>();
 	public RecordType type;
 	public String id;
 	public String bib_id;
@@ -49,17 +48,12 @@ public class MarcRecord {
 		final StringBuilder sb = new StringBuilder();
 		if ((this.leader != null ) && ! this.leader.equals(""))
 			sb.append("000    "+this.leader+"\n");
-		Integer[] ids = this.control_fields.keySet().toArray(new Integer[ this.control_fields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( final Integer id: ids) {
-			final ControlField f = this.control_fields.get(id);
+
+		for( final ControlField f: this.control_fields.values()) {
 			sb.append(f.tag + "    " + f.value+"\n");
 		}
 
-		ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( final Integer id: ids) {
-			final DataField f = this.data_fields.get(id);
+		for( final DataField f: this.data_fields.values()) {
 			sb.append(f.toString());
 			sb.append("\n");
 		}
@@ -133,10 +127,8 @@ public class MarcRecord {
 			} else if (mainTag != null)
 				f.mainTag = mainTag;
 		}
-		final Subfield sf = new Subfield();
-		sf.id = sfield_no;
-		sf.code = nodeToString( sol.get("code")).charAt(0);
-		sf.value = nodeToString( sol.get("value"));
+		final Subfield sf = new Subfield(sfield_no,
+				nodeToString( sol.get("code")).charAt(0), nodeToString( sol.get("value")));
 		if (sf.code.equals('6')) {
 			if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
 					&& Character.isDigit(sf.value.charAt(5))) {
@@ -148,40 +140,39 @@ public class MarcRecord {
 
 	}
 
-	public Map<Integer,FieldSet> matchAndSortDataFields() {
+	public Collection<FieldSet> matchAndSortDataFields() {
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
-	public Map<Integer,FieldSet> matchAndSortDataFields(final VernMode vernMode) {
+	public Collection<FieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
 		final Map<Integer,FieldSet> matchedFields  = new HashMap<>();
-		final Map<Integer,FieldSet> sortedFields = new HashMap<>();
-		final Integer[] ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
-		Arrays.sort( ids );
-		for( final Integer id: ids) {
-			final DataField f = this.data_fields.get(id);
+		final Collection<FieldSet> sortedFields = new TreeSet<>();
+
+		for( final DataField f: this.data_fields.values()) {
+
 			if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
 				f.linkOccurrenceNumber = 1;
 			if ((f.linkOccurrenceNumber != null) && (f.linkOccurrenceNumber != 0)) {
 				FieldSet fs;
 				if (matchedFields.containsKey(f.linkOccurrenceNumber)) {
 					fs = matchedFields.get(f.linkOccurrenceNumber);
-					if (fs.minFieldNo > f.id) fs.minFieldNo = f.id;
+					if (fs.id > f.id) fs.id = f.id;
 				} else {
 					fs = new FieldSet();
 					fs.linkOccurrenceNumber = f.linkOccurrenceNumber;
-					fs.minFieldNo = f.id;
+					fs.id = f.id;
 				}
 				fs.fields.add(f);
 				matchedFields.put(fs.linkOccurrenceNumber, fs);
 			} else {
 				final FieldSet fs = new FieldSet();
-				fs.minFieldNo = f.id;
+				fs.id = f.id;
 				fs.fields.add(f);
-				sortedFields.put(f.id, fs);
+				sortedFields.add(fs);
 			}
 		}
 		// Take groups linked by occurrence number, and add them as groups to the sorted fields
@@ -189,7 +180,7 @@ public class MarcRecord {
 		// that highest precedence of the lowest field id.
 		for( final Integer linkOccurrenceNumber : matchedFields.keySet() ) {
 			final FieldSet fs = matchedFields.get(linkOccurrenceNumber);
-			sortedFields.put(fs.minFieldNo, fs);
+			sortedFields.add(fs);
 		}
 		return sortedFields;
 
@@ -216,19 +207,14 @@ public class MarcRecord {
 			w.writeCharacters(this.leader);
 			w.writeEndElement(); // leader
 
-			Integer[] ids = this.control_fields.keySet().toArray(new Integer[ this.control_fields.keySet().size() ]);
-			Arrays.sort( ids );
-			for( final Integer id: ids) {
-				final ControlField f = this.control_fields.get(id);
+			for( final ControlField f : this.control_fields.values()) {
 				w.writeStartElement("controlfield");
 				w.writeAttribute("tag", f.tag);
 				w.writeCharacters(f.value);
 				w.writeEndElement(); //controlfield
 			}
-			ids = this.data_fields.keySet().toArray(new Integer[ this.data_fields.keySet().size() ]);
-			Arrays.sort( ids );
-			for( final Integer id: ids) {
-				final DataField f = this.data_fields.get(id);
+
+			for( final DataField f : this.data_fields.values()) {
 				w.writeStartElement("datafield");
 				w.writeAttribute("tag", f.tag);
 				w.writeAttribute("ind1", f.ind1.toString());
@@ -269,7 +255,7 @@ public class MarcRecord {
 		public String alttag; //subfield 6 tag number for an 880 field
 		public Character ind1 = ' ';
 		public Character ind2 = ' ';
-		public Map<Integer,Subfield> subfields = new HashMap<>();
+		public Map<Integer,Subfield> subfields = new TreeMap<>();
 
 		public Integer linkOccurrenceNumber; //from MARC subfield 6
 		public String mainTag = null;
@@ -285,15 +271,9 @@ public class MarcRecord {
 			sb.append(" ");
 			sb.append(this.ind1);
 			sb.append(this.ind2);
-			sb.append(" ");
 
-			final Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
-			Arrays.sort(sf_ids);
-			Boolean first = true;
-			for(final Integer sf_id: sf_ids) {
-				final Subfield sf = this.subfields.get(sf_id);
-				if (first) first = false;
-				else sb.append(" ");
+			for(final Subfield sf : this.subfields.values()) {
+				sb.append(" ");
 				sb.append(subfieldSeparator);
 				sb.append(sf.code);
 				sb.append(" ");
@@ -309,12 +289,9 @@ public class MarcRecord {
 		public String concatenateSubfieldsOtherThan(final String unwantedSubfields) {
 			final StringBuilder sb = new StringBuilder();
 
-			final Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
-			Arrays.sort(sf_ids);
 			Boolean first = true;
 			Boolean rtl = false;
-			for(final Integer sf_id: sf_ids) {
-				final Subfield sf = this.subfields.get(sf_id);
+			for(final Subfield sf : this.subfields.values()) {
 				if (sf.code.equals('6'))
 					if (sf.value.endsWith("/r"))
 						rtl = true;
@@ -337,12 +314,9 @@ public class MarcRecord {
 		public String concatenateSpecificSubfields(final String separator,final String subfields) {
 			final StringBuilder sb = new StringBuilder();
 
-			final Integer[] sf_ids = this.subfields.keySet().toArray( new Integer[ this.subfields.keySet().size() ]);
-			Arrays.sort(sf_ids);
 			Boolean first = true;
 			Boolean rtl = false;
-			for(final Integer sf_id: sf_ids) {
-				final Subfield sf = this.subfields.get(sf_id);
+			for(final Subfield sf : this.subfields.values()) {
 				if (sf.code.equals('6'))
 					if (sf.value.endsWith("/r"))
 						rtl = true;
@@ -482,10 +456,10 @@ public class MarcRecord {
 						authorSubfields.add(sf.value);
 			}
 			if ( titleSubfields.isEmpty() )
-				return new FieldValues( StringUtils.join(authorSubfields, ' '));
+				return new FieldValues( String.join(" ",authorSubfields));
 			return new FieldValues(
-					StringUtils.join(authorSubfields, ' '),
-					StringUtils.join(titleSubfields, ' '));
+					String.join(" ",authorSubfields),
+					String.join(" ",titleSubfields));
 		}
 
 		@Override
@@ -519,22 +493,38 @@ public class MarcRecord {
 			return sb.toString();
 		}
 
+		public Subfield( int id, char code, String value ) {
+			this.id = id;
+			this.code = code;
+			this.value = value;
+		}
+		public Subfield() {}
 	}
 
-	public static class FieldSet {
-		Integer minFieldNo;
+	public static class FieldSet implements Comparable<FieldSet> {
+		Integer id;
 		Integer linkOccurrenceNumber;
 		public Set<DataField> fields = new TreeSet<>();
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(this.fields.size() + "fields / link occurrence number: " +
-					this.linkOccurrenceNumber +"/ min field no: " + this.minFieldNo);
+					this.linkOccurrenceNumber +"/ min field no: " + this.id);
 			final Iterator<DataField> i = this.fields.iterator();
 			while (i.hasNext()) {
 				sb.append(i.next().toString() + "\n");
 			}
 			return sb.toString();
+		}
+
+		@Override
+		public int compareTo(final FieldSet other) {
+			return Integer.compare(this.id, other.id);
+		}
+		public boolean equals( final FieldSet other ) {
+			if (other == null) return false;
+			if (other.id == this.id) return true;
+			return false;
 		}
 	}
 
