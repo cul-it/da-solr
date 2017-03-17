@@ -165,12 +165,14 @@ public class MarcRecord {
 					fs = new FieldSet();
 					fs.linkOccurrenceNumber = f.linkOccurrenceNumber;
 					fs.id = f.id;
+					fs.mainTag = f.mainTag;
 				}
 				fs.fields.add(f);
 				matchedFields.put(fs.linkOccurrenceNumber, fs);
 			} else {
 				final FieldSet fs = new FieldSet();
 				fs.id = f.id;
+				fs.mainTag = f.mainTag;
 				fs.fields.add(f);
 				sortedFields.add(fs);
 			}
@@ -503,6 +505,7 @@ public class MarcRecord {
 
 	public static class FieldSet implements Comparable<FieldSet> {
 		Integer id;
+		public String mainTag;
 		Integer linkOccurrenceNumber;
 		public Set<DataField> fields = new TreeSet<>();
 		@Override

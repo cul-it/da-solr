@@ -54,17 +54,10 @@ public class ResultSetUtilities {
 	}
 
 	public static Collection<FieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
-		return resultSetsToSetsofMarcFields(results,null);
-	}
-	public static Collection<FieldSet> resultSetsToSetsofMarcFields(
-			Map<String, ResultSet> results, Map<String,String> q2f ) {
 		MarcRecord rec = new MarcRecord();
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
-			if (q2f != null && q2f.containsKey(resultKey))
-				rec.addDataFieldResultSet(rs,q2f.get(resultKey));
-			else
-				rec.addDataFieldResultSet(rs);
+			rec.addDataFieldResultSet(rs);
 		}
 		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
 

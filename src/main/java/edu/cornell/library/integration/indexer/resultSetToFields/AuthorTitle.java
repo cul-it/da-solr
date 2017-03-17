@@ -42,10 +42,7 @@ public class AuthorTitle implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Map<String,String> queryNameToField = new HashMap<>();
-		queryNameToField.put("title","245");
-		queryNameToField.put("title_240","240");
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,queryNameToField);
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		DataField title = null, title_vern = null, uniform_title = null, uniform_title_vern = null;
 		String author = null, author_vern = null;

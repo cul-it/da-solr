@@ -98,16 +98,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
 			        	"  ?sfield marcrdf:code ?code.\n" +
 			        	"  ?sfield marcrdf:value ?value. }").
-				    addMainStoreQuery("description",
-						"SELECT *\n" +
-						" WHERE { $recordURI$ marcrdf:hasField300 ?field.\n" +
-						"        ?field marcrdf:tag ?tag. \n" +
-						"        ?field marcrdf:ind1 ?ind1. \n" +
-						"        ?field marcrdf:ind2 ?ind2. \n" +
-						"        ?field marcrdf:hasSubfield ?sfield .\n" +
-						"        ?sfield marcrdf:code ?code.\n" +
-						"        ?sfield marcrdf:value ?value.\n" +
-						" }").
+				    addMainStoreQuery("description",standardDataFieldSPARQL("300")).
 				    addMainStoreQuery("rectypebiblvl",
 						"SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n" +
 						" WHERE { $recordURI$ marcrdf:leader ?leader. }").
@@ -141,16 +132,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				    		"   ?field marcrdf:tag ?tag.\n" +
 				    		"   ?field marcrdf:value ?value. }").
 				    addMainStoreQuery("marc_data_fields",
-				    		"SELECT *\n" +
-				    		" WHERE {\n" +
-				    		"   $recordURI$ ?p ?field.\n" +
-				    		"   ?p rdfs:subPropertyOf marcrdf:DataFields. \n"+
-				    		"   ?field marcrdf:tag ?tag.\n" +
-				    		"   ?field marcrdf:ind1 ?ind1.\n" +
-				    		"   ?field marcrdf:ind2 ?ind2.\n" +
-				    		"   ?field marcrdf:hasSubfield ?sfield.\n" +
-				    		"   ?sfield marcrdf:code ?code.\n" +
-				    		"   ?sfield marcrdf:value ?value. }").
+				    		standardDataFieldGroupSPARQL("marcrdf:DataFields")).
 				    addResultSetToFields( new MARC() ),
 
 				new SPARQLFieldMakerImpl().
@@ -229,9 +211,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        	"  ?hold852 marcrdf:hasSubfield ?hold852h.\n" +
 			        	"  ?hold852h marcrdf:code \"h\"^^xsd:string.\n" +
 			        	"  ?hold852h marcrdf:value ?part1.\n" +
-			        //	"  ?hold852 marcrdf:hasSubfield ?hold852b.\n" +
-			        //	"  ?hold852b marcrdf:code \"b\"^^xsd:string.\n" +
-                    //  "  ?hold852b marcrdf:value ?loc.\n" +
 			        	"  OPTIONAL {\n" +
 			        	"    ?hold852 marcrdf:hasSubfield ?hold852i.\n" +
 			        	"    ?hold852i marcrdf:code \"i\"^^xsd:string.\n" +
@@ -269,10 +248,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    	
 				new SPARQLFieldMakerImpl().
 				    setName("publication_date").
-				    addMainStoreQuery("machine_dates",
-				    		"SELECT ?eight \n" +
-				    		"WHERE { $recordURI$ marcrdf:hasField008 ?f. \n" +
-				    		"        ?f marcrdf:value ?eight } \n" ).
+				    addMainStoreQuery("machine_dates",standardControlFieldSPARQL("008")).
 				    addMainStoreQuery("human_dates_260",
 				    		"SELECT ?date \n" +
 				    		"WHERE { $recordURI$ marcrdf:hasField260 ?f. \n" +
@@ -293,19 +269,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("pub_info_display","260","3abc"),
 			    new SPARQLFieldMakerImpl().
 			    	setName("pub_info_264").
-			    	addMainStoreQuery("pub_info", 
-			    			"SELECT *\n" +
-			    			" WHERE {\n" +
-			    			"  $recordURI$ marcrdf:hasField264 ?field.\n" +
-			    			"  ?field marcrdf:tag ?tag.\n" +
-			    			"  ?field marcrdf:ind1 ?ind1.\n" +
-			    			"  ?field marcrdf:ind2 ?ind2.\n" +
-			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			    			"  ?sfield marcrdf:code ?code.\n" +
-			    			"  ?sfield marcrdf:value ?value. }").
+			    	addMainStoreQuery("pub_info",standardDataFieldSPARQL("264")).
 			    	addResultSetToFields( new PubInfo() ), // IndicatorReq to be added?
 				
-			    // publisher_display and pubplace_display from field 260 handled by PubInfoResultSetToField
+			    // publisher_display and pubplace_display from field 260 handled by PubInfo()
 			    new StandardMARCFieldMaker("publisher_display","260","b",VernMode.COMBINED,"/:,， "),
 				new StandardMARCFieldMaker("publisher_t","260","b",VernMode.SEARCH),
 				new StandardMARCFieldMaker("publisher_t","264","b",VernMode.SEARCH),
@@ -341,32 +308,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 				new SPARQLFieldMakerImpl().
 					setName("title130").
-					addMainStoreQuery("title_130",
-							"SELECT *\n" +
-							" WHERE { $recordURI$ marcrdf:hasField130 ?field.\n" +
-						    "        ?field marcrdf:tag ?tag.\n" +
-						    "        ?field marcrdf:ind1 ?ind1.\n" +
-						    "        ?field marcrdf:ind2 ?ind2.\n" +
-							"        ?field marcrdf:hasSubfield ?sfield .\n" +
-							"        ?sfield marcrdf:code ?code.\n" +
-							"        ?sfield marcrdf:value ?value.\n" +
-							" }").
+					addMainStoreQuery("title_130",standardDataFieldSPARQL("130")).
 					addResultSetToFields( new Title130() ),
 
 			    new SPARQLFieldMakerImpl().
 			        setName("title_changes").
-			        addMainStoreQuery("title_changes", 
-							"SELECT *\n" +
-							" WHERE { $recordURI$ ?p ?field.\n" +
-							"        {?p rdfs:subPropertyOf marcrdf:AddedEntry} " +
-							"                 UNION {?p rdfs:subPropertyOf marcrdf:LinkingEntry} \n"+
-				    		"        ?field marcrdf:tag ?tag. \n" +
-				    		"        ?field marcrdf:ind1 ?ind1. \n" +
-				    		"        ?field marcrdf:ind2 ?ind2. \n" +
-				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-				    		"        ?sfield marcrdf:code ?code.\n" +
-				    		"        ?sfield marcrdf:value ?value.\n" +
-				    		" }").
+			        addMainStoreQuery("added_entry",
+			        		standardDataFieldGroupSPARQL("marcrdf:AddedEntry")).
+			        addMainStoreQuery("linking_entry",
+			        		standardDataFieldGroupSPARQL("marcrdf:LinkingEntry")).
 			        addResultSetToFields( new TitleChange() ),
 			    new StandardMARCFieldMaker("map_format_display","255","abcdefg"),
 			    new StandardMARCFieldMaker("in_display","773","abdghikmnopqrstuw"),
@@ -374,66 +324,22 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        
 			    new SPARQLFieldMakerStepped().
 			        setName("title_series_display").
-			        addMainStoreQuery("title_series_830",
-				    "SELECT *\n" +
-		        	" WHERE {\n" +
-		        	"  $recordURI$ marcrdf:hasField830 ?field.\n" +
-		        	"  ?field marcrdf:tag ?tag.\n" +
-		        	"  ?field marcrdf:ind2 ?ind2.\n" +
-		        	"  ?field marcrdf:ind1 ?ind1.\n" +
-					"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			     	"  ?sfield marcrdf:code ?code.\n" +
-				 	"  ?sfield marcrdf:value ?value. }").
+			        addMainStoreQuery("title_series_830",standardDataFieldSPARQL("830")).
 			        addResultSetToFieldsStepped( new TitleSeries() ),
 
 			    new SPARQLFieldMakerImpl().
 			    	setName("author and main title").
-			        addMainStoreQuery("title",
-			        		"SELECT *\n" +
-			        		" WHERE {\n" +
-			        		"  $recordURI$ marcrdf:hasField245 ?field.\n" +
-			        		"  ?field marcrdf:tag ?tag.\n" +
-			        		"  ?field marcrdf:ind1 ?ind1.\n" +
-			        		"  ?field marcrdf:ind2 ?ind2.\n" +
-			        		"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			        		"  ?sfield marcrdf:code ?code.\n" +
-			        		"  ?sfield marcrdf:value ?value. }").
-				    addMainStoreQuery("main_entry", 
-							"SELECT *\n" +
-							" WHERE { $recordURI$ ?p ?field.\n" +
-							"        ?p rdfs:subPropertyOf marcrdf:MainEntryAuthor.\n"+
-				    		"        ?field marcrdf:tag ?tag. \n" +
-				    		"        ?field marcrdf:ind1 ?ind1. \n" +
-				    		"        ?field marcrdf:ind2 ?ind2. \n" +
-				    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-				    		"        ?sfield marcrdf:code ?code.\n" +
-				    		"        ?sfield marcrdf:value ?value.\n" +
-				    		" }").
-					addMainStoreQuery("title_240",
-							"SELECT *\n" +
-							" WHERE { $recordURI$ marcrdf:hasField240 ?field.\n" +
-						    "        ?field marcrdf:tag ?tag. \n" +
-						    "        ?field marcrdf:ind1 ?ind1. \n" +
-						    "        ?field marcrdf:ind2 ?ind2. \n" +
-						    "        ?field marcrdf:hasSubfield ?sfield .\n" +
-						    "        ?sfield marcrdf:code ?code.\n" +
-						    "        ?sfield marcrdf:value ?value. }").
+			        addMainStoreQuery("title",standardDataFieldSPARQL("245")).
+					addMainStoreQuery("title_240",standardDataFieldSPARQL("240")).
+				    addMainStoreQuery("main_entry",
+			        		standardDataFieldGroupSPARQL("marcrdf:MainEntryAuthor")).
 			        addResultSetToFields( new AuthorTitle() ),
 
 				new SPARQLFieldMakerImpl().
-				    	setName("seriesaddedentry").
-				    	addMainStoreQuery("seriesaddedentry",
-						"SELECT *\n" +
-						" WHERE { $recordURI$ ?p ?field.\n" +
-						"        ?p rdfs:subPropertyOf marcrdf:SeriesAddedEntry.\n"+
-					    "        ?field marcrdf:tag ?tag. \n" +
-					    "        ?field marcrdf:ind1 ?ind1. \n" +
-					    "        ?field marcrdf:ind2 ?ind2. \n" +
-					    "        ?field marcrdf:hasSubfield ?sfield .\n" +
-					    "        ?sfield marcrdf:code ?code.\n" +
-					    "        ?sfield marcrdf:value ?value.\n" +
-					    " }").
-					    addResultSetToFields( new SeriesAddedEntry() ),
+			    	setName("seriesaddedentry").
+			    	addMainStoreQuery("seriesaddedentry",
+			    			standardDataFieldGroupSPARQL("marcrdf:SeriesAddedEntry")).
+				    addResultSetToFields( new SeriesAddedEntry() ),
 
 
 			    new StandardMARCFieldMaker("author_t","100","abcdqegu",VernMode.SEARCH),
@@ -446,41 +352,13 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			        
 			    new SPARQLFieldMakerImpl().
 			        setName("table of contents").
-			        addMainStoreQuery("table of contents",
-			        	"SELECT *\n" +
-			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField505 ?field.\n" +
-			        	"  ?field marcrdf:tag ?tag.\n" +
-			        	"  ?field marcrdf:ind2 ?ind2.\n" +
-			        	"  ?field marcrdf:ind1 ?ind1.\n" +
-			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			        	"  ?sfield marcrdf:code ?code.\n" +
-			        	"  ?sfield marcrdf:value ?value. }").
+			        addMainStoreQuery("table of contents",standardDataFieldSPARQL("505")).
 			        addResultSetToFields( new TOC() ),
 
 			   new SPARQLFieldMakerImpl().
-			        setName("urls").
-			        addMainStoreQuery("urls", 
-			        	"SELECT *\n" +
-			        	" WHERE {\n" +
-			        	"  $recordURI$ marcrdf:hasField856 ?field.\n" +
-			        	"  ?field marcrdf:tag ?tag.\n" +
-			        	"  ?field marcrdf:ind1 ?ind1.\n" +
-			        	"  ?field marcrdf:ind2 ?ind2.\n" +
-			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			        	"  ?sfield marcrdf:code ?code.\n" +
-			        	"  ?sfield marcrdf:value ?value. }").
-				   addMainStoreQuery("urls_mfhd", 
-						"SELECT *\n" +
-				    	" WHERE {\n" +
-						"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
-			        	"  ?mfhd marcrdf:hasField856 ?field.\n" +
-			        	"  ?field marcrdf:tag ?tag.\n" +
-			        	"  ?field marcrdf:ind1 ?ind1.\n" +
-			        	"  ?field marcrdf:ind2 ?ind2.\n" +
-			        	"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			        	"  ?sfield marcrdf:code ?code.\n" +
-			        	"  ?sfield marcrdf:value ?value. }").
+			   		setName("urls").
+			       addMainStoreQuery("urls",standardDataFieldSPARQL("856")).
+				   addMainStoreQuery("urls_mfhd",standardHoldingsDataFieldSPARQL("856")).
 		        addResultSetToFields( new URL() ),
 
 		        getHathiLinks(),
@@ -506,29 +384,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
 			    new SPARQLFieldMakerImpl().
 			    	setName("citation_reference_note").
-			    	addMainStoreQuery("field510", 
-			    			"SELECT *\n" +
-			    			" WHERE {\n" +
-			    			"  $recordURI$ marcrdf:hasField510 ?field.\n" +
-			    			"  ?field marcrdf:tag ?tag.\n" +
-			    			"  ?field marcrdf:ind1 ?ind1.\n" +
-			    			"  ?field marcrdf:ind2 ?ind2.\n" +
-			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			    			"  ?sfield marcrdf:code ?code.\n" +
-			    			"  ?sfield marcrdf:value ?value. }").
+			    	addMainStoreQuery("field510",standardDataFieldSPARQL("510")).
 			    	addResultSetToFields( new CitationReferenceNote() ), //IndicatorReq Needed!
 			    new SPARQLFieldMakerImpl().
 			    	setName("instrumentation").
-			    	addMainStoreQuery("instrumentation", 
-			    			"SELECT *\n" +
-			    			" WHERE {\n" +
-			    			"  $recordURI$ marcrdf:hasField382 ?field.\n" +
-			    			"  ?field marcrdf:tag ?tag.\n" +
-			    			"  ?field marcrdf:ind1 ?ind1.\n" +
-			    			"  ?field marcrdf:ind2 ?ind2.\n" +
-			    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
-			    			"  ?sfield marcrdf:code ?code.\n" +
-			    			"  ?sfield marcrdf:value ?value. }").
+			    	addMainStoreQuery("instrumentation",standardDataFieldSPARQL("382")).
 			    	addResultSetToFields( new Instrumentation()),
 			    
 			    new StandardMARCFieldMaker("notes","362","a"),
@@ -607,16 +467,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("notes_t","524","a3",VernMode.SEARCH),
 			    new SPARQLFieldMakerImpl().
 			    	setName("finding_aids_index_notes").
-			    	addMainStoreQuery("finding_aids_index_notes", 
-		    			"SELECT *\n" +
-		    			" WHERE {\n" +
-		    			"  $recordURI$ marcrdf:hasField555 ?field.\n" +
-		    			"  ?field marcrdf:tag ?tag.\n" +
-		    			"  ?field marcrdf:ind1 ?ind1.\n" +
-		    			"  ?field marcrdf:ind2 ?ind2.\n" +
-		    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
-		    			"  ?sfield marcrdf:code ?code.\n" +
-		    			"  ?sfield marcrdf:value ?value. }").
+			    	addMainStoreQuery("finding_index_notes",standardDataFieldSPARQL("555")).
 			    	addResultSetToFields( new FindingAids()),
 				new StandardMARCFieldMaker("historical_note_display","545","3abcu"),
 				new StandardMARCFieldMaker("notes_t","545","3abcu",VernMode.SEARCH),
@@ -654,16 +505,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 			    new SPARQLFieldMakerImpl().
 			    	setName("subject").
 			    	addMainStoreQuery("subjects",
-					"SELECT *\n" +
-					" WHERE { $recordURI$ ?p ?field.\n" +
-					"        ?p rdfs:subPropertyOf marcrdf:SubjectTermEntry.\n"+
-				    "        ?field marcrdf:tag ?tag. \n" +
-				    "        ?field marcrdf:ind1 ?ind1. \n" +
-				    "        ?field marcrdf:ind2 ?ind2. \n" +
-				    "        ?field marcrdf:hasSubfield ?sfield .\n" +
-				    "        ?sfield marcrdf:code ?code.\n" +
-				    "        ?sfield marcrdf:value ?value.\n" +
-				    " }").
+			    			standardDataFieldGroupSPARQL("marcrdf:SubjectTermEntry")).
 		        	addResultSetToFields( new Subject() ),
 
 			  new SPARQLFieldMakerImpl().
@@ -715,18 +557,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 				new StandardMARCFieldMaker("frequency_display","310","a"),
 
 				new SPARQLFieldMakerImpl().
-		    	setName("isbn").
-		    	addMainStoreQuery("isbn", 
-		    			"SELECT *\n" +
-		    			" WHERE {\n" +
-		    			"  $recordURI$ marcrdf:hasField020 ?field.\n" +
-		    			"  ?field marcrdf:tag ?tag.\n" +
-		    			"  ?field marcrdf:ind1 ?ind1.\n" +
-		    			"  ?field marcrdf:ind2 ?ind2.\n" +
-		    			"  ?field marcrdf:hasSubfield ?sfield.\n" +
-		    			"  ?sfield marcrdf:code ?code.\n" +
-		    			"  ?sfield marcrdf:value ?value. }").
-		    	addResultSetToFields( new ISBN()),
+					setName("isbn").
+					addMainStoreQuery("isbn",standardDataFieldSPARQL("020")).
+					addResultSetToFields( new ISBN()),
 
 		    	new StandardMARCFieldMaker("issn_display","022","a"),
 				new StandardMARCFieldMaker("issn_t","022","a",VernMode.SEARCH),
@@ -764,42 +597,57 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 	    addResultSetToFields( new HathiLinks() );
 
 	}
-	
-	
+
 	public static SPARQLFieldMakerImpl getLanguageFieldMaker() {
-		
-	return	new SPARQLFieldMakerImpl().
+		return new SPARQLFieldMakerImpl().
 	    setName("language").
-	    addMainStoreQuery("language_main",
-	    		"SELECT DISTINCT ?language\n" +
-	    		" WHERE {$recordURI$ marcrdf:hasField008 ?f.\n" +
-	    		"        ?f marcrdf:value ?val.\n" +
-	    		"        FILTER( SUBSTR( ?val,36,3) = ?langcode )\n" +
-	    		"        ?l rdf:type intlayer:Language.\n" +
-	    		"        ?l intlayer:code ?langcode.\n" +
-	    		"        ?l rdfs:label ?language.\n" +
-	    		"	}").
-	    addMainStoreQuery("language_note",
-	    		"SELECT *\n" +
-	    		" WHERE { $recordURI$ marcrdf:hasField546 ?field.\n" +
-	    		"        ?field marcrdf:tag ?tag. \n" +
-	    		"        ?field marcrdf:ind1 ?ind1. \n" +
-	    		"        ?field marcrdf:ind2 ?ind2. \n" +
-	    		"        ?field marcrdf:hasSubfield ?sfield .\n" +
-	    		"        ?sfield marcrdf:code ?code.\n" +
-	    		"        ?sfield marcrdf:value ?value.\n" +
-	    		" }").
-	    addMainStoreQuery("languages_041",
-	    		"SELECT DISTINCT ?c ?language\n"+
-	            " WHERE {$recordURI$ marcrdf:hasField041 ?f.\n" +
-	            "        ?f marcrdf:hasSubfield ?sf.\n" +
-	            "        ?sf marcrdf:code ?c.\n" +
-	            "        ?sf marcrdf:value ?langcode.\n" +
-	            "        ?l rdf:type intlayer:Language.\n" +
-	            "        ?l intlayer:code ?langcode.\n" +
-	            "        ?l rdfs:label ?language.\n" +
-	            "}").
+	    addMainStoreQuery("language_008",standardControlFieldSPARQL("008")).
+	    addMainStoreQuery("language_note",standardDataFieldSPARQL("546")).
+	    addMainStoreQuery("languages_041",standardDataFieldSPARQL("041")).
 	    addResultSetToFields( new Language() );
+	}
+
+	private static String standardControlFieldSPARQL( String tag ){
+		return
+		"SELECT * WHERE {\n"+
+		"  $recordURI$ marcrdf:hasField"+tag+" ?field.\n" +
+		"  ?field marcrdf:tag ?tag. \n" +
+		"  ?field marcrdf:value ?value. }";
+	}
+	private static String standardDataFieldSPARQL( String tag ){
+		return
+	    "SELECT * WHERE {\n" +
+	   	"  $recordURI$ marcrdf:hasField"+tag+" ?field.\n" +
+ 		"  ?field marcrdf:tag ?tag. \n" +
+	   	"  ?field marcrdf:ind1 ?ind1. \n" +
+	   	"  ?field marcrdf:ind2 ?ind2. \n" +
+	   	"  ?field marcrdf:hasSubfield ?sfield .\n" +
+		"  ?sfield marcrdf:code ?code.\n" +
+	   	"  ?sfield marcrdf:value ?value. }";
+	}
+	private static String standardHoldingsDataFieldSPARQL( String tag ){
+		return
+		"SELECT * WHERE {\n" +
+		"  ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n" +
+		"  ?mfhd marcrdf:hasField"+tag+" ?field.\n" +
+		"  ?field marcrdf:tag ?tag.\n" +
+		"  ?field marcrdf:ind1 ?ind1.\n" +
+		"  ?field marcrdf:ind2 ?ind2.\n" +
+		"  ?field marcrdf:hasSubfield ?sfield.\n" +
+		"  ?sfield marcrdf:code ?code.\n" +
+		"  ?sfield marcrdf:value ?value. }";
+	}
+	private static String standardDataFieldGroupSPARQL( String group ){
+		return
+		"SELECT * WHERE {"+
+		"  $recordURI$ ?p ?field.\n" +
+		"  ?p rdfs:subPropertyOf "+group+".\n"+
+	    "  ?field marcrdf:tag ?tag. \n" +
+		"  ?field marcrdf:ind1 ?ind1. \n" +
+		"  ?field marcrdf:ind2 ?ind2. \n" +
+		"  ?field marcrdf:hasSubfield ?sfield .\n" +
+		"  ?sfield marcrdf:code ?code.\n" +
+		"  ?sfield marcrdf:value ?value. }";
 	}
 
 }

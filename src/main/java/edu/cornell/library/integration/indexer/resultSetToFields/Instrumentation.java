@@ -29,8 +29,6 @@ public class Instrumentation implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Map<String,String> queryNameToField = new HashMap<>();
-		queryNameToField.put("instrumentation","382");
 		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();

@@ -52,7 +52,7 @@ public class Date implements ResultSetToFields {
 
 
 				if (resultKey.equals("machine_dates") && ! found_single_date) {
-					String eight = nodeToString(sol.get("eight"));
+					String eight = nodeToString(sol.get("value"));
 					if (eight.length() < 15) continue;
 					String date1 = eight.substring(7, 11);
 					machine_dates.add( date1 );
