@@ -13,7 +13,7 @@ public class ISBNTest {
 	public void testOldStyle() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "12344567 (pbk.)"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567 (pbk.)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -30,8 +30,8 @@ public class ISBNTest {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.id = 1;
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "9782709656825 (pbk.) :"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'c', "19,00 EUR"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "9782709656825 (pbk.) :"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'c', "19,00 EUR"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -46,12 +46,12 @@ public class ISBNTest {
 		MarcRecord.DataField f1 = new MarcRecord.DataField();
 		f1.id = 1;
 		f1.tag = "020";
-		f1.subfields.put(1, new MarcRecord.Subfield(1, 'a', "4892032867 (v. 2)"));
+		f1.subfields.add(new MarcRecord.Subfield(1, 'a', "4892032867 (v. 2)"));
 		MarcRecord.DataField f2 = new MarcRecord.DataField();
 		f2.id = 2;
 		f2.tag = "880";
-		f2.subfields.put(1, new MarcRecord.Subfield(1, '6', "020-00/$1"));
-		f2.subfields.put(2, new MarcRecord.Subfield(2, 'a', "4892032867 (中卷)"));
+		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-00/$1"));
+		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "4892032867 (中卷)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f1);
 		fs.fields.add(f2);
@@ -66,8 +66,8 @@ public class ISBNTest {
 	public void testNewerStyle() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'q', "(pbk.)"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -83,8 +83,8 @@ public class ISBNTest {
 	public void testNewerStyleZ() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'z', "12344567"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'q', "(pbk.)"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'z', "12344567"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -98,9 +98,9 @@ public class ISBNTest {
 	public void testNewerStyle2q() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'q', "(pbk.;"));
-		f.subfields.put(3, new MarcRecord.Subfield(3, 'q', "ebook)"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.;"));
+		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -117,15 +117,15 @@ public class ISBNTest {
 		MarcRecord.DataField f1 = new MarcRecord.DataField();
 		f1.id = 1;
 		f1.tag = "020";
-		f1.subfields.put(1, new MarcRecord.Subfield(1, '6', "880-01"));
-		f1.subfields.put(2, new MarcRecord.Subfield(2, 'a', "9789860433265"));
+		f1.subfields.add(new MarcRecord.Subfield(1, '6', "880-01"));
+		f1.subfields.add(new MarcRecord.Subfield(2, 'a', "9789860433265"));
 		MarcRecord.DataField f2 = new MarcRecord.DataField();
 		f2.id = 2;
 		f2.tag = "880";
 		f2.alttag = "020";
-		f2.subfields.put(1, new MarcRecord.Subfield(1, '6', "020-01/$1"));
-		f2.subfields.put(2, new MarcRecord.Subfield(2, 'a', "9789860433265"));
-		f2.subfields.put(3, new MarcRecord.Subfield(3, 'q', "(平裝)"));
+		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-01/$1"));
+		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "9789860433265"));
+		f2.subfields.add(new MarcRecord.Subfield(3, 'q', "(平裝)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f1);
 		fs.fields.add(f2);
@@ -140,8 +140,8 @@ public class ISBNTest {
 	public void testNewestStyle() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'q', "pbk."));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
@@ -157,9 +157,9 @@ public class ISBNTest {
 	public void testNewestStyle2q() {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
-		f.subfields.put(1, new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.put(2, new MarcRecord.Subfield(2, 'q', "pbk."));
-		f.subfields.put(3, new MarcRecord.Subfield(3, 'q', "ebook"));
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
+		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
+		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(f);
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );

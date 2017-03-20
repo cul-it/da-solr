@@ -54,8 +54,8 @@ public class MARC implements ResultSetToFields {
 		}
 		addField(fields, "marc_display", rec.toString("xml"));
 		addField(fields, "id", rec.id);
-		if (rec.modified_date != null)
-			addField(fields, "bibid_display", rec.id+"|"+rec.modified_date.substring(0, 14));
+		if (rec.modifiedDate != null)
+			addField(fields, "bibid_display", rec.id+"|"+rec.modifiedDate.substring(0, 14));
 		else
 			addField(fields, "bibid_display", rec.id);
 		

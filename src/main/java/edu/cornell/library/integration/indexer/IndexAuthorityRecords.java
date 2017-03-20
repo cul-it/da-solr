@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -43,7 +44,7 @@ public class IndexAuthorityRecords {
 
 	private Connection connection = null;
 	private DavService davService;
-	
+
 	/**
 	 * @param args
 	 */
@@ -51,7 +52,7 @@ public class IndexAuthorityRecords {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("xmlDir");
-	            
+
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
 			new IndexAuthorityRecords(config);
@@ -63,11 +64,11 @@ public class IndexAuthorityRecords {
 
 	public IndexAuthorityRecords(SolrBuildConfig config) throws Exception {
         this.davService = DavServiceFactory.getDavService(config);
-        		
+
 		connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
 		setUpDatabase();
-		
+
 		String xmlDir = config.getWebdavBaseUrl() + "/" + config.getXmlDir();
 		System.out.println("Looking for authority xml in directory: "+xmlDir);
         List<String> authXmlFiles = davService.getFileUrlList(xmlDir);
@@ -193,10 +194,10 @@ public class IndexAuthorityRecords {
 		Collection<String> foundNotes = new HashSet<>();
 		Collection<String> notes = new HashSet<>();
 		RdaData rdaData = new RdaData();
-		
+
 		Boolean isUndifferentiated = false;
-		
-		for (ControlField f : rec.control_fields.values()) {
+
+		for (ControlField f : rec.controlFields) {
 			if (f.tag.equals("008")) {
 				if (f.value.length() >= 10) {
 					Character recordType = f.value.charAt(9);
@@ -211,11 +212,9 @@ public class IndexAuthorityRecords {
 			}
 		}
 		// iterate through fields. Look for main heading and alternate forms.
-		Iterator<DataField> i = rec.data_fields.values().iterator();
-		while (i.hasNext()) {
-			DataField f = i.next();
+		for (DataField f : rec.dataFields) {
 			if (f.tag.equals("010")) {
-				for (Subfield sf : f.subfields.values() ) 
+				for (Subfield sf : f.subfields) 
 					if (sf.code.equals('a'))
 						if (sf.value.startsWith("sj")) {
 							// this is a Juvenile subject authority heading, which
@@ -228,7 +227,7 @@ public class IndexAuthorityRecords {
 				case "100":
 				case "110":
 				case "111":
-					for (Subfield sf : f.subfields.values() )
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('t') || sf.code.equals('k')) {
 							htd = HeadTypeDesc.WORK;
 							break MAIN;
@@ -269,12 +268,12 @@ public class IndexAuthorityRecords {
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
 			} else if (f.tag.startsWith("3")) {
-				
+
 				String fieldName = null;
 
 				MAIN: switch (f.tag) {
 				case "370":
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						switch (sf.code) {
 						case 'a': rdaData.add("Birth Place", sf.value);		break;
 						case 'b': rdaData.add("Place of Death",sf.value);	break;
@@ -294,7 +293,7 @@ public class IndexAuthorityRecords {
 					case "374": field = "Occupation"; break;
 					case "375": field = "Gender"; break;
 					}
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						switch (sf.code) {
 						case 'a': values.add( sf.value ); break;
 						case 's': start = addDashesTo_YYYYMMDD_Date(sf.value); break;
@@ -337,7 +336,7 @@ public class IndexAuthorityRecords {
 				} //end MAIN
 
 				if (fieldName != null)
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a'))
 							rdaData.add(fieldName, sf.value);
 
@@ -405,15 +404,15 @@ public class IndexAuthorityRecords {
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
 			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
-		
-		
+
+
 		// Populate incoming 4XX cross references
 		for (Relation r: sees) {
 			if ( ! r.display) continue;
 			if ( r.headingSort.equals(headingSort)) continue;
 			crossRef(heading_id,r,ReferenceType.FROM4XX);
 		}
-		
+
 		for (Relation r: seeAlsos) {
 			// Populate incoming 5XX cross references
 			if ( ! r.display) continue;
@@ -457,7 +456,7 @@ public class IndexAuthorityRecords {
 	private static String buildJsonNote(DataField f) throws JsonProcessingException {
 		List<Object> textBlocks = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
-		for (Subfield sf : f.subfields.values()) {
+		for (Subfield sf : f.subfields) {
 			if (sf.code.equals('b')) {
 				if (sb.length() > 0) {
 					textBlocks.add(sb.toString());
@@ -552,7 +551,7 @@ public class IndexAuthorityRecords {
 						recordId = generatedKeys.getInt(1); }
 			}
 		}
- 		
+
 		return recordId;
 	}
 
@@ -580,7 +579,7 @@ public class IndexAuthorityRecords {
 			r.heading = heading;
 
 	}
-	
+
 	private void crossRef(Integer heading_id, Relation r, ReferenceType rt) throws SQLException {
 		int from_heading_id = getRelationshipHeadingId( r );
 		insertRef(from_heading_id, heading_id, rt, r.relationship);
@@ -590,7 +589,7 @@ public class IndexAuthorityRecords {
 		int dest_heading_id = getRelationshipHeadingId( r );
 		insertRef(heading_id, dest_heading_id, rt, r.reciprocalRelationship );
 	}
-	
+
 	private void insertRef(int from_id, int to_id,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
@@ -641,7 +640,7 @@ public class IndexAuthorityRecords {
 					recordId = generatedKeys.getInt(1); }
 			}
 		}
- 		
+
 		return recordId;
 	}
 
@@ -652,23 +651,23 @@ public class IndexAuthorityRecords {
 		// from tracing.
 		Relation r = new Relation();
 		boolean hasW = false;
-		
+
 		switch( f.tag.substring(1) ) {
 		case "00":
 			r.headingTypeDesc = HeadTypeDesc.PERSNAME;
-			for (Subfield sf : f.subfields.values() )
+			for (Subfield sf : f.subfields)
 				if (sf.code.equals('t'))
 					r.headingTypeDesc = HeadTypeDesc.WORK;
 			break;
 		case "10":
 			r.headingTypeDesc = HeadTypeDesc.CORPNAME;
-			for (Subfield sf : f.subfields.values() )
+			for (Subfield sf : f.subfields)
 				if (sf.code.equals('t'))
 					r.headingTypeDesc = HeadTypeDesc.WORK;
 			break;
 		case "11":
 			r.headingTypeDesc = HeadTypeDesc.EVENT;
-			for (Subfield sf : f.subfields.values() )
+			for (Subfield sf : f.subfields)
 				if (sf.code.equals('t'))
 					r.headingTypeDesc = HeadTypeDesc.WORK;
 			break;
@@ -686,12 +685,12 @@ public class IndexAuthorityRecords {
 			r.headingTypeDesc = HeadTypeDesc.MEDIUM;	break;
 		default: return null;
 		}
-		
-		
-		for (Subfield sf : f.subfields.values()) {
+
+
+		for (Subfield sf : f.subfields) {
 			if (sf.code.equals('w')) {
 				hasW = true;
-				
+
 				switch (sf.value.charAt(0)) {
 				case 'a':
 					//earlier heading
@@ -720,7 +719,7 @@ public class IndexAuthorityRecords {
 					//parent body
 					r.relationship = "Parent Body";
 				}
-				
+
 				if (sf.value.length() >= 2) {
 					switch (sf.value.charAt(1)) {
 					case 'a':
@@ -751,14 +750,14 @@ public class IndexAuthorityRecords {
 					r.applicableContexts.add(RecordSet.SUBJECT);
 					r.applicableContexts.add(RecordSet.SERIES);
 				}
-				
+
 				if (sf.value.length() >= 3) {
 					Character offset2 = sf.value.charAt(2);
 					if (offset2.equals('a')) {
 						r.relationship = "Later Form of Heading";
 					}
 				}
-				
+
 				if (sf.value.length() >= 4) {
 					switch (sf.value.charAt(3)) {
 					case 'a':
@@ -832,7 +831,7 @@ public class IndexAuthorityRecords {
 			return mapper.writeValueAsString(data);
 		}
 	}
-	
+
 	private static class Relation {	
 		public String relationship = null;
 		public String reciprocalRelationship = null;
@@ -845,11 +844,11 @@ public class IndexAuthorityRecords {
 		public Collection<String> expectedNotes = new HashSet<>();
 		boolean display = true;
 	}
-	
+
 	// general MARC methods and classes start here
-	
+
 	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
-		
+
 		MarcRecord rec = new MarcRecord();
 		int id = 0;
 		while (r.hasNext()) {
@@ -861,22 +860,21 @@ public class IndexAuthorityRecords {
 			if (event == XMLStreamConstants.START_ELEMENT) {
 				String element = r.getLocalName();
 				switch (element) {
-				
+
 				case "leader":
 					rec.leader = r.getElementText();
 					break;
 
 
 				case "controlfield":
-					ControlField cf = new ControlField();
-					cf.id = ++id;
+					String tag = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							cf.tag = r.getAttributeValue(i);
-					cf.value = r.getElementText();
+							tag = r.getAttributeValue(i);
+					ControlField cf = new ControlField(++id,tag,r.getElementText());
 					if (cf.tag.equals("001"))
 						rec.id = cf.value;
-					rec.control_fields.put(cf.id, cf);
+					rec.controlFields.add(cf);
 					break;
 
 
@@ -891,17 +889,15 @@ public class IndexAuthorityRecords {
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							df.ind2 = r.getAttributeValue(i).charAt(0);
 					df.subfields = processSubfields(r);
-					rec.data_fields.put(df.id, df); 
-					
+					rec.dataFields.add(df); 
 				}
-		
 			}
 		}
 		return rec;
 	}
 
-	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Map<Integer,Subfield> fields = new HashMap<>();
+	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+		TreeSet<Subfield> fields = new TreeSet<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
@@ -916,7 +912,7 @@ public class IndexAuthorityRecords {
 						if (r.getAttributeLocalName(i).equals("code"))
 							f.code = r.getAttributeValue(i).charAt(0);
 					f.value = r.getElementText();
-					fields.put(f.id, f);
+					fields.add(f);
 				}
 		}
 		return fields; // We should never reach this line.

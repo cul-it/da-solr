@@ -1,17 +1,12 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-//import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-//import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
-
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
@@ -32,7 +27,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
  */
 public class Language implements ResultSetToFields {
 
-	private static Map<String,Code> codes;
+	private static Map<String,Code> codes = new HashMap<>();
 	static {
 		Arrays.stream(Code.values()).forEach( c -> codes.put(c.toString().toLowerCase(),c) );
 	}
@@ -61,16 +56,16 @@ public class Language implements ResultSetToFields {
 		return fields;
 	}
 
-	private static SolrFieldValueSet generateSolrFields(MarcRecord rec) {
+	public static SolrFieldValueSet generateSolrFields(MarcRecord rec) {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 
 		// Suppress "Undetermined"(UND) and "No Linguistic Content"(ZXX)
 		// from facet and display (DISCOVERYACCESS-822)
 
-		for (ControlField cf : rec.control_fields.values() ) {
+		for (ControlField cf : rec.controlFields) {
 			if (! cf.tag.equals("008"))
 				continue;
-			String langCode = cf.value.substring(35,3).toLowerCase(); 
+			String langCode = cf.value.substring(35,38).toLowerCase();
 			if ( ! codes.containsKey(langCode)) {
 				System.out.println("Language code "+langCode+" not recognized.");
 				continue;
@@ -85,7 +80,7 @@ public class Language implements ResultSetToFields {
 		for ( FieldSet fs : rec.matchAndSortDataFields() ) {
 			if (fs.mainTag.equals("041")) {
 				for ( DataField f : fs.fields ) {
-					for (Subfield sf : f.subfields.values()) {
+					for (Subfield sf : f.subfields) {
 						String langCode = sf.value.toLowerCase();
 						if (! codes.containsKey(langCode))
 							continue;
@@ -114,11 +109,12 @@ public class Language implements ResultSetToFields {
 				if (valueMain == null && value880 != null) {
 					vals.notes.add(value880);
 				} else if (valueMain != null) {
-					for (int i = vals.display.size() - 1; i >= 0; i--) {
-						String language = vals.display.get(i);
+					Collection<String> matches = new HashSet<>();
+					for (String language : vals.display) {
 						if (valueMain.contains(language))
-							vals.display.remove(i);
+							matches.add(language);
 					}
+					vals.display.removeAll(matches);
 					if (value880 != null) {
 						if (value880.length() <= 15) {
 							vals.notes.add(value880+" / " + valueMain);
@@ -670,9 +666,9 @@ public class Language implements ResultSetToFields {
 
 	public static class SolrFieldValueSet {
 
-		Collection<String> facet = new HashSet<>();
-		List<String> display = new ArrayList<>();
-		List<String> notes = new ArrayList<>();
+		Collection<String> facet = new LinkedHashSet<>();
+		Collection<String> display = new LinkedHashSet<>();
+		Collection<String> notes = new LinkedHashSet<>();
 		
 	}
 }

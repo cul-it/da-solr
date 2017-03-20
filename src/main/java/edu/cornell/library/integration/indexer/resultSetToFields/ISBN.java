@@ -54,7 +54,7 @@ public class ISBN implements ResultSetToFields {
 			StringBuilder sbDisplay = new StringBuilder();
 			boolean aFound = false;
 			Character prevSubfield = null; 
-			for ( Subfield sf : f.subfields.values() ) {
+			for ( Subfield sf : f.subfields ) {
 				switch (sf.code) {
 				case 'a':
 					// Display values

@@ -57,7 +57,7 @@ public class Subject implements ResultSetToFields {
 			final Heading h = new Heading();
 			final DataField f = fs.fields.iterator().next();
 			if (f.ind2.equals('7')) {
-				for ( final Subfield sf : f.subfields.values() )
+				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
 						if (sf.value.equalsIgnoreCase("fast")
 								|| sf.value.equalsIgnoreCase("fast/NIC")

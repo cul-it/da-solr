@@ -302,7 +302,7 @@ public class AuthorTitle implements ResultSetToFields {
 		String responsibility = null, responsibility_vern = null;
 		if (title != null) {
 		
-			for (Subfield sf : title.subfields.values())
+			for (Subfield sf : title.subfields)
 				if (sf.code.equals('h'))
 					sf.value = sf.value.replaceAll("\\[.*\\]", "");
 
@@ -347,7 +347,7 @@ public class AuthorTitle implements ResultSetToFields {
 			}
 		}
 		if (title_vern != null) {
-			for (Subfield sf : title_vern.subfields.values())
+			for (Subfield sf : title_vern.subfields)
 				if (sf.code.equals('h'))
 					sf.value = sf.value.replaceAll("\\[.*\\]", "");
 			String maintitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("a"),".,;:=/\uFF0F ");

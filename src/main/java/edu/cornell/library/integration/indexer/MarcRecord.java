@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -32,12 +31,10 @@ import edu.cornell.library.integration.utilities.CharacterSetUtils;
  */
 public class MarcRecord {
 
-
-
 	public String leader = " ";
-	public String modified_date = null;
-	public Map<Integer,ControlField> control_fields = new TreeMap<>();
-	public Map<Integer,DataField> data_fields = new TreeMap<>();
+	public String modifiedDate = null;
+	public TreeSet<ControlField> controlFields = new TreeSet<>();
+	public TreeSet<DataField> dataFields = new TreeSet<>();
 	public RecordType type;
 	public String id;
 	public String bib_id;
@@ -49,11 +46,11 @@ public class MarcRecord {
 		if ((this.leader != null ) && ! this.leader.equals(""))
 			sb.append("000    "+this.leader+"\n");
 
-		for( final ControlField f: this.control_fields.values()) {
+		for( final ControlField f: this.controlFields) {
 			sb.append(f.tag + "    " + f.value+"\n");
 		}
 
-		for( final DataField f: this.data_fields.values()) {
+		for( final DataField f: this.dataFields) {
 			sb.append(f.toString());
 			sb.append("\n");
 		}
@@ -77,17 +74,15 @@ public class MarcRecord {
 	public void addControlFieldQuerySolution( final QuerySolution sol, boolean nonBreaking ) {
 		final String f_uri = nodeToString( sol.get("field") );
 		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-		final ControlField f = new ControlField();
-		f.tag = nodeToString(sol.get("tag"));
-		f.value = nodeToString(sol.get("value"));
+		final ControlField f = new ControlField(field_no,
+				nodeToString(sol.get("tag")),nodeToString(sol.get("value")));
 		if (nonBreaking)
 			f.value = f.value.replaceAll(" ", "\u00A0");
-		f.id = field_no;
-		this.control_fields.put(field_no, f);
+		this.controlFields.add(f);
 		if (f.tag.equals("001"))
 			this.id = f.value;
 		else if (f.tag.equals("005"))
-			this.modified_date = f.value;
+			this.modifiedDate = f.value;
 	}
 
 	public void addDataFieldResultSet( final ResultSet rs ) {
@@ -112,10 +107,11 @@ public class MarcRecord {
 		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
 		final String sf_uri = nodeToString( sol.get("sfield") );
 		final Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
-		DataField f;
-		if (this.data_fields.containsKey(field_no)) {
-			f = this.data_fields.get(field_no);
-		} else {
+		DataField f = null;
+		for (DataField df : this.dataFields)
+			if (df.id == field_no)
+				f = df;
+		if (f == null) {
 			f = new DataField();
 			f.id = field_no;
 			f.tag = nodeToString( sol.get("tag"));
@@ -135,8 +131,8 @@ public class MarcRecord {
 				f.linkOccurrenceNumber = Integer.valueOf(sf.value.substring(4, 6));
 			}
 		}
-		f.subfields.put(sfield_no, sf);
-		this.data_fields.put(field_no, f);
+		f.subfields.add(sf);
+		this.dataFields.add(f);
 
 	}
 
@@ -152,7 +148,7 @@ public class MarcRecord {
 		final Map<Integer,FieldSet> matchedFields  = new HashMap<>();
 		final Collection<FieldSet> sortedFields = new TreeSet<>();
 
-		for( final DataField f: this.data_fields.values()) {
+		for( final DataField f: this.dataFields) {
 
 			if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
 				f.linkOccurrenceNumber = 1;
@@ -209,21 +205,19 @@ public class MarcRecord {
 			w.writeCharacters(this.leader);
 			w.writeEndElement(); // leader
 
-			for( final ControlField f : this.control_fields.values()) {
+			for( final ControlField f : this.controlFields) {
 				w.writeStartElement("controlfield");
 				w.writeAttribute("tag", f.tag);
 				w.writeCharacters(f.value);
 				w.writeEndElement(); //controlfield
 			}
 
-			for( final DataField f : this.data_fields.values()) {
+			for( final DataField f : this.dataFields) {
 				w.writeStartElement("datafield");
 				w.writeAttribute("tag", f.tag);
 				w.writeAttribute("ind1", f.ind1.toString());
 				w.writeAttribute("ind2", f.ind2.toString());
-				final Iterator<Integer> i2 = f.subfields.keySet().iterator();
-				while (i2.hasNext()) {
-					final Subfield sf = f.subfields.get(i2.next());
+				for (Subfield sf : f.subfields) {
 					w.writeStartElement("subfield");
 					w.writeAttribute("code", sf.code.toString());
 					w.writeCharacters(sf.value);
@@ -243,11 +237,26 @@ public class MarcRecord {
 	}
 
 
-	public static class ControlField {
+	public static class ControlField implements Comparable<ControlField> {
 
 		public int id;
 		public String tag;
 		public String value;
+
+		public ControlField( int id, String tag, String value ) {
+			this.id = id;
+			this.tag = tag;
+			this.value = value;
+		}
+		@Override
+		public int compareTo(final ControlField other) {
+			return Integer.compare(this.id, other.id);
+		}
+		public boolean equals( final ControlField other ) {
+			if (other == null) return false;
+			if (other.id == this.id) return true;
+			return false;
+		}
 	}
 
 	public static class DataField implements Comparable<DataField> {
@@ -257,7 +266,7 @@ public class MarcRecord {
 		public String alttag; //subfield 6 tag number for an 880 field
 		public Character ind1 = ' ';
 		public Character ind2 = ' ';
-		public Map<Integer,Subfield> subfields = new TreeMap<>();
+		public TreeSet<Subfield> subfields = new TreeSet<>();
 
 		public Integer linkOccurrenceNumber; //from MARC subfield 6
 		public String mainTag = null;
@@ -274,7 +283,7 @@ public class MarcRecord {
 			sb.append(this.ind1);
 			sb.append(this.ind2);
 
-			for(final Subfield sf : this.subfields.values()) {
+			for(final Subfield sf : this.subfields) {
 				sb.append(" ");
 				sb.append(subfieldSeparator);
 				sb.append(sf.code);
@@ -293,7 +302,7 @@ public class MarcRecord {
 
 			Boolean first = true;
 			Boolean rtl = false;
-			for(final Subfield sf : this.subfields.values()) {
+			for(final Subfield sf : this.subfields) {
 				if (sf.code.equals('6'))
 					if (sf.value.endsWith("/r"))
 						rtl = true;
@@ -318,7 +327,7 @@ public class MarcRecord {
 
 			Boolean first = true;
 			Boolean rtl = false;
-			for(final Subfield sf : this.subfields.values()) {
+			for(final Subfield sf : this.subfields) {
 				if (sf.code.equals('6'))
 					if (sf.value.endsWith("/r"))
 						rtl = true;
@@ -350,7 +359,7 @@ public class MarcRecord {
 		public List<String> valueListForSpecificSubfields(final String subfields) {
 			final List<String> l = new ArrayList<>();
 			Boolean rtl = false;
-			for (final Subfield sf : this.subfields.values()) {
+			for (final Subfield sf : this.subfields) {
 				if (sf.code.equals('6'))
 					if (sf.value.equals("/r"))
 						rtl = true;
@@ -368,7 +377,7 @@ public class MarcRecord {
 		}
 
 		public Script getScript() {
-			for (final Subfield sf: this.subfields.values()) {
+			for (final Subfield sf: this.subfields) {
 				if (sf.code == '6') {
 					if (sf.value.endsWith("/(3") || sf.value.endsWith("/(3/r"))
 						return Script.ARABIC;
@@ -445,7 +454,7 @@ public class MarcRecord {
 			List<String> authorSubfields = new ArrayList<>();
 			List<String> titleSubfields = new ArrayList<>();
 			boolean foundTitle = false;
-			for(Subfield sf : this.subfields.values()) {
+			for(Subfield sf : this.subfields) {
 				if (subfields != null && -1 == subfields.indexOf(sf.code))
 					continue;
 				if (foundTitle)
@@ -473,9 +482,20 @@ public class MarcRecord {
 			if (other.id == this.id) return true;
 			return false;
 		}
+		public DataField() {}
+		public DataField( int id, String tag ) {
+			this.id = id;
+			this.tag = tag;
+			this.mainTag = tag;
+		}
+		public DataField( int id, String tag, Boolean eighteighty ) {
+			this.id = id;
+			this.tag = (eighteighty)?"880":tag;
+			this.mainTag = tag;
+		}
 	}
 
-	public static class Subfield {
+	public static class Subfield implements Comparable<Subfield> {
 
 		public int id;
 		public Character code;
@@ -493,6 +513,16 @@ public class MarcRecord {
 			sb.append(" ");
 			sb.append(this.value);
 			return sb.toString();
+		}
+
+		@Override
+		public int compareTo(final Subfield other) {
+			return Integer.compare(this.id, other.id);
+		}
+		public boolean equals( final Subfield other ) {
+			if (other == null) return false;
+			if (other.id == this.id) return true;
+			return false;
 		}
 
 		public Subfield( int id, char code, String value ) {

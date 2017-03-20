@@ -14,7 +14,7 @@ public class RelatorSet {
 
 	public RelatorSet(DataField f) {
 		boolean isEventField = f.mainTag.endsWith("11");
-		for (Subfield sf : f.subfields.values()) {
+		for (Subfield sf : f.subfields) {
 			if (sf.code.equals('4')) {
 				String code = sf.value.toLowerCase().replaceAll("[^a-z]", "");
 				try {

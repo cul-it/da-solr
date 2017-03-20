@@ -41,7 +41,7 @@ public class Instrumentation implements ResultSetToFields {
 				String total_performers = null;
 				StringBuilder sb = new StringBuilder();
 				boolean forAppended = false;
-				for ( Subfield sf : f.subfields.values() ) {
+				for ( Subfield sf : f.subfields ) {
 					switch (sf.code) {
 					case 'a':
 						if (forAppended) sb.append("; ");
