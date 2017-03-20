@@ -33,7 +33,7 @@ public class CallNumber implements ResultSetToFields {
 		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		List<Sort> sorts = new ArrayList<>();
+		List<Sort> sortCandidates = new ArrayList<>();
 		for( FieldSet fs: sets ) {
 			SolrFieldValueSet vals = generateSolrFields ( fs, config );
 			for ( String s : vals.facet )
@@ -41,16 +41,16 @@ public class CallNumber implements ResultSetToFields {
 			for ( String s : vals.search )
 				ResultSetUtilities.addField(fields,"lc_callnum_full",s);
 			if (vals.sort != null )
-				sorts.add(vals.sort);
+				sortCandidates.add(vals.sort);
 		}
-		String finalSortVal = chooseSortValue( sorts );
+		String finalSortVal = chooseSortValue( sortCandidates );
 		if (finalSortVal != null)
 			ResultSetUtilities.addField(fields,"callnum_sort",finalSortVal);
 		return fields;
 	}
 
-	public static String chooseSortValue(List<Sort> sorts) {
-		Optional<Sort> bestSort = sorts.stream().sorted().findFirst();
+	public static String chooseSortValue(List<Sort> sortCandidates) {
+		Optional<Sort> bestSort = sortCandidates.stream().sorted().findFirst();
 		if (bestSort.isPresent()) return bestSort.get().sortVal;
 		return null;
 	}
@@ -58,9 +58,8 @@ public class CallNumber implements ResultSetToFields {
 	public SolrFieldValueSet generateSolrFields( FieldSet fs, SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
 
 		Boolean isHolding = fs.mainTag.equals("852");
-		Boolean isLC = null;
+		Boolean isLC = true;
 		SolrFieldValueSet vals = new SolrFieldValueSet();
-		ArrayList<String> letters = new ArrayList<>();
 		ArrayList<Classification> classes = new ArrayList<>();
 		String sort = null;
 		for (DataField f : fs.fields) {
@@ -68,15 +67,22 @@ public class CallNumber implements ResultSetToFields {
 			String callNumber = f.concatenateSpecificSubfields(isHolding?"hi":"ab");
 			if (callNumber.equalsIgnoreCase("No Call Number")) continue;
 
-			// record main variant for potential sort
-			sort = callNumber;
-
-			// identify variants for search
-			vals.search.add(callNumber);
-			if (callNumber.toLowerCase().startsWith("thesis "))
-				vals.search.add(callNumber.substring(7));
-			if (isHolding)
-				vals.search.add(f.concatenateSpecificSubfields("khi"));
+			if ( ! callNumber.isEmpty()) {
+				sort = callNumber;
+				vals.search.add(callNumber);
+			}
+			if (callNumber.toLowerCase().startsWith("thesis ")) {
+				callNumber = callNumber.substring(7);
+				if ( ! callNumber.isEmpty()) {
+					sort = callNumber;
+					vals.search.add(callNumber);
+				}
+			}
+			if (isHolding) {
+				String callNumberWithPrefix = f.concatenateSpecificSubfields("khi");
+				if ( ! callNumberWithPrefix.isEmpty())
+					vals.search.add(callNumberWithPrefix);
+			}
 
 			// remaining logic relates to facet values, for which we only want LC call numbers
 			if ( isHolding && ! f.ind1.equals('0')) {
@@ -84,36 +90,33 @@ public class CallNumber implements ResultSetToFields {
 				continue;
 			}
 
-			int i = 0;
-			while ( callNumber.length() > i) {
-				if ( Character.isLetter(callNumber.charAt(i)) )
-					i++;
+			int initialLetterCount = 0;
+			while ( callNumber.length() > initialLetterCount) {
+				if ( Character.isLetter(callNumber.charAt(initialLetterCount)) )
+					initialLetterCount++;
 				else
 					break;
 			}
 
-			if (i > 3) {
+			if (initialLetterCount > 3) {
 				isLC = false;
 				continue;
 			}
-			if (i >= 1)
-				letters.add( callNumber.substring(0,1).toUpperCase() );
-			if (i > 1)
-				letters.add( callNumber.substring(0,i).toUpperCase() );
-			if (callNumber.length() > i) {
-				int j = i;
-				for ( ; j < callNumber.length() ; j++) {
-					Character c = callNumber.charAt(j);
+
+			if (callNumber.length() > initialLetterCount) {
+				int initialNumberOffset = initialLetterCount;
+				for ( ; initialNumberOffset < callNumber.length() ; initialNumberOffset++) {
+					Character c = callNumber.charAt(initialNumberOffset);
 					if (! Character.isDigit(c) && ! c.equals('.'))
 						break;
 				}
 				classes.add(new Classification(
-						callNumber.substring(0,i).toUpperCase(),
-						callNumber.substring(i, j)));
+						callNumber.substring(0,initialLetterCount).toUpperCase(),
+						callNumber.substring(initialLetterCount, initialNumberOffset)));
 			}
 		}
 
-		if (sort != null && isLC != null)
+		if (sort != null)
 			vals.sort = new Sort( sort, isLC, isHolding );
 
 		// new bl5-compatible hierarchical facet
