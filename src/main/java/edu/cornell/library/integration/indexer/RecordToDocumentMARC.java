@@ -143,42 +143,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         getLanguageFieldMaker(),
 
         new SPARQLFieldMakerImpl().setName("call_numbers")
-        .addMainStoreQuery("holdings_callno",
-            "SELECT ?part1 ?part2 ?prefix ?ind1 ?loc WHERE {\n"
-                + " ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?hold marcrdf:hasField852 ?hold852.\n"
-                + " ?hold852 marcrdf:ind1 ?ind1."
-                + " ?hold852 marcrdf:hasSubfield ?hold852h.\n"
-                + " ?hold852h marcrdf:code \"h\"^^xsd:string.\n"
-                + " ?hold852h marcrdf:value ?part1.\n"
-                + " OPTIONAL {\n"
-                + "  ?hold852 marcrdf:hasSubfield ?hold852i.\n"
-                + "  ?hold852i marcrdf:code \"i\"^^xsd:string.\n"
-                + "  ?hold852i marcrdf:value ?part2. }\n"
-                + " OPTIONAL {\n"
-                + "  ?hold852 marcrdf:hasSubfield ?hold852k.\n"
-                + "  ?hold852k marcrdf:code \"k\"^^xsd:string.\n"
-                + "  ?hold852k marcrdf:value ?prefix. }}")
-        .addMainStoreQuery("bib_050callno",
-            "SELECT ?part1 ?part2 WHERE {\n"
-                + " $recordURI$ marcrdf:hasField050 ?f50.\n"
-                + " ?f50 marcrdf:hasSubfield ?f50a.\n"
-                + " ?f50a marcrdf:code \"a\"^^xsd:string.\n"
-                + " ?f50a marcrdf:value ?part1.\n"
-                + " OPTIONAL {\n"
-                + "  ?f50 marcrdf:hasSubfield ?f50b.\n"
-                + "  ?f50b marcrdf:code \"b\"^^xsd:string.\n"
-                + "  ?f50b marcrdf:value ?part2. }}")
-        .addMainStoreQuery("bib_950callno",
-            "SELECT ?part1 ?part2 WHERE {\n"
-                + " $recordURI$ marcrdf:hasField950 ?f950.\n"
-                + " ?f950 marcrdf:hasSubfield ?f950a.\n"
-                + " ?f950a marcrdf:code \"a\"^^xsd:string.\n"
-                + " ?f950a marcrdf:value ?part1.\n"
-                + " OPTIONAL {\n"
-                + "  ?f950 marcrdf:hasSubfield ?f950b.\n"
-                + "  ?f950b marcrdf:code \"b\"^^xsd:string.\n"
-                + "  ?f950b marcrdf:value ?part2. }}")
+        .addMainStoreQuery("holdings_callno",standardHoldingsDataFieldSPARQL("852"))
+        .addMainStoreQuery("bib_050callno",standardDataFieldSPARQL("050"))
+        .addMainStoreQuery("bib_950callno",standardDataFieldSPARQL("950"))
         .addResultSetToFields(new CallNumber()),
 
         new SPARQLFieldMakerImpl().setName("publication_date")
