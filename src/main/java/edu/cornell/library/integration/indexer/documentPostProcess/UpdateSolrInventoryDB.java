@@ -92,8 +92,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private static void compareDocument(Connection conn, SolrInputDocument document, Integer bibid) throws SQLException {
 		final String solrDocumentFromDBQuery = 
-				"SELECT solr_document "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
-		String newDoc = ClientUtils.toXML(document).replaceAll("</field>","$0\n");
+				"SELECT solr_document FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
 		String origDoc = null;
 		try (PreparedStatement solrDocumentFromDB = conn.prepareStatement(solrDocumentFromDBQuery)) {
 			solrDocumentFromDB.setInt(1, bibid);
@@ -103,6 +102,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			}
 		}
 		if (origDoc != null) {
+			String newDoc = ClientUtils.toXML(document).replaceAll("</field>","$0\n");
 			System.out.println("*** "+bibid+" ***");
 			System.out.println(StringUtils.difference(origDoc, newDoc));
 		}
