@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -111,7 +112,7 @@ public class MarcXmlToRdf {
 	private Map<Report,String> reportResults = new HashMap<>();
 	private Map<String,FieldStats> fieldStatsByTag = new TreeMap<>();
 	private static Long recordCount = new Long(0);
-	private Collection<Integer> no245a = new HashSet<>();
+	private Collection<String> no245a = new HashSet<>();
 	private Map<String,String> extractVals = null;
 	private String outputHeaders = null;
 	private int extractCols = 0;
@@ -896,8 +897,7 @@ public class MarcXmlToRdf {
 			logout = new BufferedWriter( logstream );
 		}
 
-		Map<Integer,DataField> datafields = rec.data_fields;
-		for (DataField f : datafields.values() ) {
+		for (DataField f : rec.dataFields) {
 			String text = f.concatenateSubfieldsOtherThan("6");
 			if (f.tag.equals("880")) {
 				MarcRecord.Script script = f.getScript();
@@ -1208,9 +1208,7 @@ public class MarcXmlToRdf {
 			extractVals.put("07", rec.leader.substring(18, 19));
 		}
 		
-		for (Integer fid : rec.control_fields.keySet()) {
-			ControlField f = rec.control_fields.get(fid);
-			
+		for (ControlField f : rec.controlFields) {
 			if (f.tag.equals("001")) {
 				extractVals.put("01", f.value);
 			}
@@ -1250,37 +1248,35 @@ public class MarcXmlToRdf {
 	
 		}
 				
-		for (Integer fid: rec.data_fields.keySet()) {
-			DataField f = rec.data_fields.get(fid);
-
+		for (DataField f: rec.dataFields) {
 			if (isTitleMatch)
 				if (f.tag.equals("010"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("03",";",sf.value);
 
 			if (isPubPlace || isLanguage)
 				if (f.tag.equals("010"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a'))
 							if (sf.value.contains("sa"))
 								putOrAppendToExtract("22","|",sf.value);
 			
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("019"))
-					for (Subfield sf : f.subfields.values()) 
+					for (Subfield sf : f.subfields) 
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("16", "|", sf.value);
 			
 			if (isPubPlace) {
 				if (f.tag.equals("020"))
-					for (Subfield sf : f.subfields.values()) 
+					for (Subfield sf : f.subfields) 
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("23", "|", sf.value);
 						else if (sf.code.equals('z'))
 							putOrAppendToExtract("24", "|", sf.value);
 				if (f.alttag != null && f.alttag.equals("020"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("020-00"))
 								break;
@@ -1300,7 +1296,7 @@ public class MarcXmlToRdf {
 					
 					String b = null;
 					List<String> c = new ArrayList<>();
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('b')) {
 							if (b != null) {
 								bs.add(b);
@@ -1328,7 +1324,7 @@ public class MarcXmlToRdf {
 			
 			if (isTitleMatch)
 				if (f.tag.equals("035"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a') || sf.code.equals('z'))
 							if (sf.value.contains("(OCoLC)")) {
 								String oclcid = sf.value.substring(sf.value.lastIndexOf(')')+1);
@@ -1340,7 +1336,7 @@ public class MarcXmlToRdf {
 
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("040"))
-					for (Subfield sf : f.subfields.values()) {
+					for (Subfield sf : f.subfields) {
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("17","|",sf.value);
 						else if (sf.code.equals('b'))
@@ -1367,7 +1363,7 @@ public class MarcXmlToRdf {
 					String two = null;
 					HashMap<Character,List<String>> codes = new HashMap<>();
 					
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else {
@@ -1407,7 +1403,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("043")) {
 					String b = null;
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a'))
 							putOrAppendToExtract("25","|",sf.value);
 						else if (sf.code.equals('c'))
@@ -1432,7 +1428,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("044")) {
 					List<String> a = new ArrayList<>();
 					List<String> c = new ArrayList<>();
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a'))
 							a.add(sf.value);
 						else if (sf.code.equals('c'))
@@ -1473,7 +1469,7 @@ public class MarcXmlToRdf {
 					
 					String a = null;
 					List<String> b = new ArrayList<>();
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a')) {
 							if (a != null) {
 								as.add(a);
@@ -1538,7 +1534,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("240"))
 					putOrAppendToExtract("38","; ",f.concatenateSpecificSubfields("l"));
 				if (f.alttag != null && f.alttag.equals("240")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("240-00"))
 								break;
@@ -1564,13 +1560,13 @@ public class MarcXmlToRdf {
 
 			if (isPubPlace)
 				if (f.tag.equals("257"))
-					for (Subfield sf : f.subfields.values()) 
+					for (Subfield sf : f.subfields) 
 						if (sf.code.equals('a')) 
 							putOrAppendToExtract("32","|",f.concatenateSpecificSubfields("~","a"));
 
 			if (isPubPlace) {
 				if (f.tag.equals("260")) {
-					for (Subfield sf : f.subfields.values()) 
+					for (Subfield sf : f.subfields) 
 						if (sf.code.equals('a')) {
 							if (extractVals.containsKey("33"))
 								putOrAppendToExtract("37","|",sf.value);
@@ -1581,7 +1577,7 @@ public class MarcXmlToRdf {
 						}
 				}
 				if (f.alttag != null && f.alttag.equals("260")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("260-00"))
 								break;
@@ -1601,7 +1597,7 @@ public class MarcXmlToRdf {
 					String i2 = f.ind2.toString();
 					if (i2.trim().isEmpty()) i2 = "<null>";
 					putOrAppendToExtract("39","|",i2);
-					for (Subfield sf : f.subfields.values()) 
+					for (Subfield sf : f.subfields) 
 						if (sf.code.equals('a')) {
 							if (extractVals.containsKey("40"))
 								putOrAppendToExtract("43","|",sf.value);
@@ -1610,7 +1606,7 @@ public class MarcXmlToRdf {
 				}
 				if (f.alttag != null && f.alttag.equals("264")) {
 					boolean isInstanceMatched = false;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("264-00")) {
 								isInstanceMatched = true;
@@ -1631,7 +1627,7 @@ public class MarcXmlToRdf {
 
 			if (isTitleMatch)
 				if (f.tag.equals("260") || (f.tag.equals("264") && f.ind2.equals('1')))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('c'))
 							putOrAppendToExtract("08",";",sf.value);
 			if (isCitations)
@@ -1645,7 +1641,7 @@ public class MarcXmlToRdf {
 			
 			if (isPubPlace || isSubjPlace || isLanguage)
 				if (f.tag.equals("337"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a')) {
 							String a = sf.value;
 							if (a.length() > 3) a = a.substring(0,3);
@@ -1656,7 +1652,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("500"))
 					putOrAppendToExtract("41","; ",f.concatenateSpecificSubfields("a"));
 				if (f.alttag != null && f.alttag.equals("500")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("500-00"))
 								break;
@@ -1669,7 +1665,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("505"))
 					putOrAppendToExtract("37","|",f.concatenateSpecificSubfields("~","a"));
 				if (f.alttag != null && f.alttag.equals("505"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("505-00"))
 								break;
@@ -1683,7 +1679,7 @@ public class MarcXmlToRdf {
 					putOrAppendToExtract("40","|",f.concatenateSpecificSubfields("~","p"));
 				}
 				if (f.alttag != null && f.alttag.equals("518")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("518-00"))
 								break;
@@ -1696,7 +1692,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("520"))
 					putOrAppendToExtract("42","; ",f.concatenateSpecificSubfields("a"));
 				if (f.alttag != null && f.alttag.equals("520")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("520-00"))
 								break;
@@ -1711,14 +1707,14 @@ public class MarcXmlToRdf {
 		
 			if (isPubPlace) {
 				if (f.tag.equals("533"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('b')) {
 							if (extractVals.containsKey("46"))
 								putOrAppendToExtract("48","|",sf.value);
 							else extractVals.put("46", sf.value);
 						}
 				if (f.alttag != null && f.alttag.equals("533")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("533-00"))
 								break;
@@ -1735,7 +1731,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("546"))
 					putOrAppendToExtract("43","; ",f.concatenateSpecificSubfields("a"));
 				if (f.alttag != null && f.alttag.equals("546")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("546-00"))
 								break;
@@ -1748,7 +1744,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("600")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -1767,7 +1763,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("600")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("600-00"))
@@ -1792,7 +1788,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("610")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -1811,7 +1807,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("610")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("610-00"))
@@ -1836,7 +1832,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("611")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -1855,7 +1851,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("611")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("611-00"))
@@ -1880,7 +1876,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("630")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -1899,7 +1895,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("630")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("630-00"))
@@ -1923,7 +1919,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("650")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -1946,7 +1942,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("650")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("650-00"))
@@ -1975,7 +1971,7 @@ public class MarcXmlToRdf {
 					List<String> a = new ArrayList<>();
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('a'))
@@ -1997,7 +1993,7 @@ public class MarcXmlToRdf {
 					List<String> a = new ArrayList<>();
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("651-00"))
@@ -2022,7 +2018,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("653"))
 					putOrAppendToExtract("85","; ",f.concatenateSpecificSubfields("a"));
 				if (f.alttag != null && f.alttag.equals("653")) {
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('6')) {
 							if ( ! sf.value.startsWith("653-00"))
 								break;
@@ -2035,7 +2031,7 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("655")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('z'))
@@ -2058,7 +2054,7 @@ public class MarcXmlToRdf {
 				if (f.alttag != null && f.alttag.equals("655")) {
 					List<String> z = new ArrayList<>();
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('2'))
 							two = sf.value;
 						else if (sf.code.equals('6') && ! sf.value.startsWith("655-00"))
@@ -2103,7 +2099,7 @@ public class MarcXmlToRdf {
 					String c = null;
 					String d = null;
 					String two = null;
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('a')) {
 							if (a == null) a = sf.value;
 						} else if (sf.code.equals('b'))
@@ -2123,7 +2119,7 @@ public class MarcXmlToRdf {
 
 			if (isTitleMatch)
 				if (f.tag.equals("776"))
-					for (Subfield sf : f.subfields.values())
+					for (Subfield sf : f.subfields)
 						if (sf.code.equals('w'))
 							if (sf.value.contains("(OCoLC)")) {
 								String oclcid = sf.value.substring(sf.value.lastIndexOf(')')+1);
@@ -2162,7 +2158,6 @@ public class MarcXmlToRdf {
 		
 		Map<String,Integer> fieldtagcounts = new HashMap<>();
 		Map<String,HashMap<Character,Integer>> codeCounts = new HashMap<>();
-		Integer rec_id = Integer.valueOf( rec.control_fields.get(1).value );
 		
 		if (logout == null) {
 			FileWriter logstream = new FileWriter(logfile);
@@ -2170,16 +2165,14 @@ public class MarcXmlToRdf {
 		}
 		
 		
-		for (Integer fid: rec.control_fields.keySet()) {
-			ControlField f = rec.control_fields.get(fid);
+		for (ControlField f: rec.controlFields) {
 			if (fieldtagcounts.containsKey(f.tag)) {
 				fieldtagcounts.put(f.tag, fieldtagcounts.get(f.tag)+1);
 			} else {
 				fieldtagcounts.put(f.tag, 1);
 			}
 		}
-		for (Integer fid: rec.data_fields.keySet()) {
-			DataField f = rec.data_fields.get(fid);
+		for (DataField f: rec.dataFields) {
 			if (fieldtagcounts.containsKey(f.tag)) {
 				fieldtagcounts.put(f.tag, fieldtagcounts.get(f.tag)+1);
 			} else {
@@ -2195,24 +2188,24 @@ public class MarcXmlToRdf {
 				fs.countBy1st.put(f.ind1, fs.countBy1st.get(f.ind1)+ 1);
 			} else {
 				fs.countBy1st.put(f.ind1, 1);
-				fs.exampleBy1st.put(f.ind1,rec_id);
+				fs.exampleBy1st.put(f.ind1,rec.id);
 			}
 			if (fs.countBy2nd.containsKey(f.ind2)) {
 				fs.countBy2nd.put(f.ind2, fs.countBy2nd.get(f.ind2)+ 1);
 			} else {
 				fs.countBy2nd.put(f.ind2, 1);
-				fs.exampleBy2nd.put(f.ind2,rec_id);
+				fs.exampleBy2nd.put(f.ind2,rec.id);
 			}
 			String indpair = f.ind1.toString() + f.ind2.toString();
 			if (fs.countByBoth.containsKey(indpair)) {
 				fs.countByBoth.put(indpair, fs.countByBoth.get(indpair)+ 1);
 			} else {
 				fs.countByBoth.put(indpair, 1);
-				fs.exampleByBoth.put(indpair,rec_id);
+				fs.exampleByBoth.put(indpair,rec.id);
 			}
 
 			StringBuilder sb = new StringBuilder();
-			for (Subfield sf: f.subfields.values()) {
+			for (Subfield sf: f.subfields) {
 				sb.append(sf.code);
 				if (codeCounts.containsKey(f.tag)) {
 					HashMap<Character,Integer> tagCounts = codeCounts.get(f.tag);
@@ -2230,17 +2223,17 @@ public class MarcXmlToRdf {
 				if (f.tag.equals("245") && sf.code.equals('a')) {
 					if (sf.value.length() <= 1)
 						if (reports.contains(Report.QC_245))
-						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+						logout.write("Error: ("+rec.type.toString()+":" + rec.id + 
 							") 245 subfield a has length of "+ sf.value.length()+ ": "+ f.toString() + "\n");
 					else if (sf.value.trim().length() < 1)
 						if (reports.contains(Report.QC_245))
-						logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+						logout.write("Error: ("+rec.type.toString()+":" + rec.id + 
 							") 245 subfield a contains only whitespace: "+ f.toString() + "\n");
 					
 				}
 				if (! (Character.isLowerCase(sf.code) || Character.isDigit(sf.code))) {
 					if (reports.contains(Report.QC_SUBFIELD_CODES))
-					logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+					logout.write("Error: ("+rec.type.toString()+":" + rec.id + 
 							") Field has subfield code \""+sf.code+"\" which is neither lower case nor a digit: "+ f.toString() +  "\n");
 				}
 			}
@@ -2249,12 +2242,12 @@ public class MarcXmlToRdf {
 				fs.countBySubfieldPattern.put(sfpattern, fs.countBySubfieldPattern.get(sfpattern)+ 1);
 			} else {
 				fs.countBySubfieldPattern.put(sfpattern, 1);
-				fs.exampleBySubfieldPattern.put(sfpattern,rec_id);
+				fs.exampleBySubfieldPattern.put(sfpattern,rec.id);
 			}
 			if (f.tag.equals("245") && ! sfpattern.contains("a")) {
-				no245a.add(rec_id);
+				no245a.add(rec.id);
 				if (reports.contains(Report.QC_245))
-				logout.write("Error: ("+rec.type.toString()+":" + rec_id + 
+				logout.write("Error: ("+rec.type.toString()+":" + rec.id + 
 						") 245 field has no subfield a: "+ f.toString() +  "\n");
 			}
 			
@@ -2272,7 +2265,7 @@ public class MarcXmlToRdf {
 				fs.countByCount.put(count, fs.countByCount.get(count)+1);
 			} else {
 				fs.countByCount.put(count, 1);
-				fs.exampleByCount.put(count, rec_id);
+				fs.exampleByCount.put(count, rec.id);
 			}
 			fs.recordCount++;
 			fs.instanceCount += count;
@@ -2319,8 +2312,6 @@ public class MarcXmlToRdf {
 	}
 	
 	private Model marcRecordToJenaModel (MarcRecord rec) {
-		String id = rec.control_fields.get(1).value;
-		rec.id = id;
 		Model model = ModelFactory.createMemModelMaker().createDefaultModel();
 		String marcrdf = "http://marcrdf.library.cornell.edu/canonical/0.1/";
 		String uri_host = "http://da-rdf.library.cornell.edu/individual/";
@@ -2343,7 +2334,7 @@ public class MarcXmlToRdf {
 //		Property type_p = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 		Property type_p = model.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#","type");
 
-		Resource rec_res = model.createResource(uri_host+id_pref+id);
+		Resource rec_res = model.createResource(uri_host+id_pref+rec.id);
 		rec_res.addProperty(type_p,recType_res);
 		
 		Property label_p = model.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
@@ -2353,20 +2344,18 @@ public class MarcXmlToRdf {
 			rec_res.addLiteral(label_p, rec.id);
 		if (rec.type.equals(RecordType.BIBLIOGRAPHIC) && isUnsuppressedBibListFlagged)
 			rec_res.addLiteral(model.createProperty(marcrdf,"status"),
-					(unsuppressedBibs.contains(id))?"unsuppressed":"suppressed");
+					(unsuppressedBibs.contains(rec.id))?"unsuppressed":"suppressed");
 		if (rec.type.equals(RecordType.HOLDINGS) && isUnsuppressedMfhdListFlagged)
 			rec_res.addLiteral(model.createProperty(marcrdf,"status"),
-					(unsuppressedMfhds.contains(id))?"unsuppressed":"suppressed");
+					(unsuppressedMfhds.contains(rec.id))?"unsuppressed":"suppressed");
 		rec_res.addLiteral(model.createProperty("http://marcrdf.library.cornell.edu/canonical/0.1/leader"), rec.leader);
 
 		// Control fields
-		int fid = 0;
 		Resource controlFieldType_res = model.createResource("http://marcrdf.library.cornell.edu/canonical/0.1/ControlField");
 		Property tag_p = model.createProperty(marcrdf,"tag");
 		Property value_p = model.createProperty(marcrdf,"value");
-		while( rec.control_fields.containsKey(fid+1) ) {
-			ControlField f = rec.control_fields.get(++fid);
-			Resource field_res = model.createResource(uri_host+id_pref+id+"_"+fid);
+		for( ControlField f : rec.controlFields ) {
+			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id);
 			rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.tag),field_res);
 			field_res.addProperty(type_p,controlFieldType_res);
 			field_res.addLiteral(tag_p, f.tag);
@@ -2388,9 +2377,8 @@ public class MarcXmlToRdf {
 		Property ind1_p = model.createProperty(marcrdf,"ind1");
 		Property ind2_p = model.createProperty(marcrdf,"ind2");
 		Property code_p = model.createProperty(marcrdf,"code");
-		while( rec.data_fields.containsKey(fid+1) ) {
-			DataField f = rec.data_fields.get(++fid);
-			Resource field_res = model.createResource(uri_host+id_pref+id+"_"+fid);
+		for( DataField f : rec.dataFields ) {
+			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id);
 			rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.tag),field_res);
 			if (f.alttag != null)
 				rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.alttag),field_res);
@@ -2399,10 +2387,8 @@ public class MarcXmlToRdf {
 			field_res.addLiteral(ind1_p, f.ind1);
 			field_res.addLiteral(ind2_p, f.ind2);
 
-			int sfid = 0;
-			while( f.subfields.containsKey(sfid+1) ) {
-				Subfield sf = f.subfields.get(++sfid);
-				Resource sf_res = model.createResource(uri_host+id_pref+id+"_"+fid+"_"+sfid);
+			for( Subfield sf : f.subfields ) {
+				Resource sf_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id+"_"+sf.id);
 				field_res.addProperty(hasSF_p, sf_res);
 				sf_res.addProperty(type_p, subfieldType_res);
 				sf_res.addLiteral(code_p, sf.code);
@@ -2504,7 +2490,6 @@ public class MarcXmlToRdf {
 		Map<Integer,Integer> linkedeighteighties = new HashMap<>();
 //		Map<Integer,String> unlinkedeighteighties = new HashMap<>();
 		Map<Integer,Integer> others = new HashMap<>();
-		String rec_id = rec.control_fields.get(1).value;
 		Pattern p = Pattern.compile("^[0-9]{3}.[0-9]{2}.*");
 		
 		if (logout == null) {
@@ -2512,10 +2497,8 @@ public class MarcXmlToRdf {
 			logout = new BufferedWriter( logstream );
 		}
 
-		for ( int id: rec.data_fields.keySet() ) {
-			DataField f = rec.data_fields.get(id);
-			for ( int sf_id: f.subfields.keySet() ) {
-				Subfield sf = f.subfields.get(sf_id);
+		for ( DataField f: rec.dataFields ) {
+			for ( Subfield sf: f.subfields ) {
 				if (sf.code.equals('6')) {
 					Matcher m = p.matcher(sf.value);
 					if (m.matches()) {
@@ -2527,20 +2510,20 @@ public class MarcXmlToRdf {
 							} else {
 								if (linkedeighteighties.containsKey(n)) {
 									if (reports.contains(Report.QC_880))
-										logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one 880 with the same link index.\n");
+										logout.write("Error: ("+rec.type.toString()+":" + rec.id + ") More than one 880 with the same link index.\n");
 								}
-								linkedeighteighties.put(n, id);
+								linkedeighteighties.put(n, f.id);
 							}
 						} else {
 							if (others.containsKey(n)) {
 								if (reports.contains(Report.QC_880))
-								logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") More than one field linking to 880s with the same link index.\n");
+								logout.write("Error: ("+rec.type.toString()+":" + rec.id + ") More than one field linking to 880s with the same link index.\n");
 							}
-							others.put(n, id);
+							others.put(n, f.id);
 						}
 					} else {
 						if (reports.contains(Report.QC_880))
-						logout.write("Error: ("+rec.type.toString()+":" + rec_id +") "+
+						logout.write("Error: ("+rec.type.toString()+":" + rec.id +") "+
 								f.tag+" field has ‡6 with unexpected format: \""+sf.value+"\".\n");
 					}
 				}
@@ -2555,16 +2538,18 @@ public class MarcXmlToRdf {
 				// LINK FOUND
 //				rec.data_fields.get(linkedeighteighties.get(link_id)).alttag = rec.data_fields.get(others.get(link_id)).tag;
 			} else {
-				if (reports.contains(Report.QC_880))
-				logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") "+
-						rec.data_fields.get(others.get(link_id)).tag+
-						" field linking to non-existant 880.\n");
+				if (reports.contains(Report.QC_880)) {
+					for (DataField f : rec.dataFields)
+						if (others.get(link_id).equals(f.id))
+							logout.write("Error: ("+rec.type.toString()+":" + rec.id + ") "+
+									f.tag+" field linking to non-existant 880.\n");
+				}
 			}
 		}
 		for ( int link_id: linkedeighteighties.keySet() )
 			if ( ! others.containsKey(link_id))
 				if (reports.contains(Report.QC_880))
-					logout.write("Error: ("+rec.type.toString()+":" + rec_id + ") 880 field linking to non-existant main field.\n");
+					logout.write("Error: ("+rec.type.toString()+":" + rec.id + ") 880 field linking to non-existant main field.\n");
 			logout.flush();
 	}
 		
@@ -2582,15 +2567,14 @@ public class MarcXmlToRdf {
 				if (r.getLocalName().equals("leader")) {
 					rec.leader = r.getElementText();
 				} else if (r.getLocalName().equals("controlfield")) {
-					ControlField f = new ControlField();
-					f.id = ++id;
+					String tag = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
-							f.tag = r.getAttributeValue(i);
-					f.value = r.getElementText();
+							tag = r.getAttributeValue(i);
+					ControlField f = new ControlField(++id,tag,r.getElementText());
 					if (f.tag.equals("001"))
 						rec.id = f.value;
-					rec.control_fields.put(f.id, f);
+					rec.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
 					f.id = ++id;
@@ -2602,7 +2586,7 @@ public class MarcXmlToRdf {
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							f.ind2 = r.getAttributeValue(i).charAt(0);
 					f.subfields = processSubfields(r);
-					rec.data_fields.put(f.id, f);
+					rec.dataFields.add(f);
 				}
 		
 			}
@@ -2613,8 +2597,8 @@ public class MarcXmlToRdf {
 	private final static String missingBibMsg =
 			"Argument bibid is required for processing in this mode; may be missing from record.";
 	
-	private static Map<Integer,Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		Map<Integer,Subfield> fields = new HashMap<>();
+	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws Exception {
+		TreeSet<Subfield> fields = new TreeSet<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
@@ -2629,7 +2613,7 @@ public class MarcXmlToRdf {
 						if (r.getAttributeLocalName(i).equals("code"))
 							f.code = r.getAttributeValue(i).charAt(0);
 					f.value = r.getElementText();
-					fields.put(f.id, f);
+					fields.add(f);
 				}
 		}
 		return fields; // We should never reach this line.
@@ -2642,22 +2626,22 @@ public class MarcXmlToRdf {
 
 		// tabulating how many of a particular field appear in a record
 		public Map<Integer,Integer> countByCount = new TreeMap<>();
-		public Map<Integer,Integer> exampleByCount = new HashMap<>();
+		public Map<Integer,String> exampleByCount = new HashMap<>();
 
 		// tabulating frequency of particular indicator values
 		public Map<Character,Integer> countBy1st = new TreeMap<>();
-		public Map<Character,Integer> exampleBy1st = new HashMap<>();
+		public Map<Character,String> exampleBy1st = new HashMap<>();
 		public Map<Character,Integer> countBy2nd = new TreeMap<>();
-		public Map<Character,Integer> exampleBy2nd = new HashMap<>();
+		public Map<Character,String> exampleBy2nd = new HashMap<>();
 		public Map<String,Integer> countByBoth = new TreeMap<>();
-		public Map<String,Integer> exampleByBoth = new HashMap<>();
+		public Map<String,String> exampleByBoth = new HashMap<>();
 		
 		// tabulating frequency of subfields
 		public Map<Character,SubfieldStats> subfieldStatsByCode = new HashMap<>();
 		
 		// tabulating frequency of subfield pattern
 		public Map<String,Integer> countBySubfieldPattern = new TreeMap<>();
-		public Map<String,Integer> exampleBySubfieldPattern = new HashMap<>();
+		public Map<String,String> exampleBySubfieldPattern = new HashMap<>();
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder();

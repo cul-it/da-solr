@@ -28,6 +28,7 @@ public class BatchRecordsForSolrIndex {
 		b.startNewBatch();
 		int startingTarget = b.targetBatchSize();
 		Set<Integer> addedBibs = new HashSet<>(startingTarget);
+		boolean isTestMode = b.isTestMode();
 
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
@@ -71,20 +72,23 @@ public class BatchRecordsForSolrIndex {
         			int bib_id = rs.getInt(1);
             		if ( ! addedBibs.contains(bib_id) ) {
             			addedBibs.add(bib_id);
-            			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            			if ( ! isTestMode )
+            				addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
             		}      		
         		}
         		
         	}
         }
-        try (PreparedStatement batchStmt = current.prepareStatement(
-        		"UPDATE "+CurrentDBTable.QUEUE
-        		+" SET batched_date = NOW() WHERE bib_id = ? AND done_date = 0 AND batched_date = 0")) {
-        	for (int bib_id : addedBibs) {
-        		batchStmt.setInt(1,bib_id);
-        		batchStmt.addBatch();
-        	}
-        	batchStmt.executeBatch();
+        if ( ! isTestMode ) {
+	        try (PreparedStatement batchStmt = current.prepareStatement(
+	        		"UPDATE "+CurrentDBTable.QUEUE
+	        		+" SET batched_date = NOW() WHERE bib_id = ? AND done_date = 0 AND batched_date = 0")) {
+	        	for (int bib_id : addedBibs) {
+	        		batchStmt.setInt(1,bib_id);
+	        		batchStmt.addBatch();
+	        	}
+	        	batchStmt.executeBatch();
+	        }
         }
         try (Statement stmt = current.createStatement()) {
         	stmt.executeQuery("UNLOCK TABLES"); }
@@ -96,5 +100,6 @@ public class BatchRecordsForSolrIndex {
 		public int targetBatchSize();
 		public boolean addQueuedItemToBatch( ResultSet rs, int currentBatchSize ) throws SQLException;
 		public int unqueuedTargetCount( int currentBatchSize );
+		public boolean isTestMode();
 	}
 }

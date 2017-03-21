@@ -28,9 +28,7 @@ public class ISBN implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Map<String,String> q2f = new HashMap<>();
-		q2f.put("isbn","020");
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results,q2f);
+		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		for( FieldSet fs: sets ) {
@@ -56,7 +54,7 @@ public class ISBN implements ResultSetToFields {
 			StringBuilder sbDisplay = new StringBuilder();
 			boolean aFound = false;
 			Character prevSubfield = null; 
-			for ( Subfield sf : f.subfields.values() ) {
+			for ( Subfield sf : f.subfields ) {
 				switch (sf.code) {
 				case 'a':
 					// Display values

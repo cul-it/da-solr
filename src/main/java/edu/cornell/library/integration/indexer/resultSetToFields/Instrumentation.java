@@ -29,8 +29,6 @@ public class Instrumentation implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Map<String,String> queryNameToField = new HashMap<>();
-		queryNameToField.put("instrumentation","382");
 		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
@@ -43,7 +41,7 @@ public class Instrumentation implements ResultSetToFields {
 				String total_performers = null;
 				StringBuilder sb = new StringBuilder();
 				boolean forAppended = false;
-				for ( Subfield sf : f.subfields.values() ) {
+				for ( Subfield sf : f.subfields ) {
 					switch (sf.code) {
 					case 'a':
 						if (forAppended) sb.append("; ");

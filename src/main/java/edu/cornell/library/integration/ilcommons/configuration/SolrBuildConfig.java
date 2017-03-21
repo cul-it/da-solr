@@ -438,7 +438,17 @@ public class SolrBuildConfig {
 		return null;
     }
 
-    public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
+	public void setTestMode(boolean b) {
+		values.put("testMode",(b)?"true":"false");
+	}
+	public boolean getTestMode() {
+		if (values.containsKey("testMode")) {
+			return (values.get("testMode").equals("true"))?true:false;
+		}
+		return false;
+	}
+
+	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
     	final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
     			+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
 				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";

@@ -75,9 +75,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 					MarcRecord rec = new MarcRecord();
 					rec.addDataFieldQuerySolution(sol);
-					for (DataField f : rec.data_fields.values()) {
+					for (DataField f : rec.dataFields) {
 						descriptions.add(f.concatenateSubfieldsOtherThan6());
-						for (Subfield sf : f.subfields.values())
+						for (Subfield sf : f.subfields)
 							if (sf.code.equals('e'))
 								description_with_e = true;
 					}
@@ -147,7 +147,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 						notes.add(f.concatenateSpecificSubfields("abcdu3"));
 						break;
 					case "852":
-						for (Subfield sf: f.subfields.values()) {
+						for (Subfield sf: f.subfields) {
 							CODE: switch (sf.code) {
 							case 'b':
 								Location l = locations.getByCode(sf.value.trim());
@@ -201,11 +201,11 @@ public class HoldingsAndItems implements ResultSetToFields {
 			holding.supplemental_holdings_desc = supplementalHoldings.toArray(new String[ supplementalHoldings.size() ]);
 			holding.index_holdings_desc = indexHoldings.toArray(new String[ indexHoldings.size() ]);
 			holding.locations = holdingLocations.toArray(new Location[ holdingLocations.size() ]);
-			if (rec.modified_date != null) {
-				if (rec.modified_date.length() >= 14)
-					holding.modified_date = rec.modified_date.substring(0, 14);
+			if (rec.modifiedDate != null) {
+				if (rec.modifiedDate.length() >= 14)
+					holding.modified_date = rec.modifiedDate.substring(0, 14);
 				else
-					holding.modified_date = rec.modified_date;
+					holding.modified_date = rec.modifiedDate;
 			}
 
 			if (holding.modified_date != null)
@@ -250,7 +250,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 	private void registerBoundWith(SolrBuildConfig config, String mfhd_id, DataField f) throws Exception {
 		String item_enum = "";
 		String barcode = null;
-		for (Subfield sf : f.subfields.values()) {
+		for (Subfield sf : f.subfields) {
 			switch (sf.code) {
 			case 'p': barcode = sf.value; break;
 			case '3': item_enum = sf.value; break;

@@ -64,6 +64,7 @@ public class ProcessQueue {
 				if (priorityZeroInBatch) return 0;
 				return batchSize - currentBatchSize;
 			}
+			public boolean isTestMode() { return false; }
 		};
 
 		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();

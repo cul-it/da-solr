@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -46,10 +47,15 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		try (Connection conn = config.getDatabaseConnection("Current")) {
 
+			String bibid_display = document.getField("bibid_display").getValue().toString();
+			String[] tmp = bibid_display.split("\\|",2);
+			Integer bibid = Integer.valueOf(tmp[0]);
+			if ( config.getTestMode() ) {
+				compareDocument(conn,document, bibid);
+				return;
+			}
+
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
-		String bibid_display = document.getField("bibid_display").getValue().toString();
-		String[] tmp = bibid_display.split("\\|",2);
-		Integer bibid = Integer.valueOf(tmp[0]);
 		Timestamp origBibDate = null;
 		final String origBibDateQuery =
 				"SELECT record_date FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
@@ -81,6 +87,24 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		addWorkIdLinksToDocument(conn,document,bibid,knockOnUpdatesNeeded);
 		markBibAsDoneInIndexQueue(conn,bibid);
 		pushSolrDocumentToDatabase(conn,document,bibid);
+		}
+	}
+
+	private static void compareDocument(Connection conn, SolrInputDocument document, Integer bibid) throws SQLException {
+		final String solrDocumentFromDBQuery = 
+				"SELECT solr_document FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
+		String origDoc = null;
+		try (PreparedStatement solrDocumentFromDB = conn.prepareStatement(solrDocumentFromDBQuery)) {
+			solrDocumentFromDB.setInt(1, bibid);
+			try (ResultSet rs = solrDocumentFromDB.executeQuery()) {
+				while (rs.next())
+					origDoc = rs.getString(1);
+			}
+		}
+		if (origDoc != null) {
+			String newDoc = ClientUtils.toXML(document).replaceAll("</field>","$0\n");
+			System.out.println("*** "+bibid+" ***");
+			System.out.println(StringUtils.difference(origDoc, newDoc));
 		}
 	}
 

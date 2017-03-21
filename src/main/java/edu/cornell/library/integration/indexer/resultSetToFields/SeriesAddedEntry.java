@@ -29,7 +29,7 @@ public class SeriesAddedEntry implements ResultSetToFields {
 		MarcRecord rec = new MarcRecord();
 		rec.addDataFieldResultSet(results.get("seriesaddedentry"));
 		Set<String> workFacet = new HashSet<>();
-		for( DataField f: rec.data_fields.values() ) {
+		for( DataField f: rec.dataFields ) {
 			String title_cts = f.concatenateSpecificSubfields("tklnpmors");
 			String author_cts = null;
 			if (f.mainTag.equals("800")) {

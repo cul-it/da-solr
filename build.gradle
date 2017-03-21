@@ -126,9 +126,16 @@ task( RecordBatchProcessingData, dependsOn: 'assemble', type: JavaExec) {
 }
 
 task( processQueue, dependsOn: 'assemble', type: JavaExec) {
- description = "Process records from the index queue until there's no backlog. "
+ description = "Process records from the index queue until quitting time. "
  maxHeapSize = '500m'
  main = 'edu.cornell.library.integration.indexer.ProcessQueue'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( ProcessTestRecordBatch, dependsOn: 'assemble', type: JavaExec) {
+ description = "Process a set of test records "
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.indexer.ProcessTestRecordBatch'
  classpath = sourceSets.main.runtimeClasspath
 }
 
