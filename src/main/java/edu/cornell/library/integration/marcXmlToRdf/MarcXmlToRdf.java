@@ -2351,12 +2351,11 @@ public class MarcXmlToRdf {
 		rec_res.addLiteral(model.createProperty("http://marcrdf.library.cornell.edu/canonical/0.1/leader"), rec.leader);
 
 		// Control fields
-		int fid = 0;
 		Resource controlFieldType_res = model.createResource("http://marcrdf.library.cornell.edu/canonical/0.1/ControlField");
 		Property tag_p = model.createProperty(marcrdf,"tag");
 		Property value_p = model.createProperty(marcrdf,"value");
 		for( ControlField f : rec.controlFields ) {
-			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+fid);
+			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id);
 			rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.tag),field_res);
 			field_res.addProperty(type_p,controlFieldType_res);
 			field_res.addLiteral(tag_p, f.tag);
@@ -2379,7 +2378,7 @@ public class MarcXmlToRdf {
 		Property ind2_p = model.createProperty(marcrdf,"ind2");
 		Property code_p = model.createProperty(marcrdf,"code");
 		for( DataField f : rec.dataFields ) {
-			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+fid);
+			Resource field_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id);
 			rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.tag),field_res);
 			if (f.alttag != null)
 				rec_res.addProperty(model.createProperty(marcrdf,"hasField"+f.alttag),field_res);
@@ -2389,7 +2388,7 @@ public class MarcXmlToRdf {
 			field_res.addLiteral(ind2_p, f.ind2);
 
 			for( Subfield sf : f.subfields ) {
-				Resource sf_res = model.createResource(uri_host+id_pref+rec.id+"_"+fid+"_"+sf.id);
+				Resource sf_res = model.createResource(uri_host+id_pref+rec.id+"_"+f.id+"_"+sf.id);
 				field_res.addProperty(hasSF_p, sf_res);
 				sf_res.addProperty(type_p, subfieldType_res);
 				sf_res.addLiteral(code_p, sf.code);
