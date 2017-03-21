@@ -452,7 +452,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                 + " $recordURI$ marcrdf:hasField035 ?f. \n"
                 + " ?f marcrdf:hasSubfield ?s.\n"
                 + " ?s marcrdf:code \"a\"^^xsd:string.\n"
-                + " ?s marcrdf:value ?thirtyfive }W")
+                + " ?s marcrdf:value ?thirtyfive }")
         .addMainStoreQuery("903_barcode",
             "SELECT ?barcode WHERE {"
                 + " $recordURI$ marcrdf:hasField903 ?f.\n"
@@ -479,6 +479,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
   private static String standardDataFieldSPARQL(String tag) {
     return "SELECT * WHERE {\n"
+        + " BIND( \""+tag+"\"^^xsd:string as ?p ) \n"
         + " $recordURI$ marcrdf:hasField" + tag + " ?field.\n"
         + " ?field marcrdf:tag ?tag. \n"
         + " ?field marcrdf:ind1 ?ind1. \n"
@@ -490,6 +491,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
   private static String standardHoldingsDataFieldSPARQL(String tag) {
     return "SELECT * WHERE {\n"
+        + " BIND( \""+tag+"\"^^xsd:string as ?p ) \n"
         + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
         + " ?mfhd marcrdf:hasField" + tag + " ?field.\n"
         + " ?field marcrdf:tag ?tag.\n"
