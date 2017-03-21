@@ -184,7 +184,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	                }
 
 					try{
-						if ( ! docs.isEmpty() )
+						if ( ! docs.isEmpty() && ! config.getTestMode() )
 							solr.add(docs);
 
 						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());

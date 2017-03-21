@@ -66,6 +66,7 @@ public class IterativeUpdateFromVoyager {
 				if (currentBatchSize >= 300) return 0;
 				return 300 - currentBatchSize;
 			}
+			public boolean isTestMode() { return false; }
 		};
 
 		int i = 0;
