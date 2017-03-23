@@ -163,13 +163,13 @@ public class MarcRecord {
 					fs.id = f.id;
 					fs.mainTag = f.mainTag;
 				}
-				fs.fields.add(f);
+				fs.fields.add(new FieldSet.FSDataField(f));
 				matchedFields.put(fs.linkOccurrenceNumber, fs);
 			} else {
 				final FieldSet fs = new FieldSet();
 				fs.id = f.id;
 				fs.mainTag = f.mainTag;
-				fs.fields.add(f);
+				fs.fields.add(new FieldSet.FSDataField(f));
 				sortedFields.add(fs);
 			}
 		}
@@ -488,8 +488,20 @@ public class MarcRecord {
 			this.tag = tag;
 			this.mainTag = tag;
 		}
+		public DataField( int id, int linkOccurenceNumber, String tag ) {
+			this.id = id;
+			this.linkOccurrenceNumber = linkOccurenceNumber;
+			this.tag = tag;
+			this.mainTag = tag;
+		}
 		public DataField( int id, String tag, Boolean eighteighty ) {
 			this.id = id;
+			this.tag = (eighteighty)?"880":tag;
+			this.mainTag = tag;
+		}
+		public DataField( int id, int linkOccurenceNumber, String tag, Boolean eighteighty ) {
+			this.id = id;
+			this.linkOccurrenceNumber = linkOccurenceNumber;
 			this.tag = (eighteighty)?"880":tag;
 			this.mainTag = tag;
 		}
@@ -537,13 +549,13 @@ public class MarcRecord {
 		Integer id;
 		public String mainTag;
 		Integer linkOccurrenceNumber;
-		public Set<DataField> fields = new TreeSet<>();
+		public Set<FSDataField> fields = new TreeSet<>();
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(this.fields.size() + "fields / link occurrence number: " +
 					this.linkOccurrenceNumber +"/ min field no: " + this.id);
-			final Iterator<DataField> i = this.fields.iterator();
+			final Iterator<FSDataField> i = this.fields.iterator();
 			while (i.hasNext()) {
 				sb.append(i.next().toString() + "\n");
 			}
@@ -559,6 +571,32 @@ public class MarcRecord {
 			if (other.id == this.id) return true;
 			return false;
 		}
+
+		public static class FSDataField extends DataField {
+			@Override
+			public int compareTo(final DataField other) {
+				if (this.tag.equals("880")) {
+					if (other.tag.equals("880"))
+						return Integer.compare(this.id, other.id);
+					return -1;
+				}
+				if (other.tag.equals("880"))
+					return 1;
+				return Integer.compare(this.id, other.id);
+			}
+
+			public FSDataField ( DataField orig ) {
+				this.id = orig.id;
+				this.tag = orig.tag;
+				this.alttag = orig.alttag;
+				this.ind1 = orig.ind1;
+				this.ind2 = orig.ind2;
+				this.subfields = orig.subfields;
+				this.linkOccurrenceNumber = orig.linkOccurrenceNumber;
+				this.mainTag = orig.mainTag;				
+			}
+		}
+
 	}
 
 

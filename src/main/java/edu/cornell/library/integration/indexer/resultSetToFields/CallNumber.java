@@ -23,9 +23,8 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
  */
 public class CallNumber implements ResultSetToFields {
 
-	
 	final boolean debug = false;
-	
+
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {

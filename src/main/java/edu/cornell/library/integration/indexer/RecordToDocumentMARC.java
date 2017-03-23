@@ -6,7 +6,6 @@ import java.util.List;
 import edu.cornell.library.integration.indexer.documentPostProcess.*;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
-import edu.cornell.library.integration.indexer.fieldMaker.IndicatorReq;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
@@ -240,6 +239,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("table of contents", standardDataFieldSPARQL("505"))
         .addResultSetToFields(new TOC()),
 
+        new SPARQLFieldMakerImpl().setName("notes")
+        .addMainStoreQuery("notes", standardDataFieldGroupSPARQL("marcrdf:NotesFields"))
+        .addResultSetToFields(new Notes()),
+
         new SPARQLFieldMakerImpl().setName("urls")
         .addMainStoreQuery("urls", standardDataFieldSPARQL("856"))
         .addMainStoreQuery("urls_mfhd", standardHoldingsDataFieldSPARQL("856"))
@@ -269,92 +272,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("instrumentation", standardDataFieldSPARQL("382"))
         .addResultSetToFields(new Instrumentation()),
 
-        new StandardMARCFieldMaker("notes", "362", "a"),
-        new StandardMARCFieldMaker("notes_t", "362", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "500", "3a"),
-        new StandardMARCFieldMaker("notes_t", "500", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "501", "3a"),
-        new StandardMARCFieldMaker("notes_t", "501", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("thesis_display", "502", "3abcdgo"),
-        new StandardMARCFieldMaker("notes_t", "502", "abcdgo", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "503", "3a"),
-        new StandardMARCFieldMaker("notes_t", "503", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "504", "3ab"),
-        new StandardMARCFieldMaker("notes_t", "504", "ab", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "508", "3a"),
-        new StandardMARCFieldMaker("notes_t", "508", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "510", "abcux3"),
-        new StandardMARCFieldMaker("notes_t", "510", "abcux3", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "511", "3a"),
-        new StandardMARCFieldMaker("notes_t", "511", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "513", "3ab"),
-        new StandardMARCFieldMaker("notes_t", "513", "ab", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "515", "a"),
-        new StandardMARCFieldMaker("notes_t", "515", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "518", "3adop"),
-        new StandardMARCFieldMaker("notes_t", "518", "adop", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "521", "3a"),
-        new StandardMARCFieldMaker("notes_t", "521", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "522", "3a"),
-        new StandardMARCFieldMaker("notes_t", "522", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "523", "3a"),
-        new StandardMARCFieldMaker("notes_t", "523", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "525", "3a"),
-        new StandardMARCFieldMaker("notes_t", "525", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "527", "3a"),
-        new StandardMARCFieldMaker("notes_t", "527", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "530", "abc3"),
-        new StandardMARCFieldMaker("notes_t", "530", "abc3", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "533", "aebcdfn3"),
-        new StandardMARCFieldMaker("notes_t", "533", "aebcdfn3", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "534", "3abcefmpt"),
-        new StandardMARCFieldMaker("notes_t", "534", "abcefmpt", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "535", "abcd3"),
-        new StandardMARCFieldMaker("notes_t", "535", "abcd3", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "537", "3a"),
-        new StandardMARCFieldMaker("notes_t", "537", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "544", "3ad"),
-        new StandardMARCFieldMaker("notes_t", "544", "ad", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "547", "3a"),
-        new StandardMARCFieldMaker("notes_t", "547", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "550", "3a"),
-        new StandardMARCFieldMaker("notes_t", "550", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "556", "3a"),
-        new StandardMARCFieldMaker("notes_t", "556", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "561", "ab3"),
-        new StandardMARCFieldMaker("notes_t", "561", "ab3", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "565", "3a"),
-        new StandardMARCFieldMaker("notes_t", "565", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "567", "3a"),
-        new StandardMARCFieldMaker("notes_t", "567", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "570", "3a"),
-        new StandardMARCFieldMaker("notes_t", "570", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "580", "3a"),
-        new StandardMARCFieldMaker("notes_t", "580", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "582", "3a"),
-        new StandardMARCFieldMaker("notes_t", "582", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "940", "a"),
-        new StandardMARCFieldMaker("notes_t", "940", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes", "856", "m"),
-        new StandardMARCFieldMaker("notes_t", "856", "m", VernMode.SEARCH),
-        new StandardMARCFieldMaker("restrictions_display", "506", "3abce"),
-        new StandardMARCFieldMaker("restrictions_display", "540", "3abcu"),
-        new StandardMARCFieldMaker("notes_t", "506", "3abce", VernMode.SEARCH),
-        new StandardMARCFieldMaker("notes_t", "540", "3abcu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("cite_as_display", "524", "a3"),
-        new StandardMARCFieldMaker("notes_t", "524", "a3", VernMode.SEARCH),
         new SPARQLFieldMakerImpl().setName("finding_aids_index_notes")
         .addMainStoreQuery("finding_index_notes", standardDataFieldSPARQL("555"))
         .addResultSetToFields(new FindingAids()),
-        new StandardMARCFieldMaker("historical_note_display", "545", "3abcu"),
-        new StandardMARCFieldMaker("notes_t", "545", "3abcu", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("summary_display", "520", "3abc"),
-        new StandardMARCFieldMaker("notes_t", "520", "abc", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("description_display", "300", "3abcefg"),
-        new StandardMARCFieldMaker("description_display", "538", "3a"),
-        new StandardMARCFieldMaker("notes_t", "538", "a", VernMode.SEARCH),
 
         new SPARQLFieldMakerImpl().setName("fact_or_fiction")
         .addMainStoreQuery("fact_or_fiction",
@@ -419,7 +339,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                 + " ?mfhd852k marcrdf:value ?callnumprefix. }")
         .addResultSetToFields(new NewBooks()),
 
-        new StandardMARCFieldMaker("donor_display", "541", new IndicatorReq(1, " 1"), "3ac"),
         new StandardMARCFieldMaker("donor_display", "902", "b"),
 
         new StandardMARCFieldMaker("frequency_display", "310", "a"),
