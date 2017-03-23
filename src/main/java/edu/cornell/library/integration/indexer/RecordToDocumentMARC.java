@@ -251,12 +251,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         getHathiLinks(),
 
         new SPARQLFieldMakerImpl().setName("database codes")
-        .addMainStoreQuery("url instructions",
-            "SELECT ?v WHERE {\n"
-                + "  $recordURI$ marcrdf:hasField856 ?f.\n"
-                + "  ?f marcrdf:hasSubfield ?sf.\n"
-                + "  ?sf marcrdf:code \"i\"^^xsd:string.\n"
-                + "  ?sf marcrdf:value ?v. }")
         .addMainStoreQuery("record-level instructions",
             "SELECT ?v WHERE {\n"
                 + "  $recordURI$ marcrdf:hasField899 ?f.\n"
