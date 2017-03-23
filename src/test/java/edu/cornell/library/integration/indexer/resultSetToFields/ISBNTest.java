@@ -52,12 +52,12 @@ public class ISBNTest {
 		f2.id = 2;
 		f2.tag = "880";
 		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-00/$1"));
-		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "4892032867 (ä¸­å�·)"));
+		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "4892032867 (中卷)"));
 		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
 		fs.fields.add(new FieldSet.FSDataField(f1));
 		fs.fields.add(new FieldSet.FSDataField(f2));
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
-		assertTrue(vals.display880.iterator().next().equals("4892032867 (ä¸­å�·)"));
+		assertTrue(vals.display880.iterator().next().equals("4892032867 (中卷)"));
 		assertTrue(vals.search880.iterator().next().equals("4892032867"));
 		assertTrue(vals.displayMain.iterator().next().equals("4892032867 (v. 2)"));
 		assertTrue(vals.searchMain.iterator().next().equals("4892032867"));
