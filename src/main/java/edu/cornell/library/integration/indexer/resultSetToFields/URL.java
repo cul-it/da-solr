@@ -18,6 +18,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 
 /**
  * Process 856 fields from both bibliographic and holdings fields into various URL Solr fields.
@@ -101,7 +102,8 @@ public class URL implements ResultSetToFields {
 					|| lc.contains("record available for display")
 					|| lc.startsWith("related") // related web site, related electronic resource...
 					|| lc.contains("internet movie database")
-					|| lc.contains("more information")) {
+					|| lc.contains("more information")
+					|| lc.equals("hathitrust – access limited to full-text search")) {
 				relation = "other";
 			}	
 			if (lc.contains("finding aid"))
@@ -141,13 +143,5 @@ public class URL implements ResultSetToFields {
 
 	public static class SolrFieldValueSet {
 		List<SolrField> fields = new ArrayList<>();
-	}
-	public static class SolrField {
-		String fieldName;
-		String fieldValue;
-		public SolrField ( String fieldName, String fieldValue ) {
-			this.fieldName = fieldName;
-			this.fieldValue = fieldValue;
-		}
 	}
 }

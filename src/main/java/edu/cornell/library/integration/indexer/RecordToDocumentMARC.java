@@ -360,18 +360,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
   public static SPARQLFieldMakerImpl getHathiLinks() {
     return new SPARQLFieldMakerImpl().setName("hathi links")
-        .addMainStoreQuery("oclcid",
-            "SELECT ?thirtyfive WHERE {"
-                + " $recordURI$ marcrdf:hasField035 ?f. \n"
-                + " ?f marcrdf:hasSubfield ?s.\n"
-                + " ?s marcrdf:code \"a\"^^xsd:string.\n"
-                + " ?s marcrdf:value ?thirtyfive }")
-        .addMainStoreQuery("903_barcode",
-            "SELECT ?barcode WHERE {"
-                + " $recordURI$ marcrdf:hasField903 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?s.\n"
-                + " ?s marcrdf:code \"p\"^^xsd:string.\n"
-                + " ?s marcrdf:value ?barcode }")
+        .addMainStoreQuery("oclcid", standardControlFieldSPARQL("035"))
+        .addMainStoreQuery("903_barcode", standardControlFieldSPARQL("903"))
         .addResultSetToFields(new HathiLinks());
   }
 
