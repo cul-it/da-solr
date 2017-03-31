@@ -347,6 +347,8 @@
       <str name="q.op">AND</str>
     </lst>
   </requestHandler>
+
+  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
   
   <!-- search handlers to support database ERM interface -->
   <requestHandler name="/databases" class="solr.SearchHandler">
