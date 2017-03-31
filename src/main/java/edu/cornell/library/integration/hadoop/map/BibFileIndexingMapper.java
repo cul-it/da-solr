@@ -183,17 +183,28 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						}
 	                }
 
-					try{
-						if ( ! docs.isEmpty() && ! config.getTestMode() )
-							solr.add(docs);
-
-						context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
-						for (SolrInputDocument doc : docs)
-							context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
-		
-					} catch (Throwable er) {			
-						throw new Exception("Could not add documents to index. Check logs of solr server for details.", er );
-					}
+	                int retryLimit = 4;
+	                boolean succeeded = false;
+	                while (retryLimit > 0 && ! succeeded)
+	                	try{
+	                		if ( ! docs.isEmpty() && ! config.getTestMode() )
+	                			solr.add(docs);
+	                		context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+	                		for (SolrInputDocument doc : docs)
+	                			context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+	                		succeeded = true;
+	                	} catch (IOException e) {
+	                		System.out.println("Error pushing records to Solr.");
+	                		if (retryLimit-- > 0) {
+	                			System.out.println("Will retry in 20 seconds.");
+	                			Thread.sleep(20_000);
+	                		} else {
+	                			System.out.println("Retry limit reached. Failing.");
+		                		throw new IOException("Could not add documents to index. Check logs of solr server for details.", e );
+	                		}
+	                	} catch (Throwable e) {
+	                		throw new Exception("Could not add documents to index. Check logs of solr server for details.", e );
+	                	}
 	
 									
 					//attempt to move file to done directory when completed

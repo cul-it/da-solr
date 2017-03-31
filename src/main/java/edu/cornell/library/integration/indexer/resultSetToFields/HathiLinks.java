@@ -1,24 +1,24 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
-
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 
 /**
  * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
@@ -28,55 +28,54 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  */
 public class HathiLinks implements ResultSetToFields {
 
-	protected boolean debug = false;
-	Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
-	Collection<String> denyTitles = new HashSet<>();
+	protected static boolean debug = false;
 
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-
 		Collection<String> oclcids = new HashSet<>();
 		Collection<String> barcodes = new HashSet<>();
 
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			if (debug) System.out.println("Result Key: "+resultKey);
-			if( rs != null)
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					Iterator<String> names = sol.varNames();
-					while(names.hasNext() ){						
-						String name = names.next();
-						RDFNode node = sol.get(name);
-						if (name.equals("thirtyfive")) {
-							String val = nodeToString( node );
-							if (val.trim().startsWith("(OCoLC)")) {
-								String oclcid = val.substring(val.lastIndexOf(')')+1);
-								oclcids.add(oclcid.trim());
-								if (debug) System.out.println("oclcid = "+oclcid);
-							}
-						} else if (name.equals("barcode")) {
-							barcodes.add(nodeToString( node ));
-							if (debug) System.out.println("barcode = "+nodeToString( node ));
-						}
+		MarcRecord rec = new MarcRecord();
+		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
+			rec.addDataFieldResultSet(rs);
+		for (DataField f : rec.dataFields) {
+			if (f.mainTag.equals("035")) {
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('a'))
+						if (sf.value.startsWith("(OCoLC"))
+							oclcids.add(sf.value.substring(sf.value.lastIndexOf(')')+1));
+			} else if (f.mainTag.equals("903")) {
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('p'))
+						barcodes.add(sf.value);
+			}
+		}
+		if (debug) {
+			if (! oclcids.isEmpty() )
+				for (String oclcid : oclcids)
+					System.out.println("oclc: "+oclcid);
+			if (! barcodes.isEmpty() )
+				for (String barcode : barcodes)
+					System.out.println("barcode: "+barcode);
+		}
 
-					}
-				}
-		}
-		
+		Map<String,SolrInputField> fields = new HashMap<>();
 		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {			
-			return generateFields(conn, oclcids, barcodes);
+			SolrFieldValueSet vals = generateSolrFields(conn, /*oclcids,*/ barcodes);
+			for (SolrField f : vals.fields)
+				ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
 		}
+		return fields;
 	}
 
-	private Map<String,SolrInputField> generateFields(Connection conn,
-			@SuppressWarnings("unused") Collection<String> oclcids, Collection<String> barcodes ) throws SQLException {
-		
-		Map<String,SolrInputField> fields = new HashMap<>();
+	public static SolrFieldValueSet generateSolrFields(Connection conn,
+			/*Collection<String> oclcids,*/ Collection<String> barcodes ) throws SQLException, IOException {
+
+		Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
+		Collection<String> denyTitles = new HashSet<>();
+		SolrFieldValueSet vals = new SolrFieldValueSet();
 
 /*		if (oclcids.size() > 0) {
  			PreparedStatement pstmt = conn.prepareStatement
@@ -97,7 +96,7 @@ public class HathiLinks implements ResultSetToFields {
 				for (String barcode : barcodes ) {
 					pstmt.setString(1, "coo."+barcode);
 					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
-						tabulateResults(rs); }
+						tabulateResults(rs,availableHathiMaterials,denyTitles); }
 				}
 			}
 		}
@@ -117,33 +116,44 @@ public class HathiLinks implements ResultSetToFields {
 			}
 			if (count == 1) {
 				// volume link
-				addField(fields,"url_access_display",
-						"http://hdl.handle.net/2027/"+volumes.iterator().next()+"|HathiTrust");
+				vals.fields.addAll(URL.generateSolrFields(
+						build856FieldSet("HathiTrust",
+								"http://hdl.handle.net/2027/"+volumes.iterator().next())).fields);
 			} else {
 				// title link
-				addField(fields,"url_access_display",
-						"http://catalog.hathitrust.org/Record/"+title+"|HathiTrust (multiple volumes)");
+				vals.fields.addAll(URL.generateSolrFields(
+						build856FieldSet("HathiTrust (multiple volumes)",
+								"http://catalog.hathitrust.org/Record/"+title)).fields);
 			}
-			addField(fields,"hathi_title_data",title);
+			vals.fields.add(new SolrField("hathi_title_data",title));
 		}
 		for ( String title : denyTitles ) {
-			addField(fields,"url_other_display",
-					"http://catalog.hathitrust.org/Record/"+title+"|HathiTrust – Access limited to full-text search");
-			addField(fields,"hathi_title_data",title);
+			vals.fields.addAll(URL.generateSolrFields(
+					build856FieldSet("HathiTrust – Access limited to full-text search",
+							"http://catalog.hathitrust.org/Record/"+title)).fields);
+			vals.fields.add(new SolrField("hathi_title_data",title));
 		}
 		if (availableHathiMaterials.size() > 0)
-			addField(fields,"online","Online");
-		
+			vals.fields.add(new SolrField("online","Online"));
+
 		if (debug)
-			for (SolrInputField f : fields.values()) {
-				Collection<String> values = f.getValues().stream().map(Object::toString).collect(Collectors.toList());
-				System.out.println( f.getName() +": "+String.join(", ",values));
-			}
-		
-		return fields;
+			for (SolrField f : vals.fields)
+				System.out.println( f.fieldName +": "+f.fieldValue);
+
+		return vals;
 	}
 
-	private void tabulateResults(java.sql.ResultSet rs) throws SQLException {
+	private static FieldSet build856FieldSet( String description, String url) {
+		FieldSet fs = new FieldSet();
+		DataField f = new DataField( 1, "856");
+		f.subfields.add(new Subfield( 1, 'u', url));
+		f.subfields.add(new Subfield( 2, 'z', description));
+		fs.fields.add(new FieldSet.FSDataField(f));
+		return fs;
+	}
+	private static void tabulateResults(java.sql.ResultSet rs,
+			Map<String,Collection<String>> availableHathiMaterials,
+			Collection<String> denyTitles) throws SQLException {
 		while (rs.next()) {
 			String vol = rs.getString("Volume_Identifier");
 			String title = rs.getString("UofM_Record_Number");
@@ -157,7 +167,11 @@ public class HathiLinks implements ResultSetToFields {
 			}
 		}
 	}
+	public static class SolrFieldValueSet {
+		List<SolrField> fields = new ArrayList<>();
+	}
 }
+
 
 /*
 mysql> desc raw_hathi;

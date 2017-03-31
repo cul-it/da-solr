@@ -66,6 +66,8 @@ public class Language implements ResultSetToFields {
 			if (! cf.tag.equals("008"))
 				continue;
 			String langCode = cf.value.substring(35,38).toLowerCase();
+			if (langCode.trim().isEmpty())
+				continue;
 			if ( ! codes.containsKey(langCode)) {
 				System.out.println("Language code "+langCode+" not recognized.");
 				continue;

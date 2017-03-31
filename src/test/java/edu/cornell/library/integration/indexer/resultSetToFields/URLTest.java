@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 
 @SuppressWarnings("static-method")
 public class URLTest {
@@ -29,7 +30,7 @@ public class URLTest {
 		df.subfields.add(new MarcRecord.Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/9781118529669"));
 		df.subfields.add(new MarcRecord.Subfield(4, 'z', "Connect to text."));
 		rec.dataFields.add(df);
-		List<URL.SolrField> allSolrFields = new ArrayList<>();
+		List<SolrField> allSolrFields = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);
@@ -69,7 +70,7 @@ public class URLTest {
 		df.subfields.add(new MarcRecord.Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		df.subfields.add(new MarcRecord.Subfield(4, 'z', "Connect to text."));
 		rec.dataFields.add(df);
-		List<URL.SolrField> allSolrFields = new ArrayList<>();
+		List<SolrField> allSolrFields = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);
@@ -93,7 +94,7 @@ public class URLTest {
 		MarcRecord.DataField df = new MarcRecord.DataField(1,"856");
 		df.subfields.add(new MarcRecord.Subfield(1, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		rec.dataFields.add(df);
-		List<URL.SolrField> allSolrFields = new ArrayList<>();
+		List<SolrField> allSolrFields = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);

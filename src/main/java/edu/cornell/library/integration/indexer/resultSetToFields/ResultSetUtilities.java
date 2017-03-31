@@ -63,4 +63,12 @@ public class ResultSetUtilities {
 
 		return sortedFields;
 	}
+	public static class SolrField {
+		String fieldName;
+		String fieldValue;
+		public SolrField ( String fieldName, String fieldValue ) {
+			this.fieldName = fieldName;
+			this.fieldValue = fieldValue;
+		}
+	}
 }
