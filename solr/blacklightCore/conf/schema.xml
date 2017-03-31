@@ -155,7 +155,7 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
         <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
         <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
-      </analyzer">
+      </analyzer>
       <analyzer type="query">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
