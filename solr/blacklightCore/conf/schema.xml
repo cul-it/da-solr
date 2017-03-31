@@ -281,8 +281,8 @@
 	other call numbers such as "1-1-1" and "Thesis 3" should be supported. -->
     <fieldType name="callNumberNormalized" class="solr.TextField" omitNorms="true">
       <analyzer>
-        <!-- replace any periods with spaces if they precede a letter -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.([^\d])" replacement=" $1" />
+        <!-- replace any periods with spaces if they don't precede number -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.(?!\d)" replacement=" " />
         <!-- if a number follows directly after a letter, insert a space between them -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
         <!-- if a letter follows directly after a number, insert a space between them -->
