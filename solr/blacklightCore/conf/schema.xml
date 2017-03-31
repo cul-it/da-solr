@@ -143,10 +143,9 @@
     </fieldType>
 
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
-      <analyzer>
+      <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -155,12 +154,21 @@
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
-    </fieldType>
-    <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
-      <analyzer>
+      <analyzer type="query">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.KStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -168,6 +176,44 @@
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
+      </analyzer>
+      <analyzer type="query">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.KStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
       </analyzer>
     </fieldType>
     <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
@@ -210,8 +256,10 @@
     <fieldtype name="textCJK" class="solr.TextField" positionIncrementGap="10000" autoGeneratePhraseQueries="false">
      <analyzer>
         <!-- remove spaces among hangul and han chars if there is at least one hangul char -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\p{Hangul}\p{Han}*)\s+(?=[\p{Hangul}\p{Han}])" replacement="$1"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([\p{Hangul}\p{Han}])\s+(?=[\p{Han}\s]*\p{Hangul})" replacement="$1"/>
+        <!-- a korean char guaranteed at the start of the pattern: pattern="(\p{Hangul}\p{Han}*)\s+(?=[\p{Hangul}\p{Han}])" -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}][\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}]*)\s+(?=[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])" replacement="$1"/>
+        <!-- a korean char guaranteed at the end of the pattern: pattern="([\p{Hangul}\p{Han}])\s+(?=[\p{Han}\s]*\p{Hangul})" -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])\s+(?=[\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}\s]*[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}])" replacement="$1"/>
         <tokenizer class="solr.ICUTokenizerFactory" />
         <filter class="solr.CJKWidthFilterFactory"/>
         <filter class="edu.stanford.lucene.analysis.CJKFoldingFilterFactory"/> <!-- This filter includes modifications from Princeton -->
@@ -393,6 +441,8 @@
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_t"  type="text"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_tP"  type="textP"    indexed="true"  stored="false" multiValued="true"/>
+    <dynamicField name="*_left_boost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_left_boost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_t_cjk"  type="textCJK"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
     <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
@@ -450,6 +500,8 @@
   <copyField source="*_t" dest="spell"/>
   <!-- title spell check;  should match fields for title request handler -->
   <copyField source="title_t" dest="title_spell"/>
+  <copyField source="title_t" dest="title_left_boost_tC"/>
+  <copyField source="title_t" dest="title_left_boost_tP"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
   <copyField source="title_added_entry_t" dest="title_spell"/>
