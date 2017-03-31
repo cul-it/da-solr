@@ -143,10 +143,9 @@
     </fieldType>
 
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
-      <analyzer>
+      <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -156,13 +155,24 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
         <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
         <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer">
+      <analyzer type="query">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
       </analyzer>
     </fieldType>
     <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
-      <analyzer>
+      <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -170,6 +180,18 @@
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+      <analyzer type="query">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
         <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
       </analyzer>
