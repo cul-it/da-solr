@@ -144,8 +144,8 @@
 
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -155,8 +155,8 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -167,8 +167,8 @@
     </fieldType>
     <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -178,8 +178,8 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -190,30 +190,46 @@
     </fieldType>
     <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
         <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.TrimFilterFactory"/>
       </analyzer>
     </fieldType>
     <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
         <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.TrimFilterFactory"/>
       </analyzer>
     </fieldType>
     <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
@@ -303,26 +319,6 @@
         <filter class="solr.ICUFoldingFilterFactory"/>        
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
-    </fieldType>
-    
-    
-    <!-- field that can be used for left anchored search and auto complete -->
-    <fieldType name="ngram" class="solr.TextField" >
-    <analyzer type="index">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15"/>
-    </analyzer>
-    <analyzer type="query">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-    </analyzer>
     </fieldType>
 
 	<!-- While the primary target of this analysis is LC Call Numbers, 
@@ -466,7 +462,6 @@
     <dynamicField name="*_startsP" type="textLeftAnchoredP" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsNum" type="numericLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_ngram" type="ngram" indexed="true" stored="false" multiValued="true"/>         
   </fields>
 
   <uniqueKey>id</uniqueKey>
@@ -502,6 +497,7 @@
   <copyField source="title_t" dest="title_spell"/>
   <copyField source="title_t" dest="title_left_boost_tC"/>
   <copyField source="title_t" dest="title_left_boost_tP"/>
+  <copyField source="title_t" dest="title_exact"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
   <copyField source="title_added_entry_t" dest="title_spell"/>
