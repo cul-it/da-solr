@@ -144,7 +144,7 @@
 
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
@@ -155,7 +155,7 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
-        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
@@ -167,7 +167,7 @@
     </fieldType>
     <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
@@ -178,7 +178,7 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
-        <!-- prefix value with "b𐐩gn " to ensure left-anchored phrase searching -->
+        <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
@@ -486,8 +486,6 @@
   <copyField source="donor_s" dest="donor_startsC"/>
   <copyField source="*_filing" dest="*_browse"/>
   <copyField source="donor_display" dest="donor_t"/>
-
-  <copyField source="title_t" dest="title_ngram"/>
 
   <!-- spellcheck fields -->
   <!-- default spell check;  should match fields for default request handler -->
