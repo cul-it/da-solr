@@ -191,7 +191,7 @@
     <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -201,7 +201,7 @@
       </analyzer>
       <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
@@ -213,7 +213,7 @@
     <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -223,7 +223,7 @@
       </analyzer>
       <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]++" replacement="cplusplus" />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
