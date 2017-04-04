@@ -145,7 +145,7 @@
     <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -156,7 +156,7 @@
       </analyzer>
       <analyzer type="query">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -168,7 +168,7 @@
     <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
@@ -179,7 +179,7 @@
       </analyzer>
       <analyzer type="query">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="b𐐩gn " />
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
