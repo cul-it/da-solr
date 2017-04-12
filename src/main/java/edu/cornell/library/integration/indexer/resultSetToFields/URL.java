@@ -65,11 +65,7 @@ public class URL implements ResultSetToFields {
 			for (String code : codes) {
 				String[] parts = code.split("=",2);
 				if (parts.length == 2)
-					if (parts[0].equals("dbcode")) {
-						jsonModel.put("dbcode",parts[1]);
-					} else if (parts[0].equals("providercode")) {
-						jsonModel.put("providercode",parts[1]);
-					}
+					jsonModel.put(parts[0].toLowerCase(), parts[1]);
 			}
 		}
 
