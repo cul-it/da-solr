@@ -90,9 +90,14 @@ public class Language implements ResultSetToFields {
 						if ( c.equals(Code.UND) || c.equals(Code.ZXX)
 								|| vals.display.contains(c.getLanguageName()))
 							continue;
-						vals.display.add(c.getLanguageName());
-						if ("adegj".contains(sf.code.toString()))
+						switch (sf.code) {
+						// subfields for faceting and display
+						case 'a': case 'd': case 'e': case 'g': case 'j':
 							vals.facet.add(c.getLanguageName());
+						// subfields for display only
+						case 'b': case 'f':
+							vals.display.add(c.getLanguageName());
+						}
 					}
 				}
 			}
