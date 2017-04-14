@@ -243,7 +243,7 @@ public class Subject implements ResultSetToFields {
 
 			for (final String s: values880_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				ResultSetUtilities.addField(fields,"subject_addl_t",s);
+				ResultSetUtilities.addField(fields,"subject_t",s);
 				if (h.isFAST)
 					ResultSetUtilities.addField(fields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
@@ -251,7 +251,7 @@ public class Subject implements ResultSetToFields {
 			}
 			for (final String s: valuesMain_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				ResultSetUtilities.addField(fields,"subject_addl_t",s);
+				ResultSetUtilities.addField(fields,"subject_t",s);
 				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					ResultSetUtilities.addField(fields,"fast_"+facet_type+"_facet",disp);
 				if ( ! h.isFAST || ! recordHasLCSH)
