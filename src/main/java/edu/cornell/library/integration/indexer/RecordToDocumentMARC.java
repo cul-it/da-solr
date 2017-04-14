@@ -279,18 +279,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
             "SELECT (SUBSTR(?l,7,2) as ?char67) WHERE { $recordURI$ marcrdf:leader ?l. }")
         .addResultSetToFields(new FactOrFiction()),
 
-        // subject_t is essentially a boost field. Should eventually be dropped or
-        // population moved to SubjectRSTF.
-        new StandardMARCFieldMaker("subject_t", "600", "abcdefghijklmnopqrstu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "610", "abcdefghijklmnopqrstu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "611", "abcdefghijklmnopqrstu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "630", "abcdefghijklmnopqrst", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "650", "abcde", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "651", "ae", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "653", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "654", "abcde", VernMode.SEARCH),
-        new StandardMARCFieldMaker("subject_t", "655", "abc", VernMode.SEARCH),
-
         new SPARQLFieldMakerImpl().setName("subject")
         .addMainStoreQuery("subjects", standardDataFieldGroupSPARQL("marcrdf:SubjectTermEntry"))
         .addResultSetToFields(new Subject()),
