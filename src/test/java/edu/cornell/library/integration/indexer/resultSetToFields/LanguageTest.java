@@ -115,4 +115,19 @@ public class LanguageTest {
 		assertEquals("In Hindi with English subtitles.",vals.notes.iterator().next());
 	}
 
+	@Test
+	public void testSubfieldFiltering() {
+		MarcRecord rec = new MarcRecord();
+		MarcRecord.DataField f = new MarcRecord.DataField(3,"041");
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "hin")); // display & facet
+		f.subfields.add(new MarcRecord.Subfield(2, 'b', "eng")); // display only
+		f.subfields.add(new MarcRecord.Subfield(3, 'h', "spa")); // neither
+		rec.dataFields.add(f);
+		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
+		assertEquals(1,               vals.facet.size());
+		assertEquals("Hindi",         String.join(", ",vals.facet));
+		assertEquals(2,               vals.display.size());
+		assertEquals("Hindi, English",String.join(", ",vals.display));
+		assertEquals(0,               vals.notes.size());
+	}
 }
