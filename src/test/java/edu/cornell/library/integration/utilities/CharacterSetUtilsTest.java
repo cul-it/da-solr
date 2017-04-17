@@ -4,6 +4,8 @@ package edu.cornell.library.integration.utilities;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.limitStringToGSMChars;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -11,7 +13,26 @@ import org.junit.Test;
 
 @SuppressWarnings("static-method")
 public class CharacterSetUtilsTest {
-	
+
+	@Test
+	public void testLimitStringToGSMChars() {
+		assertEquals("Advanced linear algebra",
+		 limitStringToGSMChars("Advanced linear algebra"));
+		assertEquals("Dedha ishqiya 11/2",
+		 limitStringToGSMChars("Ḍeḍha ishqiya 11/2"));
+		assertEquals("= Quarterly jurist",
+		 limitStringToGSMChars("論究ジュリスト = Quarterly jurist"));
+		assertEquals("Andrei Makine : hétérotopies, hétérochronies",
+		 limitStringToGSMChars("Andreï Makine : hétérotopies, hétérochronies"));
+		assertEquals("Marci Tullii Ciceronis epistolarum libri IV Cum postremis H. Stephani &"
+				+ " D. Lambini editionibus diligenter collati, & quàm accuratissimè emendati. A Joanne Sturmo"
+				+ " ... Huic editioni accesserunt Græca Latinis expressa",
+		 limitStringToGSMChars(
+					"Marci Tullii Ciceronis epistolarum libri IV Cum postremis H. Stephani &"
+				+ " D. Lambini editionibus diligenter collati, & quàm accuratissimè emendati. A Joanne Sturmı́o"
+				+ " ... Huic editioni accesserunt Græca Latinis expressa"));
+	}
+
 	@Test
 	public void testIsCJK() {
 		assertFalse(isCJK("القاهرة : شمس للنشر والتوزيع، 2012.‏‬‎")); // Arabic publication info
