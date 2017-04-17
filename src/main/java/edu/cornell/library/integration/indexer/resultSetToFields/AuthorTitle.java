@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.limitStringToGSMChars;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
@@ -312,6 +313,7 @@ public class AuthorTitle implements ResultSetToFields {
 			String titleWOArticle = title.getStringWithoutInitialArticle(fulltitle);
 			String sortTitle = getFilingForm(titleWOArticle);
 			addField(solrFields,"title_sort",sortTitle);
+			addField(solrFields,"title_sms_compat_display",limitStringToGSMChars(sortTitle));
 	
 			// main title display fields
 			String maintitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:=/ ");
