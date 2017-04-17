@@ -15,7 +15,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
-public class Notes implements ResultSetToFields {
+public class SimpleProc implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
@@ -28,9 +28,9 @@ public class Notes implements ResultSetToFields {
 				for (String dv : vals.displayValues)
 					ResultSetUtilities.addField(fields,vals.displayField,dv);
 			for (String sv : vals.searchValues) {
-				ResultSetUtilities.addField(fields,"notes_t",sv);
+				ResultSetUtilities.addField(fields,vals.searchField,sv);
 				if (CharacterSetUtils.hasCJK(sv))
-					ResultSetUtilities.addField(fields,"notes_t_cjk",sv);
+					ResultSetUtilities.addField(fields,vals.searchField+"_cjk",sv);
 			}
 		}
 		return fields;
@@ -39,12 +39,55 @@ public class Notes implements ResultSetToFields {
 	public static SolrFieldValueSet generateSolrFields( FieldSet fs ) {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		vals.displayField = "notes";
+		vals.searchField = "notes_t";
 		for (DataField f : fs.fields) {
 			String displaySubfields = null, searchSubfields = null;
 			switch (Integer.valueOf(f.mainTag)) {
+			case 10:
+				vals.searchField = "lc_controlnum_s";
+				vals.displayField = "lc_controlnum_display";
+				displaySubfields = "a";
+				searchSubfields = "a";
+				break;
+			case 22:
+				vals.searchField = "issn_t";
+				vals.displayField = "issn_display";
+				displaySubfields = "a";
+				searchSubfields = "al";
+				break;
+			case 24:
+				vals.searchField = "id_t";
+				vals.displayField = "other_identifier_display";
+				displaySubfields = "a";
+				searchSubfields = "a";
+				break;
+			case 28:
+				vals.searchField = "id_t";
+				vals.displayField = "publisher_number_display";
+				displaySubfields = "a";
+				searchSubfields = "a";
+				break;
+			case 35:
+				vals.searchField = "id_t";
+				vals.displayField = "other_id_display";
+				displaySubfields = "a";
+				searchSubfields = "a";
+				break;
+			case 250:
+				vals.displayField = "edition_display";
+				displaySubfields = "3ab";
+				break;
+			case 255:
+				vals.displayField = "map_format_display";
+				displaySubfields = "abcdefg";
+				break;
 			case 300:
 				displaySubfields = "3abcefg";
 				vals.displayField = "description_display";
+				break;
+			case 310:
+				displaySubfields = "a";
+				vals.displayField = "frequency_display";
 				break;
 			case 362:    displaySubfields = "a";         searchSubfields = "a";        break;
 			case 500:    displaySubfields = "3a";        searchSubfields = "a";        break;
@@ -118,7 +161,25 @@ public class Notes implements ResultSetToFields {
 			case 570:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 580:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 582:    displaySubfields = "3a";        searchSubfields = "a";        break;
+			case 773:
+				vals.displayField = "in_display";
+				displaySubfields = "abdghikmnopqrstuw";
+				break;
 			case 856:    displaySubfields = "m";         searchSubfields = "m";        break;
+			case 899:
+				vals.searchField = "eightninenine_t";
+				vals.displayField = "eightninenine_display";
+				displaySubfields = "ab";
+				searchSubfields = "ab";
+				break;
+			case 902:
+				vals.displayField = "donor_display";
+				displaySubfields = "b";
+				break;
+			case 903:
+				vals.searchField = "barcode_t";
+				searchSubfields = "p";
+				break;
 			case 940:    displaySubfields = "a";         searchSubfields = "a";        break;
 
 			}
@@ -137,6 +198,7 @@ public class Notes implements ResultSetToFields {
 
 	public static class SolrFieldValueSet {
 		String displayField = null;
+		String searchField = null;
 		List<String> displayValues = new ArrayList<>();
 		List<String> searchValues = new ArrayList<>();
 	}

@@ -62,11 +62,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                 + " WHERE { $recordURI$ marcrdf:leader ?leader. }")
         .addResultSetToFields(new HoldingsAndItems()),
 
-        new StandardMARCFieldMaker("lc_controlnum_display", "010", "a"),
-        new StandardMARCFieldMaker("lc_controlnum_s", "010", "a"),
-        new StandardMARCFieldMaker("other_id_display", "035", "a"),
-        new StandardMARCFieldMaker("id_t", "035", "a"),
-
         new SPARQLFieldMakerImpl().setName("boost")
         .addMainStoreQuery("boostType", "SELECT ?boostType WHERE {$recordURI$ intlayer:boost ?boostType}")
         .addResultSetToFields(new AllResultsToField("boost")),
@@ -165,7 +160,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new Date()),
 
         new StandardMARCFieldMaker("pub_info_display", "260", "3abc"),
-        new SPARQLFieldMakerImpl().setName("pub_info_264")
+        new SPARQLFieldMakerImpl().setName("pub_info")
         .addMainStoreQuery("pub_info", standardDataFieldSPARQL("264"))
         .addResultSetToFields(new PubInfo()), // IndicatorReq to be added?
 
@@ -177,8 +172,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         new StandardMARCFieldMaker("pubplace_display", "260", "a", VernMode.COMBINED, "/:,， "),
         new StandardMARCFieldMaker("pubplace_t", "260", "a", VernMode.SEARCH),
         new StandardMARCFieldMaker("pubplace_t", "264", "a", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("edition_display", "250", "3ab"),
 
         new StandardMARCFieldMaker("title_addl_t", "210", "ab", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "222", "ab", VernMode.SEARCH, true),
@@ -211,8 +204,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("added_entry", standardDataFieldGroupSPARQL("marcrdf:AddedEntry"))
         .addMainStoreQuery("linking_entry", standardDataFieldGroupSPARQL("marcrdf:LinkingEntry"))
         .addResultSetToFields(new TitleChange()),
-        new StandardMARCFieldMaker("map_format_display", "255", "abcdefg"),
-        new StandardMARCFieldMaker("in_display", "773", "abdghikmnopqrstuw"),
 
         new SPARQLFieldMakerStepped().setName("title_series_display")
         .addMainStoreQuery("title_series_830", standardDataFieldSPARQL("830"))
@@ -240,8 +231,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new TOC()),
 
         new SPARQLFieldMakerImpl().setName("notes")
-        .addMainStoreQuery("notes", standardDataFieldGroupSPARQL("marcrdf:NotesFields"))
-        .addResultSetToFields(new Notes()),
+        .addMainStoreQuery("notes", standardDataFieldGroupSPARQL("marcrdf:SimpleProcFields"))
+        .addResultSetToFields(new SimpleProc()),
 
         new SPARQLFieldMakerImpl().setName("urls")
         .addMainStoreQuery("urls", standardDataFieldSPARQL("856"))
@@ -321,28 +312,9 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
                 + " ?mfhd852k marcrdf:value ?callnumprefix. }")
         .addResultSetToFields(new NewBooks()),
 
-        new StandardMARCFieldMaker("donor_display", "902", "b"),
-
-        new StandardMARCFieldMaker("frequency_display", "310", "a"),
-
         new SPARQLFieldMakerImpl().setName("isbn")
         .addMainStoreQuery("isbn", standardDataFieldSPARQL("020"))
-        .addResultSetToFields(new ISBN()),
-
-        new StandardMARCFieldMaker("issn_display", "022", "a"),
-        new StandardMARCFieldMaker("issn_t", "022", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("issn_t", "022", "l", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("eightninenine_t", "899", "ab"),
-        new StandardMARCFieldMaker("eightninenine_display", "899", "ab"),
-
-        new StandardMARCFieldMaker("other_identifier_display", "024", "a"),
-        new StandardMARCFieldMaker("id_t", "024", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("publisher_number_display", "028", "a"),
-        new StandardMARCFieldMaker("id_t", "028", "a", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("barcode_t", "903", "p", VernMode.SEARCH)
-
+        .addResultSetToFields(new ISBN())
     );
   }
 
