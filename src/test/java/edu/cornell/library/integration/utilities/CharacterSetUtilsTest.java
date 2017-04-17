@@ -24,6 +24,13 @@ public class CharacterSetUtilsTest {
 		 limitStringToGSMChars("論究ジュリスト = Quarterly jurist"));
 		assertEquals("Andrei Makine : hétérotopies, hétérochronies",
 		 limitStringToGSMChars("Andreï Makine : hétérotopies, hétérochronies"));
+		assertEquals("Marci Tullii Ciceronis epistolarum libri IV Cum postremis H. Stephani &"
+				+ " D. Lambini editionibus diligenter collati, & quàm accuratissimè emendati. A Joanne Sturmo"
+				+ " ... Huic editioni accesserunt Græca Latinis expressa",
+		 limitStringToGSMChars(
+					"Marci Tullii Ciceronis epistolarum libri IV Cum postremis H. Stephani &"
+				+ " D. Lambini editionibus diligenter collati, & quàm accuratissimè emendati. A Joanne Sturmı́o"
+				+ " ... Huic editioni accesserunt Græca Latinis expressa"));
 	}
 
 	@Test

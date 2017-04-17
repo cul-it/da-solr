@@ -324,7 +324,7 @@ public class AuthorTitle implements ResultSetToFields {
 			addField(solrFields,"title_t",titleWOArticle);
 			addField(solrFields,"title_exact",standardizeApostrophes(fulltitle));
 			addField(solrFields,"title_exact",standardizeApostrophes(titleWOArticle));
-			addField(solrFields,"title_sms_compat_display",limitStringToGSMChars(fulltitle));
+			addField(solrFields,"title_sms_compat_display",limitStringToGSMChars(maintitle));
 			responsibility = title.concatenateSpecificSubfields("c");
 
 			// title alpha buckets
