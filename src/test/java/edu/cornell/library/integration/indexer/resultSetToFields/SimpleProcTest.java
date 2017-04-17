@@ -11,13 +11,13 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 @SuppressWarnings("static-method")
-public class NotesTest {
+public class SimpleProcTest {
 
 	@Test
 	public void testNoNotes() {
 		MarcRecord rec = new MarcRecord();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals(null,vals.displayField);
 		}
 	}
@@ -29,8 +29,9 @@ public class NotesTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 520 note."));
 		rec.dataFields.add(f);
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("summary_display",vals.displayField);
+			assertEquals("notes_t",vals.searchField);
 			assertEquals(1,vals.displayValues.size());
 			assertEquals(1,vals.searchValues.size());
 			assertEquals("Here's a 520 note.",vals.displayValues.get(0));
@@ -46,8 +47,9 @@ public class NotesTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 541 note."));
 		rec.dataFields.add(f);
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("donor_display",vals.displayField);
+			assertEquals("notes_t",vals.searchField);
 			assertEquals(1,vals.displayValues.size());
 			assertEquals(0,vals.searchValues.size());
 			assertEquals("Here's a 541 note.",vals.displayValues.get(0));
@@ -61,7 +63,7 @@ public class NotesTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a restricted 541 note."));
 		rec.dataFields.add(f);
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals(0,vals.displayValues.size());
 			assertEquals(0,vals.searchValues.size());
 		}
@@ -74,11 +76,60 @@ public class NotesTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 300 note."));
 		rec.dataFields.add(f);
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("description_display",vals.displayField);
 			assertEquals(1,vals.displayValues.size());
 			assertEquals(0,vals.searchValues.size());
 			assertEquals("Here's a 300 note.",vals.displayValues.get(0));
+		}
+	}
+
+	@Test
+	public void testLccn() {
+		MarcRecord rec = new MarcRecord();
+		MarcRecord.DataField f = new MarcRecord.DataField(1,"010");
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "2015231566"));
+		rec.dataFields.add(f);
+		for (FieldSet fs : rec.matchAndSortDataFields()) {
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
+			assertEquals("lc_controlnum_display",vals.displayField);
+			assertEquals("lc_controlnum_s",vals.searchField);
+			assertEquals(1,vals.displayValues.size());
+			assertEquals(1,vals.searchValues.size());
+			assertEquals("2015231566",vals.displayValues.get(0));
+			assertEquals("2015231566",vals.searchValues.get(0));
+		}
+	}
+
+	@Test
+	public void test035() {
+		MarcRecord rec = new MarcRecord();
+		MarcRecord.DataField f = new MarcRecord.DataField(1,"035");
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "(OCoLC)924835975"));
+		rec.dataFields.add(f);
+		for (FieldSet fs : rec.matchAndSortDataFields()) {
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
+			assertEquals("other_id_display",vals.displayField);
+			assertEquals("id_t",vals.searchField);
+			assertEquals(1,vals.displayValues.size());
+			assertEquals(1,vals.searchValues.size());
+			assertEquals("(OCoLC)924835975",vals.displayValues.get(0));
+			assertEquals("(OCoLC)924835975",vals.searchValues.get(0));
+		}
+	}
+
+	@Test
+	public void testEdition() {
+		MarcRecord rec = new MarcRecord();
+		MarcRecord.DataField f = new MarcRecord.DataField(1,"250");
+		f.subfields.add(new MarcRecord.Subfield(1, 'a', "First edition."));
+		rec.dataFields.add(f);
+		for (FieldSet fs : rec.matchAndSortDataFields()) {
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
+			assertEquals("edition_display",vals.displayField);
+			assertEquals(1,vals.displayValues.size());
+			assertEquals(0,vals.searchValues.size());
+			assertEquals("First edition.",vals.displayValues.get(0));
 		}
 	}
 
@@ -94,8 +145,9 @@ public class NotesTest {
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
+			assertEquals("notes_t",vals.searchField);
 			displays.addAll(vals.displayValues);
 			searches.addAll(vals.searchValues);
 		}
@@ -122,8 +174,9 @@ public class NotesTest {
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
+			assertEquals("notes_t",vals.searchField);
 			displays.addAll(vals.displayValues);
 			searches.addAll(vals.searchValues);
 		}
@@ -157,8 +210,9 @@ public class NotesTest {
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
 		for (FieldSet fs : rec.matchAndSortDataFields()) {
-			Notes.SolrFieldValueSet vals = Notes.generateSolrFields(fs);
+			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
+			assertEquals("notes_t",vals.searchField);
 			displays.addAll(vals.displayValues);
 			searches.addAll(vals.searchValues);
 		}
