@@ -163,6 +163,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					try{
 						SolrInputDocument doc = createSolrDocument(bibUri, config);
 						docs.add(doc);
+						succeeded = true;
 						context.progress();
 					} catch (Throwable ex ){
 						if (retryLimit-- > 0) {
