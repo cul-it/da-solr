@@ -202,8 +202,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	                			System.out.println("Retry limit reached. Failing.");
 		                		throw new IOException("Could not add documents to index. Check logs of solr server for details.", e );
 	                		}
-	                	} catch (Throwable e) {
-	                		throw new Exception("Could not add documents to index. Check logs of solr server for details.", e );
 	                	}
 	
 									
