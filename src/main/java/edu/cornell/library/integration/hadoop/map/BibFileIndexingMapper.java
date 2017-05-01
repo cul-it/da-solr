@@ -94,7 +94,9 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	boolean errors_encountered = false;
 
    
-	
+	// The map method has no inherent way to express a failure state except by throwing an IOException
+	// or an InterruptedException. Any other failures should write something to the context that
+	// includes the text "Error".
 	public void map(K unused, Text urlText, Context context) throws IOException, InterruptedException {
 		errors_encountered = false;
 		
@@ -104,131 +106,119 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
  
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(context.getConfiguration());
 
+		File tmpDir = Files.createTempDir();
+		log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
+
 		try {
-	        for (int i = 0; i < attempts; i++) { // In case of trouble, retry 
-	
-	        	File tmpDir = Files.createTempDir();
-				log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
-				
-				Dataset dataset = null;
-				Model model = null;
-				
-				try {
 
-					context.progress();
 
-					log.info("Starting to build model");
-					//load the RDF to a triple store
-					dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
-					model = dataset.getDefaultModel();
+			Dataset dataset = TDBFactory.createDataset(tmpDir.getAbsolutePath()) ;
+			context.progress();
 
-					model.add(baseModel);
+			log.info("Starting to build model");
+			//load the RDF to a triple store
+			Model model = dataset.getDefaultModel();
+			model.add(baseModel);
 
-					TDB.sync( dataset );
+			TDB.sync( dataset );
 
-					// We are using the TDBLoader directly because of the use of 
-					// zipped InputStream. It seems in the newer version of Jena (2.10)
-					// there might be a more standard way to do this
-					// see http://jena.apache.org/documentation/io/rdf-input.html
+			String urlString = urlText.toString();
+			try (InputStream is = getUrl( urlString )) {
 
-					//TDBLoader loader = new TDBLoader() ;
-					//InputStream is = getUrl( urlText.toString()  );
-					//loader.loadGraph((GraphTDB)model.getGraph(), is);
-	
-					String urlString = urlText.toString();
-					try (InputStream is = getUrl( urlString  )) {
+				Lang l ;
+				if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
+					l = Lang.NT;
+				else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
+					l = Lang.N3;
+				else
+					throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
+				RDFDataMgr.read(model, is, l);
+				context.progress();
 
-						Lang l ;
-						if (urlString.endsWith("nt.gz") || urlString.endsWith("nt"))
-							l = Lang.NT;
-						else if (urlString.endsWith("n3.gz") || urlString.endsWith("n3"))
-							l = Lang.N3;
-						else
-							throw new IllegalArgumentException("Format of RDF file not recogized: "+urlString);
-						RDFDataMgr.read(model, is, l);
+			}
+
+			TDB.sync( dataset );
+
+			log.info("Model load completed. Starting query for all bib records in model. ");
+			Set<String> bibUris = getURIsInModel( model );
+			int total = bibUris.size();
+
+			context.progress();
+		
+			log.info("Starting to index documents");
+			RDFService rdf = new RDFServiceModel(model);
+			config.setRDFService("main", rdf);
+			int n = 0;
+
+			Collection<SolrInputDocument> docs = new HashSet<>();
+			for( String bibUri: bibUris){	
+				n++;
+				System.out.println("indexing " + n + " out of " + total 
+						+ ". bib URI: " + bibUri );
+
+				//Create Solr Documents
+				int retryLimit = 4;
+				boolean succeeded = false;
+				while (retryLimit > 0 && ! succeeded)
+					try{
+						SolrInputDocument doc = createSolrDocument(bibUri, config);
+						docs.add(doc);
 						context.progress();
-
-					}
-
-					TDB.sync( dataset );
-				
-					log.info("Model load completed. Starting query for all bib records in model. ");
-					Set<String> bibUris = getURIsInModel( model);
-	                int total = bibUris.size();
-
-					context.progress();
-					
-					log.info("Starting to index documents");
-					RDFService rdf = new RDFServiceModel(model);
-					config.setRDFService("main", rdf);
-	                int n = 0;
-	
-	                Collection<SolrInputDocument> docs = new HashSet<>();
-	                for( String bibUri: bibUris){	
-	                    n++;
-	                    System.out.println("indexing " + n + " out of " + total 
-	                                       + ". bib URI: " + bibUri );
-	
-	                    //Create Solr Documents
-	                    try{
-							SolrInputDocument doc = indexToSolr(bibUri, config);
-							docs.add(doc);
-							context.progress();
-						}catch(Throwable ex ){
+					} catch (Throwable ex ){
+						if (retryLimit-- > 0) {
+							System.out.println("Will retry in 20 seconds.");
+							Thread.sleep(20_000);
+						} else {
 							ex.printStackTrace();
 							context.write(new Text(bibUri), new Text("URI\tError\t"+ex.getMessage()));
-	                        if( checkForOutOfSpace( ex ) ){
-	                            return;
-	                        }
+							if( checkForOutOfSpace( ex ) )
+								return;
 						}
-	                }
+					}
+			}
 
-	                int retryLimit = 4;
-	                boolean succeeded = false;
-	                while (retryLimit > 0 && ! succeeded)
-	                	try{
-	                		if ( ! docs.isEmpty() && ! config.getTestMode() )
-	                			solr.add(docs);
-	                		context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
-	                		for (SolrInputDocument doc : docs)
-	                			context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
-	                		succeeded = true;
-	                	} catch (IOException e) {
-	                		System.out.println("Error pushing records to Solr.");
-	                		if (retryLimit-- > 0) {
-	                			System.out.println("Will retry in 20 seconds.");
-	                			Thread.sleep(20_000);
-	                		} else {
-	                			System.out.println("Retry limit reached. Failing.");
-		                		throw new IOException("Could not add documents to index. Check logs of solr server for details.", e );
-	                		}
-	                	}
-	
-									
-					//attempt to move file to done directory when completed
-					moveToDone( context , urlText.toString() );				
-	
-				}catch(Throwable th){			
-					String filename = getSplitFileName(context);
-					String errorMsg = "could not process file URL " + urlText.toString() +
-							" due to "+th.toString();
-					th.printStackTrace();
-					log.error( errorMsg );
-					context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
-					continue; //failed... retry
-	
-				}finally{			
-					FileUtils.deleteDirectory( tmpDir );
-					if ( model != null )
-						model.close();
-					if ( dataset != null )
-						dataset.close();
+			int retryLimit = 4;
+			boolean succeeded = false;
+			while (retryLimit > 0 && ! succeeded)
+				try{
+					if ( ! docs.isEmpty() && ! config.getTestMode() )
+						solr.add(docs);
+					context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
+					for (SolrInputDocument doc : docs)
+						context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
+					succeeded = true;
+				} catch (IOException e) {
+					System.out.println(e.getClass().getName()+" pushing records to Solr.");
+					if (retryLimit-- > 0) {
+						System.out.println("Will retry in 20 seconds.");
+						Thread.sleep(20_000);
+					} else {
+						System.out.println("Retry limit reached. Failing.");
+						throw e;
+					}
+				} catch (Throwable e) {
+					System.out.println(e.getClass().getName()+" pushing records to Solr.");
+					if (retryLimit-- > 0) {
+						System.out.println("Will retry in 20 seconds.");
+						Thread.sleep(20_000);
+					} else {
+						System.out.println("Retry limit reached. Failing.");
+						String filename = getSplitFileName(context);
+						String errorMsg = "Could not process file URL "+urlText.toString()+" due to "+e.toString();
+						e.printStackTrace();
+						log.error( errorMsg );
+						context.write( new Text( filename), new Text( "FILE\tError\t"+errorMsg ));
+					}
 				}
-				
-				return; // success, break out of loop
-	        }
+
+			//attempt to move file to done directory when completed
+			moveToDone( context , urlText.toString() );
+			model.close();
+			dataset.close();
+
 		} finally {
 			config.closeDatabaseConnectionPools();
+			FileUtils.deleteDirectory( tmpDir );
 		}
 	}
 
@@ -266,7 +256,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private static SolrInputDocument indexToSolr(String bibUri, SolrBuildConfig config) throws Exception{
+	private static SolrInputDocument createSolrDocument(String bibUri, SolrBuildConfig config) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
