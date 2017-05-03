@@ -86,7 +86,7 @@ public class SimpleProc implements ResultSetToFields {
 				vals.displayField = "description_display";
 				break;
 			case 310:
-				displaySubfields = "a";
+				displaySubfields = "ab";
 				vals.displayField = "frequency_display";
 				break;
 			case 362:    displaySubfields = "a";         searchSubfields = "a";        break;
