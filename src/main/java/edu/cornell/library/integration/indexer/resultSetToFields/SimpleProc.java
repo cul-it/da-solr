@@ -29,7 +29,7 @@ public class SimpleProc implements ResultSetToFields {
 					ResultSetUtilities.addField(fields,vals.displayField,dv);
 			for (String sv : vals.searchValues) {
 				ResultSetUtilities.addField(fields,vals.searchField,sv);
-				if (!vals.searchField.endsWith("_s") && CharacterSetUtils.hasCJK(sv))
+				if (vals.searchField.endsWith("_t") && CharacterSetUtils.hasCJK(sv))
 					ResultSetUtilities.addField(fields,vals.searchField+"_cjk",sv);
 			}
 		}
@@ -72,6 +72,11 @@ public class SimpleProc implements ResultSetToFields {
 				vals.displayField = "other_id_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
+				break;
+			case 74:
+			case 86:
+				vals.searchField = "id_left_chunked";
+				searchSubfields = "az";
 				break;
 			case 250:
 				vals.displayField = "edition_display";
