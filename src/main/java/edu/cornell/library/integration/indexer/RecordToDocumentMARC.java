@@ -252,7 +252,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
         new SPARQLFieldMakerImpl().setName("citation_reference_note")
         .addMainStoreQuery("field510", standardDataFieldSPARQL("510"))
-        .addResultSetToFields(new CitationReferenceNote()), // IndicatorReq Needed!
+        .addResultSetToFields(new CitationReferenceNote()),
         new SPARQLFieldMakerImpl().setName("instrumentation")
         .addMainStoreQuery("instrumentation", standardDataFieldSPARQL("382"))
         .addResultSetToFields(new Instrumentation()),
