@@ -41,7 +41,7 @@ public class CitationReferenceNote implements ResultSetToFields {
 	public static SolrFields generateSolrFields( FieldSet fs ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
-		for (DataField f: fs.fields) {
+		for (DataField f: fs.getFields()) {
 			if (relation == null)
 				switch (f.ind1) {
 				case '4':

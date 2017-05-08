@@ -38,7 +38,7 @@ public class PubInfo implements ResultSetToFields {
 			String pubplace = null;
 			String publisherVern = null;
 			String pubplaceVern = null;
-			switch (fs.fields.iterator().next().ind2) {
+			switch (fs.getFields().iterator().next().ind2) {
 			case '0': relation = "pub_prod"; break;
 			case '1': relation = "pub_info"; break;
 			case '2': relation = "pub_dist"; break;
@@ -46,7 +46,7 @@ public class PubInfo implements ResultSetToFields {
 			case '4': relation = "pub_copy"; break;
 			default: relation = "pub_info";
 			}
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				if (f.tag.equals("880")) {
 					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					if (relation.equals("pub_info")) {

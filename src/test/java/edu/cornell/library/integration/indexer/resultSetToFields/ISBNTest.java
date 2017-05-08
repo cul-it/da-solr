@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 
 @SuppressWarnings("static-method")
 public class ISBNTest {
@@ -15,8 +14,7 @@ public class ISBNTest {
 		MarcRecord.DataField f = new MarcRecord.DataField();
 		f.tag = "020";
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567 (pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -33,8 +31,7 @@ public class ISBNTest {
 		f.tag = "020";
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "9782709656825 (pbk.) :"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'c', "19,00 EUR"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -53,9 +50,8 @@ public class ISBNTest {
 		f2.tag = "880";
 		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-00/$1"));
 		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "4892032867 (中卷)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f1));
-		fs.fields.add(new FieldSet.FSDataField(f2));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020")
+				.addToFields(f1).addToFields(f2).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.iterator().next().equals("4892032867 (中卷)"));
 		assertTrue(vals.search880.iterator().next().equals("4892032867"));
@@ -69,8 +65,7 @@ public class ISBNTest {
 		f.tag = "020";
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -86,8 +81,7 @@ public class ISBNTest {
 		f.tag = "020";
 		f.subfields.add(new MarcRecord.Subfield(1, 'z', "12344567"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -102,8 +96,7 @@ public class ISBNTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.;"));
 		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -127,9 +120,8 @@ public class ISBNTest {
 		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-01/$1"));
 		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "9789860433265"));
 		f2.subfields.add(new MarcRecord.Subfield(3, 'q', "(平裝)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f1));
-		fs.fields.add(new FieldSet.FSDataField(f2));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020")
+				.addToFields(f1).addToFields(f2).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.iterator().next().equals("9789860433265 (平裝)"));
 		assertTrue(vals.search880.iterator().next().equals("9789860433265"));
@@ -143,8 +135,7 @@ public class ISBNTest {
 		f.tag = "020";
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -161,8 +152,7 @@ public class ISBNTest {
 		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
 		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
 		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet();
-		fs.fields.add(new FieldSet.FSDataField(f));
+		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());

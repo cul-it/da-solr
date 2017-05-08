@@ -62,7 +62,7 @@ public class AuthorTitle implements ResultSetToFields {
 			String mainTag = null;
 			HeadTypeDesc htd = null;
 		
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				mainTag = f.mainTag;
 				if (mainTag.equals("245")) {
 					if (f.tag.equals("245"))

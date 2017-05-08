@@ -51,7 +51,7 @@ public class URL implements ResultSetToFields {
 		Map<String,Object> jsonModel = new HashMap<>();
 
 		String instructions = null;
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 			urls.addAll(f.valueListForSpecificSubfields("u"));
 			instructions = f.concatenateSpecificSubfields("i");
 			String linkLabel = f.concatenateSpecificSubfields("3yz");

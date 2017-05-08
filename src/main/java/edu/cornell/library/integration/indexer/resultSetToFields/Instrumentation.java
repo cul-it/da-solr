@@ -37,7 +37,7 @@ public class Instrumentation implements ResultSetToFields {
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
 
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				String total_performers = null;
 				StringBuilder sb = new StringBuilder();
 				boolean forAppended = false;

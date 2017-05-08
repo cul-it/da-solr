@@ -56,12 +56,12 @@ public class CallNumber implements ResultSetToFields {
 
 	public SolrFieldValueSet generateSolrFields( FieldSet fs, SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
 
-		Boolean isHolding = fs.mainTag.equals("852");
+		Boolean isHolding = fs.getMainTag().equals("852");
 		Boolean isLC = true;
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		ArrayList<Classification> classes = new ArrayList<>();
 		String sort = null;
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 
 			String callNumber = f.concatenateSpecificSubfields(isHolding?"hi":"ab");
 			if (callNumber.equalsIgnoreCase("No Call Number")) continue;

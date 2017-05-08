@@ -16,7 +16,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 
 
 

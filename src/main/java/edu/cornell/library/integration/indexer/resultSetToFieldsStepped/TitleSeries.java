@@ -44,7 +44,7 @@ public class TitleSeries implements ResultSetToFieldsStepped {
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
 			String cts880 = null, ctsMain = null;
-			for (DataField f: fs.fields)
+			for (DataField f: fs.getFields())
 				if (f.tag.equals("880")) {
 					values880.add(f.concatenateSubfieldsOtherThan("6"));
 					cts880 = f.concatenateSpecificSubfields("abcdefghijklmnopqrstuwxyz");//no "v"

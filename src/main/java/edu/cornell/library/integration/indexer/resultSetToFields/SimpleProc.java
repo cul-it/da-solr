@@ -40,7 +40,7 @@ public class SimpleProc implements ResultSetToFields {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		vals.displayField = "notes";
 		vals.searchField = "notes_t";
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 			String displaySubfields = null, searchSubfields = null;
 			switch (Integer.valueOf(f.mainTag)) {
 			case 10:

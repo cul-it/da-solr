@@ -50,7 +50,7 @@ public class ISBN implements ResultSetToFields {
 
 	public static SolrFieldValueSet generateSolrFields( FieldSet fs ) {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
-		for (DataField f: fs.fields) {
+		for (DataField f: fs.getFields()) {
 			StringBuilder sbDisplay = new StringBuilder();
 			boolean aFound = false;
 			Character prevSubfield = null; 
