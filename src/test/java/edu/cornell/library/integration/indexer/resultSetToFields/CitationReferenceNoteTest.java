@@ -65,8 +65,8 @@ public class CitationReferenceNoteTest {
 			assertEquals(2,                                        sfs.size() );
 			assertEquals("indexed_selectively_by_display",         sfs.get(0).fieldName);
 			assertEquals("Non-Roman Indexed Selectively by XXXXX", sfs.get(0).fieldValue);
-			assertEquals("indexed_selectively_by_display",         sfs.get(0).fieldName);
-			assertEquals("Indexed Selectively by XXXXX",           sfs.get(0).fieldValue);
+			assertEquals("indexed_selectively_by_display",         sfs.get(1).fieldName);
+			assertEquals("Indexed Selectively by XXXXX",           sfs.get(1).fieldValue);
 		}
 	}
 
