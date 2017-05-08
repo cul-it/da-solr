@@ -142,36 +142,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("bib_950callno",standardDataFieldSPARQL("950"))
         .addResultSetToFields(new CallNumber()),
 
-        new SPARQLFieldMakerImpl().setName("publication_date")
-        .addMainStoreQuery("machine_dates", standardControlFieldSPARQL("008"))
-        .addMainStoreQuery("human_dates_260",
-            "SELECT ?date WHERE {\n"
-                + " $recordURI$ marcrdf:hasField260 ?f. \n"
-                + " ?f marcrdf:hasSubfield ?s. \n"
-                + " ?s marcrdf:code \"c\"^^xsd:string. \n"
-                + " ?s marcrdf:value ?date. } ")
-        .addMainStoreQuery("human_dates_264",
-            "SELECT ?date ?ind2 WHERE {\n"
-                + " $recordURI$ marcrdf:hasField264 ?f. \n"
-                + " ?f marcrdf:hasSubfield ?s. \n"
-                + " ?s marcrdf:code \"c\"^^xsd:string. \n"
-                + " ?s marcrdf:value ?date. \n"
-                + " ?f marcrdf:ind2 ?ind2. } ")
-        .addResultSetToFields(new Date()),
-
-        new StandardMARCFieldMaker("pub_info_display", "260", "3abc"),
         new SPARQLFieldMakerImpl().setName("pub_info")
-        .addMainStoreQuery("pub_info", standardDataFieldSPARQL("264"))
-        .addResultSetToFields(new PubInfo()), // IndicatorReq to be added?
-
-        // publisher_display and pubplace_display from field 260 handled by PubInfo()
-        new StandardMARCFieldMaker("publisher_display", "260", "b", VernMode.COMBINED, "/:,， "),
-        new StandardMARCFieldMaker("publisher_t", "260", "b", VernMode.SEARCH),
-        new StandardMARCFieldMaker("publisher_t", "264", "b", VernMode.SEARCH),
-
-        new StandardMARCFieldMaker("pubplace_display", "260", "a", VernMode.COMBINED, "/:,， "),
-        new StandardMARCFieldMaker("pubplace_t", "260", "a", VernMode.SEARCH),
-        new StandardMARCFieldMaker("pubplace_t", "264", "a", VernMode.SEARCH),
+        .addMainStoreQuery("eight", standardControlFieldSPARQL("008"))
+        .addMainStoreQuery("pub_info_260", standardDataFieldSPARQL("260"))
+        .addMainStoreQuery("pub_info_264", standardDataFieldSPARQL("264"))
+        .addResultSetToFields(new PubInfo()),
 
         new StandardMARCFieldMaker("title_addl_t", "210", "ab", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "222", "ab", VernMode.SEARCH, true),
