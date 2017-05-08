@@ -49,6 +49,7 @@ public class URLTest {
 				allSolrFields.get(1).fieldValue);
 		assertEquals("{\"providercode\":\"PRVAHD\",\"dbcode\":\"AAGPP\","
 				+ "\"description\":\"Full text available from Ebrary The Arts Subscription Collection Connect to text.\","
+				+ "\"ssid\":\"ssj0000907852\","
 				+ "\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875\"}",
 				allSolrFields.get(2).fieldValue);
 		assertEquals("http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/9781118529669"
@@ -58,6 +59,7 @@ public class URLTest {
 				allSolrFields.get(4).fieldValue);
 		assertEquals("{\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\","
 				+ "\"description\":\"Full text available from Safari Technical Books Connect to text.\","
+				+ "\"ssid\":\"ssj0000907852\","
 				+ "\"url\":\"http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/9781118529669\"}",
 				allSolrFields.get(5).fieldValue);
 	}

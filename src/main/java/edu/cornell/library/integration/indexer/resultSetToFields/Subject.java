@@ -55,7 +55,7 @@ public class Subject implements ResultSetToFields {
 
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
-			final DataField f = fs.fields.iterator().next();
+			final DataField f = fs.getFields().get(0);
 			if (f.ind2.equals('7')) {
 				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
@@ -86,7 +86,7 @@ public class Subject implements ResultSetToFields {
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
-			for (final DataField f: h.fs.fields) {
+			for (final DataField f: h.fs.getFields()) {
 
 				switch (f.mainTag) {
 				case "600":

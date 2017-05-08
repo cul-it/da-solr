@@ -34,7 +34,7 @@ public class Title130 implements ResultSetToFields {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				String field = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String cts = f.concatenateSpecificSubfields("adfgklmnoprst");
 				String titleWOarticle = f.getStringWithoutInitialArticle(field);

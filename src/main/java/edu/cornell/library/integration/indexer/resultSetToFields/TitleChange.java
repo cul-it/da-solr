@@ -51,7 +51,7 @@ public class TitleChange implements ResultSetToFields {
 			final Collection<String> valuesATFacet = new ArrayList<>();
 			HeadTypeDesc htd = null;
 			String relation = null;
-			for (final DataField f: fs.fields) {
+			for (final DataField f: fs.getFields()) {
 
 				// added entry names with or without title metadata
 				if (f.mainTag.equals("700") ||

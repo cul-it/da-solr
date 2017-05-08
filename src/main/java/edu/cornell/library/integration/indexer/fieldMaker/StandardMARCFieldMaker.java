@@ -224,8 +224,8 @@ public class StandardMARCFieldMaker implements FieldMaker {
 
 			for( FieldSet fs: sortedFields ) {
 
-				if (fs.fields.size() == 1) {
-					DataField f = fs.fields.iterator().next();
+				if (fs.getFields().size() == 1) {
+					DataField f = fs.getFields().iterator().next();
 					String val = trimInternationally( concatenateSubfields(f) );
 					if (val.length() == 0) continue;
 					if ((vernMode.equals(VernMode.VERNACULAR)
@@ -258,7 +258,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			    // If more than one field in a group, there are several options.
 				} else {
 					Map<Integer,DataField> reordered = new TreeMap<>();
-					for (DataField f: fs.fields) {
+					for (DataField f: fs.getFields()) {
 						reordered.put(f.id, f);
 					}
 					Set<String> values880 = new HashSet<>();
