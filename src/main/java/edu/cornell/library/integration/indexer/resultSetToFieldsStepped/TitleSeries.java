@@ -80,15 +80,15 @@ public class TitleSeries implements ResultSetToFieldsStepped {
 			return step;
 		}
 		step.addMainStoreQuery("title_series_"+nexttag, 
-				"SELECT *\n" +
-			    " WHERE {\n" +
-		        "  $recordURI$ marcrdf:hasField"+nexttag+" ?field.\n" +
-			    "  ?field marcrdf:tag ?tag.\n" +
-			    "  ?field marcrdf:ind2 ?ind2.\n" +
-			   	"  ?field marcrdf:ind1 ?ind1.\n" +
-				"  ?field marcrdf:hasSubfield ?sfield.\n" +
-				"  ?sfield marcrdf:code ?code.\n" +
-				"  ?sfield marcrdf:value ?value. }");
+				"SELECT * WHERE {\n"
+				+ " BIND( \""+nexttag+"\"^^xsd:string as ?p ) \n"
+				+ " $recordURI$ marcrdf:hasField" + nexttag + " ?field.\n"
+				+ " ?field marcrdf:tag ?tag. \n"
+				+ " ?field marcrdf:ind1 ?ind1. \n"
+				+ " ?field marcrdf:ind2 ?ind2. \n"
+				+ " ?field marcrdf:hasSubfield ?sfield .\n"
+				+ " ?sfield marcrdf:code ?code.\n"
+				+ " ?sfield marcrdf:value ?value. }");
 		return step;
 	}
 }
