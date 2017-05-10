@@ -27,6 +27,7 @@ import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 /**
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
@@ -63,6 +64,23 @@ public class PubInfo implements ResultSetToFields {
 
 		SolrFields sfs = new SolrFields();
 
+		List<String> machineDates = ( rec.controlFields.isEmpty() ) ?  new ArrayList<>() : process008(rec, sfs);
+
+		List<String> humanDates = ( rec.dataFields.isEmpty() ) ? new ArrayList<>() : process26X(rec, sfs);
+
+		List<String> displayDates = dedupeDisplayDates( humanDates );
+		if (! displayDates.isEmpty())
+			sfs.fields.add(new SolrField("pub_date_display",String.join(" ", displayDates)));
+		Collection<String> allDates = new TreeSet<>();
+		allDates.addAll(machineDates);
+		allDates.addAll(humanDates);
+		for (String date : allDates) {
+			sfs.fields.add(new SolrField("pub_date_t",date));
+		}
+		return sfs;
+	}
+
+	private static List<String> process008(MarcRecord rec, SolrFields sfs) {
 		ControlField cf = rec.controlFields.first();
 		String eight = cf.value;
 		List<String> machineDates = new ArrayList<>();
@@ -86,7 +104,10 @@ public class PubInfo implements ResultSetToFields {
 				sfs.fields.add( new SolrField( "pub_date_facet",primarySortDate));
 			}
 		}
+		return machineDates;
+	}
 
+	private static List<String> process26X(MarcRecord rec, SolrFields sfs) {
 		List<String> humanDates = new ArrayList<>();
 		Collection<FieldSet> sets = rec.matchAndSortDataFields();
 		for( FieldSet fs: sets ) {
@@ -110,6 +131,16 @@ public class PubInfo implements ResultSetToFields {
 						if (sf.code.equals('c'))
 							humanDates.add(removeTrailingPunctuation(sf.value,
 									sf.value.contains("[") ?  ". " : "]. "));
+				if (df.getScript().equals(MarcRecord.Script.CJK)) {
+					for (Subfield sf : df.subfields)
+						switch (sf.code) {
+						case 'a': sfs.fields.add(new SolrField("pubplace_t_cjk",sf.value)); break;
+						case 'b': sfs.fields.add(new SolrField("publisher_t_cjk",sf.value)); break;
+						case 'c':
+							if ( CharacterSetUtils.isCJK(sf.value))
+								sfs.fields.add(new SolrField("pub_date_t_cjk",sf.value));
+						}
+				}
 			}
 
 			String pubplace = fs.getFields().stream()
@@ -129,19 +160,8 @@ public class PubInfo implements ResultSetToFields {
 				sfs.fields.add(new SolrField("publisher_display",publisher));
 				sfs.fields.add(new SolrField("publisher_t",publisher));
 			}
-
 		}
-
-		List<String> displayDates = dedupeDisplayDates( humanDates );
-		if (! displayDates.isEmpty())
-			sfs.fields.add(new SolrField("pub_date_display",String.join(" ", displayDates)));
-		Collection<String> allDates = new TreeSet<>();
-		allDates.addAll(machineDates);
-		allDates.addAll(humanDates);
-		for (String date : allDates)
-			sfs.fields.add(new SolrField("pub_date_t",date));
-
-		return sfs;
+		return humanDates;
 	}
 
 	/* If there are multiple dates on a work, and it can be reliably determined that they
