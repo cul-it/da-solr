@@ -9,6 +9,7 @@ import org.junit.Test;
 import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
+import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 
 @SuppressWarnings("static-method")
@@ -19,13 +20,13 @@ public class PubInfoTest {
 		ControlField f1 = new ControlField(1,"008","160630s2014    oruab   ob   f000 0 eng c");
 		DataField f2 = new DataField(3,"264");
 		f2.ind2 = '1';
-		f2.subfields.add(new MarcRecord.Subfield(1, 'a', "Eugene, Ore. :"));
-		f2.subfields.add(new MarcRecord.Subfield(2, 'b', "University of Oregon,"));
-		f2.subfields.add(new MarcRecord.Subfield(3, 'c', "2014."));
+		f2.subfields.add(new Subfield(1, 'a', "Eugene, Ore. :"));
+		f2.subfields.add(new Subfield(2, 'b', "University of Oregon,"));
+		f2.subfields.add(new Subfield(3, 'c', "2014."));
 		DataField f3 = new DataField(4,"264");
 		f3.ind2 = '2';
-		f3.subfields.add(new MarcRecord.Subfield(1, 'a', "Omaha, Neb. :"));
-		f3.subfields.add(new MarcRecord.Subfield(2, 'b', "National Park Service"));
+		f3.subfields.add(new Subfield(1, 'a', "Omaha, Neb. :"));
+		f3.subfields.add(new Subfield(2, 'b', "National Park Service"));
 		MarcRecord rec = new MarcRecord();
 		rec.controlFields.add(f1);
 		rec.dataFields.add(f2);
@@ -75,13 +76,13 @@ public class PubInfoTest {
 		ControlField f1 = new ControlField(1,"008","140902p20142013njuuunn           n zxx d");
 		DataField f2 = new DataField(3,"264");
 		f2.ind2 = '1';
-		f2.subfields.add(new MarcRecord.Subfield(1, 'a', "[Jersey City, New Jersey] :"));
-		f2.subfields.add(new MarcRecord.Subfield(2, 'b', "Erstwhile Records,"));
-		f2.subfields.add(new MarcRecord.Subfield(3, 'c', "[2014]"));
+		f2.subfields.add(new Subfield(1, 'a', "[Jersey City, New Jersey] :"));
+		f2.subfields.add(new Subfield(2, 'b', "Erstwhile Records,"));
+		f2.subfields.add(new Subfield(3, 'c', "[2014]"));
 		DataField f3 = new DataField(4,"264");
 		f3.ind2 = '4';
-		f3.subfields.add(new MarcRecord.Subfield(1, 'c', "℗2014"));
-		f3.subfields.add(new MarcRecord.Subfield(2, 'c', "©2014"));
+		f3.subfields.add(new Subfield(1, 'c', "℗2014"));
+		f3.subfields.add(new Subfield(2, 'c', "©2014"));
 		MarcRecord rec = new MarcRecord();
 		rec.controlFields.add(f1);
 		rec.dataFields.add(f2);
@@ -122,4 +123,36 @@ public class PubInfoTest {
 //264  1 ‡a [Jersey City, New Jersey] : ‡b Erstwhile Records, ‡c [2014]
 //264  4 ‡c ℗2014, ‡c ©2014
 
+	@Test
+	public void test5073103Without008OrMain260() {
+		DataField f2 = new DataField(3,3,"260",true);
+		f2.ind2 = '1';
+		f2.subfields.add(new Subfield(1, '6', "260-03/$1"));
+		f2.subfields.add(new Subfield(2, 'a', "東京 :"));
+		f2.subfields.add(new Subfield(3, 'b', "吉川弘文館,"));
+		f2.subfields.add(new Subfield(4, 'c', "2004."));
+		MarcRecord rec = new MarcRecord();
+		rec.dataFields.add(f2);
+		List<SolrField> sfs = PubInfo.generateSolrFields(rec).fields;
+		assertEquals( 9, sfs.size() );
+		assertEquals("pub_info_display",         sfs.get(0).fieldName);
+		assertEquals("東京 : 吉川弘文館, 2004.",    sfs.get(0).fieldValue);
+		assertEquals("pubplace_t_cjk",           sfs.get(1).fieldName);
+		assertEquals("東京 :",                    sfs.get(1).fieldValue);
+		assertEquals("publisher_t_cjk",          sfs.get(2).fieldName);
+		assertEquals("吉川弘文館,",                sfs.get(2).fieldValue);
+		assertEquals("pubplace_display",          sfs.get(3).fieldName);
+		assertEquals("東京",                      sfs.get(3).fieldValue);
+		assertEquals("pubplace_t",               sfs.get(4).fieldName);
+		assertEquals("東京",                      sfs.get(4).fieldValue);
+		assertEquals("publisher_display",        sfs.get(5).fieldName);
+		assertEquals("吉川弘文館",                 sfs.get(5).fieldValue);
+		assertEquals("publisher_t",              sfs.get(6).fieldName);
+		assertEquals("吉川弘文館",                 sfs.get(6).fieldValue);
+		assertEquals("pub_date_display",          sfs.get(7).fieldName);
+		assertEquals("2004",                      sfs.get(7).fieldValue);
+		assertEquals("pub_date_t",                sfs.get(8).fieldName);
+		assertEquals("2004",                      sfs.get(8).fieldValue);
+	}
+// 880 ‡6 260-03/$1 ‡a 東京 : ‡b 吉川弘文館, ‡c 2004.
 }
