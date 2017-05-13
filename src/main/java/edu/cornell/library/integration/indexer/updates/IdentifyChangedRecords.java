@@ -131,6 +131,7 @@ public class IdentifyChangedRecords {
 					System.out.println("Launching quick check for Voyager record changes.");
 					quickIdentificationOfChanges();
 				}
+				succeeded = true;
 
 			} catch (Exception e) {
 				System.out.println(e.getClass().getName()+" identifying changed records.");
