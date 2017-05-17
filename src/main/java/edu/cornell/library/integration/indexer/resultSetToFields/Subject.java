@@ -90,19 +90,19 @@ public class Subject implements ResultSetToFields {
 
 				switch (f.mainTag) {
 				case "600":
-					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.PERSNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abd;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "611":
-					vals = f.getFieldValuesForNameMaybeTitleField("abcden;tklpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abcden;tklpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.EVENT : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";

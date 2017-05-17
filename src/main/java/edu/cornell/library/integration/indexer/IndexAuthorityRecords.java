@@ -438,11 +438,11 @@ public class IndexAuthorityRecords {
 			else {
 				FieldValues vals;
 				if (f.tag.endsWith("00"))
-					vals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
 				else if (f.tag.endsWith("10"))
-					vals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abd;tklnpmors");
 				else // 11
-					vals = f.getFieldValuesForNameMaybeTitleField("abde;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abde;tklnpmors");
 				heading = vals.author+" | "+vals.title;
 			}
 		} else {

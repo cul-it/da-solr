@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
@@ -22,6 +21,8 @@ import edu.cornell.library.integration.indexer.MarcRecord;
 import edu.cornell.library.integration.indexer.MarcRecord.DataField;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
@@ -37,11 +38,23 @@ public class TitleChange implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		MarcRecord rec = new MarcRecord();
+		rec.addDataFieldResultSet( results.get("added_entry") );
+		rec.addDataFieldResultSet( results.get("linking_entry") );
 
-		Map<String,SolrInputField> solrFields = new HashMap<>();
+		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields vals = generateSolrFields( rec, config );
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		return fields;
+	}
+
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) throws Exception {
+		Collection<FieldSet> sets = rec.matchAndSortDataFields();
+
+		SolrFields sfs = new SolrFields();
 		for( FieldSet fs: sets ) {
 
 			final Collection<CtsField> cts_fields = new ArrayList<>();
@@ -59,13 +72,13 @@ public class TitleChange implements ResultSetToFields {
 						f.mainTag.equals("711")) {
 					FieldValues ctsVals;
 					if (f.mainTag.equals("700")) {
-						ctsVals = f.getFieldValuesForNameMaybeTitleField("abcdq;tklnpmors");
+						ctsVals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
 						htd = HeadTypeDesc.PERSNAME;
 					} else if (f.mainTag.equals("710")) {
-						ctsVals = f.getFieldValuesForNameMaybeTitleField("abd;tklnpmors");
+						ctsVals = f.getFieldValuesForNameAndOrTitleField("abd;tklnpmors");
 						htd = HeadTypeDesc.CORPNAME;
 					} else {
-						ctsVals = f.getFieldValuesForNameMaybeTitleField("abde;tklpmors");
+						ctsVals = f.getFieldValuesForNameAndOrTitleField("abde;tklpmors");
 						htd = HeadTypeDesc.EVENT;
 					}
 
@@ -114,8 +127,9 @@ public class TitleChange implements ResultSetToFields {
 						final String workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
 						cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 								relation+"_display",workField,ctsVals.title,ctsVals.author));
-						addField(solrFields,"title_uniform_t",ctsVals.title);
-					}					continue; //next datafield
+						sfs.fields.add(new SolrField("title_uniform_t",ctsVals.title));
+					}
+					continue; //next datafield
 				}
 				String title_cts = null;
 
@@ -127,7 +141,7 @@ public class TitleChange implements ResultSetToFields {
 						title_cts = f.concatenateSubfieldsOtherThan("6");
 						workField = f.concatenateSpecificSubfields("iaplskfmnordgh");
 						final String searchField = f.concatenateSpecificSubfields("abcdefghjklmnopqrstuvwxyz");
-						addField(solrFields,"title_uniform_t",searchField);
+						sfs.fields.add(new SolrField("title_uniform_t",searchField));
 					} else {
 						title_cts = f.concatenateSpecificSubfields("ab");
 						workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
@@ -213,24 +227,24 @@ public class TitleChange implements ResultSetToFields {
 					final String subfields = "atbcegkqrs";
 					final String value = f.concatenateSpecificSubfields(subfields);
 					final String valueWOarticle = f.getStringWithoutInitialArticle(value);
-					addField(solrFields,"title_uniform_t",value);
-					addField(solrFields,"title_uniform_t",valueWOarticle);
+					sfs.fields.add(new SolrField("title_uniform_t",value));
+					sfs.fields.add(new SolrField("title_uniform_t",valueWOarticle));
 					if (f.tag.equals("880")) {
 						if (f.getScript().equals(MarcRecord.Script.CJK)) {
-							addField(solrFields,"title_uniform_t_cjk",value);
+							sfs.fields.add(new SolrField("title_uniform_t_cjk",value));
 						} else {
 							if (hasCJK(value))
-								addField(solrFields,"title_uniform_t_cjk",value);
+								sfs.fields.add(new SolrField("title_uniform_t_cjk",value));
 						}
 					} else {
 						if (isCJK(value))
-							addField(solrFields,"title_uniform_t_cjk",value);
+							sfs.fields.add(new SolrField("title_uniform_t_cjk",value));
 					}
 				}
 
 				if (relation != null) {
-					// display no longer dependant on ind1 = '0'.
-					final String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrsw");
+					// display no longer dependent on ind1 = '0'.
+					final String displaystring = f.concatenateSpecificSubfields("iatbcdgkqrs");
 					cts_fields.add(new CtsField(f.tag.equals("880")?true:false,
 							relation+"_display",displaystring,title_cts));
 				}
@@ -254,9 +268,9 @@ public class TitleChange implements ResultSetToFields {
 					if (vernField.display.charAt(vernField.display.length()-1) == ',')
 						vernField.display = vernField.display.substring(0, vernField.display.length()-1);
 
-					addField(solrFields,"author_addl_display",vernField.display+" / "+romanField.display);
-					addField(solrFields,"author_addl_cts",String.format("%s|%s|%s|%s",
-							vernField.display,vernField.cts1,romanField.display,romanField.cts1));
+					sfs.fields.add(new SolrField("author_addl_display",vernField.display+" / "+romanField.display));
+					sfs.fields.add(new SolrField("author_addl_cts",String.format("%s|%s|%s|%s",
+							vernField.display,vernField.cts1,romanField.display,romanField.cts1)));
 					final Map<String,Object> json = new HashMap<>();
 					json.put("name1", vernField.display);
 					json.put("search1", vernField.cts1);
@@ -267,47 +281,47 @@ public class TitleChange implements ResultSetToFields {
 					json.put("authorizedForm", authData.authorized);
 					if (authData.authorized && authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
-							addField(solrFields,"authority_author_t",altForm);
+							sfs.fields.add(new SolrField("authority_author_t",altForm));
 							if (hasCJK(altForm))
-								addField(solrFields,"authority_author_t_cjk",altForm);
+								sfs.fields.add(new SolrField("authority_author_t_cjk",altForm));
 						}
 					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
-					addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
+					sfs.fields.add(new SolrField("author_addl_json",jsonstream.toString("UTF-8")));
 					cts_fields.clear();
 				}
 			}
 			for (final CtsField f : cts_fields)
 				if (f.vern)
-					addCtsField(config,solrFields,f, htd);
+					addCtsField(config,sfs,f, htd);
 			for (final CtsField f : cts_fields)
 				if ( ! f.vern)
-					addCtsField(config,solrFields,f, htd);
+					addCtsField(config,sfs,f, htd);
 			for (final String s : valuesPersAFacet) {
-				addField(solrFields,"author_pers_filing",getFilingForm(s));
-				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
+				sfs.fields.add(new SolrField("author_pers_filing",getFilingForm(s)));
+				sfs.fields.add(new SolrField("author_facet",removeTrailingPunctuation(s,",. ")));
 			}
 			for (final String s : valuesCorpAFacet) {
-				addField(solrFields,"author_corp_filing",getFilingForm(s));
-				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
+				sfs.fields.add(new SolrField("author_corp_filing",getFilingForm(s)));
+				sfs.fields.add(new SolrField("author_facet",removeTrailingPunctuation(s,",. ")));
 			}
 			for (final String s : valuesEventAFacet) {
-				addField(solrFields,"author_event_filing",getFilingForm(s));
-				addField(solrFields,"author_facet",removeTrailingPunctuation(s,",. "));
+				sfs.fields.add(new SolrField("author_event_filing",getFilingForm(s)));
+				sfs.fields.add(new SolrField("author_facet",removeTrailingPunctuation(s,",. ")));
 			}
 			for (final String s : valuesATFacet) {
-				addField(solrFields,"authortitle_filing",getFilingForm(s));
-				addField(solrFields,"authortitle_facet",removeTrailingPunctuation(s,",. "));
+				sfs.fields.add(new SolrField("authortitle_filing",getFilingForm(s)));
+				sfs.fields.add(new SolrField("authortitle_facet",removeTrailingPunctuation(s,",. ")));
 			}
 		}
-		return solrFields;
+		return sfs;
 	}
 
-	public static void addCtsField(final SolrBuildConfig config, final Map<String,SolrInputField> solrFields, final CtsField f, final HeadTypeDesc htd) throws Exception {
+	protected static void addCtsField(final SolrBuildConfig config, final SolrFields sfs, final CtsField f, final HeadTypeDesc htd) throws Exception {
 		if (f.relation.equals("author_addl")) {
-			addField(solrFields,"author_addl_display",f.display);
-			addField(solrFields,"author_addl_cts",String.format("%s|%s",
-					f.display,f.cts1));
+			sfs.fields.add(new SolrField("author_addl_display",f.display));
+			sfs.fields.add(new SolrField("author_addl_cts",String.format("%s|%s",
+					f.display,f.cts1)));
 			final Map<String,Object> json = new HashMap<>();
 			json.put("name1", f.display);
 			json.put("search1", f.cts1);
@@ -316,22 +330,22 @@ public class TitleChange implements ResultSetToFields {
 			json.put("authorizedForm", authData.authorized);
 			if (authData.authorized && authData.alternateForms != null)
 				for (final String altForm : authData.alternateForms) {
-					addField(solrFields,"authority_author_t",altForm);
+					sfs.fields.add(new SolrField("authority_author_t",altForm));
 					if (hasCJK(altForm))
-						addField(solrFields,"authority_author_t_cjk",altForm);
+						sfs.fields.add(new SolrField("authority_author_t_cjk",altForm));
 				}
 			final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);
-			addField(solrFields,"author_addl_json",jsonstream.toString("UTF-8"));
+			sfs.fields.add(new SolrField("author_addl_json",jsonstream.toString("UTF-8")));
 		} else {
 			if (f.cts2 == null)
-				addField(solrFields,f.relation,String.format("%s|%s",f.display,f.cts1));
+				sfs.fields.add(new SolrField(f.relation,String.format("%s|%s",f.display,f.cts1)));
 			else
-				addField(solrFields,f.relation,String.format("%s|%s|%s",f.display,f.cts1,f.cts2));
+				sfs.fields.add(new SolrField(f.relation,String.format("%s|%s|%s",f.display,f.cts1,f.cts2)));
 		}
 	}
 
-	public class CtsField {
+	public static class CtsField {
 		public String relation;
 		public String display;
 		public String cts1;

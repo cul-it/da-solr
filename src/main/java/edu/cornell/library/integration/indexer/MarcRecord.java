@@ -442,10 +442,80 @@ public class MarcRecord {
 		}
 
 		/**
-		 * The field may be an a name, or a name and title. Extract the value(s).
+		 * The field may be an a name, a name and title or just a title depending on the
+		 * field type and contents. Extract the value(s).
 		 * @return FieldValues
 		 */
-		public FieldValues getFieldValuesForNameMaybeTitleField(String subfields) {
+		public FieldValues getFieldValuesForNameAndOrTitleField(String subfields) {
+			char one = this.mainTag.charAt(0), two = this.mainTag.charAt(1), three = this.mainTag.charAt(2);
+			if ((two=='0' && three=='0')
+					|| (two=='1' && (three=='0'||three=='1')))
+				return getFieldValuesForNameMaybeTitleField_x00_x10_x11( subfields );
+			if (one=='7'&&(two=='6'||two=='7'||two=='8'))
+				return getFieldValuesForTitleMaybeName_76x_77x_78x( subfields );
+			throw new IllegalArgumentException( "Method DataField.getFieldValuesForNameAndOrTitleField() "
+					+ "called for unsupported field ("+this.mainTag+").");
+		}
+
+		/* These fields are primarily title fields, so a title is expected, while name data may
+		 * optionally be present.
+		 */
+		private FieldValues getFieldValuesForTitleMaybeName_76x_77x_78x(String subfields) {
+			boolean hasA = false;
+			boolean hasDefiniteTitleSubfield = false;
+			MeaningOfSubfieldABasedOnSubfield7 seven = MeaningOfSubfieldABasedOnSubfield7.UNK;
+
+			for (Subfield sf : this.subfields)
+				switch (sf.code) {
+				case 'a':
+					hasA = true; break;
+				case 'p': case 's': case 't':
+					hasDefiniteTitleSubfield = true; break;
+				case '7':
+					if (sf.value.length() == 0) break;
+					switch (sf.value.charAt(0)) {
+					case 'p': case 'c': case 'm':
+						seven = MeaningOfSubfieldABasedOnSubfield7.AUT; break;
+					case 'u':
+						seven = MeaningOfSubfieldABasedOnSubfield7.TIT; break;
+					default:
+						// seven already set to UNK.
+					}
+				}
+
+			if ( hasA && hasDefiniteTitleSubfield && ! seven.equals(MeaningOfSubfieldABasedOnSubfield7.TIT))
+				return getFieldValuesForTitleMaybeName_76x_77x_78x_variantAuthorTitle(subfields);
+			return new FieldValues(null,this.concatenateSpecificSubfields(subfields));
+		}
+		/* This particular linking field entry seems to contain both author and title data. */
+		private FieldValues getFieldValuesForTitleMaybeName_76x_77x_78x_variantAuthorTitle(String subfields) {
+			List<String> authorSubfields = new ArrayList<>();
+			List<String> titleSubfields = new ArrayList<>();
+			boolean foundTitle = false;
+			for(Subfield sf : this.subfields) {
+				if (subfields != null && -1 == subfields.indexOf(sf.code))
+					continue;
+				if (foundTitle)
+					titleSubfields.add(sf.value);
+				else
+					if (sf.code.equals('t') || sf.code.equals('s') || sf.code.equals('p')) {
+						foundTitle = true;
+						titleSubfields.add(sf.value);
+					} else
+						authorSubfields.add(sf.value);
+			}
+			if ( titleSubfields.isEmpty() )
+				return new FieldValues( String.join(" ",authorSubfields));
+			return new FieldValues(
+					String.join(" ",authorSubfields),
+					String.join(" ",titleSubfields));
+		}
+		private static enum MeaningOfSubfieldABasedOnSubfield7 { UNK,AUT,TIT; }
+
+		/* These fields are primarily name fields, so a name is expected, while title data may
+		 * optionally be present.
+		 */
+		private FieldValues getFieldValuesForNameMaybeTitleField_x00_x10_x11(String subfields) {
 			List<String> authorSubfields = new ArrayList<>();
 			List<String> titleSubfields = new ArrayList<>();
 			boolean foundTitle = false;
@@ -468,6 +538,23 @@ public class MarcRecord {
 					String.join(" ",titleSubfields));
 		}
 
+		/* Parse a series of subfields in a single string into a set of Subfield objects */
+		private static TreeSet<Subfield> parseSubfields(String subfields, Character subfieldSeparator) {
+			String[] values = subfields.split(String.valueOf(subfieldSeparator));
+			if (values.length > 1) {
+				TreeSet<Subfield> subfieldSet = new TreeSet<>();
+				for (int i = 1 ; i < values.length ; i++ ) {
+					if (values.length == 0) continue;
+					if (values.length == 1)
+						subfieldSet.add( new Subfield( i, values[i].charAt(0), "") );
+					else
+						subfieldSet.add( new Subfield( i, values[i].charAt(0), values[i].substring(1).trim()) );
+				}
+				return subfieldSet;
+			}
+			return null;
+		}
+
 		@Override
 		public int compareTo(final DataField other) {
 			return Integer.compare(this.id, other.id);
@@ -483,6 +570,24 @@ public class MarcRecord {
 			this.tag = tag;
 			this.mainTag = tag;
 		}
+		public DataField( int id, String tag, Character ind1, Character ind2, String subfields ) {
+			this.id = id;
+			this.tag = tag;
+			this.ind1 = ind1;
+			this.ind2 = ind2;
+			this.mainTag = tag;
+			this.subfields = parseSubfields(subfields,'‡');
+		}
+		public DataField( int id, String tag, Character ind1, Character ind2,
+				String subfields, Character subfieldSeparator ) {
+			this.id = id;
+			this.tag = tag;
+			this.ind1 = ind1;
+			this.ind2 = ind2;
+			this.mainTag = tag;
+			this.subfields = parseSubfields(subfields,subfieldSeparator);
+		}
+
 		public DataField( int id, int linkNumber, String tag ) {
 			this.id = id;
 			this.linkNumber = linkNumber;
@@ -499,6 +604,33 @@ public class MarcRecord {
 			this.linkNumber = linkNumber;
 			this.tag = (eighteighty)?"880":tag;
 			this.mainTag = tag;
+		}
+		public DataField( int id, int linkNumber, String tag, Boolean eighteighty, TreeSet<Subfield> subfields ) {
+			this.id = id;
+			this.linkNumber = linkNumber;
+			this.tag = (eighteighty)?"880":tag;
+			this.mainTag = tag;
+			this.subfields = subfields;
+		}
+		public DataField( int id, int linkNumber, String tag, Boolean eighteighty, Character ind1, Character ind2,
+				String subfields ) {
+			this.id = id;
+			this.linkNumber = linkNumber;
+			this.tag = (eighteighty)?"880":tag;
+			this.ind1 = ind1;
+			this.ind2 = ind2;
+			this.mainTag = tag;
+			this.subfields = parseSubfields(subfields,'‡');
+		}
+		public DataField( int id, int linkNumber, String tag, Boolean eighteighty, Character ind1, Character ind2,
+				String subfields, Character subfieldSeparator ) {
+			this.id = id;
+			this.linkNumber = linkNumber;
+			this.tag = (eighteighty)?"880":tag;
+			this.ind1 = ind1;
+			this.ind2 = ind2;
+			this.mainTag = tag;
+			this.subfields = parseSubfields(subfields,subfieldSeparator);
 		}
 	}
 
@@ -651,9 +783,14 @@ public class MarcRecord {
 			this.author = author;
 		}
 		public FieldValues (String author,String title) {
-			type = HeadType.AUTHORTITLE;
-			this.author = author;
-			this.title = title;
+			if (author != null) {
+				type = HeadType.AUTHORTITLE;
+				this.author = author;
+				this.title = title;
+			} else {
+				type = HeadType.TITLE;
+				this.title = title;
+			}
 		}
 	}
 }
