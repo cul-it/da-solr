@@ -42,7 +42,7 @@ public class TOC implements ResultSetToFields {
 			List<String> valuesMain = new ArrayList<>();
 			String relation = null;
 			String subfields = "atr";
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				if(relation == null) {
 					if (f.ind1.equals('1') || f.ind1.equals('8')) {
 						relation = "contents";

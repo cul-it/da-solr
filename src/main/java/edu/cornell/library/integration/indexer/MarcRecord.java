@@ -8,11 +8,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -128,7 +129,7 @@ public class MarcRecord {
 		if (sf.code.equals('6')) {
 			if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
 					&& Character.isDigit(sf.value.charAt(5))) {
-				f.linkOccurrenceNumber = Integer.valueOf(sf.value.substring(4, 6));
+				f.linkNumber = Integer.valueOf(sf.value.substring(4, 6));
 			}
 		}
 		f.subfields.add(sf);
@@ -145,39 +146,33 @@ public class MarcRecord {
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
-		final Map<Integer,FieldSet> matchedFields  = new HashMap<>();
+		final Map<Integer,FieldSet.Builder> matchedFields  = new HashMap<>();
 		final Collection<FieldSet> sortedFields = new TreeSet<>();
 
 		for( final DataField f: this.dataFields) {
 
 			if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
-				f.linkOccurrenceNumber = 1;
-			if ((f.linkOccurrenceNumber != null) && (f.linkOccurrenceNumber != 0)) {
-				FieldSet fs;
-				if (matchedFields.containsKey(f.linkOccurrenceNumber)) {
-					fs = matchedFields.get(f.linkOccurrenceNumber);
-					if (fs.id > f.id) fs.id = f.id;
+				f.linkNumber = 1;
+			if ((f.linkNumber != null) && (f.linkNumber != 0)) {
+				FieldSet.Builder fsb;
+				if (matchedFields.containsKey(f.linkNumber)) {
+					fsb = matchedFields.get(f.linkNumber);
+					if (fsb.id > f.id) fsb.setId(f.id);
 				} else {
-					fs = new FieldSet();
-					fs.linkOccurrenceNumber = f.linkOccurrenceNumber;
-					fs.id = f.id;
-					fs.mainTag = f.mainTag;
+					fsb = new FieldSet.Builder().setLinkNumber(f.linkNumber).setId(f.id).setMainTag(f.mainTag);
 				}
-				fs.fields.add(new FieldSet.FSDataField(f));
-				matchedFields.put(fs.linkOccurrenceNumber, fs);
+				fsb.addToFields(f);
+				matchedFields.put(fsb.linkNumber, fsb);
 			} else {
-				final FieldSet fs = new FieldSet();
-				fs.id = f.id;
-				fs.mainTag = f.mainTag;
-				fs.fields.add(new FieldSet.FSDataField(f));
+				FieldSet fs = new FieldSet.Builder().setId(f.id).setMainTag(f.mainTag).addToFields(f).build();
 				sortedFields.add(fs);
 			}
 		}
 		// Take groups linked by occurrence number, and add them as groups to the sorted fields
 		// keyed by the smallest field id of the group. Groups will be added together, but with
 		// that highest precedence of the lowest field id.
-		for( final Integer linkOccurrenceNumber : matchedFields.keySet() ) {
-			final FieldSet fs = matchedFields.get(linkOccurrenceNumber);
+		for( final Integer linkNumber : matchedFields.keySet() ) {
+			final FieldSet fs = matchedFields.get(linkNumber).build();
 			sortedFields.add(fs);
 		}
 		return sortedFields;
@@ -268,7 +263,7 @@ public class MarcRecord {
 		public Character ind2 = ' ';
 		public TreeSet<Subfield> subfields = new TreeSet<>();
 
-		public Integer linkOccurrenceNumber; //from MARC subfield 6
+		public Integer linkNumber; //from MARC subfield 6
 		public String mainTag = null;
 
 		@Override
@@ -488,9 +483,9 @@ public class MarcRecord {
 			this.tag = tag;
 			this.mainTag = tag;
 		}
-		public DataField( int id, int linkOccurenceNumber, String tag ) {
+		public DataField( int id, int linkNumber, String tag ) {
 			this.id = id;
-			this.linkOccurrenceNumber = linkOccurenceNumber;
+			this.linkNumber = linkNumber;
 			this.tag = tag;
 			this.mainTag = tag;
 		}
@@ -499,9 +494,9 @@ public class MarcRecord {
 			this.tag = (eighteighty)?"880":tag;
 			this.mainTag = tag;
 		}
-		public DataField( int id, int linkOccurenceNumber, String tag, Boolean eighteighty ) {
+		public DataField( int id, int linkNumber, String tag, Boolean eighteighty ) {
 			this.id = id;
-			this.linkOccurrenceNumber = linkOccurenceNumber;
+			this.linkNumber = linkNumber;
 			this.tag = (eighteighty)?"880":tag;
 			this.mainTag = tag;
 		}
@@ -546,16 +541,20 @@ public class MarcRecord {
 	}
 
 	public static class FieldSet implements Comparable<FieldSet> {
-		Integer id;
-		public String mainTag;
-		Integer linkOccurrenceNumber;
-		public Set<FSDataField> fields = new TreeSet<>();
+		private final Integer id;
+		private final String mainTag;
+		private final Integer linkNumber;
+		private final List<DataField> fields;
+		public Integer getId() { return id; }
+		public String getMainTag() { return mainTag; }
+		public Integer getLinkNumber() { return linkNumber; }
+		public List<DataField> getFields() { return fields; }
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(this.fields.size() + "fields / link occurrence number: " +
-					this.linkOccurrenceNumber +"/ min field no: " + this.id);
-			final Iterator<FSDataField> i = this.fields.iterator();
+			sb.append(this.fields.size() + "fields / link number: " +
+					this.linkNumber +"/ min field no: " + this.id);
+			final Iterator<DataField> i = this.fields.iterator();
 			while (i.hasNext()) {
 				sb.append(i.next().toString() + "\n");
 			}
@@ -571,32 +570,66 @@ public class MarcRecord {
 			if (other.id == this.id) return true;
 			return false;
 		}
-
-		public static class FSDataField extends DataField {
-			@Override
-			public int compareTo(final DataField other) {
-				if (this.tag.equals("880")) {
-					if (other.tag.equals("880"))
-						return Integer.compare(this.id, other.id);
-					return -1;
-				}
-				if (other.tag.equals("880"))
-					return 1;
-				return Integer.compare(this.id, other.id);
+		private FieldSet ( Integer id, String mainTag, Integer linkNumber, List<DataField> fields) {
+			this.id = id;
+			this.mainTag = mainTag;
+			this.linkNumber = linkNumber;
+			this.fields = fields;
+		}
+		public static class Builder {
+			private Integer id = null;
+			private String mainTag = null;
+			private Integer linkNumber = null;
+			private List<DataField> fields = new ArrayList<>();
+			private static final Comparator<DataField> comp;
+			static {
+				comp = new Comparator<DataField>() {
+					@Override
+					public int compare(DataField a, DataField b) {
+						if (a.tag.equals("880")) {
+							if (b.tag.equals("880"))
+								return Integer.compare(a.id, b.id);
+							return -1;
+						}
+						if (b.tag.equals("880"))
+							return 1;
+						return Integer.compare(a.id, b.id);
+					}
+				};
 			}
+			public Builder setId(Integer id) {
+				this.id = id;
+				return this;
+			}
+			public Builder setMainTag(String mainTag) {
+				this.mainTag = mainTag;
+				return this;
+			}
+			public Builder setLinkNumber(Integer linkNumber) {
+				this.linkNumber = linkNumber;
+				return this;
+			}
+			public Builder addToFields(DataField field) {
+				this.fields.add(field);
+				return this;
+			}
+			public FieldSet build() throws IllegalArgumentException {
+				if (id == null)
+					throw new IllegalArgumentException("id is a necessary field for a FieldSet.");
+				if (mainTag == null)
+					throw new IllegalArgumentException("mainTag is a necessary field for a FieldSet.");
 
-			public FSDataField ( DataField orig ) {
-				this.id = orig.id;
-				this.tag = orig.tag;
-				this.alttag = orig.alttag;
-				this.ind1 = orig.ind1;
-				this.ind2 = orig.ind2;
-				this.subfields = orig.subfields;
-				this.linkOccurrenceNumber = orig.linkOccurrenceNumber;
-				this.mainTag = orig.mainTag;				
+				switch (fields.size()) {
+				case 0:
+					throw new IllegalArgumentException("At least one field is necessary in a FieldSet");
+				case 1:
+					return new FieldSet(id,mainTag,linkNumber,fields);
+				default:
+					Collections.sort(fields, comp);
+					return new FieldSet(id,mainTag,linkNumber,fields);
+				}
 			}
 		}
-
 	}
 
 

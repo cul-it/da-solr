@@ -144,11 +144,10 @@ public class HathiLinks implements ResultSetToFields {
 	}
 
 	private static FieldSet build856FieldSet( String description, String url) {
-		FieldSet fs = new FieldSet();
 		DataField f = new DataField( 1, "856");
 		f.subfields.add(new Subfield( 1, 'u', url));
 		f.subfields.add(new Subfield( 2, 'z', description));
-		fs.fields.add(new FieldSet.FSDataField(f));
+		FieldSet fs = new FieldSet.Builder().setId(1).setMainTag("856").addToFields(f).build();
 		return fs;
 	}
 	private static void tabulateResults(java.sql.ResultSet rs,

@@ -39,7 +39,7 @@ public class FindingAids implements ResultSetToFields {
 			String relation = null;
 			Boolean cjk880Found = false;
 
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 
 				switch (f.ind1) {
 				case '0': relation = "finding_aids_display"; break;

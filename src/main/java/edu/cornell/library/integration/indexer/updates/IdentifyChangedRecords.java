@@ -119,13 +119,30 @@ public class IdentifyChangedRecords {
 
 	public IdentifyChangedRecords(SolrBuildConfig config, Boolean thorough) throws Exception {
 		this.config = config;
-		if (thorough) {
-			System.out.println("Launching thorough check for Voyager record changes.");
-			thoroughIdentifiationOfChanges();
-		} else {
-			System.out.println("Launching quick check for Voyager record changes.");
-			quickIdentificationOfChanges();
-		}
+		int retryLimit = 4;
+		boolean succeeded = false;
+		while (retryLimit > 0 && ! succeeded)
+			try{
+
+				if (thorough) {
+					System.out.println("Launching thorough check for Voyager record changes.");
+					thoroughIdentifiationOfChanges();
+				} else {
+					System.out.println("Launching quick check for Voyager record changes.");
+					quickIdentificationOfChanges();
+				}
+				succeeded = true;
+
+			} catch (Exception e) {
+				System.out.println(e.getClass().getName()+" identifying changed records.");
+				if (retryLimit-- > 0) {
+					System.out.println("Will retry in 20 seconds.");
+					Thread.sleep(20_000);
+				} else {
+					System.out.println("Retry limit reached. Failing.");
+					throw e;
+				}
+			}
 	}
 
 	private void quickIdentificationOfChanges() throws Exception {

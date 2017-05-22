@@ -122,7 +122,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 			for( FieldSet fs: sortedFields ) {
 
-				for (DataField f: fs.fields) {
+				for (DataField f: fs.getFields()) {
 					String callno = null;
 					switch (f.tag) {
 					case "506":

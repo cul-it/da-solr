@@ -80,8 +80,8 @@ public class Language implements ResultSetToFields {
 		}
 
 		for ( FieldSet fs : rec.matchAndSortDataFields() ) {
-			if (fs.mainTag.equals("041")) {
-				for ( DataField f : fs.fields ) {
+			if (fs.getMainTag().equals("041")) {
+				for ( DataField f : fs.getFields() ) {
 					for (Subfield sf : f.subfields) {
 						String langCode = sf.value.toLowerCase();
 						if (! codes.containsKey(langCode))
@@ -103,10 +103,10 @@ public class Language implements ResultSetToFields {
 			}
 
 			// language note
-			else if (fs.mainTag.equals("546")) {
+			else if (fs.getMainTag().equals("546")) {
 				String value880 = null;
 				String valueMain = null;
-				for (DataField f: fs.fields) {
+				for (DataField f: fs.getFields()) {
 					if (f.tag.equals("880")) {
 						value880 = f.concatenateSpecificSubfields("3ab");
 					} else {

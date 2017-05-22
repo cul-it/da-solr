@@ -3,7 +3,9 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeSpaces;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -59,10 +61,9 @@ public class ResultSetUtilities {
 			ResultSet rs = results.get(resultKey);
 			rec.addDataFieldResultSet(rs);
 		}
-		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		return sortedFields;
+		return rec.matchAndSortDataFields();
 	}
+
 	public static class SolrField {
 		String fieldName;
 		String fieldValue;
@@ -70,5 +71,8 @@ public class ResultSetUtilities {
 			this.fieldName = fieldName;
 			this.fieldValue = fieldValue;
 		}
+	}
+	public static class SolrFields {
+		List<SolrField> fields = new ArrayList<>();
 	}
 }

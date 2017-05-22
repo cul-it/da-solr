@@ -33,7 +33,7 @@ public class PushSolrDocumentsToSolr {
 	public static void main(String[] args) throws Exception {
 
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.add("sorlUrl");
+		requiredArgs.add("solrUrl");
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         System.out.println("Populating Solr index at: "+config.getSolrUrl());
