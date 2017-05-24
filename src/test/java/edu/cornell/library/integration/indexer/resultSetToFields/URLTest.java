@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 @SuppressWarnings("static-method")
 public class URLTest {
@@ -18,20 +20,20 @@ public class URLTest {
 	@Test
 	public void testMultipleAccessWithDifferentTOU() throws IOException { //8637892 DISCOVERYACCESS-2947
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField df = new MarcRecord.DataField(1,"856");
-		df.subfields.add(new MarcRecord.Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
-		df.subfields.add(new MarcRecord.Subfield(2, 'i', "ssid=ssj0000907852; dbcode=AAGPP; providercode=PRVAHD"));
-		df.subfields.add(new MarcRecord.Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
-		df.subfields.add(new MarcRecord.Subfield(4, 'z', "Connect to text."));
+		DataField df = new DataField(1,"856");
+		df.subfields.add(new Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
+		df.subfields.add(new Subfield(2, 'i', "ssid=ssj0000907852; dbcode=AAGPP; providercode=PRVAHD"));
+		df.subfields.add(new Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
+		df.subfields.add(new Subfield(4, 'z', "Connect to text."));
 		rec.dataFields.add(df);
-		df = new MarcRecord.DataField(2,"856");
-		df.subfields.add(new MarcRecord.Subfield(1, '3', "Full text available from Safari Technical Books"));
-		df.subfields.add(new MarcRecord.Subfield(2, 'i', "ssid=ssj0000907852; dbcode=DRU; providercode=PRVPQU"));
-		df.subfields.add(new MarcRecord.Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/9781118529669"));
-		df.subfields.add(new MarcRecord.Subfield(4, 'z', "Connect to text."));
+		df = new DataField(2,"856");
+		df.subfields.add(new Subfield(1, '3', "Full text available from Safari Technical Books"));
+		df.subfields.add(new Subfield(2, 'i', "ssid=ssj0000907852; dbcode=DRU; providercode=PRVPQU"));
+		df.subfields.add(new Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/9781118529669"));
+		df.subfields.add(new Subfield(4, 'z', "Connect to text."));
 		rec.dataFields.add(df);
 		List<SolrField> allSolrFields = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);
 		}
@@ -67,13 +69,13 @@ public class URLTest {
 	@Test
 	public void testNoTOU() throws IOException {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField df = new MarcRecord.DataField(1,"856");
-		df.subfields.add(new MarcRecord.Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
-		df.subfields.add(new MarcRecord.Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
-		df.subfields.add(new MarcRecord.Subfield(4, 'z', "Connect to text."));
+		DataField df = new DataField(1,"856");
+		df.subfields.add(new Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
+		df.subfields.add(new Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
+		df.subfields.add(new Subfield(4, 'z', "Connect to text."));
 		rec.dataFields.add(df);
 		List<SolrField> allSolrFields = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);
 		}
@@ -93,11 +95,11 @@ public class URLTest {
 	@Test
 	public void testJustURL() throws IOException {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField df = new MarcRecord.DataField(1,"856");
-		df.subfields.add(new MarcRecord.Subfield(1, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
+		DataField df = new DataField(1,"856");
+		df.subfields.add(new Subfield(1, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		rec.dataFields.add(df);
 		List<SolrField> allSolrFields = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			URL.SolrFieldValueSet vals = URL.generateSolrFields(fs);
 			allSolrFields.addAll(vals.fields);
 		}

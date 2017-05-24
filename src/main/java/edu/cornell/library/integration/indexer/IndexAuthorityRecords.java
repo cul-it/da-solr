@@ -32,13 +32,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.Subfield;
 
 public class IndexAuthorityRecords {
 

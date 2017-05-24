@@ -14,8 +14,8 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 
 
@@ -55,7 +55,7 @@ public class ResultSetUtilities {
 			field.addValue(value,1.0f);
 	}
 
-	public static Collection<FieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
+	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
 		MarcRecord rec = new MarcRecord();
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);

@@ -51,11 +51,11 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord.RecordType;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -900,8 +900,8 @@ public class MarcXmlToRdf {
 		for (DataField f : rec.dataFields) {
 			String text = f.concatenateSubfieldsOtherThan("6");
 			if (f.tag.equals("880")) {
-				MarcRecord.Script script = f.getScript();
-				if (script.equals(MarcRecord.Script.CJK)) {
+				DataField.Script script = f.getScript();
+				if (script.equals(DataField.Script.CJK)) {
 					if (! hasCJK(text))
 						logout.write("CJKError: ("+rec.type.toString()+":" + rec.id + 
 								") 880 field labeled CJK but doesn't appear to be: "+f.toString()+"\n");

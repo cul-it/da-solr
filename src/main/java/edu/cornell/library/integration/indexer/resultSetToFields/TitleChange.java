@@ -18,14 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * process the whole 7xx range into a wide variety of fields
@@ -39,10 +38,10 @@ public class TitleChange implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> solrFields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			final Collection<CtsField> cts_fields = new ArrayList<>();
 			final Collection<String> valuesPersAFacet = new ArrayList<>();
@@ -216,7 +215,7 @@ public class TitleChange implements ResultSetToFields {
 					addField(solrFields,"title_uniform_t",value);
 					addField(solrFields,"title_uniform_t",valueWOarticle);
 					if (f.tag.equals("880")) {
-						if (f.getScript().equals(MarcRecord.Script.CJK)) {
+						if (f.getScript().equals(DataField.Script.CJK)) {
 							addField(solrFields,"title_uniform_t_cjk",value);
 						} else {
 							if (hasCJK(value))

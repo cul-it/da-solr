@@ -9,10 +9,10 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * processing 510 notes into references_display, indexed_by_display, 
@@ -25,10 +25,10 @@ public class CitationReferenceNote implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			SolrFields vals = generateSolrFields( fs );
 			for ( SolrField f : vals.fields )
@@ -38,7 +38,7 @@ public class CitationReferenceNote implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( FieldSet fs ) {
+	public static SolrFields generateSolrFields( DataFieldSet fs ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
 		for (DataField f: fs.getFields()) {
