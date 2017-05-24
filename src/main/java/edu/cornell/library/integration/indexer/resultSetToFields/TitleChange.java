@@ -17,16 +17,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * process the whole 7xx range into a wide variety of fields
@@ -52,10 +52,10 @@ public class TitleChange implements ResultSetToFields {
 	}
 
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) throws Exception {
-		Collection<FieldSet> sets = rec.matchAndSortDataFields();
+		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
 		SolrFields sfs = new SolrFields();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			final Collection<CtsField> cts_fields = new ArrayList<>();
 			final Collection<String> valuesPersAFacet = new ArrayList<>();
@@ -230,7 +230,7 @@ public class TitleChange implements ResultSetToFields {
 					sfs.fields.add(new SolrField("title_uniform_t",value));
 					sfs.fields.add(new SolrField("title_uniform_t",valueWOarticle));
 					if (f.tag.equals("880")) {
-						if (f.getScript().equals(MarcRecord.Script.CJK)) {
+						if (f.getScript().equals(DataField.Script.CJK)) {
 							sfs.fields.add(new SolrField("title_uniform_t_cjk",value));
 						} else {
 							if (hasCJK(value))

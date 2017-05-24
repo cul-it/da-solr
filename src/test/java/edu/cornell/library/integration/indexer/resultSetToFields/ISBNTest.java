@@ -4,17 +4,19 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 @SuppressWarnings("static-method")
 public class ISBNTest {
 
 	@Test
 	public void testOldStyle() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567 (pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "12344567 (pbk.)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -26,12 +28,12 @@ public class ISBNTest {
 
 	@Test
 	public void testOldStyleC() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.id = 1;
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "9782709656825 (pbk.) :"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'c', "19,00 EUR"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "9782709656825 (pbk.) :"));
+		f.subfields.add(new Subfield(2, 'c', "19,00 EUR"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -41,16 +43,16 @@ public class ISBNTest {
 
 	@Test
 	public void testOldStyle880() {
-		MarcRecord.DataField f1 = new MarcRecord.DataField();
+		DataField f1 = new DataField();
 		f1.id = 1;
 		f1.tag = "020";
-		f1.subfields.add(new MarcRecord.Subfield(1, 'a', "4892032867 (v. 2)"));
-		MarcRecord.DataField f2 = new MarcRecord.DataField();
+		f1.subfields.add(new Subfield(1, 'a', "4892032867 (v. 2)"));
+		DataField f2 = new DataField();
 		f2.id = 2;
 		f2.tag = "880";
-		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-00/$1"));
-		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "4892032867 (中卷)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020")
+		f2.subfields.add(new Subfield(1, '6', "020-00/$1"));
+		f2.subfields.add(new Subfield(2, 'a', "4892032867 (中卷)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020")
 				.addToFields(f1).addToFields(f2).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.iterator().next().equals("4892032867 (中卷)"));
@@ -61,11 +63,11 @@ public class ISBNTest {
 
 	@Test
 	public void testNewerStyle() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "12344567"));
+		f.subfields.add(new Subfield(2, 'q', "(pbk.)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -77,11 +79,11 @@ public class ISBNTest {
 
 	@Test
 	public void testNewerStyleZ() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'z', "12344567"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'z', "12344567"));
+		f.subfields.add(new Subfield(2, 'q', "(pbk.)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -91,12 +93,12 @@ public class ISBNTest {
 
 	@Test
 	public void testNewerStyle2q() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'q', "(pbk.;"));
-		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "12344567"));
+		f.subfields.add(new Subfield(2, 'q', "(pbk.;"));
+		f.subfields.add(new Subfield(3, 'q', "ebook)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -108,19 +110,19 @@ public class ISBNTest {
 
 	@Test
 	public void testNewerStyle880() {
-		MarcRecord.DataField f1 = new MarcRecord.DataField();
+		DataField f1 = new DataField();
 		f1.id = 1;
 		f1.tag = "020";
-		f1.subfields.add(new MarcRecord.Subfield(1, '6', "880-01"));
-		f1.subfields.add(new MarcRecord.Subfield(2, 'a', "9789860433265"));
-		MarcRecord.DataField f2 = new MarcRecord.DataField();
+		f1.subfields.add(new Subfield(1, '6', "880-01"));
+		f1.subfields.add(new Subfield(2, 'a', "9789860433265"));
+		DataField f2 = new DataField();
 		f2.id = 2;
 		f2.tag = "880";
 		f2.alttag = "020";
-		f2.subfields.add(new MarcRecord.Subfield(1, '6', "020-01/$1"));
-		f2.subfields.add(new MarcRecord.Subfield(2, 'a', "9789860433265"));
-		f2.subfields.add(new MarcRecord.Subfield(3, 'q', "(平裝)"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020")
+		f2.subfields.add(new Subfield(1, '6', "020-01/$1"));
+		f2.subfields.add(new Subfield(2, 'a', "9789860433265"));
+		f2.subfields.add(new Subfield(3, 'q', "(平裝)"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020")
 				.addToFields(f1).addToFields(f2).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.iterator().next().equals("9789860433265 (平裝)"));
@@ -131,11 +133,11 @@ public class ISBNTest {
 
 	@Test
 	public void testNewestStyle() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "12344567"));
+		f.subfields.add(new Subfield(2, 'q', "pbk."));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());
@@ -147,12 +149,12 @@ public class ISBNTest {
 
 	@Test
 	public void testNewestStyle2q() {
-		MarcRecord.DataField f = new MarcRecord.DataField();
+		DataField f = new DataField();
 		f.tag = "020";
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "12344567"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'q', "pbk."));
-		f.subfields.add(new MarcRecord.Subfield(3, 'q', "ebook"));
-		MarcRecord.FieldSet fs = new MarcRecord.FieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
+		f.subfields.add(new Subfield(1, 'a', "12344567"));
+		f.subfields.add(new Subfield(2, 'q', "pbk."));
+		f.subfields.add(new Subfield(3, 'q', "ebook"));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("020").addToFields(f).build();
 		ISBN.SolrFieldValueSet vals = ISBN.generateSolrFields ( fs );
 		assertTrue(vals.display880.isEmpty());
 		assertTrue(vals.search880.isEmpty());

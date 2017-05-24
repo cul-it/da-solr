@@ -95,11 +95,11 @@ public class IncrementalBibFileToSolr {
             throw new Exception("No records found for indexer, there may have been no inputs "
                                 +"or there may have been a problem.");
         }
-        
-        String foundError = "";        
-        
+
+        String foundError = "";
+
         for( String key: records.keySet()){
-            
+
             String  value = records.get(key);
             if(value == null ){
                 foundError += "No record for " + key + '\n';

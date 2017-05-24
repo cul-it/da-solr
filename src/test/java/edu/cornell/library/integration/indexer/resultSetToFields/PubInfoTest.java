@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.Subfield;
 
 @SuppressWarnings("static-method")
 public class PubInfoTest {

@@ -22,7 +22,7 @@ import org.marc4j.marc.Record;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
+import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.util.ConvertUtils;
 
 public class DownloadMARC {

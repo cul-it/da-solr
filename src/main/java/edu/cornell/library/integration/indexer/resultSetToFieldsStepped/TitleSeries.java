@@ -13,9 +13,9 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * Build Call number display and facet fields in two steps. 
@@ -37,9 +37,9 @@ public class TitleSeries implements ResultSetToFieldsStepped {
 			tag = resultKey.substring(resultKey.length() - 3);
 			rec.addDataFieldResultSet(results.get(resultKey));
 		}
-		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
+		Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields();
 
-		for( FieldSet fs: sortedFields ) {
+		for( DataFieldSet fs: sortedFields ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();

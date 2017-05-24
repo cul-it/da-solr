@@ -13,9 +13,9 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Generate isbn_display and isbn_t fields from 020 MARC field data.
@@ -28,10 +28,10 @@ public class ISBN implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			SolrFieldValueSet vals = generateSolrFields( fs );
 
@@ -48,7 +48,7 @@ public class ISBN implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields( FieldSet fs ) {
+	public static SolrFieldValueSet generateSolrFields( DataFieldSet fs ) {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		for (DataField f: fs.getFields()) {
 			StringBuilder sbDisplay = new StringBuilder();
