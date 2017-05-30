@@ -334,6 +334,15 @@ public class DataField implements Comparable<DataField> {
 		this.mainTag = tag;
 		this.subfields = parseSubfields(subfields,'‡');
 	}
+	public DataField( int id, int linkNumber, String tag, Character ind1, Character ind2, String subfields, Boolean is880 ) {
+		this.id = id;
+		this.linkNumber = linkNumber;
+		this.tag = (is880)?"880":tag;
+		this.ind1 = ind1;
+		this.ind2 = ind2;
+		this.mainTag = tag;
+		this.subfields = parseSubfields(subfields,'‡');
+	}
 	public DataField( int id, String tag, Character ind1, Character ind2,
 			String subfields, Character subfieldSeparator ) {
 		this.id = id;
