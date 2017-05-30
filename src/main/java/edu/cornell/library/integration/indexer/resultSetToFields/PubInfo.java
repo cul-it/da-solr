@@ -20,13 +20,13 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 /**
@@ -109,8 +109,8 @@ public class PubInfo implements ResultSetToFields {
 
 	private static List<String> process26X(MarcRecord rec, SolrFields sfs) {
 		List<String> humanDates = new ArrayList<>();
-		Collection<FieldSet> sets = rec.matchAndSortDataFields();
-		for( FieldSet fs: sets ) {
+		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
+		for( DataFieldSet fs: sets ) {
 
 			String relation;
 			if (fs.getMainTag().equals("260"))
@@ -131,7 +131,7 @@ public class PubInfo implements ResultSetToFields {
 						if (sf.code.equals('c'))
 							humanDates.add(removeTrailingPunctuation(sf.value,
 									sf.value.contains("[") ?  ". " : "]. "));
-				if (df.getScript().equals(MarcRecord.Script.CJK)) {
+				if (df.getScript().equals(DataField.Script.CJK)) {
 					for (Subfield sf : df.subfields)
 						switch (sf.code) {
 						case 'a': sfs.fields.add(new SolrField("pubplace_t_cjk",sf.value)); break;

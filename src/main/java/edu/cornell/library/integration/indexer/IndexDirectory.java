@@ -119,23 +119,22 @@ public class IndexDirectory {
  	 * and index the results in solrSeviceUrl. 
  	 * 
  	 */
-    public void indexDocuments( ) 
+    public void indexDocuments( )
             throws IOException, InterruptedException{
 
 
-        MockInputSplit inputSplit = new MockInputSplit(inputsURL);            
+        MockInputSplit inputSplit = new MockInputSplit(inputsURL);
         MockOutputCommitter outputCommitter = new MockOutputCommitter();
         MockStatusReporter statusReporter = new MockStatusReporter();
         recordWriter = new MockRecordWriter();
         try (MockRecordReader recordReader = new MockRecordReader()) {
 
         	BibFileIndexingMapper<Object> indexingMapper = new BibFileIndexingMapper<>();
-        	indexingMapper.doSolrUpdate = true; 
-        	indexingMapper.attempts = 1;
+        	indexingMapper.doSolrUpdate = true;
 
-        	Mapper<Object,Text,Text,Text>.Context context = 
+        	Mapper<Object,Text,Text,Text>.Context context =
         			indexingMapper.testContext(new Configuration(), new TaskAttemptID(),
-        					recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);           
+        					recordReader, recordWriter, outputCommitter, statusReporter, inputSplit);
 
         	Configuration hadoopConfig = context.getConfiguration();
         	hadoopConfig.set( BibFileToSolr.DONE_DIR, BibFileIndexingMapper.DO_NOT_MOVE_TO_DONE);
@@ -160,22 +159,22 @@ public class IndexDirectory {
     }
 
     public final static class MockRecordWriter extends RecordWriter<Text, Text> {
-        
+
         HashMap<String,String> results = new HashMap<>();
-        
-        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException { 
+
+        public void close(TaskAttemptContext arg0) throws IOException, InterruptedException {
             //nothing to do here
         }
-        
-        public HashMap<String,String> getRecords(){ 
-            return results; 
+
+        public HashMap<String,String> getRecords(){
+            return results;
         }
-        
+
         @Override
         public void write(Text key, Text value) throws IOException, InterruptedException {
             results.put(key.toString(), value.toString());
         }
-    }  
+    }
 
     final static class MockRecordReader extends RecordReader<Text, Text> {
         public void close() throws IOException { }

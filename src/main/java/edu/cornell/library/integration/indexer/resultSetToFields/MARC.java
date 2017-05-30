@@ -12,7 +12,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * processing all bibliographic MARC data into a MARC XML blob to insert into Solr doc

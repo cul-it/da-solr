@@ -82,7 +82,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     public boolean doSolrUpdate = false;
 
     /** Number of attempts if there are any exceptions during the mapping step. */
-    public int attempts = 4;
+    private int attempts = 4;
 
 	//model for data that gets reused each reduce
 	Model baseModel;

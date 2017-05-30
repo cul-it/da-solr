@@ -32,10 +32,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.voyager.Locations;
 import edu.cornell.library.integration.voyager.Locations.Location;
 
@@ -118,9 +118,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 			List<String> notes = new ArrayList<>();
 			String copyNo = null;
 
-			Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
+			Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields();
 
-			for( FieldSet fs: sortedFields ) {
+			for( DataFieldSet fs: sortedFields ) {
 
 				for (DataField f: fs.getFields()) {
 					String callno = null;
