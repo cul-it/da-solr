@@ -2,15 +2,12 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,12 +19,9 @@ import com.hp.hpl.jena.query.ResultSet;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
-import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.FieldValues;
-import edu.cornell.library.integration.marc.DataField.Script;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.NameUtils;
@@ -117,68 +111,7 @@ public class TitleChange implements ResultSetToFields {
 		for ( int i = 0 ; i < fs.getFields().size() ; i++ ) {
 			DataField f = fs.getFields().get(i);
 			FieldValues ctsVals = ctsValsList.get(i);
-			boolean isCJK = f.getScript().equals(Script.CJK);
-
-			if (ctsVals.type.equals(HeadType.AUTHORTITLE)) {
-				String browseDisplay = ctsVals.author+" | "+ctsVals.title;
-				String relation;
-				if (f.ind2.equals('2')) {
-					relation = "included_work_display";
-					sfs.add(new SolrField("authortitle_facet",NameUtils.getFacetForm(browseDisplay)));
-					sfs.add(new SolrField("authortitle_filing",getFilingForm(browseDisplay)));
-					sfs.add(new SolrField((isCJK)?"author_addl_t_cjk":"author_addl_t",ctsVals.author));
-					String authorFacet = NameUtils.facetValue( f );
-					sfs.add(new SolrField("author_facet",NameUtils.getFacetForm(authorFacet)));
-					sfs.add(new SolrField(
-							(f.mainTag.equals("700"))?"author_pers_filing":
-								(f.mainTag.equals("710"))?"author_corp_filing":"author_event_filing",
-							getFilingForm(authorFacet)));
-				} else {
-					relation = "related_work_display";
-				}
-				FieldValues itemViewDisplay = f.getFieldValuesForNameAndOrTitleField("abcdefghijklmnopqrstuvwxyz");
-				sfs.add(new SolrField(relation,
-						itemViewDisplay.author+" "+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
-				sfs.add(new SolrField((isCJK)?"title_uniform_t_cjk":"title_uniform_t",ctsVals.title));
-
-			} else {
-				String display = NameUtils.displayValue( f, true );
-				String facet = NameUtils.facetValue( f );
-				HeadTypeDesc htd;
-				String filingField;
-				switch (fs.getMainTag()) {
-				case "700": htd = HeadTypeDesc.PERSNAME;
-				            filingField = "author_pers_filing"; break;
-				case "710": htd = HeadTypeDesc.CORPNAME;
-				            filingField = "author_corp_filing"; break;
-				default:    htd = HeadTypeDesc.EVENT;
-				            filingField = "author_event_filing";
-				}
-
-				sfs.add(new SolrField( "author_addl_display", display ));
-				sfs.add(new SolrField( (isCJK)?"author_addl_t_cjk":"author_addl_t", display ));
-				sfs.add(new SolrField( "author_addl_cts", display+'|'+ctsVals.author ));
-				sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet )));
-				sfs.add(new SolrField( filingField, getFilingForm( facet ) ));
-
-				final Map<String,Object> json = new LinkedHashMap<>();
-				json.put("name1", display);
-				json.put("search1", ctsVals.author);
-				json.put("type", htd.toString());
-				final AuthorityData authData = new AuthorityData(config,ctsValsList.get(0).author,htd);
-				json.put("authorizedForm", authData.authorized);
-				final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-				mapper.writeValue(jsonstream, json);
-				sfs.add(new SolrField("author_addl_json",jsonstream.toString("UTF-8")));
-
-				if (authData.authorized && authData.alternateForms != null)
-					for (final String altForm : authData.alternateForms) {
-						sfs.add(new SolrField("authority_author_t",altForm));
-						if (isCJK(altForm))
-							sfs.add(new SolrField("authority_author_t_cjk",altForm));
-					}
-
-			}
+			sfs.addAll( NameUtils.singleAuthorEntry(config, f, ctsVals, false) );
 		}
 		return sfs;
 
