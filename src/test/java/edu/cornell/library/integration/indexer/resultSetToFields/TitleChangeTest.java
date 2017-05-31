@@ -40,8 +40,6 @@ public class TitleChangeTest {
 				new SolrField("author_pers_filing",  "smith john 1900 1999"),
 				new SolrField("author_addl_json","{\"name1\":\"Smith, John, 1900-1999\",\"search1\":"
 						+ "\"Smith, John, 1900-1999\",\"type\":\"Personal Name\",\"authorizedForm\":false}"));
-//		for (SolrField sf : TitleChange.generateSolrFields(rec, config).fields)
-//			System.out.println(sf.fieldName+": "+sf.fieldValue);
 		assertTrue(expected.equals(TitleChange.generateSolrFields(rec, config)));
 	}
 
@@ -61,8 +59,60 @@ public class TitleChangeTest {
 				new SolrField("authority_author_t",     "Gao, Yanyi, 1957-"),
 				new SolrField("authority_author_t",     "高彦颐, 1957-"),
 				new SolrField("authority_author_t_cjk", "高彦颐, 1957-"));
-		assertTrue(expected.equals(TitleChange.generateSolrFields(rec, config)));
-		
+		assertTrue(expected.equals(TitleChange.generateSolrFields(rec, config)));		
+	}
+
+	@Test
+	public void testAuthorTitle700() throws ClassNotFoundException, SQLException, IOException {
+		// Example from DISCOVERYACCESS-1878
+		MarcRecord rec = new MarcRecord();
+		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a Sallinen, Aulis. ‡t Vintern war hård; ‡o arranged."));
+		rec.dataFields.add(new DataField(2,"700",'1','2',"‡a Riley, Terry, ‡d 1935- ‡t Salome"
+				+ " dances for peace. ‡p Half-wolf dances mad in moonlight."));
+		rec.dataFields.add(new DataField(3,"700",'1','2',"‡a Barber, Samuel, ‡d 1910-1981. ‡t Quartets, ‡m violins"
+				+ " (2), viola, cello, ‡n no. 1, op. 11, ‡r B minor. ‡p Adagio."));
+		SolrFields expected = new SolrFields();
+		expected.fields = Arrays.asList(
+				new SolrField("authortitle_facet",
+						"Sallinen, Aulis. | Vintern war hård; arranged"),
+				new SolrField("authortitle_filing",
+						"sallinen aulis 0000 vintern war hard arranged"),
+				new SolrField("author_addl_t",       "Sallinen, Aulis."),
+				new SolrField("author_facet",        "Sallinen, Aulis"),
+				new SolrField("author_pers_filing",  "sallinen aulis"),
+				new SolrField("included_work_display",
+						"Sallinen, Aulis. Vintern war hård; arranged.|Vintern war hård; arranged.|Sallinen, Aulis."),
+				new SolrField("title_uniform_t",
+						"Vintern war hård; arranged."),
+				new SolrField("authortitle_facet",
+						"Riley, Terry, 1935- | Salome dances for peace. Half-wolf dances mad in moonlight"),
+				new SolrField("authortitle_filing",
+						"riley terry 1935 0000 salome dances for peace half wolf dances mad in moonlight"),
+				new SolrField("author_addl_t",       "Riley, Terry, 1935-"),
+				new SolrField("author_facet",        "Riley, Terry, 1935-"),
+				new SolrField("author_pers_filing",  "riley terry 1935"),
+				new SolrField("included_work_display",
+						"Riley, Terry, 1935- Salome dances for peace. Half-wolf dances mad in moonlight.|"
+						+ "Salome dances for peace. Half-wolf dances mad in moonlight.|Riley, Terry, 1935-"),
+				new SolrField("title_uniform_t",
+						"Salome dances for peace. Half-wolf dances mad in moonlight."),
+				new SolrField("authortitle_facet",
+						"Barber, Samuel, 1910-1981. | Quartets, violins (2), viola, cello, no. 1, op. 11,"
+						+ " B minor. Adagio"),
+				new SolrField("authortitle_filing",
+						"barber samuel 1910 1981 0000 quartets violins 2 viola cello no 1 op 11 b minor adagio"),
+				new SolrField("author_addl_t",       "Barber, Samuel, 1910-1981."),
+				new SolrField("author_facet",        "Barber, Samuel, 1910-1981"),
+				new SolrField("author_pers_filing",  "barber samuel 1910 1981"),
+				new SolrField("included_work_display",
+						"Barber, Samuel, 1910-1981. Quartets, violins (2), viola, cello, no. 1, op. 11,"
+						+ " B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio."
+						+ "|Barber, Samuel, 1910-1981."),
+				new SolrField("title_uniform_t",
+						"Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio."));
+//		for (SolrField sf : TitleChange.generateSolrFields(rec, config).fields)
+//			System.out.println(sf.fieldName+": "+sf.fieldValue);
+		assertTrue(expected.equals(TitleChange.generateSolrFields(rec, config)));		
 	}
 
 	@Test

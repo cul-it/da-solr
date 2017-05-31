@@ -132,8 +132,8 @@ public class TitleChange implements ResultSetToFields {
 					String authorFacet = authorEntryFacetValue( f );
 					sfs.add(new SolrField("author_facet",getFacetForm(authorFacet)));
 					sfs.add(new SolrField(
-							(f.mainTag.equals("100"))?"author_pers_filing":
-								(f.mainTag.equals("110"))?"author_corp_filing":"author_event_filing",
+							(f.mainTag.equals("700"))?"author_pers_filing":
+								(f.mainTag.equals("710"))?"author_corp_filing":"author_event_filing",
 							getFilingForm(authorFacet)));
 				} else {
 					relation = "related_work_display";
