@@ -188,7 +188,7 @@
         <filter class="solr.KStemFilterFactory"/>
       </analyzer>
     </fieldType>
-    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
+    <fieldType name="textOldLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
@@ -210,7 +210,35 @@
         <filter class="solr.TrimFilterFactory"/>
       </analyzer>
     </fieldType>
+    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+    </fieldType>
     <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.ShingleFilterFactory" outputUnigrams="false" maxShingleSize="30"/>
+        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
+      </analyzer>
+	</fieldType>
+    <fieldType name="textOldLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
@@ -438,8 +466,10 @@
     <dynamicField name="*_t"  type="text"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_left_chunked"  type="callNumberNormalized"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_tP"  type="textP"    indexed="true"  stored="false" multiValued="true"/>
-    <dynamicField name="*_left_boost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_left_boost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_left_boost_tC"  type="textOldLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_left_boost_tP"  type="textOldLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftboost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftboost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_t_cjk"  type="textCJK"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
     <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
@@ -496,6 +526,8 @@
   <copyField source="title_t" dest="title_spell"/>
   <copyField source="title_t" dest="title_left_boost_tC"/>
   <copyField source="title_t" dest="title_left_boost_tP"/>
+  <copyField source="title_t" dest="title_leftboost_tC"/>
+  <copyField source="title_t" dest="title_leftboost_tP"/>
   <copyField source="title_t" dest="title_exact"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
