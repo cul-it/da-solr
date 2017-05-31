@@ -30,6 +30,7 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDes
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.DataField.Script;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 
@@ -118,6 +119,7 @@ public class TitleChange implements ResultSetToFields {
 		for ( int i = 0 ; i < fs.getFields().size() ; i++ ) {
 			DataField f = fs.getFields().get(i);
 			FieldValues ctsVals = ctsValsList.get(i);
+			boolean isCJK = f.getScript().equals(Script.CJK);
 
 			if (ctsVals.type.equals(HeadType.AUTHORTITLE)) {
 				String browseDisplay = ctsVals.author+" | "+ctsVals.title;
@@ -126,13 +128,20 @@ public class TitleChange implements ResultSetToFields {
 					relation = "included_work_display";
 					sfs.add(new SolrField("authortitle_facet",getFacetForm(browseDisplay)));
 					sfs.add(new SolrField("authortitle_filing",getFilingForm(browseDisplay)));
+					sfs.add(new SolrField((isCJK)?"author_addl_t_cjk":"author_addl_t",ctsVals.author));
+					String authorFacet = authorEntryFacetValue( f );
+					sfs.add(new SolrField("author_facet",getFacetForm(authorFacet)));
+					sfs.add(new SolrField(
+							(f.mainTag.equals("100"))?"author_pers_filing":
+								(f.mainTag.equals("110"))?"author_corp_filing":"author_event_filing",
+							getFilingForm(authorFacet)));
 				} else {
 					relation = "related_work_display";
 				}
 				FieldValues itemViewDisplay = f.getFieldValuesForNameAndOrTitleField("abcdefghijklmnopqrstuvwxyz");
 				sfs.add(new SolrField(relation,
 						itemViewDisplay.author+" "+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
-				sfs.add(new SolrField("title_uniform_t",ctsVals.title));
+				sfs.add(new SolrField((isCJK)?"title_uniform_t_cjk":"title_uniform_t",ctsVals.title));
 
 			} else {
 				String display = authorEntryDisplayValue( f, true );
@@ -149,6 +158,7 @@ public class TitleChange implements ResultSetToFields {
 				}
 
 				sfs.add(new SolrField( "author_addl_display", display ));
+				sfs.add(new SolrField( (isCJK)?"author_addl_t_cjk":"author_addl_t", display ));
 				sfs.add(new SolrField( "author_addl_cts", display+'|'+ctsVals.author ));
 				sfs.add(new SolrField( "author_facet", getFacetForm( facet )));
 				sfs.add(new SolrField( filingField, getFilingForm( facet ) ));
@@ -182,6 +192,7 @@ public class TitleChange implements ResultSetToFields {
 
 		String display1 = authorEntryDisplayValue( fs.getFields().get(0), false );
 		String display2 = authorEntryDisplayValue( fs.getFields().get(1), true );
+		String search1 = authorEntryDisplayValue( fs.getFields().get(0), true );
 		String facet1 = authorEntryFacetValue( fs.getFields().get(0) );
 		String facet2 = authorEntryFacetValue( fs.getFields().get(1) );
 		HeadTypeDesc htd;
@@ -203,6 +214,11 @@ public class TitleChange implements ResultSetToFields {
 		sfs.add(new SolrField( "author_facet", getFacetForm( facet2 )));
 		sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
 		sfs.add(new SolrField( filingField, getFilingForm( facet2 )));
+		if (fs.getFields().get(0).getScript().equals(Script.CJK))
+			sfs.add(new SolrField( "author_addl_t_cjk", search1 ));
+		else
+			sfs.add(new SolrField( "author_addl_t", search1 ));
+		sfs.add(new SolrField( "author_addl_t", display2 ));
 
 		final Map<String,Object> json = new LinkedHashMap<>();
 		json.put("name1", display1);
@@ -247,24 +263,21 @@ public class TitleChange implements ResultSetToFields {
 		switch (f.mainTag) {
 		case "700": displaySubfields = "abcq"; break;
 		case "710":
-		case "711": displaySubfields = "abd";   break;
+		case "711": displaySubfields = "abcd";   break;
 		default:    return null;
 		}
 		String mainValue = f.concatenateSpecificSubfields(displaySubfields);
 		if ( ! includeSuffixes )
 			return removeTrailingPunctuation(mainValue,",. ");
-		String suffixes = f.concatenateSpecificSubfields("d");
+		String suffixes = (f.mainTag.equals("700")) ? f.concatenateSpecificSubfields("d") : "";
 		if ( ! suffixes.isEmpty() )
 			suffixes = " "+suffixes;
 		final RelatorSet rs = new RelatorSet(f);
 		if ( ! rs.isEmpty() ) {
-			if (suffixes.isEmpty()) {
-				mainValue =
-						RelatorSet.validateForConcatWRelators(mainValue);
-			} else {
-				suffixes =
-						RelatorSet.validateForConcatWRelators(suffixes);
-			}
+			if (suffixes.isEmpty())
+				mainValue = RelatorSet.validateForConcatWRelators(mainValue);
+			else
+				suffixes = RelatorSet.validateForConcatWRelators(suffixes);
 			suffixes += ' '+rs.toString();
 		}
 		if (suffixes.isEmpty())
@@ -279,7 +292,7 @@ public class TitleChange implements ResultSetToFields {
 		switch (fs.getMainTag()) {
 		case "700": ctsSubfields = "abcdq;tklnpmors"; break;
 		case "710":
-		case "711": ctsSubfields = "abd;tklnpmors";   break;
+		case "711": ctsSubfields = "abcd;tklnpmors";   break;
 		default:    return null;
 		}
 		return fs.getFields().stream()
@@ -327,7 +340,7 @@ public class TitleChange implements ResultSetToFields {
 
 		List<SolrField> sfs = new ArrayList<>();
 		for (DataField f : fs.getFields()) {
-			FieldValues authorTitle = f.getFieldValuesForNameAndOrTitleField("abcdgkqrst");
+			FieldValues authorTitle = f.getFieldValuesForNameAndOrTitleField("abcdgknqrst");
 			sfs.add(new SolrField("title_uniform_t",authorTitle.title));
 			if (f.tag.equals("880")) {
 				if (f.getScript().equals(DataField.Script.CJK))

@@ -197,9 +197,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         new StandardMARCFieldMaker("author_t", "100", "abcdqegu", VernMode.SEARCH),
         new StandardMARCFieldMaker("author_t", "110", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
         new StandardMARCFieldMaker("author_t", "111", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
-        new StandardMARCFieldMaker("author_addl_t", "700", "abcdqegu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("author_addl_t", "710", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
-        new StandardMARCFieldMaker("author_addl_t", "711", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
 
         new SPARQLFieldMakerImpl().setName("table of contents")
         .addMainStoreQuery("table of contents", standardDataFieldSPARQL("505"))
