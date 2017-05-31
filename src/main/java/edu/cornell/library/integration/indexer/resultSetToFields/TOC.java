@@ -1,10 +1,10 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
+import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,9 +18,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * processing into contents_display and partial_contents_display
@@ -32,17 +31,17 @@ public class TOC implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> solrFields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			List<String> values880 = new ArrayList<>();
 			List<Boolean> isCJK = new ArrayList<>();
 			List<String> valuesMain = new ArrayList<>();
 			String relation = null;
 			String subfields = "atr";
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				if(relation == null) {
 					if (f.ind1.equals('1') || f.ind1.equals('8')) {
 						relation = "contents";
@@ -55,7 +54,7 @@ public class TOC implements ResultSetToFields {
 				}
 				if (f.tag.equals("880")) {
 					values880.add(f.concatenateSpecificSubfields(subfields));
-					if (f.getScript().equals(MarcRecord.Script.CJK)) 
+					if (f.getScript().equals(DataField.Script.CJK)) 
 						isCJK.add(true);
 					else
 						isCJK.add(false);

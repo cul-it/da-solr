@@ -14,11 +14,11 @@ import java.util.Map;
 import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
@@ -143,12 +143,11 @@ public class HathiLinks implements ResultSetToFields {
 		return vals;
 	}
 
-	private static FieldSet build856FieldSet( String description, String url) {
-		FieldSet fs = new FieldSet();
+	private static DataFieldSet build856FieldSet( String description, String url) {
 		DataField f = new DataField( 1, "856");
 		f.subfields.add(new Subfield( 1, 'u', url));
 		f.subfields.add(new Subfield( 2, 'z', description));
-		fs.fields.add(new FieldSet.FSDataField(f));
+		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("856").addToFields(f).build();
 		return fs;
 	}
 	private static void tabulateResults(java.sql.ResultSet rs,

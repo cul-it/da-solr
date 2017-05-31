@@ -11,18 +11,18 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 public class SimpleProc implements ResultSetToFields {
 	@Override
 	public Map<String, SolrInputField> toFields(Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 			SolrFieldValueSet vals = generateSolrFields( fs );
 			if (vals.displayField != null)
 				for (String dv : vals.displayValues)
@@ -36,11 +36,11 @@ public class SimpleProc implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields( FieldSet fs ) {
+	public static SolrFieldValueSet generateSolrFields( DataFieldSet fs ) {
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		vals.displayField = "notes";
 		vals.searchField = "notes_t";
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 			String displaySubfields = null, searchSubfields = null;
 			switch (Integer.valueOf(f.mainTag)) {
 			case 10:

@@ -22,10 +22,10 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 
 /**
@@ -203,7 +203,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			MarcRecord rec = new MarcRecord();
 			rec.addDataFieldResultSet(results.get(queryKey),marcFieldTag);
 			
-			Collection<FieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
+			Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
 			
 			if (sortedFields.isEmpty())
 				return Collections.emptyMap();
@@ -222,10 +222,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				fieldmap.put(solrFieldName+"_cjk", solrField);
 			}
 
-			for( FieldSet fs: sortedFields ) {
+			for( DataFieldSet fs: sortedFields ) {
 
-				if (fs.fields.size() == 1) {
-					DataField f = fs.fields.iterator().next();
+				if (fs.getFields().size() == 1) {
+					DataField f = fs.getFields().iterator().next();
 					String val = trimInternationally( concatenateSubfields(f) );
 					if (val.length() == 0) continue;
 					if ((vernMode.equals(VernMode.VERNACULAR)
@@ -234,7 +234,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						fieldmap.get(solrVernFieldName).addValue(val, 1.0f);
 					} else if (vernMode.equals(VernMode.SEARCH)) {
 						if (f.tag.equals("880")) {
-							if (f.getScript().equals(MarcRecord.Script.CJK))
+							if (f.getScript().equals(DataField.Script.CJK))
 								fieldmap.get(solrFieldName + "_cjk").addValue(val, 1.0f);
 							else {
 								if (hasCJK(val))
@@ -258,7 +258,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			    // If more than one field in a group, there are several options.
 				} else {
 					Map<Integer,DataField> reordered = new TreeMap<>();
-					for (DataField f: fs.fields) {
+					for (DataField f: fs.getFields()) {
 						reordered.put(f.id, f);
 					}
 					Set<String> values880 = new HashSet<>();
@@ -270,7 +270,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 						if (value.length() == 0) continue;
 						if (f.tag.equals("880")) {
 							if (vernMode.equals(VernMode.SEARCH)) {
-								if (f.getScript().equals(MarcRecord.Script.CJK)) {
+								if (f.getScript().equals(DataField.Script.CJK)) {
 									valuesCJK.add(value);
 								} else {
 									values880.add(value);

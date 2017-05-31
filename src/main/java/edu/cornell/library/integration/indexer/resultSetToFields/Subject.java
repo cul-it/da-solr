@@ -20,13 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldValues;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * process subject field values into display, facet, search, and browse/filing fields
@@ -48,14 +48,14 @@ public class Subject implements ResultSetToFields {
 		final Collection<String> authorityAltForms = new HashSet<>();
 		final Collection<String> authorityAltFormsCJK = new HashSet<>();
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
-			final DataField f = fs.fields.iterator().next();
+			final DataField f = fs.getFields().get(0);
 			if (f.ind2.equals('7')) {
 				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
@@ -86,7 +86,7 @@ public class Subject implements ResultSetToFields {
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
-			for (final DataField f: h.fs.fields) {
+			for (final DataField f: h.fs.getFields()) {
 
 				switch (f.mainTag) {
 				case "600":
@@ -294,7 +294,7 @@ public class Subject implements ResultSetToFields {
 	private class Heading {
 		boolean isFAST = false;
 		boolean isLCGFT = false;
-		FieldSet fs = null;
+		DataFieldSet fs = null;
 	}
 
 }

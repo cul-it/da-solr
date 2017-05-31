@@ -7,8 +7,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 @SuppressWarnings("static-method")
 public class SimpleProcTest {
@@ -16,7 +18,7 @@ public class SimpleProcTest {
 	@Test
 	public void testNoNotes() {
 		MarcRecord rec = new MarcRecord();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals(null,vals.displayField);
 		}
@@ -25,10 +27,10 @@ public class SimpleProcTest {
 	@Test
 	public void test520() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"520");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 520 note."));
+		DataField f = new DataField(1,"520");
+		f.subfields.add(new Subfield(1, 'a', "Here's a 520 note."));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("summary_display",vals.displayField);
 			assertEquals("notes_t",vals.searchField);
@@ -42,11 +44,11 @@ public class SimpleProcTest {
 	@Test
 	public void test541() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"541");
+		DataField f = new DataField(1,"541");
 		f.ind1 = '1';
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 541 note."));
+		f.subfields.add(new Subfield(1, 'a', "Here's a 541 note."));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("donor_display",vals.displayField);
 			assertEquals("notes_t",vals.searchField);
@@ -58,11 +60,11 @@ public class SimpleProcTest {
 	@Test
 	public void testRestricted541() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"541");
+		DataField f = new DataField(1,"541");
 		f.ind1 = '0';
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a restricted 541 note."));
+		f.subfields.add(new Subfield(1, 'a', "Here's a restricted 541 note."));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals(0,vals.displayValues.size());
 			assertEquals(0,vals.searchValues.size());
@@ -72,10 +74,10 @@ public class SimpleProcTest {
 	@Test
 	public void test300() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"300");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's a 300 note."));
+		DataField f = new DataField(1,"300");
+		f.subfields.add(new Subfield(1, 'a', "Here's a 300 note."));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("description_display",vals.displayField);
 			assertEquals(1,vals.displayValues.size());
@@ -87,10 +89,10 @@ public class SimpleProcTest {
 	@Test
 	public void testLccn() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"010");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "2015231566"));
+		DataField f = new DataField(1,"010");
+		f.subfields.add(new Subfield(1, 'a', "2015231566"));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("lc_controlnum_display",vals.displayField);
 			assertEquals("lc_controlnum_s",vals.searchField);
@@ -104,10 +106,10 @@ public class SimpleProcTest {
 	@Test
 	public void test035() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"035");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "(OCoLC)924835975"));
+		DataField f = new DataField(1,"035");
+		f.subfields.add(new Subfield(1, 'a', "(OCoLC)924835975"));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("other_id_display",vals.displayField);
 			assertEquals("id_t",vals.searchField);
@@ -121,10 +123,10 @@ public class SimpleProcTest {
 	@Test
 	public void testEdition() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(1,"250");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "First edition."));
+		DataField f = new DataField(1,"250");
+		f.subfields.add(new Subfield(1, 'a', "First edition."));
 		rec.dataFields.add(f);
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("edition_display",vals.displayField);
 			assertEquals(1,vals.displayValues.size());
@@ -136,15 +138,15 @@ public class SimpleProcTest {
 	@Test
 	public void testTwoNotes() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(2,"500");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's the second note."));
+		DataField f = new DataField(2,"500");
+		f.subfields.add(new Subfield(1, 'a', "Here's the second note."));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(1,"500");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's the first note."));
+		f = new DataField(1,"500");
+		f.subfields.add(new Subfield(1, 'a', "Here's the first note."));
 		rec.dataFields.add(f);
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
 			assertEquals("notes_t",vals.searchField);
@@ -162,18 +164,18 @@ public class SimpleProcTest {
 	@Test
 	public void testNonRomanNote() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f;
-		f = new MarcRecord.DataField(1,1,"500");
-		f.subfields.add(new MarcRecord.Subfield(1, '6', "880-01"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'a', "Here's the main note."));
+		DataField f;
+		f = new DataField(1,1,"500");
+		f.subfields.add(new Subfield(1, '6', "880-01"));
+		f.subfields.add(new Subfield(2, 'a', "Here's the main note."));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(2,1,"500",true);
-		f.subfields.add(new MarcRecord.Subfield(1, '6', "500-01"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'a', "Here's the non-Roman version of the note."));
+		f = new DataField(2,1,"500",true);
+		f.subfields.add(new Subfield(1, '6', "500-01"));
+		f.subfields.add(new Subfield(2, 'a', "Here's the non-Roman version of the note."));
 		rec.dataFields.add(f);
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
 			assertEquals("notes_t",vals.searchField);
@@ -191,25 +193,25 @@ public class SimpleProcTest {
 	@Test
 	public void testComplex() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f;
-		f = new MarcRecord.DataField(1,"515");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Here's the first note."));
+		DataField f;
+		f = new DataField(1,"515");
+		f.subfields.add(new Subfield(1, 'a', "Here's the first note."));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(2,1,"500");
-		f.subfields.add(new MarcRecord.Subfield(1, '6', "880-01"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'a', "Here's the second note with non-Roman version."));
+		f = new DataField(2,1,"500");
+		f.subfields.add(new Subfield(1, '6', "880-01"));
+		f.subfields.add(new Subfield(2, 'a', "Here's the second note with non-Roman version."));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(3,"556");
-		f.subfields.add(new MarcRecord.Subfield(1, '3', "Context note:"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'a', "Here's the third note."));
+		f = new DataField(3,"556");
+		f.subfields.add(new Subfield(1, '3', "Context note:"));
+		f.subfields.add(new Subfield(2, 'a', "Here's the third note."));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(6,1,"500",true);
-		f.subfields.add(new MarcRecord.Subfield(1, '6', "500-01"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'a', "Here's the non-Roman version of the note."));
+		f = new DataField(6,1,"500",true);
+		f.subfields.add(new Subfield(1, '6', "500-01"));
+		f.subfields.add(new Subfield(2, 'a', "Here's the non-Roman version of the note."));
 		rec.dataFields.add(f);
 		List<String> displays = new ArrayList<>();
 		List<String> searches = new ArrayList<>();
-		for (FieldSet fs : rec.matchAndSortDataFields()) {
+		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals("notes",vals.displayField);
 			assertEquals("notes_t",vals.searchField);

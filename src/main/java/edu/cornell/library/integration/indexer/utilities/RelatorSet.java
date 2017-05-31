@@ -5,8 +5,8 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.Subfield;
 
 public class RelatorSet {
 

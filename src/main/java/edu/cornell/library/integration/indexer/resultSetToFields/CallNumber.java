@@ -15,8 +15,8 @@ import java.util.TreeSet;
 import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * Build Call number search, sort and facet fields.
@@ -29,11 +29,11 @@ public class CallNumber implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		List<Sort> sortCandidates = new ArrayList<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 			SolrFieldValueSet vals = generateSolrFields ( fs, config );
 			for ( String s : vals.facet )
 				ResultSetUtilities.addField(fields,"lc_callnum_facet",s);
@@ -54,14 +54,14 @@ public class CallNumber implements ResultSetToFields {
 		return null;
 	}
 
-	public SolrFieldValueSet generateSolrFields( FieldSet fs, SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
+	public SolrFieldValueSet generateSolrFields( DataFieldSet fs, SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
 
-		Boolean isHolding = fs.mainTag.equals("852");
+		Boolean isHolding = fs.getMainTag().equals("852");
 		Boolean isLC = true;
 		SolrFieldValueSet vals = new SolrFieldValueSet();
 		ArrayList<Classification> classes = new ArrayList<>();
 		String sort = null;
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 
 			String callNumber = f.concatenateSpecificSubfields(isHolding?"hi":"ab");
 			if (callNumber.equalsIgnoreCase("No Call Number")) continue;

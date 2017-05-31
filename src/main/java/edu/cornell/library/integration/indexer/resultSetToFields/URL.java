@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 /**
  * Process 856 fields from both bibliographic and holdings fields into various URL Solr fields.
@@ -32,10 +32,10 @@ public class URL implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			SolrFieldValueSet vals = generateSolrFields( fs );
 			for ( SolrField f : vals.fields )
@@ -45,13 +45,13 @@ public class URL implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields ( FieldSet fs ) throws IOException  {
+	public static SolrFieldValueSet generateSolrFields ( DataFieldSet fs ) throws IOException  {
 		Set<String> linkTexts = new HashSet<>();
 		Set<String> urls = new HashSet<>();
 		Map<String,Object> jsonModel = new HashMap<>();
 
 		String instructions = null;
-		for (DataField f : fs.fields) {
+		for (DataField f : fs.getFields()) {
 			urls.addAll(f.valueListForSpecificSubfields("u"));
 			instructions = f.concatenateSpecificSubfields("i");
 			String linkLabel = f.concatenateSpecificSubfields("3yz");

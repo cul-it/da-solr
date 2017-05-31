@@ -3,7 +3,9 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeSpaces;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -12,8 +14,8 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.DataFieldSet;
 
 
 
@@ -53,16 +55,15 @@ public class ResultSetUtilities {
 			field.addValue(value,1.0f);
 	}
 
-	public static Collection<FieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
+	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
 		MarcRecord rec = new MarcRecord();
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			rec.addDataFieldResultSet(rs);
 		}
-		Collection<FieldSet> sortedFields = rec.matchAndSortDataFields();
-
-		return sortedFields;
+		return rec.matchAndSortDataFields();
 	}
+
 	public static class SolrField {
 		String fieldName;
 		String fieldValue;
@@ -70,5 +71,8 @@ public class ResultSetUtilities {
 			this.fieldName = fieldName;
 			this.fieldValue = fieldValue;
 		}
+	}
+	public static class SolrFields {
+		List<SolrField> fields = new ArrayList<>();
 	}
 }

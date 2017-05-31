@@ -20,12 +20,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
 
 /**
@@ -43,13 +42,13 @@ public class AuthorTitle implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		DataField title = null, title_vern = null, uniform_title = null, uniform_title_vern = null;
 		String author = null, author_vern = null;
 
 		Map<String,SolrInputField> solrFields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
@@ -62,7 +61,7 @@ public class AuthorTitle implements ResultSetToFields {
 			String mainTag = null;
 			HeadTypeDesc htd = null;
 		
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 				mainTag = f.mainTag;
 				if (mainTag.equals("245")) {
 					if (f.tag.equals("245"))
@@ -276,7 +275,7 @@ public class AuthorTitle implements ResultSetToFields {
 					addField(solrFields,"authortitle_filing",getFilingForm(browse));
 				}
 				String titleWOarticle = uniform_title_vern.getStringWithoutInitialArticle(verntitle);
-				if (uniform_title_vern.getScript().equals(MarcRecord.Script.CJK))
+				if (uniform_title_vern.getScript().equals(DataField.Script.CJK))
 					addField(solrFields,"title_uniform_t_cjk",verntitle);
 				else {
 					if (hasCJK(verntitle))
@@ -359,7 +358,7 @@ public class AuthorTitle implements ResultSetToFields {
 			String fulltitle_vern = removeTrailingPunctuation(title_vern.concatenateSpecificSubfields("abdefghknpqsv"),".,;:=/\uFF0F ");
 			String titleWOarticle = title_vern.getStringWithoutInitialArticle(fulltitle_vern);
 
-			if (title_vern.getScript().equals(MarcRecord.Script.CJK))
+			if (title_vern.getScript().equals(DataField.Script.CJK))
 				addField(solrFields,"title_t_cjk",fulltitle_vern);
 			else {
 				if (hasCJK(fulltitle_vern))

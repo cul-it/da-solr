@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
 
 @SuppressWarnings("static-method")
 public class LanguageTest {
@@ -38,8 +40,8 @@ public class LanguageTest {
 
 	@Test
 	public void testLanguageNote() {
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"546");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "Free text language note"));
+		DataField f = new DataField(3,"546");
+		f.subfields.add(new Subfield(1, 'a', "Free text language note"));
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
@@ -53,8 +55,8 @@ public class LanguageTest {
 		MarcRecord rec = new MarcRecord();
 		rec.controlFields.add(new ControlField(1,"008",
 				"830222c19771975cau      b    001 0 eng d"));
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"546");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "In English"));
+		DataField f = new DataField(3,"546");
+		f.subfields.add(new Subfield(1, 'a', "In English"));
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(1,           vals.facet.size());
@@ -66,8 +68,8 @@ public class LanguageTest {
 
 	@Test
 	public void test041a() {
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"041");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "spa"));
+		DataField f = new DataField(3,"041");
+		f.subfields.add(new Subfield(1, 'a', "spa"));
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
@@ -83,8 +85,8 @@ public class LanguageTest {
 		MarcRecord rec = new MarcRecord();
 		rec.controlFields.add(new ControlField(1,"008",
 				"070529s2017    vm a   e      000 0 vie d"));
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"041");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "vie"));
+		DataField f = new DataField(3,"041");
+		f.subfields.add(new Subfield(1, 'a', "vie"));
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(1,           vals.facet.size());
@@ -99,13 +101,13 @@ public class LanguageTest {
 		MarcRecord rec = new MarcRecord();
 		rec.controlFields.add(new ControlField(1,"008",
 				"161212s2016    ii 158            vlhin d"));
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"041");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "hin"));
-		f.subfields.add(new MarcRecord.Subfield(2, 'j', "eng"));
-		f.subfields.add(new MarcRecord.Subfield(3, 'h', "hin"));
+		DataField f = new DataField(3,"041");
+		f.subfields.add(new Subfield(1, 'a', "hin"));
+		f.subfields.add(new Subfield(2, 'j', "eng"));
+		f.subfields.add(new Subfield(3, 'h', "hin"));
 		rec.dataFields.add(f);
-		f = new MarcRecord.DataField(4,"546");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "In Hindi with English subtitles."));
+		f = new DataField(4,"546");
+		f.subfields.add(new Subfield(1, 'a', "In Hindi with English subtitles."));
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(2,               vals.facet.size());
@@ -118,10 +120,10 @@ public class LanguageTest {
 	@Test
 	public void testSubfieldFiltering() {
 		MarcRecord rec = new MarcRecord();
-		MarcRecord.DataField f = new MarcRecord.DataField(3,"041");
-		f.subfields.add(new MarcRecord.Subfield(1, 'a', "hin")); // display & facet
-		f.subfields.add(new MarcRecord.Subfield(2, 'b', "eng")); // display only
-		f.subfields.add(new MarcRecord.Subfield(3, 'h', "spa")); // neither
+		DataField f = new DataField(3,"041");
+		f.subfields.add(new Subfield(1, 'a', "hin")); // display & facet
+		f.subfields.add(new Subfield(2, 'b', "eng")); // display only
+		f.subfields.add(new Subfield(3, 'h', "spa")); // neither
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(1,               vals.facet.size());

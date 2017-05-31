@@ -13,9 +13,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 /**
@@ -29,17 +28,17 @@ public class FindingAids implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<FieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( FieldSet fs: sets ) {
+		for( DataFieldSet fs: sets ) {
 
 			Set<String> values880 = new HashSet<>();
 			Set<String> valuesMain = new HashSet<>();
 			String relation = null;
 			Boolean cjk880Found = false;
 
-			for (DataField f: fs.fields) {
+			for (DataField f: fs.getFields()) {
 
 				switch (f.ind1) {
 				case '0': relation = "finding_aids_display"; break;
@@ -49,7 +48,7 @@ public class FindingAids implements ResultSetToFields {
 				String value = f.concatenateSpecificSubfields("3abcdu");
 				if (f.tag.equals("880")) {
 					values880.add(value);
-					if (f.getScript().equals(MarcRecord.Script.CJK))
+					if (f.getScript().equals(DataField.Script.CJK))
 						cjk880Found = true;
 				} else
 					valuesMain.add(value);

@@ -82,7 +82,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
     public boolean doSolrUpdate = false;
 
     /** Number of attempts if there are any exceptions during the mapping step. */
-    public int attempts = 4;
+    private int attempts = 4;
 
 	//model for data that gets reused each reduce
 	Model baseModel;
@@ -157,7 +157,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 						+ ". bib URI: " + bibUri );
 
 				//Create Solr Documents
-				int retryLimit = 4;
+				int retryLimit = attempts;
 				boolean succeeded = false;
 				while (retryLimit > 0 && ! succeeded)
 					try{
@@ -178,7 +178,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 					}
 			}
 
-			int retryLimit = 4;
+			int retryLimit = attempts;
 			boolean succeeded = false;
 			while (retryLimit > 0 && ! succeeded)
 				try{

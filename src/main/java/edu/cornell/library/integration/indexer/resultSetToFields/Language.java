@@ -12,11 +12,11 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.MarcRecord;
-import edu.cornell.library.integration.indexer.MarcRecord.ControlField;
-import edu.cornell.library.integration.indexer.MarcRecord.DataField;
-import edu.cornell.library.integration.indexer.MarcRecord.FieldSet;
-import edu.cornell.library.integration.indexer.MarcRecord.Subfield;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Process language data into language_display and language_facet
@@ -79,9 +79,9 @@ public class Language implements ResultSetToFields {
 			vals.facet.add( c.getLanguageName() );
 		}
 
-		for ( FieldSet fs : rec.matchAndSortDataFields() ) {
-			if (fs.mainTag.equals("041")) {
-				for ( DataField f : fs.fields ) {
+		for ( DataFieldSet fs : rec.matchAndSortDataFields() ) {
+			if (fs.getMainTag().equals("041")) {
+				for ( DataField f : fs.getFields() ) {
 					for (Subfield sf : f.subfields) {
 						String langCode = sf.value.toLowerCase();
 						if (! codes.containsKey(langCode))
@@ -103,10 +103,10 @@ public class Language implements ResultSetToFields {
 			}
 
 			// language note
-			else if (fs.mainTag.equals("546")) {
+			else if (fs.getMainTag().equals("546")) {
 				String value880 = null;
 				String valueMain = null;
-				for (DataField f: fs.fields) {
+				for (DataField f: fs.getFields()) {
 					if (f.tag.equals("880")) {
 						value880 = f.concatenateSpecificSubfields("3ab");
 					} else {

@@ -12,7 +12,7 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
-import edu.cornell.library.integration.indexer.MarcRecord.RecordType;
+import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.voyager.DownloadMARC;
