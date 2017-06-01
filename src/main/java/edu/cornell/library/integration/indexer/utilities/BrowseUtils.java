@@ -71,7 +71,8 @@ public class BrowseUtils {
 	public static enum HeadType {
 		AUTHOR("author","works_by"),
 		SUBJECT("subject","works_about"),
-		AUTHORTITLE("authortitle","works");
+		AUTHORTITLE("authortitle","works"),
+		TITLE("title","works");
 
 		private final String string;
 		private final String field;
