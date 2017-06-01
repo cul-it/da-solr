@@ -74,5 +74,15 @@ public class ResultSetUtilities {
 	}
 	public static class SolrFields {
 		List<SolrField> fields = new ArrayList<>();
+		public void addAll(List<SolrField> sfs) {
+			if (sfs == null) return;
+			this.fields.addAll(sfs);
+		}
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			for (SolrField f : this.fields)
+				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
+			return sb.toString();
+		}
 	}
 }
