@@ -194,10 +194,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("seriesaddedentry", standardDataFieldGroupSPARQL("marcrdf:SeriesAddedEntry"))
         .addResultSetToFields(new SeriesAddedEntry()),
 
-        new StandardMARCFieldMaker("author_t", "100", "abcdqegu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("author_t", "110", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
-        new StandardMARCFieldMaker("author_t", "111", "abcdefghijklmnopqrstuvwxyz", VernMode.SEARCH),
-
         new SPARQLFieldMakerImpl().setName("table of contents")
         .addMainStoreQuery("table of contents", standardDataFieldSPARQL("505"))
         .addResultSetToFields(new TOC()),

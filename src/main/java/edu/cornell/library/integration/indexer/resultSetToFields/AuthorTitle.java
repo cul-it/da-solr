@@ -45,8 +45,9 @@ public class AuthorTitle implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord();
-		rec.addDataFieldResultSet( results.get("added_entry") );
-		rec.addDataFieldResultSet( results.get("linking_entry") );
+		rec.addDataFieldResultSet( results.get("title") );
+		rec.addDataFieldResultSet( results.get("title_240") );
+		rec.addDataFieldResultSet( results.get("main_entry") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );
@@ -106,11 +107,11 @@ public class AuthorTitle implements ResultSetToFields {
 						uniform_title_vern = f;
 				}
 			}
-				
-			if (author != null) {
-				String sort_author = getFilingForm(author);
-				sfs.add(new SolrField("author_sort",sort_author));
-			}
+
+		}
+		if (author != null) {
+			String sort_author = getFilingForm(author);
+			sfs.add(new SolrField("author_sort",sort_author));
 		}
 		if (uniform_title != null) {
 

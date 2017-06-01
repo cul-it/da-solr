@@ -101,13 +101,15 @@ public class NameUtils {
 		String facet2 = NameUtils.facetValue( fs.getFields().get(1) );
 		HeadTypeDesc htd;
 		String filingField;
-		switch (fs.getMainTag()) {
-		case "700": htd = HeadTypeDesc.PERSNAME;
-		            filingField = "author_pers_filing"; break;
-		case "710": htd = HeadTypeDesc.CORPNAME;
-		            filingField = "author_corp_filing"; break;
-		default:    htd = HeadTypeDesc.EVENT;
-		            filingField = "author_event_filing";
+		if ( fs.getMainTag().endsWith("00")) {
+			htd = HeadTypeDesc.PERSNAME;
+			filingField = "author_pers_filing";
+		} else if ( fs.getMainTag().endsWith("10") ) {
+			htd = HeadTypeDesc.CORPNAME;
+			filingField = "author_corp_filing";
+		} else {
+			htd = HeadTypeDesc.EVENT;
+			filingField = "author_event_filing";
 		}
 
 		List<SolrField> sfs = new ArrayList<>();
@@ -179,13 +181,15 @@ public class NameUtils {
 			String facet = NameUtils.facetValue( f );
 			HeadTypeDesc htd;
 			String filingField;
-			switch (f.mainTag) {
-			case "700": htd = HeadTypeDesc.PERSNAME;
-			            filingField = "author_pers_filing"; break;
-			case "710": htd = HeadTypeDesc.CORPNAME;
-			            filingField = "author_corp_filing"; break;
-			default:    htd = HeadTypeDesc.EVENT;
-			            filingField = "author_event_filing";
+			if (f.mainTag.endsWith("00")) {
+				htd = HeadTypeDesc.PERSNAME;
+				filingField = "author_pers_filing";
+			} else if ( f.mainTag.endsWith("10")) {
+				htd = HeadTypeDesc.CORPNAME;
+				filingField = "author_corp_filing";
+			} else {
+				htd = HeadTypeDesc.EVENT;
+				filingField = "author_event_filing";
 			}
 
 			sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display ));

@@ -71,21 +71,6 @@ public class ResultSetUtilities {
 			this.fieldName = fieldName;
 			this.fieldValue = fieldValue;
 		}
-		public boolean equals( final SolrField other ){
-			if (other == null)
-				return false;
-			if (this.fieldName == null) {
-				if (other.fieldName != null) return false;
-			} else {
-				if ( ! this.fieldName.equals(other.fieldName) ) return false;
-			}
-			if (this.fieldValue == null) {
-				if (other.fieldValue != null) return false;
-			} else {
-				if ( ! this.fieldValue.equals(other.fieldValue) ) return false;
-			}
-			return true;
-		}
 	}
 	public static class SolrFields {
 		List<SolrField> fields = new ArrayList<>();
@@ -93,15 +78,11 @@ public class ResultSetUtilities {
 			if (sfs == null) return;
 			this.fields.addAll(sfs);
 		}
-		public boolean equals( final SolrFields other) {
-			if (other == null)
-				return false;
-			if (this.fields.size() != other.fields.size())
-				return false;
-			for (int i = 0; i < this.fields.size(); i++)
-				if ( ! this.fields.get(i).equals(other.fields.get(i)))
-					return false;
-			return true;
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			for (SolrField f : this.fields)
+				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
+			return sb.toString();
 		}
 	}
 }
