@@ -210,4 +210,17 @@ public class TitleChangeTest {
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
+	@Test
+	public void test720() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord();
+		rec.dataFields.add(new DataField(1,"720",' ',' ',"‡a al-Salimi, Abdulrahman"));
+		String expected =
+		"author_addl_display: al-Salimi, Abdulrahman\n"+
+		"author_addl_t: al-Salimi, Abdulrahman\n"+
+		"author_addl_cts: al-Salimi, Abdulrahman|al-Salimi, Abdulrahman\n"+
+		"author_facet: al-Salimi, Abdulrahman\n"+
+		"author_addl_json: {\"name1\":\"al-Salimi, Abdulrahman\",\"search1\":\"al-Salimi, Abdulrahman\","
+		+ "\"authorizedForm\":false}\n";
+		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
+	}
 }
