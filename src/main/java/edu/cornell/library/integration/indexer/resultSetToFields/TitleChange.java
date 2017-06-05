@@ -58,7 +58,7 @@ public class TitleChange implements ResultSetToFields {
 
 			if (  Character.getNumericValue(fs.getMainTag().charAt(1)) > 5 )
 				sfs.addAll(processLinkingTitleFields(fs));
-			else if (  Character.getNumericValue(fs.getMainTag().charAt(1)) <= 1 )
+			else if (  Character.getNumericValue(fs.getMainTag().charAt(1)) <= 2 )
 				sfs.addAll(processAuthorAddedEntryFields(config,fs));
 			else if ( fs.getMainTag().equals("730") || fs.getMainTag().equals("740"))
 				sfs.addAll(processTitleAddedEntryFields(fs));
@@ -179,4 +179,5 @@ public class TitleChange implements ResultSetToFields {
 		}
 		return sfs;
 	}
+
 }
