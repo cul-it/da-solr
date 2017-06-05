@@ -4,15 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
@@ -31,16 +28,14 @@ public class TitleChangeTest {
 	public void testSimple700() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Smith, John, ‡d 1900-1999"));
-		SolrFields expected = new SolrFields();
-		expected.fields = Arrays.asList(
-				new SolrField("author_addl_display", "Smith, John, 1900-1999"),
-				new SolrField("author_addl_t",       "Smith, John, 1900-1999"),
-				new SolrField("author_addl_cts",     "Smith, John, 1900-1999|Smith, John, 1900-1999"),
-				new SolrField("author_facet",        "Smith, John, 1900-1999"),
-				new SolrField("author_pers_filing",  "smith john 1900 1999"),
-				new SolrField("author_addl_json","{\"name1\":\"Smith, John, 1900-1999\",\"search1\":"
-						+ "\"Smith, John, 1900-1999\",\"type\":\"Personal Name\",\"authorizedForm\":false}"));
-		assertEquals( expected.toString(), TitleChange.generateSolrFields(rec, config).toString() );
+		String expected = "author_addl_display: Smith, John, 1900-1999\n"+
+		"author_addl_t: Smith, John, 1900-1999\n"+
+		"author_addl_cts: Smith, John, 1900-1999|Smith, John, 1900-1999\n"+
+		"author_facet: Smith, John, 1900-1999\n"+
+		"author_pers_filing: smith john 1900 1999\n"+
+		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
+		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
+		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -48,15 +43,15 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ko, Dorothy, ‡d 1957- ‡e author."));
 		String expected = "author_addl_display: Ko, Dorothy, 1957- author\n"+
-				"author_addl_t: Ko, Dorothy, 1957- author\n"+
-				"author_addl_cts: Ko, Dorothy, 1957- author|Ko, Dorothy, 1957-\n"+
-				"author_facet: Ko, Dorothy, 1957-\n"+
-				"author_pers_filing: ko dorothy 1957\n"+
-				"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","+
-				                        "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
-				"authority_author_t: Gao, Yanyi, 1957-\n"+
-				"authority_author_t: 高彦颐, 1957-\n"+
-				"authority_author_t_cjk: 高彦颐, 1957-\n";
+		"author_addl_t: Ko, Dorothy, 1957- author\n"+
+		"author_addl_cts: Ko, Dorothy, 1957- author|Ko, Dorothy, 1957-\n"+
+		"author_facet: Ko, Dorothy, 1957-\n"+
+		"author_pers_filing: ko dorothy 1957\n"+
+		"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","
+		+ "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: Gao, Yanyi, 1957-\n"+
+		"authority_author_t: 高彦颐, 1957-\n"+
+		"authority_author_t_cjk: 高彦颐, 1957-\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -70,26 +65,31 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(3,"700",'1','2',"‡a Barber, Samuel, ‡d 1910-1981. ‡t Quartets, ‡m violins"
 				+ " (2), viola, cello, ‡n no. 1, op. 11, ‡r B minor. ‡p Adagio."));
 		String expected = "authortitle_facet: Sallinen, Aulis. | Vintern war hård; arranged\n"+
-				"authortitle_filing: sallinen aulis 0000 vintern war hard arranged\n"+
-				"author_addl_t: Sallinen, Aulis.\n"+
-				"author_facet: Sallinen, Aulis\n"+
-				"author_pers_filing: sallinen aulis\n"+
-				"included_work_display: Sallinen, Aulis. Vintern war hård; arranged.|Vintern war hård; arranged.|Sallinen, Aulis.\n"+
-				"title_uniform_t: Vintern war hård; arranged.\n"+
-				"authortitle_facet: Riley, Terry, 1935- | Salome dances for peace. Half-wolf dances mad in moonlight\n"+
-				"authortitle_filing: riley terry 1935 0000 salome dances for peace half wolf dances mad in moonlight\n"+
-				"author_addl_t: Riley, Terry, 1935-\n"+
-				"author_facet: Riley, Terry, 1935-\n"+
-				"author_pers_filing: riley terry 1935\n"+
-				"included_work_display: Riley, Terry, 1935- Salome dances for peace. Half-wolf dances mad in moonlight.|Salome dances for peace. Half-wolf dances mad in moonlight.|Riley, Terry, 1935-\n"+
-				"title_uniform_t: Salome dances for peace. Half-wolf dances mad in moonlight.\n"+
-				"authortitle_facet: Barber, Samuel, 1910-1981. | Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio\n"+
-				"authortitle_filing: barber samuel 1910 1981 0000 quartets violins 2 viola cello no 1 op 11 b minor adagio\n"+
-				"author_addl_t: Barber, Samuel, 1910-1981.\n"+
-				"author_facet: Barber, Samuel, 1910-1981\n"+
-				"author_pers_filing: barber samuel 1910 1981\n"+
-				"included_work_display: Barber, Samuel, 1910-1981. Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|Barber, Samuel, 1910-1981.\n"+
-				"title_uniform_t: Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.\n";
+		"authortitle_filing: sallinen aulis 0000 vintern war hard arranged\n"+
+		"author_addl_t: Sallinen, Aulis.\n"+
+		"author_facet: Sallinen, Aulis\n"+
+		"author_pers_filing: sallinen aulis\n"+
+		"included_work_display: Sallinen, Aulis. Vintern war hård; arranged.|Vintern war hård; arranged.|"
+		+ "Sallinen, Aulis.\n"+
+		"title_uniform_t: Vintern war hård; arranged.\n"+
+		"authortitle_facet: Riley, Terry, 1935- | Salome dances for peace. Half-wolf dances mad in moonlight\n"+
+		"authortitle_filing: riley terry 1935 0000 salome dances for peace half wolf dances mad in moonlight\n"+
+		"author_addl_t: Riley, Terry, 1935-\n"+
+		"author_facet: Riley, Terry, 1935-\n"+
+		"author_pers_filing: riley terry 1935\n"+
+		"included_work_display: Riley, Terry, 1935- Salome dances for peace. Half-wolf dances mad in moonlight.|"
+		+ "Salome dances for peace. Half-wolf dances mad in moonlight.|Riley, Terry, 1935-\n"+
+		"title_uniform_t: Salome dances for peace. Half-wolf dances mad in moonlight.\n"+
+		"authortitle_facet: Barber, Samuel, 1910-1981. | Quartets, violins (2), viola, cello, no. 1, op. 11,"
+		+ " B minor. Adagio\n"+
+		"authortitle_filing: barber samuel 1910 1981 0000 quartets violins 2 viola cello no 1 op 11 b minor adagio\n"+
+		"author_addl_t: Barber, Samuel, 1910-1981.\n"+
+		"author_facet: Barber, Samuel, 1910-1981\n"+
+		"author_pers_filing: barber samuel 1910 1981\n"+
+		"included_work_display: Barber, Samuel, 1910-1981. Quartets, violins (2), viola, cello, no. 1, op. 11,"
+		+ " B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|"
+		+ "Barber, Samuel, 1910-1981.\n"+
+		"title_uniform_t: Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -100,28 +100,27 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(2,6,"700",'1',' ',"‡6 880-06 ‡a Yao, Jianing, ‡e translator.",false));
 		rec.dataFields.add(new DataField(3,5,"700",'1',' ',"‡6 700-05/$1 ‡a 向淑容, ‡e translator.",true));
 		rec.dataFields.add(new DataField(4,6,"700",'1',' ',"‡6 700-06/$1 ‡a 堯嘉寧, ‡e translator.",true));
-		String expected = "author_addl_display: 向淑容 / Xiang, Shurong, translator\n"+
-				"author_addl_cts: 向淑容|向淑容,|Xiang, Shurong, translator|Xiang, Shurong,\n"+
-				"author_facet: 向淑容\n"+
-				"author_facet: Xiang, Shurong\n"+
-				"author_pers_filing: 向淑容\n"+
-				"author_pers_filing: xiang shurong\n"+
-				"author_addl_t_cjk: 向淑容, translator\n"+
-				"author_addl_t: Xiang, Shurong, translator\n"+
-				"author_addl_json: {\"name1\":\"向淑容\",\"search1\":\"向淑容,\",\"name2\":"
-				+ "\"Xiang, Shurong, translator\",\"search2\":\"Xiang, Shurong,\",\"type\":\"Personal Name\","
-				+ "\"authorizedForm\":false}\n"+
-				"author_addl_display: 堯嘉寧 / Yao, Jianing, translator\n"+
-				"author_addl_cts: 堯嘉寧|堯嘉寧,|Yao, Jianing, translator|Yao, Jianing,\n"+
-				"author_facet: 堯嘉寧\n"+
-				"author_facet: Yao, Jianing\n"+
-				"author_pers_filing: 堯嘉寧\n"+
-				"author_pers_filing: yao jianing\n"+
-				"author_addl_t_cjk: 堯嘉寧, translator\n"+
-				"author_addl_t: Yao, Jianing, translator\n"+
-				"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":"
-				+ "\"Yao, Jianing, translator\",\"search2\":\"Yao, Jianing,\",\"type\":\"Personal Name\","
-				+ "\"authorizedForm\":false}\n";
+		String expected =
+		"author_addl_display: 向淑容 / Xiang, Shurong, translator\n"+
+		"author_addl_cts: 向淑容|向淑容,|Xiang, Shurong, translator|Xiang, Shurong,\n"+
+		"author_facet: 向淑容\n"+
+		"author_facet: Xiang, Shurong\n"+
+		"author_pers_filing: 向淑容\n"+
+		"author_pers_filing: xiang shurong\n"+
+		"author_addl_t_cjk: 向淑容, translator\n"+
+		"author_addl_t: Xiang, Shurong, translator\n"+
+		"author_addl_json: {\"name1\":\"向淑容\",\"search1\":\"向淑容,\",\"name2\":\"Xiang, Shurong, translator\","
+		+ "\"search2\":\"Xiang, Shurong,\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_addl_display: 堯嘉寧 / Yao, Jianing, translator\n"+
+		"author_addl_cts: 堯嘉寧|堯嘉寧,|Yao, Jianing, translator|Yao, Jianing,\n"+
+		"author_facet: 堯嘉寧\n"+
+		"author_facet: Yao, Jianing\n"+
+		"author_pers_filing: 堯嘉寧\n"+
+		"author_pers_filing: yao jianing\n"+
+		"author_addl_t_cjk: 堯嘉寧, translator\n"+
+		"author_addl_t: Yao, Jianing, translator\n"+
+		"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":\"Yao, Jianing, translator\","
+		+ "\"search2\":\"Yao, Jianing,\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -132,18 +131,17 @@ public class TitleChangeTest {
 				+ " fen she, ‡e editor.",false));
 		rec.dataFields.add(new DataField(2,6,"710",'2',' ',"‡6 710-06/$1 ‡a 法律出版社. ‡b 法规出版分社, ‡e editor.",true));
 		String expected = "author_addl_display: 法律出版社. 法规出版分社 / Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
-				"author_addl_cts: 法律出版社. 法规出版分社|法律出版社. 法规出版分社,|Fa lü chu ban she. Fa gui chu ban"
-				+ " fen she, editor|Fa lü chu ban she. Fa gui chu ban fen she,\n"+
-				"author_facet: 法律出版社. 法规出版分社\n"+
-				"author_facet: Fa lü chu ban she. Fa gui chu ban fen she\n"+
-				"author_corp_filing: 法律出版社 法规出版分社\n"+
-				"author_corp_filing: fa lu chu ban she fa gui chu ban fen she\n"+
-				"author_addl_t_cjk: 法律出版社. 法规出版分社, editor\n"+
-				"author_addl_t: Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
-				"author_addl_json: {\"name1\":\"法律出版社. 法规出版分社\",\"search1\":\"法律出版社. 法规出版分社,\","
-				+ "\"name2\":\"Fa lü chu ban she. Fa gui chu ban fen she, editor\",\"search2\":"
-				+ "\"Fa lü chu ban she. Fa gui chu ban fen she,\",\"type\":\"Corporate Name\","
-				+ "\"authorizedForm\":false}\n";
+		"author_addl_cts: 法律出版社. 法规出版分社|法律出版社. 法规出版分社,|Fa lü chu ban she. Fa gui chu ban fen she,"
+		+ " editor|Fa lü chu ban she. Fa gui chu ban fen she,\n"+
+		"author_facet: 法律出版社. 法规出版分社\n"+
+		"author_facet: Fa lü chu ban she. Fa gui chu ban fen she\n"+
+		"author_corp_filing: 法律出版社 法规出版分社\n"+
+		"author_corp_filing: fa lu chu ban she fa gui chu ban fen she\n"+
+		"author_addl_t_cjk: 法律出版社. 法规出版分社, editor\n"+
+		"author_addl_t: Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
+		"author_addl_json: {\"name1\":\"法律出版社. 法规出版分社\",\"search1\":\"法律出版社. 法规出版分社,\","
+		+ "\"name2\":\"Fa lü chu ban she. Fa gui chu ban fen she, editor\",\"search2\":"
+		+ "\"Fa lü chu ban she. Fa gui chu ban fen she,\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -153,8 +151,7 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(new DataField(1,"730",'0','2',"‡i Container of (work): ‡a All the way (Television program)"));
 		String expected = "title_uniform_t: All the way (Television program)\n"+
-				"included_work_display: Container of (work): All the way (Television program)|"
-				+ "All the way (Television program)\n";
+		"included_work_display: Container of (work): All the way (Television program)|All the way (Television program)\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -179,17 +176,18 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(new DataField(1,"711",'2','2',"‡a Vatican Council ‡n (2nd : ‡d 1962-1965). ‡t"
 				+ " Constitutio pastoralis de ecclesia in mundo huius temporis ‡n Nn. 19-21. ‡l English."));
-		String expected = "authortitle_facet: Vatican Council (2nd : 1962-1965). | Constitutio pastoralis de ecclesia"
-				+ " in mundo huius temporis Nn. 19-21. English\n"+
-				"authortitle_filing: vatican council 2nd 1962 1965 0000 constitutio pastoralis de ecclesia in mundo"
-				+ " huius temporis nn 19 21 english\n"+
-				"author_addl_t: Vatican Council (2nd : 1962-1965).\n"+
-				"author_facet: Vatican Council\n"+
-				"author_event_filing: vatican council\n"+
-				"included_work_display: Vatican Council (2nd : 1962-1965). Constitutio pastoralis de ecclesia in"
-				+ " mundo huius temporis Nn. 19-21. English.|Constitutio pastoralis de ecclesia in mundo huius"
-				+ " temporis Nn. 19-21. English.|Vatican Council (2nd : 1962-1965).\n"+
-				"title_uniform_t: Constitutio pastoralis de ecclesia in mundo huius temporis Nn. 19-21. English.\n";
+		String expected =
+		"authortitle_facet: Vatican Council (2nd : 1962-1965). | Constitutio pastoralis de ecclesia"
+		+ " in mundo huius temporis Nn. 19-21. English\n"+
+		"authortitle_filing: vatican council 2nd 1962 1965 0000 constitutio pastoralis de ecclesia in mundo"
+		+ " huius temporis nn 19 21 english\n"+
+		"author_addl_t: Vatican Council (2nd : 1962-1965).\n"+
+		"author_facet: Vatican Council\n"+
+		"author_event_filing: vatican council\n"+
+		"included_work_display: Vatican Council (2nd : 1962-1965). Constitutio pastoralis de ecclesia in"
+		+ " mundo huius temporis Nn. 19-21. English.|Constitutio pastoralis de ecclesia in mundo huius"
+		+ " temporis Nn. 19-21. English.|Vatican Council (2nd : 1962-1965).\n"+
+		"title_uniform_t: Constitutio pastoralis de ecclesia in mundo huius temporis Nn. 19-21. English.\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -199,15 +197,16 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord();
 		rec.dataFields.add(new DataField(1,"711",'2','0',"‡a Institute on Religious Freedom ‡d (1966 : ‡c"
 				+ " North Aurora, Ill.)"));
-		String expected = "author_addl_display: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
-				"author_addl_t: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
-				"author_addl_cts: Institute on Religious Freedom (1966 : North Aurora, Ill.)|"
-				+ "Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
-				"author_facet: Institute on Religious Freedom\n"+
-				"author_event_filing: institute on religious freedom\n"+
-				"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
-				+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"type\":\"Event\","
-				+ "\"authorizedForm\":false}\n";
+		String expected =
+		"author_addl_display: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
+		"author_addl_t: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
+		"author_addl_cts: Institute on Religious Freedom (1966 : North Aurora, Ill.)|"
+		+ "Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
+		"author_facet: Institute on Religious Freedom\n"+
+		"author_event_filing: institute on religious freedom\n"+
+		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
+		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"type\":\"Event\","
+		+ "\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
