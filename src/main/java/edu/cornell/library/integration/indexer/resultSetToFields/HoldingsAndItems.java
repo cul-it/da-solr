@@ -1,10 +1,10 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.Clob;
@@ -32,9 +32,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.BooleanSolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.voyager.Locations;
 import edu.cornell.library.integration.voyager.Locations.Location;
@@ -45,19 +48,7 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  */
 public class HoldingsAndItems implements ResultSetToFields {
 
-	private Boolean debug = false;
-	static final Pattern p = Pattern.compile(".*_([0-9]+)");
-	Collection<String> holding_ids = new TreeSet<>();
-	Map<String,Holdings> holdings = new TreeMap<>();
-	Map<String,SolrInputField> fields = new HashMap<>();
-	Collection<String> descriptions = new HashSet<>();
-	boolean description_with_e = false;
-	String rectypebiblvl = null;
-	Collection<Map<String,Object>> boundWiths = new ArrayList<>();
-	Connection conn = null;
-	static ObjectMapper mapper = new ObjectMapper();
-	Locations locations;
-	Collection<String> workLibraries = new LinkedHashSet<>();
+	private static Boolean debug = false;
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -65,7 +56,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-		locations = new Locations(config);
 
 		for( String resultKey: results.keySet()){
 			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
@@ -77,9 +67,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 					bibRec.addDataFieldQuerySolution(sol);
 
-				} else if ( resultKey.equals("rectypebiblvl") ) {
+				} else if ( resultKey.equals("leader") ) {
 
-					rectypebiblvl = nodeToString(sol.get("rectypebiblvl"));
+					bibRec.leader = nodeToString(sol.get("leader"));
 
 				} else {
 	 				String recordURI = nodeToString(sol.get("mfhd"));
@@ -88,18 +78,40 @@ public class HoldingsAndItems implements ResultSetToFields {
 						rec = holdingRecs.get(recordURI);
 					} else {
 						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
+						holdingRecs.put(recordURI, rec);
 					}
 					if (resultKey.contains("control")) {
 						rec.addControlFieldQuerySolution(sol);
 					} else if (resultKey.contains("data")) {
 						rec.addDataFieldQuerySolution(sol);
 					}
-					holdingRecs.put(recordURI, rec);
 
 				}
 			}
-//			rec.addDataFieldResultSet(rs);
 		}
+		bibRec.holdings.addAll(holdingRecs.values());
+		SolrFields vals = generateSolrFields( bibRec, config );
+		Map<String,SolrInputField> fields = new HashMap<>();
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		for ( BooleanSolrField f : vals.boolFields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		return fields;
+	}
+
+	public static SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+			throws ClassNotFoundException, SQLException, IOException {
+		Collection<String> descriptions = new HashSet<>();
+		boolean description_with_e = false;
+		String rectypebiblvl = null;
+		Locations locations = new Locations(config);
+		Collection<String> holding_ids = new TreeSet<>();
+		Map<String,Holdings> holdings = new TreeMap<>();
+		Collection<Map<String,Object>> boundWiths = new ArrayList<>();
+		ObjectMapper mapper = new ObjectMapper();
+		Collection<String> workLibraries = new LinkedHashSet<>();
+
+
 
 		for (DataField f : bibRec.dataFields) {
 			descriptions.add(f.concatenateSubfieldsOtherThan6());
@@ -107,10 +119,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 				if (sf.code.equals('e'))
 					description_with_e = true;
 		}
+		rectypebiblvl = bibRec.leader.substring(7,9);
 
-
-		for( String holdingURI: holdingRecs.keySet() ) {
-			MarcRecord rec = holdingRecs.get(holdingURI);
+		SolrFields sfs = new SolrFields();
+		for( MarcRecord rec: bibRec.holdings ) {
 
 			Collection<Location> holdingLocations = new HashSet<>();
 			Collection<String> callnos = new HashSet<>();
@@ -185,7 +197,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 						indexHoldings.add(insertSpaceAfterCommas(f.concatenateSpecificSubfields("az")));
 						break;
 					case "876":
-						registerBoundWith(config, rec.id, f);
+						registerBoundWith(config, rec.id, f, boundWiths);
 					}
 					if (callno != null)
 						callnos.add(callno);
@@ -212,13 +224,13 @@ public class HoldingsAndItems implements ResultSetToFields {
 			}
 
 			if (holding.modified_date != null)
-				addField(fields,"holdings_display",holding.id+"|"+holding.modified_date);
+				sfs.add(new SolrField("holdings_display",holding.id+"|"+holding.modified_date));
 			else
-				addField(fields,"holdings_display",holding.id);
+				sfs.add(new SolrField("holdings_display",holding.id));
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream,holding);
 			String json = jsonstream.toString("UTF-8");
-			addField(fields,"holdings_record_display",json);
+			sfs.add(new SolrField("holdings_record_display",json));
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
 
@@ -229,28 +241,27 @@ public class HoldingsAndItems implements ResultSetToFields {
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, boundWith);
 			String json = jsonstream.toString("UTF-8");
-			addField(fields,"bound_with_json",json);
-			addField(fields,"barcode_addl_t",boundWith.get("barcode").toString());
+			sfs.add(new SolrField("bound_with_json",json));
+			sfs.add(new SolrField("barcode_addl_t",boundWith.get("barcode").toString()));
 		}
 
 		// ITEM DATA STARTS HERE
-		try {
-			if (conn == null)
-				conn = config.getDatabaseConnection("Voy");
-			loadItemData(conn);
-		} finally {
-			if (conn != null) conn.close();
+		try (Connection conn = config.getDatabaseConnection("Voy")){
+			sfs.addAll( loadItemData(conn, holdings, locations, workLibraries,
+					description_with_e, rectypebiblvl, descriptions) );
 		}
 
 		for (String lib : workLibraries)
-			addField(fields,"location_facet",lib);
+			sfs.add(new SolrField("location_facet",lib));
 		if ( ! workLibraries.isEmpty() )
-			addField(fields,"online","At the Library");
+			sfs.add(new SolrField("online","At the Library"));
 
-		return fields;
+		return sfs;
 	}
 
-	private void registerBoundWith(SolrBuildConfig config, String mfhd_id, DataField f) throws Exception {
+	private static void registerBoundWith(
+			SolrBuildConfig config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
+					throws ClassNotFoundException, SQLException {
 		String item_enum = "";
 		String barcode = null;
 		for (Subfield sf : f.subfields) {
@@ -260,11 +271,11 @@ public class HoldingsAndItems implements ResultSetToFields {
 			}
 		}
 		if (barcode == null) return;
-		if (conn == null)
-			conn = config.getDatabaseConnection("Voy");
+
 		// lookup item id here!!!
 		int item_id = 0;
-		try (  Statement stmt = conn.createStatement() ){
+		try (  Connection conn = config.getDatabaseConnection("Voy");
+				Statement stmt = conn.createStatement() ){
 			String query =
 				"SELECT CORNELLDB.ITEM_BARCODE.ITEM_ID "
 				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = '"+barcode+"'";
@@ -283,15 +294,17 @@ public class HoldingsAndItems implements ResultSetToFields {
 		boundWiths.add(boundWith);
 	}
 
-	private void loadItemData(Connection conn) throws Exception {
+	private static SolrFields loadItemData(Connection conn, Map<String,Holdings> holdings,
+			Locations locations, Collection<String> workLibraries, boolean description_with_e,
+			String rectypebiblvl, Collection<String> descriptions)
+					throws IOException {
 		
+		SolrFields sfs = new SolrFields();
 		Boolean multivol = false;
-		SolrInputField multivolField = new SolrInputField("multivol_b");
 
 		if (holdings.isEmpty()) {
-			multivolField.setValue(multivol, 1.0f);
-			fields.put("multivol_b", multivolField);
-			return;
+			sfs.add( new BooleanSolrField("multivol_b", false));
+			return sfs;
 		}
 		
 		Map<String,LocationEnumStats> enumStats = new HashMap<>();
@@ -461,21 +474,17 @@ public class HoldingsAndItems implements ResultSetToFields {
 			//               and not the other
 			//   3) this is a single volume work with supplementary material, and the
 			//               item lacking enumeration is the main item
-			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol();
+			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol(descriptions);
 			if (description_with_e) {
 				// this is strong evidence for case 3
 				if (descriptionLooksMultivol == null || ! descriptionLooksMultivol) {
 					// confirm case 3
 					multivol = true;
-				    SolrInputField t = new SolrInputField("mainitem_b");
-				    t.setValue(true, 1.0f);
-					fields.put("mainitem_b", t);
+					sfs.add( new BooleanSolrField("mainitem_b", true) );
 				} else {
 					// multivol with an e? Not sure here, but concluding case 1
 					multivol = true;
-				    SolrInputField t = new SolrInputField("enumerror_b");
-				    t.setValue(true, 1.0f);
-				    fields.put("enumerror_b",t);
+					sfs.add( new BooleanSolrField("enumerror_b",true));
 				}
 			} else {
 				boolean solved = false;
@@ -483,20 +492,14 @@ public class HoldingsAndItems implements ResultSetToFields {
 				if (rectypebiblvl.equals("ab") || rectypebiblvl.equals("as")) {
 					//concluding case 1 for now
 					multivol = true;
-					SolrInputField t = new SolrInputField("enumerror_b");
-					t.setValue(true, 1.0f);
-					fields.put("enumerror_b",t);
+					sfs.add( new BooleanSolrField("enumerror_b",true) );
 					solved = true;
 				}
 				if (! solved && multivol) {
 					// if there's no e but we have identified the work as a multivol already
 					// (due to enumeration diversity), the conclude 3, but flag it.
-				    SolrInputField t = new SolrInputField("enumerror_b");
-				    t.setValue(true, 1.0f);
-				    fields.put("enumerror_b",t);
-				    t = new SolrInputField("mainitem_b");
-				    t.setValue(true, 1.0f);
-				    fields.put("mainitem_b",t);
+					sfs.add( new BooleanSolrField("enumerror_b",true));
+					sfs.add( new BooleanSolrField("mainitem_b",true));
 				    solved = true;
 				}
 				if (! solved) {
@@ -507,9 +510,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		}
 
 		if (blankEnum && multivol) {
-			SolrInputField multivolWithBlank = new SolrInputField("multivolwblank_b");
-			multivolWithBlank.setValue(true, 1.0f);
-			fields.put("multivolwblank_b", multivolWithBlank);
+			sfs.add( new BooleanSolrField("multivolwblank_b", true));
 			for (Map<String,Object> record : items.values()) {
 				String enumeration = record.get("item_enum").toString() + 
     					record.get("chron") + record.get("year");
@@ -520,16 +521,16 @@ public class HoldingsAndItems implements ResultSetToFields {
 			}
 		}
 
-		multivolField.setValue(multivol, 1.0f);
-		fields.put("multivol_b", multivolField);
-		SolrInputField itemField = new SolrInputField("item_record_display");
-		SolrInputField itemlist = new SolrInputField("item_display");
+		sfs.add( new BooleanSolrField("multivol_b", multivol) );
+		
+//		SolrInputField itemField = new SolrInputField("item_record_display");
+//		SolrInputField itemlist = new SolrInputField("item_display");
 
 		for (Map<String,Object> record : items.values()) {
 	 		String json = mapper.writeValueAsString(record);
 			if (debug)
 				System.out.println(json);
-			itemField.addValue(json, 1);
+			sfs.add(new SolrField( "item_record_display",json) );
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));
 			String moddate = record.get("modify_date").toString();
@@ -539,16 +540,14 @@ public class HoldingsAndItems implements ResultSetToFields {
 	    		item.append('|');
 				item.append(moddate.replaceAll("[^0-9]", "").substring(0, 14));
 			}
-			itemlist.addValue(item.toString(),1);
+			sfs.add(new SolrField( "item_display",item.toString()) );
 		}
-
-		fields.put("item_display", itemlist);
-		fields.put("item_record_display", itemField);
+		return sfs;
 	}
 
 	private static Pattern multivolDesc = null;
 	private static Pattern singlevolDesc = null;
-	private Boolean doesDescriptionLookMultivol() {
+	private static Boolean doesDescriptionLookMultivol(Collection<String> descriptions) {
 		if (descriptions.isEmpty()) return null;
 
 		for (String desc : descriptions) {
@@ -566,7 +565,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		return null;
 	}
 
-    private static String convertClobToString(Clob clob) throws Exception {
+    private static String convertClobToString(Clob clob) throws IOException, SQLException {
         StringWriter writer = new StringWriter();
         try (  InputStream inputStream = clob.getAsciiStream() ) {
         	IOUtils.copy(inputStream, writer, "utf-8"); }

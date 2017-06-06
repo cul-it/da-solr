@@ -104,6 +104,10 @@ public class ResultSetUtilities {
 			if (sfs == null) return;
 			this.fields.addAll(sfs);
 		}
+		public void addAll( SolrFields other ) {
+			this.fields.addAll( other.fields );
+			this.boolFields.addAll( other.boolFields );
+		}
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			for (SolrField f : this.fields)
