@@ -26,7 +26,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testMainTitleNoAuthor() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"245",'1','4',"‡a The national law journal"));
 		String expected =
 		"title_sort: national law journal\n"+
@@ -45,7 +45,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testSimpleAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a León Cupe, Mariano, ‡d 1932-"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Cabana, historia, cultura y tradición / ‡c Mariano"
 				+ " León Cupe, Jorge León Quispe."));
@@ -77,7 +77,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorizedAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Fewer, T. N."));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Waterford people : ‡b a biographical dictionary / "
 				+ "‡c T. N. Fewer."));
@@ -110,7 +110,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorRelatorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Kalavrezos, Nicholas, ‡u (University"
 				+ " College London Hospital, UK) ‡4 spk"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Lumps and bumps in the mouth and lips"
@@ -142,7 +142,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorTitleUniformTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Speed, John, ‡d 1552?-1629, ‡e cartographer."));
 		rec.dataFields.add(new DataField(2,"240",'1',' ',"‡a Theatre of the empire of Great Britaine"));
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Britain's Tudor maps : ‡b county by county /"
@@ -191,7 +191,7 @@ public class AuthorTitleTest {
 	public void testAuthorTitleWInitialArticle() throws ClassNotFoundException, SQLException, IOException {
 		// As described in DISCOVERYACCESS-2972, the second indicator on the title field counts diacritics
 		// as characters when describing the length of initial non-sort article.
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Papadēmētropoulos, Loukas P., ‡e author."));
 		rec.dataFields.add(new DataField(2,"245",'1','4',"‡a Hē ennoia tou oikou ston Euripidē : ‡b Alkēstē, Mēdeia,"
 				+ " Hippolytos / ‡c Loukas Papadēmētropoulos."));
@@ -223,7 +223,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testNonRomanTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"245",'1','0',"‡6 880-01 ‡a Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta"
 				+ " Alekseevna : ‡b perepiska iz trekh uglov 1804-1826 / ‡c podgotovka pisem E. Dmitrievoĭ i F."
 				+ " Shedevi.",false));
@@ -254,7 +254,7 @@ public class AuthorTitleTest {
 	}
 	@Test
 	public void testCJKEverything() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',"‡6 880-01 ‡a Taga, Futoshi, ‡d 1968- ‡e author.",false));
 		rec.dataFields.add(new DataField(2,2,"240",'1','0',"‡6 880-02 ‡a Danshi mondai no jidai. ‡l Korean",false));
 		rec.dataFields.add(new DataField(3,3,"245",'1','0',"‡6 880-03 ‡a Namja munje ŭi sidae = ‡b Danshi mondai"

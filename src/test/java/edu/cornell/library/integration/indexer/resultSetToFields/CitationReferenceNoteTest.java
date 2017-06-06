@@ -20,7 +20,7 @@ public class CitationReferenceNoteTest {
 		DataField f = new DataField(3,"510");
 		f.ind1 = '3';
 		f.subfields.add(new Subfield(1, 'a', "Described in DOCUMENTATION NEWSLETTER, Fall 1988."));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			List<SolrField> sfs = CitationReferenceNote.generateSolrFields(fs).fields;
@@ -38,7 +38,7 @@ public class CitationReferenceNoteTest {
 		DataField f = new DataField(3,"510");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'a', "Indexed by note."));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			List<SolrField> sfs = CitationReferenceNote.generateSolrFields(fs).fields;
@@ -58,7 +58,7 @@ public class CitationReferenceNoteTest {
 		f2.ind1 = '2';
 		f2.subfields.add(new Subfield(1, '6', "510-01"));
 		f2.subfields.add(new Subfield(2, 'a', "Non-Roman Indexed Selectively by XXXXX"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f1);
 		rec.dataFields.add(f2);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {

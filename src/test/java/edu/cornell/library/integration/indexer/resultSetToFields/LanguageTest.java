@@ -14,7 +14,7 @@ public class LanguageTest {
 
 	@Test
 	public void test008() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008",
 				"830222c19771975cau      b    001 0 eng d"));
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
@@ -27,7 +27,7 @@ public class LanguageTest {
 
 	@Test
 	public void test008Chinese() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008",
 				"170202s2017    ch a          000 0 chi  "));
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
@@ -42,7 +42,7 @@ public class LanguageTest {
 	public void testLanguageNote() {
 		DataField f = new DataField(3,"546");
 		f.subfields.add(new Subfield(1, 'a', "Free text language note"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(0,vals.facet.size());
@@ -52,7 +52,7 @@ public class LanguageTest {
 
 	@Test
 	public void test008WithNote() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008",
 				"830222c19771975cau      b    001 0 eng d"));
 		DataField f = new DataField(3,"546");
@@ -70,7 +70,7 @@ public class LanguageTest {
 	public void test041a() {
 		DataField f = new DataField(3,"041");
 		f.subfields.add(new Subfield(1, 'a', "spa"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		Language.SolrFieldValueSet vals = Language.generateSolrFields ( rec );
 		assertEquals(1,        vals.facet.size());
@@ -82,7 +82,7 @@ public class LanguageTest {
 
 	@Test
 	public void test008With041a() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008",
 				"070529s2017    vm a   e      000 0 vie d"));
 		DataField f = new DataField(3,"041");
@@ -98,7 +98,7 @@ public class LanguageTest {
 
 	@Test
 	public void testAllThree() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008",
 				"161212s2016    ii 158            vlhin d"));
 		DataField f = new DataField(3,"041");
@@ -119,7 +119,7 @@ public class LanguageTest {
 
 	@Test
 	public void testSubfieldFiltering() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(3,"041");
 		f.subfields.add(new Subfield(1, 'a', "hin")); // display & facet
 		f.subfields.add(new Subfield(2, 'b', "eng")); // display only

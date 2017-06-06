@@ -26,7 +26,7 @@ public class SubjectTest {
 
 	@Test
 	public void testAuthorizedNoFAST() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		String expected =
 		"subject_t: Submerged lands > United States\n"+
@@ -48,7 +48,7 @@ public class SubjectTest {
 
 	@Test
 	public void testAuthorizedWithFAST() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		rec.dataFields.add(new DataField(9,"650",' ','7',"‡a Submerged lands ‡2 fast ‡0 (OCoLC)fst01136664"));
 		String expected =
@@ -75,7 +75,7 @@ public class SubjectTest {
 
 	@Test
 	public void testChronFAST() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 2000-2099 ‡2 fast"));
 		String expected =
 		"subject_t: 2000-2099\n"+
@@ -91,7 +91,7 @@ public class SubjectTest {
 
 	@Test
 	public void testComplex610() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Jesuits. ‡b Congregatio Generalis ‡n (32nd :"
 				+ " ‡d 1974-1975 : ‡c Rome, Italy). ‡t Decree Four."));
 		String expected =
@@ -105,7 +105,7 @@ public class SubjectTest {
 		"fast_b: false\n";
 		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
 
-		rec = new MarcRecord();
+		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Bible. ‡k Paraphrases. ‡p O.T. ‡l English."));
 		expected =
 		"subject_t: Bible. | Paraphrases. O.T. English\n"+
@@ -121,7 +121,7 @@ public class SubjectTest {
 
 	@Test
 	public void testNonRoman610() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,4,"610",'2','0',"‡6 880-04 ‡a Asahi Shinbun ‡v Indexes.",false));
 		rec.dataFields.add(new DataField(2,4,"610",'2','0',"‡6 610-04/$1 ‡a 朝日新聞 ‡x Indexes.",true));
 		String expected =

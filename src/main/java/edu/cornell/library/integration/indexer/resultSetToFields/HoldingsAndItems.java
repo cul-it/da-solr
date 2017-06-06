@@ -63,7 +63,8 @@ public class HoldingsAndItems implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Map<String,MarcRecord> recs = new HashMap<>();
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		Map<String,MarcRecord> holdingRecs = new HashMap<>();
 		locations = new Locations(config);
 
 		for( String resultKey: results.keySet()){
@@ -71,16 +72,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 			while( rs.hasNext() ){
 				QuerySolution sol = rs.nextSolution();
 
+
 				if ( resultKey.equals("description")) {
 
-					MarcRecord rec = new MarcRecord();
-					rec.addDataFieldQuerySolution(sol);
-					for (DataField f : rec.dataFields) {
-						descriptions.add(f.concatenateSubfieldsOtherThan6());
-						for (Subfield sf : f.subfields)
-							if (sf.code.equals('e'))
-								description_with_e = true;
-					}
+					bibRec.addDataFieldQuerySolution(sol);
 
 				} else if ( resultKey.equals("rectypebiblvl") ) {
 
@@ -89,25 +84,33 @@ public class HoldingsAndItems implements ResultSetToFields {
 				} else {
 	 				String recordURI = nodeToString(sol.get("mfhd"));
 					MarcRecord rec;
-					if (recs.containsKey(recordURI)) {
-						rec = recs.get(recordURI);
+					if (holdingRecs.containsKey(recordURI)) {
+						rec = holdingRecs.get(recordURI);
 					} else {
-						rec = new MarcRecord();
+						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 					}
 					if (resultKey.contains("control")) {
 						rec.addControlFieldQuerySolution(sol);
 					} else if (resultKey.contains("data")) {
 						rec.addDataFieldQuerySolution(sol);
 					}
-					recs.put(recordURI, rec);
+					holdingRecs.put(recordURI, rec);
 
 				}
 			}
 //			rec.addDataFieldResultSet(rs);
 		}
 
-		for( String holdingURI: recs.keySet() ) {
-			MarcRecord rec = recs.get(holdingURI);
+		for (DataField f : bibRec.dataFields) {
+			descriptions.add(f.concatenateSubfieldsOtherThan6());
+			for (Subfield sf : f.subfields)
+				if (sf.code.equals('e'))
+					description_with_e = true;
+		}
+
+
+		for( String holdingURI: holdingRecs.keySet() ) {
+			MarcRecord rec = holdingRecs.get(holdingURI);
 
 			Collection<Location> holdingLocations = new HashSet<>();
 			Collection<String> callnos = new HashSet<>();

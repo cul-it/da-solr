@@ -13,6 +13,7 @@ import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilit
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * processing 510 notes into references_display, indexed_by_display, 
@@ -25,7 +26,8 @@ public class CitationReferenceNote implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(
+				MarcRecord.RecordType.BIBLIOGRAPHIC,results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		for( DataFieldSet fs: sets ) {

@@ -63,8 +63,9 @@ public class ResultSetUtilities {
 
 	
 	@Deprecated
-	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
-		MarcRecord rec = new MarcRecord();
+	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields(
+			MarcRecord.RecordType type, Map<String, ResultSet> results ) {
+		MarcRecord rec = new MarcRecord(type);
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			rec.addDataFieldResultSet(rs);

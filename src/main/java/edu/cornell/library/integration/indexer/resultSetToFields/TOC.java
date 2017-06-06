@@ -20,6 +20,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * processing into contents_display and partial_contents_display
@@ -31,7 +32,8 @@ public class TOC implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(
+				MarcRecord.RecordType.BIBLIOGRAPHIC,results);
 
 		Map<String,SolrInputField> solrFields = new HashMap<>();
 		for( DataFieldSet fs: sets ) {

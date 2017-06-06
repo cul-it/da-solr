@@ -17,7 +17,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testNoNotes() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			SimpleProc.SolrFieldValueSet vals = SimpleProc.generateSolrFields(fs);
 			assertEquals(null,vals.displayField);
@@ -26,7 +26,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void test520() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"520");
 		f.subfields.add(new Subfield(1, 'a', "Here's a 520 note."));
 		rec.dataFields.add(f);
@@ -43,7 +43,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void test541() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"541");
 		f.ind1 = '1';
 		f.subfields.add(new Subfield(1, 'a', "Here's a 541 note."));
@@ -59,7 +59,7 @@ public class SimpleProcTest {
 	}
 	@Test
 	public void testRestricted541() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"541");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'a', "Here's a restricted 541 note."));
@@ -73,7 +73,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void test300() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"300");
 		f.subfields.add(new Subfield(1, 'a', "Here's a 300 note."));
 		rec.dataFields.add(f);
@@ -88,7 +88,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testLccn() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"010");
 		f.subfields.add(new Subfield(1, 'a', "2015231566"));
 		rec.dataFields.add(f);
@@ -105,7 +105,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void test035() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"035");
 		f.subfields.add(new Subfield(1, 'a', "(OCoLC)924835975"));
 		rec.dataFields.add(f);
@@ -122,7 +122,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testEdition() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(1,"250");
 		f.subfields.add(new Subfield(1, 'a', "First edition."));
 		rec.dataFields.add(f);
@@ -137,7 +137,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testTwoNotes() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(2,"500");
 		f.subfields.add(new Subfield(1, 'a', "Here's the second note."));
 		rec.dataFields.add(f);
@@ -163,7 +163,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testNonRomanNote() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f;
 		f = new DataField(1,1,"500");
 		f.subfields.add(new Subfield(1, '6', "880-01"));
@@ -192,7 +192,7 @@ public class SimpleProcTest {
 
 	@Test
 	public void testComplex() {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f;
 		f = new DataField(1,"515");
 		f.subfields.add(new Subfield(1, 'a', "Here's the first note."));

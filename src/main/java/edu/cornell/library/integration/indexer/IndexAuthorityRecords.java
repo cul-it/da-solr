@@ -850,7 +850,7 @@ public class IndexAuthorityRecords {
 
 	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();

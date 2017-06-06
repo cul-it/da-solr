@@ -37,7 +37,7 @@ public class HathiLinks implements ResultSetToFields {
 		Collection<String> oclcids = new HashSet<>();
 		Collection<String> barcodes = new HashSet<>();
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
 			rec.addDataFieldResultSet(rs);
 		for (DataField f : rec.dataFields) {
