@@ -264,6 +264,40 @@ public class HoldingsAndItemsTest {
 		"multivolwblank_b: true\n"+
 		"multivol_b: true\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
-//		System.out.println( HoldingsAndItems.generateSolrFields(bibRec, config).toString().replaceAll("\"","\\\\\"") );
+	}
+
+	@Test
+	public void testBoundWith()
+			throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "02445cam a2200517Ii 4500";
+		bibRec.dataFields.add(new DataField(1,"300",' ',' ',"‡a 384 pages : ‡b illustrations ; ‡c 25 cm"));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "10016824";
+		holdRec.modifiedDate = "20161021133727.0";
+		holdRec.leader = "00269cx  a22000971  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","10016824"));
+		holdRec.controlFields.add(new ControlField(2,"004","9690597"));
+		holdRec.controlFields.add(new ControlField(3,"005","20161021133727.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1610212u    8   4001uu   0901128"));
+		holdRec.dataFields.add(new DataField(5,"852",'0','0',"‡b mann ‡h SF1 ‡i .E89 no.137"
+				+ " ‡z Also catalogued as part of the serial: EAAP publication."));
+		holdRec.dataFields.add(new DataField(6,"876",' ',' ',"‡p 31924123150835"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 10016824|20161021133727\n"+
+		"holdings_record_display: {\"id\":\"10016824\",\"modified_date\":\"20161021133727\",\"copy_number\":null,"
+		+ "\"callnos\":[\"SF1 .E89 no.137\"],\"notes\":[\"Also catalogued as part of the serial: EAAP publication.\"],"
+		+ "\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
+		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"mann\",\"number\":69,\"name\":\"Mann Library\","
+		+ "\"library\":\"Mann Library\"}]}\n"+
+		"bound_with_json: {\"item_enum\":\"\",\"item_id\":10035199,\"mfhd_id\":\"10016824\","
+		+ "\"barcode\":\"31924123150835\"}\n"+
+		"barcode_addl_t: 31924123150835\n"+
+		"location_facet: Mann Library\n"+
+		"online: At the Library\n"+
+		"multivol_b: false\n";
+		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+//		System.out.println(HoldingsAndItems.generateSolrFields(bibRec, config).toString().replaceAll("\"","\\\\\""));
 	}
 }
