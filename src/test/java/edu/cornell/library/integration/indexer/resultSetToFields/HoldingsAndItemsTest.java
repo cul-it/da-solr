@@ -298,6 +298,5 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
-//		System.out.println(HoldingsAndItems.generateSolrFields(bibRec, config).toString().replaceAll("\"","\\\\\""));
 	}
 }
