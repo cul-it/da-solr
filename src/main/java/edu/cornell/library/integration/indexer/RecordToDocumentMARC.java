@@ -285,7 +285,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
   private static String standardLeaderSPARQL() {
     return "SELECT * WHERE {\n"
-        + " $recordURI$ marcrdf:hasLeader ?leader.\n";
+        + " $recordURI$ marcrdf:hasLeader ?leader. }";
  }
 
   private static String standardControlFieldSPARQL(String tag) {
