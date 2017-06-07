@@ -38,8 +38,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
     return Arrays.asList(
 
         new SPARQLFieldMakerImpl().setName("holdings_data")
-        .addMainStoreQuery("control_fields",standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlField"))
-        .addMainStoreQuery("data_fields",standardHoldingsDataFieldGroupSPARQL("marcrdf:DataField"))
+        .addMainStoreQuery("control_fields",standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlFields"))
+        .addMainStoreQuery("data_fields",standardHoldingsDataFieldGroupSPARQL("marcrdf:DataFields"))
         .addMainStoreQuery("description", standardDataFieldSPARQL("300"))
         .addMainStoreQuery("leader",standardLeaderSPARQL())
         .addResultSetToFields(new HoldingsAndItems()),
