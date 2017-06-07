@@ -63,8 +63,9 @@ public class ResultSetUtilities {
 
 	
 	@Deprecated
-	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
-		MarcRecord rec = new MarcRecord();
+	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields(
+			MarcRecord.RecordType type, Map<String, ResultSet> results ) {
+		MarcRecord rec = new MarcRecord(type);
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			rec.addDataFieldResultSet(rs);
@@ -102,6 +103,10 @@ public class ResultSetUtilities {
 		public void addAll(List<SolrField> sfs) {
 			if (sfs == null) return;
 			this.fields.addAll(sfs);
+		}
+		public void addAll( SolrFields other ) {
+			this.fields.addAll( other.fields );
+			this.boolFields.addAll( other.boolFields );
 		}
 		public String toString() {
 			StringBuilder sb = new StringBuilder();

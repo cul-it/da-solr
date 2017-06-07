@@ -26,7 +26,7 @@ public class TitleChangeTest {
 
 	@Test
 	public void testSimple700() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Smith, John, ‡d 1900-1999"));
 		String expected = "author_addl_display: Smith, John, 1900-1999\n"+
 		"author_addl_t: Smith, John, 1900-1999\n"+
@@ -40,7 +40,7 @@ public class TitleChangeTest {
 
 	@Test
 	public void testAuthorized700WithRelator() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ko, Dorothy, ‡d 1957- ‡e author."));
 		String expected = "author_addl_display: Ko, Dorothy, 1957- author\n"+
 		"author_addl_t: Ko, Dorothy, 1957- author\n"+
@@ -58,7 +58,7 @@ public class TitleChangeTest {
 	@Test
 	public void testAuthorTitle700() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-1878
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a Sallinen, Aulis. ‡t Vintern war hård; ‡o arranged."));
 		rec.dataFields.add(new DataField(2,"700",'1','2',"‡a Riley, Terry, ‡d 1935- ‡t Salome"
 				+ " dances for peace. ‡p Half-wolf dances mad in moonlight."));
@@ -95,7 +95,7 @@ public class TitleChangeTest {
 
 	@Test
 	public void testNonRoman700() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,5,"700",'1',' ',"‡6 880-05 ‡a Xiang, Shurong, ‡e translator.",false));
 		rec.dataFields.add(new DataField(2,6,"700",'1',' ',"‡6 880-06 ‡a Yao, Jianing, ‡e translator.",false));
 		rec.dataFields.add(new DataField(3,5,"700",'1',' ',"‡6 700-05/$1 ‡a 向淑容, ‡e translator.",true));
@@ -126,7 +126,7 @@ public class TitleChangeTest {
 
 	@Test
 	public void testNonRoman710WithRelator() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,6,"710",'2',' ',"‡6 880-06 ‡a Fa lü chu ban she. ‡b Fa gui chu ban"
 				+ " fen she, ‡e editor.",false));
 		rec.dataFields.add(new DataField(2,6,"710",'2',' ',"‡6 710-06/$1 ‡a 法律出版社. ‡b 法规出版分社, ‡e editor.",true));
@@ -148,7 +148,7 @@ public class TitleChangeTest {
 	@Test
 	public void test730WithSubfieldI() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-3496
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"730",'0','2',"‡i Container of (work): ‡a All the way (Television program)"));
 		String expected = "title_uniform_t: All the way (Television program)\n"+
 		"included_work_display: Container of (work): All the way (Television program)|All the way (Television program)\n";
@@ -158,7 +158,7 @@ public class TitleChangeTest {
 	@Test
 	public void testAuthorTitleSegregationOf776() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-3445
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Print version: ‡a Rosengarten, Frank, 1927- ‡t"
 				+ " Revolutionary Marxism of Antonio Gramsci. ‡d Leiden, Netherlands : Brill, c2013 ‡h viii,"
 				+ " 197 pages ‡k Historical materialism book series ; Volume 62. ‡x 1570-1522 ‡z 9789004265745"
@@ -173,7 +173,7 @@ public class TitleChangeTest {
 	@Test
 	public void test711AuthorTitle() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','2',"‡a Vatican Council ‡n (2nd : ‡d 1962-1965). ‡t"
 				+ " Constitutio pastoralis de ecclesia in mundo huius temporis ‡n Nn. 19-21. ‡l English."));
 		String expected =
@@ -194,7 +194,7 @@ public class TitleChangeTest {
 	@Test
 	public void test711Author() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','0',"‡a Institute on Religious Freedom ‡d (1966 : ‡c"
 				+ " North Aurora, Ill.)"));
 		String expected =
@@ -212,7 +212,7 @@ public class TitleChangeTest {
 
 	@Test
 	public void test720() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"720",' ',' ',"‡a al-Salimi, Abdulrahman"));
 		String expected =
 		"author_addl_display: al-Salimi, Abdulrahman\n"+

@@ -200,7 +200,7 @@ public class StandardMARCFieldMaker implements FieldMaker {
 			if( results == null || results.get(queryKey) == null )
 				throw new Exception( getName() + " did not get any result sets");
 				
-			MarcRecord rec = new MarcRecord();
+			MarcRecord rec = new MarcRecord(null);
 			rec.addDataFieldResultSet(results.get(queryKey),marcFieldTag);
 			
 			Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);

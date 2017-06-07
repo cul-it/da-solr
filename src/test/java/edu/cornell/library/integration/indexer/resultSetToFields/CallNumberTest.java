@@ -31,7 +31,7 @@ public class CallNumberTest {
 
 	@Test
 	public void testNoCallNo() throws ClassNotFoundException, SQLException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
 			assertEquals(0,    vals.search.size());
@@ -42,7 +42,7 @@ public class CallNumberTest {
 
 	@Test
 	public void testEmptyCallNo() throws ClassNotFoundException, SQLException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		DataField f = new DataField(3,"852");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'h', ""));
@@ -61,7 +61,7 @@ public class CallNumberTest {
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'h', "QA611"));
 		f.subfields.add(new Subfield(2, 'i', ".R123.6"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
@@ -81,7 +81,7 @@ public class CallNumberTest {
 		f.subfields.add(new Subfield(1, 'k', "Thesis"));
 		f.subfields.add(new Subfield(2, 'h', "QA611"));
 		f.subfields.add(new Subfield(3, 'i', ".R123.6"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
@@ -101,7 +101,7 @@ public class CallNumberTest {
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'h', "Thesis QA611"));
 		f.subfields.add(new Subfield(2, 'i', ".R123.6"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
@@ -119,7 +119,7 @@ public class CallNumberTest {
 		DataField f = new DataField(3,"852");
 		f.ind1 = '1';
 		f.subfields.add(new Subfield(1, 'h', "Film 1-0-3"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
@@ -136,7 +136,7 @@ public class CallNumberTest {
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'a', "QA611"));
 		f.subfields.add(new Subfield(2, 'b', ".R123.6"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
 			CallNumber.SolrFieldValueSet vals = callno.generateSolrFields(fs,config);
@@ -152,7 +152,7 @@ public class CallNumberTest {
 	@Test
 	public void testSortSelectionBetweenTwoHoldings() throws ClassNotFoundException, SQLException {
 		// Between two call numbers from holdings, the one that is LC should be sorted.
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		DataField f = new DataField(3,"852");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'h', "QA611"));
@@ -174,7 +174,7 @@ public class CallNumberTest {
 	@Test
 	public void testSortSelectionBetweenTwoBibs() throws ClassNotFoundException, SQLException {
 		// Between two call numbers from bibs, the one that is LC should be sorted.
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(3,"050");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'a', "QA611"));
@@ -196,7 +196,7 @@ public class CallNumberTest {
 	@Test
 	public void testSortSelectionBetweenBibAndHoldings() throws ClassNotFoundException, SQLException {
 		// The call number holdings should be preferred for sort even if non-LC 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(3,"050");
 		f.ind1 = '0';
 		f.subfields.add(new Subfield(1, 'a', "QA611"));

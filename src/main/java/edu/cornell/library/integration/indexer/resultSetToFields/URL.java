@@ -32,7 +32,7 @@ public class URL implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(null,results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		for( DataFieldSet fs: sets ) {

@@ -30,7 +30,7 @@ public class TitleSeries implements ResultSetToFieldsStepped {
 		FieldMakerStep step = new FieldMakerStep();
 		Map<String,SolrInputField> solrFields = new HashMap<>();
 		
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		String tag = "";
 		
 		for( String resultKey: results.keySet()){

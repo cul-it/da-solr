@@ -51,7 +51,7 @@ public class NameUtils {
 		if ( f.mainTag.endsWith("00") || f.mainTag.endsWith("20") )
 			displaySubfields = "abcq";
 		else if ( f.mainTag.endsWith("10") || f.mainTag.endsWith("11") )
-			displaySubfields = "abcd";
+			displaySubfields = "abcdn";
 		else return null;
 
 		String mainValue = f.concatenateSpecificSubfields(displaySubfields);

@@ -48,7 +48,7 @@ public class PubInfo implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.addControlFieldResultSet( results.get("eight") );
 		rec.addDataFieldResultSet( results.get("pub_info_260") );
 		rec.addDataFieldResultSet( results.get("pub_info_264") );

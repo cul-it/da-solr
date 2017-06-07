@@ -21,7 +21,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker
 /*
  *  MarcRecord Handler Class
  */
-public class MarcRecord {
+public class MarcRecord implements Comparable<MarcRecord>{
 
 	public String leader = " ";
 	public String modifiedDate = null;
@@ -30,6 +30,36 @@ public class MarcRecord {
 	public RecordType type;
 	public String id;
 	public String bib_id;
+	public TreeSet<MarcRecord> holdings;
+
+	public MarcRecord( RecordType type ) {
+		this.type = type;
+		if (type != null && type.equals(RecordType.BIBLIOGRAPHIC))
+			holdings = new TreeSet<>();
+	}
+
+	@Override
+	public int compareTo(final MarcRecord other) {
+		if ( this.type == null ) {
+			if ( other.type == null )
+				return id.compareTo(other.id);
+			return 1;
+		}
+		if ( ! this.type.equals(other.type) )
+			return type.compareTo(other.type);
+		return id.compareTo(other.id);
+	}
+	public boolean equals(final MarcRecord other){
+		if (other == null) return false;
+		if (this.type == null) {
+			if (other.type == null)
+				return this.id == other.id;
+			return false;
+		}
+		if ( this.type.equals(other.type) )
+			return this.id == other.id;
+		return false;
+	}
 
 	@Override
 	public String toString( ) {

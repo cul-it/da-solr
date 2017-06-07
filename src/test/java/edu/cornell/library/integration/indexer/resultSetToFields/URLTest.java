@@ -19,7 +19,7 @@ public class URLTest {
 
 	@Test
 	public void testMultipleAccessWithDifferentTOU() throws IOException { //8637892 DISCOVERYACCESS-2947
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(null);
 		DataField df = new DataField(1,"856");
 		df.subfields.add(new Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
 		df.subfields.add(new Subfield(2, 'i', "ssid=ssj0000907852; dbcode=AAGPP; providercode=PRVAHD"));
@@ -68,7 +68,7 @@ public class URLTest {
 
 	@Test
 	public void testNoTOU() throws IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(null);
 		DataField df = new DataField(1,"856");
 		df.subfields.add(new Subfield(1, '3', "Full text available from Ebrary The Arts Subscription Collection"));
 		df.subfields.add(new Subfield(3, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
@@ -94,7 +94,7 @@ public class URLTest {
 	}
 	@Test
 	public void testJustURL() throws IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(null);
 		DataField df = new DataField(1,"856");
 		df.subfields.add(new Subfield(1, 'u', "http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		rec.dataFields.add(df);

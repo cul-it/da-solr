@@ -26,7 +26,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testMainTitleNoAuthor() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"245",'1','4',"‡a The national law journal"));
 		String expected =
 		"title_sort: national law journal\n"+
@@ -45,7 +45,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testSimpleAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a León Cupe, Mariano, ‡d 1932-"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Cabana, historia, cultura y tradición / ‡c Mariano"
 				+ " León Cupe, Jorge León Quispe."));
@@ -77,7 +77,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorizedAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Fewer, T. N."));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Waterford people : ‡b a biographical dictionary / "
 				+ "‡c T. N. Fewer."));
@@ -110,7 +110,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorRelatorTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Kalavrezos, Nicholas, ‡u (University"
 				+ " College London Hospital, UK) ‡4 spk"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Lumps and bumps in the mouth and lips"
@@ -142,7 +142,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorTitleUniformTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Speed, John, ‡d 1552?-1629, ‡e cartographer."));
 		rec.dataFields.add(new DataField(2,"240",'1',' ',"‡a Theatre of the empire of Great Britaine"));
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Britain's Tudor maps : ‡b county by county /"
@@ -191,7 +191,7 @@ public class AuthorTitleTest {
 	public void testAuthorTitleWInitialArticle() throws ClassNotFoundException, SQLException, IOException {
 		// As described in DISCOVERYACCESS-2972, the second indicator on the title field counts diacritics
 		// as characters when describing the length of initial non-sort article.
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Papadēmētropoulos, Loukas P., ‡e author."));
 		rec.dataFields.add(new DataField(2,"245",'1','4',"‡a Hē ennoia tou oikou ston Euripidē : ‡b Alkēstē, Mēdeia,"
 				+ " Hippolytos / ‡c Loukas Papadēmētropoulos."));
@@ -223,7 +223,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testNonRomanTitle() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"245",'1','0',"‡6 880-01 ‡a Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta"
 				+ " Alekseevna : ‡b perepiska iz trekh uglov 1804-1826 / ‡c podgotovka pisem E. Dmitrievoĭ i F."
 				+ " Shedevi.",false));
@@ -252,9 +252,10 @@ public class AuthorTitleTest {
 		"title_responsibility_display: подготовка писем Е. Дмитриевой и Ф. Шедеви. / podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
+
 	@Test
 	public void testCJKEverything() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',"‡6 880-01 ‡a Taga, Futoshi, ‡d 1968- ‡e author.",false));
 		rec.dataFields.add(new DataField(2,2,"240",'1','0',"‡6 880-02 ‡a Danshi mondai no jidai. ‡l Korean",false));
 		rec.dataFields.add(new DataField(3,3,"245",'1','0',"‡6 880-03 ‡a Namja munje ŭi sidae = ‡b Danshi mondai"
@@ -303,5 +304,37 @@ public class AuthorTitleTest {
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void testCorpAuthorWithN() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"110",'2',' ',"‡a Gerakan Pemuda Islam Indonesia. ‡b Mu'tamar ‡n (9th :"
+				+ " ‡d 1959 : ‡c Jakarta, Indonesia)"));
+		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Tjita dan daja pemuda Islam :"
+				+ " ‡b menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta."));
+		String expected =
+		"author_display: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
+		"author_t: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
+		"author_cts: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)|Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
+		"author_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar\n"+
+		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
+		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\",\"search1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
+		"author_sort: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia\n"+
+		"title_sort: tjita dan daja pemuda islam menjongsong mutamar por gpii ke ix 25 sd 31 oktober 1959 di djakarta 48&\n"+
+		"title_display: Tjita dan daja pemuda Islam\n"+
+		"subtitle_display: menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"fulltitle_display: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"title_t: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"title_t: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"title_exact: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"title_exact: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
+		"title_sms_compat_display: Tjita dan daja pemuda Islam\n"+
+		"title_2letter_s: tj\n"+
+		"title_1letter_s: t\n"+
+		"authortitle_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia) | Tjita dan daja pemuda Islam\n"+
+		"authortitle_filing: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia 0000 tjita dan daja pemuda islam\n";
+		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
 }

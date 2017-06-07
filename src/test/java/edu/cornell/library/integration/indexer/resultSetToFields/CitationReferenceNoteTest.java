@@ -1,74 +1,53 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
-import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 @SuppressWarnings("static-method")
 public class CitationReferenceNoteTest {
 
+	static SolrBuildConfig config = null;
+
+	@BeforeClass
+	public static void setup() {
+		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
+		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+	}
+
 	@Test
 	public void testReferences() {
-		DataField f = new DataField(3,"510");
-		f.ind1 = '3';
-		f.subfields.add(new Subfield(1, 'a', "Described in DOCUMENTATION NEWSLETTER, Fall 1988."));
-		MarcRecord rec = new MarcRecord();
-		rec.dataFields.add(f);
-		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
-			List<SolrField> sfs = CitationReferenceNote.generateSolrFields(fs).fields;
-			assertEquals(1,
-					sfs.size() );
-			assertEquals("references_display",
-					sfs.get(0).fieldName);
-			assertEquals("Described in DOCUMENTATION NEWSLETTER, Fall 1988.",
-					sfs.get(0).fieldValue);
-		}
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(3,"510",'3',' ',"‡a Described in DOCUMENTATION NEWSLETTER, Fall 1988."));
+		String expected = "references_display: Described in DOCUMENTATION NEWSLETTER, Fall 1988.\n";
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
 	}
 
 	@Test
 	public void testIndexedBy() {
-		DataField f = new DataField(3,"510");
-		f.ind1 = '0';
-		f.subfields.add(new Subfield(1, 'a', "Indexed by note."));
-		MarcRecord rec = new MarcRecord();
-		rec.dataFields.add(f);
-		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
-			List<SolrField> sfs = CitationReferenceNote.generateSolrFields(fs).fields;
-			assertEquals(1,                     sfs.size() );
-			assertEquals("indexed_by_display",  sfs.get(0).fieldName);
-			assertEquals("Indexed by note.",    sfs.get(0).fieldValue);
-		}
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(3,"510",'0',' ',"‡a Indexed by note."));
+		String expected = "indexed_by_display: Indexed by note.\n";
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
 	}
 
 	@Test
 	public void testIndexedSelectively880() {
-		DataField f1 = new DataField(3,1,"510");
-		f1.ind1 = '2';
-		f1.subfields.add(new Subfield(1, '6', "880-01"));
-		f1.subfields.add(new Subfield(2, 'a', "Indexed Selectively by XXXXX"));
-		DataField f2 = new DataField(17,1,"510",true);
-		f2.ind1 = '2';
-		f2.subfields.add(new Subfield(1, '6', "510-01"));
-		f2.subfields.add(new Subfield(2, 'a', "Non-Roman Indexed Selectively by XXXXX"));
-		MarcRecord rec = new MarcRecord();
-		rec.dataFields.add(f1);
-		rec.dataFields.add(f2);
-		for (DataFieldSet fs : rec.matchAndSortDataFields()) {
-			List<SolrField> sfs = CitationReferenceNote.generateSolrFields(fs).fields;
-			assertEquals(2,                                        sfs.size() );
-			assertEquals("indexed_selectively_by_display",         sfs.get(0).fieldName);
-			assertEquals("Non-Roman Indexed Selectively by XXXXX", sfs.get(0).fieldValue);
-			assertEquals("indexed_selectively_by_display",         sfs.get(1).fieldName);
-			assertEquals("Indexed Selectively by XXXXX",           sfs.get(1).fieldValue);
-		}
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(3, 1,"510",'2',' ',"‡6 880-01 ‡a Indexed Selectively by XXXXX",false));
+		rec.dataFields.add(new DataField(17,1,"510",'2',' ',"‡6 510-01 ‡a Non-Roman Indexed Selectively by XXXXX",true));
+		String expected =
+		"indexed_selectively_by_display: Non-Roman Indexed Selectively by XXXXX\n"+
+		"indexed_selectively_by_display: Indexed Selectively by XXXXX\n";
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
+//		System.out.println(CitationReferenceNote.generateSolrFields(rec,config).toString().replaceAll("\"","\\\\\""));
 	}
 
 }

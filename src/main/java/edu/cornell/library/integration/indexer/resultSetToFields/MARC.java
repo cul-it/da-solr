@@ -30,7 +30,7 @@ public class MARC implements ResultSetToFields {
 		//This method needs to return a map of fields:
 		Map<String,SolrInputField> fields = new HashMap<>();		
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 				
 		if (results.containsKey("marc_leader")) {
 			ResultSet marc_leader = results.get("marc_leader");

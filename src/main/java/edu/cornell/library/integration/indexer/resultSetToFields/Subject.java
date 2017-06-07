@@ -46,7 +46,7 @@ public class Subject implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.addDataFieldResultSet( results.get("subjects") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();

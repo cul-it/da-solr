@@ -44,7 +44,7 @@ public class AuthorTitle implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.addDataFieldResultSet( results.get("title") );
 		rec.addDataFieldResultSet( results.get("title_240") );
 		rec.addDataFieldResultSet( results.get("main_entry") );
