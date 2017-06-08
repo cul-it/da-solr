@@ -4,8 +4,10 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -162,15 +164,14 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
-	public DataFieldSet matchSortAndFlattenDataFields(String tag) {
+	public List<DataField> matchSortAndFlattenDataFields() {
 		Collection<DataFieldSet> individualSets = matchAndSortDataFields(VernMode.ADAPTIVE);
 		if (individualSets.size() == 1)
-			return individualSets.iterator().next();
-		DataFieldSet.Builder b = new DataFieldSet.Builder().setId(1).setMainTag(tag);
+			return individualSets.iterator().next().getFields();
+		List<DataField> fields = new ArrayList<>();
 		for (DataFieldSet fs : individualSets)
-			for (DataField f : fs.getFields())
-				b = b.addToFields(f);
-		return b.build();
+			fields.addAll(fs.getFields());
+		return fields;
 	}
 	public Collection<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by

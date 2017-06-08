@@ -11,7 +11,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
@@ -42,10 +41,8 @@ public class FindingAids implements ResultSetToFields {
 	 */
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
-		DataFieldSet fs = rec.matchSortAndFlattenDataFields("555");
 		SolrFields sfs = new SolrFields();
-
-		for (DataField f: fs.getFields()) {
+		for (DataField f: rec.matchSortAndFlattenDataFields()) {
 
 			String relation = null;
 

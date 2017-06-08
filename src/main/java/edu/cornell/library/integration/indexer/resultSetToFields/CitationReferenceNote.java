@@ -11,7 +11,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
@@ -43,8 +42,7 @@ public class CitationReferenceNote implements ResultSetToFields {
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
-		DataFieldSet fs = rec.matchSortAndFlattenDataFields("510");
-		for (DataField f: fs.getFields()) {
+		for (DataField f: rec.matchSortAndFlattenDataFields()) {
 			if (relation == null)
 				switch (f.ind1) {
 				case '4':

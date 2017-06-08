@@ -13,7 +13,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 
@@ -44,9 +43,8 @@ public class ISBN implements ResultSetToFields {
 	 */
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
-		DataFieldSet fs = rec.matchSortAndFlattenDataFields("020");
 		SolrFields vals = new SolrFields();
-		for (DataField f: fs.getFields()) {
+		for (DataField f: rec.matchSortAndFlattenDataFields()) {
 			StringBuilder sbDisplay = new StringBuilder();
 			boolean aFound = false;
 			Character prevSubfield = null; 
