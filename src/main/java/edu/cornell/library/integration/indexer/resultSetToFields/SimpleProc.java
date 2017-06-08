@@ -1,9 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -11,85 +8,88 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 public class SimpleProc implements ResultSetToFields {
-	@Override
-	public Map<String, SolrInputField> toFields(Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(
-				MarcRecord.RecordType.BIBLIOGRAPHIC,results);
+	@Override
+	public Map<String, SolrInputField> toFields(
+			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.addDataFieldResultSet(results.get("instrumentation"));
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( DataFieldSet fs: sets ) {
-			SolrFieldValueSet vals = generateSolrFields( fs );
-			if (vals.displayField != null)
-				for (String dv : vals.displayValues)
-					ResultSetUtilities.addField(fields,vals.displayField,dv);
-			for (String sv : vals.searchValues) {
-				ResultSetUtilities.addField(fields,vals.searchField,sv);
-				if (!vals.searchField.endsWith("_s") && CharacterSetUtils.hasCJK(sv))
-					ResultSetUtilities.addField(fields,vals.searchField+"_cjk",sv);
-			}
-		}
+		SolrFields vals = generateSolrFields( rec, null );
+
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields( DataFieldSet fs ) {
-		SolrFieldValueSet vals = new SolrFieldValueSet();
-		vals.displayField = "notes";
-		vals.searchField = "notes_t";
-		for (DataField f : fs.getFields()) {
-			String displaySubfields = null, searchSubfields = null;
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+
+		SolrFields sfs = new SolrFields();
+
+		for (DataField f : rec.matchSortAndFlattenDataFields()) {
+			String displayField = "notes";
+			String searchField = "notes_t";
+			String displaySubfields = null;
+			String searchSubfields = null;
 			switch (Integer.valueOf(f.mainTag)) {
 			case 10:
-				vals.searchField = "lc_controlnum_s";
-				vals.displayField = "lc_controlnum_display";
+				searchField = "lc_controlnum_s";
+				displayField = "lc_controlnum_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 22:
-				vals.searchField = "issn_t";
-				vals.displayField = "issn_display";
+				searchField = "issn_t";
+				displayField = "issn_display";
 				displaySubfields = "a";
 				searchSubfields = "al";
 				break;
 			case 24:
-				vals.searchField = "id_t";
-				vals.displayField = "other_identifier_display";
+				searchField = "id_t";
+				displayField = "other_identifier_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 28:
-				vals.searchField = "id_t";
-				vals.displayField = "publisher_number_display";
+				searchField = "id_t";
+				displayField = "publisher_number_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 35:
-				vals.searchField = "id_t";
-				vals.displayField = "other_id_display";
+				searchField = "id_t";
+				displayField = "other_id_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 250:
-				vals.displayField = "edition_display";
+				displayField = "edition_display";
 				displaySubfields = "3ab";
 				break;
 			case 255:
-				vals.displayField = "map_format_display";
+				displayField = "map_format_display";
 				displaySubfields = "abcdefg";
 				break;
 			case 300:
 				displaySubfields = "3abcefg";
-				vals.displayField = "description_display";
+				displayField = "description_display";
 				break;
 			case 310:
 				displaySubfields = "ab";
-				vals.displayField = "frequency_display";
+				displayField = "frequency_display";
 				break;
 			case 362:    displaySubfields = "a";         searchSubfields = "a";        break;
 			case 500:    displaySubfields = "3a";        searchSubfields = "a";        break;
@@ -97,14 +97,14 @@ public class SimpleProc implements ResultSetToFields {
 			case 502:
 				displaySubfields = "3abcdgo";
 				searchSubfields = "abcdgo";
-				vals.displayField = "thesis_display";
+				displayField = "thesis_display";
 				break;
 			case 503:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 504:    displaySubfields = "3ab";       searchSubfields = "ab";       break;
 			case 506:
 				displaySubfields = "3abce";
 				searchSubfields = "3abce";
-				vals.displayField = "restrictions_display";
+				displayField = "restrictions_display";
 				break;
 			case 508:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 510:    displaySubfields = "abcux3";    searchSubfields = "abcux3";   break;
@@ -115,7 +115,7 @@ public class SimpleProc implements ResultSetToFields {
 			case 520:
 				displaySubfields = "3abc";
 				searchSubfields = "abc";
-				vals.displayField = "summary_display";
+				displayField = "summary_display";
 				break;
 			case 521:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 522:    displaySubfields = "3a";        searchSubfields = "a";        break;
@@ -123,7 +123,7 @@ public class SimpleProc implements ResultSetToFields {
 			case 524:
 				displaySubfields = "a3";
 				searchSubfields = "a3";
-				vals.displayField = "cite_as_display";
+				displayField = "cite_as_display";
 				break;
 			case 525:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 527:    displaySubfields = "3a";        searchSubfields = "a";        break;
@@ -135,24 +135,24 @@ public class SimpleProc implements ResultSetToFields {
 			case 538:
 				displaySubfields = "3a";
 				searchSubfields = "a";
-				vals.displayField = "description_display";
+				displayField = "description_display";
 				break;
 			case 540:
 				displaySubfields = "3abcu";
 				searchSubfields = "3abcu";
-				vals.displayField = "restrictions_display";
+				displayField = "restrictions_display";
 				break;
 			case 541:
 				if (" 1".contains(f.ind1.toString())) {
 					displaySubfields = "3ac";
-					vals.displayField = "donor_display";
+					displayField = "donor_display";
 				}
 				break;
 			case 544:    displaySubfields = "3ad";       searchSubfields = "ad";       break;
 			case 545:
 				displaySubfields = "3abcu";
 				searchSubfields = "3abcu";
-				vals.displayField = "historical_note_display";
+				displayField = "historical_note_display";
 				break;
 			case 547:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 550:    displaySubfields = "3a";        searchSubfields = "a";        break;
@@ -164,22 +164,22 @@ public class SimpleProc implements ResultSetToFields {
 			case 580:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 582:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 773:
-				vals.displayField = "in_display";
+				displayField = "in_display";
 				displaySubfields = "abdghikmnopqrstuw";
 				break;
 			case 856:    displaySubfields = "m";         searchSubfields = "m";        break;
 			case 899:
-				vals.searchField = "eightninenine_t";
-				vals.displayField = "eightninenine_display";
+				searchField = "eightninenine_t";
+				displayField = "eightninenine_display";
 				displaySubfields = "ab";
 				searchSubfields = "ab";
 				break;
 			case 902:
-				vals.displayField = "donor_display";
+				displayField = "donor_display";
 				displaySubfields = "b";
 				break;
 			case 903:
-				vals.searchField = "barcode_t";
+				searchField = "barcode_t";
 				searchSubfields = "p";
 				break;
 			case 940:    displaySubfields = "a";         searchSubfields = "a";        break;
@@ -187,22 +187,19 @@ public class SimpleProc implements ResultSetToFields {
 			}
 			if (displaySubfields != null) {
 				String displayValue = f.concatenateSpecificSubfields(displaySubfields);
-				if (! displayValue.isEmpty()) vals.displayValues.add(displayValue);
+				if (! displayValue.isEmpty())
+					sfs.add(new SolrField(displayField,displayValue));
 			}
 			if (searchSubfields != null) {
 				String searchValue = f.concatenateSpecificSubfields(searchSubfields);
-				if (! searchValue.isEmpty()) vals.searchValues.add(searchValue);
+				if (! searchValue.isEmpty()) {
+					sfs.add(new SolrField(searchField,searchValue));
+					if (!searchField.endsWith("_s") && CharacterSetUtils.isCJK(searchValue))
+						sfs.add(new SolrField(searchField+"_cjk",searchValue));
+				}
 			}
 		}
 
-		return vals;
+		return sfs;
 	}
-
-	public static class SolrFieldValueSet {
-		String displayField = null;
-		String searchField = null;
-		List<String> displayValues = new ArrayList<>();
-		List<String> searchValues = new ArrayList<>();
-	}
-
 }
