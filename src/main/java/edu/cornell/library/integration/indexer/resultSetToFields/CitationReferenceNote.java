@@ -30,7 +30,7 @@ public class CitationReferenceNote implements ResultSetToFields {
 		rec.addDataFieldResultSet(results.get("field510"));
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, config );
+		SolrFields vals = generateSolrFields( rec, null );
 
 		for ( SolrField f : vals.fields )
 			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
@@ -38,8 +38,10 @@ public class CitationReferenceNote implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields(
-			MarcRecord rec, @SuppressWarnings("unused") SolrBuildConfig config ) {
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
 		Collection<DataFieldSet> fss = rec.matchAndSortDataFields();

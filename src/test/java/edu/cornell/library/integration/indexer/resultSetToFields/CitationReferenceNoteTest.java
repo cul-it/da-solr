@@ -2,32 +2,20 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 @SuppressWarnings("static-method")
 public class CitationReferenceNoteTest {
 
-	static SolrBuildConfig config = null;
-
-	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
-	}
-
 	@Test
 	public void testReferences() {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"510",'3',' ',"‡a Described in DOCUMENTATION NEWSLETTER, Fall 1988."));
 		String expected = "references_display: Described in DOCUMENTATION NEWSLETTER, Fall 1988.\n";
-		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,null).toString());
 	}
 
 	@Test
@@ -35,7 +23,7 @@ public class CitationReferenceNoteTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"510",'0',' ',"‡a Indexed by note."));
 		String expected = "indexed_by_display: Indexed by note.\n";
-		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,null).toString());
 	}
 
 	@Test
@@ -46,8 +34,8 @@ public class CitationReferenceNoteTest {
 		String expected =
 		"indexed_selectively_by_display: Non-Roman Indexed Selectively by XXXXX\n"+
 		"indexed_selectively_by_display: Indexed Selectively by XXXXX\n";
-		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,config).toString());
-//		System.out.println(CitationReferenceNote.generateSolrFields(rec,config).toString().replaceAll("\"","\\\\\""));
+		assertEquals( expected, CitationReferenceNote.generateSolrFields(rec,null).toString());
+//		System.out.println(CitationReferenceNote.generateSolrFields(rec,null).toString().replaceAll("\"","\\\\\""));
 	}
 
 }
