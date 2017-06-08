@@ -21,7 +21,7 @@ public class SimpleProc implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addDataFieldResultSet(results.get("instrumentation"));
+		rec.addDataFieldResultSet(results.get("notes"));
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, null );
