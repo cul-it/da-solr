@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,26 +43,25 @@ public class CitationReferenceNote implements ResultSetToFields {
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
-		Collection<DataFieldSet> fss = rec.matchAndSortDataFields();
-		for (DataFieldSet fs : fss)
-			for (DataField f: fs.getFields()) {
-				if (relation == null)
-					switch (f.ind1) {
-					case '4':
-					case '3':
-					case ' ':
-						relation = "references_display";  break;
-					case '2':
-						relation = "indexed_selectively_by_display"; break;
-					case '1':
-						relation = "indexed_in_its_entirety_by_display"; break;
-					case '0':
-						relation = "indexed_by_display"; break;
-					}
-				
-				if (relation != null)
-					v.add( new SolrField ( relation, f.concatenateSpecificSubfields("abcux3") ));
-			}
+		DataFieldSet fs = rec.matchSortAndFlattenDataFields("510");
+		for (DataField f: fs.getFields()) {
+			if (relation == null)
+				switch (f.ind1) {
+				case '4':
+				case '3':
+				case ' ':
+					relation = "references_display";  break;
+				case '2':
+					relation = "indexed_selectively_by_display"; break;
+				case '1':
+					relation = "indexed_in_its_entirety_by_display"; break;
+				case '0':
+					relation = "indexed_by_display"; break;
+				}
+
+			if (relation != null)
+				v.add( new SolrField ( relation, f.concatenateSpecificSubfields("abcux3") ));
+		}
 		return v;
 	}
 
