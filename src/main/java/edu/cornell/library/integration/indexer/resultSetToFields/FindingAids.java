@@ -1,22 +1,18 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
-
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 /**
  * Divvy contents of 555 notes into finding_aids_display, indexes_display, or general notes,
@@ -29,53 +25,45 @@ public class FindingAids implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(
-				MarcRecord.RecordType.BIBLIOGRAPHIC,results);
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.addDataFieldResultSet(results.get("finding_index_notes"));
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( DataFieldSet fs: sets ) {
+		SolrFields vals = generateSolrFields( rec, null );
 
-			Set<String> values880 = new HashSet<>();
-			Set<String> valuesMain = new HashSet<>();
-			String relation = null;
-			Boolean cjk880Found = false;
-
-			for (DataField f: fs.getFields()) {
-
-				switch (f.ind1) {
-				case '0': relation = "finding_aids_display"; break;
-				case '8': relation = "notes"; break;
-				default: relation = "indexes_display";
-				}
-				String value = f.concatenateSpecificSubfields("3abcdu");
-				if (f.tag.equals("880")) {
-					values880.add(value);
-					if (f.getScript().equals(DataField.Script.CJK))
-						cjk880Found = true;
-				} else
-					valuesMain.add(value);
-			}
-			if (relation == null)
-				continue;
-			for ( String s : values880 ) {
-				addField(fields,relation,s);
-				if (cjk880Found) {
-					addField(fields,"notes_t_cjk",s);
-				} else {
-					if (CharacterSetUtils.isCJK(s))
-						addField(fields,"notes_t_cjk",s);
-					addField(fields,"notes_t",s);
-				}
-			}
-			for ( String s : valuesMain ) {
-				addField(fields,relation,s);
-				if (CharacterSetUtils.isCJK(s))
-					addField(fields,"notes_t_cjk",s);
-				addField(fields,"notes_t",s);
-			}
-		}
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
 
 		return fields;
+	}
+
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+
+		DataFieldSet fs = rec.matchSortAndFlattenDataFields("555");
+		SolrFields sfs = new SolrFields();
+
+		for (DataField f: fs.getFields()) {
+
+			String relation = null;
+
+			switch (f.ind1) {
+			case '0': relation = "finding_aids_display"; break;
+			case '8': relation = "notes"; break;
+			default: relation = "indexes_display";
+			}
+
+			String value = f.concatenateSpecificSubfields("3abcdu");
+			sfs.add(new SolrField(relation,value));
+			if (f.tag.equals("880") && f.getScript().equals(DataField.Script.CJK))
+				sfs.add(new SolrField("notes_t_cjk",value));
+			else
+				sfs.add(new SolrField("notes_t",value));
+		}
+
+		return sfs;
 	}
 
 }
