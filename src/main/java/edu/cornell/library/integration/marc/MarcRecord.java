@@ -162,6 +162,16 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
+	public DataFieldSet matchSortAndFlattenDataFields(String tag) {
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(VernMode.ADAPTIVE);
+		if (individualSets.size() == 1)
+			return individualSets.iterator().next();
+		DataFieldSet.Builder b = new DataFieldSet.Builder().setId(1).setMainTag(tag);
+		for (DataFieldSet fs : individualSets)
+			for (DataField f : fs.getFields())
+				b = b.addToFields(f);
+		return b.build();
+	}
 	public Collection<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id

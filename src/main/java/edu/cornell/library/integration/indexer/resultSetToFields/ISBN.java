@@ -2,17 +2,16 @@ package edu.cornell.library.integration.indexer.resultSetToFields;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -29,29 +28,24 @@ public class ISBN implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(
-				MarcRecord.RecordType.BIBLIOGRAPHIC,results);
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.addDataFieldResultSet(results.get("isbn"));
+
+		SolrFields vals = generateSolrFields( rec, null );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		for( DataFieldSet fs: sets ) {
-
-			SolrFieldValueSet vals = generateSolrFields( fs );
-
-			for ( String s : vals.display880 )
-				ResultSetUtilities.addField(fields,"isbn_display",s,true);
-			for ( String s : vals.displayMain )
-				ResultSetUtilities.addField(fields,"isbn_display",s,true);
-			for ( String s : vals.search880 )
-				ResultSetUtilities.addField(fields,"isbn_t",s,true);
-			for ( String s : vals.searchMain )
-				ResultSetUtilities.addField(fields,"isbn_t",s,true);
-		}
-
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields( DataFieldSet fs ) {
-		SolrFieldValueSet vals = new SolrFieldValueSet();
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+
+		DataFieldSet fs = rec.matchSortAndFlattenDataFields("020");
+		SolrFields vals = new SolrFields();
 		for (DataField f: fs.getFields()) {
 			StringBuilder sbDisplay = new StringBuilder();
 			boolean aFound = false;
@@ -70,8 +64,7 @@ public class ISBN implements ResultSetToFields {
 					int posOfSpace = sf.value.indexOf(' ');
 					if (posOfSpace == -1) searchISBN = sf.value;
 					else searchISBN = sf.value.substring(0, sf.value.indexOf(' '));
-					if (f.tag.equals("880")) vals.search880.add(searchISBN);
-					else vals.searchMain.add(searchISBN);
+					vals.add(new SolrField( "isbn_t", searchISBN ));
 
 					break;
 				case 'c':
@@ -104,18 +97,9 @@ public class ISBN implements ResultSetToFields {
 			}
 			if (aFound) {
 				String s = removeTrailingPunctuation(sbDisplay.toString()," :;");
-				if (f.tag.equals("880"))
-					vals.display880.add(s);
-				else
-					vals.displayMain.add(s);
+				vals.add(new SolrField("isbn_display",s));
 			}
 		}
 		return vals;
-	}
-	public static class SolrFieldValueSet {
-		public Set<String> display880 = new LinkedHashSet<>();
-		public Set<String> displayMain = new LinkedHashSet<>();
-		public Set<String> search880 = new LinkedHashSet<>();
-		public Set<String> searchMain = new LinkedHashSet<>();
 	}
 }
