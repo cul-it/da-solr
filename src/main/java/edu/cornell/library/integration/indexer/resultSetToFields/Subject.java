@@ -5,6 +5,8 @@ import static edu.cornell.library.integration.utilities.FilingNormalization.getF
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,12 +22,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.BooleanSolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 
 /**
@@ -40,6 +46,20 @@ public class Subject implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
 
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.addDataFieldResultSet( results.get("subjects") );
+
+		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields vals = generateSolrFields( rec, config );
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		for ( BooleanSolrField f : vals.boolFields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		return fields;
+	}
+
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+			throws ClassNotFoundException, SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();
@@ -48,9 +68,9 @@ public class Subject implements ResultSetToFields {
 		final Collection<String> authorityAltForms = new HashSet<>();
 		final Collection<String> authorityAltFormsCJK = new HashSet<>();
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
-		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields sfs = new SolrFields();
 		for( DataFieldSet fs: sets ) {
 
 			// First DataField in each FieldSet should be representative, so we'll examine that.
@@ -96,7 +116,7 @@ public class Subject implements ResultSetToFields {
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					vals = f.getFieldValuesForNameAndOrTitleField("abd;tklnpmors");
+					vals = f.getFieldValuesForNameAndOrTitleField("abcd;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
@@ -208,7 +228,7 @@ public class Subject implements ResultSetToFields {
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (f.mainTag.equals("653")) {
-						ResultSetUtilities.addField(fields,"sixfivethree",sb_piped.toString());
+						sfs.add(new SolrField("sixfivethree",sb_piped.toString()));
 					}
 					for (final String dashed_term : dashed_terms) {
 						final Map<String,Object> subj = new HashMap<>();
@@ -243,31 +263,31 @@ public class Subject implements ResultSetToFields {
 
 			for (final String s: values880_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				ResultSetUtilities.addField(fields,"subject_t",s);
+				sfs.add(new SolrField("subject_t",s));
 				if (h.isFAST)
-					ResultSetUtilities.addField(fields,"fast_"+facet_type+"_facet",disp);
+					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
 					subjectDisplay.add(disp);
 			}
 			for (final String s: valuesMain_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				ResultSetUtilities.addField(fields,"subject_t",s);
+				sfs.add(new SolrField("subject_t",s));
 				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
-					ResultSetUtilities.addField(fields,"fast_"+facet_type+"_facet",disp);
+					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
 					subjectDisplay.add(disp);
 			}
 			for (final String s: values_browse)
 				if (htd != null) {
-					ResultSetUtilities.addField(fields,"subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,"."));
-					ResultSetUtilities.addField(fields,"subject_"+htd.abbrev()+"_filing",getFilingForm(s));
+					sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
+					sfs.add(new SolrField("subject_"+htd.abbrev()+"_filing",getFilingForm(s)));
 				}
 
 			if ( ! h.isFAST || ! recordHasLCSH) {
 				for (final String s: values880_piped)
-					ResultSetUtilities.addField(fields,"subject_cts",s);
+					sfs.add(new SolrField("subject_cts",s));
 				for (final String s: valuesMain_piped)
-					ResultSetUtilities.addField(fields,"subject_cts",s);
+					sfs.add(new SolrField("subject_cts",s));
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)
@@ -275,23 +295,21 @@ public class Subject implements ResultSetToFields {
 			}
 		}
 
-		final SolrInputField field = new SolrInputField("fast_b");
-		field.setValue(recordHasFAST, 1.0f);
-		fields.put("fast_b", field);
+		sfs.add( new BooleanSolrField( "fast_b", recordHasFAST ));
 
 		for (String json : subjectJson)
-			ResultSetUtilities.addField(fields,"subject_json",json);
+			sfs.add(new SolrField("subject_json",json));
 		for (String display : subjectDisplay)
-			ResultSetUtilities.addField(fields,"subject_display",display);
+			sfs.add(new SolrField("subject_display",display));
 		for (String altForm : authorityAltForms)
-			ResultSetUtilities.addField(fields,"authority_subject_t",altForm);
+			sfs.add(new SolrField("authority_subject_t",altForm));
 		for (String altForm : authorityAltFormsCJK)
-			ResultSetUtilities.addField(fields,"authority_subject_t_cjk",altForm);
+			sfs.add(new SolrField("authority_subject_t_cjk",altForm));
 
-		return fields;
+		return sfs;
 	}
 
-	private class Heading {
+	private static class Heading {
 		boolean isFAST = false;
 		boolean isLCGFT = false;
 		DataFieldSet fs = null;

@@ -38,28 +38,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
     return Arrays.asList(
 
         new SPARQLFieldMakerImpl().setName("holdings_data")
-        .addMainStoreQuery("holdings_control_fields",
-            "SELECT * WHERE {\n"
-                + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?mfhd ?p ?field.\n"
-                + " ?p rdfs:subPropertyOf marcrdf:ControlFields. \n"
-                + " ?field marcrdf:tag ?tag.\n"
-                + " ?field marcrdf:value ?value. }")
-        .addMainStoreQuery("holdings_data_fields",
-            "SELECT * WHERE {\n"
-                + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?mfhd ?p ?field.\n"
-                + " ?p rdfs:subPropertyOf marcrdf:DataFields. \n"
-                + " ?field marcrdf:tag ?tag.\n"
-                + " ?field marcrdf:ind1 ?ind1.\n"
-                + " ?field marcrdf:ind2 ?ind2.\n"
-                + " ?field marcrdf:hasSubfield ?sfield.\n"
-                + " ?sfield marcrdf:code ?code.\n"
-                + " ?sfield marcrdf:value ?value. }")
+        .addMainStoreQuery("control_fields",standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlFields"))
+        .addMainStoreQuery("data_fields",standardHoldingsDataFieldGroupSPARQL("marcrdf:DataFields"))
         .addMainStoreQuery("description", standardDataFieldSPARQL("300"))
-        .addMainStoreQuery("rectypebiblvl",
-            "SELECT (SUBSTR(?leader,7,2) as ?rectypebiblvl)\n"
-                + " WHERE { $recordURI$ marcrdf:leader ?leader. }")
+        .addMainStoreQuery("leader",standardLeaderSPARQL())
         .addResultSetToFields(new HoldingsAndItems()),
 
         new SPARQLFieldMakerImpl().setName("boost")
@@ -152,7 +134,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         new StandardMARCFieldMaker("title_addl_t", "222", "ab", VernMode.SEARCH, true),
         new StandardMARCFieldMaker("title_addl_t", "242", "abnp", VernMode.SEARCH, true),
         new StandardMARCFieldMaker("title_addl_t", "243", "abcdefgklmnopqrs", VernMode.SEARCH, true),
-        new StandardMARCFieldMaker("author_245c_t", "245", "c", VernMode.SEARCH),
+        new StandardMARCFieldMaker("author_245c_t","245", "c", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "246", "abcdefgklmnopqrs", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "247", "abcdefgnp", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "740", "anp", VernMode.SEARCH, true),
@@ -301,6 +283,11 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new Language());
   }
 
+  private static String standardLeaderSPARQL() {
+    return "SELECT * WHERE {\n"
+        + " $recordURI$ marcrdf:leader ?leader. }";
+ }
+
   private static String standardControlFieldSPARQL(String tag) {
     return "SELECT * WHERE {\n"
         + " $recordURI$ marcrdf:hasField" + tag + " ?field.\n"
@@ -312,6 +299,28 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
     return "SELECT * WHERE {\n"
         + " BIND( \""+tag+"\"^^xsd:string as ?p ) \n"
         + " $recordURI$ marcrdf:hasField" + tag + " ?field.\n"
+        + " ?field marcrdf:tag ?tag. \n"
+        + " ?field marcrdf:ind1 ?ind1. \n"
+        + " ?field marcrdf:ind2 ?ind2. \n"
+        + " ?field marcrdf:hasSubfield ?sfield .\n"
+        + " ?sfield marcrdf:code ?code.\n"
+        + " ?sfield marcrdf:value ?value. }";
+  }
+
+  private static String standardHoldingsControlFieldGroupSPARQL(String group) {
+    return "SELECT * WHERE {\n"
+        + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
+        + " ?mfhd ?p ?field.\n"
+        + " ?p rdfs:subPropertyOf " + group + ".\n"
+        + " ?field marcrdf:tag ?tag. \n"
+        + " ?field marcrdf:value ?value. }";
+  }
+
+  private static String standardHoldingsDataFieldGroupSPARQL(String group) {
+    return "SELECT * WHERE {\n"
+        + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
+        + " ?mfhd ?p ?field.\n"
+        + " ?p rdfs:subPropertyOf " + group + ".\n"
         + " ?field marcrdf:tag ?tag. \n"
         + " ?field marcrdf:ind1 ?ind1. \n"
         + " ?field marcrdf:ind2 ?ind2. \n"

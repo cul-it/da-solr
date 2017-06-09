@@ -38,7 +38,9 @@ public class NameUtils {
 			facetSubfields = "ab";
 		else if (f.mainTag.endsWith("11"))
 			facetSubfields = "abe";
-		else return null;
+		else {
+			facetSubfields = "abcdq";
+		}
 
 		return f.concatenateSpecificSubfields(facetSubfields);
 	}
@@ -46,10 +48,10 @@ public class NameUtils {
 	public static String displayValue(DataField f, Boolean includeSuffixes) {
 
 		String displaySubfields;
-		if ( f.mainTag.endsWith("00") )
+		if ( f.mainTag.endsWith("00") || f.mainTag.endsWith("20") )
 			displaySubfields = "abcq";
 		else if ( f.mainTag.endsWith("10") || f.mainTag.endsWith("11") )
-			displaySubfields = "abcd";
+			displaySubfields = "abcdn";
 		else return null;
 
 		String mainValue = f.concatenateSpecificSubfields(displaySubfields);
@@ -75,7 +77,7 @@ public class NameUtils {
 	public static List<FieldValues> authorAndOrTitleValues(DataFieldSet fs) {
 
 		String ctsSubfields;
-		if ( fs.getMainTag().endsWith("00") )
+		if ( fs.getMainTag().endsWith("00") || fs.getMainTag().endsWith("20"))
 			ctsSubfields = "abcdq;tklnpmors";
 		else if ( fs.getMainTag().endsWith("10") || fs.getMainTag().endsWith("11") )
 			ctsSubfields = "abcdq;tklnpmors";
@@ -107,9 +109,11 @@ public class NameUtils {
 		} else if ( fs.getMainTag().endsWith("10") ) {
 			htd = HeadTypeDesc.CORPNAME;
 			filingField = "author_corp_filing";
-		} else {
+		} else if ( fs.getMainTag().endsWith("11") ) {
 			htd = HeadTypeDesc.EVENT;
 			filingField = "author_event_filing";
+		} else {
+			htd = null; filingField = null;
 		}
 
 		List<SolrField> sfs = new ArrayList<>();
@@ -118,8 +122,10 @@ public class NameUtils {
 				+'|'+display2+'|'+ctsValsList.get(1).author ));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet1 )));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet2 )));
+		if (filingField != null) {
 		sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
 		sfs.add(new SolrField( filingField, getFilingForm( facet2 )));
+		}
 		if (fs.getFields().get(0).getScript().equals(Script.CJK))
 			sfs.add(new SolrField( (isMainAuthor)?"author_t_cjk":"author_addl_t_cjk", search1 ));
 		else
@@ -131,8 +137,9 @@ public class NameUtils {
 		json.put("search1", ctsValsList.get(0).author);
 		json.put("name2", display2);
 		json.put("search2", ctsValsList.get(1).author);
-		json.put("type", htd.toString());
-		final AuthorityData authData = new AuthorityData(config,ctsValsList.get(0).author,htd);
+		if (htd != null) json.put("type", htd.toString());
+		final AuthorityData authData = (htd != null) 
+				? new AuthorityData(config,ctsValsList.get(0).author,htd) : new AuthorityData(false);
 		json.put("authorizedForm", authData.authorized);
 		final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 		mapper.writeValue(jsonstream, json);
@@ -187,9 +194,11 @@ public class NameUtils {
 			} else if ( f.mainTag.endsWith("10")) {
 				htd = HeadTypeDesc.CORPNAME;
 				filingField = "author_corp_filing";
-			} else {
+			} else if ( f.mainTag.endsWith("11")) {
 				htd = HeadTypeDesc.EVENT;
 				filingField = "author_event_filing";
+			} else {
+				htd = null; filingField = null;
 			}
 
 			sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display ));
@@ -198,13 +207,15 @@ public class NameUtils {
 						(isMainAuthor)?"author_t":"author_addl_t", display ));
 			sfs.add(new SolrField( (isMainAuthor)?"author_cts":"author_addl_cts", display+'|'+ctsVals.author ));
 			sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet )));
-			sfs.add(new SolrField( filingField, getFilingForm( facet ) ));
+			if (filingField != null)
+				sfs.add(new SolrField( filingField, getFilingForm( facet ) ));
 
 			final Map<String,Object> json = new LinkedHashMap<>();
 			json.put("name1", display);
 			json.put("search1", ctsVals.author);
-			json.put("type", htd.toString());
-			final AuthorityData authData = new AuthorityData(config,ctsVals.author,htd);
+			if (htd != null) json.put("type", htd.toString());
+			final AuthorityData authData = (htd != null) 
+					? new AuthorityData(config,ctsVals.author,htd) : new AuthorityData(false);
 			json.put("authorizedForm", authData.authorized);
 			final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);

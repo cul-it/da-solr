@@ -20,7 +20,8 @@ public class AuthorityData {
 	public int headingId = 0;
 	public Boolean undifferentiated = false;
 
-	public AuthorityData( SolrBuildConfig config, String heading, HeadTypeDesc htd) throws ClassNotFoundException, SQLException {
+	public AuthorityData( SolrBuildConfig config, String heading, HeadTypeDesc htd)
+			throws ClassNotFoundException, SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
@@ -56,4 +57,14 @@ public class AuthorityData {
 			}
 		}
 	}
+
+	/**
+	 * 
+	 * @param authorized MUST BE FALSE
+	 */
+	public AuthorityData( Boolean authorized ) {
+		if (authorized.equals(true))
+			throw new IllegalArgumentException( "Please use default constructor if a heading may be authorized");
+	}
+
 }

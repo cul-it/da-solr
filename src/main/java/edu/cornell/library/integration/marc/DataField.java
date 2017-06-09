@@ -204,8 +204,10 @@ public class DataField implements Comparable<DataField> {
 	 */
 	public FieldValues getFieldValuesForNameAndOrTitleField(String subfields) {
 		char one = this.mainTag.charAt(0), two = this.mainTag.charAt(1), three = this.mainTag.charAt(2);
-		if ((two=='0' && three=='0')
-				|| (two=='1' && (three=='0'||three=='1')))
+		if ((three=='0' && (two=='0' || two=='1' || two=='2'))
+				|| (three=='1' && two=='1'))
+//		if ((two=='0' && three=='0')
+//				|| (two=='1' && (three=='0'||three=='1')))
 			return getFieldValuesForNameMaybeTitleField_x00_x10_x11( subfields );
 		if (one=='7'&&(two=='6'||two=='7'||two=='8'))
 			return getFieldValuesForTitleMaybeName_76x_77x_78x( subfields );

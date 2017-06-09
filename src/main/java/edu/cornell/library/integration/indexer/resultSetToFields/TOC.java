@@ -1,16 +1,9 @@
 package edu.cornell.library.integration.indexer.resultSetToFields;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -18,8 +11,11 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * processing into contents_display and partial_contents_display
@@ -31,89 +27,62 @@ public class TOC implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.addDataFieldResultSet(results.get("table of contents"));
 
-		Map<String,SolrInputField> solrFields = new HashMap<>();
-		for( DataFieldSet fs: sets ) {
+		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields vals = generateSolrFields( rec, null );
 
-			List<String> values880 = new ArrayList<>();
-			List<Boolean> isCJK = new ArrayList<>();
-			List<String> valuesMain = new ArrayList<>();
-			String relation = null;
-			String subfields = "atr";
-			for (DataField f: fs.getFields()) {
-				if(relation == null) {
-					if (f.ind1.equals('1') || f.ind1.equals('8')) {
-						relation = "contents";
-					} else if (f.ind1.equals('0')) {
-						relation = "contents";
-						subfields = "agtr";
-					} else if (f.ind1.equals('2')) {
-						relation = "partial_contents";
-					}
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+
+		return fields;
+	}
+
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+
+		SolrFields solrFields = new SolrFields();
+
+		for (DataField f: rec.matchSortAndFlattenDataFields()) {
+
+			String relation = (f.ind1.equals('2')) ? "partial_contents_display" : "contents_display";
+			String value = f.concatenateSpecificSubfields("agtr");
+
+			// Populate display value(s)
+			solrFields.addAll(splitToc( relation,  value ));
+
+			// Populate search values
+			boolean cjk = (f.tag.equals("880") && f.getScript().equals(DataField.Script.CJK));
+			String titleField  = (cjk) ?  "title_addl_t_cjk" :  "title_addl_t";
+			String authorField = (cjk) ? "author_addl_t_cjk" : "author_addl_t";
+			String tocField    = (cjk) ?         "toc_t_cjk" :         "toc_t";
+			for ( Subfield sf : f.subfields )
+				switch (sf.code) {
+				case 'r':
+					solrFields.add(new SolrField( authorField, sf.value )); break;
+				case 't':
+					solrFields.add(new SolrField( titleField, sf.value ));
 				}
-				if (f.tag.equals("880")) {
-					values880.add(f.concatenateSpecificSubfields(subfields));
-					if (f.getScript().equals(DataField.Script.CJK)) 
-						isCJK.add(true);
-					else
-						isCJK.add(false);
-				} else
-					valuesMain.add(f.concatenateSpecificSubfields(subfields));
-			}
-			if (relation != null) {
-				Boolean exactlyOne880 = (values880.size() == 1);
-				Iterator<String> i = values880.iterator();
-				Iterator<Boolean> cjk_i = isCJK.iterator();
-				while (i.hasNext()) {
-					String s = i.next();
-					Boolean cjk = cjk_i.next();
-					if (exactlyOne880) {
-						for(String item: s.split(" *-- *")) {
-							if (s.endsWith(PDF_closeRTL)) {
-								if (! item.startsWith(RLE_openRTL))
-									item = RLE_openRTL + item;
-								if (! item.endsWith(PDF_closeRTL))
-									item += PDF_closeRTL;
-							}
-							addField(solrFields,relation+"_display",item);
-							if (cjk)
-								addField(solrFields,"toc_t_cjk",item);
-							else {
-								if (hasCJK(item))
-									addField(solrFields,"toc_t_cjk",item);
-								addField(solrFields,"toc_t",item);
-							}
-						}
-					} else {
-						addField(solrFields,relation+"_display",s);
-						if (cjk)
-							addField(solrFields,"toc_t_cjk",s);
-						else {
-							if (hasCJK(s))
-								addField(solrFields,"toc_t_cjk",s);
-							addField(solrFields,"toc_t",s);
-						}
-					}
-				}
-				for (String s: valuesMain)
-					if (valuesMain.size() == 1) {
-						for (String item: s.split(" *-- *")) {
-							addField(solrFields,relation+"_display",item);
-							addField(solrFields,"toc_t",item);
-							if (isCJK(item))
-								addField(solrFields,"toc_t_cjk",item);
-						}
-					} else {
-						addField(solrFields,relation+"_display",s);
-						addField(solrFields,"toc_t",s);
-						if (isCJK(s))
-							addField(solrFields,"toc_t_cjk",s);
-					}
-			}
+			solrFields.add(new SolrField(tocField,value));
 		}
-		
 		return solrFields;
-	}	
+	}
 
+	private static SolrFields splitToc(String relation, String value) {
+		SolrFields sfs = new SolrFields();
+		boolean rightToLeft = false;
+		if (value.endsWith(PDF_closeRTL)) {
+			rightToLeft = true;
+			value = value.substring(RLE_openRTL.length(), value.length() - PDF_closeRTL.length());
+		}
+		for(String item: value.split(" *-- *")) {
+			if (rightToLeft)
+				item = RLE_openRTL + item + PDF_closeRTL;
+			sfs.add(new SolrField(relation,item));
+		}
+		return sfs;
+	}
 }

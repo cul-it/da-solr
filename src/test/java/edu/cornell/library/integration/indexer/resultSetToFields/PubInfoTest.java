@@ -27,7 +27,7 @@ public class PubInfoTest {
 		f3.ind2 = '2';
 		f3.subfields.add(new Subfield(1, 'a', "Omaha, Neb. :"));
 		f3.subfields.add(new Subfield(2, 'b', "National Park Service"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(f1);
 		rec.dataFields.add(f2);
 		rec.dataFields.add(f3);
@@ -83,7 +83,7 @@ public class PubInfoTest {
 		f3.ind2 = '4';
 		f3.subfields.add(new Subfield(1, 'c', "℗2014"));
 		f3.subfields.add(new Subfield(2, 'c', "©2014"));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(f1);
 		rec.dataFields.add(f2);
 		rec.dataFields.add(f3);
@@ -131,7 +131,7 @@ public class PubInfoTest {
 		f2.subfields.add(new Subfield(2, 'a', "東京 :"));
 		f2.subfields.add(new Subfield(3, 'b', "吉川弘文館,"));
 		f2.subfields.add(new Subfield(4, 'c', "2004."));
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f2);
 		List<SolrField> sfs = PubInfo.generateSolrFields(rec).fields;
 		assertEquals( 9, sfs.size() );

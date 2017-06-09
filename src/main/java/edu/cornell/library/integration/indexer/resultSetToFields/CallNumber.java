@@ -29,7 +29,7 @@ public class CallNumber implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(results);
+		Collection<DataFieldSet> sets = ResultSetUtilities.resultSetsToSetsofMarcFields(null,results);
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		List<Sort> sortCandidates = new ArrayList<>();

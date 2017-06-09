@@ -36,7 +36,7 @@ public class Language implements ResultSetToFields {
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		MarcRecord rec = new MarcRecord();
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.addControlFieldResultSet(results.get("language_008"));
 		rec.addDataFieldResultSet(results.get("language_note"));
 		rec.addDataFieldResultSet(results.get("languages_041"));

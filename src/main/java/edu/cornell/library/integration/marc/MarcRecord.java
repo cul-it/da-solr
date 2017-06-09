@@ -4,8 +4,10 @@ import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSe
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -21,7 +23,7 @@ import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker
 /*
  *  MarcRecord Handler Class
  */
-public class MarcRecord {
+public class MarcRecord implements Comparable<MarcRecord>{
 
 	public String leader = " ";
 	public String modifiedDate = null;
@@ -30,6 +32,36 @@ public class MarcRecord {
 	public RecordType type;
 	public String id;
 	public String bib_id;
+	public TreeSet<MarcRecord> holdings;
+
+	public MarcRecord( RecordType type ) {
+		this.type = type;
+		if (type != null && type.equals(RecordType.BIBLIOGRAPHIC))
+			holdings = new TreeSet<>();
+	}
+
+	@Override
+	public int compareTo(final MarcRecord other) {
+		if ( this.type == null ) {
+			if ( other.type == null )
+				return id.compareTo(other.id);
+			return 1;
+		}
+		if ( ! this.type.equals(other.type) )
+			return type.compareTo(other.type);
+		return id.compareTo(other.id);
+	}
+	public boolean equals(final MarcRecord other){
+		if (other == null) return false;
+		if (this.type == null) {
+			if (other.type == null)
+				return this.id == other.id;
+			return false;
+		}
+		if ( this.type.equals(other.type) )
+			return this.id == other.id;
+		return false;
+	}
 
 	@Override
 	public String toString( ) {
@@ -132,6 +164,15 @@ public class MarcRecord {
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
+	public List<DataField> matchSortAndFlattenDataFields() {
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(VernMode.ADAPTIVE);
+		if (individualSets.size() == 1)
+			return individualSets.iterator().next().getFields();
+		List<DataField> fields = new ArrayList<>();
+		for (DataFieldSet fs : individualSets)
+			fields.addAll(fs.getFields());
+		return fields;
+	}
 	public Collection<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id

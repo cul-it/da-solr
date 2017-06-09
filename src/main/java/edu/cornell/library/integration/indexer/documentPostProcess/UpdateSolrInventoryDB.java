@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -104,7 +103,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if (origDoc != null) {
 			String newDoc = ClientUtils.toXML(document).replaceAll("</field>","$0\n");
 			System.out.println("*** "+bibid+" ***");
-			System.out.println(StringUtils.difference(origDoc, newDoc));
+			System.out.println(newDoc);
+			//SU.difference isn't working, so I'll just display the new doc until trying a new diff solution.
+//			System.out.println(StringUtils.difference(origDoc, newDoc));
 		}
 	}
 

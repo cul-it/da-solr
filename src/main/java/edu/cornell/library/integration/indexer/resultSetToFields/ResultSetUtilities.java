@@ -55,8 +55,17 @@ public class ResultSetUtilities {
 			field.addValue(value,1.0f);
 	}
 
-	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields( Map<String, ResultSet> results ) {
-		MarcRecord rec = new MarcRecord();
+	public static void addField( Map<String, SolrInputField> fields, String fieldName, Boolean value ) {
+		final SolrInputField field = new SolrInputField(fieldName);
+		field.setValue(value, 1.0f);
+		fields.put(fieldName, field);
+	}
+
+	
+	@Deprecated
+	public static Collection<DataFieldSet> resultSetsToSetsofMarcFields(
+			MarcRecord.RecordType type, Map<String, ResultSet> results ) {
+		MarcRecord rec = new MarcRecord(type);
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
 			rec.addDataFieldResultSet(rs);
@@ -72,15 +81,38 @@ public class ResultSetUtilities {
 			this.fieldValue = fieldValue;
 		}
 	}
+	public static class BooleanSolrField {
+		String fieldName;
+		Boolean fieldValue;
+		public BooleanSolrField ( String fieldName, Boolean fieldValue ) {
+			this.fieldName = fieldName;
+			this.fieldValue = fieldValue;
+		}
+	}
 	public static class SolrFields {
 		List<SolrField> fields = new ArrayList<>();
+		List<BooleanSolrField> boolFields = new ArrayList<>();
+		public void add( SolrField sf ) {
+			if (sf == null) return;
+			this.fields.add(sf);
+		}
+		public void add( BooleanSolrField sf ) {
+			if (sf == null) return;
+			this.boolFields.add(sf);
+		}
 		public void addAll(List<SolrField> sfs) {
 			if (sfs == null) return;
 			this.fields.addAll(sfs);
 		}
+		public void addAll( SolrFields other ) {
+			this.fields.addAll( other.fields );
+			this.boolFields.addAll( other.boolFields );
+		}
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			for (SolrField f : this.fields)
+				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
+			for (BooleanSolrField f : this.boolFields)
 				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
 			return sb.toString();
 		}
