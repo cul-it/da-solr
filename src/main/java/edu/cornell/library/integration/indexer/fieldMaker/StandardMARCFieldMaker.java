@@ -22,7 +22,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetToFields;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;

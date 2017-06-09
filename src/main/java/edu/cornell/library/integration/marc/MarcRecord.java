@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.marc;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
