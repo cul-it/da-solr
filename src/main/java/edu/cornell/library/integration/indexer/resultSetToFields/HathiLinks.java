@@ -15,9 +15,8 @@ import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 
 /**
@@ -116,21 +115,19 @@ public class HathiLinks implements ResultSetToFields {
 			}
 			if (count == 1) {
 				// volume link
-				vals.fields.addAll(URL.generateSolrFields(
-						build856FieldSet("HathiTrust",
-								"http://hdl.handle.net/2027/"+volumes.iterator().next())).fields);
+				vals.fields.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust",
+								"http://hdl.handle.net/2027/"+volumes.iterator().next()),null).fields);
 			} else {
 				// title link
-				vals.fields.addAll(URL.generateSolrFields(
-						build856FieldSet("HathiTrust (multiple volumes)",
-								"http://catalog.hathitrust.org/Record/"+title)).fields);
+				vals.fields.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
+								"http://catalog.hathitrust.org/Record/"+title),null).fields);
 			}
 			vals.fields.add(new SolrField("hathi_title_data",title));
 		}
 		for ( String title : denyTitles ) {
-			vals.fields.addAll(URL.generateSolrFields(
-					build856FieldSet("HathiTrust – Access limited to full-text search",
-							"http://catalog.hathitrust.org/Record/"+title)).fields);
+			vals.fields.addAll(URL.generateSolrFields(buildMarcWith856(
+					"HathiTrust – Access limited to full-text search",
+					"http://catalog.hathitrust.org/Record/"+title),null).fields);
 			vals.fields.add(new SolrField("hathi_title_data",title));
 		}
 		if (availableHathiMaterials.size() > 0)
@@ -143,12 +140,13 @@ public class HathiLinks implements ResultSetToFields {
 		return vals;
 	}
 
-	private static DataFieldSet build856FieldSet( String description, String url) {
+	private static MarcRecord buildMarcWith856( String description, String url) {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField( 1, "856");
 		f.subfields.add(new Subfield( 1, 'u', url));
 		f.subfields.add(new Subfield( 2, 'z', description));
-		DataFieldSet fs = new DataFieldSet.Builder().setId(1).setMainTag("856").addToFields(f).build();
-		return fs;
+		rec.dataFields.add(f);
+		return rec;
 	}
 	private static void tabulateResults(java.sql.ResultSet rs,
 			Map<String,Collection<String>> availableHathiMaterials,
