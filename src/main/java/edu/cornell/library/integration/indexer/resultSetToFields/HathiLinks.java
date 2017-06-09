@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -27,18 +26,28 @@ import edu.cornell.library.integration.marc.Subfield;
  */
 public class HathiLinks implements ResultSetToFields {
 
-	protected static boolean debug = false;
-
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
 
-		Collection<String> oclcids = new HashSet<>();
-		Collection<String> barcodes = new HashSet<>();
-
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
 			rec.addDataFieldResultSet(rs);
+		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields vals = generateSolrFields( rec, config );
+
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+
+		return fields;
+	}
+
+	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+			throws ClassNotFoundException, SQLException, IOException {
+
+		Collection<String> oclcids = new HashSet<>();
+		Collection<String> barcodes = new HashSet<>();
+
 		for (DataField f : rec.dataFields) {
 			if (f.mainTag.equals("035")) {
 				for (Subfield sf : f.subfields)
@@ -51,93 +60,70 @@ public class HathiLinks implements ResultSetToFields {
 						barcodes.add(sf.value);
 			}
 		}
-		if (debug) {
-			if (! oclcids.isEmpty() )
-				for (String oclcid : oclcids)
-					System.out.println("oclc: "+oclcid);
-			if (! barcodes.isEmpty() )
-				for (String barcode : barcodes)
-					System.out.println("barcode: "+barcode);
-		}
 
-		Map<String,SolrInputField> fields = new HashMap<>();
+		SolrFields sfs = new SolrFields();
 		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {			
-			SolrFieldValueSet vals = generateSolrFields(conn, /*oclcids,*/ barcodes);
-			for (SolrField f : vals.fields)
-				ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-		}
-		return fields;
-	}
+			Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
+			Collection<String> denyTitles = new HashSet<>();
 
-	public static SolrFieldValueSet generateSolrFields(Connection conn,
-			/*Collection<String> oclcids,*/ Collection<String> barcodes ) throws SQLException, IOException {
-
-		Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
-		Collection<String> denyTitles = new HashSet<>();
-		SolrFieldValueSet vals = new SolrFieldValueSet();
-
-/*		if (oclcids.size() > 0) {
- 			PreparedStatement pstmt = conn.prepareStatement
- 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
- 					+ " WHERE FIND_IN_SET( ? , OCLC_Numbers)");
- 			for (String oclcid : oclcids) {
-				pstmt.setString(1, barcode);
-				java.sql.ResultSet rs = pstmt.executeQuery();
-				tabulateResults(rs);
-			}
-			pstmt.close();
-		} */
-		
-		if (barcodes.size() > 0) {
-			try (  PreparedStatement pstmt = conn.prepareStatement
-					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
-					+ " WHERE Volume_Identifier = ?")  ) {
-				for (String barcode : barcodes ) {
-					pstmt.setString(1, "coo."+barcode);
-					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
-						tabulateResults(rs,availableHathiMaterials,denyTitles); }
+	/*		if (oclcids.size() > 0) {
+	 			PreparedStatement pstmt = conn.prepareStatement
+	 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
+	 					+ " WHERE FIND_IN_SET( ? , OCLC_Numbers)");
+	 			for (String oclcid : oclcids) {
+					pstmt.setString(1, barcode);
+					java.sql.ResultSet rs = pstmt.executeQuery();
+					tabulateResults(rs);
+				}
+				pstmt.close();
+			} */
+			
+			if (barcodes.size() > 0) {
+				try (  PreparedStatement pstmt = conn.prepareStatement
+						("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
+						+ " WHERE Volume_Identifier = ?")  ) {
+					for (String barcode : barcodes ) {
+						pstmt.setString(1, "coo."+barcode);
+						try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+							tabulateResults(rs,availableHathiMaterials,denyTitles); }
+					}
 				}
 			}
-		}
-		
-		for ( String title : availableHathiMaterials.keySet() ) {
-			Collection<String> volumes = availableHathiMaterials.get(title);
-			int count = volumes.size();
-			if (count == 1) {
-				try ( PreparedStatement pstmt = conn.prepareStatement
-						("SELECT COUNT(*) as count FROM raw_hathi"
-						+ " WHERE UofM_Record_Number = ?")  ) {
-					pstmt.setString(1, title);
-					try (  java.sql.ResultSet rs = pstmt.executeQuery()  ) {
-						while (rs.next())
-							count = rs.getInt("count"); }
+			
+			for ( String title : availableHathiMaterials.keySet() ) {
+				Collection<String> volumes = availableHathiMaterials.get(title);
+				int count = volumes.size();
+				if (count == 1) {
+					try ( PreparedStatement pstmt = conn.prepareStatement
+							("SELECT COUNT(*) as count FROM raw_hathi"
+							+ " WHERE UofM_Record_Number = ?")  ) {
+						pstmt.setString(1, title);
+						try (  java.sql.ResultSet rs = pstmt.executeQuery()  ) {
+							while (rs.next())
+								count = rs.getInt("count"); }
+					}
 				}
+				if (count == 1) {
+					// volume link
+					sfs.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust",
+							"http://hdl.handle.net/2027/"+volumes.iterator().next()),null).fields);
+				} else {
+					// title link
+					sfs.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
+							"http://catalog.hathitrust.org/Record/"+title),null).fields);
+				}
+				sfs.add(new SolrField("hathi_title_data",title));
 			}
-			if (count == 1) {
-				// volume link
-				vals.fields.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust",
-								"http://hdl.handle.net/2027/"+volumes.iterator().next()),null).fields);
-			} else {
-				// title link
-				vals.fields.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
-								"http://catalog.hathitrust.org/Record/"+title),null).fields);
+			for ( String title : denyTitles ) {
+				sfs.addAll(URL.generateSolrFields(buildMarcWith856(
+						"HathiTrust – Access limited to full-text search",
+						"http://catalog.hathitrust.org/Record/"+title),null).fields);
+				sfs.add(new SolrField("hathi_title_data",title));
 			}
-			vals.fields.add(new SolrField("hathi_title_data",title));
+			if (availableHathiMaterials.size() > 0)
+				sfs.add(new SolrField("online","Online"));
 		}
-		for ( String title : denyTitles ) {
-			vals.fields.addAll(URL.generateSolrFields(buildMarcWith856(
-					"HathiTrust – Access limited to full-text search",
-					"http://catalog.hathitrust.org/Record/"+title),null).fields);
-			vals.fields.add(new SolrField("hathi_title_data",title));
-		}
-		if (availableHathiMaterials.size() > 0)
-			vals.fields.add(new SolrField("online","Online"));
-
-		if (debug)
-			for (SolrField f : vals.fields)
-				System.out.println( f.fieldName +": "+f.fieldValue);
-
-		return vals;
+		return sfs;
 	}
 
 	private static MarcRecord buildMarcWith856( String description, String url) {
@@ -164,40 +150,4 @@ public class HathiLinks implements ResultSetToFields {
 			}
 		}
 	}
-	public static class SolrFieldValueSet {
-		List<SolrField> fields = new ArrayList<>();
-	}
 }
-
-
-/*
-mysql> desc raw_hathi;
-+------------------------------+--------------+------+-----+---------+-------+
-| Field                        | Type         | Null | Key | Default | Extra |
-+------------------------------+--------------+------+-----+---------+-------+
-| Volume_Identifier            | varchar(128) | NO   | PRI |         |       |
-| Access                       | varchar(16)  | YES  |     | NULL    |       |
-| Rights                       | varchar(16)  | YES  |     | NULL    |       |
-| UofM_Record_Number           | varchar(128) | YES  | MUL | NULL    |       |
-| Enum_Chrono                  | varchar(128) | YES  | MUL | NULL    |       |
-| Source                       | varchar(16)  | YES  | MUL | NULL    |       |
-| Source_Inst_Record_Number    | varchar(128) | YES  |     | NULL    |       |
-| OCLC_Numbers                 | varchar(250) | YES  | MUL | NULL    |       |
-| ISBNs                        | varchar(250) | YES  |     | NULL    |       |
-| ISSNs                        | varchar(250) | YES  |     | NULL    |       |
-| LCCNs                        | varchar(250) | YES  |     | NULL    |       |
-| Title                        | varchar(256) | YES  |     | NULL    |       |
-| Imprint                      | varchar(256) | YES  |     | NULL    |       |
-| Rights_determine_reason_code | varchar(8)   | YES  |     | NULL    |       |
-| Date_Last_Update             | varchar(24)  | YES  |     | NULL    |       |
-| Gov_Doc                      | int(1)       | YES  |     | NULL    |       |
-| Pub_Date                     | varchar(16)  | YES  |     | NULL    |       |
-| Pub_Place                    | varchar(128) | YES  |     | NULL    |       |
-| Language                     | varchar(128) | YES  |     | NULL    |       |
-| Bib_Format                   | varchar(16)  | YES  |     | NULL    |       |
-| update_file_name             | varchar(128) | YES  |     | NULL    |       |
-| record_counter               | int(12)      | YES  |     | NULL    |       |
-+------------------------------+--------------+------+-----+---------+-------+
-22 rows in set (0.00 sec)
-
- */
