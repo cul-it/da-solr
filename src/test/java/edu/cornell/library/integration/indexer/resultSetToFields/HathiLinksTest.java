@@ -66,7 +66,7 @@ public class HathiLinksTest {
 		+ "|HathiTrust – Access limited to full-text search\n"+
 		"notes_t: HathiTrust – Access limited to full-text search\n"+
 		"hathi_title_data: 009226070\n";
-		System.out.println(HathiLinks.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
+//		System.out.println(HathiLinks.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
 		assertEquals( expected, HathiLinks.generateSolrFields(rec, config).toString() );
 	}
 }
