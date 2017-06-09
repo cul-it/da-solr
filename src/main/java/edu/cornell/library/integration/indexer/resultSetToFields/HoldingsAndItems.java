@@ -237,18 +237,27 @@ public class HoldingsAndItems implements ResultSetToFields {
 		}
 		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
 
-		for (Map<String,Object> boundWith : boundWiths) {
-			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-			mapper.writeValue(jsonstream, boundWith);
-			String json = jsonstream.toString("UTF-8");
-			sfs.add(new SolrField("bound_with_json",json));
-			sfs.add(new SolrField("barcode_addl_t",boundWith.get("barcode").toString()));
-		}
-
-		// ITEM DATA STARTS HERE
+		// ITEM DATA
+		Integer emptyItemCount[] = {0};
 		try (Connection conn = config.getDatabaseConnection("Voy")){
 			sfs.addAll( loadItemData(conn, holdings, locations, workLibraries,
-					description_with_e, rectypebiblvl, descriptions) );
+					description_with_e, rectypebiblvl, descriptions, emptyItemCount) );
+		}
+
+		if (! boundWiths.isEmpty()) {
+			boolean suppressBoundWiths = (boundWiths.size() == emptyItemCount[0]);
+			for (Map<String,Object> boundWith : boundWiths) {
+				sfs.add(new SolrField("barcode_addl_t",boundWith.get("barcode").toString()));
+				if (suppressBoundWiths)
+					continue;
+				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+				mapper.writeValue(jsonstream, boundWith);
+				String json = jsonstream.toString("UTF-8");
+				sfs.add(new SolrField("bound_with_json",json));
+			}
+			sfs.add(new BooleanSolrField("suppress_bound_with_b",suppressBoundWiths));
+			if ( ! suppressBoundWiths && emptyItemCount[0] > 0 )
+				sfs.add(new BooleanSolrField("bound_with_count_empty_item_mismatch_b",true));
 		}
 
 		for (String lib : workLibraries)
@@ -296,7 +305,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 	private static SolrFields loadItemData(Connection conn, Map<String,Holdings> holdings,
 			Locations locations, Collection<String> workLibraries, boolean description_with_e,
-			String rectypebiblvl, Collection<String> descriptions)
+			String rectypebiblvl, Collection<String> descriptions, Integer[] emptyItemCount)
 					throws IOException {
 		
 		SolrFields sfs = new SolrFields();
@@ -349,6 +358,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 	        		record.put("mfhd_id",h.id);
 	        		String loc = null;
 	        		String tempLibrary = null;
+	        		String barcode = "";
 	        		
 	        		if (debug) 
 	        			System.out.println();
@@ -382,6 +392,8 @@ public class HoldingsAndItems implements ResultSetToFields {
 	       				if (value == null)
 	       					value = "";
 	       				value = value.trim();
+	       				if (colname.equals("item_barcode"))
+	       					barcode = value;
 	       				if ((colname.equals("temp_location")
 	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
@@ -428,6 +440,8 @@ public class HoldingsAndItems implements ResultSetToFields {
 		        		enumStats.put(loc, stats);
 	        		}
 	        		items.put(Integer.valueOf((String)record.get("item_id")),record);
+	        		if (barcode.isEmpty())
+	        			emptyItemCount[0]++;
 	        		foundItems = true;
 	        		if (tempLibrary != null)
 	        			workLibraries.add(tempLibrary);

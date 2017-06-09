@@ -72,10 +72,10 @@ public class HoldingsAndItemsTest {
 		"holdings_display: 10091152|20170321083807\n"+
 		"holdings_record_display: {\"id\":\"10091152\",\"modified_date\":\"20170321083807\",\"copy_number\":null,"
 		+ "\"callnos\":[\"DS665 .C36 2016\"],\"notes\":[],\"holdings_desc\":[],\"recent_holdings_desc\":[],"
-		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"ech\",\"number\":13,"
-		+ "\"name\":\"Kroch Library Asia\",\"library\":\"Kroch Library Asia\"}]}\n"+
-		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"10165353\",\"year\":\"\","
-		+ "\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\","
+		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"ech\","
+		+ "\"number\":13,\"name\":\"Kroch Library Asia\",\"library\":\"Kroch Library Asia\"}]}\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"10165353\",\"year\":"
+		+ "\"\",\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\","
 		+ "\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\",\"temp_item_type_id\":\"0\","
 		+ "\"mfhd_id\":\"10091152\",\"recalls_placed\":\"0\",\"create_date\":\"2017-03-21 08:38:26.0\","
 		+ "\"item_barcode\":\"31924124165360\",\"modify_date\":\"\",\"perm_location\":{\"code\":\"ech\","
@@ -168,7 +168,6 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
-//		System.out.println( HoldingsAndItems.generateSolrFields(bibRec, config).toString().replaceAll("\"","\\\\\"") );
 	}
 
 	@Test
@@ -287,16 +286,60 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10016824|20161021133727\n"+
 		"holdings_record_display: {\"id\":\"10016824\",\"modified_date\":\"20161021133727\",\"copy_number\":null,"
-		+ "\"callnos\":[\"SF1 .E89 no.137\"],\"notes\":[\"Also catalogued as part of the serial: EAAP publication.\"],"
-		+ "\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
+		+ "\"callnos\":[\"SF1 .E89 no.137\"],\"notes\":[\"Also catalogued as part of the serial: EAAP"
+		+ " publication.\"],\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
 		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"mann\",\"number\":69,\"name\":\"Mann Library\","
 		+ "\"library\":\"Mann Library\"}]}\n"+
+		"barcode_addl_t: 31924123150835\n"+
 		"bound_with_json: {\"item_enum\":\"\",\"item_id\":10035199,\"mfhd_id\":\"10016824\","
 		+ "\"barcode\":\"31924123150835\"}\n"+
-		"barcode_addl_t: 31924123150835\n"+
 		"location_facet: Mann Library\n"+
 		"online: At the Library\n"+
-		"multivol_b: false\n";
+		"multivol_b: false\n"+
+		"suppress_bound_with_b: false\n";
+		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testSuppressBoundWith()
+			throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "00785cam a2200217 a 4500";
+		bibRec.dataFields.add(new DataField(1,"300",' ',' ',"‡a 186 p. : ‡b ill., front., plates."));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "3639439";
+		holdRec.modifiedDate = "20170523083204.0";
+		holdRec.leader = "00352cx  a2200121z  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","3639439"));
+		holdRec.controlFields.add(new ControlField(2,"004","3099378"));
+		holdRec.controlFields.add(new ControlField(3,"005","20170523083204.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","0005182u    8   4001uu   0000000"));
+		holdRec.dataFields.add(new DataField(5,"014",'1',' ',"‡a AQC4384CU001"));
+		holdRec.dataFields.add(new DataField(6,"014",'0',' ',"‡9 003637022"));
+		holdRec.dataFields.add(new DataField(7,"852",'0','0',"‡b olin,anx ‡h Film 2600 1774-1850 Reel A-1, no.10."
+				+ " ‡z Also cataloged as part of: Wright American fiction."));
+		holdRec.dataFields.add(new DataField(8,"876",' ',' ',"‡p 31924101012320 ‡x analytic"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 3639439|20170523083204\n"+
+		"holdings_record_display: {\"id\":\"3639439\",\"modified_date\":\"20170523083204\",\"copy_number\":null,"
+		+ "\"callnos\":[\"Film 2600 1774-1850 Reel A-1, no.10.\"],\"notes\":[\"Also cataloged as part of: Wright"
+		+ " American fiction.\"],\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
+		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"olin,anx\",\"number\":101,\"name\":"
+		+ "\"Library Annex\",\"library\":\"Library Annex\"}]}\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"microform\",\"item_id\":\"10276119\","
+		+ "\"year\":\"\",\"item_type_id\":\"19\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
+		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"Filmed with:\",\"item_sequence_number\":"
+		+ "\"1\",\"temp_item_type_id\":\"0\",\"mfhd_id\":\"3639439\",\"recalls_placed\":\"0\",\"create_date\":"
+		+ "\"2017-05-23 08:38:13.0\",\"item_barcode\":\"\",\"modify_date\":\"\",\"perm_location\":{\"code\":"
+		+ "\"olin,anx\",\"number\":101,\"name\":\"Library Annex\",\"library\":\"Library Annex\"}}\n"+
+		"item_display: 10276119|3639439\n"+
+		"barcode_addl_t: 31924101012320\n"+
+		"location_facet: Library Annex\n"+
+		"online: At the Library\n"+
+		"multivol_b: false\n"+
+		"suppress_bound_with_b: true\n";
+//		System.out.println(HoldingsAndItems.generateSolrFields(bibRec,config).toString().replaceAll("\"","\\\\\""));
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
 	}
 }
