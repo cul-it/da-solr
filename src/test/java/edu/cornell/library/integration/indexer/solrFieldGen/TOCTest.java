@@ -67,7 +67,7 @@ public class TOCTest {
 		rec.dataFields.add(new DataField(1,5,"505",'0','0',"‡6 880-05 ‡g \"A mozhet, i︠a︡ lishʹ pochva dli︠a︡ romana?\""
 				+ " : ob avtore ėtikh vospominaniĭ / ‡r Irina Emelʹi︠a︡nova -- ‡t V plenu vremeni / ‡r Olʹga Ivinskai︠a︡ "
 				+ "-- ‡t Legendy Potapovskogo pereulka / ‡r Irina Emelʹi︠a︡nova.", false));
-		rec.dataFields.add(new DataField(2,5,"020",' ',' ',"‡6 505-05/(N ‡g \"А может, я лишь почва для романа?\""
+		rec.dataFields.add(new DataField(2,5,"505",' ',' ',"‡6 505-05/(N ‡g \"А может, я лишь почва для романа?\""
 				+ " : об авторе этих воспоминаний / ‡r Ирина Емельянова -- ‡t В плену времени / ‡r Ольга Ивинская"
 				+ " -- ‡t Легенды Потаповского переулка / ‡r Ирина Емельянова.", true));
 		String expected =
@@ -100,7 +100,7 @@ public class TOCTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡g v. 1. ‡t Zhang quan : Nanjin zheng fu --"
 				+ " ‡g v. 2. Fen qi : kang zhan ji zhan hou -- ‡g v. 3. Yi han : kang zhan ji zhan hou (xu).", false));
-		rec.dataFields.add(new DataField(2,7,"020",' ',' ',"‡6 505-07/$1 ‡g v. 1. ‡t 掌權 : 南京政府 --"
+		rec.dataFields.add(new DataField(2,7,"505",' ',' ',"‡6 505-07/$1 ‡g v. 1. ‡t 掌權 : 南京政府 --"
 				+ " ‡g v. 2. ‡t 奮起 : 抗戰及戰後 -- ‡g v. 3. ‡t 遺憾 : 抗戰及戰後(續).", true));
 		String expected =
 		"contents_display: v. 1. 掌權 : 南京政府\n"+
@@ -124,8 +124,8 @@ public class TOCTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡a v.1 -- v.2", false));
 		rec.dataFields.add(new DataField(2,8,"505",'0','0',"‡6 880-08 ‡a v.3 -- v.4", false));
-		rec.dataFields.add(new DataField(3,7,"020",' ',' ',"‡6 505-07/$1 ‡a v.1 CJK -- v.2 CJK", true));
-		rec.dataFields.add(new DataField(4,8,"020",' ',' ',"‡6 505-08/$1 ‡a v.3 CJK -- v.4 CJK", true));
+		rec.dataFields.add(new DataField(3,7,"505",' ',' ',"‡6 505-07/$1 ‡a v.1 CJK -- v.2 CJK", true));
+		rec.dataFields.add(new DataField(4,8,"505",' ',' ',"‡6 505-08/$1 ‡a v.3 CJK -- v.4 CJK", true));
 		String expected =
 		"contents_display: v.1 CJK\n"+
 		"contents_display: v.2 CJK\n"+

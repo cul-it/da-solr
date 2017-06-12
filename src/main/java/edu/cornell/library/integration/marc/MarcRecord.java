@@ -178,7 +178,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
-		final Map<Integer,DataFieldSet.Builder> matchedFields  = new HashMap<>();
+		final Map<String,DataFieldSet.Builder> matchedFields  = new HashMap<>();
 		final Collection<DataFieldSet> sortedFields = new TreeSet<>();
 
 		for( final DataField f: this.dataFields) {
@@ -187,14 +187,15 @@ public class MarcRecord implements Comparable<MarcRecord>{
 				f.linkNumber = 1;
 			if ((f.linkNumber != null) && (f.linkNumber != 0)) {
 				DataFieldSet.Builder fsb;
-				if (matchedFields.containsKey(f.linkNumber)) {
-					fsb = matchedFields.get(f.linkNumber);
+				String fieldSetKey = f.mainTag+f.linkNumber;
+				if (matchedFields.containsKey(fieldSetKey)) {
+					fsb = matchedFields.get(fieldSetKey);
 					if (fsb.getId() > f.id) fsb.setId(f.id);
 				} else {
 					fsb = new DataFieldSet.Builder().setLinkNumber(f.linkNumber).setId(f.id).setMainTag(f.mainTag);
 				}
 				fsb.addToFields(f);
-				matchedFields.put(fsb.getLinkNumber(), fsb);
+				matchedFields.put(fieldSetKey, fsb);
 			} else {
 				DataFieldSet fs = new DataFieldSet.Builder().setId(f.id).setMainTag(f.mainTag).addToFields(f).build();
 				sortedFields.add(fs);
@@ -203,8 +204,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		// Take groups linked by occurrence number, and add them as groups to the sorted fields
 		// keyed by the smallest field id of the group. Groups will be added together, but with
 		// that highest precedence of the lowest field id.
-		for( final Integer linkNumber : matchedFields.keySet() ) {
-			final DataFieldSet fs = matchedFields.get(linkNumber).build();
+		for( final String fieldSetKey : matchedFields.keySet() ) {
+			final DataFieldSet fs = matchedFields.get(fieldSetKey).build();
 			sortedFields.add(fs);
 		}
 		return sortedFields;

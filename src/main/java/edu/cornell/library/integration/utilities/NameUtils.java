@@ -55,6 +55,9 @@ public class NameUtils {
 		else return null;
 
 		String mainValue = f.concatenateSpecificSubfields(displaySubfields);
+		if (mainValue.isEmpty())
+			return null;
+
 		if ( ! includeSuffixes )
 			return removeTrailingPunctuation(mainValue,",. ");
 		String suffixes = (f.mainTag.endsWith("00")) ? f.concatenateSpecificSubfields("d") : "";
@@ -185,6 +188,8 @@ public class NameUtils {
 
 		} else {
 			String display = NameUtils.displayValue( f, true );
+			if (display == null)
+				return sfs;
 			String facet = NameUtils.facetValue( f );
 			HeadTypeDesc htd;
 			String filingField;
