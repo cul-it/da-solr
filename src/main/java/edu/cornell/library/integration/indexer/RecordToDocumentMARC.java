@@ -10,8 +10,8 @@ import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
-import edu.cornell.library.integration.indexer.resultSetToFields.*;
 import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeries;
+import edu.cornell.library.integration.indexer.solrFieldGen.*;
 
 public class RecordToDocumentMARC extends RecordToDocumentBase {
 

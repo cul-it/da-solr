@@ -630,7 +630,7 @@ public class SolrBuildConfig {
         	for (String className : debugClasses) {
         		try {
         			solrBuildConfig.setDebugRSTFClass(
-        					Class.forName("edu.cornell.library.integration.indexer.resultSetToFields."+className));
+        					Class.forName("edu.cornell.library.integration.indexer.solrFieldGen."+className));
 				} catch (ClassNotFoundException e) {
 					System.out.println("Debug for class "+className+" failed due to ClassNotFoundException.");
 					e.printStackTrace();

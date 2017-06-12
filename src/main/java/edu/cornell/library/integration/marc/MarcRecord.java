@@ -1,11 +1,13 @@
 package edu.cornell.library.integration.marc;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.nodeToString;
+import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -162,6 +164,15 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
+	public List<DataField> matchSortAndFlattenDataFields() {
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(VernMode.ADAPTIVE);
+		if (individualSets.size() == 1)
+			return individualSets.iterator().next().getFields();
+		List<DataField> fields = new ArrayList<>();
+		for (DataFieldSet fs : individualSets)
+			fields.addAll(fs.getFields());
+		return fields;
+	}
 	public Collection<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id

@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.resultSetToFieldsStepped;
 
-import static edu.cornell.library.integration.indexer.resultSetToFields.ResultSetUtilities.addField;
+import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
 
 import java.util.Collection;
 import java.util.HashMap;
