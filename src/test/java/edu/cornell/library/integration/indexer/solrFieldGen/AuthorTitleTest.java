@@ -335,6 +335,76 @@ public class AuthorTitleTest {
 		"authortitle_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia) | Tjita dan daja pemuda Islam\n"+
 		"authortitle_filing: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia 0000 tjita dan daja pemuda islam\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void testAuthorMislinkedToNonRomanTitle6507903()
+			throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,1,"100",'1',' ',
+				"‡6 880-01 ‡a Foucher, A. ‡q (Alfred), ‡d 1865-1952.",false));
+		rec.dataFields.add(new DataField(2,"240",'1','0',
+				"‡a Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. ‡l Chinese"));
+		rec.dataFields.add(new DataField(3,1,"245",'0','0',
+				"‡6 880-01 ‡a Fo jiao yi shu de zao qi jie duan = ‡b The beginnings of Buddhist art and other essays in"
+				+ " Indian and Central-Asian archaeology / ‡c cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ;"
+				+ " Wang Jiqing shen jiao.",false));
+		rec.dataFields.add(new DataField(4,1,"245",'0','0',
+				"‡6 245-01/$1 ‡a 佛教艺术的早期阶段 = ‡b The beginnings of Buddhist art and other essays in Indian and"
+				+ " Central-Asian archaeology / ‡c c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.",true));
+		String expected =
+		"author_display: Foucher, A. (Alfred), 1865-1952.\n"+
+		"author_t: Foucher, A. (Alfred), 1865-1952.\n"+
+		"author_cts: Foucher, A. (Alfred), 1865-1952.|Foucher, A. (Alfred), 1865-1952.\n"+
+		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
+		"author_pers_filing: foucher a alfred 1865 1952\n"+
+		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
+		+ "1865-1952.\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: Foucher, Alfred Charles Auguste, 1865-1952\n"+
+		"author_sort: foucher a alfred 1865 1952\n"+
+		"title_uniform_display: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
+		+ "Chinese|Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
+		+ "Chinese|Foucher, A. (Alfred), 1865-1952.\n"+
+		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | Beginnings of Buddhist art and other essays in "
+		+ "Indian and Central-Asian archaeology. Chinese\n"+
+		"authortitle_filing: foucher a alfred 1865 1952 0000 beginnings of buddhist art and other essays in indian "
+		+ "and central asian archaeology chinese\n"+
+		"title_uniform_t: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
+		+ "Chinese\n"+
+		"title_uniform_t: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
+		+ "Chinese\n"+
+		"title_sort: fo jiao yi shu de zao qi jie duan the beginnings of buddhist art and other essays in indian "
+		+ "and central asian archaeology\n"+
+		"title_display: Fo jiao yi shu de zao qi jie duan\n"+
+		"subtitle_display: The beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology\n"+
+		"fulltitle_display: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in "
+		+ "Indian and Central-Asian archaeology\n"+
+		"title_t: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian and "
+		+ "Central-Asian archaeology\n"+
+		"title_t: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian and "
+		+ "Central-Asian archaeology\n"+
+		"title_exact: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian "
+		+ "and Central-Asian archaeology\n"+
+		"title_exact: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian "
+		+ "and Central-Asian archaeology\n"+
+		"title_sms_compat_display: Fo jiao yi shu de zao qi jie duan\n"+
+		"title_2letter_s: fo\n"+
+		"title_1letter_s: f\n"+
+		"title_vern_display: 佛教艺术的早期阶段\n"+
+		"subtitle_vern_display: The beginnings of Buddhist art and other essays in Indian and Central-Asian "
+		+ "archaeology\n"+
+		"title_t_cjk: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
+		+ "archaeology\n"+
+		"fulltitle_vern_display: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and "
+		+ "Central-Asian archaeology\n"+
+		"title_exact: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
+		+ "archaeology\n"+
+		"title_exact: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
+		+ "archaeology\n"+
+		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | 佛教艺术的早期阶段\n"+
+		"authortitle_filing: foucher a alfred 1865 1952 0000 佛教艺术的早期阶段\n"+
+		"title_responsibility_display: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校. / cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
+		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 //		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
 }
