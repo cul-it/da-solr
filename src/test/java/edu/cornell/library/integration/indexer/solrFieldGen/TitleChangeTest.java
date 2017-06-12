@@ -227,11 +227,19 @@ public class TitleChangeTest {
 	@Test
 	public void test2684613() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.dataFields.add(new DataField(3,"776",'1',' ',"‡a In vitro cellular & developmental biology. ‡p Animal (Online)"));
+		rec.dataFields.add(new DataField(3,"776",'1',' ',
+				"‡a In vitro cellular & developmental biology. ‡p Animal (Online)"));
 		String expected =
 		"title_uniform_t: Animal (Online)\n"+
 		"other_form_display:  In vitro cellular & developmental biology. | Animal (Online)\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
-//		System.out.println( TitleChange.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
+
+	@Test
+	public void test2812927() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
+		assertEquals( "", TitleChange.generateSolrFields(rec, config).toString() );
+//		System.out.println( TitleChange.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
+	}	
 }
