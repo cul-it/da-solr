@@ -57,8 +57,10 @@ public class CitationReferenceNote implements ResultSetToFields {
 					relation = "indexed_by_display"; break;
 				}
 
+			String value = f.concatenateSpecificSubfields("abcux3");
 			if (relation != null)
-				v.add( new SolrField ( relation, f.concatenateSpecificSubfields("abcux3") ));
+				v.add( new SolrField ( relation, value ));
+			v.add( new SolrField ( "notes_t", value ));
 		}
 		return v;
 	}
