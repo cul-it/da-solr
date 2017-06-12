@@ -386,6 +386,17 @@ public class DataField implements Comparable<DataField> {
 			this.author = author;
 			this.title = title;
 		}
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.type.toString()).append(": ");
+			if (this.author != null) {
+				sb.append("A(").append(this.author).append(')');
+				if (this.title != null)
+					sb.append(" | T(").append(this.title).append(')');
+			} else if (this.title != null)
+				sb.append("T(").append(this.title).append(')');
+			return sb.toString();
+		}
 	}
 	public static enum Script {
 		ARABIC, LATIN, CJK, CYRILLIC, GREEK, HEBREW, UNKNOWN
