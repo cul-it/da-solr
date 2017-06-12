@@ -50,6 +50,7 @@ public class URL implements ResultSetToFields {
 						rec = holdingRecs.get(recordURI);
 					} else {
 						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
+						rec.id = recordURI.substring(recordURI.lastIndexOf('/')+1);
 						holdingRecs.put(recordURI, rec);
 					}
 					rec.addDataFieldQuerySolution(sol);
