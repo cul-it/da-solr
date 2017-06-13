@@ -119,7 +119,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 				if (sf.code.equals('e'))
 					description_with_e = true;
 		}
-		rectypebiblvl = bibRec.leader.substring(7,9);
+		rectypebiblvl = bibRec.leader.substring(6,8);
 
 		SolrFields sfs = new SolrFields();
 		for( MarcRecord rec: bibRec.holdings ) {
@@ -307,7 +307,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 			Locations locations, Collection<String> workLibraries, boolean description_with_e,
 			String rectypebiblvl, Collection<String> descriptions, Integer[] emptyItemCount)
 					throws IOException {
-		
+
 		SolrFields sfs = new SolrFields();
 		Boolean multivol = false;
 
