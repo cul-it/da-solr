@@ -367,7 +367,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	private Model loadBaseModel() throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
-		String[] baseNtFiles = { "/shadows.nt","/callnumber_map.nt","/fieldGroups.nt"};
+		String[] baseNtFiles = {"/shadows.nt","/fieldGroups.nt"};
 		for( String fileName : baseNtFiles ){		    
 			try (InputStream in = getClass().getResourceAsStream(fileName)) {
 				if( in == null )

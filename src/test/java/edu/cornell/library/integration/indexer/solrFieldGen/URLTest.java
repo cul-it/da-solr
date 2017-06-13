@@ -24,25 +24,24 @@ public class URLTest {
 				+ " providercode=PRVPQU ‡u http://proxy.library.cornell.edu/login?"
 				+ "url=http://proquest.safaribooksonline.com/9781118529669 ‡z Connect to text."));
 		String expected =
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://proquest.safaribooksonline.com/"
-		+ "9781118529669|Full text available from Safari Technical Books Connect to text. Full text available from"
-		+ " Ebrary The Arts Subscription Collection Connect to text.\n"+
-		"notes_t: Full text available from Safari Technical Books Connect to text. Full text available from Ebrary"
-		+ " The Arts Subscription Collection Connect to text.\n"+
-		"url_access_json: {\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\",\"description\":\"Full text available"
-		+ " from Safari Technical Books Connect to text. Full text available from Ebrary The Arts Subscription"
-		+ " Collection Connect to text.\",\"ssid\":\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/"
-		+ "login?url=http://proquest.safaribooksonline.com/9781118529669\"}\n"+
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?"
-		+ "id=10657875|Full text available from Safari Technical Books Connect to text. Full text available from"
-		+ " Ebrary The Arts Subscription Collection Connect to text.\n"+
-		"notes_t: Full text available from Safari Technical Books Connect to text. Full text available from Ebrary"
-		+ " The Arts Subscription Collection Connect to text.\n"+
-		"url_access_json: {\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\",\"description\":\"Full text available"
-		+ " from Safari Technical Books Connect to text. Full text available from Ebrary The Arts Subscription"
-		+ " Collection Connect to text.\",\"ssid\":\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/"
-		+ "login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875\"}\n";
+		"url_access_display: http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/"
+		+ "cornell/Top?id=10657875|Full text available from Ebrary The Arts Subscription Collection"
+		+ " Connect to text.\n"+
+		"notes_t: Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
+		"url_access_json: {\"providercode\":\"PRVAHD\",\"dbcode\":\"AAGPP\",\"description\":"
+		+ "\"Full text available from Ebrary The Arts Subscription Collection Connect to text.\","
+		+ "\"ssid\":\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
+		+ "http://site.ebrary.com/lib/cornell/Top?id=10657875\"}\n"+
+		"url_access_display: http://proxy.library.cornell.edu/login?url=http://proquest."
+		+ "safaribooksonline.com/9781118529669|Full text available from Safari Technical Books "
+		+ "Connect to text.\n"+
+		"notes_t: Full text available from Safari Technical Books Connect to text.\n"+
+		"url_access_json: {\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\",\"description\":"
+		+ "\"Full text available from Safari Technical Books Connect to text.\",\"ssid\":"
+		+ "\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
+		+ "http://proquest.safaribooksonline.com/9781118529669\"}\n";
 		assertEquals( expected, URL.generateSolrFields(rec, null).toString() );
+//		System.out.println( URL.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\"") );
 	}
 
 	@Test
@@ -88,7 +87,6 @@ public class URLTest {
 		"donor_s: DNR00450\n"+
 		"url_bookplate_display: http://plates.library.cornell.edu/donor/DNR00450|From the Estate of Charles A. Leslie.\n"+
 		"notes_t: From the Estate of Charles A. Leslie.\n";
-//		System.out.println( URL.generateSolrFields(bibRec, null).toString().replaceAll("\"","\\\\\"") );
 		assertEquals( expected, URL.generateSolrFields(bibRec, null).toString() );
 	}
 }
