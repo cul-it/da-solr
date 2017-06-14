@@ -125,7 +125,7 @@ public class PubInfo implements ResultSetToFields {
 				default: relation = INFORMATION;
 				}
 			for (DataField df : fs.getFields()) {
-				sfs.fields.add(new SolrField(relation,df.concatenateSpecificSubfields("abc")));
+				sfs.fields.add(new SolrField(relation,df.concatenateSpecificSubfields("3abc")));
 				if (relation.equals(INFORMATION) || relation.equals(COPYRIGHT))
 					for (Subfield sf : df.subfields)
 						if (sf.code.equals('c'))
