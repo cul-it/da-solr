@@ -206,13 +206,18 @@ public class DataField implements Comparable<DataField> {
 		char one = this.mainTag.charAt(0), two = this.mainTag.charAt(1), three = this.mainTag.charAt(2);
 		if ((three=='0' && (two=='0' || two=='1' || two=='2'))
 				|| (three=='1' && two=='1'))
-//		if ((two=='0' && three=='0')
-//				|| (two=='1' && (three=='0'||three=='1')))
 			return getFieldValuesForNameMaybeTitleField_x00_x10_x11( subfields );
 		if (one=='7'&&(two=='6'||two=='7'||two=='8'))
 			return getFieldValuesForTitleMaybeName_76x_77x_78x( subfields );
+		if (three == '0' && (two == '3' || two == '4' || two == '9'))
+			return getFieldValuesForTitleOnly_x30_x40_490( subfields );
 		throw new IllegalArgumentException( "Method DataField.getFieldValuesForNameAndOrTitleField() "
 				+ "called for unsupported field ("+this.mainTag+").");
+	}
+
+	/* These fields are exclusively title fields, so only a title is expected */
+	private FieldValues getFieldValuesForTitleOnly_x30_x40_490(String subfields) {
+		return new FieldValues( null, this.concatenateSpecificSubfields(subfields) );
 	}
 
 	/* These fields are primarily title fields, so a title is expected, while name data may

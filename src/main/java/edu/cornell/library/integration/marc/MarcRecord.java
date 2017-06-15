@@ -160,7 +160,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	}
 
-	public Collection<DataFieldSet> matchAndSortDataFields() {
+	public TreeSet<DataFieldSet> matchAndSortDataFields() {
 		return matchAndSortDataFields(VernMode.ADAPTIVE);
 	}
 
@@ -173,13 +173,13 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			fields.addAll(fs.getFields());
 		return fields;
 	}
-	public Collection<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
+	public TreeSet<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
 		// occurrence numbers are ignored and treated as "01".
 		final Map<String,DataFieldSet.Builder> matchedFields  = new HashMap<>();
-		final Collection<DataFieldSet> sortedFields = new TreeSet<>();
+		final TreeSet<DataFieldSet> sortedFields = new TreeSet<>();
 
 		for( final DataField f: this.dataFields) {
 
