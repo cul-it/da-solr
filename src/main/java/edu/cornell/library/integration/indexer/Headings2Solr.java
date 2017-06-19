@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +38,9 @@ public class Headings2Solr {
 	private List<Integer> authorTypes = Arrays.asList(HeadTypeDesc.PERSNAME.ordinal(),
 			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
-	static final ObjectMapper mapper = new ObjectMapper();
+	private static final ObjectMapper mapper = new ObjectMapper();
 	private final Map<HeadType,HashMap<HeadTypeDesc,String>> blacklightFields = new HashMap<>();
+	private static DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
 	public static void main(String[] args) {
 		try {
@@ -93,7 +94,7 @@ public class Headings2Solr {
 		Date mostRecentDate = getMostRecentSolrDate( solr_q );
 		if (mostRecentDate != null)
 			System.out.println("Before processing, the most recent timestamp in Solr is "+
-					new SimpleDateFormat("yyyy-MM-dd").format(mostRecentDate));
+					formatter.format( mostRecentDate.toInstant() ));
 
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
