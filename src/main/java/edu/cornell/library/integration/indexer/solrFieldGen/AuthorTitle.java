@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
@@ -45,9 +46,9 @@ public class AuthorTitle implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addDataFieldResultSet( results.get("title") );
-		rec.addDataFieldResultSet( results.get("title_240") );
-		rec.addDataFieldResultSet( results.get("main_entry") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("title") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("title_240") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("main_entry") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );

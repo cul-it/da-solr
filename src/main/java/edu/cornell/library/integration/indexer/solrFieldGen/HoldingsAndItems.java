@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
@@ -65,7 +66,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 				if ( resultKey.equals("description")) {
 
-					bibRec.addDataFieldQuerySolution(sol);
+					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
 
 				} else if ( resultKey.equals("leader") ) {
 
@@ -81,9 +82,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 						holdingRecs.put(recordURI, rec);
 					}
 					if (resultKey.contains("control")) {
-						rec.addControlFieldQuerySolution(sol);
+						JenaResultsToMarcRecord.addControlFieldQuerySolution(rec,sol);
 					} else if (resultKey.contains("data")) {
-						rec.addDataFieldQuerySolution(sol);
+						JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
 					}
 
 				}

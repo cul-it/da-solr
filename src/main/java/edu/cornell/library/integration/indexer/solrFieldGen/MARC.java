@@ -12,6 +12,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
@@ -45,12 +46,12 @@ public class MARC implements ResultSetToFields {
 		
 		if (results.containsKey("marc_control_fields")) {
 			ResultSet marc_control_fields = results.get("marc_control_fields");
-			rec.addControlFieldResultSet(marc_control_fields,true);
+			JenaResultsToMarcRecord.addControlFieldResultSet(rec,marc_control_fields,true);
 		}
 		
 		if (results.containsKey("marc_data_fields")) {
 			ResultSet marc_data_fields = results.get("marc_data_fields");
-			rec.addDataFieldResultSet( marc_data_fields );
+			JenaResultsToMarcRecord.addDataFieldResultSet( rec, marc_data_fields );
 		}
 		addField(fields, "marc_display", rec.toString("xml"));
 		addField(fields, "id", rec.id);

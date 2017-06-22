@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.marc;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
-
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -14,11 +12,6 @@ import java.util.TreeSet;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 
 /*
  *  MarcRecord Handler Class
@@ -81,91 +74,12 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		return sb.toString();
 	}
 
-	public void addControlFieldResultSet( final ResultSet rs ) {
-		addControlFieldResultSet(rs,false);
-	}
-	public void addControlFieldResultSet( final ResultSet rs, boolean nonBreaking ) {
-		while (rs.hasNext()) {
-			final QuerySolution sol = rs.nextSolution();
-			addControlFieldQuerySolution( sol, nonBreaking );
-		}
-
-	}
-
-	public void addControlFieldQuerySolution( final QuerySolution sol ) {
-		addControlFieldQuerySolution(sol,false);
-	}
-	public void addControlFieldQuerySolution( final QuerySolution sol, boolean nonBreaking ) {
-		final String f_uri = nodeToString( sol.get("field") );
-		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-		final ControlField f = new ControlField(field_no,
-				nodeToString(sol.get("tag")),nodeToString(sol.get("value")));
-		if (nonBreaking)
-			f.value = f.value.replaceAll(" ", "\u00A0");
-		this.controlFields.add(f);
-		if (f.tag.equals("001"))
-			this.id = f.value;
-		else if (f.tag.equals("005"))
-			this.modifiedDate = f.value;
-	}
-
-	public void addDataFieldResultSet( final ResultSet rs ) {
-		while( rs.hasNext() ){
-			final QuerySolution sol = rs.nextSolution();
-			addDataFieldQuerySolution(sol, null);
-		}
-	}
-	public void addDataFieldResultSet( final ResultSet rs, final String mainTag ) {
-		while( rs.hasNext() ){
-			final QuerySolution sol = rs.nextSolution();
-			addDataFieldQuerySolution(sol,mainTag);
-		}
-	}
-
-	public void addDataFieldQuerySolution( final QuerySolution sol ) {
-		addDataFieldQuerySolution(sol, null);
-	}
-
-	public void addDataFieldQuerySolution( final QuerySolution sol, final String mainTag ) {
-		final String f_uri = nodeToString( sol.get("field") );
-		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
-		final String sf_uri = nodeToString( sol.get("sfield") );
-		final Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
-		DataField f = null;
-		for (DataField df : this.dataFields)
-			if (df.id == field_no)
-				f = df;
-		if (f == null) {
-			f = new DataField();
-			f.id = field_no;
-			f.tag = nodeToString( sol.get("tag"));
-			f.ind1 = nodeToString(sol.get("ind1")).charAt(0);
-			f.ind2 = nodeToString(sol.get("ind2")).charAt(0);
-			if (sol.contains("p")) {
-				final String p = nodeToString(sol.get("p"));
-				f.mainTag = p.substring(p.length() - 3);
-			} else if (mainTag != null)
-				f.mainTag = mainTag;
-		}
-		final Subfield sf = new Subfield(sfield_no,
-				nodeToString( sol.get("code")).charAt(0), nodeToString( sol.get("value")));
-		if (sf.code.equals('6')) {
-			if ((sf.value.length() >= 6) && Character.isDigit(sf.value.charAt(4))
-					&& Character.isDigit(sf.value.charAt(5))) {
-				f.linkNumber = Integer.valueOf(sf.value.substring(4, 6));
-			}
-		}
-		f.subfields.add(sf);
-		this.dataFields.add(f);
-
-	}
-
 	public TreeSet<DataFieldSet> matchAndSortDataFields() {
-		return matchAndSortDataFields(VernMode.ADAPTIVE);
+		return matchAndSortDataFields(false);
 	}
 
 	public List<DataField> matchSortAndFlattenDataFields() {
-		Collection<DataFieldSet> individualSets = matchAndSortDataFields(VernMode.ADAPTIVE);
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(false);
 		if (individualSets.size() == 1)
 			return individualSets.iterator().next().getFields();
 		List<DataField> fields = new ArrayList<>();
@@ -173,7 +87,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			fields.addAll(fs.getFields());
 		return fields;
 	}
-	public TreeSet<DataFieldSet> matchAndSortDataFields(final VernMode vernMode) {
+	public TreeSet<DataFieldSet> matchAndSortDataFields(boolean forceVernMatch) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
 		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
@@ -183,7 +97,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 		for( final DataField f: this.dataFields) {
 
-			if (vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR))
+			if (forceVernMatch)
 				f.linkNumber = 1;
 			if ((f.linkNumber != null) && (f.linkNumber != 0)) {
 				DataFieldSet.Builder fsb;
