@@ -18,10 +18,10 @@ import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.S
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataField.Script;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.library.integration.utilities.NameUtils;
 
@@ -72,7 +72,7 @@ public class TitleSeries implements ResultSetToFields {
 			for (int i = 0; i < fs.getFields().size(); i++) {
 				DataField f = fs.getFields().get(i);
 				FieldValues ctsVals = ctsValsList.get(i);
-				FieldValues displayVals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmorsv");
+				FieldValues displayVals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdq;tklnpmorsv");
 				
 				// TODO 830 initial article work
 

@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.marc;
+package edu.cornell.library.integration.utilities;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,10 +11,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
+import edu.cornell.library.integration.utilities.FieldValues;
 
 @RunWith(Parameterized.class)
-public class MarcRecordAuthorTitleSegregationTest {
+public class FieldValuesAuthorTitleSegregationTest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -57,7 +57,7 @@ public class MarcRecordAuthorTitleSegregationTest {
 	private FieldValues expectedResult;
 
 
-	public MarcRecordAuthorTitleSegregationTest( DataField inputField, FieldValues expectedResult) {
+	public FieldValuesAuthorTitleSegregationTest( DataField inputField, FieldValues expectedResult) {
 		this.inputField = inputField;
 		this.expectedResult = expectedResult;
 	}
@@ -65,7 +65,7 @@ public class MarcRecordAuthorTitleSegregationTest {
 	@Test
 	public void testAuthorTitleSegregation() {
 
-		FieldValues generated = inputField.getFieldValuesForNameAndOrTitleField("abcdegkqrst");
+		FieldValues generated = FieldValues.getFieldValuesForNameAndOrTitleField(inputField,"abcdegkqrst");
 		assertEquals(expectedResult.type,generated.type);
 		assertEquals(expectedResult.author,generated.author);
 		assertEquals(expectedResult.title,generated.title);

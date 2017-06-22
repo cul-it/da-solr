@@ -22,9 +22,9 @@ import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.S
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
 
 /**
@@ -158,7 +158,7 @@ public class TitleChange implements ResultSetToFields {
 
 		List<SolrField> sfs = new ArrayList<>();
 		for (DataField f : fs.getFields()) {
-			FieldValues authorTitle = f.getFieldValuesForNameAndOrTitleField("abcdgknpqrst");
+			FieldValues authorTitle = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdgknpqrst");
 			sfs.add(new SolrField("title_uniform_t",authorTitle.title));
 			if (f.tag.equals("880")) {
 				if (f.getScript().equals(DataField.Script.CJK))

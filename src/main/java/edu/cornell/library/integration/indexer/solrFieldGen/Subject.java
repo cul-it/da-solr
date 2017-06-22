@@ -30,10 +30,10 @@ import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.FieldValues;
 
 /**
  * process subject field values into display, facet, search, and browse/filing fields
@@ -111,19 +111,19 @@ public class Subject implements ResultSetToFields {
 
 				switch (f.mainTag) {
 				case "600":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdq;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.PERSNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcd;tklnpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcd;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "611":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcden;tklpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcden;tklpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.EVENT : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
