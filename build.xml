@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file --> 
+<project name="da-solr" default="CreateMarcJar">
+  <target name="CreateMarcJar" description="Create Marc processing Jar file">
+        <jar jarfile="da-solr-marc.jar" basedir="./bin" includes="edu/cornell/library/integration/marc/**/*.class" />
+  </target>
+</project>
