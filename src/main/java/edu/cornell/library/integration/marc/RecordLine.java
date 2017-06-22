@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.util;
+package edu.cornell.library.integration.marc;
 
 import java.nio.charset.StandardCharsets;
 
@@ -45,8 +45,7 @@ public class RecordLine {
 	public RecordLine(String recordString, int position) {
 		this.position = position;
 		endOfLine = recordString.indexOf("\n", position);
-		beginningOfLine = recordString.substring(0, endOfLine).lastIndexOf(
-				"\n") + 1;
+		beginningOfLine = recordString.substring(0, endOfLine).lastIndexOf("\n") + 1;
 		if(beginningOfLine == -1) {
 			beginningOfLine = 0;
 		}

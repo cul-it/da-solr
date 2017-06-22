@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,16 +13,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.marc4j.MarcException;
-import org.marc4j.MarcPermissiveStreamReader;
-import org.marc4j.MarcXmlWriter;
-import org.marc4j.marc.Record;
-
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
-import edu.cornell.library.integration.util.ConvertUtils;
 
 public class DownloadMARC {
 	SolrBuildConfig config;
@@ -70,7 +64,7 @@ public class DownloadMARC {
 					else
 						url.append("auth.");
 					url.append(fileSeqNo).append(".xml");
-					writeFile(url.toString(),marcToXml(recs.toString()));
+					writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
 					recCount = 0;
 					fileSeqNo++;
 					recs.setLength(0);
@@ -88,7 +82,7 @@ public class DownloadMARC {
 			else
 				url.append("auth.");
 			url.append(fileSeqNo).append(".xml");
-			writeFile(url.toString(),marcToXml(recs.toString()));
+			writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
 		}
 		pstmt.close();
 		voyager.close();
@@ -130,7 +124,7 @@ public class DownloadMARC {
 		String rec = queryVoyager(id);
 		pstmt.close();
 		voyager.close();
-		return marcToXml(rec);
+		return MarcRecord.marcToXml(rec);
 	}
 
 
@@ -142,34 +136,7 @@ public class DownloadMARC {
 //        if ( htmlEntityPattern.matcher(rec).matches() )
 //        	System.out.println(type.toString().toLowerCase()+" MARC contains at least one HTML entity: "+id);
 	}
-	private static String marcToXml( String marc21 ) throws IOException {
-		String xml = null;
-		try (   InputStream in = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8));
-				OutputStream out = new ByteArrayOutputStream()  ) {
-			MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(in,true,true);
-			MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
-			writer.setUnicodeNormalization(true);
-			Record record = null;
-			while (reader.hasNext()) {
-				try {
-					record = reader.next();
-				} catch (MarcException me) {
-					me.printStackTrace();
-					continue;
-				} catch (Exception e) {
-					e.printStackTrace();
-					continue;
-				}
-				boolean hasInvalidChars = ConvertUtils.dealWithBadCharacters(record);
-				if (! hasInvalidChars)
-					writer.write(record);
-			}
-			writer.close();
-			out.close();
-			xml = out.toString();
-		}
-		return xml;
-	}
+
 	private void prepareStatement(RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC))
 			pstmt = voyager.prepareStatement(
