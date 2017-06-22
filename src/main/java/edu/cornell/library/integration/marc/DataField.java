@@ -1,8 +1,5 @@
 package edu.cornell.library.integration.marc;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -11,6 +8,10 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
 public class DataField implements Comparable<DataField> {
+
+	// Characters to frame Right-to-left text blocks to support display in mixed directional text blocks
+	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
 
 	public int id;
 	public String tag;

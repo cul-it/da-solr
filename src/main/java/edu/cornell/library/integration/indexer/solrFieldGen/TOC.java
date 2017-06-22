@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
+import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.DataField.RLE_openRTL;
 
 import java.util.HashMap;
 import java.util.Map;

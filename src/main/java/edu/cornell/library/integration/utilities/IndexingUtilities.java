@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.utilities;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
 
 import java.io.File;
 import java.io.FileInputStream;
