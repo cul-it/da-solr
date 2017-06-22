@@ -91,6 +91,19 @@ public class NameUtils {
 				.collect(Collectors.toList());
 	}
 
+	public static FieldValues authorAndOrTitleValues(DataField f) {
+
+		String ctsSubfields;
+		if ( f.mainTag.endsWith("00") || f.mainTag.endsWith("20"))
+			ctsSubfields = "abcdq;tklnpmors";
+		else if ( f.mainTag.endsWith("10") || f.mainTag.endsWith("11") )
+			ctsSubfields = "abcdq;tklnpmors";
+		else return null;
+
+		return f.getFieldValuesForNameAndOrTitleField(ctsSubfields);
+
+	}
+
 	public static String getFacetForm(String s) {
 		return removeTrailingPunctuation(s,",. ");
 	}

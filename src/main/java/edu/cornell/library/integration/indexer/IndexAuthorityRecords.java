@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
@@ -40,11 +42,16 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.NameUtils;
 
 public class IndexAuthorityRecords {
 
 	private Connection connection = null;
 	private DavService davService;
+	private static List<Integer> authorTypes = Arrays.asList(
+			HeadTypeDesc.PERSNAME.ordinal(),
+			HeadTypeDesc.CORPNAME.ordinal(),
+			HeadTypeDesc.EVENT.ordinal());
 
 	/**
 	 * @param args
@@ -188,6 +195,7 @@ public class IndexAuthorityRecords {
 	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException, JsonProcessingException  {
 		String heading = null;
 		String headingSort = null;
+		String lccn = null;
 		HeadTypeDesc htd = null;
 		Collection<Relation> sees = new HashSet<>();
 		Collection<Relation> seeAlsos = new HashSet<>();
@@ -214,26 +222,27 @@ public class IndexAuthorityRecords {
 		}
 		// iterate through fields. Look for main heading and alternate forms.
 		for (DataField f : rec.dataFields) {
+			FieldValues nameFieldVals = null;
 			if (f.tag.equals("010")) {
 				for (Subfield sf : f.subfields) 
-					if (sf.code.equals('a'))
+					if (sf.code.equals('a')) {
 						if (sf.value.startsWith("sj")) {
 							// this is a Juvenile subject authority heading, which
 							// we will not represent in the headings browse.
 							System.out.println("Skipping Juvenile subject authority heading: "+rec.id);
 							return;
 						}
+						lccn = sf.value;
+					}
 			} else if (f.tag.startsWith("1")) { // main heading
-				MAIN: switch (f.tag) {
+				switch (f.tag) {
 				case "100":
 				case "110":
 				case "111":
-					for (Subfield sf : f.subfields)
-						if (sf.code.equals('t') || sf.code.equals('k')) {
-							htd = HeadTypeDesc.WORK;
-							break MAIN;
-						}
-					if (f.tag.equals("100"))
+					nameFieldVals = NameUtils.authorAndOrTitleValues(f);
+					if (nameFieldVals.type.equals(HeadType.AUTHORTITLE))
+						htd = HeadTypeDesc.WORK;
+					else if (f.tag.equals("100"))
 						htd = HeadTypeDesc.PERSNAME;
 					else if (f.tag.equals("110"))
 						htd = HeadTypeDesc.CORPNAME;
@@ -264,7 +273,7 @@ public class IndexAuthorityRecords {
 					System.out.println("Not deriving heading browse entries from record. "+rec.id);
 					return;
 				}
-				heading = dashedHeading(f, htd);
+				heading = dashedHeading(f, htd, nameFieldVals);
 
 			} else if (f.tag.equals("260") || f.tag.equals("360")) {
 				notes.add("Search under: "+f.concatenateSubfieldsOtherThan(""));
@@ -292,7 +301,7 @@ public class IndexAuthorityRecords {
 					case "372": field = "Field"; break;
 					case "373": field = "Group/Organization"; break;
 					case "374": field = "Occupation"; break;
-					case "375": field = "Gender"; break;
+//					case "375": field = "Gender"; break;
 					}
 					for (Subfield sf : f.subfields)
 						switch (sf.code) {
@@ -319,19 +328,6 @@ public class IndexAuthorityRecords {
 						}
 					}
 					break MAIN;
-/*				case "375": { // Gender
-					String value = null;
-					for (Subfield sf : f.subfields.values())
-						switch (sf.code) {
-						case 'a': value = sf.value; break;
-						case 't':
-							System.out.println("Blocking past gender information base on $t "+sf.value+". ("+heading+")");
-							break MAIN;
-						}
-					if (value != null)
-						rdaData.add("Gender", value);
-				}
-					break MAIN; */
 				case "380": fieldName = "Form of Work";		break MAIN;
 				case "382": fieldName = "Instrumentation";
 				} //end MAIN
@@ -430,22 +426,19 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
-	private static String dashedHeading(DataField f, HeadTypeDesc htd) {
+	private static String dashedHeading(DataField f, HeadTypeDesc htd, FieldValues nameFieldVals) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
 		if (htd.equals(HeadTypeDesc.WORK)) {
 			if (f.tag.endsWith("30"))
 				heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
 			else {
-				FieldValues vals;
-				if (f.tag.endsWith("00"))
-					vals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
-				else if (f.tag.endsWith("10"))
-					vals = f.getFieldValuesForNameAndOrTitleField("abd;tklnpmors");
-				else // 11
-					vals = f.getFieldValuesForNameAndOrTitleField("abde;tklnpmors");
-				heading = vals.author+" | "+vals.title;
+				if (nameFieldVals == null)
+					nameFieldVals = NameUtils.authorAndOrTitleValues(f);
+				heading = nameFieldVals.author+" | "+nameFieldVals.title;
 			}
+		} else if (authorTypes.equals(htd.ordinal())){
+			heading = NameUtils.facetValue(f);
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		}
@@ -560,7 +553,7 @@ public class IndexAuthorityRecords {
 	 * and all of those are capital letters, then this is an acronym.
 	 */
 	private static void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
-		String heading = dashedHeading(f, r.headingTypeDesc);
+		String heading = dashedHeading(f, r.headingTypeDesc, null);
 		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) {
