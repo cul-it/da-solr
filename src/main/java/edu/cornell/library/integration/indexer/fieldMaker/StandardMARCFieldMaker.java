@@ -1,11 +1,11 @@
 package edu.cornell.library.integration.indexer.fieldMaker;
 
+import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.DataField.RLE_openRTL;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
 import java.util.Collection;
@@ -22,10 +22,11 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.resultSetToFields.ResultSetToFields;
-import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetToFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 
 /**
@@ -201,9 +202,10 @@ public class StandardMARCFieldMaker implements FieldMaker {
 				throw new Exception( getName() + " did not get any result sets");
 				
 			MarcRecord rec = new MarcRecord(null);
-			rec.addDataFieldResultSet(results.get(queryKey),marcFieldTag);
+			JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get(queryKey),marcFieldTag);
 			
-			Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields(vernMode);
+			Collection<DataFieldSet> sortedFields = rec.matchAndSortDataFields(
+					vernMode.equals(VernMode.SING_VERN) || vernMode.equals(VernMode.SINGULAR));
 			
 			if (sortedFields.isEmpty())
 				return Collections.emptyMap();

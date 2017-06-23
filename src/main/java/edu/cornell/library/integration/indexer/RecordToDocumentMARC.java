@@ -7,11 +7,9 @@ import edu.cornell.library.integration.indexer.documentPostProcess.*;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
-import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerStepped;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
-import edu.cornell.library.integration.indexer.resultSetToFields.*;
-import edu.cornell.library.integration.indexer.resultSetToFieldsStepped.TitleSeries;
+import edu.cornell.library.integration.indexer.solrFieldGen.*;
 
 public class RecordToDocumentMARC extends RecordToDocumentBase {
 
@@ -137,17 +135,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         new StandardMARCFieldMaker("author_245c_t","245", "c", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "246", "abcdefgklmnopqrs", VernMode.SEARCH),
         new StandardMARCFieldMaker("title_addl_t", "247", "abcdefgnp", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_addl_t", "740", "anp", VernMode.SEARCH, true),
-
-        new StandardMARCFieldMaker("title_series_t", "400", "abdfklnptvcegu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "410", "abdfklnptvcegu", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "411", "acdefklnptgquv", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "440", "anpv", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "800", "abcdefghklmnopqrstuv", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "810", "abcdefghklmnopqrstuv", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "811", "acdefghklnpqstuv", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_series_t", "830", "adfghklmnoprstv", VernMode.SEARCH, true),
-        new StandardMARCFieldMaker("title_series_t", "490", "anpv", VernMode.SEARCH),
+        new StandardMARCFieldMaker("title_addl_t", "740", "anp", VernMode.SEARCH, true),//TODO Do we need this?
 
         new StandardMARCFieldMaker("title_other_display", "243", "adfgklmnoprs", ":/ "),
         new StandardMARCFieldMaker("title_other_display", "246", "iabfnpg", ":/ "),
@@ -162,19 +150,15 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("linking_entry", standardDataFieldGroupSPARQL("marcrdf:LinkingEntry"))
         .addResultSetToFields(new TitleChange()),
 
-        new SPARQLFieldMakerStepped().setName("title_series_display")
-        .addMainStoreQuery("title_series_830", standardDataFieldSPARQL("830"))
-        .addResultSetToFieldsStepped(new TitleSeries()),
+        new SPARQLFieldMakerImpl().setName("title_series_display")
+        .addMainStoreQuery("title_series", standardDataFieldGroupSPARQL("marcrdf:Series"))
+        .addResultSetToFields(new TitleSeries()),
 
         new SPARQLFieldMakerImpl().setName("author and main title")
         .addMainStoreQuery("title", standardDataFieldSPARQL("245"))
         .addMainStoreQuery("title_240", standardDataFieldSPARQL("240"))
         .addMainStoreQuery("main_entry", standardDataFieldGroupSPARQL("marcrdf:MainEntryAuthor"))
         .addResultSetToFields(new AuthorTitle()),
-
-        new SPARQLFieldMakerImpl().setName("seriesaddedentry")
-        .addMainStoreQuery("seriesaddedentry", standardDataFieldGroupSPARQL("marcrdf:SeriesAddedEntry"))
-        .addResultSetToFields(new SeriesAddedEntry()),
 
         new SPARQLFieldMakerImpl().setName("table of contents")
         .addMainStoreQuery("table of contents", standardDataFieldSPARQL("505"))

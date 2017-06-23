@@ -1,16 +1,15 @@
 package edu.cornell.library.integration.marc;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
-
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
-import edu.cornell.library.integration.utilities.CharacterSetUtils;
-
 public class DataField implements Comparable<DataField> {
+
+	// Characters to frame Right-to-left text blocks to support display in mixed directional text blocks
+	public static String RLE_openRTL = "\u200E\u202B\u200F";//\u200F - strong RTL invis char
+	public static String PDF_closeRTL = "\u200F\u202C\u200E"; //\u200E - strong LTR invis char
 
 	public int id;
 	public String tag;
@@ -183,117 +182,15 @@ public class DataField implements Comparable<DataField> {
 			if (nonFilingCharCount > 0 && nonFilingCharCount < fulltitle.length())
 				try {
 					if (fulltitle.startsWith(RLE_openRTL))
-						return RLE_openRTL+
-								CharacterSetUtils.stripLeadCharsFromString(
-								fulltitle.substring(RLE_openRTL.length()),
-								nonFilingCharCount, titlePrefixChars);
-					return CharacterSetUtils.stripLeadCharsFromString(
-							fulltitle, nonFilingCharCount, titlePrefixChars);
+						return RLE_openRTL + stripLeadCharsFromString(
+								fulltitle.substring(RLE_openRTL.length()),nonFilingCharCount, titlePrefixChars);
+					return stripLeadCharsFromString(fulltitle, nonFilingCharCount, titlePrefixChars);
 				} catch (IllegalArgumentException e) {
 					System.out.println("Initial article not stripped from title: "+
 							e.getMessage()+" "+nonFilingCharCount+"/"+fulltitle);
 				}
 		}
 		return fulltitle;
-	}
-
-	/**
-	 * The field may be an a name, a name and title or just a title depending on the
-	 * field type and contents. Extract the value(s).
-	 * @return FieldValues
-	 */
-	public FieldValues getFieldValuesForNameAndOrTitleField(String subfields) {
-		char one = this.mainTag.charAt(0), two = this.mainTag.charAt(1), three = this.mainTag.charAt(2);
-		if ((three=='0' && (two=='0' || two=='1' || two=='2'))
-				|| (three=='1' && two=='1'))
-//		if ((two=='0' && three=='0')
-//				|| (two=='1' && (three=='0'||three=='1')))
-			return getFieldValuesForNameMaybeTitleField_x00_x10_x11( subfields );
-		if (one=='7'&&(two=='6'||two=='7'||two=='8'))
-			return getFieldValuesForTitleMaybeName_76x_77x_78x( subfields );
-		throw new IllegalArgumentException( "Method DataField.getFieldValuesForNameAndOrTitleField() "
-				+ "called for unsupported field ("+this.mainTag+").");
-	}
-
-	/* These fields are primarily title fields, so a title is expected, while name data may
-	 * optionally be present.
-	 */
-	private FieldValues getFieldValuesForTitleMaybeName_76x_77x_78x(String subfields) {
-		boolean hasA = false;
-		boolean hasDefiniteTitleSubfield = false;
-		MeaningOfSubfieldABasedOnSubfield7 seven = MeaningOfSubfieldABasedOnSubfield7.UNK;
-
-		for (Subfield sf : this.subfields)
-			switch (sf.code) {
-			case 'a':
-				hasA = true; break;
-			case 'p': case 's': case 't':
-				hasDefiniteTitleSubfield = true; break;
-			case '7':
-				if (sf.value.length() == 0) break;
-				switch (sf.value.charAt(0)) {
-				case 'p': case 'c': case 'm':
-					seven = MeaningOfSubfieldABasedOnSubfield7.AUT; break;
-				case 'u':
-					seven = MeaningOfSubfieldABasedOnSubfield7.TIT; break;
-				default:
-					// seven already set to UNK.
-				}
-			}
-
-		if ( hasA && hasDefiniteTitleSubfield && ! seven.equals(MeaningOfSubfieldABasedOnSubfield7.TIT))
-			return getFieldValuesForTitleMaybeName_76x_77x_78x_variantAuthorTitle(subfields);
-		return new FieldValues(null,this.concatenateSpecificSubfields(subfields));
-	}
-	/* This particular linking field entry seems to contain both author and title data. */
-	private FieldValues getFieldValuesForTitleMaybeName_76x_77x_78x_variantAuthorTitle(String subfields) {
-		List<String> authorSubfields = new ArrayList<>();
-		List<String> titleSubfields = new ArrayList<>();
-		boolean foundTitle = false;
-		for(Subfield sf : this.subfields) {
-			if (subfields != null && -1 == subfields.indexOf(sf.code))
-				continue;
-			if (foundTitle)
-				titleSubfields.add(sf.value);
-			else
-				if (sf.code.equals('t') || sf.code.equals('s') || sf.code.equals('p')) {
-					foundTitle = true;
-					titleSubfields.add(sf.value);
-				} else
-					authorSubfields.add(sf.value);
-		}
-		if ( titleSubfields.isEmpty() )
-			return new FieldValues( String.join(" ",authorSubfields));
-		return new FieldValues(
-				String.join(" ",authorSubfields),
-				String.join(" ",titleSubfields));
-	}
-	private static enum MeaningOfSubfieldABasedOnSubfield7 { UNK,AUT,TIT; }
-
-	/* These fields are primarily name fields, so a name is expected, while title data may
-	 * optionally be present.
-	 */
-	private FieldValues getFieldValuesForNameMaybeTitleField_x00_x10_x11(String subfields) {
-		List<String> authorSubfields = new ArrayList<>();
-		List<String> titleSubfields = new ArrayList<>();
-		boolean foundTitle = false;
-		for(Subfield sf : this.subfields) {
-			if (subfields != null && -1 == subfields.indexOf(sf.code))
-				continue;
-			if (foundTitle)
-				titleSubfields.add(sf.value);
-			else
-				if (sf.code.equals('t') || sf.code.equals('k')) {
-					foundTitle = true;
-					titleSubfields.add(sf.value);
-				} else
-					authorSubfields.add(sf.value);
-		}
-		if ( titleSubfields.isEmpty() )
-			return new FieldValues( String.join(" ",authorSubfields));
-		return new FieldValues(
-				String.join(" ",authorSubfields),
-				String.join(" ",titleSubfields));
 	}
 
 	/* Parse a series of subfields in a single string into a set of Subfield objects */
@@ -322,6 +219,56 @@ public class DataField implements Comparable<DataField> {
 		if (other.id == this.id) return true;
 		return false;
 	}
+
+	/**
+	 * Remove the number of characters from the beginning of <b>s</b> to constitute the first
+	 * <b>targetCount</b> characters <b>s</b>, counting combining diacritics as separate characters.
+	 * Any characters found in <b>reserves</b> will not be removed, but will still count toward the
+	 * <b>targetCount</b> characters.<br/><br/>
+	 * If character number <b>targetCount</b> is not the last byte of its containing grapheme, the entire
+	 * partial character will be removed.<br/><br/>
+	 * The implementation will return the shortened string in Unicode NFC form, even if it was not supplied
+	 * that way.
+	 * @param s
+	 *  Original string
+	 * @param targetCount
+	 *  Number of characters (counting combining diacritics separately) to remove from the beginning of string
+	 * @param reserves
+	 *  Characters that should not be removed, but will still count toward the <b>targetCount</b> characters.
+	 * @return
+	 *  Stripped string
+	 * @throws IllegalArgumentException
+	 *  will be thrown if <b>targetCount</b> characters exceeds the length of string <b>s</b>.
+	 */
+	public static String stripLeadCharsFromString( String s, Integer targetCount, String reserves )
+			throws IllegalArgumentException {
+
+		int pos = 0;
+		int count = 0;
+		StringBuilder foundReserves = new StringBuilder();
+		s = Normalizer.normalize(s, Normalizer.Form.NFD);
+		if ( s.length() < targetCount )
+			throw new IllegalArgumentException(
+					"Requested bytes to strip is longer than string in UTF-8");
+		while (count < targetCount) {
+			char c = s.charAt(pos);
+
+			if (Character.isHighSurrogate(c))
+				pos++;
+			pos++;
+			count++;
+			if (reserves.indexOf(c) != -1)
+				foundReserves.append(c);
+		}
+		String substr = s.substring(pos);
+		while (substr.length() > 0 &&
+				Character.getType(substr.charAt(0)) == Character.NON_SPACING_MARK)
+			substr = substr.substring(1);
+		return foundReserves.toString()
+				+ Normalizer.normalize(substr,Normalizer.Form.NFC);
+
+	}
+
 	public DataField() {}
 	public DataField( int id, String tag ) {
 		this.id = id;
@@ -372,21 +319,6 @@ public class DataField implements Comparable<DataField> {
 		this.mainTag = tag;
 	}
 
-	public static class FieldValues {
-		public HeadType type;
-		public String author;
-		public String title;
-
-		public FieldValues (String author) {
-			type = HeadType.AUTHOR;
-			this.author = author;
-		}
-		public FieldValues (String author,String title) {
-			type = HeadType.AUTHORTITLE;
-			this.author = author;
-			this.title = title;
-		}
-	}
 	public static enum Script {
 		ARABIC, LATIN, CJK, CYRILLIC, GREEK, HEBREW, UNKNOWN
 	}

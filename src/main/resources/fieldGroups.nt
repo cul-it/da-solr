@@ -1,6 +1,12 @@
-<http://marcrdf.library.cornell.edu/canonical/0.1/hasField800> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SeriesAddedEntry>.
-<http://marcrdf.library.cornell.edu/canonical/0.1/hasField810> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SeriesAddedEntry>.
-<http://marcrdf.library.cornell.edu/canonical/0.1/hasField811> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SeriesAddedEntry>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField400> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField410> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField411> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField440> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField490> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField800> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField810> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField811> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField830> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/Series>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField760> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/LinkingEntry>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField762> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/LinkingEntry>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField765> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/LinkingEntry>.
