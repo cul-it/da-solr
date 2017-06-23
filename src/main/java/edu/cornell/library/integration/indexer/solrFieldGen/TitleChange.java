@@ -17,13 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
 
 /**
@@ -39,8 +40,8 @@ public class TitleChange implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addDataFieldResultSet( results.get("added_entry") );
-		rec.addDataFieldResultSet( results.get("linking_entry") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("added_entry") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("linking_entry") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );
@@ -157,7 +158,7 @@ public class TitleChange implements ResultSetToFields {
 
 		List<SolrField> sfs = new ArrayList<>();
 		for (DataField f : fs.getFields()) {
-			FieldValues authorTitle = f.getFieldValuesForNameAndOrTitleField("abcdgknpqrst");
+			FieldValues authorTitle = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdgknpqrst");
 			sfs.add(new SolrField("title_uniform_t",authorTitle.title));
 			if (f.tag.equals("880")) {
 				if (f.getScript().equals(DataField.Script.CJK))

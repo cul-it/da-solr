@@ -22,7 +22,6 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataField.Script;
 import edu.cornell.library.integration.marc.DataFieldSet;
 
@@ -87,8 +86,21 @@ public class NameUtils {
 		else return null;
 
 		return fs.getFields().stream()
-				.map(f -> f.getFieldValuesForNameAndOrTitleField(ctsSubfields))
+				.map(f -> FieldValues.getFieldValuesForNameAndOrTitleField(f,ctsSubfields))
 				.collect(Collectors.toList());
+	}
+
+	public static FieldValues authorAndOrTitleValues(DataField f) {
+
+		String ctsSubfields;
+		if ( f.mainTag.endsWith("00") || f.mainTag.endsWith("20"))
+			ctsSubfields = "abcdq;tklnpmors";
+		else if ( f.mainTag.endsWith("10") || f.mainTag.endsWith("11") )
+			ctsSubfields = "abcdq;tklnpmors";
+		else return null;
+
+		return FieldValues.getFieldValuesForNameAndOrTitleField(f,ctsSubfields);
+
 	}
 
 	public static String getFacetForm(String s) {
@@ -181,7 +193,8 @@ public class NameUtils {
 			} else {
 				relation = "related_work_display";
 			}
-			FieldValues itemViewDisplay = f.getFieldValuesForNameAndOrTitleField("abcdefghijklmnopqrstuvwxyz");
+			FieldValues itemViewDisplay =
+					FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdefghijklmnopqrstuvwxyz");
 			sfs.add(new SolrField(relation,
 					itemViewDisplay.author+" "+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
 			sfs.add(new SolrField((isCJK)?"title_uniform_t_cjk":"title_uniform_t",ctsVals.title));

@@ -20,6 +20,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -49,9 +50,9 @@ public class PubInfo implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addControlFieldResultSet( results.get("eight") );
-		rec.addDataFieldResultSet( results.get("pub_info_260") );
-		rec.addDataFieldResultSet( results.get("pub_info_264") );
+		JenaResultsToMarcRecord.addControlFieldResultSet( rec, results.get("eight") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_260") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_264") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec );

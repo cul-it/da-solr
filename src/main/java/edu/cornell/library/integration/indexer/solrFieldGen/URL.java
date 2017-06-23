@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
@@ -42,7 +43,7 @@ public class URL implements ResultSetToFields {
 				QuerySolution sol = rs.nextSolution();
 
 				if ( resultKey.equals("urls")) {
-					bibRec.addDataFieldQuerySolution(sol);
+					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
 				} else {
 					String recordURI = nodeToString(sol.get("mfhd"));
 					MarcRecord rec;
@@ -53,7 +54,7 @@ public class URL implements ResultSetToFields {
 						rec.id = recordURI.substring(recordURI.lastIndexOf('/')+1);
 						holdingRecs.put(recordURI, rec);
 					}
-					rec.addDataFieldQuerySolution(sol);
+					JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
 				}
 			}
 		}

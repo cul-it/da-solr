@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.PDF_closeRTL;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.RLE_openRTL;
+import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.DataField.RLE_openRTL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
@@ -28,7 +29,7 @@ public class TOC implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addDataFieldResultSet(results.get("table of contents"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("table of contents"));
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, null );

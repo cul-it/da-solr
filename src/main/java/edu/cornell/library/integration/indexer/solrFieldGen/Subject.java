@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
@@ -29,10 +30,10 @@ import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataField.FieldValues;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.FieldValues;
 
 /**
  * process subject field values into display, facet, search, and browse/filing fields
@@ -47,7 +48,7 @@ public class Subject implements ResultSetToFields {
 			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addDataFieldResultSet( results.get("subjects") );
+		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("subjects") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );
@@ -110,19 +111,19 @@ public class Subject implements ResultSetToFields {
 
 				switch (f.mainTag) {
 				case "600":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcdq;tklnpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdq;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.PERSNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "610":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcd;tklnpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcd;tklnpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "611":
-					vals = f.getFieldValuesForNameAndOrTitleField("abcden;tklpmors");
+					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcden;tklpmors");
 					htd = (vals.type.equals(HeadType.AUTHOR)) ?
 							HeadTypeDesc.EVENT : HeadTypeDesc.WORK;
 					dashed_fields = "vxyz";

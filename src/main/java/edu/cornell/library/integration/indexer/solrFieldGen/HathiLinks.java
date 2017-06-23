@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.solr.common.SolrInputField;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
@@ -32,7 +33,7 @@ public class HathiLinks implements ResultSetToFields {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
-			rec.addDataFieldResultSet(rs);
+			JenaResultsToMarcRecord.addDataFieldResultSet(rec,rs);
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );
 

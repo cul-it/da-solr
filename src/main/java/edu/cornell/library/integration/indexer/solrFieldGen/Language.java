@@ -12,6 +12,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -37,9 +38,9 @@ public class Language implements ResultSetToFields {
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.addControlFieldResultSet(results.get("language_008"));
-		rec.addDataFieldResultSet(results.get("language_note"));
-		rec.addDataFieldResultSet(results.get("languages_041"));
+		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("language_008"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("language_note"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("languages_041"));
 
 		SolrFieldValueSet vals = generateSolrFields( rec );
 
