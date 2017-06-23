@@ -78,7 +78,7 @@ public class SimpleProc implements ResultSetToFields {
 				break;
 			case 74:
 			case 86:
-				vals.searchField = "id_left_chunked";
+				searchField = "id_left_chunked";
 				searchSubfields = "az";
 				break;
 			case 250:
