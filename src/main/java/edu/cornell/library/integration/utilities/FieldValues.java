@@ -17,8 +17,12 @@ public class FieldValues {
 		this.author = author;
 	}
 	public FieldValues (String author,String title) {
-		type = HeadType.AUTHORTITLE;
-		this.author = author;
+		if (author != null) {
+			type = HeadType.AUTHORTITLE;
+			this.author = author;
+		} else {
+			type = HeadType.TITLE;
+		}
 		this.title = title;
 	}
 	public String toString() {
