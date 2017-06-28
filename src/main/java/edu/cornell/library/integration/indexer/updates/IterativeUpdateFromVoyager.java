@@ -40,20 +40,22 @@ public class IterativeUpdateFromVoyager {
 		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
 		boolean timeToQuit = false;
 
+		int batchSizeIfUpdates = 200;
+		int batchSizeIfNoUpdates = 300;
 		/* If any priority 0 or 1 items are queued, lower priority items will only be accepted to
-		 * the point where the total batch is 300 items. Otherwise, the default size of 500 items
-		 * is the limit.
+		 * the point where the total batch is $batchSizeIfUpdates items. Otherwise, the default size of
+		 * $batchSizeIfNoUpdates items is the limit.
 		 */
 		BatchLogic b = new BatchLogic() {
 			Integer topPriority = null;
 			public void startNewBatch() {
 				topPriority = null;
 			}
-			public int targetBatchSize() { return 500; }
+			public int targetBatchSize() { return batchSizeIfNoUpdates; }
 			public boolean addQueuedItemToBatch(ResultSet rs,int currentBatchSize) throws SQLException {
 				if (topPriority == null)
 					topPriority = rs.getInt("priority");
-				if (currentBatchSize < 300)
+				if (currentBatchSize < batchSizeIfUpdates)
 					return true;
 				if (topPriority <= 1) {
 					rs.afterLast();
@@ -62,9 +64,9 @@ public class IterativeUpdateFromVoyager {
 				return true;
 			}
 			public int unqueuedTargetCount(int currentBatchSize) {
-				if (currentBatchSize == 0) return 500;
-				if (currentBatchSize >= 300) return 0;
-				return 300 - currentBatchSize;
+				if (currentBatchSize == 0) return batchSizeIfNoUpdates;
+				if (currentBatchSize >= batchSizeIfUpdates) return 0;
+				return batchSizeIfUpdates - currentBatchSize;
 			}
 			public boolean isTestMode() { return false; }
 		};
