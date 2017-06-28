@@ -227,7 +227,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		json.put("bibid", ref.id);
 		json.put("format", ref.format);
 		if (ref.url != null && ! ref.url.isEmpty())
-			json.put("url", ref.sites);
+			json.put("url", ref.url);
 		if (ref.sites != null && ! ref.sites.isEmpty())
 			json.put("sites", ref.sites);
 		if (ref.libraries != null && ! ref.libraries.isEmpty())
