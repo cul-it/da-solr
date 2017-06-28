@@ -38,7 +38,8 @@ public class SingleValueField implements DocumentPostProcess {
 		}
 		SolrInputField field = document.getField( fieldName );
 		
-		if( fieldName != null && field.getValueCount() > 1 ){		
+		if( fieldName != null && field.getValueCount() > 1 ){
+			System.out.println(fieldName + " has duplicates");
 			switch( correction){
 				case firstValue:					
 					document.put(fieldName, fixToFirstValue( field ));

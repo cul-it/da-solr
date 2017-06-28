@@ -54,6 +54,10 @@ import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -231,9 +235,25 @@ public class IndexingUtilities {
 		ref.format = String.join(",",doc.getFieldValues("format"));
 
 		if (doc.containsKey("url_access_display")) {
-			ref.sites = identifyOnlineServices(doc.getFieldValues("url_access_display"));
+			Collection<Object> urlJsons = doc.getFieldValues("url_access_json");
+			ref.sites = identifyOnlineServices(urlJsons);
 			if (ref.sites == null)
 				ref.sites = "Online";
+			if (urlJsons.size() == 1) {
+				String urlJson = urlJsons.iterator().next().toString();
+				try {
+					JsonNode node = mapper.readTree(urlJson);
+					if (node.isObject()) {
+						ObjectNode obj = (ObjectNode) node;
+						if ( obj.has("url")  )
+							ref.url = obj.get("url").asText(); 
+					}
+				} catch (IOException e) {
+					System.out.println( "IOException: Failed to parse json with"
+							+ " the same library that generated it. ("+e.getMessage()+")" );
+					System.out.println(urlJson);
+				}
+			}
 		}
 
 		if (doc.containsKey("location_facet")) {
@@ -267,11 +287,13 @@ public class IndexingUtilities {
 
 		return ref;
 	}
+	private static final ObjectMapper mapper = new ObjectMapper();
 	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static class TitleMatchReference {
 		public int id;
 		public String format = null;
+		public String url = null;
 		public String sites = null;
 		public String libraries = null;
 		public String edition = null;
