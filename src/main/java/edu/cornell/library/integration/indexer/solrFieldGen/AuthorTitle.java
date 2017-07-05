@@ -27,6 +27,7 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
 
@@ -246,11 +247,15 @@ public class AuthorTitle implements ResultSetToFields {
 			}
 		}
 		if (responsibility != null && ! responsibility.isEmpty()) {
-			if (responsibility_vern != null && ! responsibility_vern.isEmpty())
+			if (responsibility_vern != null && ! responsibility_vern.isEmpty()) {
 				sfs.add(new SolrField("title_responsibility_display",
 						responsibility_vern + " / " + responsibility));
-			else
+				sfs.add(new SolrField(CharacterSetUtils.isCJK(responsibility_vern)
+						?"author_245c_t_cjk":"author_245c_t", responsibility_vern));
+			} else {
 				sfs.add(new SolrField("title_responsibility_display", responsibility));
+			}
+			sfs.add(new SolrField("author_245c_t", responsibility));
 		}
 		SolrFields solrFields = new SolrFields();
 		solrFields.fields = sfs;

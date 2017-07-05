@@ -71,7 +71,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: c\n"+
 		"authortitle_facet: León Cupe, Mariano, 1932- | Cabana, historia, cultura y tradición\n"+
 		"authortitle_filing: leon cupe mariano 1932 0000 cabana historia cultura y tradicion\n"+
-		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n";
+		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
+		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -104,7 +105,9 @@ public class AuthorTitleTest {
 		"title_1letter_s: w\n"+
 		"authortitle_facet: Fewer, T. N. | Waterford people\n"+
 		"authortitle_filing: fewer t n 0000 waterford people\n"+
-		"title_responsibility_display: T. N. Fewer.\n";
+		"title_responsibility_display: T. N. Fewer.\n"+
+		"author_245c_t: T. N. Fewer.\n";
+//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -137,7 +140,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: l\n"+
 		"authortitle_facet: Kalavrezos, Nicholas, | Lumps and bumps in the mouth and lips\n"+
 		"authortitle_filing: kalavrezos nicholas 0000 lumps and bumps in the mouth and lips\n"+
-		"title_responsibility_display: Nicholas Kalavrezos.\n";
+		"title_responsibility_display: Nicholas Kalavrezos.\n"+
+		"author_245c_t: Nicholas Kalavrezos.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -184,7 +188,8 @@ public class AuthorTitleTest {
 		"title_2letter_s: br\n"+
 		"title_1letter_s: b\n"+
 		"title_responsibility_display: John Speed ; introduction by Nigel Nicolson ; country commentaries"+
-									" by Alasdair Hawkyard.\n";
+									" by Alasdair Hawkyard.\n"+
+		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -218,7 +223,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: e\n"+
 		"authortitle_facet: Papadēmētropoulos, Loukas P., | ennoia tou oikou ston Euripidē\n"+
 		"authortitle_filing: papademetropoulos loukas p 0000 ennoia tou oikou ston euripide\n"+
-		"title_responsibility_display: Loukas Papadēmētropoulos.\n";
+		"title_responsibility_display: Loukas Papadēmētropoulos.\n"+
+		"author_245c_t: Loukas Papadēmētropoulos.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -252,7 +258,9 @@ public class AuthorTitleTest {
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"title_responsibility_display: подготовка писем Е. Дмитриевой и Ф. Шедеви. /"
-		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
+		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
+		"author_245c_t: подготовка писем Е. Дмитриевой и Ф. Шедеви.\n"+
+		"author_245c_t: podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -305,7 +313,9 @@ public class AuthorTitleTest {
 		"fulltitle_vern_display: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
-		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
+		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
+		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
+		"author_245c_t: Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -418,8 +428,9 @@ public class AuthorTitleTest {
 		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | 佛教艺术的早期阶段\n"+
 		"authortitle_filing: foucher a alfred 1865 1952 0000 佛教艺术的早期阶段\n"+
 		"title_responsibility_display: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校. / cA Fuxie (A. Foucher)"
-		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
+		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n"+
+		"author_245c_t_cjk: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.\n"+
+		"author_245c_t: cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
-//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
 }

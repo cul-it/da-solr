@@ -7,8 +7,6 @@ import edu.cornell.library.integration.indexer.documentPostProcess.*;
 import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
-import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker;
-import edu.cornell.library.integration.indexer.fieldMaker.StandardMARCFieldMaker.VernMode;
 import edu.cornell.library.integration.indexer.solrFieldGen.*;
 
 public class RecordToDocumentMARC extends RecordToDocumentBase {
@@ -127,19 +125,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addMainStoreQuery("pub_info_260", standardDataFieldSPARQL("260"))
         .addMainStoreQuery("pub_info_264", standardDataFieldSPARQL("264"))
         .addResultSetToFields(new PubInfo()),
-
-        new StandardMARCFieldMaker("title_addl_t", "210", "ab", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_addl_t", "222", "ab", VernMode.SEARCH, true),
-        new StandardMARCFieldMaker("title_addl_t", "242", "abnp", VernMode.SEARCH, true),
-        new StandardMARCFieldMaker("title_addl_t", "243", "abcdefgklmnopqrs", VernMode.SEARCH, true),
-        new StandardMARCFieldMaker("author_245c_t","245", "c", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_addl_t", "246", "abcdefgklmnopqrs", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_addl_t", "247", "abcdefgnp", VernMode.SEARCH),
-        new StandardMARCFieldMaker("title_addl_t", "740", "anp", VernMode.SEARCH, true),//TODO Do we need this?
-
-        new StandardMARCFieldMaker("title_other_display", "243", "adfgklmnoprs", ":/ "),
-        new StandardMARCFieldMaker("title_other_display", "246", "iabfnpg", ":/ "),
-        new StandardMARCFieldMaker("continues_display", "247", "abfgnpx", ":/ "),
 
         new SPARQLFieldMakerImpl().setName("title130")
         .addMainStoreQuery("title_130", standardDataFieldSPARQL("130"))
