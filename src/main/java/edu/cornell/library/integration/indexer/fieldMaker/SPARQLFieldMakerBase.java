@@ -15,21 +15,15 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public abstract class SPARQLFieldMakerBase implements FieldMaker{
-	
+
 	/** Human readable name for this FieldMaker. Used in debugging */
 	String name;
-	
-	/** Gets the SPARQL queries to run.  These get run against
-	 * the local store. This should return a 
-	 * Map of name_for_query -> SPARQL_query */
-	Map<String,String> localStoreQueries;
-	
+
 	/** Gets the SPARQL queries to run. These get run against the
 	 * main store. This should return a 
 	 * Map of name_for_query -> SPARQL_query */
-	Map<String,String> mainStoreQueries;
-	
-	
+	Map<String,String> queries;
+
 	Map<String,String> defaultPrefixes;
 
 	protected boolean debug = false;
@@ -49,22 +43,10 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	}
 	// setName(String name) is in implementations for fluent style
 
-
-	public Map<String, String> getLocalStoreQueries() {
-		return localStoreQueries;
-	}
-	public void setLocalStoreQueries(Map<String, String> localStoreQueries) {
-		this.localStoreQueries = localStoreQueries;		
-	}	
-
-	public Map<String, String> getMainStoreQueries() {
-		return mainStoreQueries;
-	}
-	public void setMainStoreQueries(Map<String, String> mainStoreQueries) {
-		this.mainStoreQueries = mainStoreQueries;		
+	public Map<String, String> getQueries() {
+		return queries;
 	}
 
-	
 	/**
 	 * Substitute in recordURI to queries and run them against their stores, then
 	 * return all the result sets. This method works with the assumption that the 
@@ -75,25 +57,10 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 			SolrBuildConfig config) throws Exception {
 		Map<String, ResultSet> results = new HashMap<>();
 
-		//run local queries
-		RDFService localStore = config.getRDFService("local");
-		if( localStore != null ){
-			Map<String,String> queries = getLocalStoreQueries();
-			if( queries != null ){
-				for( String queryName : queries.keySet()){			
-					String query = queries.get(queryName);
-					query = substituteInRecordURI( recordURI, query );
-					debugLocalQuery( query );
-					ResultSet rs = sparqlSelectQuery(query, localStore);
-					results.put(queryName, rs);			
-				}
-			}
-		}
-		
 		//run remote queries
-		RDFService mainStore = config.getRDFService("main");
-		if( mainStore != null ){
-			Map<String,String> queries = getMainStoreQueries();
+		RDFService triplestore = config.getRDFService("batch");
+		if( triplestore != null ){
+			Map<String,String> queries = getQueries();
 			if( queries != null){
 				for( String queryName : queries.keySet()){
 					StringBuilder querybuild = new StringBuilder();
@@ -105,9 +72,9 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					querybuild.append(substituteInRecordURI( recordURI, queries.get(queryName) ));
 					String query = querybuild.toString();
 					debugRemoteQuery( query );
-					ResultSet rs = sparqlSelectQuery(query, mainStore);
+					ResultSet rs = sparqlSelectQuery(query, triplestore);
 					if (debug && query.contains("loccode")) {
-						try ( InputStream is = mainStore.sparqlSelectQuery(query, RDFService.ResultFormat.TEXT) ) {
+						try ( InputStream is = triplestore.sparqlSelectQuery(query, RDFService.ResultFormat.TEXT) ) {
 							String bib_xml = convertStreamToString(is);
 							System.out.println(bib_xml);
 						}
@@ -146,11 +113,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		}
 	}
 
-	private void debugLocalQuery(String query) {
-		if( debug )
-			System.out.println("Local query for " + getName() + ":'" + query + "'");		
-	}
-
 	/**
 	 * Convert the result sets generated from running the SPARQL queries to
 	 * SolrInputFields.
@@ -158,8 +120,8 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	protected abstract Map<? extends String, ? extends SolrInputField> 
 	    resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
 			throws Exception;
-	
-	
+
+
 	protected static ResultSet sparqlSelectQuery(String query, RDFService rdfService) throws Exception {
 		ResultSet resultSet = null;
 		try ( InputStream resultStream = rdfService.sparqlSelectQuery(query,RDFService.ResultFormat.JSON) ) {

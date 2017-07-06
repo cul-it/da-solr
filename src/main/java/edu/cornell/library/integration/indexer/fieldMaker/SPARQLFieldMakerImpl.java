@@ -36,19 +36,11 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		super.name = name;
 		return this;
 	}
-	
-	public SPARQLFieldMakerImpl addLocalStoreQuery(String key, String query){
-		if( this.localStoreQueries == null )			
-			this.localStoreQueries = new HashMap<>();
-		
-		this.localStoreQueries.put(key,query);
-		return this;
-	}
 
-	public SPARQLFieldMakerImpl addMainStoreQuery(String key, String query){
-		if( this.mainStoreQueries == null )
-			this.mainStoreQueries = new HashMap<>();
-		this.mainStoreQueries.put(key, query);
+	public SPARQLFieldMakerImpl addQuery(String key, String query){
+		if( this.queries == null )
+			this.queries = new HashMap<>();
+		this.queries.put(key, query);
 		return this;		
 	}
 
@@ -59,7 +51,6 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		return this;
 	}
 
-	
 	/**
 	 * Convert the result sets generated from running the SPARQL queries to
 	 * SolrInputFields. 
