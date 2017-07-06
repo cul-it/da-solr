@@ -284,7 +284,9 @@ public class AuthorTitleTest {
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
-		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: 多賀太, 1968-\n"+
+		"authority_author_t_cjk: 多賀太, 1968-\n"+
 		"author_sort: taga futoshi 1968\n"+
 		"title_uniform_display: 男子問題の時代. Korean|男子問題の時代. Korean|多賀太, 1968-\n"+
 		"authortitle_facet: 多賀太, 1968- | 男子問題の時代. Korean\n"+
@@ -438,10 +440,10 @@ public class AuthorTitleTest {
 			throws ClassNotFoundException, SQLException, IOException {
 		// This is a poorly encoded example, which we will treat as "good enough" and produce no errors.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.dataFields.add(new DataField(1,1,"100",'1',' ',"‡a Grebenshchikova, G. A., ‡e author.",false));
+		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Grebenshchikova, G. A., ‡e author."));
 		rec.dataFields.add(new DataField(2,1,"100",'1','0',"‡6 100-01 ‡a Гребенщикова, Г. А, ‡e author.",true));
-		rec.dataFields.add(new DataField(3,2,"245",'0','0',
-				"‡a Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II",false));
+		rec.dataFields.add(new DataField(3,"245",'0','0',
+				"‡a Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II"));
 		rec.dataFields.add(new DataField(4,2,"245",'0','0',
 				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
 		String expected =
@@ -455,7 +457,8 @@ public class AuthorTitleTest {
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А\",\"search1\":\"Гребенщикова, Г. А,\","
 		+ "\"name2\":\"Grebenshchikova, G. A., author\",\"search2\":\"Grebenshchikova, G. A.,\","
-		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		+ "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
 		"author_sort: grebenshchikova g a\n"+
 		"title_sort: chernomorskii flot v period pravleniia ekateriny ii\n"+
 		"title_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
@@ -479,6 +482,7 @@ public class AuthorTitleTest {
 		"title_exact: Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_facet: Гребенщикова, Г. А, | Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n";
+//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -491,20 +495,17 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(1,0,"110",'1',' ',"‡a Korea (South). ‡b President (1993-1998 : Kim)",false));
 		rec.dataFields.add(new DataField(2,0,"100",'1',' ',"‡6 100-00/$1 ‡a 金泳三, ‡d 1927-",true));
 		String expected =
-		"author_t_cjk: 金泳三, 1927-\n"+
-		"author_cts: 金泳三, 1927-|金泳三, 1927-\n"+
-		"author_facet: 金泳三, 1927-\n"+
-		"author_pers_filing: 金泳三 1927\n"+
-		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"type\":\"Personal Name\","
-		+ "\"authorizedForm\":false}\n"+
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_cts: Korea (South). President (1993-1998 : Kim)|Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
-		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\","
-		+ "\"search1\":\"Korea (South). President (1993-1998 : Kim)\","
-		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
-		"author_display: 金泳三, 1927- / Korea (South). President (1993-1998 : Kim)\n"+
+		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South). President (1993-1998 : Kim)\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"author_t_cjk: 金泳三, 1927-\n"+
+		"author_cts: 金泳三, 1927-|金泳三, 1927-\n"+
+		"author_facet: 金泳三, 1927-\n"+
+		"author_pers_filing: 金泳三 1927\n"+
+		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_sort: korea south president 1993 1998 kim\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
@@ -518,25 +519,16 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(1,1,"110",'2',' ',"‡6 880-01 ‡a Guo li gu gong bo wu yuan.",false));
 		rec.dataFields.add(new DataField(2,0,"100",'1','0',"‡6 100-00/$1 ‡a 蔡玫芬.",true));
 		rec.dataFields.add(new DataField(3,1,"110",'2','0',"‡6 110-01/$1 ‡a 國立故宮博物院.",true));
-//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 		String expected =
-		"author_t_cjk: 蔡玫芬.\n"+
-		"author_cts: 蔡玫芬.|蔡玫芬.\n"+
-		"author_facet: 蔡玫芬\n"+
-		"author_pers_filing: 蔡玫芬\n"+
-		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"type\":\"Personal Name\","
-		+ "\"authorizedForm\":false}\n"+
-		"author_t_cjk: 國立故宮博物院.\n"+
-		"author_cts: 國立故宮博物院.|國立故宮博物院.\n"+
+		"author_cts: 國立故宮博物院|國立故宮博物院.|Guo li gu gong bo wu yuan.|Guo li gu gong bo wu yuan.\n"+
 		"author_facet: 國立故宮博物院\n"+
-		"author_corp_filing: 國立故宮博物院\n"+
-		"author_json: {\"name1\":\"國立故宮博物院.\",\"search1\":\"國立故宮博物院.\",\"type\":\"Corporate Name\","
-		+ "\"authorizedForm\":false}\n"+
-		"author_t: Guo li gu gong bo wu yuan.\n"+
-		"author_cts: Guo li gu gong bo wu yuan.|Guo li gu gong bo wu yuan.\n"+
 		"author_facet: Guo li gu gong bo wu yuan\n"+
+		"author_corp_filing: 國立故宮博物院\n"+
 		"author_corp_filing: guo li gu gong bo wu yuan\n"+
-		"author_json: {\"name1\":\"Guo li gu gong bo wu yuan.\",\"search1\":\"Guo li gu gong bo wu yuan.\","
+		"author_t_cjk: 國立故宮博物院.\n"+
+		"author_t: Guo li gu gong bo wu yuan.\n"+
+		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
+		+ "\"Guo li gu gong bo wu yuan.\",\"search2\":\"Guo li gu gong bo wu yuan.\","
 		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: China (Republic : 1949- ). Chinese National Palace Museum\n"+
 		"authority_author_t: China (Republic : 1949- ). Guo li gu gong bo wu yuan\n"+
@@ -562,7 +554,13 @@ public class AuthorTitleTest {
 		"authority_author_t_cjk: 國立故宮博物院\n"+
 		"authority_author_t: 故宮博物院 (Taipei, Taiwan)\n"+
 		"authority_author_t_cjk: 故宮博物院 (Taipei, Taiwan)\n"+
-		"author_display: 蔡玫芬. / 國立故宮博物院. / Guo li gu gong bo wu yuan.\n"+
+		"author_t_cjk: 蔡玫芬.\n"+
+		"author_cts: 蔡玫芬.|蔡玫芬.\n"+
+		"author_facet: 蔡玫芬\n"+
+		"author_pers_filing: 蔡玫芬\n"+
+		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"type\":\"Personal Name\","
+		+ "\"authorizedForm\":false}\n"+
+		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
 		"author_sort: guo li gu gong bo wu yuan\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
