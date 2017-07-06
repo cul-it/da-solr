@@ -154,7 +154,8 @@ public class NameUtils {
 		json.put("search2", ctsValsList.get(1).author);
 		if (htd != null) json.put("type", htd.toString());
 		final AuthorityData authData = (htd != null) 
-				? new AuthorityData(config,ctsValsList.get(0).author,htd) : new AuthorityData(false);
+				? new AuthorityData(config,ctsValsList.get(ctsValsList.size()-1).author,htd)
+						: new AuthorityData(false);
 		json.put("authorizedForm", authData.authorized);
 		final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 		mapper.writeValue(jsonstream, json);
