@@ -124,8 +124,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	public TreeSet<DataFieldSet> matchAndSortDataFields(boolean forceVernMatch) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
-		// to be displayed in field id order. If vernMode is SINGULAR or SING_VERN, all
-		// occurrence numbers are ignored and treated as "01".
+		// to be displayed in field id order. If forceVernMatch, all occurrence numbers are
+		// ignored and treated as "01".
 		final Map<String,DataFieldSet.Builder> matchedFields  = new HashMap<>();
 		final TreeSet<DataFieldSet> sortedFields = new TreeSet<>();
 

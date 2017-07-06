@@ -74,6 +74,9 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 			this.mainTag = mainTag;
 			return this;
 		}
+		public String getMainTag() {
+			return this.mainTag;
+		}
 		public Builder setLinkNumber(Integer linkNumber) {
 			this.linkNumber = linkNumber;
 			return this;
@@ -83,6 +86,10 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 		}
 		public Builder addToFields(DataField field) {
 			this.fields.add(field);
+			return this;
+		}
+		public Builder addToFields(List<DataField> fields) {
+			this.fields.addAll(fields);
 			return this;
 		}
 		public DataFieldSet build() throws IllegalArgumentException {
