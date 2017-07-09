@@ -81,6 +81,8 @@ public class TitleChange implements ResultSetToFields {
 			} else {
 				title_cts = f.concatenateSpecificSubfields("ab");
 				workField = f.concatenateSpecificSubfields("iabchqdeklxftgjmnoprsuvwyz");
+				final String searchField = f.concatenateSpecificSubfields("anp");
+				sfs.add(new SolrField("title_addl_t",searchField));
 			}
 			if (f.ind2.equals('2'))
 				relation = "included_work_display";

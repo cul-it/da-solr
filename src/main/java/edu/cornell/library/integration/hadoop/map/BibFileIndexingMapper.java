@@ -147,7 +147,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 		
 			log.info("Starting to index documents");
 			RDFService rdf = new RDFServiceModel(model);
-			config.setRDFService("main", rdf);
+			config.setRDFService("batch", rdf);
 			int n = 0;
 
 			Collection<SolrInputDocument> docs = new HashSet<>();

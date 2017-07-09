@@ -156,6 +156,18 @@ public class TitleChangeTest {
 	}
 
 	@Test
+	public void test740RelatedWork() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"740",'0',' ',"‡a Historic structure report. ‡p Architectural data section. ‡n Phase II, ‡p Exterior preservation."));
+		String expected =
+		"title_addl_t: Historic structure report. Architectural data section. Phase II, Exterior preservation.\n"+
+		"related_work_display: Historic structure report. Architectural data section."
+		+ " Phase II, Exterior preservation.|Historic structure report.\n";
+		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
+//		System.out.println( TitleChange.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
+	}
+
+	@Test
 	public void testAuthorTitleSegregationOf776() throws ClassNotFoundException, SQLException, IOException {
 		// Example from DISCOVERYACCESS-3445
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -240,6 +252,5 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
 		assertEquals( "", TitleChange.generateSolrFields(rec, config).toString() );
-//		System.out.println( TitleChange.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}	
 }

@@ -77,6 +77,37 @@ public class SimpleProcTest {
 	}
 
 	@Test
+	public void testVariousOtherTitles() { //117081
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"210",'0',' ',"‡a J.S. Afr. Vet. Assoc."));
+		rec.dataFields.add(new DataField(2,"210",'1','0',"‡a J S Afr Vet Assoc ‡2 dnlm"));
+		rec.dataFields.add(new DataField(3,"222",' ','0',"‡a Journal of the South African Veterinary Association"));
+		rec.dataFields.add(new DataField(4,"246",'3','1',"‡a Tydskrif van die Suid-Afrikaanse Veterinêre Vereniging"));
+		rec.dataFields.add(new DataField(5,"246",'1',' ',"‡a South African Veterinary Association journal"));
+		String expected =
+		"title_addl_t: J.S. Afr. Vet. Assoc.\n"+
+		"title_addl_t: J S Afr Vet Assoc\n"+
+		"title_addl_t: Journal of the South African Veterinary Association\n"+
+		"title_addl_t: Journal of the South African Veterinary Association\n"+
+		"title_other_display: Tydskrif van die Suid-Afrikaanse Veterinêre Vereniging\n"+
+		"title_addl_t: Tydskrif van die Suid-Afrikaanse Veterinêre Vereniging\n"+
+		"title_other_display: South African Veterinary Association journal\n"+
+		"title_addl_t: South African Veterinary Association journal\n";
+		assertEquals(expected,SimpleProc.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void test222LeadingArticle() { //117081
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"222",'0','3',"‡a La Rassegna della letteratura italiana"));
+		String expected =
+		"title_addl_t: La Rassegna della letteratura italiana\n"+
+		"title_addl_t: Rassegna della letteratura italiana\n";
+//		System.out.println(SimpleProc.generateSolrFields(rec, null).toString());
+		assertEquals(expected,SimpleProc.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
 	public void testTwoNotes() {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"500",' ',' ',"‡a Here's the first note."));
@@ -97,7 +128,7 @@ public class SimpleProcTest {
 				"‡6 500-01/$1 ‡a Here's the non-Roman version of the note.", true));
 		String expected =
 		"notes: Here's the non-Roman version of the note.\n"+
-		"notes_t: Here's the non-Roman version of the note.\n"+
+		"notes_t_cjk: Here's the non-Roman version of the note.\n"+
 		"notes: Here's the main note.\n"+
 		"notes_t: Here's the main note.\n";
 		assertEquals(expected,SimpleProc.generateSolrFields(rec, null).toString());
@@ -116,12 +147,11 @@ public class SimpleProcTest {
 		"notes: Here's the first note.\n"+
 		"notes_t: Here's the first note.\n"+
 		"notes: Here's the non-Roman version of the second note.\n"+
-		"notes_t: Here's the non-Roman version of the second note.\n"+
+		"notes_t_cjk: Here's the non-Roman version of the second note.\n"+
 		"notes: Here's the second note with non-Roman version.\n"+
 		"notes_t: Here's the second note with non-Roman version.\n"+
 		"notes: Context note: Here's the third note.\n"+
 		"notes_t: Here's the third note.\n";
 		assertEquals(expected,SimpleProc.generateSolrFields(rec, null).toString());
-//		System.out.println( SimpleProc.generateSolrFields(rec,null).toString() );
 	}
 }

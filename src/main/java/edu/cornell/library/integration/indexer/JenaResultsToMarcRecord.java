@@ -64,6 +64,8 @@ public class JenaResultsToMarcRecord {
 		final Integer field_no = Integer.valueOf( f_uri.substring( f_uri.lastIndexOf('_') + 1 ) );
 		final String sf_uri = nodeToString( sol.get("sfield") );
 		final Integer sfield_no = Integer.valueOf( sf_uri.substring( sf_uri.lastIndexOf('_') + 1 ) );
+		if (rec.id == null)
+			rec.id = f_uri.substring( f_uri.lastIndexOf('/') + 2 , f_uri.lastIndexOf('_') );
 		DataField f = null;
 		for (DataField df : rec.dataFields)
 			if (df.id == field_no)

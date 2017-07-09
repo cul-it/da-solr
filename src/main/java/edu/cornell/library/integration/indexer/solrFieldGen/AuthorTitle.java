@@ -27,6 +27,7 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
 
@@ -64,14 +65,21 @@ public class AuthorTitle implements ResultSetToFields {
 		DataField title = null, title_vern = null, uniform_title = null, uniform_title_vern = null;
 		String author = null, author_vern = null;
 
+		// Encourage linking of author fields where useful
+		int authorFields = 0;
+		for (DataField f : rec.dataFields) if (f.mainTag.startsWith("1")) authorFields++;
+		if (authorFields == 2)
+			for (DataField f : rec.dataFields) if (f.mainTag.startsWith("1")) f.linkNumber = -23;
+
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
+		int authorDisplayCount = 0;
 		for( DataFieldSet fs: sets ) {
 
 			String mainTag = null;
 			
 			if (fs.getMainTag().startsWith("1")) {
 				List<FieldValues> ctsValsList  = NameUtils.authorAndOrTitleValues(fs);
-
+				
 				// Check for special case - exactly two matching author entries
 				List<DataField> fields = fs.getFields();
 				if ( fields.size() == 2
@@ -79,7 +87,8 @@ public class AuthorTitle implements ResultSetToFields {
 					sfs.addAll( NameUtils.combinedRomanNonRomanAuthorEntry( config, fs, ctsValsList, true ) );
 					author_vern = ctsValsList.get(0).author;
 					author = ctsValsList.get(1).author;
-
+					authorDisplayCount++;
+		
 					// In other cases, process the fields individually
 				} else {
 					for ( int i = 0 ; i < fs.getFields().size() ; i++ ) {
@@ -90,7 +99,8 @@ public class AuthorTitle implements ResultSetToFields {
 							author_vern = ctsVals.author;
 						else
 							author = ctsVals.author;
-					}			
+						authorDisplayCount++;
+					}
 				}
 			}
 		
@@ -110,6 +120,11 @@ public class AuthorTitle implements ResultSetToFields {
 			}
 
 		}
+		if (authorDisplayCount > 1) {
+			System.out.println( "Record "+rec.id+" has erroneous main entry author fields.");
+			sfs = mergeAuthorDisplayValues( sfs );
+		}
+
 		if (author != null) {
 			String sort_author = getFilingForm(author);
 			sfs.add(new SolrField("author_sort",sort_author));
@@ -246,14 +261,30 @@ public class AuthorTitle implements ResultSetToFields {
 			}
 		}
 		if (responsibility != null && ! responsibility.isEmpty()) {
-			if (responsibility_vern != null && ! responsibility_vern.isEmpty())
+			if (responsibility_vern != null && ! responsibility_vern.isEmpty()) {
 				sfs.add(new SolrField("title_responsibility_display",
 						responsibility_vern + " / " + responsibility));
-			else
+				sfs.add(new SolrField(CharacterSetUtils.isCJK(responsibility_vern)
+						?"author_245c_t_cjk":"author_245c_t", responsibility_vern));
+			} else {
 				sfs.add(new SolrField("title_responsibility_display", responsibility));
+			}
+			sfs.add(new SolrField("author_245c_t", responsibility));
 		}
 		SolrFields solrFields = new SolrFields();
 		solrFields.fields = sfs;
 		return solrFields;
+	}
+
+	private static List<SolrField> mergeAuthorDisplayValues(List<SolrField> sfs) {
+		List<SolrField> newSfs = new ArrayList<>();
+		String authorDisplayValue = null;
+		for (SolrField sf : sfs)
+			if (sf.fieldName.equals("author_display")) {
+				if (authorDisplayValue == null)	authorDisplayValue = sf.fieldValue;
+			} else newSfs.add(sf);
+		if ( authorDisplayValue != null )
+			newSfs.add(new SolrField("author_display",authorDisplayValue));
+		return newSfs;
 	}
 }
