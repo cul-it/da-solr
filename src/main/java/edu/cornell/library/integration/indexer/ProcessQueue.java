@@ -71,13 +71,16 @@ public class ProcessQueue {
 		if (quittingTime == null) quittingTime = 19;
 		System.out.println("Processing Voyager records until: "+quittingTime+":00.");
 		int i = 0;
-		while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime) {
+
+		do {
 			config.setWebdavBaseUrl(webdavBaseUrl+(++i));
 			if (localBaseFilePath != null)
 				config.setLocalBaseFilePath(localBaseFilePath+i);
 			new RetrieveUpdatesBatch(config, b);
 			new IncrementalBibFileToSolr(config);
-		}
+
+		} while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime);
+
 		commitIndexChanges( config.getSolrUrl() );
 	}
 }

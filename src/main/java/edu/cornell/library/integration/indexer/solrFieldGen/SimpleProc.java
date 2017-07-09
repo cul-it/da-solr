@@ -14,6 +14,7 @@ import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.S
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
+import edu.cornell.library.integration.utilities.IndexingUtilities;
 
 public class SimpleProc implements ResultSetToFields {
 
@@ -43,35 +44,43 @@ public class SimpleProc implements ResultSetToFields {
 		for (DataField f : rec.matchSortAndFlattenDataFields()) {
 			String displayField = "notes";
 			String searchField = "notes_t";
+			String cjkSearchField = "notes_t_cjk";
 			String displaySubfields = null;
 			String searchSubfields = null;
+			String displayCleanupChars = null;
+			Boolean titleMode = false;
 			switch (Integer.valueOf(f.mainTag)) {
 			case 10:
 				searchField = "lc_controlnum_s";
+				cjkSearchField = "lc_controlnum_s";
 				displayField = "lc_controlnum_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 22:
 				searchField = "issn_t";
+				cjkSearchField = "issn_t_cjk";
 				displayField = "issn_display";
 				displaySubfields = "a";
 				searchSubfields = "al";
 				break;
 			case 24:
 				searchField = "id_t";
+				cjkSearchField = "id_t_cjk";
 				displayField = "other_identifier_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 28:
 				searchField = "id_t";
+				cjkSearchField = "id_t_cjk";
 				displayField = "publisher_number_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
 			case 35:
 				searchField = "id_t";
+				cjkSearchField = "id_t_cjk";
 				displayField = "other_id_display";
 				displaySubfields = "a";
 				searchSubfields = "a";
@@ -79,7 +88,49 @@ public class SimpleProc implements ResultSetToFields {
 			case 74:
 			case 86:
 				searchField = "id_left_chunked";
+				cjkSearchField = "id_left_chunked";
 				searchSubfields = "az";
+			case 210:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				searchSubfields = "ab";
+				break;
+			case 222:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				searchSubfields = "ab";
+				titleMode = true;
+				break;
+			case 242:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				searchSubfields = "abnp";
+				titleMode = true;
+				break;
+			case 243:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				displayField = "title_other_display";
+				displaySubfields = "adfgklmnoprs";
+				searchSubfields = "abcdefgklmnopqrs";
+				displayCleanupChars = ":/ ";
+				titleMode = true;
+				break;
+			case 246:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				displayField = "title_other_display";
+				displaySubfields = "iabfnpg";
+				searchSubfields = "abcdefgklmnopqrs";
+				displayCleanupChars = ":/ ";
+				break;
+			case 247:
+				searchField = "title_addl_t";
+				cjkSearchField = "title_addl_t_cjk";
+				displayField = "continues_display";
+				displaySubfields = "abfgnpx";
+				searchSubfields = "abcdefgnp";
+				displayCleanupChars = ":/ ";
 				break;
 			case 250:
 				displayField = "edition_display";
@@ -175,6 +226,7 @@ public class SimpleProc implements ResultSetToFields {
 			case 856:    displaySubfields = "m";         searchSubfields = "m";        break;
 			case 899:
 				searchField = "eightninenine_t";
+				cjkSearchField = "eightninenine_t_cjk";
 				displayField = "eightninenine_display";
 				displaySubfields = "ab";
 				searchSubfields = "ab";
@@ -185,6 +237,7 @@ public class SimpleProc implements ResultSetToFields {
 				break;
 			case 903:
 				searchField = "barcode_t";
+				cjkSearchField = "barcode_t_cjk";
 				searchSubfields = "p";
 				break;
 			case 940:    displaySubfields = "a";         searchSubfields = "a";        break;
@@ -192,15 +245,24 @@ public class SimpleProc implements ResultSetToFields {
 			}
 			if (displaySubfields != null) {
 				String displayValue = f.concatenateSpecificSubfields(displaySubfields);
+				if (displayCleanupChars != null)
+					displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
 				if (! displayValue.isEmpty())
 					sfs.add(new SolrField(displayField,displayValue));
 			}
 			if (searchSubfields != null) {
 				String searchValue = f.concatenateSpecificSubfields(searchSubfields);
 				if (! searchValue.isEmpty()) {
-					sfs.add(new SolrField(searchField,searchValue));
-					if (!searchField.endsWith("_s") && CharacterSetUtils.isCJK(searchValue))
-						sfs.add(new SolrField(searchField+"_cjk",searchValue));
+					if (f.getScript().equals(DataField.Script.CJK))
+						sfs.add(new SolrField(cjkSearchField,searchValue));
+					else {
+						if (CharacterSetUtils.hasCJK(searchValue))
+							sfs.add(new SolrField(cjkSearchField,searchValue));
+						sfs.add(new SolrField(searchField,CharacterSetUtils.standardizeApostrophes(searchValue)));
+						if (titleMode)
+							sfs.add(new SolrField(searchField,CharacterSetUtils.standardizeApostrophes(
+									f.getStringWithoutInitialArticle(searchValue))));
+					}
 				}
 			}
 		}

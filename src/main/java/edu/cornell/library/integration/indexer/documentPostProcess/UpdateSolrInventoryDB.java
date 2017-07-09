@@ -169,6 +169,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 								thisTitle = new TitleMatchReference();
 								thisTitle.id = bibid;
 								thisTitle.format = rs.getString("format");
+								thisTitle.url = rs.getString("url");
 								thisTitle.sites = rs.getString("sites");
 								thisTitle.libraries = rs.getString("libraries");
 								thisTitle.edition = rs.getString("edition");
@@ -181,6 +182,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 								TitleMatchReference ref = new TitleMatchReference();
 								ref.id = refBibid;
 								ref.format = rs.getString("format");
+								ref.url = rs.getString("url");
 								ref.sites = rs.getString("sites");
 								ref.libraries = rs.getString("libraries");
 								ref.edition = rs.getString("edition");
@@ -224,6 +226,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		Map<String,Object> json = new HashMap<>();
 		json.put("bibid", ref.id);
 		json.put("format", ref.format);
+		if (ref.url != null && ! ref.url.isEmpty())
+			json.put("url", ref.url);
 		if (ref.sites != null && ! ref.sites.isEmpty())
 			json.put("sites", ref.sites);
 		if (ref.libraries != null && ! ref.libraries.isEmpty())
@@ -348,7 +352,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		// pull existing values from DB are the descriptive fields changed?
 		final String origDescQuery =
-				"SELECT format, sites, libraries, edition,"
+				"SELECT format, url, sites, libraries, edition,"
 						+ " pub_date, title, language, active"
 						+ " FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
 		boolean descChanged = false;
@@ -358,6 +362,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			try (  ResultSet origDescRS = origDescStmt.executeQuery()  ) {
 				while (origDescRS.next())
 					if (  ! stringsEqual(ref.format,origDescRS.getString("format"))
+							|| ! stringsEqual(ref.url,origDescRS.getString("url"))
 							|| ! stringsEqual(ref.sites,origDescRS.getString("sites"))
 							|| ! stringsEqual(ref.libraries,origDescRS.getString("libraries"))
 							|| ! stringsEqual(ref.edition,origDescRS.getString("edition"))
@@ -374,7 +379,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			final String updateDescQuery =
 					"UPDATE "+CurrentDBTable.BIB_SOLR
 					+" SET record_date = ?, format = ?, "
-					+ "sites = ?, libraries = ?, "
+					+ "url = ?, sites = ?, libraries = ?, "
 					+ "edition = ?, pub_date = ?, title = ?, language = ?, "
 					+ "index_date = NOW(), linking_mod_date = NOW(), "
 					+ "active = 1 "
@@ -382,13 +387,14 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			try (PreparedStatement updateDescStmt = conn.prepareStatement(updateDescQuery)) {
 				updateDescStmt.setTimestamp(1, ref.timestamp);
 				updateDescStmt.setString(2, ref.format);
-				updateDescStmt.setString(3, ref.sites);
-				updateDescStmt.setString(4, ref.libraries);
-				updateDescStmt.setString(5, ref.edition);
-				updateDescStmt.setString(6, ref.pub_date);
-				updateDescStmt.setString(7, ref.title);
-				updateDescStmt.setString(8, ref.language);
-				updateDescStmt.setInt(9, bibid);
+				updateDescStmt.setString(3, ref.url);
+				updateDescStmt.setString(4, ref.sites);
+				updateDescStmt.setString(5, ref.libraries);
+				updateDescStmt.setString(6, ref.edition);
+				updateDescStmt.setString(7, ref.pub_date);
+				updateDescStmt.setString(8, ref.title);
+				updateDescStmt.setString(9, ref.language);
+				updateDescStmt.setInt(10, bibid);
 				updateDescStmt.executeUpdate();
 			}
 		}

@@ -15,7 +15,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
-import edu.cornell.library.integration.indexer.localDataMaker.LocalDataMaker;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeListener;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
@@ -59,13 +58,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 			}			
 		};		
 	}
-	
-	/** list of objects to construct a local RDF graph. 
-	 * Return empty list if no local data is needed. */
-	static List<LocalDataMaker> getLocalDataMakers(){ 
-		return Collections.emptyList(); 
-	}		
-	
+
 	/** list of object to post process the solr document. Return empty
 	 * list if not needed. */
 	@SuppressWarnings("static-method")
@@ -77,24 +70,10 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
 			SolrBuildConfig config) throws Exception {	
-						
+
 		if(debug)
 			System.out.println("building document for " + recordURI);
-		
-		RDFService mainStoreQueryService = config.getRDFService("main");
-		
-		
-		//construct local graph
-		RDFService localStore = null;
-		if( getLocalStoreFactory() != null && getLocalDataMakers() != null ){
-			 localStore = getLocalStoreFactory().getRDFService();
-			if( localStore != null ){
-				for( LocalDataMaker con : getLocalDataMakers()){
-					con.gather(recordURI, mainStoreQueryService, localStore);								
-				}
-			}
-		}
-		
+
 		//get all the fields
 		SolrInputDocument doc = new SolrInputDocument();
 		for( FieldMaker maker : getFieldMakers()){

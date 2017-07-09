@@ -32,6 +32,12 @@
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField035> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField074> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField086> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField210> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField222> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField242> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField243> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField246> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
+<http://marcrdf.library.cornell.edu/canonical/0.1/hasField247> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField250> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField255> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.
 <http://marcrdf.library.cornell.edu/canonical/0.1/hasField300> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://marcrdf.library.cornell.edu/canonical/0.1/SimpleProcFields>.

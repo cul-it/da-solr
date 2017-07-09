@@ -158,7 +158,6 @@ public class DataField implements Comparable<DataField> {
 	 * so that the calling method can have access to the title WITH the article.
 	 */
 	public String getStringWithoutInitialArticle(final String fulltitle) {
-		final String titlePrefixChars = "[.\"“";
 
 		Character nonFilingCharInd = null;
 		switch (this.mainTag) {
@@ -172,6 +171,7 @@ public class DataField implements Comparable<DataField> {
 		case "242":
 		case "243":
 		case "245":
+		case "440":
 		case "830":
 			nonFilingCharInd = this.ind2;
 		}
@@ -192,6 +192,7 @@ public class DataField implements Comparable<DataField> {
 		}
 		return fulltitle;
 	}
+	private final static String titlePrefixChars = "[.\"“";
 
 	/* Parse a series of subfields in a single string into a set of Subfield objects */
 	private static TreeSet<Subfield> parseSubfields(String subfields, Character subfieldSeparator) {

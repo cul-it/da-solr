@@ -71,7 +71,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: c\n"+
 		"authortitle_facet: León Cupe, Mariano, 1932- | Cabana, historia, cultura y tradición\n"+
 		"authortitle_filing: leon cupe mariano 1932 0000 cabana historia cultura y tradicion\n"+
-		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n";
+		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
+		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -104,7 +105,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: w\n"+
 		"authortitle_facet: Fewer, T. N. | Waterford people\n"+
 		"authortitle_filing: fewer t n 0000 waterford people\n"+
-		"title_responsibility_display: T. N. Fewer.\n";
+		"title_responsibility_display: T. N. Fewer.\n"+
+		"author_245c_t: T. N. Fewer.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -137,7 +139,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: l\n"+
 		"authortitle_facet: Kalavrezos, Nicholas, | Lumps and bumps in the mouth and lips\n"+
 		"authortitle_filing: kalavrezos nicholas 0000 lumps and bumps in the mouth and lips\n"+
-		"title_responsibility_display: Nicholas Kalavrezos.\n";
+		"title_responsibility_display: Nicholas Kalavrezos.\n"+
+		"author_245c_t: Nicholas Kalavrezos.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -184,7 +187,8 @@ public class AuthorTitleTest {
 		"title_2letter_s: br\n"+
 		"title_1letter_s: b\n"+
 		"title_responsibility_display: John Speed ; introduction by Nigel Nicolson ; country commentaries"+
-									" by Alasdair Hawkyard.\n";
+									" by Alasdair Hawkyard.\n"+
+		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -218,7 +222,8 @@ public class AuthorTitleTest {
 		"title_1letter_s: e\n"+
 		"authortitle_facet: Papadēmētropoulos, Loukas P., | ennoia tou oikou ston Euripidē\n"+
 		"authortitle_filing: papademetropoulos loukas p 0000 ennoia tou oikou ston euripide\n"+
-		"title_responsibility_display: Loukas Papadēmētropoulos.\n";
+		"title_responsibility_display: Loukas Papadēmētropoulos.\n"+
+		"author_245c_t: Loukas Papadēmētropoulos.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -252,7 +257,9 @@ public class AuthorTitleTest {
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"title_responsibility_display: подготовка писем Е. Дмитриевой и Ф. Шедеви. /"
-		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
+		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
+		"author_245c_t: подготовка писем Е. Дмитриевой и Ф. Шедеви.\n"+
+		"author_245c_t: podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -277,7 +284,9 @@ public class AuthorTitleTest {
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
-		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: 多賀太, 1968-\n"+
+		"authority_author_t_cjk: 多賀太, 1968-\n"+
 		"author_sort: taga futoshi 1968\n"+
 		"title_uniform_display: 男子問題の時代. Korean|男子問題の時代. Korean|多賀太, 1968-\n"+
 		"authortitle_facet: 多賀太, 1968- | 男子問題の時代. Korean\n"+
@@ -305,7 +314,9 @@ public class AuthorTitleTest {
 		"fulltitle_vern_display: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
-		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
+		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
+		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
+		"author_245c_t: Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
 	}
 
@@ -418,8 +429,140 @@ public class AuthorTitleTest {
 		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | 佛教艺术的早期阶段\n"+
 		"authortitle_filing: foucher a alfred 1865 1952 0000 佛教艺术的早期阶段\n"+
 		"title_responsibility_display: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校. / cA Fuxie (A. Foucher)"
-		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
+		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n"+
+		"author_245c_t_cjk: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.\n"+
+		"author_245c_t: cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
 		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
-//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
+
+	@Test
+	public void testGoodLinksExceptRomanizedFieldsDontPointBackTo880Fields7940870()
+			throws ClassNotFoundException, SQLException, IOException {
+		// This is a poorly encoded example, which we will treat as "good enough" and produce no errors.
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Grebenshchikova, G. A., ‡e author."));
+		rec.dataFields.add(new DataField(2,1,"100",'1','0',"‡6 100-01 ‡a Гребенщикова, Г. А, ‡e author.",true));
+		rec.dataFields.add(new DataField(3,"245",'0','0',
+				"‡a Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II"));
+		rec.dataFields.add(new DataField(4,2,"245",'0','0',
+				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
+		String expected =
+		"author_display: Гребенщикова, Г. А / Grebenshchikova, G. A., author\n"+
+		"author_cts: Гребенщикова, Г. А|Гребенщикова, Г. А,|Grebenshchikova, G. A., author|Grebenshchikova, G. A.,\n"+
+		"author_facet: Гребенщикова, Г. А\n"+
+		"author_facet: Grebenshchikova, G. A\n"+
+		"author_pers_filing: гребенщикова г а\n"+
+		"author_pers_filing: grebenshchikova g a\n"+
+		"author_t: Гребенщикова, Г. А, author\n"+
+		"author_t: Grebenshchikova, G. A., author\n"+
+		"author_json: {\"name1\":\"Гребенщикова, Г. А\",\"search1\":\"Гребенщикова, Г. А,\","
+		+ "\"name2\":\"Grebenshchikova, G. A., author\",\"search2\":\"Grebenshchikova, G. A.,\","
+		+ "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
+		"author_sort: grebenshchikova g a\n"+
+		"title_sort: chernomorskii flot v period pravleniia ekateriny ii\n"+
+		"title_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"subtitle_display: \n"+
+		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_exact: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_exact: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_sms_compat_display: Chernomorskii flot v period pravleniia Ekateriny II\n"+
+		"title_2letter_s: ch\n"+
+		"title_1letter_s: c\n"+
+		"authortitle_facet: Grebenshchikova, G. A., | Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"authortitle_filing: grebenshchikova g a 0000 chernomorskii flot v period pravleniia ekateriny ii\n"+
+		"title_vern_display: Черноморский флот в период правления Екатерины II\n"+
+		"subtitle_vern_display: \n"+
+		"title_t: Черноморский флот в период правления Екатерины II\n"+
+		"title_t: Черноморский флот в период правления Екатерины II\n"+
+		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
+		"title_exact: Черноморский флот в период правления Екатерины II\n"+
+		"title_exact: Черноморский флот в период правления Екатерины II\n"+
+		"authortitle_facet: Гребенщикова, Г. А, | Черноморский флот в период правления Екатерины II\n"+
+		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n";
+//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
+		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void testTwoDifferentAuthorFieldsWithDifferentTags6279795()
+			throws ClassNotFoundException, SQLException, IOException {
+		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "6279795";
+		rec.dataFields.add(new DataField(1,0,"110",'1',' ',"‡a Korea (South). ‡b President (1993-1998 : Kim)",false));
+		rec.dataFields.add(new DataField(2,0,"100",'1',' ',"‡6 100-00/$1 ‡a 金泳三, ‡d 1927-",true));
+		String expected =
+		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
+		"author_cts: Korea (South). President (1993-1998 : Kim)|Korea (South). President (1993-1998 : Kim)\n"+
+		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
+		"author_corp_filing: korea south president 1993 1998 kim\n"+
+		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South). President (1993-1998 : Kim)\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"author_t_cjk: 金泳三, 1927-\n"+
+		"author_cts: 金泳三, 1927-|金泳三, 1927-\n"+
+		"author_facet: 金泳三, 1927-\n"+
+		"author_pers_filing: 金泳三 1927\n"+
+		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
+		"author_sort: korea south president 1993 1998 kim\n";
+		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void testExtraneousMainAuthorVernacularEntry6197642()
+			throws ClassNotFoundException, SQLException, IOException {
+		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "6197642";
+		rec.dataFields.add(new DataField(1,1,"110",'2',' ',"‡6 880-01 ‡a Guo li gu gong bo wu yuan.",false));
+		rec.dataFields.add(new DataField(2,0,"100",'1','0',"‡6 100-00/$1 ‡a 蔡玫芬.",true));
+		rec.dataFields.add(new DataField(3,1,"110",'2','0',"‡6 110-01/$1 ‡a 國立故宮博物院.",true));
+		String expected =
+		"author_cts: 國立故宮博物院|國立故宮博物院.|Guo li gu gong bo wu yuan.|Guo li gu gong bo wu yuan.\n"+
+		"author_facet: 國立故宮博物院\n"+
+		"author_facet: Guo li gu gong bo wu yuan\n"+
+		"author_corp_filing: 國立故宮博物院\n"+
+		"author_corp_filing: guo li gu gong bo wu yuan\n"+
+		"author_t_cjk: 國立故宮博物院.\n"+
+		"author_t: Guo li gu gong bo wu yuan.\n"+
+		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
+		+ "\"Guo li gu gong bo wu yuan.\",\"search2\":\"Guo li gu gong bo wu yuan.\","
+		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: China (Republic : 1949- ). Chinese National Palace Museum\n"+
+		"authority_author_t: China (Republic : 1949- ). Guo li gu gong bo wu yuan\n"+
+		"authority_author_t: China (Republic : 1949- ). National Palace Museum\n"+
+		"authority_author_t: China (Republic : 1949- ). 國立故宮博物院\n"+
+		"authority_author_t_cjk: China (Republic : 1949- ). 國立故宮博物院\n"+
+		"authority_author_t: Chinese National Palace Museum\n"+
+		"authority_author_t: Chūka Minkoku Kokuritsu Kokyū Hakubutsuin\n"+
+		"authority_author_t: Gu gong bo wu yuan (Taipei, Taiwan)\n"+
+		"authority_author_t: Gu gong yuan (Taipei, Taiwan)\n"+
+		"authority_author_t: Kokuritsu Kokyū Hakubutsuin\n"+
+		"authority_author_t: Kuo li ku kung po wu yüan\n"+
+		"authority_author_t: Musée national du Palais (Taipei, Taiwan)\n"+
+		"authority_author_t: National Palace Museum (Taipei, Taiwan)\n"+
+		"authority_author_t: Taibei gu gong bo wu yuan\n"+
+		"authority_author_t: Taipei (Taiwan). Chinese National Palace Museum\n"+
+		"authority_author_t: Taipei (Taiwan). Guo li gu gong bo wu yuan\n"+
+		"authority_author_t: 台北 (台灣). 國立故宮博物院\n"+
+		"authority_author_t_cjk: 台北 (台灣). 國立故宮博物院\n"+
+		"authority_author_t: 台北故宮博物院\n"+
+		"authority_author_t_cjk: 台北故宮博物院\n"+
+		"authority_author_t: 國立故宮博物院\n"+
+		"authority_author_t_cjk: 國立故宮博物院\n"+
+		"authority_author_t: 故宮博物院 (Taipei, Taiwan)\n"+
+		"authority_author_t_cjk: 故宮博物院 (Taipei, Taiwan)\n"+
+		"author_t_cjk: 蔡玫芬.\n"+
+		"author_cts: 蔡玫芬.|蔡玫芬.\n"+
+		"author_facet: 蔡玫芬\n"+
+		"author_pers_filing: 蔡玫芬\n"+
+		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"type\":\"Personal Name\","
+		+ "\"authorizedForm\":false}\n"+
+		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
+		"author_sort: guo li gu gong bo wu yuan\n";
+		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+	}
+
 }
