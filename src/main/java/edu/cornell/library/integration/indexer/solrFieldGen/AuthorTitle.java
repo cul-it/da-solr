@@ -8,6 +8,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +64,10 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 	public List<String> getHandledFields() {
 		return Arrays.asList("100","110","111","240","245");
 	}
+
+	@Override
+	// This field generator uses currently untracked authority data, so should be regenerated more often.
+	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
