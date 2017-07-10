@@ -13,10 +13,10 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class SubjectTest {
 
 	static SolrBuildConfig config = null;
+	SolrFieldGenerator gen = new Subject();
 
 	@BeforeClass
 	public static void setup() {
@@ -43,7 +43,7 @@ public class SubjectTest {
 		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: false\n";
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class SubjectTest {
 		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: true\n";
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class SubjectTest {
 		"subject_json: [{\"subject\":\"2000-2099\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n"+
 		"subject_display: 2000-2099\n"+
 		"fast_b: true\n";
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class SubjectTest {
 		+ " | Decree Four.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"fast_b: false\n";
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 
 		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Bible. ‡k Paraphrases. ‡p O.T. ‡l English."));
@@ -116,7 +116,7 @@ public class SubjectTest {
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
 		"fast_b: false\n";
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class SubjectTest {
 		"subject_display: 朝日新聞 > Indexes\n"+
 		"subject_display: Asahi Shinbun > Indexes\n"+
 		"fast_b: false\n";
-//		System.out.println(Subject.generateSolrFields(rec, config).toString());
-		assertEquals(expected,Subject.generateSolrFields(rec, config).toString());
+//		System.out.println(gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 }

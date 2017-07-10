@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -16,7 +18,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
-public class SimpleProc implements ResultSetToFields {
+public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -34,10 +36,20 @@ public class SimpleProc implements ResultSetToFields {
 		return fields;
 	}
 
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList(
+				"010","022","024","028","035","210","222","242","243","246","247","250","255","300","310",
+				"362","500","501","502","503","504","506","508","511","513","515","518","520","521","522",
+				"523","524","525","527","530","533","534","535","537","538","540","541","544","545","547",
+				"550","556","561","565","567","570","580","582","773","856","899","902","903","940");
+	}
+
 	/**
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
 		SolrFields sfs = new SolrFields();
 

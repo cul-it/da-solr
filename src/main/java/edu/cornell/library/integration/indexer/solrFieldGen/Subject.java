@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +40,7 @@ import edu.cornell.library.integration.utilities.FieldValues;
  * process subject field values into display, facet, search, and browse/filing fields
  *
  */
-public class Subject implements ResultSetToFields {
+public class Subject implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
@@ -59,7 +60,14 @@ public class Subject implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("600","610","611","630","648","650","651","653","654","655","656","657","658",
+				"662","690","691","692","693","694","695","696","697","698","699");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;

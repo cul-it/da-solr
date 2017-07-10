@@ -52,7 +52,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	public MarcRecord( RecordType type , String marc21OrMarcXml ) throws IOException, XMLStreamException {
 		this( type );
-		String marcXml = ( marc21OrMarcXml.contains("<record>") )
+		String marcXml = ( marc21OrMarcXml.contains("<record") )
 				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
 		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
@@ -394,6 +394,13 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							f.ind2 = r.getAttributeValue(i).charAt(0);
 					f.subfields = processSubfields(r);
+					if (f.tag.equals("880"))
+						for (Subfield sf : f.subfields) if (sf.code.equals('6') && sf.value.length() >= 3) {
+							f.mainTag = sf.value.substring(0,3);
+							break;
+						}
+					if (f.mainTag == null)
+						f.mainTag = f.tag;
 					this.dataFields.add(f);
 				}
 		

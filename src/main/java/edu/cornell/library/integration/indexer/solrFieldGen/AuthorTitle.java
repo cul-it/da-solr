@@ -9,6 +9,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ import edu.cornell.library.integration.utilities.NameUtils;
  * error, but a post-processor will remove extra values before submission leading
  * to a successful submission.
  */
-public class AuthorTitle implements ResultSetToFields {
+public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
@@ -58,7 +59,13 @@ public class AuthorTitle implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("100","110","111","240","245");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException, IOException {
 
 		List<SolrField> sfs = new ArrayList<>();
@@ -287,4 +294,5 @@ public class AuthorTitle implements ResultSetToFields {
 			newSfs.add(new SolrField("author_display",authorDisplayValue));
 		return newSfs;
 	}
+
 }

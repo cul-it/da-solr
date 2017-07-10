@@ -13,10 +13,10 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class AuthorTitleTest {
 
 	static SolrBuildConfig config = null;
+	SolrFieldGenerator gen = new AuthorTitle();
 
 	@BeforeClass
 	public static void setup() {
@@ -40,7 +40,7 @@ public class AuthorTitleTest {
 		"title_sms_compat_display: The national law journal\n"+
 		"title_2letter_s: na\n"+
 		"title_1letter_s: n\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class AuthorTitleTest {
 		"authortitle_filing: leon cupe mariano 1932 0000 cabana historia cultura y tradicion\n"+
 		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
 		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class AuthorTitleTest {
 		"authortitle_filing: fewer t n 0000 waterford people\n"+
 		"title_responsibility_display: T. N. Fewer.\n"+
 		"author_245c_t: T. N. Fewer.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class AuthorTitleTest {
 		"authortitle_filing: kalavrezos nicholas 0000 lumps and bumps in the mouth and lips\n"+
 		"title_responsibility_display: Nicholas Kalavrezos.\n"+
 		"author_245c_t: Nicholas Kalavrezos.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class AuthorTitleTest {
 		"title_responsibility_display: John Speed ; introduction by Nigel Nicolson ; country commentaries"+
 									" by Alasdair Hawkyard.\n"+
 		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -224,7 +224,7 @@ public class AuthorTitleTest {
 		"authortitle_filing: papademetropoulos loukas p 0000 ennoia tou oikou ston euripide\n"+
 		"title_responsibility_display: Loukas Papadēmētropoulos.\n"+
 		"author_245c_t: Loukas Papadēmētropoulos.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -260,7 +260,7 @@ public class AuthorTitleTest {
 		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
 		"author_245c_t: подготовка писем Е. Дмитриевой и Ф. Шедеви.\n"+
 		"author_245c_t: podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -317,7 +317,7 @@ public class AuthorTitleTest {
 		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
 		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
 		"author_245c_t: Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -359,7 +359,7 @@ public class AuthorTitleTest {
 		+ " Tjita dan daja pemuda Islam\n"+
 		"authortitle_filing: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia 0000"
 		+ " tjita dan daja pemuda islam\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -432,7 +432,7 @@ public class AuthorTitleTest {
 		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n"+
 		"author_245c_t_cjk: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.\n"+
 		"author_245c_t: cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -482,8 +482,8 @@ public class AuthorTitleTest {
 		"title_exact: Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_facet: Гребенщикова, Г. А, | Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n";
-//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+//		System.out.println( gen.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -507,7 +507,7 @@ public class AuthorTitleTest {
 		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_sort: korea south president 1993 1998 kim\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -562,7 +562,7 @@ public class AuthorTitleTest {
 		+ "\"authorizedForm\":false}\n"+
 		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
 		"author_sort: guo li gu gong bo wu yuan\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 }
