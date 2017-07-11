@@ -20,10 +20,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 public class GenerateSolrFieldsTest {
 
 	static SolrBuildConfig config = null;
-	static GenerateSolrFields gen = new GenerateSolrFields(	EnumSet.of(
-					Generator.AUTHORTITLE,
-					Generator.SUBJECT,
-					Generator.SIMPLEPROC));
+	static GenerateSolrFields gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class) );
 
 	@BeforeClass
 	public static void setup() throws ClassNotFoundException, SQLException {

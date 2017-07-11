@@ -382,6 +382,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					ControlField f = new ControlField(++id,tag,r.getElementText());
 					if (f.tag.equals("001"))
 						this.id = f.value;
+					else if (f.tag.equals("005"))
+						this.modifiedDate = f.value;
 					this.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();

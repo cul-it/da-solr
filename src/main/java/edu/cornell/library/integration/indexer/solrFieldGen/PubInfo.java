@@ -34,7 +34,7 @@ import edu.cornell.library.integration.utilities.CharacterSetUtils;
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
  */
-public class PubInfo implements ResultSetToFields {
+public class PubInfo implements ResultSetToFields, SolrFieldGenerator {
 
 	private final static String INFORMATION =  "pub_info_display";
 	private final static String PRODUCTION =   "pub_prod_display";
@@ -55,13 +55,17 @@ public class PubInfo implements ResultSetToFields {
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_264") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec );
+		SolrFields vals = generateSolrFields( rec, null );
 		for ( SolrField f : vals.fields )
 			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec ) {
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("008","260","264"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
 		SolrFields sfs = new SolrFields();
 

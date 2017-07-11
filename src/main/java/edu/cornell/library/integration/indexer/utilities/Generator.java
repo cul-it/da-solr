@@ -9,7 +9,12 @@ import edu.cornell.library.integration.indexer.solrFieldGen.*;
 public enum Generator {
 	AUTHORTITLE( AuthorTitle.class ),
 	SUBJECT(     Subject.class ),
-	SIMPLEPROC(  SimpleProc.class );
+	PUBINFO(     PubInfo.class ),
+	TOC(         TOC.class),
+	MARC(        MARC.class),
+	SIMPLEPROC(  SimpleProc.class ),
+	CITATIONREF( CitationReferenceNote.class )
+	;
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
 

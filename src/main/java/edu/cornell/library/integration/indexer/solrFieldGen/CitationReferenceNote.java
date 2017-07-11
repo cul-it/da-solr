@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -19,7 +21,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
  * indexed_in_its_entirety_by_display, and indexed_selectively_by_display
  * 
  */
-public class CitationReferenceNote implements ResultSetToFields {
+public class CitationReferenceNote implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -37,10 +39,14 @@ public class CitationReferenceNote implements ResultSetToFields {
 		return fields;
 	}
 
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("510"); }
+
 	/**
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 		String relation = null;
 		SolrFields v = new SolrFields();
 		for (DataField f: rec.matchSortAndFlattenDataFields()) {

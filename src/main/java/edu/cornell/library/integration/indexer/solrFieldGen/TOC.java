@@ -3,7 +3,9 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
 import static edu.cornell.library.integration.marc.DataField.RLE_openRTL;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -22,7 +24,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * processing into contents_display and partial_contents_display
  * 
  */
-public class TOC implements ResultSetToFields {
+public class TOC implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -40,10 +42,14 @@ public class TOC implements ResultSetToFields {
 		return fields;
 	}
 
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("505"); }
+
 	/**
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
 		SolrFields solrFields = new SolrFields();
 
