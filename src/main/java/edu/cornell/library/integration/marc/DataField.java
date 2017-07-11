@@ -43,6 +43,27 @@ public class DataField implements Comparable<DataField> {
 		return sb.toString();
 	}
 
+	public StringBuilder toStringBuilder() {
+		return this.toStringBuilder('\u2021');
+	}
+
+	public StringBuilder toStringBuilder(final Character subfieldSeparator) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.tag);
+		sb.append(" ");
+		sb.append(this.ind1);
+		sb.append(this.ind2);
+
+		for(final Subfield sf : this.subfields) {
+			sb.append(" ");
+			sb.append(subfieldSeparator);
+			sb.append(sf.code);
+			sb.append(" ");
+			sb.append(sf.value.trim());
+		}
+		return sb;
+	}
+
 	public String concatenateSubfieldsOtherThan6() {
 		return concatenateSubfieldsOtherThan("6");
 	}

@@ -4,7 +4,6 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.standa
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeSpaces;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +63,6 @@ public class ResultSetUtilities {
 			this.fieldName = fieldName;
 			this.fieldValue = fieldValue;
 		}
-		public List<String> getSolrField() { return Arrays.asList(fieldName,fieldValue); }
 	}
 	public static class BooleanSolrField {
 		String fieldName;
@@ -73,7 +71,6 @@ public class ResultSetUtilities {
 			this.fieldName = fieldName;
 			this.fieldValue = fieldValue;
 		}
-		public List<Object> getBooleanSolrField() { return Arrays.asList(fieldName,fieldValue); }
 	}
 
 	public static class SolrFields {
@@ -102,12 +99,6 @@ public class ResultSetUtilities {
 			for (BooleanSolrField f : this.boolFields)
 				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
 			return sb.toString();
-		}
-		public List<Object> getFields() {
-			List<Object> tmp = new ArrayList<>();
-			tmp.addAll(boolFields);
-			tmp.addAll(fields);
-			return tmp;
 		}
 	}
 }

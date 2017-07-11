@@ -35,7 +35,7 @@ import org.marc4j.marc.impl.SubfieldImpl;
  */
 public class MarcRecord implements Comparable<MarcRecord>{
 
-	public String leader = " ";
+	public String leader = "";
 	public String modifiedDate = null;
 	public TreeSet<ControlField> controlFields = new TreeSet<>();
 	public TreeSet<DataField> dataFields = new TreeSet<>();
@@ -102,7 +102,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 
 		for( final DataField f: this.dataFields) {
-			sb.append(f.toString());
+			sb.append(f.toStringBuilder());
 			sb.append("\n");
 		}
 		return sb.toString();
