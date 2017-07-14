@@ -10,8 +10,9 @@ public enum Generator {
 	AUTHORTITLE( AuthorTitle.class ),
 	SUBJECT(     Subject.class ),
 	PUBINFO(     PubInfo.class ),
-	TOC(         TOC.class),
-	MARC(        MARC.class),
+	LANGUAGE(    Language.class ),
+	TOC(         TOC.class ),
+	MARC(        MARC.class ),
 	SIMPLEPROC(  SimpleProc.class ),
 	CITATIONREF( CitationReferenceNote.class )
 	;
