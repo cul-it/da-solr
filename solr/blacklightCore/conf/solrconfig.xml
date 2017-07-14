@@ -241,6 +241,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -269,6 +270,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -390,6 +392,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -418,6 +421,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -471,6 +475,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -510,6 +515,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -684,6 +690,7 @@
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
+        language_articles_t
       </str>
       <str name="f.title.pf">
         title_t^125                title_tP^125             title_t_cjk^25
@@ -696,6 +703,7 @@
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
+        language_articles_t
       </str>
       <str name="f.title_phrase.qf">
         title_t^125                title_tP^125             title_t_cjk^25
