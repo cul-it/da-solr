@@ -152,6 +152,7 @@ public class NameUtils {
 		json.put("search1", ctsValsList.get(0).author);
 		json.put("name2", display2);
 		json.put("search2", ctsValsList.get(1).author);
+		json.put("relator", (new RelatorSet(fs.getFields().get(0))).toString() );
 		if (htd != null) json.put("type", htd.toString());
 		final AuthorityData authData = (htd != null) 
 				? new AuthorityData(config,ctsValsList.get(ctsValsList.size()-1).author,htd)
@@ -232,6 +233,7 @@ public class NameUtils {
 			final Map<String,Object> json = new LinkedHashMap<>();
 			json.put("name1", display);
 			json.put("search1", ctsVals.author);
+			json.put("relator", (new RelatorSet(f)).toString() );
 			if (htd != null) json.put("type", htd.toString());
 			final AuthorityData authData = (htd != null) 
 					? new AuthorityData(config,ctsVals.author,htd) : new AuthorityData(false);
