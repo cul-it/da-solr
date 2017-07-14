@@ -1,18 +1,24 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -42,23 +48,21 @@ public class Language implements ResultSetToFields {
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("language_note"));
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("languages_041"));
 
-		SolrFieldValueSet vals = generateSolrFields( rec );
-
 		Map<String,SolrInputField> fields = new HashMap<>();
 
-		Iterator<String> i = vals.facet.iterator();
-		while (i.hasNext())
-			ResultSetUtilities.addField(fields,"language_facet",i.next());
-		if ( ! vals.display.isEmpty())
-			ResultSetUtilities.addField(fields, "language_display",String.join(", ",vals.display));
-		for (String note : vals.notes)
-			ResultSetUtilities.addField(fields, "language_display",note);
+		SolrFields vals = generateSolrFields( rec );
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
 
 		return fields;
 	}
 
-	public static SolrFieldValueSet generateSolrFields(MarcRecord rec) {
-		SolrFieldValueSet vals = new SolrFieldValueSet();
+	public static SolrFields generateSolrFields(MarcRecord rec) {
+
+		List<String> display = new ArrayList<>();
+		List<String> facet = new ArrayList<>();
+		List<String> notes = new ArrayList<>();
+		Set<String> articles = new LinkedHashSet<>();
 
 		// Suppress "Undetermined"(UND) and "No Linguistic Content"(ZXX)
 		// from facet and display (DISCOVERYACCESS-822)
@@ -76,8 +80,10 @@ public class Language implements ResultSetToFields {
 			Code c = codes.get(langCode);
 			if (c.equals(Code.UND) || c.equals(Code.ZXX))
 				continue;
-			vals.display.add( c.getLanguageName() );
-			vals.facet.add( c.getLanguageName() );
+			display.add( c.getLanguageName() );
+			facet.add( c.getLanguageName() );
+			if (c.getArticles() != null)
+				articles.add(c.getArticles());
 		}
 
 		for ( DataFieldSet fs : rec.matchAndSortDataFields() ) {
@@ -88,16 +94,18 @@ public class Language implements ResultSetToFields {
 						if (! codes.containsKey(langCode))
 							continue;
 						Code c = codes.get(langCode);
+						if ( c.getArticles() != null )
+							articles.add(c.getArticles());
 						if ( c.equals(Code.UND) || c.equals(Code.ZXX)
-								|| vals.display.contains(c.getLanguageName()))
+								|| display.contains(c.getLanguageName()))
 							continue;
 						switch (sf.code) {
 						// subfields for faceting and display
 						case 'a': case 'd': case 'e': case 'g': case 'j':
-							vals.facet.add(c.getLanguageName());
+							facet.add(c.getLanguageName());
 						// subfields for display only
 						case 'b': case 'f':
-							vals.display.add(c.getLanguageName());
+							display.add(c.getLanguageName());
 						}
 					}
 				}
@@ -115,28 +123,39 @@ public class Language implements ResultSetToFields {
 					}
 				}
 				if (valueMain == null && value880 != null) {
-					vals.notes.add(value880);
+					notes.add(value880);
 				} else if (valueMain != null) {
 					Collection<String> matches = new HashSet<>();
-					for (String language : vals.display) {
+					for (String language : display) {
 						if (valueMain.contains(language))
 							matches.add(language);
 					}
-					vals.display.removeAll(matches);
+					display.removeAll(matches);
 					if (value880 != null) {
 						if (value880.length() <= 15) {
-							vals.notes.add(value880+" / " + valueMain);
+							notes.add(value880+" / " + valueMain);
 						} else {
-							vals.notes.add(value880);
-							vals.notes.add(valueMain);
+							notes.add(value880);
+							notes.add(valueMain);
 						}
 					} else {
-						vals.notes.add(valueMain);
+						notes.add(valueMain);
 					}
 				}
 				
 			}
 		}
+		SolrFields vals = new SolrFields();
+		Iterator<String> i = facet.iterator();
+		while (i.hasNext())
+			vals.add(new SolrField("language_facet",i.next()));
+		if ( ! display.isEmpty())
+			vals.add(new SolrField("language_display",String.join(", ",display)));
+		for (String note : notes)
+			vals.add(new SolrField("language_display",note));
+		for (String articlesForLang : articles)
+			vals.add(new SolrField("language_articles_t",articlesForLang));
+
 		return vals;
 	}
 
@@ -155,12 +174,12 @@ public class Language implements ResultSetToFields {
         ADY("Adygei"),
         AFA("Afroasiatic (Other)"),
         AFH("Afrihili (Artificial language)"),
-        AFR("Afrikaans"),
+        AFR("Afrikaans",                             "die n"),
         AIN("Ainu"),
         AJM("Aljamía"),
         AKA("Akan"),
         AKK("Akkadian"),
-        ALB("Albanian"),
+        ALB("Albanian",                              "disa nje"),
         ALE("Aleut"),
         ALG("Algonquian (Other)"),
         ALT("Altai"),
@@ -168,7 +187,7 @@ public class Language implements ResultSetToFields {
         ANG("English, Old (ca. 450-1100)"),
         ANP("Angika"),
         APA("Apache languages"),
-        ARA("Arabic"),
+        ARA("Arabic",                                "al el ال"),
         ARC("Aramaic"),
         ARG("Aragonese"),
         ARM("Armenian"),
@@ -176,7 +195,7 @@ public class Language implements ResultSetToFields {
         ARP("Arapaho"),
         ART("Artificial (Other)"),
         ARW("Arawak"),
-        ASM("Assamese"),
+        ASM("Assamese",                              "eta ekhon ezoni edal ezupa"),
         AST("Bable"),
         ATH("Athapascan (Other)"),
         AUS("Australian languages"),
@@ -198,7 +217,7 @@ public class Language implements ResultSetToFields {
         BEL("Belarusian"),
         BEM("Bemba"),
         BEN("Bengali"),
-        BER("Berber (Other)"),
+        BER("Berber (Other)",                        "yan yat"),
         BHO("Bhojpuri"),
         BIH("Bihari (Other)"),
         BIK("Bikol"),
@@ -219,7 +238,7 @@ public class Language implements ResultSetToFields {
         CAI("Central American Indian (Other)"),
         CAM("Khmer"),
         CAR("Carib"),
-        CAT("Catalan"),
+        CAT("Catalan",                               "el els les Ses Lo los Es Sa del de la de l des un une"),
         CAU("Caucasian (Other)"),
         CEB("Cebuano"),
         CEL("Celtic (Other)"),
@@ -264,14 +283,14 @@ public class Language implements ResultSetToFields {
         DSB("Lower Sorbian"),
         DUA("Duala"),
         DUM("Dutch, Middle (ca. 1050-1350)"),
-        DUT("Dutch"),
+        DUT("Dutch",                                 "de het een"),
         DYU("Dyula"),
         DZO("Dzongkha"),
         EFI("Efik"),
         EGY("Egyptian"),
         EKA("Ekajuk"),
         ELX("Elamite"),
-        ENG("English"),
+        ENG("English",                               "the a an"),
         ENM("English, Middle (1100-1500)"),
         EPO("Esperanto"),
         ESK("Eskimo languages"),
@@ -289,7 +308,7 @@ public class Language implements ResultSetToFields {
         FIN("Finnish"),
         FIU("Finno-Ugrian (Other)"),
         FON("Fon"),
-        FRE("French"),
+        FRE("French",                                "le les du de la de l des un une"),
         FRI("Frisian"),
         FRM("French, Middle (ca. 1300-1600)"),
         FRO("French, Old (ca. 842-1300)"),
@@ -306,7 +325,7 @@ public class Language implements ResultSetToFields {
         GBA("Gbaya"),
         GEM("Germanic (Other)"),
         GEO("Georgian"),
-        GER("German"),
+        GER("German",                                "der die das des dem den ein eine einer eines einem einen"),
         GEZ("Ethiopic"),
         GIL("Gilbertese"),
         GLA("Scottish Gaelic"),
@@ -320,7 +339,7 @@ public class Language implements ResultSetToFields {
         GOT("Gothic"),
         GRB("Grebo"),
         GRC("Greek, Ancient (to 1453)"),
-        GRE("Greek, Modern (1453-)"),
+        GRE("Greek, Modern (1453-)",               "ο η το οι οι τα ένας μια ένα hē tōn ta to ho hoi henas enas o"),
         GRN("Guarani"),
         GSW("Swiss German"),
         GUA("Guarani"),
@@ -329,8 +348,8 @@ public class Language implements ResultSetToFields {
         HAI("Haida"),
         HAT("Haitian French Creole"),
         HAU("Hausa"),
-        HAW("Hawaiian"),
-        HEB("Hebrew"),
+        HAW("Hawaiian",                              "ka ke na he"),
+        HEB("Hebrew",                                "ha ה "),
         HER("Herero"),
         HIL("Hiligaynon"),
         HIM("Western Pahari languages"),
@@ -340,7 +359,7 @@ public class Language implements ResultSetToFields {
         HMO("Hiri Motu"),
         HRV("Croatian"),
         HSB("Upper Sorbian"),
-        HUN("Hungarian"),
+        HUN("Hungarian",                             "a az"),
         HUP("Hupa"),
         IBA("Iban"),
         IBO("Igbo"),
@@ -359,9 +378,9 @@ public class Language implements ResultSetToFields {
         INT("Interlingua (International Auxiliary Language Association)"),
         IPK("Inupiaq"),
         IRA("Iranian (Other)"),
-        IRI("Irish"),
+        IRI("Irish",                                 "an na"),
         IRO("Iroquoian (Other)"),
-        ITA("Italian"),
+        ITA("Italian",                  "il lo la l' i gli le del dello della dell' dei degli delle un uno una un"),
         JAV("Javanese"),
         JBO("Lojban (Artificial language)"),
         JPN("Japanese"),
@@ -399,7 +418,7 @@ public class Language implements ResultSetToFields {
         KRU("Kurukh"),
         KUA("Kuanyama"),
         KUM("Kumyk"),
-        KUR("Kurdish"),
+        KUR("Kurdish",                               "hende birre"),
         KUS("Kusaie"),
         KUT("Kootenai"),
         LAD("Ladino"),
@@ -411,7 +430,7 @@ public class Language implements ResultSetToFields {
         LAT("Latin"),
         LAV("Latvian"),
         LEZ("Lezgian"),
-        LIM("Limburgish"),
+        LIM("Limburgish",                            "den dei d' dat dem der daers daeres daer en eng engem enger"),
         LIN("Lingala"),
         LIT("Lithuanian"),
         LOL("Mongo-Nkundu"),
@@ -477,8 +496,8 @@ public class Language implements ResultSetToFields {
         NIA("Nias"),
         NIC("Niger-Kordofanian (Other)"),
         NIU("Niuean"),
-        NNO("Norwegian (Nynorsk)"),
-        NOB("Norwegian (Bokmål)"),
+        NNO("Norwegian (Nynorsk)",                   "ein eit ei"),
+        NOB("Norwegian (Bokmål)",                    "en et ei"),
         NOG("Nogai"),
         NON("Old Norse"),
         NOR("Norwegian"),
@@ -513,7 +532,7 @@ public class Language implements ResultSetToFields {
         PLI("Pali"),
         POL("Polish"),
         PON("Pohnpeian"),
-        POR("Portuguese"),
+        POR("Portuguese",                            "o a os as um uma uns umas"),
         PRA("Prakrit languages"),
         PRO("Provençal (to 1500)"),
         PUS("Pushto"),
@@ -524,7 +543,7 @@ public class Language implements ResultSetToFields {
         ROA("Romance (Other)"),
         ROH("Raeto-Romance"),
         ROM("Romani"),
-        RUM("Romanian"),
+        RUM("Romanian",                              "un o unui unei niste unor"),
         RUN("Rundi"),
         RUP("Aromanian"),
         RUS("Russian"),
@@ -570,7 +589,7 @@ public class Language implements ResultSetToFields {
         SOM("Somali"),
         SON("Songhai"),
         SOT("Sotho"),
-        SPA("Spanish"),
+        SPA("Spanish",                               "el la lo los las un una unos unas"),
         SRD("Sardinian"),
         SRN("Sranan"),
         SRP("Serbian"),
@@ -642,7 +661,7 @@ public class Language implements ResultSetToFields {
         WAL("Wolayta"),
         WAR("Waray"),
         WAS("Washoe"),
-        WEL("Welsh"),
+        WEL("Welsh",                                 "y yr"),
         WEN("Sorbian (Other)"),
         WLN("Walloon"),
         WOL("Wolof"),
@@ -650,7 +669,7 @@ public class Language implements ResultSetToFields {
         XHO("Xhosa"),
         YAO("Yao (Africa)"),
         YAP("Yapese"),
-        YID("Yiddish"),
+        YID("Yiddish",                               "דער der די di דאָס dos דעם dem  אַ a אַן an"),
         YOR("Yoruba"),
         YPK("Yupik languages"),
         ZAP("Zapotec"),
@@ -664,19 +683,18 @@ public class Language implements ResultSetToFields {
         ZZA("Zaza");
 
 		private String langName;
+		private String articles;
 		private Code(String langName) {
 			this.langName = langName;
+			this.articles = null;
+		}
+		private Code(String langName, String articles) {
+			this.langName = langName;
+			this.articles = articles;
 		}
 
 		public String getLanguageName() { return langName; }
+		public String getArticles() { return articles; }
 
-	}
-
-	public static class SolrFieldValueSet {
-
-		Collection<String> facet = new LinkedHashSet<>();
-		Collection<String> display = new LinkedHashSet<>();
-		Collection<String> notes = new LinkedHashSet<>();
-		
 	}
 }
