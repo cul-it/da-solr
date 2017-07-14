@@ -19,10 +19,9 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
-import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 
 /**
@@ -86,73 +85,55 @@ public class Language implements ResultSetToFields {
 				articles.add(c.getArticles());
 		}
 
-		for ( DataFieldSet fs : rec.matchAndSortDataFields() ) {
-			if (fs.getMainTag().equals("041")) {
-				for ( DataField f : fs.getFields() ) {
-					for (Subfield sf : f.subfields) {
-						String langCode = sf.value.toLowerCase();
-						if (! codes.containsKey(langCode))
-							continue;
-						Code c = codes.get(langCode);
-						if ( c.getArticles() != null )
-							articles.add(c.getArticles());
-						if ( c.equals(Code.UND) || c.equals(Code.ZXX)
-								|| display.contains(c.getLanguageName()))
-							continue;
-						switch (sf.code) {
-						// subfields for faceting and display
-						case 'a': case 'd': case 'e': case 'g': case 'j':
-							facet.add(c.getLanguageName());
-						// subfields for display only
-						case 'b': case 'f':
-							display.add(c.getLanguageName());
-						}
+		for ( DataField f : rec.matchSortAndFlattenDataFields() ) {
+			if (f.mainTag.equals("041")) {
+				for (Subfield sf : f.subfields) {
+					String langCode = sf.value.toLowerCase();
+					if (! codes.containsKey(langCode))
+						continue;
+					Code c = codes.get(langCode);
+					if ( c.getArticles() != null )
+						articles.add(c.getArticles());
+					if ( c.equals(Code.UND) || c.equals(Code.ZXX)
+							|| display.contains(c.getLanguageName()))
+						continue;
+					switch (sf.code) {
+					// subfields for faceting and display
+					case 'a': case 'd': case 'e': case 'g': case 'j':
+						facet.add(c.getLanguageName());
+					// subfields for display only
+					case 'b': case 'f':
+						display.add(c.getLanguageName());
 					}
 				}
 			}
 
 			// language note
-			else if (fs.getMainTag().equals("546")) {
-				String value880 = null;
-				String valueMain = null;
-				for (DataField f: fs.getFields()) {
-					if (f.tag.equals("880")) {
-						value880 = f.concatenateSpecificSubfields("3ab");
-					} else {
-						valueMain = f.concatenateSpecificSubfields("3ab");
-					}
+			else if (f.mainTag.equals("546")) {
+				String value = f.concatenateSpecificSubfields("3ab");
+				if (value.charAt(value.length()-1) != '.')
+					value += '.';
+				notes.add(value);
+				Collection<String> matches = new HashSet<>();
+				for (String language : display) {
+					if (value.contains(language))
+						matches.add(language);
 				}
-				if (valueMain == null && value880 != null) {
-					notes.add(value880);
-				} else if (valueMain != null) {
-					Collection<String> matches = new HashSet<>();
-					for (String language : display) {
-						if (valueMain.contains(language))
-							matches.add(language);
-					}
-					display.removeAll(matches);
-					if (value880 != null) {
-						if (value880.length() <= 15) {
-							notes.add(value880+" / " + valueMain);
-						} else {
-							notes.add(value880);
-							notes.add(valueMain);
-						}
-					} else {
-						notes.add(valueMain);
-					}
-				}
-				
+				display.removeAll(matches);
 			}
 		}
 		SolrFields vals = new SolrFields();
 		Iterator<String> i = facet.iterator();
 		while (i.hasNext())
 			vals.add(new SolrField("language_facet",i.next()));
-		if ( ! display.isEmpty())
-			vals.add(new SolrField("language_display",String.join(", ",display)));
-		for (String note : notes)
-			vals.add(new SolrField("language_display",note));
+		if ( ! display.isEmpty()) {
+			List<String> tmp = new ArrayList<>();
+			tmp.add(String.join(", ",display)+'.');
+			display = tmp;
+		}
+		display.addAll(notes);
+		if (! display.isEmpty())
+			vals.add(new SolrField("language_display",String.join(" ", display)));
 		for (String articlesForLang : articles)
 			vals.add(new SolrField("language_articles_t",articlesForLang));
 

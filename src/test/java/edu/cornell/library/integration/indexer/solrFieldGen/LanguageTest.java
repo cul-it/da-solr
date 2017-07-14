@@ -19,7 +19,7 @@ public class LanguageTest {
 				"830222c19771975cau      b    001 0 eng d"));
 		String expected =
 		"language_facet: English\n"+
-		"language_display: English\n"+
+		"language_display: English.\n"+
 		"language_articles_t: the a an\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
 	}
@@ -31,7 +31,7 @@ public class LanguageTest {
 				"170202s2017    ch a          000 0 chi  "));
 		String expected =
 		"language_facet: Chinese\n"+
-		"language_display: Chinese\n";
+		"language_display: Chinese.\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
 	}
 
@@ -41,7 +41,7 @@ public class LanguageTest {
 		f.subfields.add(new Subfield(1, 'a', "Free text language note"));
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
-		String expected = "language_display: Free text language note\n";
+		String expected = "language_display: Free text language note.\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
 	}
 
@@ -68,7 +68,7 @@ public class LanguageTest {
 		rec.dataFields.add(f);
 		String expected =
 		"language_facet: Spanish\n"+
-		"language_display: Spanish\n"+
+		"language_display: Spanish.\n"+
 		"language_articles_t: el la lo los las un una unos unas\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
 	}
@@ -83,7 +83,7 @@ public class LanguageTest {
 		rec.dataFields.add(f);
 		String expected =
 		"language_facet: Vietnamese\n"+
-		"language_display: Vietnamese\n";
+		"language_display: Vietnamese.\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
 	}
 
@@ -118,7 +118,7 @@ public class LanguageTest {
 		rec.dataFields.add(f);
 		String expected =
 		"language_facet: Hindi\n"+
-		"language_display: Hindi, English\n"+
+		"language_display: Hindi, English.\n"+
 		"language_articles_t: the a an\n"+
 		"language_articles_t: el la lo los las un una unos unas\n";
 		assertEquals(expected,Language.generateSolrFields ( rec ).toString());
