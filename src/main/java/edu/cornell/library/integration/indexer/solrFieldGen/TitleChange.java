@@ -160,7 +160,7 @@ public class TitleChange implements ResultSetToFields {
 
 		List<SolrField> sfs = new ArrayList<>();
 		for (DataField f : fs.getFields()) {
-			FieldValues authorTitle = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdgknpqrst");
+			FieldValues authorTitle = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcgknpqrst");
 			sfs.add(new SolrField("title_uniform_t",authorTitle.title));
 			if (f.tag.equals("880")) {
 				if (f.getScript().equals(DataField.Script.CJK))
