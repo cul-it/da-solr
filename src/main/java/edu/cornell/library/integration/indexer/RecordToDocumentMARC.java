@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.cornell.library.integration.indexer.documentPostProcess.*;
-import edu.cornell.library.integration.indexer.documentPostProcess.SingleValueField.Correction;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
 import edu.cornell.library.integration.indexer.fieldMaker.SPARQLFieldMakerImpl;
 import edu.cornell.library.integration.indexer.solrFieldGen.*;
@@ -14,10 +13,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   @Override
   List<? extends DocumentPostProcess> getDocumentPostProcess() {
     return Arrays.asList(
-    		new SingleValueField("pub_date_sort", Correction.firstValue),
-    		new SingleValueField("author_display", Correction.firstValue),
-    		new SingleValueField("author_sort", Correction.firstValue),
-    		new SingleValueField("format_main_facet", Correction.firstValue),
     		new RecordBoost(),
     		new SuppressUnwantedValues(),
     		new MissingTitleReport(),
