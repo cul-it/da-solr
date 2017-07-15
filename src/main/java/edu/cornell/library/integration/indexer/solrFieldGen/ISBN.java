@@ -2,7 +2,9 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -22,7 +24,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * DISCOVERYACCESS-2661
  * | q data handled according to 2016 updated PCC standard per DISCOVERYACCESS-3242
  */
-public class ISBN implements ResultSetToFields {
+public class ISBN implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -39,10 +41,11 @@ public class ISBN implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("020"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
 
 		SolrFields vals = new SolrFields();
 		for (DataField f: rec.matchSortAndFlattenDataFields()) {

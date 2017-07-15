@@ -26,7 +26,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities;
  * Build Call number display and facet fields in two steps. 
  * All code is executed in each pass, so it needs to have necessary conditionals.
  */
-public class TitleSeries implements ResultSetToFields {
+public class TitleSeries implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -44,10 +44,13 @@ public class TitleSeries implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("830","490","440","400","410","411","800","810","811");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
 
 		SolrFields sfs = new SolrFields();
 		List<DataField> fs = rec.matchSortAndFlattenDataFields();

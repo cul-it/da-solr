@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -19,7 +21,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
  * according to the value of the first indicator. All permutations go to notes_t and/or notes_t_cjk
  * for searching, because we don't currently need to distinguish.
  */
-public class FindingAids implements ResultSetToFields {
+public class FindingAids implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -37,10 +39,11 @@ public class FindingAids implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("555"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
 
 		SolrFields sfs = new SolrFields();
 		for (DataField f: rec.matchSortAndFlattenDataFields()) {

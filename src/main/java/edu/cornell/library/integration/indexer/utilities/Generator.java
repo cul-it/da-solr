@@ -8,15 +8,19 @@ import edu.cornell.library.integration.indexer.solrFieldGen.*;
  */
 public enum Generator {
 	AUTHORTITLE( AuthorTitle.class ),
+	TITLE130(    Title130.class ),
 	SUBJECT(     Subject.class ),
 	PUBINFO(     PubInfo.class ),
-	FACTFICTION( FactOrFiction.class),
+	FACTFICTION( FactOrFiction.class ),
 	LANGUAGE(    Language.class ),
+	ISBN(        ISBN.class ),
+	SERIES(      TitleSeries.class ),
 	TOC(         TOC.class ),
+	INSTRUMENTS( Instrumentation.class ),
 	MARC(        MARC.class ),
 	SIMPLEPROC(  SimpleProc.class ),
-	CITATIONREF( CitationReferenceNote.class )
-	;
+	FINDINGAIDS( FindingAids.class ),
+	CITATIONREF( CitationReferenceNote.class );
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
 

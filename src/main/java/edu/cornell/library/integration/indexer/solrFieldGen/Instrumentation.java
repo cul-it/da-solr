@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -21,7 +23,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * Subfields $r and $t are recently added fields, and are not included in this display logic.
  * DISCOVERYACCESS-1608
  */
-public class Instrumentation implements ResultSetToFields {
+public class Instrumentation implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -39,10 +41,11 @@ public class Instrumentation implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("382"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
 
 		SolrFields sfs = new SolrFields();
 		for( DataField f: rec.matchSortAndFlattenDataFields() ) {

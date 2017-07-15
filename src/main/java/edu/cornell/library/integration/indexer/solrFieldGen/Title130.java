@@ -1,6 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -17,7 +19,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 /**
  * Process Uniform title in field 130.
  */
-public class Title130 implements ResultSetToFields {
+public class Title130 implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -35,10 +37,11 @@ public class Title130 implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("130"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 		SolrFields sfs = new SolrFields();
 		for( DataField f: rec.matchSortAndFlattenDataFields() ) {
 
