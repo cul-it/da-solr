@@ -181,12 +181,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new FindingAids()),
 
         new SPARQLFieldMakerImpl().setName("fact_or_fiction")
-        .addQuery("fact_or_fiction",
-            "SELECT (SUBSTR(?val,34,1) as ?char33) WHERE {"
-                + " $recordURI$ marcrdf:hasField008 ?f. \n"
-                + " ?f marcrdf:value ?val } \n")
-        .addQuery("record_type",
-            "SELECT (SUBSTR(?l,7,2) as ?char67) WHERE { $recordURI$ marcrdf:leader ?l. }")
+        .addQuery("eight", standardControlFieldSPARQL("008"))
+        .addQuery("leader",standardLeaderSPARQL())
         .addResultSetToFields(new FactOrFiction()),
 
         new SPARQLFieldMakerImpl().setName("subject")

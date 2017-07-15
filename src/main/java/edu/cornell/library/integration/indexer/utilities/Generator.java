@@ -10,6 +10,7 @@ public enum Generator {
 	AUTHORTITLE( AuthorTitle.class ),
 	SUBJECT(     Subject.class ),
 	PUBINFO(     PubInfo.class ),
+	FACTFICTION( FactOrFiction.class),
 	LANGUAGE(    Language.class ),
 	TOC(         TOC.class ),
 	MARC(        MARC.class ),
