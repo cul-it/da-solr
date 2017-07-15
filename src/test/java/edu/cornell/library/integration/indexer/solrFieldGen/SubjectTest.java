@@ -144,7 +144,25 @@ public class SubjectTest {
 		"subject_display: 朝日新聞 > Indexes\n"+
 		"subject_display: Asahi Shinbun > Indexes\n"+
 		"fast_b: false\n";
-//		System.out.println(gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testUnwantedFacetValue() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','4',"‡a Electronic books."));
+		String expected =
+		"subject_t: Electronic books\n"+
+		"subject_topic_filing: electronic books\n"+
+		"subject_cts: Electronic books\n"+
+		"subject_json: [{\"subject\":\"Electronic books.\",\"authorized\":true,\"type\":\"Topical Term\"}]\n"+
+		"subject_display: Electronic books\n"+
+		"authority_subject_t: Books in machine-readable form\n"+
+		"authority_subject_t: Ebooks\n"+
+		"authority_subject_t: E-books\n"+
+		"authority_subject_t: Online books\n"+
+		"authority_subject_t: Digital books\n"+
+		"fast_b: false\n";
 		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}
 }

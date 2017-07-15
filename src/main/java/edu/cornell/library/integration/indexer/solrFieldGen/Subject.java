@@ -44,6 +44,7 @@ import edu.cornell.library.integration.utilities.FieldValues;
 public class Subject implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
+	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -293,7 +294,8 @@ public class Subject implements ResultSetToFields, SolrFieldGenerator {
 			}
 			for (final String s: values_browse)
 				if (htd != null) {
-					sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
+					if ( ! htd.abbrev().equals("topic") || ! unwantedFacetValues.contains(s) )
+						sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
 					sfs.add(new SolrField("subject_"+htd.abbrev()+"_filing",getFilingForm(s)));
 				}
 

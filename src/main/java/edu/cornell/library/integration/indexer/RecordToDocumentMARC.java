@@ -14,7 +14,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   List<? extends DocumentPostProcess> getDocumentPostProcess() {
     return Arrays.asList(
     		new RecordBoost(),
-    		new SuppressUnwantedValues(),
     		new MissingTitleReport(),
     		new ModifyCallNumbers(),
     		new BarcodeSearch(),
