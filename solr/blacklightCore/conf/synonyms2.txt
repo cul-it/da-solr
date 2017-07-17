@@ -4,6 +4,7 @@
 
 # tweaks for K-Stemmer, relating to words that should or should not be in dictionary
 waterers, waterer => watererprot
+thor => thorprot
 stars => star
 works => work
 
