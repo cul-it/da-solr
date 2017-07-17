@@ -20,7 +20,8 @@ public enum Generator {
 	MARC(        MARC.class ),
 	SIMPLEPROC(  SimpleProc.class ),
 	FINDINGAIDS( FindingAids.class ),
-	CITATIONREF( CitationReferenceNote.class );
+	CITATIONREF( CitationReferenceNote.class ),
+	RECORDBOOST( RecordBoost.class );
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
 

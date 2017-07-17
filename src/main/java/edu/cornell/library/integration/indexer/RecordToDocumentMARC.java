@@ -13,7 +13,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   @Override
   List<? extends DocumentPostProcess> getDocumentPostProcess() {
     return Arrays.asList(
-    		new RecordBoost(),
     		new MissingTitleReport(),
     		new ModifyCallNumbers(),
     		new BarcodeSearch(),
@@ -35,8 +34,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new HoldingsAndItems()),
 
         new SPARQLFieldMakerImpl().setName("boost")
-        .addQuery("boostType", "SELECT ?boostType WHERE {$recordURI$ intlayer:boost ?boostType}")
-        .addResultSetToFields(new AllResultsToField("boost")),
+        .addQuery("001", standardControlFieldSPARQL("001"))
+        .addResultSetToFields(new RecordBoost()),
 
         new SPARQLFieldMakerImpl().setName("marc")
         .addQuery("marc_leader", "SELECT ?l WHERE { $recordURI$ marcrdf:leader ?l. }")

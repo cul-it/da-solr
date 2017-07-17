@@ -76,6 +76,13 @@ public class ResultSetUtilities {
 	public static class SolrFields {
 		List<SolrField> fields = new ArrayList<>();
 		List<BooleanSolrField> boolFields = new ArrayList<>();
+		Integer recordBoost = 1;
+		public Integer getRecordBoost() {
+			return this.recordBoost;
+		}
+		public void setRecordBoost(Integer recordBoost) {
+			this.recordBoost = recordBoost;
+		}
 		public void add( SolrField sf ) {
 			if (sf == null) return;
 			this.fields.add(sf);
@@ -94,6 +101,8 @@ public class ResultSetUtilities {
 		}
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
+			if (recordBoost != 1)
+				sb.append('^').append(recordBoost).append('\n');
 			for (SolrField f : this.fields)
 				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
 			for (BooleanSolrField f : this.boolFields)
