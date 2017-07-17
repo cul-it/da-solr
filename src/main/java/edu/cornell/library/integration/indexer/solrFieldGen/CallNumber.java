@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 /**
  * Build Call number search, sort and facet fields.
  */
-public class CallNumber implements ResultSetToFields {
+public class CallNumber implements ResultSetToFields, SolrFieldGenerator {
 
 	final boolean debug = false;
 
@@ -72,12 +73,16 @@ public class CallNumber implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("050","950","holdings"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException {
 
 		List<DataField> allFields = bibRec.matchSortAndFlattenDataFields();
 		for (MarcRecord holdingsRec : bibRec.holdings)
-			allFields.addAll(holdingsRec.matchSortAndFlattenDataFields());
+			allFields.addAll(holdingsRec.matchSortAndFlattenDataFields("852"));
 
 		Set<Classification> classes = new LinkedHashSet<>();
 		List<Sort> sortCandidates = new ArrayList<>();

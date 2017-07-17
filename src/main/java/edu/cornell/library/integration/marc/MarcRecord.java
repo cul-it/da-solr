@@ -105,6 +105,11 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			sb.append(f.toStringBuilder());
 			sb.append("\n");
 		}
+
+		if (this.type.equals(RecordType.BIBLIOGRAPHIC))
+			for (MarcRecord holdings : this.holdings)
+				sb.append('\n').append(holdings.toString());
+
 		return sb.toString();
 	}
 
@@ -121,6 +126,16 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			fields.addAll(fs.getFields());
 		return fields;
 	}
+
+	public List<DataField> matchSortAndFlattenDataFields(String mainTag) {
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(false);
+		List<DataField> fields = new ArrayList<>();
+		for (DataFieldSet fs : individualSets)
+			if (fs.getMainTag().equals(mainTag))
+				fields.addAll(fs.getFields());
+		return fields;
+	}
+
 	public TreeSet<DataFieldSet> matchAndSortDataFields(boolean forceVernMatch) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id

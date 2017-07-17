@@ -20,6 +20,7 @@ public enum Generator {
 	MARC(        MARC.class ),
 	SIMPLEPROC(  SimpleProc.class ),
 	FINDINGAIDS( FindingAids.class ),
+	CALLNO(      CallNumber.class ),
 	CITATIONREF( CitationReferenceNote.class ),
 	RECORDBOOST( RecordBoost.class );
 

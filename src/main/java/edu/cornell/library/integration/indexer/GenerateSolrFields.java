@@ -239,6 +239,10 @@ public class GenerateSolrFields {
 			else
 				System.out.println( "Unrecognized field "+f.tag+" in record "+rec.id );
 
+		if (fieldsSupported.containsKey("holdings"))
+			for (Generator supportingClass : fieldsSupported.get("holdings"))
+				recordChunks.get(supportingClass).holdings = rec.holdings;
+
 		return recordChunks;
 	}
 

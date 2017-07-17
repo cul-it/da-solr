@@ -2,6 +2,7 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -12,10 +13,10 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class CallNumberTest {
 
 	static SolrBuildConfig config = null;
+	SolrFieldGenerator gen = new CallNumber();
 
 	@BeforeClass
 	public static void setup() {
@@ -24,23 +25,23 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testNoCallNo() throws ClassNotFoundException, SQLException {
+	public void testNoCallNo() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		assertEquals("",CallNumber.generateSolrFields(rec,config).toString());
+		assertEquals("",gen.generateSolrFields(rec,config).toString());
 	}
 
 	@Test
-	public void testEmptyCallNo() throws ClassNotFoundException, SQLException {
+	public void testEmptyCallNo() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		holdingRec.id = "1";
 		holdingRec.dataFields.add(new DataField(1,"852",'0',' ',"‡h"));
 		bibRec.holdings.add(holdingRec);
-		assertEquals("",CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals("",gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testHoldingCallNo() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNo() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		holdingRec.id = "1";
@@ -52,11 +53,11 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testHoldingCallNoWithPrefix() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNoWithPrefix() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		holdingRec.id = "1";
@@ -69,10 +70,10 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 	@Test
-	public void testHoldingCallNoThesisInSubfieldH() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNoThesisInSubfieldH() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		holdingRec.id = "1";
@@ -85,11 +86,11 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testNonLCHoldingCallNo() throws ClassNotFoundException, SQLException {
+	public void testNonLCHoldingCallNo() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		holdingRec.id = "1";
@@ -98,11 +99,11 @@ public class CallNumberTest {
 		String expected =
 		"lc_callnum_full: Film 1-0-3\n"+
 		"callnum_sort: Film 1-0-3\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testBib050CallNo() throws ClassNotFoundException, SQLException {
+	public void testBib050CallNo() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"050",'0',' ',"‡a QA611 ‡b .R123.6"));
 		String expected =
@@ -111,11 +112,11 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testSortSelectionBetweenThreeHoldings() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenThreeHoldings() throws ClassNotFoundException, SQLException, IOException {
 		// Between call numbers from holdings, the one that is LC should be sorted.
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
@@ -132,11 +133,11 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testSortSelectionBetweenBibCallnos() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenBibCallnos() throws ClassNotFoundException, SQLException, IOException {
 		// Between two call numbers from bibs, the one that is LC should be sorted.
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"050",'1',' ',"‡a Video 7"));
@@ -150,11 +151,11 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 
 	@Test
-	public void testSortSelectionBetweenBibAndHoldings() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenBibAndHoldings() throws ClassNotFoundException, SQLException, IOException {
 		// The call number holdings should be preferred for sort even if non-LC 
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(2,"050",'0',' ',"‡a QA611 ‡b .R123.6"));
@@ -170,6 +171,6 @@ public class CallNumberTest {
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
 //		System.out.println( CallNumber.generateSolrFields(bibRec,config).toString() );
-		assertEquals(expected,CallNumber.generateSolrFields(bibRec,config).toString());
+		assertEquals(expected,gen.generateSolrFields(bibRec,config).toString());
 	}
 }
