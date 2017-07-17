@@ -209,6 +209,7 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 				if (" 1".contains(f.ind1.toString())) {
 					displaySubfields = "3ac";
 					displayField = "donor_display";
+					displayCleanupChars = "; ";
 				}
 				break;
 			case 544:    displaySubfields = "3ad";       searchSubfields = "ad";       break;

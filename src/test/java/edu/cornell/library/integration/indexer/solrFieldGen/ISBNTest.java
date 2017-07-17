@@ -35,6 +35,16 @@ public class ISBNTest {
 	}
 
 	@Test
+	public void testOldStyleColonSeparatedSubfieldQs() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 9789712726187 ‡q (book 3 : ‡q np)"));
+		String expected =
+		"isbn_t: 9789712726187\n"+
+		"isbn_display: 9789712726187 (book 3 ; np)\n";
+		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+	}
+
+	@Test
 	public void testOldStyle880() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, 1, "020", ' ',' ',"‡6 880-01 ‡a 4892032867 (v. 2)", false));

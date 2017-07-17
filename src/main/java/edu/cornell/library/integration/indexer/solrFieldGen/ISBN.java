@@ -86,9 +86,9 @@ public class ISBN implements ResultSetToFields, SolrFieldGenerator {
 						else sbDisplay.append(" (");
 						sbDisplay.append(sf.value);
 					}
-					if (sf.value.charAt(sf.value.length()-1) == ';')
+					while (":; ".contains(String.valueOf(sbDisplay.charAt(sbDisplay.length()-1))))
 						sbDisplay.setLength(sbDisplay.length()-1);
-					if (sf.value.charAt(sf.value.length()-1) != ')')
+					if (sbDisplay.charAt(sbDisplay.length()-1) != ')')
 						sbDisplay.append(')');
 					break;
 				case 'z':
