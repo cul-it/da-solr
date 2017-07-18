@@ -51,18 +51,23 @@ public class GenerateSolrFields {
 
 	// BEGIN INSTANCE METHODS
 
-	public Integer generateSolr( MarcRecord rec, SolrBuildConfig config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public Long generateSolr( MarcRecord rec, SolrBuildConfig config ) {
 		if (firstRun) {
 			firstRun = false;
 			config.setDatabaseMaxStatements("Current", 6 * activeGenerators.size());
+			config.setDatabasePoolsize("Current", activeGenerators.size() / 3);
 		}
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
-		Integer fieldSectionsChanged = 0;
-		for (Entry<Generator,MarcRecord> e : recordChunks.entrySet())
-			if ( processRecordChunkWithGenerator(
-					e.getKey(),generatorSpecificSQLQueries.get(e.getKey()),e.getValue(),config) )
-				fieldSectionsChanged++;
+		Long fieldSectionsChanged = recordChunks.entrySet()
+			.parallelStream()
+			.map(entry -> {
+				try { return processRecordChunkWithGenerator(
+						entry.getKey(),generatorSpecificSQLQueries.get(entry.getKey()),entry.getValue(),config); }
+				catch ( ClassNotFoundException | SQLException | IOException err ) {
+					System.out.println("Generator "+entry.getKey()+" failed."); err.printStackTrace(); return false;	} })
+			.filter(p -> p == true)
+			.count();
+
 		System.out.println(fieldSectionsChanged+" sections changed.");
 		return fieldSectionsChanged;
 	}
