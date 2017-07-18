@@ -117,13 +117,17 @@ public class GenerateSolrFields {
 
 		Map<Generator,Map<String,String>> generatorSpecificSQLQueries = new HashMap<>();
 		for (Generator gen : activeGenerators) {
-			String dbTable = "solr_seg_"+gen.name().toLowerCase();
+			String dbTable = "solrSeg"+titleCase(gen.name());
 			Map<String,String> thisGeneratorSQLQueries = new HashMap<>();
 			for (Entry<String,String> e : queryTemplates.entrySet())
 				thisGeneratorSQLQueries.put(e.getKey(), e.getValue().replace("$segmentTable", dbTable));
 			generatorSpecificSQLQueries.put(gen,thisGeneratorSQLQueries);
 		}
 		return generatorSpecificSQLQueries;
+	}
+
+	private static String titleCase(String name) {
+		return name.substring(0,1).toUpperCase()+name.substring(1).toLowerCase();
 	}
 
 	private static boolean processRecordChunkWithGenerator(
