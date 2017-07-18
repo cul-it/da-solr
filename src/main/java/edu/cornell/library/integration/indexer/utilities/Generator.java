@@ -24,6 +24,7 @@ public enum Generator {
 	CITATIONREF( CitationReferenceNote.class ),
 	URL(         URL.class ),
 	HATHILINKS(  HathiLinks.class ),
+	RECORDTYPE(  RecordType.class ),
 	RECORDBOOST( RecordBoost.class );
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
