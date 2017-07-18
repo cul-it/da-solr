@@ -12,7 +12,6 @@ import java.util.TreeSet;
 
 import org.apache.solr.common.SolrInputField;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -39,17 +38,7 @@ public class MARC implements ResultSetToFields, SolrFieldGenerator {
 		Map<String,SolrInputField> fields = new HashMap<>();		
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-				
-		if (results.containsKey("marc_leader")) {
-			ResultSet marc_leader = results.get("marc_leader");
-			if( marc_leader != null && marc_leader.hasNext() ){
-				QuerySolution sol = marc_leader.nextSolution();
-				rec.leader = nodeToString( sol.get("l"));
-			}
-		} 		
-		if( rec.leader == null || rec.leader.trim().isEmpty()){
-			throw new Error("Leader should NEVER be missing from a MARC record.");			
-		}
+		rec.leader = nodeToString(results.get("leader").nextSolution().get("leader"));	
 		
 		if (results.containsKey("marc_control_fields")) {
 			ResultSet marc_control_fields = results.get("marc_control_fields");

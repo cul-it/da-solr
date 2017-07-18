@@ -37,7 +37,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new RecordBoost()),
 
         new SPARQLFieldMakerImpl().setName("marc")
-        .addQuery("marc_leader", "SELECT ?l WHERE { $recordURI$ marcrdf:leader ?l. }")
+        .addQuery("leader",standardLeaderSPARQL())
         .addQuery("marc_control_fields",
             "SELECT * WHERE {\n"
                 + " $recordURI$ ?p ?field.\n"
@@ -48,19 +48,8 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new MARC()),
 
         new SPARQLFieldMakerImpl().setName("rec_type")
-        .addQuery("shadow_rec",
-            "SELECT ?sf948h WHERE {\n"
-                + " $recordURI$ marcrdf:hasField948 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?sf948.\n"
-                + " ?sf948 marcrdf:code \"h\"^^xsd:string.\n"
-                + " ?sf948 marcrdf:value ?sf948h. }")
-        .addQuery("shadow_rec_mfhd",
-            "SELECT ?sf852x WHERE {\n"
-                + " ?h marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?h marcrdf:hasField852 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?sf.\n"
-                + " ?sf marcrdf:code \"x\"^^xsd:string.\n"
-                + " ?sf marcrdf:value ?sf852x. }")
+        .addQuery("948",standardDataFieldSPARQL("948"))
+        .addQuery("holdings_852",standardHoldingsDataFieldSPARQL("852"))
         .addResultSetToFields(new RecordType()),
 
         new SPARQLFieldMakerImpl().setName("format")
