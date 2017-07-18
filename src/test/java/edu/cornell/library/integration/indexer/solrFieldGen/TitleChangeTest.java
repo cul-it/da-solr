@@ -34,7 +34,7 @@ public class TitleChangeTest {
 		"author_facet: Smith, John, 1900-1999\n"+
 		"author_pers_filing: smith john 1900 1999\n"+
 		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
-		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
+		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -48,7 +48,7 @@ public class TitleChangeTest {
 		"author_facet: Ko, Dorothy, 1957-\n"+
 		"author_pers_filing: ko dorothy 1957\n"+
 		"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","
-		+ "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Gao, Yanyi, 1957-\n"+
 		"authority_author_t: 高彦颐, 1957-\n"+
 		"authority_author_t_cjk: 高彦颐, 1957-\n";
@@ -110,7 +110,7 @@ public class TitleChangeTest {
 		"author_addl_t_cjk: 向淑容, translator\n"+
 		"author_addl_t: Xiang, Shurong, translator\n"+
 		"author_addl_json: {\"name1\":\"向淑容\",\"search1\":\"向淑容,\",\"name2\":\"Xiang, Shurong, translator\","
-		+ "\"search2\":\"Xiang, Shurong,\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		+ "\"search2\":\"Xiang, Shurong,\",\"relator\":\"translator\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_addl_display: 堯嘉寧 / Yao, Jianing, translator\n"+
 		"author_addl_cts: 堯嘉寧|堯嘉寧,|Yao, Jianing, translator|Yao, Jianing,\n"+
 		"author_facet: 堯嘉寧\n"+
@@ -120,7 +120,7 @@ public class TitleChangeTest {
 		"author_addl_t_cjk: 堯嘉寧, translator\n"+
 		"author_addl_t: Yao, Jianing, translator\n"+
 		"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":\"Yao, Jianing, translator\","
-		+ "\"search2\":\"Yao, Jianing,\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
+		+ "\"search2\":\"Yao, Jianing,\",\"relator\":\"translator\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -140,8 +140,10 @@ public class TitleChangeTest {
 		"author_addl_t_cjk: 法律出版社. 法规出版分社, editor\n"+
 		"author_addl_t: Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
 		"author_addl_json: {\"name1\":\"法律出版社. 法规出版分社\",\"search1\":\"法律出版社. 法规出版分社,\","
-		+ "\"name2\":\"Fa lü chu ban she. Fa gui chu ban fen she, editor\",\"search2\":"
-		+ "\"Fa lü chu ban she. Fa gui chu ban fen she,\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n";
+		+ "\"name2\":\"Fa lü chu ban she. Fa gui chu ban fen she, editor\",\"search2\":\"Fa lü chu ban she. "
+		+ "Fa gui chu ban fen she,\",\"relator\":\"editor\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: 法律出版社. 法规出版分社.\n"+
+		"authority_author_t_cjk: 法律出版社. 法规出版分社.\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -175,10 +177,11 @@ public class TitleChangeTest {
 				+ " Revolutionary Marxism of Antonio Gramsci. ‡d Leiden, Netherlands : Brill, c2013 ‡h viii,"
 				+ " 197 pages ‡k Historical materialism book series ; Volume 62. ‡x 1570-1522 ‡z 9789004265745"
 				+ " ‡w 2013041807"));
-		String expected = "title_uniform_t: Revolutionary Marxism of Antonio Gramsci. Leiden, Netherlands :"
-				+ " Brill, c2013 Historical materialism book series ; Volume 62.\n"+
+		String expected = "title_uniform_t: Revolutionary Marxism of Antonio Gramsci. "
+				+ "Historical materialism book series ; Volume 62.\n"+
 				"other_form_display: Print version: Rosengarten, Frank, 1927- | Revolutionary Marxism of Antonio"
-				+ " Gramsci. Leiden, Netherlands : Brill, c2013 Historical materialism book series ; Volume 62.\n";
+				+ " Gramsci. Historical materialism book series ; Volume 62.\n";
+//		System.out.println(TitleChange.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -217,8 +220,8 @@ public class TitleChangeTest {
 		"author_facet: Institute on Religious Freedom\n"+
 		"author_event_filing: institute on religious freedom\n"+
 		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
-		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"type\":\"Event\","
-		+ "\"authorizedForm\":false}\n";
+		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"relator\":\"\","
+		+ "\"type\":\"Event\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 
@@ -232,7 +235,7 @@ public class TitleChangeTest {
 		"author_addl_cts: al-Salimi, Abdulrahman|al-Salimi, Abdulrahman\n"+
 		"author_facet: al-Salimi, Abdulrahman\n"+
 		"author_addl_json: {\"name1\":\"al-Salimi, Abdulrahman\",\"search1\":\"al-Salimi, Abdulrahman\","
-		+ "\"authorizedForm\":false}\n";
+		+ "\"relator\":\"\",\"authorizedForm\":false}\n";
 		assertEquals( expected, TitleChange.generateSolrFields(rec, config).toString() );
 	}
 

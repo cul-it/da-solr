@@ -36,6 +36,13 @@ public class GenerateSolrFieldsTest {
 		gen.generateSolr(rec, config);
 	}
 
+	@Test
+	public void test8226661() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
+		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" )));
+		gen.generateSolr(rec, config);
+	}
+
 	private static String resourceAsString( String filename ) throws IOException {
 		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
 				Scanner s = new Scanner(is,"UTF-8")) {

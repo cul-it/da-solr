@@ -518,6 +518,8 @@ public class SolrBuildConfig {
     		System.out.println("Value not found for databasePass"+id);
     		System.exit(1);
     	}
+    	String maxStatementStr = values.get("databaseMaxStatements"+id);
+    	Integer maxStatements = (maxStatementStr == null)?35:Integer.valueOf(maxStatementStr);
     	String poolsize = values.get("databasePoolsize"+id);
     	int pool = 1;
     	if (poolsize != null)
@@ -541,7 +543,7 @@ public class SolrBuildConfig {
 //		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
 		    	cpds.setUser( user );
 		    	cpds.setPassword( pass );
-		    	cpds.setMaxStatements(35);
+		    	cpds.setMaxStatements(maxStatements);
 		    	cpds.setTestConnectionOnCheckout(true);
 		    	cpds.setTestConnectionOnCheckin(true);
 		    	// if we retry every thirty seconds for thirty attempts, we should be
@@ -574,6 +576,9 @@ public class SolrBuildConfig {
 			}
 		}
 		return c;
+    }
+    public void setDatabaseMaxStatements(String id, int maxStatements) {
+    	values.put("databaseMaxStatements"+id, String.valueOf(maxStatements));
     }
     public void setDatabasePoolsize(String id, int size) {
     	values.put("databasePoolsize"+id, String.valueOf(size));

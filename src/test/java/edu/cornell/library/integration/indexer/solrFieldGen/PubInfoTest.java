@@ -70,7 +70,7 @@ public class PubInfoTest {
 	public void test5073103Without008OrMain260() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,3,"260",' ',' ',"‡6 260-03/$1 ‡a 東京 : ‡b 吉川弘文館, ‡c 2004.",true));
-		System.out.println(gen.generateSolrFields(rec,null).toString().replaceAll("\"", "\\\\\""));
+//		System.out.println(gen.generateSolrFields(rec,null).toString().replaceAll("\"", "\\\\\""));
 		String expected =
 		"pub_info_display: 東京 : 吉川弘文館, 2004.\n"+
 		"pubplace_t_cjk: 東京 :\n"+

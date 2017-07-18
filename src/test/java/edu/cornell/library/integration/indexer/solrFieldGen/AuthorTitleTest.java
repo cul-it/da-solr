@@ -56,7 +56,7 @@ public class AuthorTitleTest {
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
-									"\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: leon cupe mariano 1932\n"+
 		"title_sort: cabana historia cultura y tradicion\n"+
 		"title_display: Cabana, historia, cultura y tradición\n"+
@@ -88,7 +88,7 @@ public class AuthorTitleTest {
 		"author_cts: Fewer, T. N.|Fewer, T. N.\n"+
 		"author_facet: Fewer, T. N\n"+
 		"author_pers_filing: fewer t n\n"+
-		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"type\":"+
+		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
 										"\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Fewer, Tom\n"+
 		"author_sort: fewer t n\n"+
@@ -124,7 +124,7 @@ public class AuthorTitleTest {
 		"author_facet: Kalavrezos, Nicholas\n"+
 		"author_pers_filing: kalavrezos nicholas\n"+
 		"author_json: {\"name1\":\"Kalavrezos, Nicholas, speaker\",\"search1\":\"Kalavrezos, Nicholas,\","
-		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		+ "\"relator\":\"speaker\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: kalavrezos nicholas\n"+
 		"title_sort: lumps and bumps in the mouth and lips\n"+
 		"title_display: Lumps and bumps in the mouth and lips\n"+
@@ -157,8 +157,8 @@ public class AuthorTitleTest {
 		"author_cts: Speed, John, 1552?-1629, cartographer|Speed, John, 1552?-1629,\n"+
 		"author_facet: Speed, John, 1552?-1629\n"+
 		"author_pers_filing: speed john 1552 1629\n"+
-		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":"+
-							"\"Speed, John, 1552?-1629,\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":"
+		 + "\"Speed, John, 1552?-1629,\",\"relator\":\"cartographer\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: I. S. (John Speed), 1552?-1629\n"+
 		"authority_author_t: J. S. (John Speed), 1552?-1629\n"+
 		"authority_author_t: S., I. (John Speed), 1552?-1629\n"+
@@ -207,7 +207,7 @@ public class AuthorTitleTest {
 		"author_facet: Papadēmētropoulos, Loukas P\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":"
-				+ "\"Papadēmētropoulos, Loukas P.,\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		+ "\"Papadēmētropoulos, Loukas P.,\",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"author_sort: papademetropoulos loukas p\n"+
 		"title_sort: ennoia tou oikou ston euripide alkeste medeia hippolytos\n"+
 		"title_display: Hē ennoia tou oikou ston Euripidē\n"+
@@ -284,7 +284,7 @@ public class AuthorTitleTest {
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
-		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		+ "\"search2\":\"Taga, Futoshi, 1968-\",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: 多賀太, 1968-\n"+
 		"authority_author_t_cjk: 多賀太, 1968-\n"+
 		"author_sort: taga futoshi 1968\n"+
@@ -336,7 +336,7 @@ public class AuthorTitleTest {
 		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"search1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
-		+ "\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
+		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
 		"author_sort: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia\n"+
 		"title_sort: tjita dan daja pemuda islam menjongsong mutamar por gpii ke ix 25 sd 31 oktober 1959 "
 		+ "di djakarta 48&\n"+
@@ -384,7 +384,7 @@ public class AuthorTitleTest {
 		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
 		"author_pers_filing: foucher a alfred 1865 1952\n"+
 		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
-		+ "1865-1952.\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		+ "1865-1952.\",\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Foucher, Alfred Charles Auguste, 1865-1952\n"+
 		"author_sort: foucher a alfred 1865 1952\n"+
 		"title_uniform_display: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
@@ -457,7 +457,7 @@ public class AuthorTitleTest {
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А\",\"search1\":\"Гребенщикова, Г. А,\","
 		+ "\"name2\":\"Grebenshchikova, G. A., author\",\"search2\":\"Grebenshchikova, G. A.,\","
-		+ "\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
 		"author_sort: grebenshchikova g a\n"+
 		"title_sort: chernomorskii flot v period pravleniia ekateriny ii\n"+
@@ -499,12 +499,13 @@ public class AuthorTitleTest {
 		"author_cts: Korea (South). President (1993-1998 : Kim)|Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
-		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South). President (1993-1998 : Kim)\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South)."
+		+ " President (1993-1998 : Kim)\",\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
 		"author_cts: 金泳三, 1927-|金泳三, 1927-\n"+
 		"author_facet: 金泳三, 1927-\n"+
 		"author_pers_filing: 金泳三 1927\n"+
-		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\",\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_sort: korea south president 1993 1998 kim\n";
 		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
@@ -529,7 +530,7 @@ public class AuthorTitleTest {
 		"author_t: Guo li gu gong bo wu yuan.\n"+
 		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
 		+ "\"Guo li gu gong bo wu yuan.\",\"search2\":\"Guo li gu gong bo wu yuan.\","
-		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: China (Republic : 1949- ). Chinese National Palace Museum\n"+
 		"authority_author_t: China (Republic : 1949- ). Guo li gu gong bo wu yuan\n"+
 		"authority_author_t: China (Republic : 1949- ). National Palace Museum\n"+
@@ -558,7 +559,7 @@ public class AuthorTitleTest {
 		"author_cts: 蔡玫芬.|蔡玫芬.\n"+
 		"author_facet: 蔡玫芬\n"+
 		"author_pers_filing: 蔡玫芬\n"+
-		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"type\":\"Personal Name\","
+		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"relator\":\"\",\"type\":\"Personal Name\","
 		+ "\"authorizedForm\":false}\n"+
 		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
 		"author_sort: guo li gu gong bo wu yuan\n";

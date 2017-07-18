@@ -17,7 +17,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
     		new ModifyCallNumbers(),
     		new BarcodeSearch(),
     		new RemoveDuplicateTitleData(),
-    		new NoAccessUrlsUnlessOnline(),
     		new Collections(),
     		new UpdateSolrInventoryDB());
   }
@@ -148,6 +147,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
         new SPARQLFieldMakerImpl().setName("urls")
         .addQuery("urls", standardDataFieldSPARQL("856"))
+        .addQuery("locations", standardHoldingsDataFieldSPARQL("852"))
         .addQuery("urls_mfhd", standardHoldingsDataFieldSPARQL("856"))
         .addResultSetToFields(new URL()),
 

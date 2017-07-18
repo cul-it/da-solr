@@ -22,6 +22,8 @@ public enum Generator {
 	FINDINGAIDS( FindingAids.class ),
 	CALLNO(      CallNumber.class ),
 	CITATIONREF( CitationReferenceNote.class ),
+	URL(         URL.class ),
+	HATHILINKS(  HathiLinks.class ),
 	RECORDBOOST( RecordBoost.class );
 
 	public SolrFieldGenerator getInstance() { return this.generator; }

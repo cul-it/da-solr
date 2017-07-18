@@ -62,7 +62,6 @@ public class Format implements ResultSetToFields {
 		Collection<String> loccodes = new HashSet<>();
 
 		String format = null;
-		Boolean online = false;
 
 		for( String resultKey: results.keySet()){
 			ResultSet rs = results.get(resultKey);
@@ -262,11 +261,6 @@ public class Format implements ResultSetToFields {
 				if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
 			}
 		}
-		
-		if (loccodes.contains("serv,remo")) {
-			online = true;
-			if (debug) System.out.println("Online due to loccode: serv,remo.");
-		}		
 
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
 			addField(fields,"format","Thesis");
@@ -287,9 +281,6 @@ public class Format implements ResultSetToFields {
 		else if (isMicroform)
 			addField(fields,"format_main_facet","Microform");
 
-		if (online) {
-			addField(fields,"online","Online");
-		}
 		SolrInputField dbField = new SolrInputField("database_b");
 		dbField.setValue(isDatabase, 1.0f);
 		fields.put("database_b", dbField);

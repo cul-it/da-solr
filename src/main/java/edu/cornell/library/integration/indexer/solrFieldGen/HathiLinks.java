@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -25,7 +27,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * so only records that should NOT be returned in Blacklight work-level searches should
  * vary from this.
  */
-public class HathiLinks implements ResultSetToFields {
+public class HathiLinks implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -43,7 +45,11 @@ public class HathiLinks implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("035","903"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException, IOException {
 
 		Collection<String> oclcids = new HashSet<>();
@@ -90,6 +96,7 @@ public class HathiLinks implements ResultSetToFields {
 					}
 				}
 			}
+			URL url = new URL();
 			
 			for ( String title : availableHathiMaterials.keySet() ) {
 				Collection<String> volumes = availableHathiMaterials.get(title);
@@ -106,23 +113,21 @@ public class HathiLinks implements ResultSetToFields {
 				}
 				if (count == 1) {
 					// volume link
-					sfs.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust",
+					sfs.addAll(url.generateSolrFields(buildMarcWith856("HathiTrust",
 							"http://hdl.handle.net/2027/"+volumes.iterator().next()),null).fields);
 				} else {
 					// title link
-					sfs.addAll(URL.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
+					sfs.addAll(url.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
 							"http://catalog.hathitrust.org/Record/"+title),null).fields);
 				}
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
 			for ( String title : denyTitles ) {
-				sfs.addAll(URL.generateSolrFields(buildMarcWith856(
+				sfs.addAll(url.generateSolrFields(buildMarcWith856(
 						"HathiTrust – Access limited to full-text search",
 						"http://catalog.hathitrust.org/Record/"+title),null).fields);
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
-			if (availableHathiMaterials.size() > 0)
-				sfs.add(new SolrField("online","Online"));
 		}
 		return sfs;
 	}
@@ -133,6 +138,10 @@ public class HathiLinks implements ResultSetToFields {
 		f.subfields.add(new Subfield( 1, 'u', url));
 		f.subfields.add(new Subfield( 2, 'z', description));
 		rec.dataFields.add(f);
+		MarcRecord h = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		h.id = "1";
+		h.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
+		rec.holdings.add(h);
 		return rec;
 	}
 	private static void tabulateResults(java.sql.ResultSet rs,
