@@ -23,6 +23,7 @@ import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
@@ -56,7 +57,12 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 		Map<String,SolrInputField> fields = new HashMap<>();
 		SolrFields vals = generateSolrFields( rec, config );
 		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+		for ( BooleanSolrField f : vals.boolFields ) {
+			SolrInputField boolField = new SolrInputField(f.fieldName);
+			boolField.setValue(f.fieldValue, 1.0f);
+			fields.put(f.fieldName, boolField);
+		}
 		return fields;
 	}
 

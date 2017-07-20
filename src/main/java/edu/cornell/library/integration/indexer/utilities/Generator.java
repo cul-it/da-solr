@@ -11,6 +11,7 @@ public enum Generator {
 	TITLE130(    Title130.class ),
 	SUBJECT(     Subject.class ),
 	PUBINFO(     PubInfo.class ),
+	FORMAT(      Format.class ),
 	FACTFICTION( FactOrFiction.class ),
 	LANGUAGE(    Language.class ),
 	ISBN(        ISBN.class ),

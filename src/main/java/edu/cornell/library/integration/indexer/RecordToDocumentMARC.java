@@ -53,44 +53,14 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new RecordType()),
 
         new SPARQLFieldMakerImpl().setName("format")
-        .addQuery("format_leader_seven",
-            "SELECT (SUBSTR(?leader,7,1) as ?rectype)\n"
-                + " (SUBSTR(?leader,8,1) as ?biblvl)\n"
-                + " (SUBSTR(?seven,1,1) as ?cat)\n"
-                + " WHERE { $recordURI$ marcrdf:leader ?leader.\n"
-                + "   OPTIONAL {\n"
-                + "      $recordURI$ marcrdf:hasField007 ?f.\n"
-                + "      ?f marcrdf:value ?seven. }}")
-        .addQuery("typeOfContinuingResource",
-            "SELECT (SUBSTR(?val,22,1) as ?typeOfContinuingResource)\n"
-                + " WHERE { $recordURI$ marcrdf:hasField008 ?f. \n"
-                + "   ?f marcrdf:value ?val }")
-        .addQuery("format_502", "SELECT ?f502 WHERE { $recordURI$ marcrdf:hasField502 ?f502. }")
-        .addQuery("format_653",
-            "SELECT ?sf653a WHERE {\n"
-                + " $recordURI$ marcrdf:hasField653 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?sf653.\n"
-                + " ?sf653 marcrdf:code \"a\"^^xsd:string.\n"
-                + " ?sf653 marcrdf:value ?sf653a. }")
-        .addQuery("format_948",
-            "SELECT ?sf948f WHERE {\n"
-                + " $recordURI$ marcrdf:hasField948 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?sf948.\n"
-                + " ?sf948 marcrdf:code \"f\"^^xsd:string.\n"
-                + " ?sf948 marcrdf:value ?sf948f. }")
-        .addQuery("format_245",
-            "SELECT ?sf245h WHERE {\n"
-                + " $recordURI$ marcrdf:hasField245 ?f.\n"
-                + " ?f marcrdf:hasSubfield ?sf245.\n"
-                + " ?sf245 marcrdf:code \"h\"^^xsd:string.\n"
-                + " ?sf245 marcrdf:value ?sf245h. }")
-        .addQuery("format_loccode",
-            "SELECT ?loccode WHERE {\n"
-                + " ?hold marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?hold marcrdf:hasField852 ?hold852.\n"
-                + " ?hold852 marcrdf:hasSubfield ?hold852b.\n"
-                + " ?hold852b marcrdf:code \"b\"^^xsd:string.\n"
-                + " ?hold852b marcrdf:value ?loccode. }")
+        .addQuery("leader",standardLeaderSPARQL())
+        .addQuery("007", standardControlFieldSPARQL("007"))
+        .addQuery("008", standardControlFieldSPARQL("008"))
+        .addQuery("245", standardDataFieldSPARQL("245"))
+        .addQuery("502", standardDataFieldSPARQL("502"))
+        .addQuery("653", standardDataFieldSPARQL("653"))
+        .addQuery("948", standardDataFieldSPARQL("948"))
+        .addQuery("holdings_852",standardHoldingsDataFieldSPARQL("852"))
         .addResultSetToFields(new Format()),
 
         getLanguageFieldMaker(),
@@ -154,6 +124,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         new SPARQLFieldMakerImpl().setName("citation_reference_note")
         .addQuery("field510", standardDataFieldSPARQL("510"))
         .addResultSetToFields(new CitationReferenceNote()),
+
         new SPARQLFieldMakerImpl().setName("instrumentation")
         .addQuery("instrumentation", standardDataFieldSPARQL("382"))
         .addResultSetToFields(new Instrumentation()),
