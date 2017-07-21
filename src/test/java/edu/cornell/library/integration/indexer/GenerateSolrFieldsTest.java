@@ -20,7 +20,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 public class GenerateSolrFieldsTest {
 
 	static SolrBuildConfig config = null;
-	static GenerateSolrFields gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class) );
+	static GenerateSolrFields gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 
 	@BeforeClass
 	public static void setup() throws ClassNotFoundException, SQLException {
@@ -30,14 +30,14 @@ public class GenerateSolrFieldsTest {
 	}
 
 	@Test
-	public void test4087458() throws IOException, XMLStreamException {
+	public void test4087458() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "4087458.xml" ));
 		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" )));
 		gen.generateSolr(rec, config);
 	}
 
 	@Test
-	public void test8226661() throws IOException, XMLStreamException {
+	public void test8226661() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
 		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" )));
 		gen.generateSolr(rec, config);
