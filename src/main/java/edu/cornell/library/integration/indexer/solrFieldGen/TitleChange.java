@@ -6,6 +6,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ import edu.cornell.library.integration.utilities.NameUtils;
  * process the whole 7xx range into a wide variety of fields
  *
  */
-public class TitleChange implements ResultSetToFields {
+public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
@@ -50,7 +51,14 @@ public class TitleChange implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("700","710","711","720","730","740",
+				"760","762","765","767","770","772","773","774","775","776","777","780","785","786","787");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 

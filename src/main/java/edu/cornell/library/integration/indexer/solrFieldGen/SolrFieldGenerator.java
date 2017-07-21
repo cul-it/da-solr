@@ -17,8 +17,8 @@ public interface SolrFieldGenerator {
 
 	/**
 	 * @return List<String> of expected MARC field tags. Bibliographic field tags should be three digit
-	 * numbers; Holdings field tags should be the letter 'h' followed by three digit numbers. For example: 
-	 * <pre>return Arrays.asList( "502", "856", "h852" );</pre>
+	 * numbers; Holdings records aren't segregated by field and can be included by requesting "holdings". 
+	 * <pre>return Arrays.asList( "leader", "502", "856", "holdings" );</pre>
 	 */
 	public List<String> getHandledFields();
 
@@ -28,6 +28,15 @@ public interface SolrFieldGenerator {
 	 */
 	public default Duration resultsShelfLife() { return Duration.ofDays(180); }
 
+	/**
+	 * Process a subset of a bibliographic MARC (possibly with holdings), into a set of Solr fields.
+	 * @param rec A subset of a bibliographic MARC (possibly with holdings), contents determined by getHandledFields().
+	 * @param config SolrBuildConfig gives implementations access to databases as needed. 
+	 * @return Generated set of Solr fields. If no fields were produced, value should be empty rather than null.
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
 			throws ClassNotFoundException, SQLException, IOException;
 }

@@ -16,6 +16,7 @@ public enum Generator {
 	LANGUAGE(    Language.class ),
 	ISBN(        ISBN.class ),
 	SERIES(      TitleSeries.class ),
+	TITLECHANGE( TitleChange.class ),
 	TOC(         TOC.class ),
 	INSTRUMENTS( Instrumentation.class ),
 	MARC(        MARC.class ),
