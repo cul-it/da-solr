@@ -58,6 +58,9 @@ public class MARC implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public SolrFields generateSolrFields(MarcRecord rec, SolrBuildConfig config)
 			throws ClassNotFoundException, SQLException, IOException {
 

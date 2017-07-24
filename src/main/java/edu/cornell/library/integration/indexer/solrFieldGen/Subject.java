@@ -63,6 +63,9 @@ public class Subject implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() {
 		return Arrays.asList("600","610","611","630","648","650","651","653","654","655","656","657","658",
 				"662","690","691","692","693","694","695","696","697","698","699");

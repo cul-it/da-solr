@@ -37,6 +37,9 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() {
 		return Arrays.asList(
 				"010","022","024","028","035","210","222","242","243","246","247","250","255","300","310",

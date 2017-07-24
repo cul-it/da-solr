@@ -79,14 +79,20 @@ public class SolrBuildConfig {
     	list.add("webdavPassword");
     	return list;
     }
-    
+
     public void setDebugRSTFClass( Class<?> c ) {
     	debugRSTFs.add(c);
     }
     public boolean isDebugClass( Class<?> c ) {
     	return debugRSTFs.contains(c);
     }
-    
+
+    public Boolean isProduction( ) {
+    	if (values.containsKey("production") && values.get("production").equals("true"))
+    		return true;
+    	return false;
+    }
+
     public String getDailyBibUpdates() throws IOException {
     	if (values.containsKey("dailyBibUpdates")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyBibUpdates"));

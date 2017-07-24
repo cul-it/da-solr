@@ -52,6 +52,9 @@ public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() {
 		return Arrays.asList("700","710","711","720","730","740",
 				"760","762","765","767","770","772","773","774","775","776","777","780","785","786","787");

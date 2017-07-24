@@ -19,13 +19,14 @@ import edu.cornell.library.integration.marc.MarcRecord;
 @SuppressWarnings("static-method")
 public class GenerateSolrFieldsTest {
 
-	static SolrBuildConfig config = null;
-	static GenerateSolrFields gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
+	static SolrBuildConfig config;
+	static GenerateSolrFields gen;
 
 	@BeforeClass
 	public static void setup() throws ClassNotFoundException, SQLException {
 		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
 		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 		gen.setUpDatabase(config);
 	}
 

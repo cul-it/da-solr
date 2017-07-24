@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,7 +47,14 @@ public class HathiLinks implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("035","903"); }
+
+	@Override
+	// This field generator uses currently untracked HathiTrust content data, so should be regenerated more often.
+	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )

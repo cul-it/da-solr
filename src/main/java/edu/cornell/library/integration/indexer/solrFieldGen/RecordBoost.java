@@ -44,6 +44,9 @@ public class RecordBoost implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	// This SolrFieldGenerator is not currently using MARC data
 	public List<String> getHandledFields() { return Arrays.asList(); }
 

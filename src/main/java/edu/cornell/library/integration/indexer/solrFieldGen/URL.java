@@ -70,6 +70,9 @@ public class URL implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
 
 	@Override

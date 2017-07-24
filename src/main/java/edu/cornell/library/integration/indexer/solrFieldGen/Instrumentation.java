@@ -42,6 +42,9 @@ public class Instrumentation implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("382"); }
 
 	@Override

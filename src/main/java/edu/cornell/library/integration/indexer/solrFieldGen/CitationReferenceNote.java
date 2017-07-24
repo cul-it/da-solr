@@ -40,6 +40,9 @@ public class CitationReferenceNote implements ResultSetToFields, SolrFieldGenera
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("510"); }
 
 	/**

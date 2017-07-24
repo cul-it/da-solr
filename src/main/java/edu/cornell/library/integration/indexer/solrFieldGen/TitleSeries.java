@@ -45,6 +45,9 @@ public class TitleSeries implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() {
 		return Arrays.asList("830","490","440","400","410","411","800","810","811");
 	}

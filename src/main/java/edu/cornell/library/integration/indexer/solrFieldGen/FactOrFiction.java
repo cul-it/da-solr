@@ -42,6 +42,9 @@ public class FactOrFiction implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("leader","008"); }
 
 	@Override

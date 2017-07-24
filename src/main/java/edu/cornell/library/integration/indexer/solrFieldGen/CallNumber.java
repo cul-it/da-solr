@@ -74,6 +74,9 @@ public class CallNumber implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
 	public List<String> getHandledFields() { return Arrays.asList("050","950","holdings"); }
 
 	@Override
