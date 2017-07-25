@@ -199,6 +199,11 @@ public class AuthorTitle implements ResultSetToFields {
 			sfs.add(new SolrField("title_t",titleWOArticle));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(fulltitle)));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			if ( ! fulltitle.equals(maintitle) ) {
+				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitle)));
+				sfs.add(new SolrField("title_main_exact",
+						standardizeApostrophes(title.getStringWithoutInitialArticle(maintitle))));
+			}
 			sfs.add(new SolrField("title_sms_compat_display",limitStringToGSMChars(maintitle)));
 			responsibility = title.concatenateSpecificSubfields("c");
 
