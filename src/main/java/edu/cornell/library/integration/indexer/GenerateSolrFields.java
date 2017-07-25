@@ -49,6 +49,28 @@ public class GenerateSolrFields {
 
 	// BEGIN INSTANCE METHODS
 
+	/**
+	 * Process a bibliographic MARC record with optional attached holdings MARC records into fields for
+	 * indexing in Solr, using the set of SolrFieldGenerator classes provided to the GenerateSolrFields
+	 * constructor. Config is used to gain access to various configuration options, the Current database,
+	 * and a variety of other databases used by particular SolrFieldGenerator classes.<br/><br/>
+	 * The results are written to the database table <pre>${Current}.${tableNamePrefix}Data</pre>
+	 * On the first call of this method for an instance of GenerateSolrFields (if running in production
+	 * mode), information about generators may be updated in the table
+	 * <pre>${Current}.${tableNamePrefix}Generators</pre><br/><br/>
+	 * @param rec Input bibliographic MARC with possible attached holdings records.
+	 * @param config
+	 * @return 	The return value is the number of SolrFieldGenerators which produced Solr fields sets are different
+	 *     than those previously produced for the bibliographic record with this id. This counts equally the
+	 *     cases where no previous Solr data existed, the record has changed and resulted in changed Solr
+	 *     fields, the record has not changed, but outside data that is involved in the Solr field generator
+	 *     has changed, the generator itself has updated logic that resulted in a change, or (though it's to
+	 *     be avoided as best as possible,) the results of the generator are non-deterministic given unchanged
+	 *     input data.<br/><br/>
+	 *     If the return value is greater than zero, the updated Solr record data should be pushed to Solr.
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 */
 	public int generateSolr( MarcRecord rec, SolrBuildConfig config ) throws SQLException, ClassNotFoundException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
