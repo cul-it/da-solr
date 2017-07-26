@@ -416,7 +416,6 @@
     <field name="acquired" type="tint" indexed="true" stored="true" multiValued="false"/>
     <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="title_exact" type="exact" indexed="true" stored="false" multiValued="true" />
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
@@ -446,6 +445,7 @@
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
     <dynamicField name="*_filing" type="string" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_exact" type="exact" indexed="true" stored="false" multiValued="true" />
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
@@ -495,7 +495,6 @@
   <copyField source="title_t" dest="title_spell"/>
   <copyField source="title_t" dest="title_left_boost_tC"/>
   <copyField source="title_t" dest="title_left_boost_tP"/>
-  <copyField source="title_t" dest="title_exact"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
   <copyField source="title_added_entry_t" dest="title_spell"/>

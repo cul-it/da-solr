@@ -226,6 +226,11 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 			sfs.add(new SolrField("title_t",titleWOArticle));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(fulltitle_display)));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			if ( ! fulltitle_display.equals(title_display) ) {
+				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(title_display)));
+				sfs.add(new SolrField("title_main_exact",
+						standardizeApostrophes(title.getStringWithoutInitialArticle(title_display))));
+			}
 			sfs.add(new SolrField("title_sms_compat_display",limitStringToGSMChars(title_display)));
 			responsibility = title.concatenateSpecificSubfields("c");
 
@@ -274,6 +279,11 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 			}
 			sfs.add(new SolrField("title_exact",fulltitle_vern_display));
 			sfs.add(new SolrField("title_exact",titleWOarticle));
+			if ( ! fulltitle_vern_display.equals(title_vern_display) ) {
+				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(title_vern_display)));
+				sfs.add(new SolrField("title_main_exact",
+						standardizeApostrophes(title.getStringWithoutInitialArticle(title_vern_display))));
+			}
 
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
 
