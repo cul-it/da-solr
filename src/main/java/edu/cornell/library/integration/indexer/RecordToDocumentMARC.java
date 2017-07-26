@@ -15,7 +15,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
     return Arrays.asList(
     		new ModifyCallNumbers(),
     		new BarcodeSearch(),
-    		new RemoveDuplicateTitleData(),
     		new Collections(),
     		new UpdateSolrInventoryDB());
   }
