@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
@@ -58,8 +57,6 @@ public class DeleteFromSolr {
         try (   SolrClient solr = new HttpSolrClient( solrURL );
         		Connection conn = config.getDatabaseConnection("Current")  ){
 
-        	long countBeforeDel = countOfDocsInSolr( solr );
-
         	Set<Integer> deleteQueue = new HashSet<>();
         	final String getQueuedQuery =
         			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
@@ -81,14 +78,9 @@ public class DeleteFromSolr {
 
         	conn.setAutoCommit(false);
 
-        	System.out.println("Expected to delete " + deleteQueue.size() + " documents from Solr index.");
+        	System.out.println("Deleting " + deleteQueue.size() + " documents from Solr index.");
     		Set<Integer> knockOnUpdates = new HashSet<>();
         	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
-
-        	long countAfterDel = countOfDocsInSolr( solr );
-
-        	System.out.println("Solr document count before delete: " + countBeforeDel +
-        			" count after: " + countAfterDel + " difference: " + (countBeforeDel - countAfterDel));
 
         	if ( ! knockOnUpdates.isEmpty()) {
         		System.out.println(String.valueOf(knockOnUpdates.size())
@@ -109,9 +101,7 @@ public class DeleteFromSolr {
         	}
 
         	conn.commit();
-        	System.out.println("Success: requested " + deleteQueue.size() + " documents "
-        			+ "to be deleted from solr at " + config.getSolrUrl());
-        } // conn.close() solr.close()
+        } 
     }
 
     private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
@@ -195,14 +185,11 @@ public class DeleteFromSolr {
 				}
 	
 				if( lineNum % commitSize == 0 ){
-					System.out.println("Requested " + lineNum + " deletes and doing a commit.");
-					solr.commit();
 					conn.commit();
 				}
     		}
     		if( ids.size() > 0 ) {
     			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
-				solr.commit();
 				conn.commit();
     		}
 
@@ -221,11 +208,5 @@ public class DeleteFromSolr {
 		mfhdDelStmt.executeBatch();
 		itemStmt.executeBatch();
     }
-    private static long countOfDocsInSolr( SolrClient solr ) throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery();
-        query.set("qt", "standard");
-        query.setQuery("*:*");
-        query.setRows(0);
-        return solr.query( query ).getResults().getNumFound();
-    }
+
 }

@@ -730,7 +730,7 @@
         title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
-        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
+        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK
       </str>
       <str name="f.title_starts.pf">
         title_startsC^250          title_startsP^250        title_startsCJK^25

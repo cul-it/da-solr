@@ -161,23 +161,6 @@ public class IndexingUtilities {
 	}
 
 	/**
-     * Do a hard and soft commit. This should commit the changes to the index (hard commit)
-     * and also open new searchers on the Solr server so the search results are
-     * visible (soft commit). 
-     */
-    public static void commitIndexChanges(String solrUrl) {
-    	Runnable r = () -> {
-    		try (SolrClient solr = new  HttpSolrClient( solrUrl )) {
-    			solr.commit(true,true,true);
-    		} catch (SolrServerException | IOException e) {
-				e.printStackTrace();
-    		}
-    	};
-    	Thread t = new Thread( r, "solr commit thread" );
-    	t.start();
-    }
-
-	/**
 	 * 
 	 * @param urls - a list of url_access_display values
 	 * @return A comma-separated list of online provider names

@@ -205,7 +205,6 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 //				throw e;
 			}
 		}
-		solr.commit();
 	}
 	
 	
