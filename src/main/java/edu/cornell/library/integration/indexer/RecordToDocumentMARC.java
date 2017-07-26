@@ -13,7 +13,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   @Override
   List<? extends DocumentPostProcess> getDocumentPostProcess() {
     return Arrays.asList(
-    		new MissingTitleReport(),
     		new ModifyCallNumbers(),
     		new BarcodeSearch(),
     		new RemoveDuplicateTitleData(),

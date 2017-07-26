@@ -197,7 +197,10 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 			sfs.add(new SolrField("title_uniform_t",uniform_title.getStringWithoutInitialArticle(fulltitle)));
 		}
 		String responsibility = null, responsibility_vern = null;
-		if (title != null) {
+		if (title == null) {
+
+			System.out.println("Bib record "+rec.id+" has no main title.");
+		} else  {
 		
 			for (Subfield sf : title.subfields)
 				if (sf.code.equals('h'))
@@ -212,6 +215,7 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 
 			// main title display fields
 			String maintitle = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:=/ ");
+			if (maintitle.isEmpty()) System.out.println("Bib record "+rec.id+" has no main title.");
 			sfs.add(new SolrField("title_display",maintitle));
 			sfs.add(new SolrField("subtitle_display",
 					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:=/ ")));
