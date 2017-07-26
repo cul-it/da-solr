@@ -113,12 +113,7 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         getHathiLinks(),
 
         new SPARQLFieldMakerImpl().setName("database codes")
-        .addQuery("record-level instructions",
-            "SELECT ?v WHERE {\n"
-                + "  $recordURI$ marcrdf:hasField899 ?f.\n"
-                + "  ?f marcrdf:hasSubfield ?sf.\n"
-                + "  ?sf marcrdf:code \"a\"^^xsd:string.\n"
-                + "  ?sf marcrdf:value ?v. }")
+        .addQuery("899", standardDataFieldSPARQL("899"))
         .addResultSetToFields(new DBCode()),
 
         new SPARQLFieldMakerImpl().setName("citation_reference_note")
