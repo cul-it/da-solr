@@ -26,6 +26,7 @@ public enum Generator {
 	CITATIONREF( CitationReferenceNote.class ),
 	URL(         URL.class ),
 	HATHILINKS(  HathiLinks.class ),
+	NEWBOOKS(    NewBooks.class ),
 	RECORDTYPE(  RecordType.class ),
 	RECORDBOOST( RecordBoost.class );
 

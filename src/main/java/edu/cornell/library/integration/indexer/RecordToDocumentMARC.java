@@ -136,41 +136,10 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new Subject()),
 
         new SPARQLFieldMakerImpl().setName("newbooks")
-        .addQuery("newbooks948",
-            "SELECT ?ind1 ?a WHERE {"
-                + " $recordURI$ marcrdf:hasField948 ?field.\n"
-                + " ?field marcrdf:ind1 \"1\"^^xsd:string. \n"
-                + " ?field marcrdf:hasSubfield ?sfield .\n"
-                + " ?sfield marcrdf:code \"a\"^^xsd:string .\n"
-                + " ?sfield marcrdf:value ?a.\n" + " }")
-        .addQuery("newbooksMfhd",
-            "SELECT ?five ?code ?x ?z WHERE {"
-                + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?mfhd marcrdf:hasField852 ?mfhd852.\n"
-                + " ?mfhd852 marcrdf:hasSubfield ?mfhd852b.\n"
-                + " ?mfhd852b marcrdf:code \"b\"^^xsd:string.\n"
-                + " ?mfhd852b marcrdf:value ?code. \n"
-                + " ?mfhd marcrdf:hasField005 ?mfhd005.\n"
-                + " ?mfhd005 marcrdf:value ?five. \n"
-                + " OPTIONAL {\n"
-                + "   ?mfhd852 marcrdf:hasSubfield ?mfhd852x.\n"
-                + "   ?mfhd852x marcrdf:code \"x\"^^xsd:string.\n"
-                + "   ?mfhd852x marcrdf:value ?x.  }\n"
-                + " OPTIONAL {\n"
-                + "   ?mfhd852 marcrdf:hasSubfield ?mfhd852z.\n"
-                + "   ?mfhd852z marcrdf:code \"z\"^^xsd:string.\n"
-                + "   ?mfhd852z marcrdf:value ?z. } }")
-        .addQuery("seven",
-            "SELECT (SUBSTR(?seven,1,1) as ?cat) WHERE {"
-                + " $recordURI$ marcrdf:hasField007 ?f.\n"
-                + " ?f marcrdf:value ?seven. }")
-        .addQuery("k",
-            "SELECT ?callnumprefix WHERE {"
-                + " ?mfhd marcrdf:hasBibliographicRecord $recordURI$.\n"
-                + " ?mfhd marcrdf:hasField852 ?mfhd852.\n"
-                + " ?mfhd852 marcrdf:hasSubfield ?mfhd852k.\n"
-                + " ?mfhd852k marcrdf:code \"k\"^^xsd:string.\n"
-                + " ?mfhd852k marcrdf:value ?callnumprefix. }")
+        .addQuery("007", standardControlFieldSPARQL("007"))
+        .addQuery("948", standardDataFieldSPARQL("948"))
+        .addQuery("mfhdControl", standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlFields"))
+        .addQuery("mfhd852", standardHoldingsDataFieldSPARQL("852"))
         .addResultSetToFields(new NewBooks()),
 
         new SPARQLFieldMakerImpl().setName("isbn")

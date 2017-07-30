@@ -1,14 +1,12 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
-
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -17,6 +15,14 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Look for various factors to identify books on new books shelves and acquisition
@@ -24,129 +30,128 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * more time has passed.
  * 
  */
-public class NewBooks implements ResultSetToFields {
+public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 	
 	final static Boolean debug = false;
 
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();
-		
-	  	Collection<String> f948as = new HashSet<>();
-	  	Collection<String> loccodes = new HashSet<>();
-	  	
-	  	Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
-	  	
-	  	// Begin New Book Shelf Logic
-	  	ResultSet rs = results.get("k");
-	  	if (rs != null) 
-	  		while (rs.hasNext()) {
-		  		QuerySolution sol = rs.nextSolution();
-		  		String k = nodeToString(sol.get("callnumprefix"));
-	  			if (debug) System.out.println("found a k: "+k);
-		  		if (k.trim().equalsIgnoreCase("new & noteworthy books")) {
-		  			addField(fields,"new_shelf","Olin Library New & Noteworthy Books");
-		  		}
-	  		}
-	  	
-	  	Boolean matchingMfhd = false;
-	  	Boolean newBooksZNote = false;
-	  	rs = results.get("newbooksMfhd");
-	  	while (rs.hasNext()) {
-	  		QuerySolution sol = rs.nextSolution();
-	  		if (debug) {
-	  			Iterator<String> i = sol.varNames();
-	  			while (i.hasNext()) System.out.println(i.next());
-	  		}
-	  		String code = nodeToString(sol.get("code"));
-	  		loccodes.add(code);
-	  		
-	  		
-	  		if (sol.contains("z") && sol.get("z") != null) {
-	  			String z = nodeToString(sol.get("z")).toLowerCase();
-	  			if (debug) System.out.println("z note: "+z);
-	  			if (z.contains("new book") && z.contains("shelf")) {
-	  				newBooksZNote = true;
-	  				if (debug) System.out.println("Looks like the book is on a new books shelf");
-	  			}
-	  		}
-				
-	  		// the rest of this MFHD while loop relates to determining whether
-	  		// the book will count as "new" (as opposed to being on a new book shelf).
-	  		String x = null;
-	  		if (sol.contains("x") && sol.get("x") != null) {
-	  			x = nodeToString(sol.get("x"));
-	  			if (x.contains("transfer")) {
-	  				if (code.endsWith(",anx")) {
-	  					if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because it represents a tranfer to the annex. "+code+" "+x);
-	  					continue;
-	  				}
-	  			}
-	  		}
-	  		String five = nodeToString(sol.get("five"));
-	  		if (five.length() < 6) continue;
-	  		String date = five.substring(0, 8);
-	  		if (debug) System.out.println(date);
-	  		if (Integer.valueOf(date) < twoYearsAgo) {
-	  			if (debug) System.out.println("This MFHD isn't evidence of recent acquisition because the 005 is too old. "+five);
-	  			continue;
-	  		}
-	  		if (debug) System.out.println("This MFHD is recent enough to argue for recent acquisition and wasn't otherwise eliminated.");
-	  		matchingMfhd = true;
-	  		continue;
-	  	}
-	  	
-	  	if (newBooksZNote)
-	  		for (String loccode : loccodes) {
-	  			if (debug) System.out.println(loccode);
-	  			if (loccode.startsWith("afr"))
-		  			addField(fields,"new_shelf","Africana Library New Books Shelf");
-	  		}
 
-	  	
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		Map<String,MarcRecord> holdingRecs = new HashMap<>();
+
+		for( String resultKey: results.keySet()){
+			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
+			while( rs.hasNext() ){
+				QuerySolution sol = rs.nextSolution();
+
+
+				if ( resultKey.equals("948")) {
+
+					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
+
+				} else if ( resultKey.equals("008") ) {
+
+					JenaResultsToMarcRecord.addControlFieldQuerySolution(bibRec, sol);
+
+				} else {
+	 				String recordURI = ResultSetUtilities.nodeToString(sol.get("mfhd"));
+					MarcRecord rec;
+					if (holdingRecs.containsKey(recordURI)) {
+						rec = holdingRecs.get(recordURI);
+					} else {
+						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
+						holdingRecs.put(recordURI, rec);
+					}
+					if (resultKey.contains("Control")) {
+						JenaResultsToMarcRecord.addControlFieldQuerySolution(rec,sol);
+					} else {
+						JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
+					}
+
+				}
+			}
+		}
+		bibRec.holdings.addAll(holdingRecs.values());
+		SolrFields vals = generateSolrFields( bibRec, config );
+		Map<String,SolrInputField> fields = new HashMap<>();
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		for ( BooleanSolrField f : vals.boolFields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
+		return fields;
+	}
+
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings"); }
+
+  	static Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
+  	@Override
+	public SolrFields generateSolrFields ( MarcRecord bib, SolrBuildConfig config ) {
+	  	Collection<String> loccodes = new HashSet<>();
+	  	Boolean newBooksZNote = false;
+
+	  	SolrFields vals = new SolrFields();
+
+	  	for (MarcRecord hold : bib.holdings)
+	  		for (DataField f : hold.dataFields) if (f.tag.equals("852"))
+	  			for (Subfield sf : f.subfields)
+	  				if (sf.code.equals('k')) {
+	  					if (sf.value.equalsIgnoreCase("new & noteworthy books"))
+	  						vals.add(new SolrField("new_shelf","Olin Library New & Noteworthy Books"));
+	  				} else if (sf.code.equals('b')) {
+	  					loccodes.add(sf.value);
+	  				} else if (sf.code.equals('z')) {
+	  					String val = sf.value.toLowerCase();
+	  					if (val.contains("new book") && val.contains("shelf"))
+	  						newBooksZNote = true;
+	  				}
+
+	  	if (newBooksZNote)
+	  		for (String loccode : loccodes)
+	  			if (loccode.startsWith("afr"))
+		  			vals.add(new SolrField("new_shelf","Africana Library New Books Shelf"));
+
 	  	// Begin New Books Logic
 	  	
-	  	if ( ! matchingMfhd ) {
-	  		if (debug) System.out.println("No MFHD is recent enough (and matching other criteria) to indicate a recent acquisition.");
-	  		return fields; //empty field set unless new books shelf flags found
+	  	// Look for a holdings record that reflects a recent acquisition
+	  	Boolean matchingMfhd = false;
+	  	HOLD: for (MarcRecord hold : bib.holdings) {
+
+	  		// Skip holdings that reflect items moved to the annex
+	  		for (DataField f : hold.dataFields)     if (f.tag.equals("852"))
+	  			for (Subfield sf : f.subfields)     if (sf.code.equals('x') && sf.value.contains("transfer"))
+	  				for (String loccode : loccodes) if (loccode.endsWith(",anx"))
+	  					continue HOLD;
+
+	  		String date = null;
+	  		for (ControlField f : hold.controlFields) if (f.tag.equals("005")) {
+	  			if (f.value.length() < 6) continue HOLD;
+	  			date = f.value.substring(0, 8);
+	  			if (Integer.valueOf(date) < twoYearsAgo) continue HOLD;
+	  		}
+	  		matchingMfhd = true;
 	  	}
 
-	  	rs = results.get("newbooks948");
-	  	if (rs == null) return fields;
-	  	while (rs.hasNext()) {
-	  		QuerySolution sol = rs.nextSolution();
-//	  		String ind1 = nodeToString(sol.get("ind1"));
-//	  		if ( ! ind1.equals("1")) continue;
-	  		String a = nodeToString(sol.get("a"));
-	  		if (debug) System.out.println(a);
-	  		if (Integer.valueOf(a) < twoYearsAgo) continue;
-	  		if (debug) System.out.println("948a value is recent enough to indicate recent acquisition.");
-	  		f948as.add(a);
-	  	}
-	  	if (f948as.size() == 0) {
-	  		if (debug) System.out.println("Not a new book due to no 948a with 1st indicator 1 and date within 2 years.");
-	  		return fields; //empty field set unless new books shelf flags found
-	  	}
+	  	if ( ! matchingMfhd ) return vals;
 
-	  	Boolean isMicroform = false;
-	  	rs = results.get("seven");
-	  	while (rs.hasNext()) {
-	  		QuerySolution sol = rs.nextSolution();
-	  		String cat = nodeToString(sol.get("cat"));
-	  		if (debug) System.out.println("Category from 007 field found: "+cat);
-	  		if (cat.equals("h")) isMicroform = true;
-	  	}
-	  	if (isMicroform) {
-	  		if (debug) System.out.println("Not a new book due to being microform.");
-	  		return fields; //empty field set unless new books shelf flags found
-	  	}
-	  	
+	  	Collection<String> f948as = new HashSet<>();
+	  	for (DataField f : bib.dataFields)   if (f.tag.equals("948") && f.ind1.equals('1'))
+	  		for (Subfield sf : f.subfields)  if (sf.code.equals('a'))
+	  			if (Integer.valueOf(sf.value) > twoYearsAgo)
+	  				f948as.add(sf.value);
+
+	  	if ( f948as.isEmpty() ) return vals;
+
+	  	// Stop processing if record is microform
+	  	for (ControlField f : bib.controlFields)
+	  		if (f.tag.equals("007") && ! f.value.isEmpty() && f.value.substring(0,1).equals('h'))
+	  			return vals;
+
 	  	Integer acquiredDate = null;
 	  	for (String f948a : f948as) {
 	  		Integer date = Integer.valueOf(f948a.substring(0, 8));
@@ -156,10 +161,10 @@ public class NewBooks implements ResultSetToFields {
 	  	if (acquiredDate != null) {
 		  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
 		  	String date_s = acquiredDate.toString();
-			addField(fields,"acquired",date_s);
-			addField(fields,"acquired_month",date_s.substring(0,6));
+			vals.add(new SolrField("acquired",date_s));
+			vals.add(new SolrField("acquired_month",date_s.substring(0,6)));
 	  	}
-		return fields;
+		return vals;
 	}
 	
     public static String twoYearsAgo(  ) {
