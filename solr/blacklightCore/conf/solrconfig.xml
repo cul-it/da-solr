@@ -208,7 +208,7 @@
       <str name="q.op">OR</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_exact^2500           title_main_exact^1800
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
@@ -361,7 +361,7 @@
       <str name="q">*</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_exact^2500           title_main_exact^1800
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
@@ -446,7 +446,7 @@
       <str name="df">title_t</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_exact^2500           title_main_exact^1800
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
@@ -591,6 +591,7 @@
       </str>
       <str name="f.quoted.qf">
         title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
+        title_leftUnstemBoostC^40000 title_leftUnstemBoostP^40000
         title_exact^2500           title_main_exact^1800
         title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
@@ -622,6 +623,7 @@
       <str name="f.starts.pf"> </str>
       <str name="f.quoted.pf">
         title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
+        title_leftUnstemBoostC^40000 title_leftUnstemBoostP^40000
         title_exact^2500           title_main_exact^1800
         title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
@@ -690,7 +692,7 @@
       <str name="f.title.qf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_left_boost_tC^420    title_left_boost_tP^420  title_startsCJK^25
+        title_startsCJK^25
         title_exact^500            title_main_exact^300
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
@@ -703,7 +705,7 @@
       <str name="f.title.pf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_left_boost_tC^420    title_left_boost_tP^420  title_startsCJK^25
+        title_startsCJK^25
         title_exact^500            title_main_exact^300
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
@@ -739,6 +741,7 @@
         title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
       </str>
       <str name="f.title_quoted.qf">
+        title_leftUnstemBoostC^400 title_leftUnstemBoostP^400
         title_unstemC^250          title_unstemP^250        title_t_cjk^25
         title_exact^250            title_main_exact^150
         title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
