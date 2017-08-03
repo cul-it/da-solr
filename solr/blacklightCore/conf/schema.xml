@@ -523,7 +523,6 @@
   <copyField source="title_t" dest="title_left_boost_tP"/>
   <copyField source="title_t" dest="title_leftboost_tC"/>
   <copyField source="title_t" dest="title_leftboost_tP"/>
-  <copyField source="title_t" dest="title_exact"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
   <copyField source="title_added_entry_t" dest="title_spell"/>
