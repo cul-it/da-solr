@@ -247,7 +247,7 @@
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        title_exact^2500           title_main_exact^1800
+        title_exact^2500           title_main_exact^1250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -399,7 +399,7 @@
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
-        title_exact^2500           title_main_exact^1800
+        title_exact^2500           title_main_exact^1250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -525,7 +525,7 @@
       </str>
       <str name="f.phrase.qf">
         title_unstemC^25000        title_unstemP^25000
-        title_exact^1000000        title_main_exact^750000
+        title_exact^1000000        title_main_exact^400000
         title_leftboost_tC^100000  title_leftboost_tP^100000  title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
@@ -590,7 +590,7 @@
       </str>
       <str name="f.quoted.qf">
         title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
-        title_exact^80000          title_main_exact^60000
+        title_exact^80000          title_main_exact^50000
         title_leftUnstemBoostC^30000 title_leftUnstemBoostP^30000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
@@ -618,9 +618,7 @@
         authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
         authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="f.starts.pf"> </str>
-      <str name="f.quoted.pf"> </str>
-      
+
       <str name="f.author.qf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
@@ -642,16 +640,8 @@
         author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
       </str>
-      <str name="f.author_starts.pf"> </str>
       <str name="f.author_cts.qf"> author_pers_browse author_corp_browse author_event_browse </str>
-      <str name="f.author_cts.pf"> author_pers_browse author_corp_browse author_event_browse </str>
       <str name="f.author_quoted.qf">
-        author_unstemC^125         author_unstemP^125        author_t_cjk^10
-        author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
-        author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
-        authority_author_unstemC   authority_author_unstemP  authority_author_t_cjk
-      </str>
-      <str name="f.author_quoted.pf">
         author_unstemC^125         author_unstemP^125        author_t_cjk^10
         author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
@@ -686,7 +676,7 @@
       <str name="f.title_phrase.qf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_exact^10000          title_main_exact^7500
+        title_exact^10000          title_main_exact^4000
         title_leftboost_tC^1000    title_leftboost_tP^1000  title_startsCJK^50
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
@@ -695,28 +685,20 @@
         title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
       </str>
-      <str name="f.title_phrase.pf"> </str>
       <str name="f.title_starts.qf">
         title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
         title_series_startsC^3     title_series_startsP^3   title_series_startsCJK
       </str>
-      <str name="f.title_starts.pf">
-        title_startsC^250          title_startsP^250        title_startsCJK^25
-        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
-        title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
-        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
-      </str>
       <str name="f.title_quoted.qf">
-        title_exact^800            title_main_exact^600
+        title_exact^800            title_main_exact^400
         title_leftUnstemBoostC^300 title_leftUnstemBoostP^300
         title_unstemC^250          title_unstemP^250        title_t_cjk^25
         title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25    title_addl_t_cjk^3
         title_series_unstemC^3     title_series_unstemP^3   title_series_t_cjk   
       </str>
-      <str name="f.title_quoted.pf"> </str>
 
       <str name="f.subject.qf">
         subject_unstemC^200        subject_unstemP^200
@@ -736,19 +718,7 @@
         subject_startsC^200        subject_startsP^200        subject_startsCJK^5
         subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
       </str>
-      <str name="f.subject_starts.pf"> </str>
       <str name="f.subject_cts.qf">
-        subject_pers_browse
-        subject_corp_browse
-        subject_event_browse
-        subject_gen_browse
-        subject_topic_browse
-        subject_geo_browse
-        subject_era_browse
-        subject_genr_browse
-        subject_work_browse
-      </str>
-      <str name="f.subject_cts.pf">
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
@@ -764,12 +734,7 @@
         subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
         authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="f.subject_quoted.pf">
-        subject_unstemC^200        subject_unstemP^200        subject_t_cjk^5
-        subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
-        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
-      </str>
-      
+
       <str name="f.publisher.qf">
         publisher_unstemC^10       publisher_unstemP^10
         publisher_t                publisher_tP        publisher_t_cjk
@@ -779,28 +744,21 @@
         publisher_t                publisher_tP        publisher_t_cjk
       </str>
       <str name="f.publisher_starts.qf">publisher_startsC^10 publisher_startsP^10 publisher_startsCJK</str>
-      <str name="f.publisher_starts.pf"> </str>
       <str name="f.publisher_quoted.qf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
-      <str name="f.publisher_quoted.pf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
 
       <str name="f.pubplace.qf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
       <str name="f.pubplace.pf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
       <str name="f.pubplace_starts.qf"> pubplace_startsC pubplace_startsP pubplace_startsCJK </str>
-      <str name="f.pubplace_starts.pf"> </str>
       <str name="f.pubplace_quoted.qf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
-      <str name="f.pubplace_quoted.pf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
       
       <str name="f.lc_callnum.qf"> lc_callnum_full </str>
       <str name="f.lc_callnum.pf"> lc_callnum_full </str>
       <str name="f.lc_callnum_starts.qf"> lc_callnum_full </str>
-      <str name="f.lc_callnum_starts.pf"> </str>
 
       <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor_starts.qf"> donor_startsC donor_startsP donor_startsCJK </str>
-      <str name="f.donor_starts.pf"> </str>
       <str name="f.donor_quoted.qf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
-      <str name="f.donor_quoted.pf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
 
       <str name="f.isbnissn.qf">
         isbn_t   isbn_tP   isbn_t_cjk
@@ -814,12 +772,7 @@
         isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
         issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
       </str>
-      <str name="f.isbnissn_starts.pf"> </str>
       <str name="f.isbnissn_quoted.qf">
-        isbn_unstemC   isbn_unstemP   isbn_t_cjk
-        issn_unstemC   issn_unstemP   issn_t_cjk
-      </str>
-      <str name="f.isbnissn_quoted.pf">
         isbn_unstemC   isbn_unstemP   isbn_t_cjk
         issn_unstemC   issn_unstemP   issn_t_cjk
       </str>
@@ -845,28 +798,13 @@
         barcode_t^10     barcode_tP^10
         barcode_addl_t   barcode_addl_tP
       </str>
-      <str name="f.number_phrase.pf">
-        id_t             id_tP                   id_t_cjk
-        id               id_left_chunked
-        eightninenine_t  eightninenine_tP        eightninenine_t_cjk
-        barcode_t^10     barcode_tP^10
-        barcode_addl_t   barcode_addl_tP
-      </str>
       <str name="f.number_starts.qf">
       	id_startsNum
         eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
         barcode_startsC            barcode_startsP         barcode_startsNum
         barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
-      <str name="f.number_starts.pf">  </str>
       <str name="f.number_quoted.qf">
-        id_unstemC             id_unstemP              id_t_cjk
-        id
-        eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
-        barcode_unstemC^10     barcode_unstemP^10
-        barcode_addl_unstemC   barcode_addl_unstemP
-      </str>
-      <str name="f.number_quoted.pf">
         id_unstemC             id_unstemP              id_t_cjk
         id
         eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
@@ -883,16 +821,12 @@
         title_series_t^5           title_series_t^5        title_series_t_cjk
       </str>
       <str name="f.series_starts.qf">title_series_startsC^25 title_series_startsP^25 title_series_startsCJK</str>
-      <str name="f.series_starts.pf"> </str>
       <str name="f.series_quoted.qf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
-      <str name="f.series_quoted.pf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
 
  	  <str name="f.notes_qf.qf">notes_t notes_tP notes_t_cjk</str>
  	  <str name="f.notes_qf.pf">notes_t notes_tP notes_t_cjk</str>
  	  <str name="f.notes_starts.qf">notes_startsC notes_startsP notes_startsCJK</str>
- 	  <str name="f.notes_starts.pf">notes_startsC notes_startsP notes_startsCJK</str>
  	  <str name="f.notes_quoted.qf">notes_unstemC notes_unstemP notes_t_cjk</str>
- 	  <str name="f.notes_quoted.pf">notes_unstemC notes_unstemP notes_t_cjk</str>
 
       <int name="ps">2</int>
       <float name="tie">0.01</float>
