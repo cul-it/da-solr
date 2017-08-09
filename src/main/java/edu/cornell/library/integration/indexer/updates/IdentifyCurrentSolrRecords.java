@@ -117,23 +117,21 @@ public class IdentifyCurrentSolrRecords {
 				+ "language text, "
 				+ "title text, "
 				+ "linking_mod_date timestamp, "
-				+ ") ENGINE=InnoDB");
+				+ "solr_document long_text)");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.MFHD_SOLR.toString());
 		stmt.execute("create table "+CurrentDBTable.MFHD_SOLR.toString()+" ( "
 				+ "bib_id int(10) unsigned not null, "
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
-				+ "active int(1) default 1 "
-				+ ") ENGINE=InnoDB");
+				+ "active int(1) default 1)");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.ITEM_SOLR.toString());
 		stmt.execute("create table "+CurrentDBTable.ITEM_SOLR.toString()+" ( "
 				+ "mfhd_id int(10) unsigned not null, "
 				+ "item_id int(10) unsigned not null, "
 				+ "record_date timestamp null, "
-				+ "active int(1) default 1 "
-				+ ") ENGINE=InnoDB");
+				+ "active int(1) default 1)");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.BIB2WORK.toString());
 		stmt.execute("create table "+CurrentDBTable.BIB2WORK.toString()+" ( "
@@ -141,8 +139,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "oclc_id int(10) unsigned not null, "
 				+ "work_id int(10) unsigned not null, "
 				+ "active int(1) default 1, "
-				+ "mod_date timestamp not null default current_timestamp "
-				+ ") ENGINE=InnoDB");
+				+ "mod_date timestamp not null default current_timestamp)");
 		}
 		current.commit();
 
@@ -151,7 +148,7 @@ public class IdentifyCurrentSolrRecords {
 	private void makeDBKeys() throws SQLException {
 		try ( Statement stmt = current.createStatement() ) {
 		stmt.execute("alter table "+CurrentDBTable.BIB_SOLR.toString()+
-				" add primary key (bib_id)");
+				" add primary key (bib_id), add key (index_date)");
 		stmt.execute("alter table "+CurrentDBTable.MFHD_SOLR.toString()+
 				" add key (bib_id), add key (mfhd_id)");
 		stmt.execute("alter table "+CurrentDBTable.ITEM_SOLR.toString()+
