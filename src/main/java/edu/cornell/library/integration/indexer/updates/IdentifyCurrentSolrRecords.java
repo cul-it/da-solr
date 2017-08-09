@@ -67,7 +67,7 @@ public class IdentifyCurrentSolrRecords {
 	    try ( HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl()) ){
 	    SolrQuery query = new SolrQuery();
 	    query.setQuery("id:*");
-	    query.setFields("bibid_display","online","location_facet","url_access_display",
+	    query.setFields("bibid_display","online","location_facet","url_access_json",
 	    		"format","title_display","title_vern_display","title_uniform_display",
 	    		"language_facet","edition_display","pub_date_display","timestamp",
 	    		"type","other_id_display","holdings_display","item_display");
