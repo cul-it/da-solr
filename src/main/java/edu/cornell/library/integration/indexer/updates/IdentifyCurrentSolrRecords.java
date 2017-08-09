@@ -117,7 +117,7 @@ public class IdentifyCurrentSolrRecords {
 				+ "language text, "
 				+ "title text, "
 				+ "linking_mod_date timestamp, "
-				+ "solr_document long_text)");
+				+ "solr_document longtext)");
 
 		stmt.execute("drop table if exists "+CurrentDBTable.MFHD_SOLR.toString());
 		stmt.execute("create table "+CurrentDBTable.MFHD_SOLR.toString()+" ( "
