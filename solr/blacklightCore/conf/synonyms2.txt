@@ -1,6 +1,6 @@
 
 # Relates to the equivalence of "and" and "&". "&" is associated with "et" in schema.xml.
-and => et
+& => and
 
 # tweaks for K-Stemmer, relating to words that should or should not be in dictionary
 waterers, waterer => watererprot

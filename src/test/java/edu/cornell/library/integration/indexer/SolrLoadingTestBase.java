@@ -237,7 +237,6 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 				throw e;
 			}
 		}
-		solr.commit();
 	}
 	
 	
