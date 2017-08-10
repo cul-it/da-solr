@@ -55,7 +55,7 @@ public class DownloadMARC {
 				if (rec != null) {
 					recs.append(rec);
 					errorChecking(rec,type,id);
-					if (++recCount == 10_000) {
+					if (++recCount == 1_000) {
 						StringBuilder url = new StringBuilder();
 						url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
 						if (type.equals(RecordType.BIBLIOGRAPHIC))
@@ -167,6 +167,7 @@ public class DownloadMARC {
 					return null;
 				bb.close();
 				marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+				succeeded = true;
 			} catch ( SQLException | IOException e ) {
 				System.out.println(e.getClass().getName()+" querying record from Voyager.");
 				if (retryLimit-- > 0) {

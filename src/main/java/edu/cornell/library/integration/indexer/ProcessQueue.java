@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -81,6 +79,5 @@ public class ProcessQueue {
 
 		} while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime);
 
-		commitIndexChanges( config.getSolrUrl() );
 	}
 }
