@@ -105,7 +105,6 @@ public class Headings2Solr {
 			stmt.setFetchSize(Integer.MIN_VALUE);
 			stmt.execute(query);
 			try ( ResultSet rs = stmt.getResultSet() ) {
-				int addsSinceCommit= 0;
 				while (rs.next()) {
 					int id = rs.getInt("id");
 					SolrInputDocument doc = new SolrInputDocument();
@@ -140,18 +139,11 @@ public class Headings2Solr {
 						System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
 						solr_u.add(docs);
 						docs.clear();
-						addsSinceCommit += 5_000;
-						if (addsSinceCommit >= 200_000) {
-							solr_u.commit();
-							addsSinceCommit = 0;
-						}
 					}
 				}
 			}
 		if ( ! docs.isEmpty() )
 			solr_u.add(docs);
-		solr_u.blockUntilFinished();
-		solr_u.commit();
 		}
 	}
 	

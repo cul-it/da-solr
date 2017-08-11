@@ -85,6 +85,12 @@ public class SimpleProc implements ResultSetToFields {
 				displaySubfields = "a";
 				searchSubfields = "a";
 				break;
+			case 74:
+			case 86:
+				searchField = "id_left_chunked";
+				cjkSearchField = "id_left_chunked";
+				searchSubfields = "az";
+				break;
 			case 210:
 				searchField = "title_addl_t";
 				cjkSearchField = "title_addl_t_cjk";

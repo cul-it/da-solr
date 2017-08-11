@@ -147,9 +147,8 @@
         <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
@@ -158,9 +157,8 @@
         <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
         <filter class="solr.KStemFilterFactory"/>
       </analyzer>
@@ -170,9 +168,8 @@
         <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
@@ -181,6 +178,17 @@
         <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.KStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
@@ -188,50 +196,38 @@
         <filter class="solr.KStemFilterFactory"/>
       </analyzer>
     </fieldType>
-    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
-      <analyzer type="index">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.ShingleFilterFactory" outputUnigrams="true" maxShingleSize="30"/>
-        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
-      </analyzer>
-      <analyzer type="query">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=""/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.TrimFilterFactory"/>
-      </analyzer>
-    </fieldType>
     <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.ShingleFilterFactory" outputUnigrams="true" maxShingleSize="30"/>
-        <filter class="solr.LimitTokenPositionFilterFactory" maxTokenPosition="1" consumeAllTokens="false" />
-      </analyzer>
-      <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[Cc]\+\+" replacement="cplusplus" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\-'/]+" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\p{Punct}+" replacement=" "/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\s+" replacement=" "/>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.TrimFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.KStemFilterFactory"/>
+      </analyzer>
+	</fieldType>
+    <fieldType name="textLeftAnchoredUnstemBoostC" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
       </analyzer>
     </fieldType>
+    <fieldType name="textLeftAnchoredUnstemBoostP" class="solr.TextField" omitNorms="true">
+      <analyzer type="index">
+        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+      </analyzer>
+	</fieldType>
     <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
 		<!--  remove all spaces  -->
@@ -289,7 +285,6 @@
     <fieldType name="textSpell" class="solr.TextField" positionIncrementGap="100" >
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
-<!--         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/> -->
         <filter class="solr.StandardFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
@@ -416,7 +411,6 @@
     <field name="acquired" type="tint" indexed="true" stored="true" multiValued="false"/>
     <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="title_exact" type="exact" indexed="true" stored="false" multiValued="true" />
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
@@ -436,9 +430,12 @@
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_t"  type="text"    indexed="true"  stored="false" multiValued="true"/>
+    <dynamicField name="*_left_chunked"  type="callNumberNormalized"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_tP"  type="textP"    indexed="true"  stored="false" multiValued="true"/>
-    <dynamicField name="*_left_boost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_left_boost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftboost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftboost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftUnstemBoostC"  type="textLeftAnchoredUnstemBoostC" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftUnstemBoostP"  type="textLeftAnchoredUnstemBoostP" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_t_cjk"  type="textCJK"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
     <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
@@ -446,6 +443,7 @@
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
     <dynamicField name="*_filing" type="string" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_exact" type="exact" indexed="true" stored="false" multiValued="true" />
 
     <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
@@ -493,9 +491,10 @@
   <copyField source="*_t" dest="spell"/>
   <!-- title spell check;  should match fields for title request handler -->
   <copyField source="title_t" dest="title_spell"/>
-  <copyField source="title_t" dest="title_left_boost_tC"/>
-  <copyField source="title_t" dest="title_left_boost_tP"/>
-  <copyField source="title_t" dest="title_exact"/>
+  <copyField source="title_t" dest="title_leftUnstemBoostC"/>
+  <copyField source="title_t" dest="title_leftUnstemBoostP"/>
+  <copyField source="title_t" dest="title_leftboost_tC"/>
+  <copyField source="title_t" dest="title_leftboost_tP"/>
   <copyField source="subtitle_t" dest="title_spell"/>
   <copyField source="addl_titles_t" dest="title_spell"/>
   <copyField source="title_added_entry_t" dest="title_spell"/>

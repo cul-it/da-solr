@@ -16,33 +16,7 @@
   <dataDir>${solr.data.dir:}</dataDir>
 
   <indexConfig>
-    <!-- maxFieldLength was removed in 4.0. To get similar behavior, include a 
-         LimitTokenCountFilterFactory in your fieldType definition. E.g. 
-     <filter class="solr.LimitTokenCountFilterFactory" maxTokenCount="10000"/>
-    -->
-    <!-- Maximum time to wait for a write lock (ms) for an IndexWriter. Default: 1000 -->
-    <!-- <writeLockTimeout>1000</writeLockTimeout>  -->
 
-    <!-- The maximum number of simultaneous threads that may be
-         indexing documents at once in IndexWriter; if more than this
-         many threads arrive they will wait for others to finish.
-         Default in Solr/Lucene is 8. -->
-    <!-- <maxIndexingThreads>8</maxIndexingThreads>  -->
-
-    <!-- Expert: Enabling compound file will use less files for the index, 
-         using fewer file descriptors on the expense of performance decrease. 
-         Default in Lucene is "true". Default in Solr is "false" (since 3.6) -->
-    <!-- <useCompoundFile>false</useCompoundFile> -->
-
-    <!-- ramBufferSizeMB sets the amount of RAM that may be used by Lucene
-         indexing for buffering added documents and deletions before they are
-         flushed to the Directory.
-         maxBufferedDocs sets a limit on the number of documents buffered
-         before flushing.
-         If both ramBufferSizeMB and maxBufferedDocs is set, then
-         Lucene will flush based on whichever limit is hit first.  -->
-    <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
-    <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
 <!--
 	<mergePolicy class="org.apache.solr.index.TieredMergePolicy">
 		<int name="maxMergeAtOnce">10</int>
@@ -57,155 +31,23 @@
        <mergeScheduler class="org.apache.lucene.index.ConcurrentMergeScheduler"/>
        -->
 
-    <!-- LockFactory 
-
-         This option specifies which Lucene LockFactory implementation
-         to use.
-      
-         single = SingleInstanceLockFactory - suggested for a
-                  read-only index or when there is no possibility of
-                  another process trying to modify the index.
-         native = NativeFSLockFactory - uses OS native file locking.
-                  Do not use when multiple solr webapps in the same
-                  JVM are attempting to share a single index.
-         simple = SimpleFSLockFactory  - uses a plain file for locking
-
-         Defaults: 'native' is default for Solr3.6 and later, otherwise
-                   'simple' is the default
-
-         More details on the nuances of each LockFactory...
-         http://wiki.apache.org/lucene-java/AvailableLockFactories
-    -->
-    <!-- <lockType>native</lockType> -->
-
-    <!-- Unlock On Startup
-
-         If true, unlock any held write or commit locks on startup.
-         This defeats the locking mechanism that allows multiple
-         processes to safely access a lucene index, and should be used
-         with care. Default is "false".
-
-         This is not needed if lock type is 'none' or 'single'
-     -->
-    <!--
-    <unlockOnStartup>false</unlockOnStartup>
-      -->
-    
-    <!-- Expert: Controls how often Lucene loads terms into memory
-         Default is 128 and is likely good for most everyone.
-      -->
-    <!-- <termIndexInterval>128</termIndexInterval> -->
-
-    <!-- If true, IndexReaders will be reopened (often more efficient)
-         instead of closed and then opened. Default: true
-      -->
-    <!-- 
-    <reopenReaders>true</reopenReaders>
-      -->
-
-    <!-- Commit Deletion Policy
-
-         Custom deletion policies can be specified here. The class must
-         implement org.apache.lucene.index.IndexDeletionPolicy.
-
-         http://lucene.apache.org/java/3_5_0/api/core/org/apache/lucene/index/IndexDeletionPolicy.html
-
-         The default Solr IndexDeletionPolicy implementation supports
-         deleting index commit points on number of commits, age of
-         commit point and optimized status.
-         
-         The latest commit point should always be preserved regardless
-         of the criteria.
-    -->
-    <!-- 
-    <deletionPolicy class="solr.SolrDeletionPolicy">
-    -->
-      <!-- The number of commit points to be kept -->
-      <!-- <str name="maxCommitsToKeep">1</str> -->
-      <!-- The number of optimized commit points to be kept -->
-      <!-- <str name="maxOptimizedCommitsToKeep">0</str> -->
-      <!--
-          Delete all commit points once they have reached the given age.
-          Supports DateMathParser syntax e.g.
-        -->
-      <!--
-         <str name="maxCommitAge">30MINUTES</str>
-         <str name="maxCommitAge">1DAY</str>
-      -->
-    <!-- 
-    </deletionPolicy>
-    -->
-
-    <!-- Lucene Infostream
-       
-         To aid in advanced debugging, Lucene provides an "InfoStream"
-         of detailed information when indexing.
-
-         Setting The value to true will instruct the underlying Lucene
-         IndexWriter to write its debugging info the specified file
-      -->
-     <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> --> 
   </indexConfig>
-<!-- 
-<requestHandler name="/replication" class="solr.ReplicationHandler" >
-    <lst name="master">
-        <str name="enable">${enable.master:false}</str>
-        <str name="replicateAfter">commit</str>
-        <str name="replicateAfter">optimize</str>
-        <str name="confFiles">schema.xml,solrconfig.xml,protwords.txt,synonyms.txt</str>
-    </lst>
-    <lst name="slave">
-        <str name="enable">${enable.slave:false}</str>
-        <str name="masterUrl">${master.url}</str>
-        <str name="pollInterval">01:00:00</str>
-    </lst>
-</requestHandler>
--->
+
   <updateHandler class="solr.DirectUpdateHandler2" >
-    <!-- Solr 4 introduces the Soft Commit option.  Soft Commit is like
-         Auto Commit behavior except it enables/ensures that changes are
-         visible.  However it does not ensure that data is synced to
-         disk.  Of course this is faster and more Near-Realtime friendly -->
+
     <updateLog>
       <str name="dir">${solr.data.dir:}</str>
     </updateLog>  
 
-    <!-- AutoCommit
-
-         Perform a hard commit automatically under certain conditions.
-         Instead of enabling autoCommit, consider using "commitWithin"
-         when adding documents. 
-
-         http://wiki.apache.org/solr/UpdateXmlMessages
-
-         maxDocs - Maximum number of documents to add since the last
-                   commit before automatically triggering a new commit.
-
-         maxTime - Maximum amount of time in ms that is allowed to pass
-                   since a document was added before automaticly
-                   triggering a new commit. 
-         openSearcher - if false, the commit causes recent index changes
-           to be flushed to stable storage, but does not cause a new
-           searcher to be opened to make those changes visible.
-
-         If the updateLog is enabled, then it's highly recommended to
-         have some sort of hard autoCommit to limit the log size.
-      -->
      <autoCommit> 
-       <maxTime>120000</maxTime> 
+       <maxTime>600000</maxTime> <!--  10 minutes -->
        <openSearcher>false</openSearcher> 
      </autoCommit>
 
-    <!-- softAutoCommit is like autoCommit except it causes a
-         'soft' commit which only ensures that changes are visible
-         but does not ensure that data is synced to disk.  This is
-         faster and more near-realtime friendly than a hard commit.
-      -->
-     <!--
-       <autoSoftCommit> 
-         <maxTime>1000</maxTime> 
-       </autoSoftCommit>
-      -->
+	 <autoSoftCommit> 
+       <maxTime>1000</maxTime> <!-- 1 second -->
+     </autoSoftCommit>
+
   </updateHandler>
 
 
@@ -366,7 +208,7 @@
       <str name="q.op">OR</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
@@ -399,11 +241,13 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_exact^2500           title_main_exact^1250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -427,6 +271,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -515,7 +360,7 @@
       <str name="q">*</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
@@ -548,11 +393,13 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
       <str name="pf">
         title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_exact^2500           title_main_exact^1250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
         subject_t^250              subject_tP^250             subject_t_cjk^50
@@ -576,6 +423,7 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
@@ -591,12 +439,13 @@
     <lst name="defaults">
       <str name="defType">edismax</str>
       <str name="echoParams">explicit</str>
-      <str name="q.alt">*:*</str>      
-      <str name="mm">100%</str>
+      <str name="q.alt">*:*</str>
+      <str name="mm">1</str>
       <str name="df">title_t</str>
+      <str name="boost">log(max(10,sub(pub_date_facet,1987)))</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
-        title_left_boost_tC^42000  title_left_boost_tP^42000  title_startsCJK^2500
+        title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
@@ -629,15 +478,57 @@
         author_245c_t              author_245c_tP             author_245c_t_cjk
         barcode_t^10               barcode_tP^10
         barcode_addl_t             barcode_addl_tP
+        language_articles_t
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
       <str name="pf">
         title_unstemC^25000        title_unstemP^25000
-        title_startsC^42000        title_startsP^42000         title_startsCJK^4200
+        title_startsC^42000        title_startsP^42000        title_startsCJK^4200
+        title_t^12500              title_tP^12500             title_t_cjk^2500
+        title_exact^2500           title_main_exact^1800
+        title_uniform_unstemC^2500 title_uniform_unstemP^2500
+        title_uniform_startsC^2500 title_uniform_startsP^2500 title_uniform_startsCJK^250
+        title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
+        title_addl_unstemC^2500    title_addl_unstemP^2500
+        title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
+        subject_unstemC^375        subject_unstemP^375
+        subject_t^250              subject_tP^250             subject_t_cjk^50
+        author_unstemC^125         author_unstemP^125
+        author_t^50                author_tP^50               author_t_cjk^10
+        author_addl_unstemC^75     author_addl_unstemP^75
+        author_addl_t^25           author_addl_tP^25          author_addl_t_cjk^5
+        lc_callnum_full^100
+        publisher_unstemC^75       publisher_unstemP^75
+        publisher_t^50             publisher_tP^50            publisher_t_cjk^10
+        pub_date_facet^25
+        pub_date_t^25              pub_date_tP^25             pub_date_t_cjk^5
+        subject_addl_unstemC^125   subject_addl_unstemP^125
+        subject_addl_t^25          subject_addl_tP^25         subject_addl_t_cjk^5
+        title_series_unstemC^25    title_series_unstemP^25
+        title_series_t^5           title_series_t^5           title_series_t_cjk
+        isbn_t                     isbn_tP                    isbn_t_cjk
+        issn_t                     issn_tP                    issn_t_cjk
+        donor_s
+        donor_t                    donor_tP                   donor_t_cjk
+        pubplace_t                 pubplace_tP                pubplace_t_cjk
+        eightninenine_t            eightninenine_tP           eightninenine_t_cjk
+        notes_t                    notes_tP                   notes_t_cjk
+        summary_t                  summary_tP                 summary_t_cjk
+        toc_t                      toc_tP                     toc_t_cjk
+        author_245c_t              author_245c_tP             author_245c_t_cjk
+        barcode_t^10               barcode_tP^10
+        barcode_addl_t             barcode_addl_tP
+        language_articles_t
+        authority_author_t         authority_author_tP        authority_author_t_cjk
+        authority_subject_t        authority_subject_tP       authority_subject_t_cjk
+      </str>
+      <str name="f.phrase.qf">
+        title_unstemC^25000        title_unstemP^25000
+        title_exact^1000000        title_main_exact^400000
+        title_leftboost_tC^100000  title_leftboost_tP^100000  title_startsCJK^2500
         title_t^12500              title_tP^12500             title_t_cjk^2500
         title_uniform_unstemC^2500 title_uniform_unstemP^2500
-        title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
         title_uniform_t^1250       title_uniform_tP^1250      title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500
         title_addl_t^1250          title_addl_tP^1250         title_addl_t_cjk^250
@@ -671,6 +562,7 @@
         authority_author_t         authority_author_tP        authority_author_t_cjk
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
+      <str name="f.phrase.pf"> </str>
       <str name="f.starts.qf">
         title_startsC^25000        title_startsP^25000         title_startsCJK^2500
         title_uniform_startsC^2500 title_uniform_startsP^2500  title_uniform_startsCJK^250
@@ -698,6 +590,8 @@
       </str>
       <str name="f.quoted.qf">
         title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
+        title_exact^80000          title_main_exact^50000
+        title_leftUnstemBoostC^30000 title_leftUnstemBoostP^30000
         title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
         title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
         subject_unstemC^375        subject_unstemP^375        subject_t_cjk^50
@@ -724,37 +618,7 @@
         authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
         authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="pf"> </str>
-      <str name="f.starts.pf"> </str>
-      <str name="f.quoted.pf">
-        title_unstemC^25000        title_unstemP^25000        title_t_cjk^2500
-        title_uniform_unstemC^2500 title_uniform_unstemP^2500 title_uniform_t_cjk^250
-        title_addl_unstemC^2500    title_addl_unstemP^2500    title_addl_t_cjk^250
-        subject_unstemC^375        subject_unstemP^375        subject_t_cjk^50
-        author_unstemC^125         author_unstemP^125         author_t_cjk^10
-        author_addl_unstemC^75     author_addl_unstemP^75     author_addl_t_cjk^5
-        lc_callnum_full^100
-        publisher_unstemC^75       publisher_unstemP^75       publisher_t_cjk^10
-        pub_date_facet^25
-        pub_date_unstemC^25        pub_date_unstemP^25        pub_date_t_cjk^5
-        subject_addl_unstemC^125   subject_addl_unstemP^125   subject_addl_t_cjk^5
-        title_series_unstemC^25    title_series_unstemP^25    title_series_t_cjk
-        isbn_unstemC               isbn_unstemP               isbn_t_cjk
-        issn_unstemC               issn_unstemP               issn_t_cjk
-        donor_s
-        donor_unstemC              donor_unstemP              donor_t_cjk
-        pubplace_unstemC           pubplace_unstemP           pubplace_t_cjk
-        eightninenine_unstemC      eightninenine_unstemP      eightninenine_t_cjk
-        notes_unstemC              notes_unstemP              notes_t_cjk
-        summary_unstemC            summary_unstemP            summary_t_cjk
-        toc_unstemC                toc_unstemP                toc_t_cjk
-        author_245c_unstemC        author_245c_unstemP        author_245c_t_cjk
-        barcode_unstemC^10         barcode_unstemP^10
-        barcode_addl_unstemC       barcode_addl_unstemP
-        authority_author_unstemC   authority_author_unstemP   authority_author_t_cjk
-        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
-      </str>
-      
+
       <str name="f.author.qf">
         author_unstemC^125         author_unstemP^125
         author_addl_unstemC^75     author_addl_unstemP^75
@@ -776,16 +640,8 @@
         author_addl_startsC^75     author_addl_startsP^75    author_addl_startsCJK^5
         author_245c_startsC        author_245c_startsP       author_245c_startsCJK
       </str>
-      <str name="f.author_starts.pf"> </str>
       <str name="f.author_cts.qf"> author_pers_browse author_corp_browse author_event_browse </str>
-      <str name="f.author_cts.pf"> author_pers_browse author_corp_browse author_event_browse </str>
       <str name="f.author_quoted.qf">
-        author_unstemC^125         author_unstemP^125        author_t_cjk^10
-        author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
-        author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
-        authority_author_unstemC   authority_author_unstemP  authority_author_t_cjk
-      </str>
-      <str name="f.author_quoted.pf">
         author_unstemC^125         author_unstemP^125        author_t_cjk^10
         author_addl_unstemC^75     author_addl_unstemP^75    author_addl_t_cjk^5
         author_245c_unstemC        author_245c_unstemP       author_245c_t_cjk
@@ -795,20 +651,33 @@
       <str name="f.title.qf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_left_boost_tC^420    title_left_boost_tP^420  title_startsCJK^25
-		title_exact^500
+        title_startsCJK^25
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25
         title_series_t             title_series_t           title_series_t_cjk   
         title_series_unstemC^3     title_series_unstemP^3
+        language_articles_t
       </str>
       <str name="f.title.pf">
         title_t^125                title_tP^125             title_t_cjk^25
         title_unstemC^250          title_unstemP^250
-        title_left_boost_tC^420    title_left_boost_tP^420  title_startsCJK^25
-		title_exact^500
+        title_startsCJK^25
+        title_exact^500            title_main_exact^300
+        title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
+        title_uniform_unstemC^25   title_uniform_unstemP^25
+        title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
+        title_addl_unstemC^25      title_addl_unstemP^25
+        title_series_t             title_series_t           title_series_t_cjk   
+        title_series_unstemC^3     title_series_unstemP^3
+        language_articles_t
+      </str>
+      <str name="f.title_phrase.qf">
+        title_t^125                title_tP^125             title_t_cjk^25
+        title_unstemC^250          title_unstemP^250
+        title_exact^10000          title_main_exact^4000
+        title_leftboost_tC^1000    title_leftboost_tP^1000  title_startsCJK^50
         title_uniform_t^12         title_uniform_tP^12      title_uniform_t_cjk^3
         title_uniform_unstemC^25   title_uniform_unstemP^25
         title_addl_t^12            title_addl_tP^12         title_addl_t_cjk^3
@@ -820,21 +689,16 @@
         title_startsC^250          title_startsP^250        title_startsCJK^25
         title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
         title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
-        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
-      </str>
-      <str name="f.title_starts.pf">
-        title_startsC^250          title_startsP^250        title_startsCJK^25
-        title_uniform_startsC^25   title_uniform_startsP^25 title_uniform_startsCJK^3
-        title_addl_startsC^25      title_addl_startsP^25    title_addl_startsCJK^3
-        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK   
+        title_series_startsC^3     title_series_startsP^3   title_series_startsCJK
       </str>
       <str name="f.title_quoted.qf">
+        title_exact^800            title_main_exact^400
+        title_leftUnstemBoostC^300 title_leftUnstemBoostP^300
         title_unstemC^250          title_unstemP^250        title_t_cjk^25
         title_uniform_unstemC^25   title_uniform_unstemP^25 title_uniform_t_cjk^3
         title_addl_unstemC^25      title_addl_unstemP^25    title_addl_t_cjk^3
         title_series_unstemC^3     title_series_unstemP^3   title_series_t_cjk   
       </str>
-      <str name="f.title_quoted.pf"> </str>
 
       <str name="f.subject.qf">
         subject_unstemC^200        subject_unstemP^200
@@ -854,19 +718,7 @@
         subject_startsC^200        subject_startsP^200        subject_startsCJK^5
         subject_addl_startsC^50    subject_addl_startsP^50    subject_addl_startsCJK
       </str>
-      <str name="f.subject_starts.pf"> </str>
       <str name="f.subject_cts.qf">
-        subject_pers_browse
-        subject_corp_browse
-        subject_event_browse
-        subject_gen_browse
-        subject_topic_browse
-        subject_geo_browse
-        subject_era_browse
-        subject_genr_browse
-        subject_work_browse
-      </str>
-      <str name="f.subject_cts.pf">
         subject_pers_browse
         subject_corp_browse
         subject_event_browse
@@ -882,12 +734,7 @@
         subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
         authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
       </str>
-      <str name="f.subject_quoted.pf">
-        subject_unstemC^200        subject_unstemP^200        subject_t_cjk^5
-        subject_addl_unstemC^50    subject_addl_unstemP^50    subject_addl_t_cjk
-        authority_subject_unstemC  authority_subject_unstemP  authority_subject_t_cjk
-      </str>
-      
+
       <str name="f.publisher.qf">
         publisher_unstemC^10       publisher_unstemP^10
         publisher_t                publisher_tP        publisher_t_cjk
@@ -897,28 +744,21 @@
         publisher_t                publisher_tP        publisher_t_cjk
       </str>
       <str name="f.publisher_starts.qf">publisher_startsC^10 publisher_startsP^10 publisher_startsCJK</str>
-      <str name="f.publisher_starts.pf"> </str>
       <str name="f.publisher_quoted.qf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
-      <str name="f.publisher_quoted.pf">publisher_unstemC^10 publisher_unstemP^10 publisher_t_cjk</str>
 
       <str name="f.pubplace.qf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
       <str name="f.pubplace.pf"> pubplace_t  pubplace_tP  pubplace_t_cjk </str>
       <str name="f.pubplace_starts.qf"> pubplace_startsC pubplace_startsP pubplace_startsCJK </str>
-      <str name="f.pubplace_starts.pf"> </str>
       <str name="f.pubplace_quoted.qf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
-      <str name="f.pubplace_quoted.pf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
       
       <str name="f.lc_callnum.qf"> lc_callnum_full </str>
       <str name="f.lc_callnum.pf"> lc_callnum_full </str>
       <str name="f.lc_callnum_starts.qf"> lc_callnum_full </str>
-      <str name="f.lc_callnum_starts.pf"> </str>
 
       <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor_starts.qf"> donor_startsC donor_startsP donor_startsCJK </str>
-      <str name="f.donor_starts.pf"> </str>
       <str name="f.donor_quoted.qf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
-      <str name="f.donor_quoted.pf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
 
       <str name="f.isbnissn.qf">
         isbn_t   isbn_tP   isbn_t_cjk
@@ -932,12 +772,7 @@
         isbn_startsC   isbn_startsP   isbn_startsCJK   isbn_startsNum
         issn_startsC   issn_startsP   issn_startsCJK   issn_startsNum
       </str>
-      <str name="f.isbnissn_starts.pf"> </str>
       <str name="f.isbnissn_quoted.qf">
-        isbn_unstemC   isbn_unstemP   isbn_t_cjk
-        issn_unstemC   issn_unstemP   issn_t_cjk
-      </str>
-      <str name="f.isbnissn_quoted.pf">
         isbn_unstemC   isbn_unstemP   isbn_t_cjk
         issn_unstemC   issn_unstemP   issn_t_cjk
       </str>
@@ -956,21 +791,20 @@
         barcode_t^10     barcode_tP^10
         barcode_addl_t   barcode_addl_tP
       </str>
+      <str name="f.number_phrase.qf">
+        id_t             id_tP                   id_t_cjk
+        id               id_left_chunked
+        eightninenine_t  eightninenine_tP        eightninenine_t_cjk
+        barcode_t^10     barcode_tP^10
+        barcode_addl_t   barcode_addl_tP
+      </str>
       <str name="f.number_starts.qf">
       	id_startsNum
         eightninenine_startsC      eightninenine_startsP   eightninenine_startsNum
         barcode_startsC            barcode_startsP         barcode_startsNum
         barcode_addl_startsC       barcode_addl_startsP    barcode_addl_startsNum
       </str>
-      <str name="f.number_starts.pf">  </str>
       <str name="f.number_quoted.qf">
-        id_unstemC             id_unstemP              id_t_cjk
-        id
-        eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
-        barcode_unstemC^10     barcode_unstemP^10
-        barcode_addl_unstemC   barcode_addl_unstemP
-      </str>
-      <str name="f.number_quoted.pf">
         id_unstemC             id_unstemP              id_t_cjk
         id
         eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
@@ -987,16 +821,12 @@
         title_series_t^5           title_series_t^5        title_series_t_cjk
       </str>
       <str name="f.series_starts.qf">title_series_startsC^25 title_series_startsP^25 title_series_startsCJK</str>
-      <str name="f.series_starts.pf"> </str>
       <str name="f.series_quoted.qf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
-      <str name="f.series_quoted.pf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
 
  	  <str name="f.notes_qf.qf">notes_t notes_tP notes_t_cjk</str>
  	  <str name="f.notes_qf.pf">notes_t notes_tP notes_t_cjk</str>
  	  <str name="f.notes_starts.qf">notes_startsC notes_startsP notes_startsCJK</str>
- 	  <str name="f.notes_starts.pf">notes_startsC notes_startsP notes_startsCJK</str>
  	  <str name="f.notes_quoted.qf">notes_unstemC notes_unstemP notes_t_cjk</str>
- 	  <str name="f.notes_quoted.pf">notes_unstemC notes_unstemP notes_t_cjk</str>
 
       <int name="ps">2</int>
       <float name="tie">0.01</float>
@@ -1041,7 +871,6 @@
     </lst>
     <lst name="appends">
       <str name="fq">type:Catalog</str>
-      <str name="boost">log(max(10,sub(pub_date_facet,1986)))</str>
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>

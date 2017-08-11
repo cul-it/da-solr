@@ -10,7 +10,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.IndexDirectory;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
 
 /**
  * Index all the MARC n-Triple BIB files for the incremental update. 
@@ -29,7 +28,6 @@ public class IncrementalBibFileToSolr {
     	requiredArgs.add("solrUrl");
     	SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
     	new IncrementalBibFileToSolr( config );
-    	commitIndexChanges( config.getSolrUrl() );
 
     }
      

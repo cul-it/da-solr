@@ -21,8 +21,6 @@ import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 
 public class DownloadMARC {
 	SolrBuildConfig config;
-	Connection voyager;
-	PreparedStatement pstmt;
 	DavService davService;
 	private static Pattern uPlusHexPattern = null;
 //	private static Pattern htmlEntityPattern = null;
@@ -43,34 +41,38 @@ public class DownloadMARC {
 	 * @throws Exception
 	 */
 	public Set<Integer> saveXml (RecordType type, Set<Integer> ids, String dir) throws Exception {
-		voyager = config.getDatabaseConnection("Voy");
+
 		Set<Integer> notFoundIds = new HashSet<>();
-		prepareStatement(type);
 		int fileSeqNo = 1;
 		int recCount = 0;
 		StringBuilder recs = new StringBuilder();
-		for( Integer id : ids ) {
-			String rec = queryVoyager(id);
-			if (rec != null) {
-				recs.append(rec);
-				errorChecking(rec,type,id);
-				if (++recCount == 10_000) {
-					StringBuilder url = new StringBuilder();
-					url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
-					if (type.equals(RecordType.BIBLIOGRAPHIC))
-						url.append("bib.");
-					else if (type.equals(RecordType.HOLDINGS))
-						url.append("mfhd.");
-					else
-						url.append("auth.");
-					url.append(fileSeqNo).append(".xml");
-					writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
-					recCount = 0;
-					fileSeqNo++;
-					recs.setLength(0);
-				}
-			} else
-				notFoundIds.add(id);
+
+		try ( Connection voyager = config.getDatabaseConnection("Voy");
+				PreparedStatement pstmt = prepareStatement(voyager,type) ){
+
+			for( Integer id : ids ) {
+				String rec = queryVoyager(pstmt,id);
+				if (rec != null) {
+					recs.append(rec);
+					errorChecking(rec,type,id);
+					if (++recCount == 1_000) {
+						StringBuilder url = new StringBuilder();
+						url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
+						if (type.equals(RecordType.BIBLIOGRAPHIC))
+							url.append("bib.");
+						else if (type.equals(RecordType.HOLDINGS))
+							url.append("mfhd.");
+						else
+							url.append("auth.");
+						url.append(fileSeqNo).append(".xml");
+						writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
+						recCount = 0;
+						fileSeqNo++;
+						recs.setLength(0);
+					}
+				} else
+					notFoundIds.add(id);
+			}
 		}
 		if (recCount > 0) {
 			StringBuilder url = new StringBuilder();
@@ -84,8 +86,6 @@ public class DownloadMARC {
 			url.append(fileSeqNo).append(".xml");
 			writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
 		}
-		pstmt.close();
-		voyager.close();
 		return notFoundIds;
 	}
 
@@ -97,15 +97,15 @@ public class DownloadMARC {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
 	public String downloadMrc(RecordType type, Integer id)
-			throws SQLException, ClassNotFoundException, IOException {
-		voyager = config.getDatabaseConnection("Voy");
-		prepareStatement(type);
-		String rec = queryVoyager(id);
-		pstmt.close();
-		voyager.close();
-		return rec;
+			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
+
+		try ( Connection voyager = config.getDatabaseConnection("Voy");
+				PreparedStatement pstmt = prepareStatement(voyager,type) ){
+			return queryVoyager(pstmt,id);
+		}
 	}
 
 	/**
@@ -116,36 +116,34 @@ public class DownloadMARC {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
 	public String downloadXml(RecordType type, Integer id)
-			throws SQLException, ClassNotFoundException, IOException {
-		voyager = config.getDatabaseConnection("Voy");
-		prepareStatement(type);
-		String rec = queryVoyager(id);
-		pstmt.close();
-		voyager.close();
-		return MarcRecord.marcToXml(rec);
+			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
+		return MarcRecord.marcToXml(downloadMrc(type,id));
 	}
 
 
 	private static void errorChecking(String rec, RecordType type, Integer id) {
         if ( rec.contains("\uFFFD") )
-        	System.out.println(type.toString().toLowerCase()+" MARC contains Unicode Replacement Character (U+FFFD): "+id);
+        	System.out.println(type.toString().toLowerCase()+
+        			" MARC contains Unicode Replacement Character (U+FFFD): "+id);
         if ( uPlusHexPattern.matcher(rec).matches() )
-        	System.out.println(type.toString().toLowerCase()+" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
+        	System.out.println(type.toString().toLowerCase()+
+        			" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
 //        if ( htmlEntityPattern.matcher(rec).matches() )
 //        	System.out.println(type.toString().toLowerCase()+" MARC contains at least one HTML entity: "+id);
 	}
 
-	private void prepareStatement(RecordType type) throws SQLException {
+	private static PreparedStatement prepareStatement(Connection voyager , RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC))
-			pstmt = voyager.prepareStatement(
+			return voyager.prepareStatement(
 					"SELECT * FROM BIB_DATA WHERE BIB_DATA.BIB_ID = ? ORDER BY BIB_DATA.SEQNUM");
 		else if (type.equals(RecordType.HOLDINGS))
-			pstmt = voyager.prepareStatement(
+			return voyager.prepareStatement(
 					"SELECT * FROM MFHD_DATA WHERE MFHD_DATA.MFHD_ID = ? ORDER BY MFHD_DATA.SEQNUM");
 		else
-			pstmt = voyager.prepareStatement(
+			return voyager.prepareStatement(
 					"SELECT * FROM AUTH_DATA WHERE AUTH_DATA.AUTH_ID = ? ORDER BY AUTH_DATA.SEQNUM");
 	}
 	private void writeFile(String filename, String recs) throws Exception {
@@ -153,17 +151,33 @@ public class DownloadMARC {
 			davService.saveFile(filename, is);
 		}
 	}
-	private String queryVoyager(Integer id) throws SQLException, IOException {
+	private static String queryVoyager(PreparedStatement pstmt, Integer id)
+			throws SQLException, IOException, InterruptedException {
 		pstmt.setInt(1, id);
 		String marcRecord = null;
-		try (   ByteArrayOutputStream bb = new ByteArrayOutputStream();
-				ResultSet rs = pstmt.executeQuery()  ) {
-			while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
-			if (bb.size() == 0)
-				return null;
-			bb.close();
-			marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
-		}
+
+		int retryLimit = 4;
+		boolean succeeded = false;
+		while (retryLimit > 0 && ! succeeded)
+
+			try (   ByteArrayOutputStream bb = new ByteArrayOutputStream();
+					ResultSet rs = pstmt.executeQuery()  ) {
+				while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
+				if (bb.size() == 0)
+					return null;
+				bb.close();
+				marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+				succeeded = true;
+			} catch ( SQLException | IOException e ) {
+				System.out.println(e.getClass().getName()+" querying record from Voyager.");
+				if (retryLimit-- > 0) {
+					System.out.println("Will retry in 20 seconds.");
+					Thread.sleep(20_000);
+				} else {
+					System.out.println("Retry limit reached. Failing.");
+					throw e;
+				}
+			}
     	return marcRecord;
 	}
 }

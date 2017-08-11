@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.utilities.IndexingUtilities.commitIndexChanges;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -87,7 +85,6 @@ public class IterativeUpdateFromVoyager {
 			DeleteFromSolr.doTheDelete(config);
 			new RetrieveUpdatesBatch(config, b);
 			new IncrementalBibFileToSolr(config);
-			commitIndexChanges( config.getSolrUrl() );
 		}
 	}
 
