@@ -87,7 +87,7 @@ public class AuthorTitleTest {
 		"author_display: Fewer, T. N.\n"+
 		"author_t: Fewer, T. N.\n"+
 		"author_cts: Fewer, T. N.|Fewer, T. N.\n"+
-		"author_facet: Fewer, T. N\n"+
+		"author_facet: Fewer, T. N.\n"+
 		"author_pers_filing: fewer t n\n"+
 		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
 										"\"Personal Name\",\"authorizedForm\":true}\n"+
@@ -209,7 +209,7 @@ public class AuthorTitleTest {
 		"author_display: Papadēmētropoulos, Loukas P., author\n"+
 		"author_t: Papadēmētropoulos, Loukas P., author\n"+
 		"author_cts: Papadēmētropoulos, Loukas P., author|Papadēmētropoulos, Loukas P.,\n"+
-		"author_facet: Papadēmētropoulos, Loukas P\n"+
+		"author_facet: Papadēmētropoulos, Loukas P.\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":\"Papadēmētropoulos, Loukas P.,\""
 		+ ",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
@@ -472,7 +472,7 @@ public class AuthorTitleTest {
 		"author_display: Гребенщикова, Г. А / Grebenshchikova, G. A., author\n"+
 		"author_cts: Гребенщикова, Г. А|Гребенщикова, Г. А,|Grebenshchikova, G. A., author|Grebenshchikova, G. A.,\n"+
 		"author_facet: Гребенщикова, Г. А\n"+
-		"author_facet: Grebenshchikova, G. A\n"+
+		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
 		"author_pers_filing: grebenshchikova g a\n"+
 		"author_t: Гребенщикова, Г. А, author\n"+

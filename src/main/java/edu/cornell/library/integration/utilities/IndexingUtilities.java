@@ -369,9 +369,24 @@ public class IndexingUtilities {
 		if (unwantedChars == null) return s;
 		if (s.equals("")) return s;
 		if (unwantedChars.equals("")) return s;
-		Pattern p = Pattern.compile ("[" + unwantedChars + "]*("+PDF_closeRTL+"?)*$");
-		Matcher m = p.matcher(s);
-		return m.replaceAll("$1");
+		boolean isRightToLeft = s.endsWith(PDF_closeRTL);
+		Character lastUnwanted = null;
+		int cursor = s.length()-1;
+		if (isRightToLeft)
+			cursor -= PDF_closeRTL.length();
+		while (cursor >= 0 && unwantedChars.indexOf( s.charAt(cursor) ) != -1)
+			lastUnwanted = s.charAt(cursor--);
+		if (lastUnwanted != null && lastUnwanted.equals('.')) {
+			// Ends with an initial, so keep the period
+			if (cursor >= 1 && Character.isUpperCase(s.charAt(cursor)) && ! Character.isAlphabetic(s.charAt(cursor-1)))
+				cursor++;
+			// Ends with etc., so keep the period
+			else if (cursor >= 2 && s.substring(cursor-2, cursor+1).equals("etc") )
+				cursor++;
+		}
+		if (isRightToLeft)
+			return s.substring(0, cursor+1)+PDF_closeRTL;
+		return s.substring(0, cursor+1);
 	}
 
 	/**
