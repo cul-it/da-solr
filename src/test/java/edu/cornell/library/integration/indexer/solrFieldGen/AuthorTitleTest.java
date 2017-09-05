@@ -469,15 +469,15 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(4,2,"245",'0','0',
 				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
 		String expected =
-		"author_display: Гребенщикова, Г. А / Grebenshchikova, G. A., author\n"+
-		"author_cts: Гребенщикова, Г. А|Гребенщикова, Г. А,|Grebenshchikova, G. A., author|Grebenshchikova, G. A.,\n"+
-		"author_facet: Гребенщикова, Г. А\n"+
+		"author_display: Гребенщикова, Г. А. / Grebenshchikova, G. A., author\n"+
+		"author_cts: Гребенщикова, Г. А.|Гребенщикова, Г. А,|Grebenshchikova, G. A., author|Grebenshchikova, G. A.,\n"+
+		"author_facet: Гребенщикова, Г. А.\n"+
 		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
 		"author_pers_filing: grebenshchikova g a\n"+
 		"author_t: Гребенщикова, Г. А, author\n"+
 		"author_t: Grebenshchikova, G. A., author\n"+
-		"author_json: {\"name1\":\"Гребенщикова, Г. А\",\"search1\":\"Гребенщикова, Г. А,\","
+		"author_json: {\"name1\":\"Гребенщикова, Г. А.\",\"search1\":\"Гребенщикова, Г. А,\","
 		+ "\"name2\":\"Grebenshchikova, G. A., author\",\"search2\":\"Grebenshchikova, G. A.,\","
 		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
