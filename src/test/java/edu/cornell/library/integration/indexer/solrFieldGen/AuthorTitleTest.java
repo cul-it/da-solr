@@ -34,8 +34,8 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"fulltitle_display: The national law journal\n"+
 		"title_t: The national law journal\n"+
-		"title_t: national law journal\n"+
 		"title_exact: The national law journal\n"+
+		"title_t: national law journal\n"+
 		"title_exact: national law journal\n"+
 		"title_sms_compat_display: The national law journal\n"+
 		"title_2letter_s: na\n"+
@@ -63,8 +63,6 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"fulltitle_display: Cabana, historia, cultura y tradición\n"+
 		"title_t: Cabana, historia, cultura y tradición\n"+
-		"title_t: Cabana, historia, cultura y tradición\n"+
-		"title_exact: Cabana, historia, cultura y tradición\n"+
 		"title_exact: Cabana, historia, cultura y tradición\n"+
 		"title_sms_compat_display: Cabana, historia, cultura y tradicion\n"+
 		"title_2letter_s: ca\n"+
@@ -98,10 +96,7 @@ public class AuthorTitleTest {
 		"subtitle_display: a biographical dictionary\n"+
 		"fulltitle_display: Waterford people : a biographical dictionary\n"+
 		"title_t: Waterford people : a biographical dictionary\n"+
-		"title_t: Waterford people : a biographical dictionary\n"+
 		"title_exact: Waterford people : a biographical dictionary\n"+
-		"title_exact: Waterford people : a biographical dictionary\n"+
-		"title_main_exact: Waterford people\n"+
 		"title_main_exact: Waterford people\n"+
 		"title_sms_compat_display: Waterford people\n"+
 		"title_2letter_s: wa\n"+
@@ -134,8 +129,6 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"fulltitle_display: Lumps and bumps in the mouth and lips\n"+
 		"title_t: Lumps and bumps in the mouth and lips\n"+
-		"title_t: Lumps and bumps in the mouth and lips\n"+
-		"title_exact: Lumps and bumps in the mouth and lips\n"+
 		"title_exact: Lumps and bumps in the mouth and lips\n"+
 		"title_sms_compat_display: Lumps and bumps in the mouth and lips\n"+
 		"title_2letter_s: lu\n"+
@@ -177,16 +170,12 @@ public class AuthorTitleTest {
 		"authortitle_facet: Speed, John, 1552?-1629, | Theatre of the empire of Great Britaine\n"+
 		"authortitle_filing: speed john 1552 1629 0000 theatre of the empire of great britaine\n"+
 		"title_uniform_t: Theatre of the empire of Great Britaine\n"+
-		"title_uniform_t: Theatre of the empire of Great Britaine\n"+
 		"title_sort: britains tudor maps county by county\n"+
 		"title_display: Britain's Tudor maps\n"+
 		"subtitle_display: county by county\n"+
 		"fulltitle_display: Britain's Tudor maps : county by county\n"+
 		"title_t: Britain's Tudor maps : county by county\n"+
-		"title_t: Britain's Tudor maps : county by county\n"+
 		"title_exact: Britain's Tudor maps : county by county\n"+
-		"title_exact: Britain's Tudor maps : county by county\n"+
-		"title_main_exact: Britain's Tudor maps\n"+
 		"title_main_exact: Britain's Tudor maps\n"+
 		"title_sms_compat_display: Britain's Tudor maps\n"+
 		"title_2letter_s: br\n"+
@@ -219,8 +208,8 @@ public class AuthorTitleTest {
 		"subtitle_display: Alkēstē, Mēdeia, Hippolytos\n"+
 		"fulltitle_display: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_t: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
-		"title_t: ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_exact: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
+		"title_t: ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_exact: ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_main_exact: Hē ennoia tou oikou ston Euripidē\n"+
 		"title_main_exact: ennoia tou oikou ston Euripidē\n"+
@@ -249,10 +238,7 @@ public class AuthorTitleTest {
 		"subtitle_display: perepiska iz trekh uglov 1804-1826\n"+
 		"fulltitle_display: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
 		"title_t: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
-		"title_t: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
 		"title_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
-		"title_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
-		"title_main_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna\n"+
 		"title_main_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna\n"+
 		"title_sms_compat_display: Aleksandr I, Mariia Pavlovna, Elizaveta Alekseevna\n"+
 		"title_2letter_s: al\n"+
@@ -260,12 +246,9 @@ public class AuthorTitleTest {
 		"title_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
 		"subtitle_vern_display: переписка из трех углов 1804-1826\n"+
 		"title_t: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
-		"title_t: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"fulltitle_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна : "
 		+ "переписка из трех углов 1804-1826\n"+
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
-		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
-		"title_main_exact: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
 		"title_main_exact: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
 		"title_responsibility_display: подготовка писем Е. Дмитриевой и Ф. Шедеви. /"
 		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
@@ -308,16 +291,12 @@ public class AuthorTitleTest {
 		"authortitle_facet: Taga, Futoshi, 1968- | Danshi mondai no jidai. Korean\n"+
 		"authortitle_filing: taga futoshi 1968 0000 danshi mondai no jidai korean\n"+
 		"title_uniform_t: Danshi mondai no jidai. Korean\n"+
-		"title_uniform_t: Danshi mondai no jidai. Korean\n"+
 		"title_sort: namja munje ui sidae danshi mondai no jidai chendo wa kyoyuk ui chongchihak\n"+
 		"title_display: Namja munje ŭi sidae\n"+
 		"subtitle_display: Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"fulltitle_display: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"title_t: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
-		"title_t: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"title_exact: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
-		"title_exact: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
-		"title_main_exact: Namja munje ŭi sidae\n"+
 		"title_main_exact: Namja munje ŭi sidae\n"+
 		"title_sms_compat_display: Namja munje ui sidae\n"+
 		"title_2letter_s: na\n"+
@@ -327,8 +306,6 @@ public class AuthorTitleTest {
 		"title_t_cjk: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"fulltitle_vern_display: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
-		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
-		"title_main_exact: 남자 문제 의 시대\n"+
 		"title_main_exact: 남자 문제 의 시대\n"+
 		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
 		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
@@ -362,13 +339,8 @@ public class AuthorTitleTest {
 		+ " 31 Oktober 1959 di Djakarta\n"+
 		"title_t: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31"
 		+ " Oktober 1959 di Djakarta\n"+
-		"title_t: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31"
-		+ " Oktober 1959 di Djakarta\n"+
 		"title_exact: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
 		+ " 31 Oktober 1959 di Djakarta\n"+
-		"title_exact: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
-		+ " 31 Oktober 1959 di Djakarta\n"+
-		"title_main_exact: Tjita dan daja pemuda Islam\n"+
 		"title_main_exact: Tjita dan daja pemuda Islam\n"+
 		"title_sms_compat_display: Tjita dan daja pemuda Islam\n"+
 		"title_2letter_s: tj\n"+
@@ -414,8 +386,6 @@ public class AuthorTitleTest {
 		+ "and central asian archaeology chinese\n"+
 		"title_uniform_t: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
 		+ "Chinese\n"+
-		"title_uniform_t: Beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology. "
-		+ "Chinese\n"+
 		"title_sort: fo jiao yi shu de zao qi jie duan the beginnings of buddhist art and other essays in indian "
 		+ "and central asian archaeology\n"+
 		"title_display: Fo jiao yi shu de zao qi jie duan\n"+
@@ -424,13 +394,8 @@ public class AuthorTitleTest {
 		+ "Indian and Central-Asian archaeology\n"+
 		"title_t: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian and "
 		+ "Central-Asian archaeology\n"+
-		"title_t: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian and "
-		+ "Central-Asian archaeology\n"+
 		"title_exact: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian "
 		+ "and Central-Asian archaeology\n"+
-		"title_exact: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian "
-		+ "and Central-Asian archaeology\n"+
-		"title_main_exact: Fo jiao yi shu de zao qi jie duan\n"+
 		"title_main_exact: Fo jiao yi shu de zao qi jie duan\n"+
 		"title_sms_compat_display: Fo jiao yi shu de zao qi jie duan\n"+
 		"title_2letter_s: fo\n"+
@@ -444,9 +409,6 @@ public class AuthorTitleTest {
 		+ "Central-Asian archaeology\n"+
 		"title_exact: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
 		+ "archaeology\n"+
-		"title_exact: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
-		+ "archaeology\n"+
-		"title_main_exact: 佛教艺术的早期阶段\n"+
 		"title_main_exact: 佛教艺术的早期阶段\n"+
 		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | 佛教艺术的早期阶段\n"+
 		"authortitle_filing: foucher a alfred 1865 1952 0000 佛教艺术的早期阶段\n"+
@@ -487,8 +449,6 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
-		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
-		"title_exact: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_exact: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_sms_compat_display: Chernomorskii flot v period pravleniia Ekateriny II\n"+
 		"title_2letter_s: ch\n"+
@@ -498,9 +458,7 @@ public class AuthorTitleTest {
 		"title_vern_display: Черноморский флот в период правления Екатерины II\n"+
 		"subtitle_vern_display: \n"+
 		"title_t: Черноморский флот в период правления Екатерины II\n"+
-		"title_t: Черноморский флот в период правления Екатерины II\n"+
 		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
-		"title_exact: Черноморский флот в период правления Екатерины II\n"+
 		"title_exact: Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_facet: Гребенщикова, Г. А, | Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n";
