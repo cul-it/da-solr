@@ -30,7 +30,6 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Smith, John, ‡d 1900-1999"));
 		String expected = "author_addl_display: Smith, John, 1900-1999\n"+
 		"author_addl_t: Smith, John, 1900-1999\n"+
-		"author_addl_cts: Smith, John, 1900-1999|Smith, John, 1900-1999\n"+
 		"author_facet: Smith, John, 1900-1999\n"+
 		"author_pers_filing: smith john 1900 1999\n"+
 		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
@@ -44,7 +43,6 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ko, Dorothy, ‡d 1957- ‡e author."));
 		String expected = "author_addl_display: Ko, Dorothy, 1957- author\n"+
 		"author_addl_t: Ko, Dorothy, 1957- author\n"+
-		"author_addl_cts: Ko, Dorothy, 1957- author|Ko, Dorothy, 1957-\n"+
 		"author_facet: Ko, Dorothy, 1957-\n"+
 		"author_pers_filing: ko dorothy 1957\n"+
 		"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","
@@ -102,7 +100,6 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(4,6,"700",'1',' ',"‡6 700-06/$1 ‡a 堯嘉寧, ‡e translator.",true));
 		String expected =
 		"author_addl_display: 向淑容 / Xiang, Shurong, translator\n"+
-		"author_addl_cts: 向淑容|向淑容,|Xiang, Shurong, translator|Xiang, Shurong,\n"+
 		"author_facet: 向淑容\n"+
 		"author_facet: Xiang, Shurong\n"+
 		"author_pers_filing: 向淑容\n"+
@@ -113,7 +110,6 @@ public class TitleChangeTest {
 		+ "\"search2\":\"Xiang, Shurong,\",\"relator\":\"translator\","
 		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_addl_display: 堯嘉寧 / Yao, Jianing, translator\n"+
-		"author_addl_cts: 堯嘉寧|堯嘉寧,|Yao, Jianing, translator|Yao, Jianing,\n"+
 		"author_facet: 堯嘉寧\n"+
 		"author_facet: Yao, Jianing\n"+
 		"author_pers_filing: 堯嘉寧\n"+
@@ -133,8 +129,6 @@ public class TitleChangeTest {
 				+ " fen she, ‡e editor.",false));
 		rec.dataFields.add(new DataField(2,6,"710",'2',' ',"‡6 710-06/$1 ‡a 法律出版社. ‡b 法规出版分社, ‡e editor.",true));
 		String expected = "author_addl_display: 法律出版社. 法规出版分社 / Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
-		"author_addl_cts: 法律出版社. 法规出版分社|法律出版社. 法规出版分社,|Fa lü chu ban she. Fa gui chu ban fen she,"
-		+ " editor|Fa lü chu ban she. Fa gui chu ban fen she,\n"+
 		"author_facet: 法律出版社. 法规出版分社\n"+
 		"author_facet: Fa lü chu ban she. Fa gui chu ban fen she\n"+
 		"author_corp_filing: 法律出版社 法规出版分社\n"+
@@ -216,8 +210,6 @@ public class TitleChangeTest {
 		String expected =
 		"author_addl_display: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
 		"author_addl_t: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
-		"author_addl_cts: Institute on Religious Freedom (1966 : North Aurora, Ill.)|"
-		+ "Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
 		"author_facet: Institute on Religious Freedom\n"+
 		"author_event_filing: institute on religious freedom\n"+
 		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
@@ -233,7 +225,6 @@ public class TitleChangeTest {
 		String expected =
 		"author_addl_display: al-Salimi, Abdulrahman\n"+
 		"author_addl_t: al-Salimi, Abdulrahman\n"+
-		"author_addl_cts: al-Salimi, Abdulrahman|al-Salimi, Abdulrahman\n"+
 		"author_facet: al-Salimi, Abdulrahman\n"+
 		"author_addl_json: {\"name1\":\"al-Salimi, Abdulrahman\",\"search1\":\"al-Salimi, Abdulrahman\","
 		+ "\"relator\":\"\",\"authorizedForm\":false}\n";

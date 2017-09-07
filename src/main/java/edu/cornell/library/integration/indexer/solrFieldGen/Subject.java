@@ -96,8 +96,6 @@ public class Subject implements ResultSetToFields {
 			taggedFields.add(h);
 		}
 		for( final Heading h : taggedFields) {
-			final Set<String> values880_piped = new HashSet<>();
-			final Set<String> valuesMain_piped = new HashSet<>();
 			final Set<String> values880_breadcrumbed = new HashSet<>();
 			final Set<String> valuesMain_breadcrumbed = new HashSet<>();
 			final Set<String> values_browse = new HashSet<>();
@@ -207,9 +205,7 @@ public class Subject implements ResultSetToFields {
 					primarySubjectTerm = f.concatenateSpecificSubfields(main_fields);
 				}
 				if (primarySubjectTerm != null) {
-					final StringBuilder sb_piped = new StringBuilder();
 					final StringBuilder sb_breadcrumbed = new StringBuilder();
-					sb_piped.append(primarySubjectTerm);
 					sb_breadcrumbed.append(primarySubjectTerm);
 					final List<Object> json = new ArrayList<>();
 					final Map<String,Object> subj1 = new HashMap<>();
@@ -229,11 +225,10 @@ public class Subject implements ResultSetToFields {
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (f.mainTag.equals("653")) {
-						sfs.add(new SolrField("sixfivethree",sb_piped.toString()));
+						sfs.add(new SolrField("sixfivethree",primarySubjectTerm));
 					}
 					for (final String dashed_term : dashed_terms) {
 						final Map<String,Object> subj = new HashMap<>();
-						sb_piped.append("|"+dashed_term);
 						sb_breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);
 						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
@@ -250,11 +245,9 @@ public class Subject implements ResultSetToFields {
 					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
 					if (f.tag.equals("880")) {
-						values880_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						values880_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 						values880_json.add(jsonstream.toString("UTF-8"));
 					} else {
-						valuesMain_piped.add(removeTrailingPunctuation(sb_piped.toString(),"."));
 						valuesMain_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
 						valuesMain_json.add(jsonstream.toString("UTF-8"));
 					}
@@ -285,10 +278,6 @@ public class Subject implements ResultSetToFields {
 				}
 
 			if ( ! h.isFAST || ! recordHasLCSH) {
-				for (final String s: values880_piped)
-					sfs.add(new SolrField("subject_cts",s));
-				for (final String s: valuesMain_piped)
-					sfs.add(new SolrField("subject_cts",s));
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)

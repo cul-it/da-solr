@@ -52,7 +52,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: León Cupe, Mariano, 1932-\n"+
 		"author_t: León Cupe, Mariano, 1932-\n"+
-		"author_cts: León Cupe, Mariano, 1932-|León Cupe, Mariano, 1932-\n"+
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
@@ -84,7 +83,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Fewer, T. N.\n"+
 		"author_t: Fewer, T. N.\n"+
-		"author_cts: Fewer, T. N.|Fewer, T. N.\n"+
 		"author_facet: Fewer, T. N.\n"+
 		"author_pers_filing: fewer t n\n"+
 		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
@@ -118,7 +116,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Kalavrezos, Nicholas, speaker\n"+
 		"author_t: Kalavrezos, Nicholas, speaker\n"+
-		"author_cts: Kalavrezos, Nicholas, speaker|Kalavrezos, Nicholas,\n"+
 		"author_facet: Kalavrezos, Nicholas\n"+
 		"author_pers_filing: kalavrezos nicholas\n"+
 		"author_json: {\"name1\":\"Kalavrezos, Nicholas, speaker\",\"search1\":\"Kalavrezos, Nicholas,\","
@@ -150,7 +147,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Speed, John, 1552?-1629, cartographer\n"+
 		"author_t: Speed, John, 1552?-1629, cartographer\n"+
-		"author_cts: Speed, John, 1552?-1629, cartographer|Speed, John, 1552?-1629,\n"+
 		"author_facet: Speed, John, 1552?-1629\n"+
 		"author_pers_filing: speed john 1552 1629\n"+
 		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":\"Speed, John, 1552?-1629,\","
@@ -197,7 +193,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Papadēmētropoulos, Loukas P., author\n"+
 		"author_t: Papadēmētropoulos, Loukas P., author\n"+
-		"author_cts: Papadēmētropoulos, Loukas P., author|Papadēmētropoulos, Loukas P.,\n"+
 		"author_facet: Papadēmētropoulos, Loukas P.\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":\"Papadēmētropoulos, Loukas P.,\""
@@ -270,7 +265,6 @@ public class AuthorTitleTest {
 				+ " : 젠더 와 교육 의 정치학 / ‡c 다가 후토시 지음 ; 책사소 옮김.",true));
 		String expected =
 		"author_display: 多賀太 / Taga, Futoshi, 1968- author\n"+
-		"author_cts: 多賀太|多賀太, 1968-|Taga, Futoshi, 1968- author|Taga, Futoshi, 1968-\n"+
 		"author_facet: 多賀太, 1968-\n"+
 		"author_facet: Taga, Futoshi, 1968-\n"+
 		"author_pers_filing: 多賀太 1968\n"+
@@ -323,8 +317,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_t: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
-		"author_cts: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)|"
-		+ "Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar\n"+
 		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
@@ -370,7 +362,6 @@ public class AuthorTitleTest {
 		String expected =
 		"author_display: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_t: Foucher, A. (Alfred), 1865-1952.\n"+
-		"author_cts: Foucher, A. (Alfred), 1865-1952.|Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
 		"author_pers_filing: foucher a alfred 1865 1952\n"+
 		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
@@ -432,7 +423,6 @@ public class AuthorTitleTest {
 				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
 		String expected =
 		"author_display: Гребенщикова, Г. А. / Grebenshchikova, G. A., author\n"+
-		"author_cts: Гребенщикова, Г. А.|Гребенщикова, Г. А,|Grebenshchikova, G. A., author|Grebenshchikova, G. A.,\n"+
 		"author_facet: Гребенщикова, Г. А.\n"+
 		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
@@ -475,14 +465,12 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(2,0,"100",'1',' ',"‡6 100-00/$1 ‡a 金泳三, ‡d 1927-",true));
 		String expected =
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
-		"author_cts: Korea (South). President (1993-1998 : Kim)|Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
 		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\","
 		+ "\"search1\":\"Korea (South). President (1993-1998 : Kim)\",\"relator\":\"\","
 		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
-		"author_cts: 金泳三, 1927-|金泳三, 1927-\n"+
 		"author_facet: 金泳三, 1927-\n"+
 		"author_pers_filing: 金泳三 1927\n"+
 		"author_json: {\"name1\":\"金泳三, 1927-\",\"search1\":\"金泳三, 1927-\","
@@ -502,7 +490,6 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(2,0,"100",'1','0',"‡6 100-00/$1 ‡a 蔡玫芬.",true));
 		rec.dataFields.add(new DataField(3,1,"110",'2','0',"‡6 110-01/$1 ‡a 國立故宮博物院.",true));
 		String expected =
-		"author_cts: 國立故宮博物院|國立故宮博物院.|Guo li gu gong bo wu yuan.|Guo li gu gong bo wu yuan.\n"+
 		"author_facet: 國立故宮博物院\n"+
 		"author_facet: Guo li gu gong bo wu yuan\n"+
 		"author_corp_filing: 國立故宮博物院\n"+
@@ -537,7 +524,6 @@ public class AuthorTitleTest {
 		"authority_author_t: 故宮博物院 (Taipei, Taiwan)\n"+
 		"authority_author_t_cjk: 故宮博物院 (Taipei, Taiwan)\n"+
 		"author_t_cjk: 蔡玫芬.\n"+
-		"author_cts: 蔡玫芬.|蔡玫芬.\n"+
 		"author_facet: 蔡玫芬\n"+
 		"author_pers_filing: 蔡玫芬\n"+
 		"author_json: {\"name1\":\"蔡玫芬.\",\"search1\":\"蔡玫芬.\",\"relator\":\"\",\"type\":\"Personal Name\","
