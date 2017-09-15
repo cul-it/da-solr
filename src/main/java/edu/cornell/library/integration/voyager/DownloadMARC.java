@@ -22,16 +22,13 @@ import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 public class DownloadMARC {
 	SolrBuildConfig config;
 	DavService davService;
-	private static Pattern uPlusHexPattern = null;
+	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
+	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;
 
 	public DownloadMARC(SolrBuildConfig config) {
 		davService = DavServiceFactory.getDavService(config);
 		this.config = config;
-		if (uPlusHexPattern == null)
-			uPlusHexPattern = Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
-//		if (htmlEntityPattern == null)
-//			htmlEntityPattern = Pattern.compile(".*&([a-zA-Z]{2,}|#[0-9]+|#[xX](\\p{XDigit}{2}){1,3});.*");
 	}
 	/**
 	 * Retrieve specified MARC records from Voyager, convert to XML and save.
@@ -131,6 +128,9 @@ public class DownloadMARC {
         if ( uPlusHexPattern.matcher(rec).matches() )
         	System.out.println(type.toString().toLowerCase()+
         			" MARC contains Unicode Character Replacement Sequence (U+XXXX): "+id);
+        if ( copyrightNullPattern.matcher(rec).matches() )
+        	System.out.println(type.toString().toLowerCase()+
+        			" MARC contains corrupt Unicode sequence (©Ø): "+id);
 //        if ( htmlEntityPattern.matcher(rec).matches() )
 //        	System.out.println(type.toString().toLowerCase()+" MARC contains at least one HTML entity: "+id);
 	}

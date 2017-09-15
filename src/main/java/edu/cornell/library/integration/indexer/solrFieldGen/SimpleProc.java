@@ -136,6 +136,7 @@ public class SimpleProc implements ResultSetToFields {
 			case 250:
 				displayField = "edition_display";
 				displaySubfields = "3ab";
+				searchSubfields = "ab";
 				break;
 			case 255:
 				displayField = "map_format_display";
@@ -144,6 +145,7 @@ public class SimpleProc implements ResultSetToFields {
 			case 300:
 				displaySubfields = "3abcefg";
 				displayField = "description_display";
+				searchSubfields = "abcefg";
 				break;
 			case 310:
 				displaySubfields = "ab";

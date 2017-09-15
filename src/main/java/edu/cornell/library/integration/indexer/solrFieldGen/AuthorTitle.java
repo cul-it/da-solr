@@ -157,7 +157,8 @@ public class AuthorTitle implements ResultSetToFields {
 					if (hasCJK(verntitle))
 						sfs.add(new SolrField("title_uniform_t_cjk",verntitle));
 					sfs.add(new SolrField("title_uniform_t",verntitle));
-					sfs.add(new SolrField("title_uniform_t",titleWOarticle));
+					if ( ! verntitle.equals(titleWOarticle))
+						sfs.add(new SolrField("title_uniform_t",titleWOarticle));
 				}
 			}
 
@@ -173,7 +174,9 @@ public class AuthorTitle implements ResultSetToFields {
 				sfs.add(new SolrField("authortitle_filing",getFilingForm(browse)));
 			}
 			sfs.add(new SolrField("title_uniform_t",fulltitle));
-			sfs.add(new SolrField("title_uniform_t",uniform_title.getStringWithoutInitialArticle(fulltitle)));
+			String fulltitleWOArticle = uniform_title.getStringWithoutInitialArticle(fulltitle);
+			if ( ! fulltitle.equals(fulltitleWOArticle))
+				sfs.add(new SolrField("title_uniform_t",fulltitleWOArticle));
 		}
 		String responsibility = null, responsibility_vern = null;
 		if (title != null) {
@@ -196,13 +199,16 @@ public class AuthorTitle implements ResultSetToFields {
 					removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:=/ ")));
 			sfs.add(new SolrField("fulltitle_display",fulltitle));
 			sfs.add(new SolrField("title_t",fulltitle));
-			sfs.add(new SolrField("title_t",titleWOArticle));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(fulltitle)));
-			sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			if ( ! fulltitle.equals(titleWOArticle) ) {
+				sfs.add(new SolrField("title_t",titleWOArticle));
+				sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			}
 			if ( ! fulltitle.equals(maintitle) ) {
+				String maintitleWOArticle = title.getStringWithoutInitialArticle(maintitle);
 				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitle)));
-				sfs.add(new SolrField("title_main_exact",
-						standardizeApostrophes(title.getStringWithoutInitialArticle(maintitle))));
+				if ( ! maintitle.equals(maintitleWOArticle))
+				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitleWOArticle)));
 			}
 			sfs.add(new SolrField("title_sms_compat_display",limitStringToGSMChars(maintitle)));
 			responsibility = title.concatenateSpecificSubfields("c");
@@ -245,15 +251,18 @@ public class AuthorTitle implements ResultSetToFields {
 				if (hasCJK(fulltitle_vern))
 					sfs.add(new SolrField("title_t_cjk",fulltitle_vern));
 				sfs.add(new SolrField("title_t",fulltitle_vern));
-				sfs.add(new SolrField("title_t",titleWOarticle));
+				if ( ! fulltitle_vern.equals(titleWOarticle) )
+					sfs.add(new SolrField("title_t",titleWOarticle));
 			}
 			sfs.add(new SolrField("fulltitle_vern_display",fulltitle_vern));
 			sfs.add(new SolrField("title_exact",fulltitle_vern));
-			sfs.add(new SolrField("title_exact",titleWOarticle));
+			if ( ! fulltitle_vern.equals(titleWOarticle) )
+				sfs.add(new SolrField("title_exact",titleWOarticle));
 			if ( ! fulltitle_vern.equals(maintitle_vern) ) {
+				String maintitle_vern_WOArticle = title_vern.getStringWithoutInitialArticle(maintitle_vern);
 				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitle_vern)));
-				sfs.add(new SolrField("title_main_exact",
-						standardizeApostrophes(title.getStringWithoutInitialArticle(maintitle_vern))));
+				if ( ! maintitle_vern.equals(maintitle_vern_WOArticle))
+					sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitle_vern_WOArticle)));
 			}
 
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");

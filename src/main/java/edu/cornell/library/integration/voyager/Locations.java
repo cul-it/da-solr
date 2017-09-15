@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
@@ -169,15 +172,24 @@ public final class Locations {
 	static Map<String,String> libraryPatterns = null;
 
 	public static void main( String[] args ) throws Exception {
+
+		// Execution synopsis
 		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForDB("Voy");
 		Locations locations = new Locations( SolrBuildConfig.loadConfig(args,requiredFields) );
-		System.out.println(libraryPatterns.size()+" patterns");
-		for (String pattern : libraryPatterns.keySet()) {
-			System.out.println(pattern+" => "+libraryPatterns.get(pattern));
-		}
 		Location l = locations.getByCode("fine,res");
 		System.out.println(l.toString());
 		l = locations.getByNumber(33);
 		System.out.println(l.toString());
+
+		// Data dump
+		System.out.println(libraryPatterns.size()+" patterns");
+		for (String pattern : libraryPatterns.keySet()) {
+			System.out.println(pattern+" => "+libraryPatterns.get(pattern));
+		}
+		System.out.println(_byNumber.size()+" locations");
+		List<Integer> locNumbers = new ArrayList<>(_byNumber.keySet());
+		Collections.sort(locNumbers);
+		for (Integer locNumber : locNumbers)
+			System.out.println(locations.getByNumber(locNumber).toString());
 	}
 }
