@@ -378,7 +378,9 @@ public class IndexingUtilities {
 
 		boolean needsPeriod = false;
 		// Ends with an initial, so keep the period
-		if (cursor >= 1 && Character.isUpperCase(s.charAt(cursor)) && ! Character.isAlphabetic(s.charAt(cursor-1)))
+		if (cursor >= 1 && Character.isUpperCase(s.charAt(cursor)) 
+				&& ! Character.isJavaIdentifierPart(s.charAt(cursor-1))
+				&& s.charAt(cursor-1) != '-')
 			needsPeriod = true;
 		// Ends with etc., so keep the period
 		else if (cursor >= 2 && s.substring(cursor-2, cursor+1).equals("etc") )
