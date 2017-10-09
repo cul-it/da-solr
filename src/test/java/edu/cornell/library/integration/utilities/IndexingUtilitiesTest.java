@@ -22,7 +22,7 @@ public class IndexingUtilitiesTest {
 	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
 	 assertTrue(insertSpaceAfterCommas("hello,world,  of,fishes").equals("hello, world,  of, fishes"));
 	}
-	
+
 	@Test
 	public void getSortHeadingTest() {
 		assertTrue(getFilingForm("hello").equals("hello"));
@@ -90,6 +90,9 @@ public class IndexingUtilitiesTest {
 		assertEquals("etc.",       removeTrailingPunctuation("etc /",        "/. "));
 		assertEquals("etc.",       removeTrailingPunctuation("etc",          "/. "));
 		assertEquals("Vance, A.",  removeTrailingPunctuation("Vance, A",     "/. "));
+		assertEquals("Vance,A.",   removeTrailingPunctuation("Vance,A",      "/. "));
+		assertEquals("363909803X", removeTrailingPunctuation("363909803X",   "/. "));
+		assertEquals("12-X",       removeTrailingPunctuation("12-X",         "/. "));
 		assertNull(removeTrailingPunctuation(null,"3"));
 		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi....."+PDF_closeRTL,      ". "));
 		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi /"+PDF_closeRTL,         "./ "));
