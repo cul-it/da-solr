@@ -16,62 +16,63 @@ public class IndexingUtilitiesTest {
 	@Test
 	public void insertSpaceAfterCommasTest() {
 	 assertTrue(true);
-	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
-	 assertTrue(insertSpaceAfterCommas("hello,world").equals("hello, world"));
-	 assertTrue(insertSpaceAfterCommas("hello, world,").equals("hello, world,"));
-	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
-	 assertTrue(insertSpaceAfterCommas("hello,world,  of,fishes").equals("hello, world,  of, fishes"));
+	 assertEquals("hello, world",insertSpaceAfterCommas("hello, world"));
+	 assertEquals("hello, world",insertSpaceAfterCommas("hello,world"));
+	 assertEquals("hello, world,",insertSpaceAfterCommas("hello, world,"));
+	 assertEquals("hello, world",insertSpaceAfterCommas("hello, world"));
+	 assertEquals("hello, world,  of, fishes",insertSpaceAfterCommas("hello,world,  of,fishes"));
 	}
 
 	@Test
 	public void getSortHeadingTest() {
-		assertTrue(getFilingForm("hello").equals("hello"));
-		assertTrue(getFilingForm("Hello").equals("hello"));
-		assertTrue(getFilingForm("Hello,").equals("hello"));
-		assertTrue(getFilingForm("  hello     ").equals("hello"));
-		assertTrue(getFilingForm("héllo!").equals("hello"));
-		assertTrue(getFilingForm("!!- :::hello::: -!!").equals("hello"));
+		assertEquals("hello",getFilingForm("hello"));
+		assertEquals("hello",getFilingForm("Hello"));
+		assertEquals("hello",getFilingForm("Hello,"));
+		assertEquals("hello",getFilingForm("  hello     "));
+		assertEquals("hello",getFilingForm("héllo!"));
+		assertEquals("hello",getFilingForm("!!- :::hello::: -!!"));
 		assertFalse(getFilingForm("hello").equals("goodbye"));
-		assertTrue(getFilingForm("hello-  -,:()@#$%^* hello").equals("hello hello"));
-		assertTrue(getFilingForm("Hello>hello").equals("hello 0000 hello"));
-		assertTrue(getFilingForm("Hello > hello").equals("hello 0000 hello"));
-		assertTrue(getFilingForm("Hello--Hello").equals("hello 0000 hello"));
-		assertTrue(getFilingForm("Hello -- Hello").equals("hello 0000 hello"));
-		assertTrue(getFilingForm("--Hello").equals("hello"));
-		assertTrue(getFilingForm("Hello---Hello").equals("hello 0000 hello"));
-		assertTrue(getFilingForm("Hello, Jr., 1910-1997").equals("hello jr 1910 1997"));
-		assertTrue(getFilingForm("Hello & Goodbye!").equals("hello goodbye 6&"));
-		assertTrue(getFilingForm(" Alzheimer's disease ").equals("alzheimers disease"));
-		assertTrue(getFilingForm("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah").
-				equals("abbasah ukht al rashid aww nakbat al baramikah"));
-		assertTrue(getFilingForm("’Abd al-Rraḥmān al-Kawākibī").
-				equals("abd al rrahman al kawakibi"));
-		assertTrue(getFilingForm(" ⁻Adh⁻i b⁻at : ḍr⁻ame").equals("adhi bat drame"));
-		assertTrue(getFilingForm("⁻Ac⁻arya, Pushpalat⁻a").equals("acarya pushpalata"));
-		assertTrue(getFilingForm("-0-De, Boll Weevil Convention. New Orleans. Nov.").
-				equals("0 de boll weevil convention new orleans nov"));
-		assertTrue(getFilingForm("°Cómo funciona el Mercado de Seguros Médicos?").
-				equals("como funciona el mercado de seguros medicos"));
-		assertTrue(getFilingForm("σ and π Electrons in Organic Compounds").
-				equals("sigma and pi electrons in organic compounds"));
-		assertTrue(getFilingForm("α- and β- modifications of benzene hexabromid").
-				equals("alpha and beta modifications of benzene hexabromid"));
-		assertTrue(getFilingForm("£1,000,000 bank-note and other stories").
-				equals("1000000 bank note and other stories"));
-		assertTrue(getFilingForm("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment").
-				equals("tudes de centre de dveloppement financer le dveloppment"));
-		assertTrue(getFilingForm("†Wilhelm His").equals("wilhelm his"));
-		assertTrue(getFilingForm("").equals(""));
-		assertTrue(getFilingForm("         ").equals(""));
+		assertEquals("hello hello",getFilingForm("hello-  -,:()@#$%^* hello"));
+		assertEquals("hello 0000 hello",getFilingForm("Hello>hello"));
+		assertEquals("hello 0000 hello",getFilingForm("Hello > hello"));
+		assertEquals("hello 0000 hello",getFilingForm("Hello--Hello"));
+		assertEquals("hello 0000 hello",getFilingForm("Hello -- Hello"));
+		assertEquals("hello",getFilingForm("--Hello"));
+		assertEquals("hello 0000 hello",getFilingForm("Hello---Hello"));
+		assertEquals("hello jr 1910 1997",getFilingForm("Hello, Jr., 1910-1997"));
+		assertEquals("hello goodbye 6&",getFilingForm("Hello & Goodbye!"));
+		assertEquals("alzheimers disease",getFilingForm(" Alzheimer's disease "));
+		assertEquals("abbasah ukht al rashid aww nakbat al baramikah",
+				getFilingForm("‘Abbāsah ukht al-Rashīd aww-nakbat al-Barāmikah"));
+		assertEquals("abd al rrahman al kawakibi",getFilingForm("’Abd al-Rraḥmān al-Kawākibī"));
+		assertEquals("adhi bat drame",getFilingForm(" ⁻Adh⁻i b⁻at : ḍr⁻ame"));
+		assertEquals("acarya pushpalata",getFilingForm("⁻Ac⁻arya, Pushpalat⁻a"));
+		assertEquals("0 de boll weevil convention new orleans nov",
+				getFilingForm("-0-De, Boll Weevil Convention. New Orleans. Nov."));
+		assertEquals("como funciona el mercado de seguros medicos",
+				getFilingForm("°Cómo funciona el Mercado de Seguros Médicos?"));
+		assertEquals("sigma and pi electrons in organic compounds",
+				getFilingForm("σ and π Electrons in Organic Compounds"));
+		assertEquals("alpha and beta modifications of benzene hexabromid",
+				getFilingForm("α- and β- modifications of benzene hexabromid"));
+		assertEquals("1000000 bank note and other stories",getFilingForm("£1,000,000 bank-note and other stories"));
+		assertEquals("tudes de centre de dveloppement financer le dveloppment",
+				getFilingForm("€Tudes de Centre de DV̈eloppement Financer le dV̈eloppment"));
+		assertEquals("wilhelm his",getFilingForm("†Wilhelm His"));
+		assertEquals("",getFilingForm(""));
+		assertEquals("",getFilingForm("         "));
 		// non-standard space characters \u3000 is common in CJK text
-		assertTrue(getFilingForm("\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u202F\u205F\u3000\uFEFF").equals(""));
-	    assertTrue(getFilingForm("sydsæter knut").equals("sydsaeter knut"));
+		assertEquals("",
+				getFilingForm("\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u202F\u205F\u3000\uFEFF"));
+		assertEquals("sydsaeter knut",getFilingForm("sydsæter knut"));
+		assertEquals("imarah abu al ila 0000 taftish al nihai",
+				getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
+		assertEquals("anarkhiia evoliutsiia bez nasiliia",getFilingForm("Anarkhii︠a︡ ėvoli︠u︡t︠s︡ii︠a︡ bez nasilii︠a︡"));
 
 	    // non-Roman scripts are not fully or well supported in filing
-	    assertTrue(getFilingForm("قيرواني، محمد الطيب الطويلي").equals("قيرواني محمد الطيب الطويلي"));
+		assertEquals("قيرواني محمد الطيب الطويلي",getFilingForm("قيرواني، محمد الطيب الطويلي"));
 	    // Orig. string has control characters (hex:200E,200F,202B,202C). Should be stripped.
-	    assertTrue(getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
-	    System.out.println(getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
+		assertEquals("شماخ بن ضرار",getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎"));
 	}
 
 	@Test

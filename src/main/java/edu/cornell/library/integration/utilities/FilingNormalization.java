@@ -21,7 +21,7 @@ public class FilingNormalization {
 		 * See http://unicode.org/reports/tr15/   Figure 6
 		 */
 		String s = Normalizer.normalize(value, Normalizer.Form.NFKD).toLowerCase().
-				replaceAll("[\\p{InCombiningDiacriticalMarks}\uFE20\uFE21]+", "");
+				replaceAll("\\p{InCombiningDiacriticalMarks}", "");
 		
 		/* For efficiency in avoiding multiple passes and worse, extensive regex, in this
 		 * step, we will apply most of the remaining string modification by iterating through
@@ -72,25 +72,31 @@ public class FilingNormalization {
 			                                            //(e.g. Dutch East Indies != Dutch > East Indies)
 			case '©': sb.append('c');   break; // examples I found were "©opyright"
 			
-			// non-sorting but significant characters
+			// non-sorting but filing-significant characters
 			case '&':  // a flag will be tacked to the end of the sort-normalized string
 				sbEnd.append(sb.length()).append(c);  break;
 
 			// Java \p{Punct} =>   !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-			// case '-': case '>': (see above for special treatment of hyphen and greater-than)
-			// case '&': (see above for non-sorting significant characters)
+			// case '|': case '-': case '>': (see above for special treatment of -, > and |)
+			// case '&': (see above for non-sorting filing-significant characters)
 			case '!': case '"': case '#': case '$': case '%':
 			case '\'':case '(': case ')': case '*': case '+': case ',':
 			case '.': case '/': case ':': case ';': case '<': case '=':
 			case '?': case '@': case '[': case '\\':case ']': case '^':
-			case '_': case '`': case '{': case '}': case '~': // case '|':
+			case '_': case '`': case '{': case '}': case '~':
 				break;
 
-			// supplementary punctuation we don't want to file on
-			case '¿': case '¡': case '「': case '」': case '‘':
-			case '’': case '−': case '°': case '£': case '€':
-			case '†': case 'ʻ': case 'ʹ': case 'ʾ': case '،':
+			// additional punctuation we don't want to file on
+			case '¿': case '¡': case '「': case '」': case '−':
+			case '°': case '£': case '€': case '†': case '،':
 			case '\u200B': case '\uFEFF': //zero-width spaces
+			// things that look like apostrophes 
+			case '\u02b9': case '\u02bb': case '\u02bc': case '\u02bd':
+			case '\u02be': case '\u02bf': case '\u2018': case '\u2019':
+				break;
+
+			// diacritics not stripped as \p{InCombiningDiacriticalMarks}
+			case '\uFE20': case '\uFE21': // left and right combining ligature marks
 				break;
 
 			// unicode control characters used for display control of
