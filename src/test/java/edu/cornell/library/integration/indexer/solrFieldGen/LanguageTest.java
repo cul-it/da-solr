@@ -70,7 +70,7 @@ public class LanguageTest {
 		String expected =
 		"language_facet: Spanish\n"+
 		"language_display: Spanish.\n"+
-		"language_articles_t: el la lo los las un una unos unas\n";
+		"language_articles_t: el la lo los las un una\n";
 		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -119,7 +119,7 @@ public class LanguageTest {
 		"language_facet: Hindi\n"+
 		"language_display: Hindi, English.\n"+
 		"language_articles_t: the a an\n"+
-		"language_articles_t: el la lo los las un una unos unas\n";
+		"language_articles_t: el la lo los las un una\n";
 		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
 	}
 }

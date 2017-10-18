@@ -1,16 +1,20 @@
 package edu.cornell.library.integration.utilities;
 
+import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+@SuppressWarnings("static-method")
 public class IndexingUtilitiesTest {
 
 	@Test
-	public static void insertSpaceAfterCommasTest() {
+	public void insertSpaceAfterCommasTest() {
 	 assertTrue(true);
 	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
 	 assertTrue(insertSpaceAfterCommas("hello,world").equals("hello, world"));
@@ -18,9 +22,9 @@ public class IndexingUtilitiesTest {
 	 assertTrue(insertSpaceAfterCommas("hello, world").equals("hello, world"));
 	 assertTrue(insertSpaceAfterCommas("hello,world,  of,fishes").equals("hello, world,  of, fishes"));
 	}
-	
+
 	@Test
-	public static void getSortHeadingTest() {
+	public void getSortHeadingTest() {
 		assertTrue(getFilingForm("hello").equals("hello"));
 		assertTrue(getFilingForm("Hello").equals("hello"));
 		assertTrue(getFilingForm("Hello,").equals("hello"));
@@ -69,5 +73,37 @@ public class IndexingUtilitiesTest {
 	    assertTrue(getFilingForm("‎‫‏شماخ بن ضرار،‏‬‎").equals("شماخ بن ضرار"));
 	    System.out.println(getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
 	}
-	
+
+	@Test
+	public void removeTrailingPunctuationTest() {
+		assertEquals("Hi",         removeTrailingPunctuation("Hi.....",      ". "));
+		assertEquals("Hi",         removeTrailingPunctuation("Hi /",         "./ "));
+		assertEquals("Smith, J.R.",removeTrailingPunctuation("Smith, J.R.,", ",. "));
+		assertEquals("Smith, John",removeTrailingPunctuation("Smith, John.,",",. "));
+		assertEquals("A, B, etc.", removeTrailingPunctuation("A, B, etc. /", "/,. "));
+		assertEquals("etc.",       removeTrailingPunctuation("etc. /",       "/,. "));
+		assertEquals("A",          removeTrailingPunctuation("A.",           "/,. "));
+		assertEquals("",           removeTrailingPunctuation(".....",        ". "));
+		assertEquals("",           removeTrailingPunctuation("",             ""));
+		assertEquals("",           removeTrailingPunctuation("",             null));
+		assertEquals("asdf.",      removeTrailingPunctuation("asdf.",        null));
+		assertEquals("etc.",       removeTrailingPunctuation("etc /",        "/. "));
+		assertEquals("etc.",       removeTrailingPunctuation("etc",          "/. "));
+		assertEquals("Vance, A.",  removeTrailingPunctuation("Vance, A",     "/. "));
+		assertEquals("Vance,A.",   removeTrailingPunctuation("Vance,A",      "/. "));
+		assertEquals("363909803X", removeTrailingPunctuation("363909803X",   "/. "));
+		assertEquals("12-X",       removeTrailingPunctuation("12-X",         "/. "));
+		assertNull(removeTrailingPunctuation(null,"3"));
+		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi....."+PDF_closeRTL,      ". "));
+		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi /"+PDF_closeRTL,         "./ "));
+		assertEquals("Smith, J.R."+PDF_closeRTL,removeTrailingPunctuation("Smith, J.R.,"+PDF_closeRTL, ",. "));
+		assertEquals("Smith, John"+PDF_closeRTL,removeTrailingPunctuation("Smith, John.,"+PDF_closeRTL,",. "));
+		assertEquals("A, B, etc."+PDF_closeRTL, removeTrailingPunctuation("A, B, etc. /"+PDF_closeRTL, "/,. "));
+		assertEquals("etc."+PDF_closeRTL,       removeTrailingPunctuation("etc. /"+PDF_closeRTL,       "/,. "));
+		assertEquals("A"+PDF_closeRTL,          removeTrailingPunctuation("A."+PDF_closeRTL,           "/,. "));
+		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation("....."+PDF_closeRTL,        ". "));
+		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             ""));
+		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             null));
+		assertEquals("asdf."+PDF_closeRTL,      removeTrailingPunctuation("asdf."+PDF_closeRTL,        null));
+	}
 }

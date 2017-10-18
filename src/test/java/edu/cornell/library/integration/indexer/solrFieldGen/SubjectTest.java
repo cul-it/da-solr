@@ -34,7 +34,6 @@ public class SubjectTest {
 		"subject_topic_filing: submerged lands\n"+
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
-		"subject_cts: Submerged lands|United States\n"+
 		"subject_json: [{\"subject\":\"Submerged lands\",\"authorized\":true,\"type\":\"Topical Term\"},"
 		+ "{\"subject\":\"United States.\",\"authorized\":false}]\n"+
 		"subject_display: Submerged lands > United States\n"+
@@ -57,7 +56,6 @@ public class SubjectTest {
 		"subject_topic_filing: submerged lands\n"+
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
-		"subject_cts: Submerged lands|United States\n"+
 		"subject_t: Submerged lands\n"+
 		"fast_topic_facet: Submerged lands\n"+
 		"subject_topic_facet: Submerged lands\n"+
@@ -82,7 +80,6 @@ public class SubjectTest {
 		"fast_era_facet: 2000-2099\n"+
 		"subject_era_facet: 2000-2099\n"+
 		"subject_era_filing: 2000 2099\n"+
-		"subject_cts: 2000-2099\n"+
 		"subject_json: [{\"subject\":\"2000-2099\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n"+
 		"subject_display: 2000-2099\n"+
 		"fast_b: true\n";
@@ -98,7 +95,6 @@ public class SubjectTest {
 		"subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
-		"subject_cts: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy)."
 		+ " | Decree Four.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
@@ -111,7 +107,6 @@ public class SubjectTest {
 		"subject_t: Bible. | Paraphrases. O.T. English\n"+
 		"subject_work_facet: Bible. | Paraphrases. O.T. English\n"+
 		"subject_work_filing: bible 0000 paraphrases ot english\n"+
-		"subject_cts: Bible. | Paraphrases. O.T. English\n"+
 		"subject_json: [{\"subject\":\"Bible. | Paraphrases. O.T. English.\","
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
@@ -135,8 +130,6 @@ public class SubjectTest {
 		"subject_corp_filing: 朝日新聞\n"+
 		"subject_corp_facet: Asahi Shinbun\n"+
 		"subject_corp_filing: asahi shinbun\n"+
-		"subject_cts: 朝日新聞|Indexes\n"+
-		"subject_cts: Asahi Shinbun|Indexes\n"+
 		"subject_json: [{\"subject\":\"朝日新聞\",\"authorized\":false,\"type\":\"Corporate Name\"},"
 		+ "{\"subject\":\"Indexes.\",\"authorized\":false}]\n"+
 		"subject_json: [{\"subject\":\"Asahi Shinbun\",\"authorized\":false,\"type\":\"Corporate Name\"},"
@@ -154,7 +147,6 @@ public class SubjectTest {
 		String expected =
 		"subject_t: Electronic books\n"+
 		"subject_topic_filing: electronic books\n"+
-		"subject_cts: Electronic books\n"+
 		"subject_json: [{\"subject\":\"Electronic books.\",\"authorized\":true,\"type\":\"Topical Term\"}]\n"+
 		"subject_display: Electronic books\n"+
 		"authority_subject_t: Books in machine-readable form\n"+
@@ -162,6 +154,22 @@ public class SubjectTest {
 		"authority_subject_t: E-books\n"+
 		"authority_subject_t: Online books\n"+
 		"authority_subject_t: Digital books\n"+
+		"fast_b: false\n";
+		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void test653() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Textiles and Fashion Design"));
+//		System.out.println(Subject.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
+		String expected =
+		"sixfivethree: Textiles and Fashion Design\n"+
+		"subject_t: Textiles and Fashion Design\n"+
+		"subject_gen_facet: Textiles and Fashion Design\n"+
+		"subject_gen_filing: textiles and fashion design\n"+
+		"subject_json: [{\"subject\":\"Textiles and Fashion Design\",\"authorized\":false,\"type\":\"General Heading\"}]\n"+
+		"subject_display: Textiles and Fashion Design\n"+
 		"fast_b: false\n";
 		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 	}

@@ -100,7 +100,7 @@ public class URL implements ResultSetToFields, SolrFieldGenerator {
 				String[] codes = instructions.split(";\\s*");
 				for (String code : codes) {
 					String[] parts = code.split("=",2);
-					if (parts.length == 2)
+					if (parts.length == 2 && ! parts[1].equals("?"))
 						jsonModel.put(parts[0].toLowerCase(), parts[1]);
 				}
 			}

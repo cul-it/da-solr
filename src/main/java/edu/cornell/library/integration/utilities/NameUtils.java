@@ -133,8 +133,6 @@ public class NameUtils {
 
 		List<SolrField> sfs = new ArrayList<>();
 		sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display1 +" / "+display2 ));
-		sfs.add(new SolrField( (isMainAuthor)?"author_cts":"author_addl_cts", display1 +'|'+ctsValsList.get(0).author
-				+'|'+display2+'|'+ctsValsList.get(1).author ));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet1 )));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet2 )));
 		if (filingField != null) {
@@ -225,7 +223,6 @@ public class NameUtils {
 			sfs.add(new SolrField( (isCJK)?
 					(isMainAuthor)?"author_t_cjk":"author_addl_t_cjk":
 						(isMainAuthor)?"author_t":"author_addl_t", display ));
-			sfs.add(new SolrField( (isMainAuthor)?"author_cts":"author_addl_cts", display+'|'+ctsVals.author ));
 			sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet )));
 			if (filingField != null)
 				sfs.add(new SolrField( filingField, getFilingForm( facet ) ));

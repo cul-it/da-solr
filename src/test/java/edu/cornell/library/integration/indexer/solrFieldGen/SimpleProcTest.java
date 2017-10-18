@@ -48,7 +48,9 @@ public class SimpleProcTest {
 	public void test300() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"300",' ',' ',"‡a Here's a 300 note."));
-		String expected = "description_display: Here's a 300 note.\n";
+		String expected =
+		"description_display: Here's a 300 note.\n"+
+		"notes_t: Here's a 300 note.\n";
 		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
 	}
 
@@ -76,7 +78,9 @@ public class SimpleProcTest {
 	public void testEdition() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"250",' ',' ',"‡a First edition."));
-		String expected = "edition_display: First edition.\n";
+		String expected = 
+		"edition_display: First edition.\n"+
+		"notes_t: First edition.\n";
 		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
 	}
 

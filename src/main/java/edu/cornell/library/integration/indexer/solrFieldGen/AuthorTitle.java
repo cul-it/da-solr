@@ -181,7 +181,8 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 					if (hasCJK(verntitle))
 						sfs.add(new SolrField("title_uniform_t_cjk",verntitle));
 					sfs.add(new SolrField("title_uniform_t",verntitle));
-					sfs.add(new SolrField("title_uniform_t",titleWOarticle));
+					if ( ! verntitle.equals(titleWOarticle))
+						sfs.add(new SolrField("title_uniform_t",titleWOarticle));
 				}
 			}
 
@@ -197,7 +198,9 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 				sfs.add(new SolrField("authortitle_filing",getFilingForm(browse)));
 			}
 			sfs.add(new SolrField("title_uniform_t",fulltitle));
-			sfs.add(new SolrField("title_uniform_t",uniform_title.getStringWithoutInitialArticle(fulltitle)));
+			String fulltitleWOArticle = uniform_title.getStringWithoutInitialArticle(fulltitle);
+			if ( ! fulltitle.equals(fulltitleWOArticle))
+				sfs.add(new SolrField("title_uniform_t",fulltitleWOArticle));
 		}
 
 		String responsibility = null, responsibility_vern = null;
@@ -218,18 +221,21 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 			String sortTitle = getFilingForm(titleWOArticle);
 			sfs.add(new SolrField("title_sort",sortTitle));
 
-			// main title display fields
+			// main title display & search fields
 			title_display = removeTrailingPunctuation(title.concatenateSpecificSubfields("a"),".,;:=/ ");
 			if (title_display.isEmpty()) System.out.println("Bib record "+rec.id+" has no main title.");
 			subtitle_display = removeTrailingPunctuation(title.concatenateSpecificSubfields("bdefgknpqsv"),".,;:=/ ");
 			sfs.add(new SolrField("title_t",fulltitle_display));
-			sfs.add(new SolrField("title_t",titleWOArticle));
 			sfs.add(new SolrField("title_exact",standardizeApostrophes(fulltitle_display)));
-			sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			if ( ! fulltitle_display.equals(titleWOArticle) ) {
+				sfs.add(new SolrField("title_t",titleWOArticle));
+				sfs.add(new SolrField("title_exact",standardizeApostrophes(titleWOArticle)));
+			}
 			if ( ! fulltitle_display.equals(title_display) ) {
 				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(title_display)));
-				sfs.add(new SolrField("title_main_exact",
-						standardizeApostrophes(title.getStringWithoutInitialArticle(title_display))));
+				String maintitleWOArticle = title.getStringWithoutInitialArticle(title_display);
+				if ( ! title_display.equals(maintitleWOArticle))
+					sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitleWOArticle)));
 			}
 			sfs.add(new SolrField("title_sms_compat_display",limitStringToGSMChars(title_display)));
 			responsibility = title.concatenateSpecificSubfields("c");
@@ -275,14 +281,17 @@ public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
 				if (hasCJK(fulltitle_vern_display))
 					sfs.add(new SolrField("title_t_cjk",fulltitle_vern_display));
 				sfs.add(new SolrField("title_t",fulltitle_vern_display));
-				sfs.add(new SolrField("title_t",titleWOarticle));
+				if ( ! fulltitle_vern_display.equals(titleWOarticle) )
+					sfs.add(new SolrField("title_t",titleWOarticle));
 			}
 			sfs.add(new SolrField("title_exact",fulltitle_vern_display));
-			sfs.add(new SolrField("title_exact",titleWOarticle));
+			if ( ! fulltitle_vern_display.equals(titleWOarticle) )
+				sfs.add(new SolrField("title_exact",titleWOarticle));
 			if ( ! fulltitle_vern_display.equals(title_vern_display) ) {
 				sfs.add(new SolrField("title_main_exact",standardizeApostrophes(title_vern_display)));
-				sfs.add(new SolrField("title_main_exact",
-						standardizeApostrophes(title.getStringWithoutInitialArticle(title_vern_display))));
+				String maintitle_vern_WOArticle = title_vern.getStringWithoutInitialArticle(title_vern_display);
+				if ( ! title_vern_display.equals(maintitle_vern_WOArticle))
+					sfs.add(new SolrField("title_main_exact",standardizeApostrophes(maintitle_vern_WOArticle)));
 			}
 
 			responsibility_vern = title_vern.concatenateSpecificSubfields("c");
