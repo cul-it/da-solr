@@ -266,7 +266,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 			if (lib.library != null) {
 				sfs.add(new SolrField("location_facet",lib.library));
 				sfs.add(new SolrField("location",lib.library));
-				sfs.add(new SolrField("location",lib.library+":"+lib.name));
+				sfs.add(new SolrField("location",lib.library+" > "+lib.name));
 				isAtTheLibrary = true;
 			}
 		if ( isAtTheLibrary )
