@@ -83,7 +83,7 @@ public class HoldingsAndItemsTest {
 		"item_display: 10165353|10091152\n"+
 		"location_facet: Kroch Library Asia\n"+
 		"location: Kroch Library Asia\n"+
-		"location: Kroch Library Asia:Kroch Library Asia\n"+
+		"location: Kroch Library Asia > Kroch Library Asia\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
@@ -168,7 +168,7 @@ public class HoldingsAndItemsTest {
 		"item_display: 10159965|10155076\n"+
 		"location_facet: Mann Library\n"+
 		"location: Mann Library\n"+
-		"location: Mann Library:Mann Library\n"+
+		"location: Mann Library > Mann Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
@@ -216,7 +216,7 @@ public class HoldingsAndItemsTest {
 		"item_display: 10132539|10086111|20170126080516\n"+
 		"location_facet: Mann Library\n"+
 		"location: Mann Library\n"+
-		"location: Mann Library:Mann Library Collection Development (Non-Circulating)\n"+
+		"location: Mann Library > Mann Library Collection Development (Non-Circulating)\n"+
 		"online: At the Library\n"+
 		"multivol_b: true\n";
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
@@ -265,7 +265,7 @@ public class HoldingsAndItemsTest {
 		"item_display: 10117929|10078053|20170103164717\n"+
 		"location_facet: Music Library\n"+
 		"location: Music Library\n"+
-		"location: Music Library:Music Library Reference (Non-Circulating)\n"+
+		"location: Music Library > Music Library Reference (Non-Circulating)\n"+
 		"online: At the Library\n"+
 		"mainitem_b: true\n"+
 		"multivolwblank_b: true\n"+
@@ -303,7 +303,7 @@ public class HoldingsAndItemsTest {
 		+ "\"barcode\":\"31924123150835\"}\n"+
 		"location_facet: Mann Library\n"+
 		"location: Mann Library\n"+
-		"location: Mann Library:Mann Library\n"+
+		"location: Mann Library > Mann Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: false\n";
@@ -347,7 +347,7 @@ public class HoldingsAndItemsTest {
 		"barcode_addl_t: 31924101012320\n"+
 		"location_facet: Library Annex\n"+
 		"location: Library Annex\n"+
-		"location: Library Annex:Library Annex\n"+
+		"location: Library Annex > Library Annex\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: true\n";
