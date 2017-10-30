@@ -194,8 +194,8 @@ public class Format implements ResultSetToFields {
 				if (debug) System.out.println("Musical Score due to record_type: c or d.");
 			} else if ((record_type.equals("e"))
 					|| (record_type.equals("f"))) {
-				format = "Map or Globe";
-				if (debug) System.out.println("Map or Guide due to record_type: e or f.");
+				format = "Map";
+				if (debug) System.out.println("Map due to record_type: e or f.");
 			} else if (record_type.equals("g")) {
 				format = "Video";
 				if (debug) System.out.println("Video due to record_type: g.");
@@ -219,8 +219,8 @@ public class Format implements ResultSetToFields {
 					format = "Musical Score";
 					if (debug) System.out.println("Musical Score due to record_type: m and 948f: escore.");
 				} else if (sf948fs.contains("emap")) {
-					format = "Map or Globe";
-					if (debug) System.out.println("Map or Globe due to record_type: m and 948f: emap.");
+					format = "Map";
+					if (debug) System.out.println("Map due to record_type: m and 948f: emap.");
 				} else {
 					format = "Computer File";
 					if (debug) System.out.println("Computer File due to record_type: m and 948f not in: eaudio, evideo, escore.");
