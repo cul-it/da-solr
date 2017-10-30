@@ -110,7 +110,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		Map<String,Holdings> holdings = new TreeMap<>();
 		Collection<Map<String,Object>> boundWiths = new ArrayList<>();
 		ObjectMapper mapper = new ObjectMapper();
-		Collection<String> workLibraries = new LinkedHashSet<>();
+		Collection<Location> workLocations = new LinkedHashSet<>();
 
 
 
@@ -241,7 +241,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		// ITEM DATA
 		Integer emptyItemCount[] = {0};
 		try (Connection conn = config.getDatabaseConnection("Voy")){
-			sfs.addAll( loadItemData(conn, holdings, locations, workLibraries,
+			sfs.addAll( loadItemData(conn, holdings, locations, workLocations,
 					description_with_e, rectypebiblvl, descriptions, emptyItemCount) );
 		}
 
@@ -261,9 +261,15 @@ public class HoldingsAndItems implements ResultSetToFields {
 				sfs.add(new BooleanSolrField("bound_with_count_empty_item_mismatch_b",true));
 		}
 
-		for (String lib : workLibraries)
-			sfs.add(new SolrField("location_facet",lib));
-		if ( ! workLibraries.isEmpty() )
+		boolean isAtTheLibrary = false;
+		for (Location lib : workLocations)
+			if (lib.library != null) {
+				sfs.add(new SolrField("location_facet",lib.library));
+				sfs.add(new SolrField("location",lib.library));
+				sfs.add(new SolrField("location",lib.library+" > "+lib.name));
+				isAtTheLibrary = true;
+			}
+		if ( isAtTheLibrary )
 			sfs.add(new SolrField("online","At the Library"));
 
 		return sfs;
@@ -305,7 +311,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 	}
 
 	private static SolrFields loadItemData(Connection conn, Map<String,Holdings> holdings,
-			Locations locations, Collection<String> workLibraries, boolean description_with_e,
+			Locations locations, Collection<Location> workLocations, boolean description_with_e,
 			String rectypebiblvl, Collection<String> descriptions, Integer[] emptyItemCount)
 					throws IOException {
 
@@ -322,12 +328,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 		ObjectMapper mapper = new ObjectMapper();
 		for (Holdings h : holdings.values()) {
 
-			String holdingsLibrary = null;
-			for (int i = 0; i < h.locations.length; i++) {
-				Location l = h.locations[i];
-				if (l.library != null)
-					holdingsLibrary = l.library;
-			}
+			Location holdingsLibrary = null;
+			for (int i = 0; i < h.locations.length; i++)
+				holdingsLibrary = h.locations[i];
+
         	boolean foundItems = false;
 
 			if (debug)
@@ -358,7 +362,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 	        		Map<String,Object> record = new HashMap<>();
 	        		record.put("mfhd_id",h.id);
 	        		String loc = null;
-	        		String tempLibrary = null;
+	        		Location tempLibrary = null;
 	        		String barcode = "";
 	        		
 	        		if (debug) 
@@ -405,7 +409,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		       					if (colname.equals("perm_location"))
 		       						loc = l.code;
 		       					else if ( l.library != null )
-		       						tempLibrary = l.library;
+		       						tempLibrary = l;
 	       						record.put(colname, l);
 	       					} else record.put(colname, value);
 	       				} else {
@@ -445,16 +449,16 @@ public class HoldingsAndItems implements ResultSetToFields {
 	        			emptyItemCount[0]++;
 	        		foundItems = true;
 	        		if (tempLibrary != null)
-	        			workLibraries.add(tempLibrary);
+	        			workLocations.add(tempLibrary);
 	        		else if (holdingsLibrary != null)
-	        			workLibraries.add(holdingsLibrary);
+	        			workLocations.add(holdingsLibrary);
 	        	}
 	        } catch (SQLException ex) {
 	           System.out.println(query);
 	           System.out.println(ex.getMessage());
 	        }
 	        if ( ! foundItems && holdingsLibrary != null )
-	        	workLibraries.add(holdingsLibrary);
+	        	workLocations.add(holdingsLibrary);
 		}
 
 		// if we have diverse enumeration within a single loc, it's a multivol
