@@ -33,8 +33,8 @@ public class NewBooksTest {
 		bibRec.holdings.add(holdingRec);
 		String expected =
 		"new_shelf: Africana Library New Books Shelf\n"+
-		"acquired: 20170720\n"+
-		"acquired_month: 201707\n";
+		"acquired_dt: 2017-07-20T00:00:00Z\n"+
+		"acquired_month: 2017-07\n";
 		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
 	}
 
@@ -52,8 +52,8 @@ public class NewBooksTest {
 		bibRec.holdings.add(holdingRec);
 		String expected =
 		"new_shelf: Olin Library New & Noteworthy Books\n"+
-		"acquired: 20170426\n"+
-		"acquired_month: 201704\n";
+		"acquired_dt: 2017-04-26T00:00:00Z\n"+
+		"acquired_month: 2017-04\n";
 		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
 	}
 

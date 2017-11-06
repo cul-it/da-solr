@@ -160,9 +160,9 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 	  	}
 	  	if (acquiredDate != null) {
 		  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
-		  	String date_s = acquiredDate.toString();
-			vals.add(new SolrField("acquired",date_s));
-			vals.add(new SolrField("acquired_month",date_s.substring(0,6)));
+		  	String date_s = acquiredDate.toString().replaceAll("(\\d{4})(\\d{2})(\\d{2})", "$1-$2-$3T00:00:00Z");
+		  	vals.add(new SolrField("acquired_dt",date_s));
+		  	vals.add(new SolrField("acquired_month",date_s.substring(0,7)));
 	  	}
 		return vals;
 	}
