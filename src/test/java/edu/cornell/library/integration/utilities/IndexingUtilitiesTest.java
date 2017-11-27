@@ -93,6 +93,11 @@ public class IndexingUtilitiesTest {
 		assertEquals("Vance,A.",   removeTrailingPunctuation("Vance,A",      "/. "));
 		assertEquals("363909803X", removeTrailingPunctuation("363909803X",   "/. "));
 		assertEquals("12-X",       removeTrailingPunctuation("12-X",         "/. "));
+		assertEquals("Jr.",        removeTrailingPunctuation("Jr",           "/. "));
+		assertEquals("Herndon, James B., Jr.",  removeTrailingPunctuation("Herndon, James B., Jr.",    "/. "));
+		assertEquals("Herndon, James B., Jr.",  removeTrailingPunctuation("Herndon, James B., Jr",    "/. "));
+		assertEquals("NetLibrary, Inc.",        removeTrailingPunctuation("NetLibrary, Inc.",    "/. "));
+		assertEquals("NetLibrary, Inc.",        removeTrailingPunctuation("NetLibrary, Inc",    "/. "));
 		assertNull(removeTrailingPunctuation(null,"3"));
 		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi....."+PDF_closeRTL,      ". "));
 		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi /"+PDF_closeRTL,         "./ "));
