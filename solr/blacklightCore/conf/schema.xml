@@ -427,6 +427,10 @@
     <!-- format_main_facet is used for type-aggregated relevance sorting, so it must be single valued-->
     <field name="format_main_facet" type="string" indexed="true" stored="true" multiValued="false"/>
 
+	<!--  Single-valued json fields are the exception (currently) -->
+    <dynamicField name="holdings_json" type="string" indexed="false" stored="true" multiValued="false" />
+    <dynamicField name="items_json" type="string" indexed="false" stored="true" multiValued="false" />
+
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
