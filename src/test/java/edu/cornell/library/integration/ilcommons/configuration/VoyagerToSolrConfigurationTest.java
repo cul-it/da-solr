@@ -5,17 +5,19 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import edu.cornell.library.integration.indexer.utilities.Config;
+
 public class VoyagerToSolrConfigurationTest {
 
 	@Test
 	public static void testInsertDate() {
 		String test = "No replacement";
-		assertTrue(SolrBuildConfig.insertIterationContext(test).equals(test));
+		assertTrue(Config.insertIterationContext(test).equals(test));
 		test = "should/XXXX/replace";
-		assertFalse(SolrBuildConfig.insertIterationContext(test).equals(test));
+		assertFalse(Config.insertIterationContext(test).equals(test));
 		test = "Today is XXXX.";
-		assertFalse(SolrBuildConfig.insertIterationContext(test).equals(test));
-		System.out.println(SolrBuildConfig.insertIterationContext(test));
+		assertFalse(Config.insertIterationContext(test).equals(test));
+		System.out.println(Config.insertIterationContext(test));
 	}
 
 }

@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.marc.MarcRecord;
 
@@ -39,12 +39,12 @@ public interface SolrFieldGenerator {
 	/**
 	 * Process a subset of a bibliographic MARC (possibly with holdings), into a set of Solr fields.
 	 * @param rec A subset of a bibliographic MARC (possibly with holdings), contents determined by getHandledFields().
-	 * @param config SolrBuildConfig gives implementations access to databases as needed. 
+	 * @param config Config gives implementations access to databases as needed. 
 	 * @return Generated set of Solr fields. If no fields were produced, value should be empty rather than null.
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException;
 }

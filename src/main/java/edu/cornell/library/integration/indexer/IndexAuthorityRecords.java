@@ -30,9 +30,7 @@ import org.apache.http.ConnectionClosedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
@@ -43,6 +41,8 @@ import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class IndexAuthorityRecords {
 
@@ -58,10 +58,10 @@ public class IndexAuthorityRecords {
 	 */
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
 		requiredArgs.add("xmlDir");
 
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
+		Config config = Config.loadConfig(args,requiredArgs);
 		try {
 			new IndexAuthorityRecords(config);
 		} catch (Exception e) {
@@ -70,7 +70,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	public IndexAuthorityRecords(SolrBuildConfig config) throws Exception {
+	public IndexAuthorityRecords(Config config) throws Exception {
         this.davService = DavServiceFactory.getDavService(config);
 
 		connection = config.getDatabaseConnection("Headings");

@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer.documentPostProcess;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 /**
  * Interface to represent objects that will have a 
@@ -18,6 +18,6 @@ public interface DocumentPostProcess {
 	 * @throws Exception 
 	 */
 	void p( String recordURI, 
-			SolrBuildConfig config, 
+			Config config, 
 			SolrInputDocument document) throws Exception;
 }

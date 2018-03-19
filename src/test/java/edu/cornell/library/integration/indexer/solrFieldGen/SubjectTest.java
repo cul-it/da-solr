@@ -9,19 +9,19 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 public class SubjectTest {
 
-	static SolrBuildConfig config = null;
+	static Config config = null;
 	SolrFieldGenerator gen = new Subject();
 
 	@BeforeClass
 	public static void setup() {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		config = Config.loadConfig(null,requiredArgs);
 	}
 
 	@Test

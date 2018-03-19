@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
@@ -43,12 +42,12 @@ public class IndexRecordListComparison {
 	
 	public static List<String> requiredArgs() {
 		List<String> l = new ArrayList<>();
-		l.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
+		l.addAll(Config.getRequiredArgsForDB("Current"));
 		l.add("solrUrl");
 		return l;
 	}
 	
-	public IndexRecordListComparison(SolrBuildConfig config) throws ClassNotFoundException, SQLException {
+	public IndexRecordListComparison(Config config) throws ClassNotFoundException, SQLException {
 
 		conn = config.getDatabaseConnection("Current");
 		stmt = conn.createStatement();

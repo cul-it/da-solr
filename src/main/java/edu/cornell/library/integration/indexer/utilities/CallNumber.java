@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 
@@ -97,7 +96,7 @@ public class CallNumber {
 		return;
 	}
 
-	public SolrFields getCallNumberFields( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
+	public SolrFields getCallNumberFields( Config config ) throws ClassNotFoundException, SQLException {
 
 		if ( ! sortCandidates.isEmpty() )
 			sfs.add(new SolrField(sort,chooseSortValue(sortCandidates)));
@@ -108,7 +107,7 @@ public class CallNumber {
 		return sfs;
 	}
 
-	private static SolrFields buildHierarchicalFacetValues(SolrBuildConfig config, Set<Classification> classes)
+	private static SolrFields buildHierarchicalFacetValues(Config config, Set<Classification> classes)
 			throws SQLException, ClassNotFoundException {
 		Set<String> facetVals = new LinkedHashSet<>();
 		try (   Connection conn = config.getDatabaseConnection("CallNos");

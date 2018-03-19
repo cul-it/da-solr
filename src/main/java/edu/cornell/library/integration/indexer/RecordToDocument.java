@@ -2,7 +2,7 @@ package edu.cornell.library.integration.indexer;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
 
 /**
@@ -14,7 +14,7 @@ public interface RecordToDocument {
 	/** Query for information about a record and build a Solr document for that record. 
 	 * @throws RDFServiceException 
 	 * @throws Exception */
-	public 	SolrInputDocument buildDoc(String recordURI, SolrBuildConfig config ) 
+	public 	SolrInputDocument buildDoc(String recordURI, Config config ) 
 	throws RDFServiceException, Exception;
  
 	public RecordToDocument setDebug(boolean d);

@@ -15,19 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.Generator;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * Generate Solr fields based on a MARC bibliographic record with optional holdings, using a configured
- * set of field generators. Requires a SolrBuildConfig containing the necessary database
+ * set of field generators. Requires a Config containing the necessary database
  * connection information to push the results to the configured DB.
  * For example:<br/><br/>
  * <pre> MarcRecord rec = ...;
- * SolrBuildConfig config = ...;
+ * Config config = ...;
  * GenerateSolrFields gen = new GenerateSolrFields(EnumSet.of(
  *		Generator.AUTHORTITLE, Generator.SUBJECT));
  * gen.generateSolr(rec, config);</pre> *
@@ -71,7 +71,7 @@ public class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	public int generateSolr( MarcRecord rec, SolrBuildConfig config ) throws SQLException, ClassNotFoundException {
+	public int generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -111,12 +111,12 @@ public class GenerateSolrFields {
 
 	/**
 	 * Create a table with the tableName specified in the constructor, in the Current database
-	 * accessed through the SolrBuildConfig.
+	 * accessed through the Config.
 	 * @param config
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public void setUpDatabase( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
+	public void setUpDatabase( Config config ) throws ClassNotFoundException, SQLException {
 
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
@@ -148,7 +148,7 @@ public class GenerateSolrFields {
 			List<BibGeneratorData> newValues,
 			String tableNamePrefix,
 			String bib_id,
-			SolrBuildConfig config) throws ClassNotFoundException, SQLException {
+			Config config) throws ClassNotFoundException, SQLException {
 
 		if (sql == null) {
 			StringBuilder sbSql = new StringBuilder();
@@ -187,7 +187,7 @@ public class GenerateSolrFields {
 	static String sql = null;
 
 	private static Map<Generator, BibGeneratorData> pullPreviousFieldDataFromDB
-	(EnumSet<Generator> activeGenerators,String tableNamePrefix, String bib_id, SolrBuildConfig config)
+	(EnumSet<Generator> activeGenerators,String tableNamePrefix, String bib_id, Config config)
 			throws SQLException, ClassNotFoundException {
 
 		Map<Generator,BibGeneratorData> allData = new HashMap<>();
@@ -231,7 +231,7 @@ public class GenerateSolrFields {
 
 	private static BibGeneratorData processRecordChunkWithGenerator(
 			Generator gen,Timestamp genModDate, MarcRecord recChunk,
-			BibGeneratorData origData, LocalDateTime now, SolrBuildConfig config){
+			BibGeneratorData origData, LocalDateTime now, Config config){
 
 		String marcSegment = recChunk.toString();
 		Status marcStatus = (origData.marcSegment == null) ? Status.NEW :
@@ -266,7 +266,7 @@ public class GenerateSolrFields {
 	}
 
 	private static Map<Generator, Timestamp> getGeneratorTimestamps(
-			EnumSet<Generator> activeGenerators, Timestamp now, String tableNamePrefix, SolrBuildConfig config)
+			EnumSet<Generator> activeGenerators, Timestamp now, String tableNamePrefix, Config config)
 			throws ClassNotFoundException, SQLException {
 		String getQuery = "SELECT version, mod_date FROM "+tableNamePrefix+"Generators WHERE name = ?";
 		String setQuery =

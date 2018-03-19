@@ -12,20 +12,20 @@ import javax.xml.stream.XMLStreamException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.Generator;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 @SuppressWarnings("static-method")
 public class GenerateSolrFieldsTest {
 
-	static SolrBuildConfig config;
+	static Config config;
 	static GenerateSolrFields gen;
 
 	@BeforeClass
 	public static void setup() throws ClassNotFoundException, SQLException {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		config = Config.loadConfig(null,requiredArgs);
 		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 		gen.setUpDatabase(config);
 	}

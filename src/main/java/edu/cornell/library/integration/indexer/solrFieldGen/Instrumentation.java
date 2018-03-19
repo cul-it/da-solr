@@ -9,8 +9,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
@@ -27,7 +27,7 @@ public class Instrumentation implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("instrumentation"));
@@ -48,7 +48,7 @@ public class Instrumentation implements ResultSetToFields, SolrFieldGenerator {
 	public List<String> getHandledFields() { return Arrays.asList("382"); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
 
 		SolrFields sfs = new SolrFields();
 		for( DataField f: rec.matchSortAndFlattenDataFields() ) {

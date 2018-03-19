@@ -16,8 +16,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -49,7 +49,7 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("007"));
@@ -94,7 +94,7 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		String record_type =          rec.leader.substring(6,7);
 		String bibliographic_level =  rec.leader.substring(7,8);

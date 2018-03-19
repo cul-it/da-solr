@@ -32,10 +32,10 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.CallNumber;
 import edu.cornell.library.integration.indexer.utilities.ModifyCallNumbers;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -56,7 +56,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -112,7 +112,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<String> descriptions = new HashSet<>();
 		boolean description_with_e = false;
@@ -312,7 +312,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	private static void registerBoundWith(
-			SolrBuildConfig config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
+			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
 					throws ClassNotFoundException, SQLException {
 		String item_enum = "";
 		String barcode = null;

@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
@@ -32,7 +32,7 @@ public class IdentifyCurrentVoyagerRecords {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyCurrentVoyagerRecords( SolrBuildConfig.loadConfig(args, requiredArgs) );
+			new IdentifyCurrentVoyagerRecords( Config.loadConfig(args, requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
@@ -52,7 +52,7 @@ public class IdentifyCurrentVoyagerRecords {
 	 * @throws IOException 
 	 * 
 	 */
-	public IdentifyCurrentVoyagerRecords(SolrBuildConfig config)
+	public IdentifyCurrentVoyagerRecords(Config config)
 			throws ClassNotFoundException, SQLException, IOException, InterruptedException{
 
 		config.setDatabasePoolsize("Current", 2);
@@ -71,7 +71,7 @@ public class IdentifyCurrentVoyagerRecords {
 	    }
 	}
 
-	private static void buildBibVoyTable(SolrBuildConfig config, Connection voyager,Connection current)
+	private static void buildBibVoyTable(Config config, Connection voyager,Connection current)
 			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement()  ){
@@ -128,7 +128,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 
 
-	private static void buildMfhdVoyTable(SolrBuildConfig config, Connection voyager,Connection current)
+	private static void buildMfhdVoyTable(Config config, Connection voyager,Connection current)
 			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement()  ){

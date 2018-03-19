@@ -14,8 +14,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -36,7 +36,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -91,7 +91,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 
   	static Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
   	@Override
-	public SolrFields generateSolrFields ( MarcRecord bib, SolrBuildConfig config ) {
+	public SolrFields generateSolrFields ( MarcRecord bib, Config config ) {
 	  	Collection<String> loccodes = new HashSet<>();
 	  	Boolean newBooksZNote = false;
 

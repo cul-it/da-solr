@@ -5,12 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class AddToQueue {
 
-	public static void newBib(SolrBuildConfig config, int bib_id, Timestamp mod_date)
+	public static void newBib(Config config, int bib_id, Timestamp mod_date)
 			throws ClassNotFoundException, SQLException {
 
 		try (

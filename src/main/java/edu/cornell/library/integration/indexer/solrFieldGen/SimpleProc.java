@@ -9,8 +9,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
@@ -22,7 +22,7 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("notes"));
@@ -52,7 +52,7 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		SolrFields sfs = new SolrFields();
 

@@ -13,20 +13,20 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class DownloadMARC {
-	SolrBuildConfig config;
+	Config config;
 	DavService davService;
 	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;
 
-	public DownloadMARC(SolrBuildConfig config) {
+	public DownloadMARC(Config config) {
 		davService = DavServiceFactory.getDavService(config);
 		this.config = config;
 	}

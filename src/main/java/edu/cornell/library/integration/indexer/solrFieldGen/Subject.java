@@ -23,12 +23,12 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
@@ -48,7 +48,7 @@ public class Subject implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
+			final Map<String, ResultSet> results, final Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("subjects") );
@@ -76,7 +76,7 @@ public class Subject implements ResultSetToFields, SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;

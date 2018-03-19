@@ -12,9 +12,9 @@ import org.apache.solr.common.SolrInputDocument;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.documentPostProcess.DocumentPostProcess;
 import edu.cornell.library.integration.indexer.fieldMaker.FieldMaker;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.ChangeListener;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
@@ -69,7 +69,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	@Override
 	public SolrInputDocument buildDoc(String recordURI,
-			SolrBuildConfig config) throws Exception {	
+			Config config) throws Exception {	
 
 		if(debug)
 			System.out.println("building document for " + recordURI);

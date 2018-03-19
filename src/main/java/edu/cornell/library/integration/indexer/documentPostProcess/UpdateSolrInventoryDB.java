@@ -24,8 +24,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 
@@ -41,7 +41,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 	static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
-	public void p(String recordURI, SolrBuildConfig config,
+	public void p(String recordURI, Config config,
 			SolrInputDocument document) throws Exception {
 
 		try (Connection conn = config.getDatabaseConnection("Current")) {

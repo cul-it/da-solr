@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.ilcommons.configuration;
+package edu.cornell.library.integration.indexer.utilities;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -27,8 +27,8 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 
@@ -51,7 +51,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  *  4 make sure your property is checked in checkConfiguration
  *  5 add your property to the example properties file at voyagerToSolrConfig.properties.example
  */
-public class SolrBuildConfig {
+public class Config {
 
 	protected static boolean debug = false;
 
@@ -608,7 +608,7 @@ public class SolrBuildConfig {
         values.put("dailyReports", insertIterationContext(reports));
     }
     
-    /* Populate SolrBuildConfig values into Hadoop context mapper
+    /* Populate Config values into Hadoop context mapper
      * 
      */
     public Configuration valuesToHadoopConfig(Configuration hadoopConf) {
@@ -621,11 +621,11 @@ public class SolrBuildConfig {
     }
     
     /*
-     * Convert Hadoop Configuration to SolrBuildConfig, inserting any dates into
+     * Convert Hadoop Configuration to Config, inserting any dates into
      * config values where XXXX appears.
      */
-    public static SolrBuildConfig loadConfig( Configuration hadoopConf ) {
-        SolrBuildConfig solrBuildConfig = new SolrBuildConfig();
+    public static Config loadConfig( Configuration hadoopConf ) {
+        Config solrBuildConfig = new Config();
         Iterator<Map.Entry<String, String>> i = hadoopConf.iterator();
         while (i.hasNext()) {
             Map.Entry<String, String> entry = i.next();
@@ -672,7 +672,7 @@ public class SolrBuildConfig {
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
     @Deprecated
-    public static SolrBuildConfig loadConfig( String[] argv ) {
+    public static Config loadConfig( String[] argv ) {
     	Collection<String> requiredFields = new HashSet<>();
         return loadConfig(argv,requiredFields);        
     }
@@ -698,7 +698,7 @@ public class SolrBuildConfig {
      *  argv from main().
      * @throws Exception if no configuration is found or if there are problems with the configuration.
      */
-    public static SolrBuildConfig loadConfig( String[] argv, Collection<String> requiredFields ) {
+    public static Config loadConfig( String[] argv, Collection<String> requiredFields ) {
         
         String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
         
@@ -711,7 +711,7 @@ public class SolrBuildConfig {
                     + "A configuration is expeced on the command line or in the environment variable "
                     + VOYAGER_TO_SOLR_CONFIG + ".\n" + HELP );        
         
-        SolrBuildConfig config=null;
+        Config config=null;
         try{
         if( v2bl_config != null )
             config = loadFromEnvVar( v2bl_config );
@@ -730,7 +730,7 @@ public class SolrBuildConfig {
     }
 
 
-    private static SolrBuildConfig loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
+    private static Config loadFromArgv(String[] argv) throws FileNotFoundException, IOException {
     	List<InputStream> inputStreams = new ArrayList<>();
     	for (String arg : argv) {
     		if (arg.endsWith(".properties")) {
@@ -746,7 +746,7 @@ public class SolrBuildConfig {
      * Load from the env var. It might be a single file name, or two file names seperated 
      * by a comma.  Also check the classpath.
      */
-    private static SolrBuildConfig loadFromEnvVar( String value ) throws Exception {
+    private static Config loadFromEnvVar( String value ) throws Exception {
         System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'="+value);
 
         String[] names = value.split(",");
@@ -764,7 +764,7 @@ public class SolrBuildConfig {
      * 
      * If inB is null, only inA will be loaded. 
      */
-    public static SolrBuildConfig loadFromPropertiesFile(List<InputStream> inputs) 
+    public static Config loadFromPropertiesFile(List<InputStream> inputs) 
             throws IOException{
         
         Properties prop = new Properties();
@@ -773,7 +773,7 @@ public class SolrBuildConfig {
         	prop.load( in );
         }
         
-        SolrBuildConfig conf = new SolrBuildConfig();
+        Config conf = new Config();
 
         if (debug) System.out.println("Adding all properties to program config.");
         Iterator<String> i = prop.stringPropertyNames().iterator();
@@ -820,7 +820,7 @@ public class SolrBuildConfig {
      * Returns empty String if configuration is good.
      * Otherwise, it returns a message describing what is missing or problematic.
      */
-    public static String checkConfiguration( Collection<String> requiredArgs, SolrBuildConfig checkMe){
+    public static String checkConfiguration( Collection<String> requiredArgs, Config checkMe){
         String errMsgs = "";
 
         // fields required for select processes
@@ -934,7 +934,7 @@ public class SolrBuildConfig {
         if( f.exists() ){
             return new FileInputStream(f);
         }
-		InputStream is = SolrBuildConfig.class.getClassLoader().getResourceAsStream(name);
+		InputStream is = Config.class.getClassLoader().getResourceAsStream(name);
 		if( is == null )
 		    throw new FileNotFoundException("Could not find file in file system or on classpath: " + name );
 		return is;                        

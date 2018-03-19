@@ -7,8 +7,8 @@ import java.sql.Statement;
 import java.util.Calendar;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.BatchLogic;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class IterativeUpdateFromVoyager {
@@ -17,9 +17,9 @@ public class IterativeUpdateFromVoyager {
 			" WHERE done_date = 0 AND batched_date = 0 AND priority = 0 LIMIT 1";
 
 	public static void main(String[] args) throws Exception {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+		requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
+		requiredArgs.addAll(Config.getRequiredArgsForWebdav());
 		requiredArgs.add("dailyMrcDir");
 		requiredArgs.add("dailyMfhdDir");
 		requiredArgs.add("marc2XmlDirs");
@@ -28,7 +28,7 @@ public class IterativeUpdateFromVoyager {
 		requiredArgs.add("dailyMrcNtDir");
 		requiredArgs.add("dailyMrcNtFilenamePrefix");
     	requiredArgs.add("solrUrl");
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
+		Config config = Config.loadConfig(args,requiredArgs);
 
 		String webdavBaseURL = config.getWebdavBaseUrl();
 		String localBaseFilePath = config.getLocalBaseFilePath();
@@ -88,7 +88,7 @@ public class IterativeUpdateFromVoyager {
 		}
 	}
 
-	private static boolean isQueueRemaining(SolrBuildConfig config) throws ClassNotFoundException, SQLException {
+	private static boolean isQueueRemaining(Config config) throws ClassNotFoundException, SQLException {
 		boolean remaining = false;
 		try ( Connection current = config.getDatabaseConnection("Current");
 				Statement stmt = current.createStatement();

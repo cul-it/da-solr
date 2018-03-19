@@ -12,8 +12,8 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
@@ -32,7 +32,7 @@ public class RecordType implements ResultSetToFields, SolrFieldGenerator {
 	
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -73,7 +73,7 @@ public class RecordType implements ResultSetToFields, SolrFieldGenerator {
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings"); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig unused ) {
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
 
 		Boolean isShadow = false;
 

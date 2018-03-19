@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr;
 import edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 /**
  * Process 100 records, and display the differences between the stored versions of
@@ -17,20 +17,20 @@ import edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch;
 public class ProcessTestRecordBatch {
 
 	public static void main(String[] args) throws Exception {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+		requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
+		requiredArgs.addAll(Config.getRequiredArgsForWebdav());
 		requiredArgs.add("solrUrl");
 		requiredArgs.add("dailyBibMrcXmlDir");
 		requiredArgs.add("dailyMfhdMrcXmlDir");
 		requiredArgs.add("dailyMrcNtDir");
 		requiredArgs.add("dailyMrcNtFilenamePrefix");
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
+		Config config = Config.loadConfig(args, requiredArgs);
 
 		new ProcessTestRecordBatch(config);
 	}
 
-	public ProcessTestRecordBatch(SolrBuildConfig config) throws Exception {
+	public ProcessTestRecordBatch(Config config) throws Exception {
 		int batchSize = 100;
 
 		String random = RandomStringUtils.randomAlphanumeric(12);

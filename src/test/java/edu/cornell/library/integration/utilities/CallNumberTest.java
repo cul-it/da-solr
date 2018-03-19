@@ -8,19 +8,19 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.CallNumber;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
 
 @SuppressWarnings("static-method")
 public class CallNumberTest {
 
-	static SolrBuildConfig config = null;
+	static Config config = null;
 
 	@BeforeClass
 	public static void setup() {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("CallNos");
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		List<String> requiredArgs = Config.getRequiredArgsForDB("CallNos");
+		config = Config.loadConfig(null,requiredArgs);
 	}
 
 	@Test

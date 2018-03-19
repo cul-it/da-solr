@@ -14,8 +14,8 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
@@ -32,7 +32,7 @@ public class HathiLinks implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
@@ -57,7 +57,7 @@ public class HathiLinks implements ResultSetToFields, SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 
 		Collection<String> oclcids = new HashSet<>();

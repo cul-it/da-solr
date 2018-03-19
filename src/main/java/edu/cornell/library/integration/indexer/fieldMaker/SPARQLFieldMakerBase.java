@@ -11,7 +11,7 @@ import org.apache.solr.common.SolrInputField;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public abstract class SPARQLFieldMakerBase implements FieldMaker{
@@ -54,7 +54,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	 */
 	protected Map<String,ResultSet> runQueries( 
 			String recordURI, 
-			SolrBuildConfig config) throws Exception {
+			Config config) throws Exception {
 		Map<String, ResultSet> results = new HashMap<>();
 
 		//run remote queries
@@ -98,7 +98,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(
 			String recordURI, 
-			SolrBuildConfig config) throws Exception {
+			Config config) throws Exception {
 		
 		Map<String, ResultSet> resultSets = runQueries(recordURI, config);  
 
@@ -118,7 +118,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	 * SolrInputFields.
 	 */
 	protected abstract Map<? extends String, ? extends SolrInputField> 
-	    resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
+	    resultSetsToSolrFields( Map<String, ResultSet> results, Config config ) 
 			throws Exception;
 
 

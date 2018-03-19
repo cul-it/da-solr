@@ -8,18 +8,18 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
 public class HathiLinksTest {
 
 	SolrFieldGenerator gen = new HathiLinks();
-	static SolrBuildConfig config = null;
+	static Config config = null;
 
 	@BeforeClass
 	public static void setup() {
-		config = SolrBuildConfig.loadConfig(null,SolrBuildConfig.getRequiredArgsForDB("Hathi"));
+		config = Config.loadConfig(null,Config.getRequiredArgsForDB("Hathi"));
 	}
 
 	@Test

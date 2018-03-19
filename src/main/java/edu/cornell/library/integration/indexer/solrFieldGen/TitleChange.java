@@ -17,8 +17,8 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
@@ -38,7 +38,7 @@ public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("added_entry") );
@@ -61,7 +61,7 @@ public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
@@ -106,7 +106,7 @@ public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 		return sfs;
 	}
 
-	private static List<SolrField> processAuthorAddedEntryFields(SolrBuildConfig config, DataFieldSet fs)
+	private static List<SolrField> processAuthorAddedEntryFields(Config config, DataFieldSet fs)
 			throws ClassNotFoundException, SQLException, IOException {
 		List<FieldValues> ctsValsList  = NameUtils.authorAndOrTitleValues(fs);
 		if (ctsValsList == null) return null;

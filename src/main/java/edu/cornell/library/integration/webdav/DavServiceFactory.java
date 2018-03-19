@@ -1,10 +1,10 @@
-package edu.cornell.library.integration.ilcommons.service;
+package edu.cornell.library.integration.webdav;
  
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 public class DavServiceFactory {
 
-   public static DavService getDavService(SolrBuildConfig config){
+   public static DavService getDavService(Config config){
        DavService srvc = new DavServiceImpl(config.getWebdavUser(), config.getWebdavPassword());
        String localPath = config.getLocalBaseFilePath();
        if (localPath != null) {

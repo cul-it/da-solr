@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.RelatorSet;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.Script;
@@ -108,7 +108,7 @@ public class NameUtils {
 	}
 
 	public static List<SolrField> combinedRomanNonRomanAuthorEntry(
-			SolrBuildConfig config, DataFieldSet fs, List<FieldValues> ctsValsList, Boolean isMainAuthor )
+			Config config, DataFieldSet fs, List<FieldValues> ctsValsList, Boolean isMainAuthor )
 					throws SQLException, ClassNotFoundException, IOException {
 
 		String display1 = NameUtils.displayValue( fs.getFields().get(0), false );
@@ -171,7 +171,7 @@ public class NameUtils {
 	}
 
 	public static List<SolrField> singleAuthorEntry(
-			SolrBuildConfig config, DataField f, FieldValues ctsVals, Boolean isMainAuthor)
+			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor)
 			throws SQLException, ClassNotFoundException, IOException {
 		boolean isCJK = f.getScript().equals(Script.CJK);
 

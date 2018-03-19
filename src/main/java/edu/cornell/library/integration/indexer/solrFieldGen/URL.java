@@ -17,8 +17,8 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
@@ -35,7 +35,7 @@ public class URL implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -76,7 +76,7 @@ public class URL implements ResultSetToFields, SolrFieldGenerator {
 	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig unused )
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config unused )
 			throws IOException {
 		SolrFields sfs = new SolrFields();
 
