@@ -255,8 +255,8 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 				displaySubfields = "b";
 				break;
 			case 903:
-				searchField = "barcode_t";
-				cjkSearchField = "barcode_t_cjk";
+				searchField = "barcode_addl_t";
+				cjkSearchField = "barcode_addl_t";
 				searchSubfields = "p";
 				break;
 			case 940:    displaySubfields = "a";         searchSubfields = "a";        break;

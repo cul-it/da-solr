@@ -1,95 +1,54 @@
-package edu.cornell.library.integration.indexer.documentPostProcess;
+package edu.cornell.library.integration.indexer.utilities;
 
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.sql.SQLException;
 
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.solrFieldGen.FactOrFiction;
+import edu.cornell.library.integration.indexer.solrFieldGen.SolrFieldGenerator;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * If a work is on the New & Noteworthy Books shelf at Olin, the holdings call number
  * represents its eventual library of congress filing in the stacks, but not its current
  * filing on the shelf. We can display the actual shelf location to patrons, however.
  */
-public class ModifyCallNumbers implements DocumentPostProcess {
+public class ModifyCallNumbers {
 
-	@Override
-	public void p(String recordURI, SolrBuildConfig config,
-			SolrInputDocument document) throws Exception {
+	public static String modify(MarcRecord bib , String orig)
+			throws ClassNotFoundException, SQLException, IOException {
 
-		final String holdingsField = "holdings_record_display";
-		
-		if (! document.containsKey(holdingsField))
-			return; // without holdings, we have nothing to modify
-
-		SolrInputField holdings = document.getField(holdingsField);
-		SolrInputField processedHoldings = new SolrInputField(holdingsField);
-		boolean foundSomethingToChange = false;
-		ObjectMapper mapper = new ObjectMapper();
-
-		for (Object o : holdings.getValues()) {
-			if (o.toString().contains("New & Noteworthy")) {
-				// modify
-				@SuppressWarnings("unchecked")
-				Map<String,Object> holdRec = mapper.readValue(o.toString(),Map.class);
-				@SuppressWarnings("unchecked")
-				List<Object> callnos = (List<Object>) holdRec.get("callnos");
-				for (int i = 0; i < callnos.size(); i++) {
-					String call = callnos.get(i).toString().trim();
-					if (call.startsWith("New & Noteworthy Books")) {
-						boolean fiction = isFiction(document);
-						String author = getAuthorPrefix(document);
-						String newCall;
-						if (call.endsWith("+"))
-							newCall = "New & Noteworthy Books Oversize "+author+" ++";
-						else
-							newCall = "New & Noteworthy Books "+
-								((fiction) ? "Fiction " : "Non-Fiction ")+
-								author;
-						callnos.set(i, newCall);
-						foundSomethingToChange = true;
-					}
-				}
-				String json = mapper.writeValueAsString(holdRec);
-				processedHoldings.addValue(json, 1f);
-			} else {
-				processedHoldings.addValue(o, 1f);
-			}
+		if (orig.trim().startsWith("New & Noteworthy Books")) {
+			boolean fiction = isFiction(bib);
+			String author = getAuthorPrefix(bib);
+			if (orig.endsWith("+"))
+				return "New & Noteworthy Books Oversize "+author+" ++";
+			return "New & Noteworthy Books "+((fiction) ? "Fiction " : "Non-Fiction ")+author;
 		}
-		
-		if (foundSomethingToChange) 
-			document.put(holdingsField, processedHoldings);
+		return orig;
+	}
 
+	private static boolean isFiction (MarcRecord bib) throws ClassNotFoundException, SQLException, IOException {
+		SolrFieldGenerator factOrFictionGenerator = new FactOrFiction();
+		SolrFields factOrFictionFields = factOrFictionGenerator.generateSolrFields(bib, null);
+		for (SolrField f : factOrFictionFields.fields)
+			if (f.fieldName.equals("subject_content_facet")
+					&& f.fieldValue.equals("Fiction (books)"))
+				return true;
+		return false;
 	}
-	
-	private static boolean isFiction (SolrInputDocument d) {
-		final String fictionField = "subject_content_facet";
-		if ( ! d.containsKey(fictionField))
-			return false;
-		SolrInputField f = d.getField(fictionField);
-		boolean isFiction = false;
-		for (Object o : f.getValues()) 
-			if (o.toString().startsWith("Fiction"))
-				isFiction = true;
-		return isFiction;
-	}
-	
-	private static String getAuthorPrefix (SolrInputDocument d) {
-		final String authorField = "author_display";
-		if ( ! d.containsKey(authorField)) 
-			return null;
+
+	private static String getAuthorPrefix (MarcRecord bib) {
 		String author = null;
-		for (Object o : d.getFieldValues(authorField)) 
-			author = o.toString();
-		if (author == null)
-			return null;
-		// If we have a non-Roman and Roman version, skip to the Romanized
-		if (author.contains(" / "))
-			author = author.substring(author.indexOf(" / ")+3);
+		for (DataField f : bib.dataFields)
+			if (f.tag.equals("100") || f.tag.equals("110"))
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('a'))
+						author = sf.value;
+
+		if (author == null) return null;
 		// Shorten to 4 characters
 		if (author.length() > 4)
 			author = author.substring(0, 4);

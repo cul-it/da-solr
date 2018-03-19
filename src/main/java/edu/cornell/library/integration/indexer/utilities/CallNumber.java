@@ -1,34 +1,22 @@
-package edu.cornell.library.integration.indexer.solrFieldGen;
-
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
+package edu.cornell.library.integration.indexer.utilities;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
-import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * Build Call number search, sort and facet fields.
  */
-public class CallNumber implements ResultSetToFields, SolrFieldGenerator {
+public class CallNumber {
 
 	final boolean debug = false;
 
@@ -37,122 +25,79 @@ public class CallNumber implements ResultSetToFields, SolrFieldGenerator {
 	private final static String search = "lc_callnum_full";
 	private final static String facet =  "lc_callnum_facet";
 
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+	private List<Sort> sortCandidates = new ArrayList<>();
+	private Set<Classification> classes = new LinkedHashSet<>();
+	private SolrFields sfs = new SolrFields();
 
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			while( rs.hasNext() ) {
-				QuerySolution sol = rs.nextSolution();
-
-				if ( resultKey.startsWith("bib") ) {
-					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
-				} else {
-					String recordURI = nodeToString(sol.get("mfhd"));
-					MarcRecord rec;
-					if (holdingRecs.containsKey(recordURI)) {
-						rec = holdingRecs.get(recordURI);
-					} else {
-						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-						rec.id = recordURI.substring(recordURI.lastIndexOf('/')+1);
-						holdingRecs.put(recordURI, rec);
-					}
-					JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
-				}
-			}
-		}
-		bibRec.holdings.addAll(holdingRecs.values());
-		SolrFields vals = generateSolrFields( bibRec, config );
-		Map<String,SolrInputField> fields = new HashMap<>();
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-		return fields;
+	public CallNumber () {
+		
 	}
 
-	@Override
-	public String getVersion() { return "1.0"; }
+	public void tabulateCallNumber( DataField f ) {
 
-	@Override
-	public List<String> getHandledFields() { return Arrays.asList("050","950","holdings"); }
+		Boolean isHolding = f.mainTag.equals("852");
+		Boolean isLC = true;
+		String sortVal = null;
 
-	@Override
-	public SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
-			throws ClassNotFoundException, SQLException {
+		String callNumber = f.concatenateSpecificSubfields(isHolding?"hi":"ab");
+		if (callNumber.equalsIgnoreCase("No Call Number")) return;
 
-		List<DataField> allFields = bibRec.matchSortAndFlattenDataFields();
-		for (MarcRecord holdingsRec : bibRec.holdings)
-			allFields.addAll(holdingsRec.matchSortAndFlattenDataFields("852"));
-
-		Set<Classification> classes = new LinkedHashSet<>();
-		List<Sort> sortCandidates = new ArrayList<>();
-		SolrFields sfs = new SolrFields();
-
-		for (DataField f : allFields) {
-
-			Boolean isHolding = f.mainTag.equals("852");
-			Boolean isLC = true;
-			String sortVal = null;
-
-			String callNumber = f.concatenateSpecificSubfields(isHolding?"hi":"ab");
-			if (callNumber.equalsIgnoreCase("No Call Number")) continue;
-
-			if ( ! callNumber.isEmpty()) {
-				sortVal = callNumber;
-				sfs.add(new SolrField(search,callNumber));
-			}
-			String callNumber2 = callNumber;
-			if (callNumber.toLowerCase().startsWith("thesis ")) {
-				callNumber2 = callNumber.substring(7);
-				if ( ! callNumber2.isEmpty()) {
-					sortVal = callNumber2;
-					sfs.add(new SolrField(search,callNumber2));
-				}
-			}
-			if (isHolding) {
-				String callNumberWithPrefix = f.concatenateSpecificSubfields("khi");
-				if ( ! callNumberWithPrefix.isEmpty()
-						&& ! callNumberWithPrefix.equals(callNumber)  && ! callNumberWithPrefix.equals(callNumber2) )
-					sfs.add(new SolrField(search,callNumberWithPrefix));
-			}
-
-			// remaining logic relates to facet values, for which we only want LC call numbers
-			if ( isHolding && ! f.ind1.equals('0')) {
-				isLC = false;
-			}
-
-			int initialLetterCount = 0;
-			while ( callNumber2.length() > initialLetterCount) {
-				if ( Character.isLetter(callNumber2.charAt(initialLetterCount)) )
-					initialLetterCount++;
-				else
-					break;
-			}
-
-			if (initialLetterCount > 3) {
-				isLC = false;
-			}
-
-			if (sortVal != null)
-				sortCandidates.add( new Sort( sortVal, isLC, isHolding ) );
-
-			if ( ! isLC ) continue;
-
-			if (callNumber2.length() > initialLetterCount) {
-				int initialNumberOffset = initialLetterCount;
-				for ( ; initialNumberOffset < callNumber2.length() ; initialNumberOffset++) {
-					Character c = callNumber2.charAt(initialNumberOffset);
-					if (! Character.isDigit(c) && ! c.equals('.'))
-						break;
-				}
-				classes.add(new Classification(
-						callNumber2.substring(0,initialLetterCount).toUpperCase(),
-						callNumber2.substring(initialLetterCount, initialNumberOffset)));
+		if ( ! callNumber.isEmpty()) {
+			sortVal = callNumber;
+			sfs.add(new SolrField(search,callNumber));
+		}
+		String callNumber2 = callNumber;
+		if (callNumber.toLowerCase().startsWith("thesis ")) {
+			callNumber2 = callNumber.substring(7);
+			if ( ! callNumber2.isEmpty()) {
+				sortVal = callNumber2;
+				sfs.add(new SolrField(search,callNumber2));
 			}
 		}
+		if (isHolding) {
+			String callNumberWithPrefix = f.concatenateSpecificSubfields("khi");
+			if ( ! callNumberWithPrefix.isEmpty()
+					&& ! callNumberWithPrefix.equals(callNumber)  && ! callNumberWithPrefix.equals(callNumber2) )
+				sfs.add(new SolrField(search,callNumberWithPrefix));
+		}
+
+		// remaining logic relates to facet values, for which we only want LC call numbers
+		if ( isHolding && ! f.ind1.equals('0')) {
+			isLC = false;
+		}
+
+		int initialLetterCount = 0;
+		while ( callNumber2.length() > initialLetterCount) {
+			if ( Character.isLetter(callNumber2.charAt(initialLetterCount)) )
+				initialLetterCount++;
+			else
+				break;
+		}
+
+		if (initialLetterCount > 3) {
+			isLC = false;
+		}
+
+		if (sortVal != null)
+			sortCandidates.add( new Sort( sortVal, isLC, isHolding ) );
+
+		if ( ! isLC ) return;
+
+		if (callNumber2.length() > initialLetterCount) {
+			int initialNumberOffset = initialLetterCount;
+			for ( ; initialNumberOffset < callNumber2.length() ; initialNumberOffset++) {
+				Character c = callNumber2.charAt(initialNumberOffset);
+				if (! Character.isDigit(c) && ! c.equals('.'))
+					break;
+			}
+			classes.add(new Classification(
+					callNumber2.substring(0,initialLetterCount).toUpperCase(),
+					callNumber2.substring(initialLetterCount, initialNumberOffset)));
+		}
+		return;
+	}
+
+	public SolrFields getCallNumberFields( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
 
 		if ( ! sortCandidates.isEmpty() )
 			sfs.add(new SolrField(sort,chooseSortValue(sortCandidates)));

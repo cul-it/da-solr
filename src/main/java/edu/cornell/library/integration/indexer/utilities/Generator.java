@@ -22,13 +22,14 @@ public enum Generator {
 	MARC(        MARC.class ),
 	SIMPLEPROC(  SimpleProc.class ),
 	FINDINGAIDS( FindingAids.class ),
-	CALLNO(      CallNumber.class ),
 	CITATIONREF( CitationReferenceNote.class ),
 	URL(         URL.class ),
 	HATHILINKS(  HathiLinks.class ),
 	NEWBOOKS(    NewBooks.class ),
 	RECORDTYPE(  RecordType.class ),
-	RECORDBOOST( RecordBoost.class );
+	RECORDBOOST( RecordBoost.class ),
+	@Deprecated
+	HOLDINGS(    HoldingsAndItems.class);
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
 

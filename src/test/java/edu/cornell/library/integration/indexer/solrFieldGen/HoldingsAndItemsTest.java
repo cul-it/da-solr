@@ -14,10 +14,10 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class HoldingsAndItemsTest {
 
 	static SolrBuildConfig config = null;
+	SolrFieldGenerator gen = new HoldingsAndItems();
 
 	@BeforeClass
 	public static void setup() {
@@ -49,7 +49,7 @@ public class HoldingsAndItemsTest {
 		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"serv,remo\",\"number\":128,"
 		+ "\"name\":\"*Networked Resource\",\"library\":null}]}\n"+
 		"multivol_b: false\n";
-		assertEquals(expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals(expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -74,6 +74,9 @@ public class HoldingsAndItemsTest {
 		+ "\"callnos\":[\"DS665 .C36 2016\"],\"notes\":[],\"holdings_desc\":[],\"recent_holdings_desc\":[],"
 		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"ech\","
 		+ "\"number\":13,\"name\":\"Kroch Library Asia\",\"library\":\"Kroch Library Asia\"}]}\n"+
+		"lc_callnum_full: DS665 .C36 2016\n"+
+		"callnum_sort: DS665 .C36 2016\n"+
+		"barcode_t: 31924124165360\n"+
 		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"10165353\",\"year\":"
 		+ "\"\",\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\","
 		+ "\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\",\"temp_item_type_id\":\"0\","
@@ -86,7 +89,7 @@ public class HoldingsAndItemsTest {
 		"location: Kroch Library Asia > Kroch Library Asia\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 	
 	@Test
@@ -142,6 +145,13 @@ public class HoldingsAndItemsTest {
 		+ "\"callnos\":[\"TD878.48 .K46 2015\"],\"notes\":[],\"holdings_desc\":[],\"recent_holdings_desc\":[],"
 		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"mann\","
 		+ "\"number\":69,\"name\":\"Mann Library\",\"library\":\"Mann Library\"}]}\n"+
+		"lc_callnum_full: TD878.48 .K46 2015\n"+
+		"lc_callnum_full: TD878.48 .K46 2015\n"+
+		"lc_callnum_full: TD878.48 .K46 2015\n"+
+		"callnum_sort: TD878.48 .K46 2015\n"+
+		"barcode_t: 31924123751350\n"+
+		"barcode_t: 31924123751368\n"+
+		"barcode_t: 31924121536126\n"+
 		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"9758041\","
 		+ "\"year\":\"\",\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
 		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\","
@@ -171,7 +181,7 @@ public class HoldingsAndItemsTest {
 		"location: Mann Library > Mann Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -198,6 +208,16 @@ public class HoldingsAndItemsTest {
 		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"mann,cd\","
 		+ "\"number\":74,\"name\":\"Mann Library Collection Development (Non-Circulating)\","
 		+ "\"library\":\"Mann Library\"}]}\n"+
+		"lc_callnum_full: ZA4080.4 .C87 2016\n"+
+		"callnum_sort: ZA4080.4 .C87 2016\n"+
+		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources\n"+
+		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources:ZA - Information Resources\n"+
+		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources:ZA - Information Resources:"
+		+ "ZA4050-4775 - Information in specific formats or media\n"+
+		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources:ZA - Information Resources:"
+		+ "ZA4050-4775 - Information in specific formats or media:ZA4050-4480 - Electronic information resources\n"+
+		"barcode_t: 31924123105896\n"+
+		"barcode_t: 31924122947132\n"+
 		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"nocirc\",\"item_id\":\"10132536\","
 		+ "\"year\":\"\",\"item_type_id\":\"9\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
 		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"v.1\",\"item_sequence_number\":\"1\","
@@ -219,7 +239,7 @@ public class HoldingsAndItemsTest {
 		"location: Mann Library > Mann Library Collection Development (Non-Circulating)\n"+
 		"online: At the Library\n"+
 		"multivol_b: true\n";
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -247,6 +267,13 @@ public class HoldingsAndItemsTest {
 		+ "\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],"
 		+ "\"locations\":[{\"code\":\"mus,ref\",\"number\":93,"
 		+ "\"name\":\"Music Library Reference (Non-Circulating)\",\"library\":\"Music Library\"}]}\n"+
+		"lc_callnum_full: M3 .W42 1996\n"+
+		"callnum_sort: M3 .W42 1996\n"+
+		"lc_callnum_facet: M - Music\n"+
+		"lc_callnum_facet: M - Music:M - Music\n"+
+		"lc_callnum_facet: M - Music:M - Music:M3-3.3 - Collected works of individual composers\n"+
+		"barcode_t: 31924123223772\n"+
+		"barcode_t: 31924123223764\n"+
 		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"nocirc\",\"item_id\":\"10117928\","
 		+ "\"year\":\"\",\"item_type_id\":\"9\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
 		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"score; critical report\","
@@ -270,7 +297,7 @@ public class HoldingsAndItemsTest {
 		"mainitem_b: true\n"+
 		"multivolwblank_b: true\n"+
 		"multivol_b: true\n";
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -298,6 +325,10 @@ public class HoldingsAndItemsTest {
 		+ " publication.\"],\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
 		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"mann\",\"number\":69,\"name\":\"Mann Library\","
 		+ "\"library\":\"Mann Library\"}]}\n"+
+		"lc_callnum_full: SF1 .E89 no.137\n"+
+		"callnum_sort: SF1 .E89 no.137\n"+
+		"lc_callnum_facet: S - Agriculture\n"+
+		"lc_callnum_facet: S - Agriculture:SF - Animal Culture\n"+
 		"barcode_addl_t: 31924123150835\n"+
 		"bound_with_json: {\"item_enum\":\"\",\"item_id\":10035199,\"mfhd_id\":\"10016824\","
 		+ "\"barcode\":\"31924123150835\"}\n"+
@@ -307,7 +338,7 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: false\n";
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -337,6 +368,8 @@ public class HoldingsAndItemsTest {
 		+ " American fiction.\"],\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],"
 		+ "\"index_holdings_desc\":[],\"locations\":[{\"code\":\"olin,anx\",\"number\":101,\"name\":"
 		+ "\"Library Annex\",\"library\":\"Library Annex\"}]}\n"+
+		"lc_callnum_full: Film 2600 1774-1850 Reel A-1, no.10.\n"+
+		"callnum_sort: Film 2600 1774-1850 Reel A-1, no.10.\n"+
 		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"microform\",\"item_id\":\"10276119\","
 		+ "\"year\":\"\",\"item_type_id\":\"19\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
 		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"Filmed with:\",\"item_sequence_number\":"
@@ -351,7 +384,231 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: true\n";
-//		System.out.println(HoldingsAndItems.generateSolrFields(bibRec,config).toString().replaceAll("\"","\\\\\""));
-		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testNewAndNoteworthyCallNumberManipulationNonFiction()
+			throws ClassNotFoundException, SQLException, IOException {
+
+		// Non fiction 9753057
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "02677cam a2200409 i 4500";
+		bibRec.controlFields.add(new ControlField(1,"008","160614s2016    caua          000 0 eng"));
+		bibRec.dataFields.add(new DataField(2,"100",'1',' ',"‡a Neely, Nick, ‡e author."));
+		bibRec.dataFields.add(new DataField(3,"300",' ',' ',"‡a 215 pages : ‡b illustrations ; ‡c 24 cm"));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "10076515";
+		holdRec.modifiedDate = "20170119150507.0";
+		holdRec.leader = "00352cx  a2200121z  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","10076515"));
+		holdRec.controlFields.add(new ControlField(2,"004","9753057"));
+		holdRec.controlFields.add(new ControlField(3,"005","20170119150507.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1612200u||||8|||4001uu|||0000000"));
+		holdRec.dataFields.add(new DataField(7,"852",'0','0',"‡b olin ‡k New & Noteworthy Books ‡h AC8 ‡i .N35 2016"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 10076515|20170119150507\n"+
+		"holdings_record_display: {\"id\":\"10076515\",\"modified_date\":\"20170119150507\",\"copy_number\":null,"
+		+ "\"callnos\":[\"New & Noteworthy Books Non-Fiction NEEL\"],\"notes\":[],\"holdings_desc\":[],"
+		+ "\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],"
+		+ "\"locations\":[{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\",\"library\":\"Olin Library\"}]}\n"+
+		"lc_callnum_full: AC8 .N35 2016\n"+
+		"lc_callnum_full: New & Noteworthy Books AC8 .N35 2016\n"+
+		"callnum_sort: AC8 .N35 2016\n"+
+		"lc_callnum_facet: A - General\n"+
+		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works\n"+
+		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works:AC1-195 - Collections of monographs, essays, etc.\n"+
+		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works:AC1-195 - Collections of monographs, essays, etc.:AC1-8 - American and English\n"+
+		"barcode_t: 31924123845202\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"2wkloan\",\"item_id\":\"10125124\","
+		+ "\"year\":\"\",\"item_type_id\":\"14\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
+		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\","
+		+ "\"temp_item_type_id\":\"0\",\"mfhd_id\":\"10076515\",\"recalls_placed\":\"0\","
+		+ "\"create_date\":\"2017-01-18 13:58:21.0\",\"item_barcode\":\"31924123845202\","
+		+ "\"modify_date\":\"2017-01-19 15:04:58.0\",\"perm_location\":{\"code\":\"olin\",\"number\":99,"
+		+ "\"name\":\"Olin Library\",\"library\":\"Olin Library\"}}\n"+
+		"item_display: 10125124|10076515|20170119150458\n"+
+		"location_facet: Olin Library\n"+
+		"location: Olin Library\n"+
+		"location: Olin Library > Olin Library\n"+
+		"online: At the Library\n"+
+		"multivol_b: false\n";
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testNewAndNoteworthyCallNumberManipulationFiction()
+			throws ClassNotFoundException, SQLException, IOException {
+
+		// Fiction 8573311
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "02421cam a2200505 i 4500";
+		bibRec.controlFields.add(new ControlField(1,"008","140225s2014    nyuaf    b    000 1beng"));
+		bibRec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Bird, Kai."));
+		bibRec.dataFields.add(new DataField(2,"300",' ',' ',
+				"‡a xiv, 430 pages, 16 pages of unnumbered plates : ‡b illustrations ; ‡c 25 cm"));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "9094799";
+		holdRec.modifiedDate = "20141215141205.0";
+		holdRec.leader = "00352cx  a2200121z  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","9094799"));
+		holdRec.controlFields.add(new ControlField(2,"004","8753311"));
+		holdRec.controlFields.add(new ControlField(3,"005","20141215141205.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1612200u||||8|||4001uu|||0000000"));
+		holdRec.dataFields.add(new DataField(7,"852",'0','0',
+				"‡b olin ‡k New & Noteworthy Books ‡h HN49.V64 ‡i L37 2014"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 9094799|20141215141205\n"+
+		"holdings_record_display: {\"id\":\"9094799\",\"modified_date\":\"20141215141205\",\"copy_number\":null,"
+		+ "\"callnos\":[\"New & Noteworthy Books Fiction BIRD\"],\"notes\":[],\"holdings_desc\":[],"
+		+ "\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],"
+		+ "\"locations\":[{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\","
+		+ "\"library\":\"Olin Library\"}]}\n"+
+		"lc_callnum_full: HN49.V64 L37 2014\n"+
+		"lc_callnum_full: New & Noteworthy Books HN49.V64 L37 2014\n"+
+		"callnum_sort: HN49.V64 L37 2014\n"+
+		"lc_callnum_facet: H - Social Sciences\n"+
+		"lc_callnum_facet: H - Social Sciences:HN - Social History & Conditions, Problems & Reform\n"+
+		"barcode_t: 31924121020675\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"9610051\","
+		+ "\"year\":\"\",\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\","
+		+ "\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\","
+		+ "\"temp_item_type_id\":\"0\",\"mfhd_id\":\"9094799\",\"recalls_placed\":\"0\","
+		+ "\"create_date\":\"2014-12-15 14:12:24.0\",\"item_barcode\":\"31924121020675\","
+		+ "\"modify_date\":\"\",\"perm_location\":{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\","
+		+ "\"library\":\"Olin Library\"}}\n"+
+		"item_display: 9610051|9094799\n"+
+		"location_facet: Olin Library\n"+
+		"location: Olin Library\n"+
+		"location: Olin Library > Olin Library\n"+
+		"online: At the Library\n"+
+		"multivol_b: false\n";
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testNewAndNoteworthyCallNumberManipulationOversize()
+			throws ClassNotFoundException, SQLException, IOException {
+
+		// Oversize 9928811
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "03325cam a2200589 i 4500";
+		bibRec.controlFields.add(new ControlField(1,"008","160401s2016    xnaa   e b    001 0deng d"));
+		bibRec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Coulthart, Ross, ‡e author."));
+		bibRec.dataFields.add(new DataField(2,"300",' ',' ',"‡a 397 pages : ‡b illustrations ; ‡c 27 cm."));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "10245520";
+		holdRec.modifiedDate = "20170610162240.0";
+		holdRec.leader = "00352cx  a2200121z  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","10245520"));
+		holdRec.controlFields.add(new ControlField(2,"004","9928811"));
+		holdRec.controlFields.add(new ControlField(3,"005","20170610162240.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1706082u    8   4001uu   0901128"));
+		holdRec.dataFields.add(new DataField(7,"852",'0','0',"‡b olin ‡k New & Noteworthy Books ‡h D547.A8 ‡i C68 2016 ‡m +"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 10245520|20170610162240\n"+
+		"holdings_record_display: {\"id\":\"10245520\",\"modified_date\":\"20170610162240\",\"copy_number\":null,\"callnos\":[\"New & Noteworthy Books Oversize COUL ++\"],\"notes\":[],\"holdings_desc\":[],\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\",\"library\":\"Olin Library\"}]}\n"+
+		"lc_callnum_full: D547.A8 C68 2016\n"+
+		"lc_callnum_full: New & Noteworthy Books D547.A8 C68 2016\n"+
+		"callnum_sort: D547.A8 C68 2016\n"+
+		"lc_callnum_facet: D - World History\n"+
+		"lc_callnum_facet: D - World History:D - History (General)\n"+
+		"lc_callnum_facet: D - World History:D - History (General):D501-680 - World War I (1914-1918)\n"+
+		"barcode_t: 31924124262290\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"2wkloan\",\"item_id\":\"10309656\",\"year\":\"\",\"item_type_id\":\"14\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\",\"temp_item_type_id\":\"0\",\"mfhd_id\":\"10245520\",\"recalls_placed\":\"0\",\"create_date\":\"2017-06-08 08:29:25.0\",\"item_barcode\":\"31924124262290\",\"modify_date\":\"2017-06-10 16:22:04.0\",\"perm_location\":{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\",\"library\":\"Olin Library\"}}\n"+
+		"item_display: 10309656|10245520|20170610162204\n"+
+		"location_facet: Olin Library\n"+
+		"location: Olin Library\n"+
+		"location: Olin Library > Olin Library\n"+
+		"online: At the Library\n"+
+		"multivol_b: false\n";
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testLawCollectionFieldOnBook() throws ClassNotFoundException, SQLException, IOException{
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC ); // 10161043
+		bibRec.leader = "04124cam a2200529 i 4500";
+		bibRec.controlFields.add(new ControlField(1,"008","170817t20182018ilua     b    001 0 eng"));
+		bibRec.dataFields.add(new DataField(2,"300",' ',' ',"‡a xxi, 479 pages : ‡b illustrations ; ‡c 23 cm"));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "10471410";
+		holdRec.modifiedDate = "20171128152204.0";
+		holdRec.leader = "00352cx  a2200121z  4500";
+		holdRec.controlFields.add(new ControlField(1,"001","10471410"));
+		holdRec.controlFields.add(new ControlField(2,"004","10161043"));
+		holdRec.controlFields.add(new ControlField(3,"005","20171128152204.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1711212u    8   4001uueng0901128"));
+		holdRec.dataFields.add(new DataField(7,"852",'0','0',"‡b law ‡h KF318 ‡i .A75 2018"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 10471410|20171128152204\n"+
+		"holdings_record_display: {\"id\":\"10471410\",\"modified_date\":\"20171128152204\",\"copy_number\":null,"
+		+ "\"callnos\":[\"KF318 .A75 2018\"],\"notes\":[],\"holdings_desc\":[],\"recent_holdings_desc\":[],"
+		+ "\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],\"locations\":[{\"code\":\"law\",\"number\":63,"
+		+ "\"name\":\"Law Library (Myron Taylor Hall)\",\"library\":\"Law Library\"}]}\n"+
+		"lc_callnum_full: KF318 .A75 2018\n"+
+		"callnum_sort: KF318 .A75 2018\n"+
+		"lc_callnum_facet: K - Law\n"+
+		"lc_callnum_facet: K - Law:KF-KFZ - The United States\n"+
+		"lc_callnum_facet: K - Law:KF-KFZ - The United States:KF - Federal law.  Common and collective state law\n"+
+		"barcode_t: 31924120772565\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"10398999\",\"year\":\"\","
+		+ "\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\","
+		+ "\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"0\",\"temp_item_type_id\":\"0\","
+		+ "\"mfhd_id\":\"10471410\",\"recalls_placed\":\"0\",\"create_date\":\"2017-11-28 07:40:21.0\","
+		+ "\"item_barcode\":\"31924120772565\",\"modify_date\":\"\",\"perm_location\":{\"code\":\"law\",\"number\":63,"
+		+ "\"name\":\"Law Library (Myron Taylor Hall)\",\"library\":\"Law Library\"}}\n"+
+		"item_display: 10398999|10471410\n"+
+		"location_facet: Law Library\n"+
+		"location: Law Library\n"+
+		"location: Law Library > Law Library (Myron Taylor Hall)\n"+
+		"online: At the Library\n"+
+		"collection: Law Library\n"+
+		"multivol_b: false\n";
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+	}
+
+	@Test
+	public void testLawCollectionFieldOnDigital() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC ); //10115740
+		bibRec.leader = "04266cam a22007095i 4500";
+		bibRec.controlFields.add(new ControlField(1,"008","170814s2018    gw |    o    |||| 0|eng d"));
+		bibRec.dataFields.add(new DataField(1,"050",' ','4',"‡a K3538-3544"));
+		bibRec.dataFields.add(new DataField(2,"100",'1',' ',"‡a Zhong, Zhang-Dui. ‡e author."));
+		bibRec.dataFields.add(new DataField(3,"300",' ',' ',"‡a 1 online resource."));
+		MarcRecord holdRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
+		holdRec.id = "10426151";
+		holdRec.modifiedDate = "20171120151514.0";
+		holdRec.leader = "1711200u||||8|||4001uu|||0000000";
+		holdRec.controlFields.add(new ControlField(1,"001","10426151"));
+		holdRec.controlFields.add(new ControlField(2,"004","10115740"));
+		holdRec.controlFields.add(new ControlField(3,"005","20171120151514.0"));
+		holdRec.controlFields.add(new ControlField(4,"008","1706082u    8   4001uu   0901128"));
+		holdRec.dataFields.add(new DataField(7,"852",'8',' ',"‡b serv,remo ‡h No call number"));
+		bibRec.holdings.add(holdRec);
+		String expected =
+		"holdings_display: 10426151|20171120151514\n"+
+		"holdings_record_display: {\"id\":\"10426151\",\"modified_date\":\"20171120151514\","
+		+ "\"copy_number\":null,\"callnos\":null,\"notes\":[],\"holdings_desc\":[],"
+		+ "\"recent_holdings_desc\":[],\"supplemental_holdings_desc\":[],\"index_holdings_desc\":[],"
+		+ "\"locations\":[{\"code\":\"serv,remo\",\"number\":128,\"name\":\"*Networked Resource\","
+		+ "\"library\":null}]}\n"+
+		"lc_callnum_full: K3538-3544\n"+
+		"callnum_sort: K3538-3544\n"+
+		"lc_callnum_facet: K - Law\n"+
+		"lc_callnum_facet: K - Law:K - Law in general, Comparative and uniform law, Jurisprudence\n"+
+		"lc_callnum_facet: K - Law:K - Law in general, Comparative and uniform law, Jurisprudence:"
+		+ "K520-5582 - Comparative law.  International uniform law\n"+
+		"lc_callnum_facet: K - Law:K - Law in general, Comparative and uniform law, Jurisprudence:"
+		+ "K520-5582 - Comparative law.  International uniform law:"
+		+ "K3476-3560 - Public property.  Public restraint on private property\n"+
+		"collection: Law Library\n"+
+		"multivol_b: false\n";
+//		System.out.println(gen.generateSolrFields(bibRec,config).toString().replaceAll("\"","\\\\\""));
+		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
 	}
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
+import edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.indexer.updates.IncrementalBibFileToSolr;
 import edu.cornell.library.integration.indexer.updates.RetrieveUpdatesBatch;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;

@@ -218,8 +218,8 @@ public class DataField implements Comparable<DataField> {
 	/* Parse a series of subfields in a single string into a set of Subfield objects */
 	private static TreeSet<Subfield> parseSubfields(String subfields, Character subfieldSeparator) {
 		String[] values = subfields.split(String.valueOf(subfieldSeparator));
-		if (values.length > 1) {
-			TreeSet<Subfield> subfieldSet = new TreeSet<>();
+		TreeSet<Subfield> subfieldSet = new TreeSet<>();
+		if (values.length > 1)
 			for (int i = 1 ; i < values.length ; i++ ) {
 				if (values.length == 0) continue;
 				if (values.length == 1)
@@ -227,9 +227,7 @@ public class DataField implements Comparable<DataField> {
 				else
 					subfieldSet.add( new Subfield( i, values[i].charAt(0), values[i].substring(1).trim()) );
 			}
-			return subfieldSet;
-		}
-		return null;
+		return subfieldSet;
 	}
 
 	@Override

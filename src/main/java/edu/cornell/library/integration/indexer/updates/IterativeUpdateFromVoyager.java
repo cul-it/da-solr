@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
+import edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.BatchLogic;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class IterativeUpdateFromVoyager {

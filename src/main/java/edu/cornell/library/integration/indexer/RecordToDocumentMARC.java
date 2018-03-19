@@ -13,9 +13,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   @Override
   List<? extends DocumentPostProcess> getDocumentPostProcess() {
     return Arrays.asList(
-    		new ModifyCallNumbers(),
-    		new BarcodeSearch(),
-    		new Collections(),
     		new UpdateSolrInventoryDB());
   }
 
@@ -62,12 +59,6 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addResultSetToFields(new Format()),
 
         getLanguageFieldMaker(),
-
-        new SPARQLFieldMakerImpl().setName("call_numbers")
-        .addQuery("holdings_callno",standardHoldingsDataFieldSPARQL("852"))
-        .addQuery("bib_050callno",standardDataFieldSPARQL("050"))
-        .addQuery("bib_950callno",standardDataFieldSPARQL("950"))
-        .addResultSetToFields(new CallNumber()),
 
         new SPARQLFieldMakerImpl().setName("pub_info")
         .addQuery("eight", standardControlFieldSPARQL("008"))
