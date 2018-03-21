@@ -430,6 +430,7 @@
 	<!--  Single-valued json fields are the exception (currently) -->
     <field name="holdings_json" type="string" indexed="false" stored="true" multiValued="false" />
     <field name="items_json" type="string" indexed="false" stored="true" multiValued="false" />
+    <field name="availability_json" type="string" indexed="false" stored="true" multiValued="false" />
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
