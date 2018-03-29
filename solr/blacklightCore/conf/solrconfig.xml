@@ -851,7 +851,8 @@
 		item_record_display,
 		edition_display,
 	    title_uniform_display,
-	    other_id_display
+	    other_id_display,
+	    availability_json
       </str>
      
       <str name="facet">true</str>

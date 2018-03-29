@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
@@ -55,7 +55,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.addBib
 public class IdentifyChangedRecords {
 	
 	DavService davService;
-	SolrBuildConfig config;
+	Config config;
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	Set<Integer> updatedBibs = new HashSet<>();
 	private static Timestamp max_date = null;
@@ -102,22 +102,22 @@ public class IdentifyChangedRecords {
 		if (args.length > 0)
 			thorough = Boolean.valueOf(args[0]);
 
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Current"));
+		List<String> requiredArgs = Config.getRequiredArgsForWebdav();
+		requiredArgs.addAll(Config.getRequiredArgsForDB("Current"));
 		if (thorough)
 			requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 		else
-			requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForDB("Voy"));
+			requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyChangedRecords( SolrBuildConfig.loadConfig( null, requiredArgs ),thorough);
+			new IdentifyChangedRecords( Config.loadConfig( null, requiredArgs ),thorough);
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
-	public IdentifyChangedRecords(SolrBuildConfig config, Boolean thorough) throws Exception {
+	public IdentifyChangedRecords(Config config, Boolean thorough) throws Exception {
 		this.config = config;
 		int retryLimit = 4;
 		boolean succeeded = false;

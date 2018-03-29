@@ -14,10 +14,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class ConvertMarcToXml {
    
@@ -31,9 +31,9 @@ public class ConvertMarcToXml {
     */
    public static void main(String[] args) {
 
-	   Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
+	   Collection<String> requiredFields = Config.getRequiredArgsForWebdav();
 	   requiredFields.add("marc2XmlDirs"); 
-	   SolrBuildConfig config  = SolrBuildConfig.loadConfig(args,requiredFields);
+	   Config config  = Config.loadConfig(args,requiredFields);
 
 	   try {
 		   new ConvertMarcToXml(config);
@@ -47,7 +47,7 @@ public class ConvertMarcToXml {
     * default constructor
  * @throws IOException 
     */
-   public ConvertMarcToXml(SolrBuildConfig config) throws IOException { 
+   public ConvertMarcToXml(Config config) throws IOException { 
 	   davService = DavServiceFactory.getDavService(config);
 
 	   String[] dirs = null;

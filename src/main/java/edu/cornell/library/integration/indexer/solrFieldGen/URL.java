@@ -4,35 +4,38 @@ import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtil
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Process 856 fields from both bibliographic and holdings fields into various URL Solr fields.
  * 
  */
-public class URL implements ResultSetToFields {
+public class URL implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -66,18 +69,25 @@ public class URL implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config unused )
 			throws IOException {
 		SolrFields sfs = new SolrFields();
 
-		List<DataField> allFields = bibRec.matchSortAndFlattenDataFields();
-		for (MarcRecord holdingsRec : bibRec.holdings)
-			allFields.addAll(holdingsRec.matchSortAndFlattenDataFields());
+		boolean isOnline = isOnline(bibRec.holdings);
+		int accessLinksFound = 0;
 
-		for (DataField f : allFields) {
+		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields();
+		for (MarcRecord holdingsRec : bibRec.holdings)
+			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
+
+		for (DataField f : allLinkFields) {
 			Map<String,Object> jsonModel = new HashMap<>();
 
 			Set<String> urls = new HashSet<>();
@@ -85,7 +95,6 @@ public class URL implements ResultSetToFields {
 			String instructions = f.concatenateSpecificSubfields("i");
 			String linkLabel = f.concatenateSpecificSubfields("3yz");
 
-	
 			if (instructions != null &&
 					(instructions.contains("dbcode") || instructions.contains("providercode"))) {
 				String[] codes = instructions.split(";\\s*");
@@ -99,8 +108,8 @@ public class URL implements ResultSetToFields {
 			if ( ! linkLabel.isEmpty())
 				jsonModel.put( "description", String.join(" ",linkLabel) );
 
-			String relation ="access"; //this is a default and may change later
-			if (jsonModel.containsKey("description")) {
+			String relation = isOnline? "access" : "other"; //this is a default and may change later
+			if (relation.equals("access") && jsonModel.containsKey("description")) {
 				String lc = ((String)jsonModel.get("description")).toLowerCase();
 				if (lc.contains("table of contents")
 						|| lc.contains("tables of contents")
@@ -158,9 +167,23 @@ public class URL implements ResultSetToFields {
 					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, jsonModel);
 					sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
+					accessLinksFound++;
 				}
 			}
+
 		}
+		if (isOnline && accessLinksFound >= 1)
+			sfs.add(new SolrField("online","Online"));
 		return sfs;
+	}
+
+	private static boolean isOnline(TreeSet<MarcRecord> holdings) {
+		for (MarcRecord holdingsRec : holdings)
+			for (DataField f : holdingsRec.dataFields)
+				if (f.tag.equals("852"))
+					for (Subfield sf : f.subfields)
+						if (sf.code.equals('b') && sf.value.equals("serv,remo"))
+							return true;
+		return false;
 	}	
 }

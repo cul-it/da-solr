@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer;
+package edu.cornell.library.integration.indexer.queues;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 

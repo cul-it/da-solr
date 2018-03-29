@@ -23,7 +23,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.rules.TemporaryFolder;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
@@ -218,7 +218,7 @@ public class SolrLoadingTestBase extends RdfLoadingTestBase {
 	private static void indexStandardTestRecords( SolrClient solr , RDFService rdfService) throws Exception {
 		RecordToDocument r2d = new RecordToDocumentMARC();
 		
-		SolrBuildConfig config = SolrBuildConfig.loadConfig( new String[2] );
+		Config config = Config.loadConfig( new String[2] );
 		
 		for( String uri: rMarcURIS){
 			SolrInputDocument doc;

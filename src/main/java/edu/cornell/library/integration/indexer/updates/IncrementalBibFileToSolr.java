@@ -6,10 +6,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.IndexDirectory;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 /**
  * Index all the MARC n-Triple BIB files for the incremental update. 
@@ -23,15 +23,15 @@ import edu.cornell.library.integration.indexer.IndexDirectory;
 public class IncrementalBibFileToSolr {
     
     public static void main(String[] argv) throws Exception{
-    	List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+    	List<String> requiredArgs = Config.getRequiredArgsForWebdav();
     	requiredArgs.add("dailyMrcNtDir");
     	requiredArgs.add("solrUrl");
-    	SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
+    	Config config = Config.loadConfig(argv,requiredArgs);
     	new IncrementalBibFileToSolr( config );
 
     }
      
-    public IncrementalBibFileToSolr( SolrBuildConfig config ) throws Exception {
+    public IncrementalBibFileToSolr( Config config ) throws Exception {
                                      
         /* Figure out the name of the most recent BIB MARC NT file. */
         List<String> filesToIndex;

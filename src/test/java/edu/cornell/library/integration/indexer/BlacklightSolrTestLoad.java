@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFServiceException;
@@ -182,7 +182,7 @@ public class BlacklightSolrTestLoad extends RdfLoadingTestBase {
 		System.out.println(bib_xml);
 		Pattern p = Pattern.compile("<([^>]*)>");
 		Matcher m = p.matcher(bib_xml);
-		SolrBuildConfig config = SolrBuildConfig.loadConfig( new String[2] );
+		Config config = Config.loadConfig( new String[2] );
 
 		while (m.find()) {
 			String uri = m.group(1);

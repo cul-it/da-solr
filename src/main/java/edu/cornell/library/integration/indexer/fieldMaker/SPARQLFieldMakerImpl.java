@@ -12,8 +12,8 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetToFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 /**
  * FieldMaker that runs a SPARQL query and uses the results
@@ -57,7 +57,7 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	 */
 	@Override
 	protected Map<? extends String, ? extends SolrInputField> 
-		resultSetsToSolrFields( Map<String, ResultSet> results, SolrBuildConfig config ) 
+		resultSetsToSolrFields( Map<String, ResultSet> results, Config config ) 
 		throws Exception {
 		
 		Map<String, SolrInputField> fields = new HashMap<>();

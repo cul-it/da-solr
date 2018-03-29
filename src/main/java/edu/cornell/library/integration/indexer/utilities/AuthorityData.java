@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
 
@@ -20,7 +19,7 @@ public class AuthorityData {
 	public int headingId = 0;
 	public Boolean undifferentiated = false;
 
-	public AuthorityData( SolrBuildConfig config, String heading, HeadTypeDesc htd)
+	public AuthorityData( Config config, String heading, HeadTypeDesc htd)
 			throws ClassNotFoundException, SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){

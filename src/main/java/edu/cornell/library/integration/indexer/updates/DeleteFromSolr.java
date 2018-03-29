@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,8 +16,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
@@ -41,12 +41,12 @@ public class DeleteFromSolr {
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
 
-        SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
+        Config config = Config.loadConfig(argv,requiredArgs);
 
         DeleteFromSolr.doTheDelete(config);
     }
 
-    public static void doTheDelete(SolrBuildConfig config) throws Exception  {
+    public static void doTheDelete(Config config) throws Exception  {
 
         String solrURL = config.getSolrUrl();                                        
 

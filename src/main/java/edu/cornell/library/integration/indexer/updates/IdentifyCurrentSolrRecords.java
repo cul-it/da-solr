@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.marcDateFormat;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.pullReferenceFields;
 
@@ -23,8 +23,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
@@ -47,7 +47,7 @@ public class IdentifyCurrentSolrRecords {
 		requiredArgs.add("solrUrl");
 
 		try{        
-			new IdentifyCurrentSolrRecords( SolrBuildConfig.loadConfig(args, requiredArgs));
+			new IdentifyCurrentSolrRecords( Config.loadConfig(args, requiredArgs));
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
@@ -55,7 +55,7 @@ public class IdentifyCurrentSolrRecords {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IdentifyCurrentSolrRecords(SolrBuildConfig config) throws Exception {
+	public IdentifyCurrentSolrRecords(Config config) throws Exception {
 
 	    current = config.getDatabaseConnection("Current");
 	    current.setAutoCommit(false);

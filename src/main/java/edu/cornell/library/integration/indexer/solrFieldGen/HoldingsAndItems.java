@@ -13,6 +13,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,11 +32,13 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.CallNumber;
+import edu.cornell.library.integration.indexer.utilities.ModifyCallNumbers;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -47,13 +50,13 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
  * For a bib record with multiple holdings records, each holdings record will have it's own holdings_record_display.
  */
-public class HoldingsAndItems implements ResultSetToFields {
+public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 
 	private static Boolean debug = false;
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
 
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		Map<String,MarcRecord> holdingRecs = new HashMap<>();
@@ -100,7 +103,16 @@ public class HoldingsAndItems implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("leader","008","050","100","110","300","950","holdings");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<String> descriptions = new HashSet<>();
 		boolean description_with_e = false;
@@ -111,14 +123,18 @@ public class HoldingsAndItems implements ResultSetToFields {
 		Collection<Map<String,Object>> boundWiths = new ArrayList<>();
 		ObjectMapper mapper = new ObjectMapper();
 		Collection<Location> workLocations = new LinkedHashSet<>();
+		CallNumber cn = new CallNumber();
 
 
 
 		for (DataField f : bibRec.dataFields) {
-			descriptions.add(f.concatenateSubfieldsOtherThan6());
-			for (Subfield sf : f.subfields)
-				if (sf.code.equals('e'))
-					description_with_e = true;
+			if (f.mainTag.equals("300")) {
+				descriptions.add(f.concatenateSubfieldsOtherThan6());
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('e'))
+						description_with_e = true;
+			} else if (f.mainTag.equals("050") || f.mainTag.equals("950"))
+				cn.tabulateCallNumber(f);
 		}
 		rectypebiblvl = bibRec.leader.substring(6,8);
 
@@ -139,7 +155,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 			for( DataFieldSet fs: sortedFields ) {
 
 				for (DataField f: fs.getFields()) {
-					String callno = null;
 					switch (f.tag) {
 					case "506":
 						// restrictions on access note
@@ -177,7 +192,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 								// a concatenation of all the call number fields. If there are (erroneously)
 								// multiple subfield ‡h entries in one field, the callno will be overwritten
 								// and not duplicated in the call number array.
-								callno = f.concatenateSpecificSubfields("hijklm"); break CODE;
+								callnos.add( ModifyCallNumbers.modify(bibRec,
+										f.concatenateSpecificSubfields("hijklm") ) );
+								cn.tabulateCallNumber(f);
+								break CODE;
 							case 'z':
 								notes.add(sf.value); break CODE;
 							case 't':
@@ -200,8 +218,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 					case "876":
 						registerBoundWith(config, rec.id, f, boundWiths);
 					}
-					if (callno != null)
-						callnos.add(callno);
 				}
 			}
 
@@ -236,6 +252,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 			holding_ids.add(holding.id);
 
 		}
+		SolrFields callNumberSolrFields = cn.getCallNumberFields(config);
+		sfs.addAll(callNumberSolrFields);
+
 		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
 
 		// ITEM DATA
@@ -271,12 +290,29 @@ public class HoldingsAndItems implements ResultSetToFields {
 			}
 		if ( isAtTheLibrary )
 			sfs.add(new SolrField("online","At the Library"));
+		if ( isInLawCollection(locations,workLocations, callNumberSolrFields) )
+			sfs.add(new SolrField("collection","Law Library"));
 
 		return sfs;
 	}
 
+	private static boolean isInLawCollection(
+			Locations locations,
+			Collection<Location> workLocations,
+			SolrFields callNumberSolrFields) {
+
+		for (Location l : workLocations)
+			if (l.code.startsWith("law"))
+				return true;
+		if (workLocations.contains(locations.getByCode("serv,remo")))
+			for (SolrField f : callNumberSolrFields.fields)
+				if (f.fieldName.equals("lc_callnum_facet") && f.fieldValue.startsWith("K"))
+					return true;
+		return false;
+	}
+
 	private static void registerBoundWith(
-			SolrBuildConfig config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
+			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
 					throws ClassNotFoundException, SQLException {
 		String item_enum = "";
 		String barcode = null;
@@ -445,7 +481,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 		        		enumStats.put(loc, stats);
 	        		}
 	        		items.put(Integer.valueOf((String)record.get("item_id")),record);
-	        		if (barcode.isEmpty())
+	        		if (! barcode.isEmpty())
+       					sfs.add(new SolrField( "barcode_t",barcode) );
+	        		else
 	        			emptyItemCount[0]++;
 	        		foundItems = true;
 	        		if (tempLibrary != null)

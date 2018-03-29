@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.ilcommons.service;
+package edu.cornell.library.integration.webdav;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -229,7 +229,7 @@ public class DavServiceImpl implements DavService {
     }
 
     /* (non-Javadoc)
-     * @see edu.cornell.library.integration.ilcommons.service.DavService#saveNioPath(java.lang.String, java.nio.file.Path)
+     * @see edu.cornell.library.integration.webdav.DavService#saveNioPath(java.lang.String, java.nio.file.Path)
      */
     public void saveNioPath(String url, Path path) throws Exception {
         try{
@@ -255,7 +255,7 @@ public class DavServiceImpl implements DavService {
     }
 
     /* (non-Javadoc)
-     * @see edu.cornell.library.integration.ilcommons.service.DavService#deleteFile(java.lang.String)
+     * @see edu.cornell.library.integration.webdav.DavService#deleteFile(java.lang.String)
      */
     public void deleteFile(String url) throws IOException {
         try{
@@ -267,7 +267,7 @@ public class DavServiceImpl implements DavService {
     }
 
     /* (non-Javadoc)
-     * @see edu.cornell.library.integration.ilcommons.service.DavService#moveFile(java.lang.String, java.lang.String)
+     * @see edu.cornell.library.integration.webdav.DavService#moveFile(java.lang.String, java.lang.String)
      */
     public void moveFile(String srcUrl, String destUrl) throws IOException {
         try{

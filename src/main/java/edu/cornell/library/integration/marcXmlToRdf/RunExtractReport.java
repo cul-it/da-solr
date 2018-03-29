@@ -7,12 +7,12 @@ import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class RunExtractReport {
 	
@@ -28,12 +28,12 @@ public class RunExtractReport {
 	
 	public RunExtractReport(String[] args) throws Exception {
 		
-		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredFields = Config.getRequiredArgsForWebdav();
 		requiredFields.add("xmlDir");
 		requiredFields.add("tdfDir");
 		requiredFields.add("reportList");  // Exactly ONE EXTRACT_* report expected; addl ok.
-		SolrBuildConfig config =
-				SolrBuildConfig.loadConfig( args, requiredFields );
+		Config config =
+				Config.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);
 

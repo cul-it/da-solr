@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 public interface FieldMaker {
 	public String getName();
@@ -18,5 +18,5 @@ public interface FieldMaker {
 	 */
 	Map<? extends String, ? extends SolrInputField> buildFields( 
 			String recordURI, 
-			SolrBuildConfig config) throws Exception; 	
+			Config config) throws Exception; 	
 }

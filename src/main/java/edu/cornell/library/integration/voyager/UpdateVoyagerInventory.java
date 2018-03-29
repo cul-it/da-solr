@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 
 import java.sql.Connection;
@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class UpdateVoyagerInventory {
@@ -45,7 +45,7 @@ public class UpdateVoyagerInventory {
 			"SELECT m.bib_id FROM "+CurrentDBTable.MFHD_VOY+" as m , "+CurrentDBTable.BIB_VOY+" as b "
 			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
-	public UpdateVoyagerInventory( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
+	public UpdateVoyagerInventory( Config config ) throws ClassNotFoundException, SQLException {
 	    try (   Connection voyager = config.getDatabaseConnection("Voy");
 	    		Connection current = config.getDatabaseConnection("Current") ) {
 
@@ -64,7 +64,7 @@ public class UpdateVoyagerInventory {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new UpdateVoyagerInventory( SolrBuildConfig.loadConfig(args, requiredArgs) );
+			new UpdateVoyagerInventory( Config.loadConfig(args, requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);

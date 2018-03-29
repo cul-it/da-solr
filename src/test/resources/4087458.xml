@@ -1,0 +1,73 @@
+<record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>00822cam a2200241 a 4500</leader>
+  <controlfield tag="001">4087458</controlfield>
+  <controlfield tag="005">20151215192818.0</controlfield>
+  <controlfield tag="008">011002m18531862xx f          000 0 fre d</controlfield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)51595033</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">4087458</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">NIC</subfield>
+    <subfield code="c">NIC</subfield>
+  </datafield>
+  <datafield tag="245" ind1="0" ind2="0">
+    <subfield code="a">Etudes entomologiques /</subfield>
+    <subfield code="c">re&#x301;dige&#x301;es par Victor de Motschulsky.</subfield>
+  </datafield>
+  <datafield tag="260" ind1=" " ind2=" ">
+    <subfield code="a">Helsingfors :</subfield>
+    <subfield code="b">Socie&#x301;te&#x301; de lite&#x301;rature,</subfield>
+    <subfield code="c">1853-62.</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">11 v. :</subfield>
+    <subfield code="b">ill. ;</subfield>
+    <subfield code="c">23 cm.</subfield>
+  </datafield>
+  <datafield tag="500" ind1=" " ind2=" ">
+    <subfield code="a">Pt. 10 and 11 have imprint: Dresde : Impr. de F. Thomass.</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="0">
+    <subfield code="a">Entomology.</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="0">
+    <subfield code="a">Insects.</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="7">
+    <subfield code="a">Entomology</subfield>
+    <subfield code="2">fast</subfield>
+    <subfield code="0">(OCoLC)fst00912735</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="7">
+    <subfield code="a">Insects</subfield>
+    <subfield code="2">fast</subfield>
+    <subfield code="0">(OCoLC)fst00974074</subfield>
+  </datafield>
+  <datafield tag="700" ind1="1" ind2=" ">
+    <subfield code="a">Mochul&#x2B9;skii&#x306;, Viktor Ivanovich,</subfield>
+    <subfield code="d">-1871.</subfield>
+  </datafield>
+  <datafield tag="948" ind1="1" ind2=" ">
+    <subfield code="a">20011002</subfield>
+    <subfield code="b">o</subfield>
+    <subfield code="d">mann03</subfield>
+    <subfield code="e">mann</subfield>
+    <subfield code="f">?</subfield>
+    <subfield code="h">?</subfield>
+  </datafield>
+  <datafield tag="948" ind1="2" ind2=" ">
+    <subfield code="a">20141225</subfield>
+    <subfield code="b">m</subfield>
+    <subfield code="d">batch</subfield>
+    <subfield code="e">lts</subfield>
+    <subfield code="x">addfast</subfield>
+  </datafield>
+  <datafield tag="950" ind1=" " ind2=" ">
+    <subfield code="a">QL462</subfield>
+    <subfield code="b">.E85 1853</subfield>
+    <subfield code="l">mann,spec</subfield>
+  </datafield>
+</record>

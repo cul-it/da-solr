@@ -7,7 +7,9 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,12 +23,12 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.indexer.utilities.AuthorityData;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
@@ -39,13 +41,14 @@ import edu.cornell.library.integration.utilities.FieldValues;
  * process subject field values into display, facet, search, and browse/filing fields
  *
  */
-public class Subject implements ResultSetToFields {
+public class Subject implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
+	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			final Map<String, ResultSet> results, final SolrBuildConfig config) throws Exception {
+			final Map<String, ResultSet> results, final Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("subjects") );
@@ -59,7 +62,21 @@ public class Subject implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("600","610","611","630","648","650","651","653","654","655","656","657","658",
+				"662","690","691","692","693","694","695","696","697","698","699");
+	}
+
+	@Override
+	// This field generator uses currently untracked authority data, so should be regenerated more often.
+	public Duration resultsShelfLife() { return Duration.ofDays(14); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
@@ -273,7 +290,8 @@ public class Subject implements ResultSetToFields {
 			}
 			for (final String s: values_browse)
 				if (htd != null) {
-					sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
+					if ( ! htd.abbrev().equals("topic") || ! unwantedFacetValues.contains(s) )
+						sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
 					sfs.add(new SolrField("subject_"+htd.abbrev()+"_filing",getFilingForm(s)));
 				}
 

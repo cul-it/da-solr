@@ -7,11 +7,11 @@ import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Report;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class MarcToNT {
 	
@@ -27,14 +27,14 @@ public class MarcToNT {
 	
 	public MarcToNT(String[] args) throws Exception {
 		
-		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredFields = Config.getRequiredArgsForWebdav();
 		requiredFields.add("nonVoyIdPrefix");
 		requiredFields.add("nonVoyUriPrefix");
 		requiredFields.add("xmlDir");
 		requiredFields.add("ntDir");
 		// optionalField : reportList
-		SolrBuildConfig config =
-				SolrBuildConfig.loadConfig( args, requiredFields );
+		Config config =
+				Config.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);
 

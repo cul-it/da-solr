@@ -1,0 +1,17 @@
+  <record>
+    <leader>00276cv  a22000971  4500</leader>
+    <controlfield tag="001">4650028</controlfield>
+    <controlfield tag="004">4087458</controlfield>
+    <controlfield tag="005">20120514091620.0</controlfield>
+    <controlfield tag="008">0110022u    8   1001uu   0000000</controlfield>
+    <datafield tag="852" ind1="0" ind2="1">
+      <subfield code="b">mann,spec</subfield>
+      <subfield code="h">QL462</subfield>
+      <subfield code="i">.E85 1853</subfield>
+      <subfield code="z">Part of original Comstock Memorial Library of Entomology (CMLE)</subfield>
+    </datafield>
+    <datafield tag="866" ind1="4" ind2="1">
+      <subfield code="8">0</subfield>
+      <subfield code="a">no.1-11</subfield>
+    </datafield>
+  </record>

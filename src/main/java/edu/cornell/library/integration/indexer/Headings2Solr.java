@@ -25,7 +25,7 @@ import org.apache.solr.common.SolrInputDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
@@ -34,7 +34,7 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceTy
 public class Headings2Solr {
 
 	private Connection connection = null;
-	private SolrBuildConfig config;
+	private Config config;
 	private List<Integer> authorTypes = Arrays.asList(HeadTypeDesc.PERSNAME.ordinal(),
 			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
 	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
@@ -52,11 +52,11 @@ public class Headings2Solr {
 	}
 
 	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
 		requiredArgs.add("authorSolrUrl");
 		requiredArgs.add("subjectSolrUrl");
 		requiredArgs.add("authorTitleSolrUrl");
-		config = SolrBuildConfig.loadConfig(args,requiredArgs);
+		config = Config.loadConfig(args,requiredArgs);
 
 		connection = config.getDatabaseConnection("Headings");
 

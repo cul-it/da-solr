@@ -1,28 +1,35 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
 import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
- * processing various query results into complicated determination of item format,
- * and "online" status.  
+ * process various record values into complicated determination of item format.  
  */
-public class Format implements ResultSetToFields {
+public class Format implements ResultSetToFields, SolrFieldGenerator {
 
 	protected boolean debug = false;
 
@@ -42,71 +49,85 @@ public class Format implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-
-		//This method needs to return a map of fields:
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("007"));
+		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("008"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("245"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("502"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("652"));
+		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("948"));
+		Map<String,MarcRecord> holdingRecs = new HashMap<>();
+		while ( results.get("holdings_852").hasNext() ) {
+			QuerySolution sol = results.get("holdings_852").nextSolution();
+			String recordURI = nodeToString(sol.get("mfhd"));
+			MarcRecord holdingRec;
+			if (holdingRecs.containsKey(recordURI)) {
+				holdingRec = holdingRecs.get(recordURI);
+			} else {
+				holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
+				holdingRec.id = recordURI.substring(recordURI.lastIndexOf('/')+1);
+				holdingRecs.put(recordURI, holdingRec);
+			}
+			JenaResultsToMarcRecord.addDataFieldQuerySolution(holdingRec,sol);
+		}
+		rec.holdings.addAll(holdingRecs.values());
 		Map<String,SolrInputField> fields = new HashMap<>();
-		String category ="";
-		String record_type ="";
-		String bibliographic_level ="";
+		SolrFields vals = generateSolrFields( rec, config );
+		for ( SolrField f : vals.fields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+		for ( BooleanSolrField f : vals.boolFields ) {
+			SolrInputField boolField = new SolrInputField(f.fieldName);
+			boolField.setValue(f.fieldValue, 1.0f);
+			fields.put(f.fieldName, boolField);
+		}
+		return fields;
+	}
+
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("leader","007","008","245","502","653","948","holdings");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
+
+		String record_type =          rec.leader.substring(6,7);
+		String bibliographic_level =  rec.leader.substring(7,8);
+
+		String category = "";
 		String typeOfContinuingResource = "";
+		for (ControlField f : rec.controlFields)
+			switch (f.tag) {
+			case "007": if (f.value.length() > 0) category = f.value.substring(0,1); break;
+			case "008": if (f.value.length() > 21) typeOfContinuingResource = f.value.substring(21,22);
+			}
+
+		List<String> sf653as = new ArrayList<>();
+		List<String> sf245hs = new ArrayList<>();
+		List<String> sf948fs = new ArrayList<>();
 		Boolean isThesis = false;
+		for (DataField f : rec.dataFields)
+			switch (f.tag) {
+			case "245":	for (Subfield sf : f.subfields)	if (sf.code.equals('h')) sf245hs.add(sf.value);	break;
+			case "502":	isThesis = true; break;
+			case "653":	for (Subfield sf : f.subfields)	if (sf.code.equals('a')) sf653as.add(sf.value); break;
+			case "948":	for (Subfield sf : f.subfields) if (sf.code.equals('f')) sf948fs.add(sf.value);
+			}
+
+		Collection<String> loccodes = new HashSet<>();
+		for (MarcRecord hRec : rec.holdings)
+			for (DataField f : hRec.dataFields)
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('b')) loccodes.add(sf.value);
+
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;
-		Collection<String> sf653as = new HashSet<>();
-		Collection<String> sf245hs = new HashSet<>();
-		Collection<String> sf948fs = new HashSet<>();
-		Collection<String> loccodes = new HashSet<>();
-
 		String format = null;
-		Boolean online = false;
-
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if (debug) System.out.println("Result Key: "+resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					Iterator<String> names = sol.varNames();
-					while(names.hasNext() ){						
-						String name = names.next();
-						RDFNode node = sol.get(name);
-						if (debug) System.out.println("Field: "+name);
-						if (name.equals("cat")) {
-							category = nodeToString( node );
-							if (debug) System.out.println("category = "+category);
-						} else if (name.equals("rectype")) {
-							record_type = nodeToString( node );
-							if (debug) System.out.println("record_type = "+record_type);
-						} else if (name.equals("biblvl")) {
-							bibliographic_level = nodeToString( node );
-							if (debug) System.out.println("bibliographic_level = "+bibliographic_level);
-						} else if (name.equals("sf245h")) {
-							sf245hs.add(nodeToString( node ));
-							if (debug) System.out.println("sf245h = "+nodeToString( node ));
-						} else if (name.equals("sf653a")) {
-							sf653as.add(nodeToString( node ));
-							if (debug) System.out.println("sf653a = "+nodeToString( node ));
-						} else if (name.equals("sf948f")) {
-							sf948fs.add(nodeToString( node ));
-							if (debug) System.out.println("sf948f = "+nodeToString( node ));
-						} else if (name.equals("loccode")) {
-							loccodes.add(nodeToString( node ).trim());
-							if (debug) System.out.println("location code = "+nodeToString( node ));
-						} else if (name.equals("f502")) {
-							isThesis = true;
-							if (debug) System.out.println("It's a thesis.");
-						} else if (name.equals("typeOfContinuingResource")) {
-							typeOfContinuingResource = nodeToString( node );
-							if (debug) System.out.println("type of continuing resource = "+typeOfContinuingResource);
-						}
-					}
-				}
-			}
-		}
 		
 		if (category.equals("h")) {
 			isMicroform = true;
@@ -262,39 +283,29 @@ public class Format implements ResultSetToFields {
 				if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
 			}
 		}
-		
-		if (loccodes.contains("serv,remo")) {
-			online = true;
-			if (debug) System.out.println("Online due to loccode: serv,remo.");
-		}		
 
+		SolrFields sfs = new SolrFields();
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
-			addField(fields,"format","Thesis");
+			sfs.add(new SolrField("format","Thesis"));
 			if (format.equals("Manuscript/Archive")) {
 				format = null;
 				if (debug) System.out.println("Not Manuscript/Archive due to collision with format:Thesis.");				
 			}
 		}
 		if (isMicroform) {  //Microform is an "additional" format, and won't override main format entry.
-			addField(fields,"format","Microform");
+			sfs.add(new SolrField("format","Microform"));
 		}
 
 		if (format != null) {
-			addField(fields,"format",format);
-			addField(fields,"format_main_facet",format);
+			sfs.add(new SolrField("format",format));
+			sfs.add(new SolrField("format_main_facet",format));
 		} else if (isThesis)
-			addField(fields,"format_main_facet","Thesis");
+			sfs.add(new SolrField("format_main_facet","Thesis"));
 		else if (isMicroform)
-			addField(fields,"format_main_facet","Microform");
+			sfs.add(new SolrField("format_main_facet","Microform"));
 
-		if (online) {
-			addField(fields,"online","Online");
-		}
-		SolrInputField dbField = new SolrInputField("database_b");
-		dbField.setValue(isDatabase, 1.0f);
-		fields.put("database_b", dbField);
-		return fields;
-
+		sfs.add(new BooleanSolrField("database_b",isDatabase));
+		return sfs;
 	}
 
 }

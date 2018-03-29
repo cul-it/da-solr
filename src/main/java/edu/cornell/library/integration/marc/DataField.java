@@ -43,6 +43,27 @@ public class DataField implements Comparable<DataField> {
 		return sb.toString();
 	}
 
+	public StringBuilder toStringBuilder() {
+		return this.toStringBuilder('\u2021');
+	}
+
+	public StringBuilder toStringBuilder(final Character subfieldSeparator) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.tag);
+		sb.append(" ");
+		sb.append(this.ind1);
+		sb.append(this.ind2);
+
+		for(final Subfield sf : this.subfields) {
+			sb.append(" ");
+			sb.append(subfieldSeparator);
+			sb.append(sf.code);
+			sb.append(" ");
+			sb.append(sf.value.trim());
+		}
+		return sb;
+	}
+
 	public String concatenateSubfieldsOtherThan6() {
 		return concatenateSubfieldsOtherThan("6");
 	}
@@ -197,8 +218,8 @@ public class DataField implements Comparable<DataField> {
 	/* Parse a series of subfields in a single string into a set of Subfield objects */
 	private static TreeSet<Subfield> parseSubfields(String subfields, Character subfieldSeparator) {
 		String[] values = subfields.split(String.valueOf(subfieldSeparator));
-		if (values.length > 1) {
-			TreeSet<Subfield> subfieldSet = new TreeSet<>();
+		TreeSet<Subfield> subfieldSet = new TreeSet<>();
+		if (values.length > 1)
 			for (int i = 1 ; i < values.length ; i++ ) {
 				if (values.length == 0) continue;
 				if (values.length == 1)
@@ -206,9 +227,7 @@ public class DataField implements Comparable<DataField> {
 				else
 					subfieldSet.add( new Subfield( i, values[i].charAt(0), values[i].substring(1).trim()) );
 			}
-			return subfieldSet;
-		}
-		return null;
+		return subfieldSet;
 	}
 
 	@Override

@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 
 /**
@@ -27,11 +27,11 @@ public class ConfirmSolrIndexCompleteness  {
 
 	
 	private String davUrl;	
-	private SolrBuildConfig config;
+	private Config config;
 	private DavService davService;
     private String reportsUrl;
 	
-	public ConfirmSolrIndexCompleteness(SolrBuildConfig config) throws IOException {
+	public ConfirmSolrIndexCompleteness(Config config) throws IOException {
         this.config = config;
         this.davUrl = config.getWebdavBaseUrl();
         this.reportsUrl = davUrl + "/" + config.getDailyReports() + "/";
@@ -43,10 +43,10 @@ public class ConfirmSolrIndexCompleteness  {
 	 * for VoyagerToSolrConfiguration. 
 	 */
 	public static void main(String[] args) throws Exception  {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+		requiredArgs.addAll(Config.getRequiredArgsForWebdav());
 		requiredArgs.add("solrUrl");
-        SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
+        Config config = Config.loadConfig(args, requiredArgs);
         ConfirmSolrIndexCompleteness csic = new ConfirmSolrIndexCompleteness( config );
         int numberOfMissingBibs = csic.doCompletnessCheck( config.getSolrUrl() );
         System.exit(numberOfMissingBibs);  //any bibs missing from index should cause failure status

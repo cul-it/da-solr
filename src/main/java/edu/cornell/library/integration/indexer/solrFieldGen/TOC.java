@@ -3,17 +3,19 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
 import static edu.cornell.library.integration.marc.DataField.RLE_openRTL;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -22,11 +24,11 @@ import edu.cornell.library.integration.marc.Subfield;
  * processing into contents_display and partial_contents_display
  * 
  */
-public class TOC implements ResultSetToFields {
+public class TOC implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("table of contents"));
@@ -40,10 +42,17 @@ public class TOC implements ResultSetToFields {
 		return fields;
 	}
 
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("505"); }
+
 	/**
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		SolrFields solrFields = new SolrFields();
 
