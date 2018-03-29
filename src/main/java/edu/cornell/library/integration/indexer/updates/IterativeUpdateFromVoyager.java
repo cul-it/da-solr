@@ -38,8 +38,8 @@ public class IterativeUpdateFromVoyager {
 		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
 		boolean timeToQuit = false;
 
-		int batchSizeIfUpdates = 200;
-		int batchSizeIfNoUpdates = 300;
+		int batchSizeIfUpdates = 30;
+		int batchSizeIfNoUpdates = 100;
 		/* If any priority 0 or 1 items are queued, lower priority items will only be accepted to
 		 * the point where the total batch is $batchSizeIfUpdates items. Otherwise, the default size of
 		 * $batchSizeIfNoUpdates items is the limit.
