@@ -429,8 +429,8 @@ public class HoldingsAndItems implements ResultSetToFields {
 		        		if (! stats.diverseEnumFound || ! stats.blankEnumFound ) {
 		        			String enumeration = record.get("item_enum").toString() + 
 		        					record.get("chron") + record.get("year");
-		        			enumeration.replaceAll("c\\.[\\d+]", "");
-		        			enumeration.replaceAll("Bound with", "");
+		        			enumeration = enumeration.replaceAll("c\\.\\d+", "");
+		        			enumeration = enumeration.replaceAll("Bound with", "");
 		        			if (stats.aFoundEnum == null)
 		        				stats.aFoundEnum = enumeration;
 		        			if (! stats.aFoundEnum.equals(enumeration))
