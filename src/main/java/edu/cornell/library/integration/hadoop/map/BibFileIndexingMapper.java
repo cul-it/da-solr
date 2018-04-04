@@ -182,8 +182,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			boolean succeeded = false;
 			while (retryLimit > 0 && ! succeeded)
 				try{
-					if ( ! docs.isEmpty() && ! config.getTestMode() )
-						solr.add(docs);
 					context.getCounter(getClass().getName(), "bib uris indexed").increment(docs.size());
 					for (SolrInputDocument doc : docs)
 						context.write(new Text(doc.get("id").toString()), new Text("URI\tSuccess"));
