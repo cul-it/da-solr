@@ -19,11 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamReader;
+import java.util.Scanner;
 
 import org.apache.http.ConnectionClosedException;
 
@@ -40,6 +36,7 @@ import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceTy
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
@@ -59,7 +56,7 @@ public class IndexAuthorityRecords {
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
-		requiredArgs.add("xmlDir");
+		requiredArgs.add("mrcDir");
 
 		SolrBuildConfig config = SolrBuildConfig.loadConfig(args,requiredArgs);
 		try {
@@ -77,11 +74,11 @@ public class IndexAuthorityRecords {
 		//set up database (including populating description maps)
 		setUpDatabase();
 
-		String xmlDir = config.getWebdavBaseUrl() + "/" + config.getXmlDir();
-		System.out.println("Looking for authority xml in directory: "+xmlDir);
-        List<String> authXmlFiles = davService.getFileUrlList(xmlDir);
-        System.out.println("Found: "+authXmlFiles.size());
-        Iterator<String> i = authXmlFiles.iterator();
+		String mrcDir = config.getWebdavBaseUrl() + "/" + config.getMrcDir();
+		System.out.println("Looking for authority MARC in directory: "+mrcDir);
+        List<String> authMrcFiles = davService.getFileUrlList(mrcDir);
+        System.out.println("Found: "+authMrcFiles.size()+" files.");
+        Iterator<String> i = authMrcFiles.iterator();
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
@@ -91,7 +88,7 @@ public class IndexAuthorityRecords {
 					processFile( srcFile );
 					processedFile = true;
 				} catch (ConnectionClosedException e) {
-					System.out.println("Lost access to xml file read. Waiting 2 minutes, and will try again.\n");
+					System.out.println("Lost access to mrc file read. Waiting 2 minutes, and will try again.\n");
 					e.printStackTrace();
 					Thread.sleep(120 /* s */ * 1000 /* ms/s */);
 				}
@@ -101,11 +98,14 @@ public class IndexAuthorityRecords {
 	}
 
 	private void processFile( String srcFile ) throws Exception {
-		try (  InputStream xmlstream = davService.getFileAsInputStream(srcFile)  ) {
-			XMLInputFactory input_factory = XMLInputFactory.newInstance();
-			XMLStreamReader r  = 
-				input_factory.createXMLStreamReader(xmlstream);
-			processRecords(r);
+		try (  InputStream is = davService.getFileAsInputStream(srcFile);
+				Scanner s1 = new Scanner(is);
+				Scanner s2 = s1.useDelimiter("\\A")) {
+			String marc21OrMarcXml = s2.hasNext() ? s2.next() : "";
+			List<MarcRecord> recs = MarcRecord.getMarcRecords(RecordType.AUTHORITY, marc21OrMarcXml);
+			System.out.println(recs.size() + " records found in file.");
+			for (MarcRecord rec : recs)
+				createHeadingRecordsFromAuthority(rec);
 		}
 	}
 	private void setUpDatabase() throws SQLException {
@@ -180,16 +180,6 @@ public class IndexAuthorityRecords {
 			insertRefType.setString(2, rt.toString());
 			insertRefType.executeUpdate();
 		}}
-	}
-
-	private void processRecords (XMLStreamReader r) throws Exception {
-		while (r.hasNext()) {
-			if (r.next() == XMLStreamConstants.START_ELEMENT)
-				if (r.getLocalName().equals("record")) {
-					MarcRecord rec = processRecord(r);
-					createHeadingRecordsFromAuthority(rec);
-				}
-		}
 	}
 
 	private void createHeadingRecordsFromAuthority( MarcRecord rec ) throws SQLException, JsonProcessingException  {
@@ -294,7 +284,8 @@ public class IndexAuthorityRecords {
 				case "372":
 				case "373":
 				case "374":
-				case "375": {
+//				case "375":
+				{
 					String start = null, end = null, field = null;
 					List<String> values = new ArrayList<>();
 					switch (f.tag) {
@@ -426,6 +417,7 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	private static String dashedHeading(DataField f, HeadTypeDesc htd, FieldValues nameFieldVals) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
@@ -837,79 +829,6 @@ public class IndexAuthorityRecords {
 		public Collection<RecordSet> applicableContexts = new HashSet<>();
 		public Collection<String> expectedNotes = new HashSet<>();
 		boolean display = true;
-	}
-
-	// general MARC methods and classes start here
-
-	private static MarcRecord processRecord( XMLStreamReader r ) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		int id = 0;
-		while (r.hasNext()) {
-			int event = r.next();
-			if (event == XMLStreamConstants.END_ELEMENT) {
-				if (r.getLocalName().equals("record")) 
-					return rec;
-			}
-			if (event == XMLStreamConstants.START_ELEMENT) {
-				String element = r.getLocalName();
-				switch (element) {
-
-				case "leader":
-					rec.leader = r.getElementText();
-					break;
-
-
-				case "controlfield":
-					String tag = null;
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("tag"))
-							tag = r.getAttributeValue(i);
-					ControlField cf = new ControlField(++id,tag,r.getElementText());
-					if (cf.tag.equals("001"))
-						rec.id = cf.value;
-					rec.controlFields.add(cf);
-					break;
-
-
-				case "datafield":
-					DataField df = new DataField();
-					df.id = ++id;
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("tag"))
-							df.tag = r.getAttributeValue(i);
-						else if (r.getAttributeLocalName(i).equals("ind1"))
-							df.ind1 = r.getAttributeValue(i).charAt(0);
-						else if (r.getAttributeLocalName(i).equals("ind2"))
-							df.ind2 = r.getAttributeValue(i).charAt(0);
-					df.subfields = processSubfields(r);
-					rec.dataFields.add(df); 
-				}
-			}
-		}
-		return rec;
-	}
-
-	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws Exception {
-		TreeSet<Subfield> fields = new TreeSet<>();
-		int id = 0;
-		while (r.hasNext()) {
-			int event = r.next();
-			if (event == XMLStreamConstants.END_ELEMENT)
-				if (r.getLocalName().equals("datafield"))
-					return fields;
-			if (event == XMLStreamConstants.START_ELEMENT)
-				if (r.getLocalName().equals("subfield")) {
-					Subfield f = new Subfield();
-					f.id = ++id;
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("code"))
-							f.code = r.getAttributeValue(i).charAt(0);
-					f.value = r.getElementText();
-					fields.add(f);
-				}
-		}
-		return fields; // We should never reach this line.
 	}
 
 }

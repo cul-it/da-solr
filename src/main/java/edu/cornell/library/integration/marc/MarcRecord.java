@@ -67,6 +67,24 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	}
 
+	public static List<MarcRecord> getMarcRecords( RecordType type, String marc21OrMarcXml ) throws IOException, XMLStreamException {
+		List<MarcRecord> recs = new ArrayList<>();
+		String marcXml = ( marc21OrMarcXml.contains("<record>") )
+				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
+		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader read  = input_factory.createXMLStreamReader(is);
+		while (read.hasNext())
+			if (read.next() == XMLStreamConstants.START_ELEMENT)
+				if (read.getLocalName().equals("record")) {
+					MarcRecord rec = new MarcRecord( type );
+					rec.processRecord(read);
+					recs.add(rec);
+				}
+		}
+		return recs;
+	}
+
 	@Override
 	public int compareTo(final MarcRecord other) {
 		if ( this.type == null ) {
@@ -222,10 +240,13 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
 		writer.setUnicodeNormalization(true);
 		Record record = null;
+		String prevRec = null;
 		while (reader.hasNext()) {
 			try {
 				record = reader.next();
+				prevRec = record.getControlFields().get(0).getData();
 			} catch (Exception e) {
+				System.out.println("Error reading record following #"+prevRec);
 				e.printStackTrace();
 				continue;
 			}
