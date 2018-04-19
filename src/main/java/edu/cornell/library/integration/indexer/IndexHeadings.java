@@ -284,7 +284,7 @@ public class IndexHeadings {
 		if (heading != null) return heading;
 
 		// If that still didn't work, print an error message for future investigation.
-		System.out.println("Didn't find display form: "+query);
+		System.out.println("Didn't find display form - "+blf.fieldName()+":"+headingSort);
 		return null;
 	}
 
