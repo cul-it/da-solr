@@ -417,7 +417,6 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	private static String dashedHeading(DataField f, HeadTypeDesc htd, FieldValues nameFieldVals) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
@@ -429,7 +428,7 @@ public class IndexAuthorityRecords {
 					nameFieldVals = NameUtils.authorAndOrTitleValues(f);
 				heading = nameFieldVals.author+" | "+nameFieldVals.title;
 			}
-		} else if (authorTypes.equals(htd.ordinal())){
+		} else if (authorTypes.contains(htd.ordinal())){
 			heading = NameUtils.facetValue(f);
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");

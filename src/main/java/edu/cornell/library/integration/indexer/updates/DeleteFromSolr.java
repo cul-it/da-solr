@@ -88,12 +88,13 @@ public class DeleteFromSolr {
         		final String markBibForUpdateQuery =
         				"INSERT INTO "+CurrentDBTable.QUEUE
         				+ " (bib_id, priority, cause) VALUES"
-            			+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
-						+        DataChangeUpdateType.TITLELINK+"')";
+            			+ " (?,?,?)";
         		try (  PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ){
 
         			for (int bib_id : knockOnUpdates) {
         				markBibForUpdateStmt.setInt(1,bib_id);
+        				markBibForUpdateStmt.setInt(2,DataChangeUpdateType.TITLELINK.getPriority().ordinal());
+        				markBibForUpdateStmt.setString(3,DataChangeUpdateType.TITLELINK.toString());
         				markBibForUpdateStmt.addBatch();
         			}
         			markBibForUpdateStmt.executeBatch();

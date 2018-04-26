@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +35,8 @@ import org.marc4j.marc.impl.SubfieldImpl;
  *  MarcRecord Handler Class
  */
 public class MarcRecord implements Comparable<MarcRecord>{
+
+	public final static String MARC_DATE_FORMAT = "yyyyMMddHHmmss";
 
 	public String leader = " ";
 	public String modifiedDate = null;
@@ -96,16 +99,20 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			return type.compareTo(other.type);
 		return id.compareTo(other.id);
 	}
-	public boolean equals(final MarcRecord other){
-		if (other == null) return false;
-		if (this.type == null) {
-			if (other.type == null)
-				return this.id == other.id;
-			return false;
-		}
-		if ( this.type.equals(other.type) )
-			return this.id == other.id;
-		return false;
+
+	@Override
+    public int hashCode() {
+      return this.toString().hashCode();
+    }
+
+    @Override
+	public boolean equals(final Object o){
+		if (this == o) return true;
+		if (o == null) return false;
+		if (! this.getClass().equals( o.getClass() )) return false;
+		MarcRecord other = (MarcRecord) o;
+		return Objects.equals(this.type, other.type)
+				&& Objects.equals(this.id, other.id);
 	}
 
 	@Override
@@ -181,11 +188,19 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	public String toString( final String format) {
 		if (format == null)
 			return this.toString();
-		if (format.equals("") || format.equalsIgnoreCase("txt") || format.equalsIgnoreCase("text"))
+		switch (format) {
+		case "":
+		case "txt":
+		case "text":
 			return this.toString();
-		if (! format.equalsIgnoreCase("xml"))
+		case "xml":
+			return this.toXML();
+		default:
 			return null;
+		}
+	}
 
+	public String toXML() {
 		try {
 
 			// build XML string
