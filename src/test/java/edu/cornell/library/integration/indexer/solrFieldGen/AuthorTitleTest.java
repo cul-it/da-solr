@@ -55,7 +55,8 @@ public class AuthorTitleTest {
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
-									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
+		"authority_author_t: Cupe, Mariano León, 1932-\n"+
 		"author_sort: leon cupe mariano 1932\n"+
 		"title_sort: cabana historia cultura y tradicion\n"+
 		"title_display: Cabana, historia, cultura y tradición\n"+

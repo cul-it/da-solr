@@ -89,7 +89,6 @@ public class HoldingsAndItemsTest {
 		assertEquals( expected, HoldingsAndItems.generateSolrFields(bibRec, config).toString() );
 	}
 	
-	@Test
 	public void testMultipleCopies()
 			throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
