@@ -57,14 +57,14 @@ public class IndexHeadings {
 		}
 
 	}
-	
-	
+
+
 	public IndexHeadings(String[] args) throws Exception {
-        
+
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
-	            
+
 		config = SolrBuildConfig.loadConfig(null,requiredArgs);
 		if (args.length > 0) {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -101,13 +101,16 @@ public class IndexHeadings {
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.PERSNAME));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CORPNAME));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.EVENT));
+
+		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
+
+		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK));
+
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.TOPIC));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GEONAME));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.CHRONTERM));
 		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.GENRE));
-		blFields.add(new BlacklightField(HeadType.SUBJECT, HeadTypeDesc.WORK));
 
-		blFields.add(new BlacklightField(HeadType.AUTHORTITLE, HeadTypeDesc.WORK));
 
 		for (BlacklightField blf : blFields) {
 
@@ -196,8 +199,7 @@ public class IndexHeadings {
 		String count_field = blf.headingType().dbField();
 		// update record count in db
 		if ( ! qs.containsKey("update")) {
-			qs.put("update", String.format( "UPDATE heading SET %s = %s + ? "
-					+ "WHERE type_desc = ? AND sort = ?", count_field, count_field));
+			qs.put("update", String.format( "UPDATE heading SET %s = ? WHERE type_desc = ? AND sort = ?", count_field));
 		}
 		int rowsAffected;
 		try ( PreparedStatement uStmt = connection.prepareStatement( qs.get("update") ) ) {
