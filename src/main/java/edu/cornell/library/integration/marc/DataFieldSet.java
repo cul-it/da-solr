@@ -31,11 +31,19 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 	public int compareTo(final DataFieldSet other) {
 		return Integer.compare(this.id, other.id);
 	}
-	public boolean equals( final DataFieldSet other ) {
-		if (other == null) return false;
-		if (other.id == this.id) return true;
-		return false;
+
+	@Override
+	public boolean equals( final Object o ) {
+		if (o == null) return false;
+		if (! this.getClass().equals(o.getClass())) return false;
+		return this.id.equals( ((DataFieldSet)o).id );
 	}
+
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
+	}
+
 	private DataFieldSet ( Integer id, String mainTag, Integer linkNumber, List<DataField> fields) {
 		this.id = id;
 		this.mainTag = mainTag;

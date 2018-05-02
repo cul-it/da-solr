@@ -2106,9 +2106,9 @@ public class MarcXmlToRdf {
 							b = sf.value;
 						else if (sf.code.equals('c'))
 							c = sf.value;
-						else if (sf.value.equals('d'))
+						else if (sf.code.equals('d'))
 							d = sf.value;
-						else if (sf.value.equals('2'))
+						else if (sf.code.equals('2'))
 							two = sf.value;
 					putOrAppendToExtract("96","|",(a == null)?"<null>":a);
 					putOrAppendToExtract("97","|",(b == null)?"<null>":b);
@@ -2344,10 +2344,10 @@ public class MarcXmlToRdf {
 			rec_res.addLiteral(label_p, rec.id);
 		if (rec.type.equals(RecordType.BIBLIOGRAPHIC) && isUnsuppressedBibListFlagged)
 			rec_res.addLiteral(model.createProperty(marcrdf,"status"),
-					(unsuppressedBibs.contains(rec.id))?"unsuppressed":"suppressed");
+					(unsuppressedBibs.contains(Integer.valueOf(rec.id)))?"unsuppressed":"suppressed");
 		if (rec.type.equals(RecordType.HOLDINGS) && isUnsuppressedMfhdListFlagged)
 			rec_res.addLiteral(model.createProperty(marcrdf,"status"),
-					(unsuppressedMfhds.contains(rec.id))?"unsuppressed":"suppressed");
+					(unsuppressedMfhds.contains(Integer.valueOf(rec.id)))?"unsuppressed":"suppressed");
 		rec_res.addLiteral(model.createProperty("http://marcrdf.library.cornell.edu/canonical/0.1/leader"), rec.leader);
 
 		// Control fields

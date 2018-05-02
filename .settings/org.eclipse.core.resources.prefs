@@ -3,6 +3,5 @@ encoding//solr/blacklightCore/conf/synonyms.txt=UTF-8
 encoding//src/main/java/edu/cornell/library/integration/indexer/RecordToDocumentMARC.java=UTF-8
 encoding//src/main/java/edu/cornell/library/integration/utilities/CharacterSetUtils.java=UTF-8
 encoding//src/main/java/edu/cornell/library/integration/utilities/FilingNormalization.java=UTF-8
-encoding//src/test/java/edu/cornell/library/integration/indexer/RecordToDocumentMARCTest.java=UTF-8
 encoding//src/test/java/edu/cornell/library/integration/utilities/CharacterSetUtilsTest.java=UTF-8
 encoding//src/test/java/edu/cornell/library/integration/utilities/IndexingUtilitiesTest.java=UTF-8
