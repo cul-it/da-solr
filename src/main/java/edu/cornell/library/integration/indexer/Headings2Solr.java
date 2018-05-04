@@ -144,9 +144,12 @@ public class Headings2Solr {
 						docs.clear();
 					}
 				}
+				if ( ! docs.isEmpty() )
+					solr_u.add(docs);
+				if ( mostRecentDate != null )
+					solr_u.deleteByQuery(String.format(
+							"timestamp:[ * TO \"%s\"]",formatter.format( mostRecentDate.toInstant() )));
 			}
-		if ( ! docs.isEmpty() )
-			solr_u.add(docs);
 		}
 	}
 	
