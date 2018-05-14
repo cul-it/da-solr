@@ -493,10 +493,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 			//               and not the other
 			//   3) this is a single volume work with supplementary material, and the
 			//               item lacking enumeration is the main item
-			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol(descriptions);
+			boolean descriptionLooksMultivol = doesDescriptionLookMultivol(descriptions);
 			if (description_with_e) {
 				// this is strong evidence for case 3
-				if (descriptionLooksMultivol == null || ! descriptionLooksMultivol) {
+				if ( ! descriptionLooksMultivol) {
 					// confirm case 3
 					multivol = true;
 					sfs.add( new BooleanSolrField("mainitem_b", true) );
