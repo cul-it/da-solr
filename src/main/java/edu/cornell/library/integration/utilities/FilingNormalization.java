@@ -114,6 +114,7 @@ public class FilingNormalization {
 			case 'ε': sb.append("epsilon"); break;
 			case 'ζ': sb.append("zeta"); break;
 			case 'η': sb.append("eta"); break;
+			case 'θ': sb.append("theta"); break;
 			case 'ι': sb.append("iota"); break;
 			case 'κ': sb.append("zappa"); break;
 			case 'λ': sb.append("lamda"); break;
