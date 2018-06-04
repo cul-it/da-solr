@@ -3,6 +3,7 @@ package edu.cornell.library.integration.marc;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 
 public class DataField implements Comparable<DataField> {
@@ -219,14 +220,15 @@ public class DataField implements Comparable<DataField> {
 	private static TreeSet<Subfield> parseSubfields(String subfields, Character subfieldSeparator) {
 		String[] values = subfields.split(String.valueOf(subfieldSeparator));
 		TreeSet<Subfield> subfieldSet = new TreeSet<>();
-		if (values.length > 1)
-			for (int i = 1 ; i < values.length ; i++ ) {
-				if (values.length == 0) continue;
-				if (values.length == 1)
-					subfieldSet.add( new Subfield( i, values[i].charAt(0), "") );
-				else
-					subfieldSet.add( new Subfield( i, values[i].charAt(0), values[i].substring(1).trim()) );
-			}
+		for (int i = 1 ; i < values.length ; i++ ) {
+			String val = values[i];
+			if (val.isEmpty())
+				continue;
+			if (val.length() == 1)
+				subfieldSet.add( new Subfield( i, val.charAt(0), "") );
+			else
+				subfieldSet.add( new Subfield( i, val.charAt(0), val.substring(1).trim()) );
+		}
 		return subfieldSet;
 	}
 
@@ -234,10 +236,20 @@ public class DataField implements Comparable<DataField> {
 	public int compareTo(final DataField other) {
 		return Integer.compare(this.id, other.id);
 	}
-	public boolean equals( final DataField other ) {
-		if (other == null) return false;
-		if (other.id == this.id) return true;
-		return false;
+
+
+	@Override
+    public int hashCode() {
+      return Integer.hashCode( this.id );
+    }
+
+    @Override
+	public boolean equals(final Object o){
+		if (this == o) return true;
+		if (o == null) return false;
+		if (! this.getClass().equals( o.getClass() )) return false;
+		DataField other = (DataField) o;
+		return Objects.equals(this.id, other.id);
 	}
 
 	/**

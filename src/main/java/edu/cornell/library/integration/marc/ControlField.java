@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.marc;
 
+import java.util.Objects;
+
 public class ControlField implements Comparable<ControlField> {
 
 		public int id;
@@ -15,9 +17,18 @@ public class ControlField implements Comparable<ControlField> {
 		public int compareTo(final ControlField other) {
 			return Integer.compare(this.id, other.id);
 		}
-		public boolean equals( final ControlField other ) {
-			if (other == null) return false;
-			if (other.id == this.id) return true;
-			return false;
+
+		@Override
+	    public int hashCode() {
+	      return Integer.hashCode( this.id );
+	    }
+
+		@Override
+		public boolean equals(final Object o){
+			if (this == o) return true;
+			if (o == null) return false;
+			if (! this.getClass().equals( o.getClass() )) return false;
+			ControlField other = (ControlField) o;
+			return Objects.equals(this.id, other.id);
 		}
 	}

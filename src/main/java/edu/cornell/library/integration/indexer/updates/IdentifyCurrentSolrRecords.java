@@ -1,7 +1,7 @@
 package edu.cornell.library.integration.indexer.updates;
 
 import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.marcDateFormat;
+import static edu.cornell.library.integration.marc.MarcRecord.MARC_DATE_FORMAT;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.pullReferenceFields;
 
 import java.sql.Connection;
@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class IdentifyCurrentSolrRecords {
 	private int itemCount = 0;
 	private int workCount = 0;
 	private Map<String,PreparedStatement> pstmts = new HashMap<>();
+	private SimpleDateFormat marcDateFormat;
 
 	public static void main(String[] args)  {
 
@@ -57,6 +59,7 @@ public class IdentifyCurrentSolrRecords {
 	@SuppressWarnings("unchecked")
 	public IdentifyCurrentSolrRecords(Config config) throws Exception {
 
+		marcDateFormat = new SimpleDateFormat( MARC_DATE_FORMAT );
 	    current = config.getDatabaseConnection("Current");
 	    current.setAutoCommit(false);
 	    setUpTables();

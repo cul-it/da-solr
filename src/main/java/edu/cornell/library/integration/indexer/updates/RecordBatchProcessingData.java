@@ -57,6 +57,7 @@ public class RecordBatchProcessingData {
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is)) ){
 					reader.readLine(); // discard first line
 					String secondLine = reader.readLine();
+					if (secondLine == null) continue;
 					String jobCode = secondLine.split("\t")[0].split("=")[1];
 					jt = getJobType(current,jobCode);
 					String line;

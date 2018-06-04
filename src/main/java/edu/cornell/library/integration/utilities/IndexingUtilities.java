@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.MarcRecord.MARC_DATE_FORMAT;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -215,7 +216,7 @@ public class IndexingUtilities {
 		Collection<Object> bibid_display = doc.getFieldValues("bibid_display");
 		String[] parts = ((String)bibid_display.iterator().next()).split("\\|", 2);
 		ref.id = Integer.valueOf(parts[0]);
-		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+		ref.timestamp = new Timestamp((new SimpleDateFormat( MARC_DATE_FORMAT )).parse(parts[1]).getTime() );
 
 		ref.format = String.join(",",doc.getFieldValues("format"));
 
@@ -273,7 +274,6 @@ public class IndexingUtilities {
 		return ref;
 	}
 	private static final ObjectMapper mapper = new ObjectMapper();
-	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static class TitleMatchReference {
 		public int id;

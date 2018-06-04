@@ -64,16 +64,19 @@ public class Headings2Solr {
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadType.SUBJECT);
+			solr_u.blockUntilFinished();
 		}
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadType.AUTHOR);
+			solr_u.blockUntilFinished();
 		}
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorTitleSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadType.AUTHORTITLE);
+			solr_u.blockUntilFinished();
 		}
 		connection.close();
 	}
@@ -136,14 +139,17 @@ public class Headings2Solr {
 					doc.addField("counts_json", countsJson(rs));
 					docs.add(doc);
 					if (docs.size() == 5_000) {
-						System.out.printf("%d: %s\n", rs.getInt("id"),rs.getString("heading"));
+						System.out.printf("%d: %s\n",id,rs.getString("heading"));
 						solr_u.add(docs);
 						docs.clear();
 					}
 				}
+				if ( ! docs.isEmpty() )
+					solr_u.add(docs);
+				if ( mostRecentDate != null )
+					solr_u.deleteByQuery(String.format(
+							"timestamp:[ * TO \"%s\"]",formatter.format( mostRecentDate.toInstant() )));
 			}
-		if ( ! docs.isEmpty() )
-			solr_u.add(docs);
 		}
 	}
 	

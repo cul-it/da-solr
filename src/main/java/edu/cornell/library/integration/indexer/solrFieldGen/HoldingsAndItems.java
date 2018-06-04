@@ -531,10 +531,10 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 			//               and not the other
 			//   3) this is a single volume work with supplementary material, and the
 			//               item lacking enumeration is the main item
-			Boolean descriptionLooksMultivol = doesDescriptionLookMultivol(descriptions);
+			boolean descriptionLooksMultivol = doesDescriptionLookMultivol(descriptions);
 			if (description_with_e) {
 				// this is strong evidence for case 3
-				if (descriptionLooksMultivol == null || ! descriptionLooksMultivol) {
+				if ( ! descriptionLooksMultivol) {
 					// confirm case 3
 					multivol = true;
 					sfs.add( new BooleanSolrField("mainitem_b", true) );
@@ -602,24 +602,23 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 		return sfs;
 	}
 
-	private static Pattern multivolDesc = null;
-	private static Pattern singlevolDesc = null;
-	private static Boolean doesDescriptionLookMultivol(Collection<String> descriptions) {
-		if (descriptions.isEmpty()) return null;
+	private static Pattern multivolDesc = Pattern.compile("(\\d+)\\D* v\\.");
+	private static Pattern singlevolDesc = Pattern.compile("^([^0-9\\-\\[\\]  ] )?p\\.");
+	private static boolean doesDescriptionLookMultivol(Collection<String> descriptions) {
+
+		if (descriptions.isEmpty()) return false;
 
 		for (String desc : descriptions) {
-			if (multivolDesc == null) multivolDesc = Pattern.compile("(\\d+)\\D* v\\.");
 			Matcher m = multivolDesc.matcher(desc);
 			if (m.find()) {
 				int c = Integer.valueOf(m.group(1).replaceAll("[^\\d\\-\\.]", ""));
 				if (c > 1) return true;
 				if (c == 1) return false;
 			}
-			if (singlevolDesc == null) singlevolDesc = Pattern.compile("^([^0-9\\-\\[\\]  ] )?p\\.");
 			if (singlevolDesc.matcher(desc).find()) return false;
 		}
 
-		return null;
+		return false;
 	}
 
     private static String convertClobToString(Clob clob) throws IOException, SQLException {

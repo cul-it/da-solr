@@ -9,8 +9,9 @@ import edu.cornell.library.integration.indexer.utilities.Config;
 
 public class VoyagerToSolrConfigurationTest {
 
+	@SuppressWarnings("static-method")
 	@Test
-	public static void testInsertDate() {
+	public void testInsertDate() {
 		String test = "No replacement";
 		assertTrue(Config.insertIterationContext(test).equals(test));
 		test = "should/XXXX/replace";

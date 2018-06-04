@@ -95,9 +95,10 @@ public class SubjectTest {
 		"subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
-		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy)."
-		+ " | Decree Four.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
+		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four.\",\"authorized\":true,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
+		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Jesuits today\n"+
+		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Our mission today\n"+
 		"fast_b: false\n";
 		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
 
