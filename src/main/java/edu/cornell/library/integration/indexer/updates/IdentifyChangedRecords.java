@@ -21,7 +21,6 @@ import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
@@ -60,10 +59,10 @@ public class IdentifyChangedRecords {
 	Set<Integer> updatedBibs = new HashSet<>();
 	private static Timestamp max_date = null;
 
-	final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM "+CurrentDBTable.BIB_VOY;
-	final static String maxBibQueryOther = "SELECT max(bib_id) FROM "+CurrentDBTable.BIB_VOY;
-	final static String maxMfhdQuery = "SELECT max(mfhd_id) FROM "+CurrentDBTable.MFHD_VOY;
-	final static String maxItemQuery = "SELECT max(item_id) FROM "+CurrentDBTable.ITEM_VOY;
+	final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM bibRecsVoyager";
+	final static String maxBibQueryOther = "SELECT max(bib_id) FROM bibRecsVoyager";
+	final static String maxMfhdQuery = "SELECT max(mfhd_id) FROM mfhdRecsVoyager";
+	final static String maxItemQuery = "SELECT max(item_id) FROM itemRecsVoyager";
 	final static String recentBibQuery =
 			"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
 					+" where ( BIB_ID > ? or UPDATE_DATE > ?)";
@@ -79,23 +78,23 @@ public class IdentifyChangedRecords {
 		    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 		    		+ "  and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)";
 	final static String bibVoyQuery =
-			"SELECT record_date, active FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
+			"SELECT record_date, active FROM bibRecsVoyager WHERE bib_id = ?";
 	final static String bibVoyUpdate =
-			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ? , active = ? WHERE bib_id = ?";
+			"UPDATE bibRecsVoyager SET record_date = ? , active = ? WHERE bib_id = ?";
 	final static String bibVoyInsert =
-			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date,active) VALUES (?,?,?)";
+			"INSERT INTO bibRecsVoyager (bib_id,record_date,active) VALUES (?,?,?)";
 	final static String mfhdVoyQuery =
-			"SELECT bib_id, record_date FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
+			"SELECT bib_id, record_date FROM mfhdRecsVoyager WHERE mfhd_id = ?";
 	final static String mfhdVoyUpdate =
-			"UPDATE "+CurrentDBTable.MFHD_VOY+""+ " SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
+			"UPDATE mfhdRecsVoyager SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
 	final static String mfhdVoyInsert =
-			"INSERT INTO "+CurrentDBTable.MFHD_VOY+" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
+			"INSERT INTO mfhdRecsVoyager (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
 	final static String itemVoyQuery =
-			"SELECT mfhd_id, record_date FROM "+CurrentDBTable.ITEM_VOY+" WHERE item_id = ?";
+			"SELECT mfhd_id, record_date FROM itemRecsVoyager WHERE item_id = ?";
 	final static String itemVoyUpdate =
-			"UPDATE "+CurrentDBTable.ITEM_VOY+" SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
+			"UPDATE itemRecsVoyager SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
 	final static String itemVoyInsert =
-			"INSERT INTO "+CurrentDBTable.ITEM_VOY+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+			"INSERT INTO itemRecsVoyager (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
 
 	public static void main(String[] args)  {
 		boolean thorough = true;

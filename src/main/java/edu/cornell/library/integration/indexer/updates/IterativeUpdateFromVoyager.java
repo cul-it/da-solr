@@ -9,11 +9,10 @@ import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class IterativeUpdateFromVoyager {
 
-	private final static String isQueueRemainingQuery = "SELECT * FROM "+CurrentDBTable.QUEUE+
+	private final static String isQueueRemainingQuery = "SELECT * FROM indexQueue"+
 			" WHERE done_date = 0 AND batched_date = 0 AND priority = 0 LIMIT 1";
 
 	public static void main(String[] args) throws Exception {

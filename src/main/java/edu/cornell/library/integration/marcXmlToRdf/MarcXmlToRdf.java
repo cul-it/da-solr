@@ -57,7 +57,6 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.
@@ -591,7 +590,7 @@ public class MarcXmlToRdf {
 			if (type.equals(RecordType.BIBLIOGRAPHIC)) {
 				if (doesBibExist == null)
 					doesBibExist = dbForUnsuppressedIdFiltering.prepareStatement
-						("SELECT COUNT(*) FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?");
+						("SELECT COUNT(*) FROM bibRecsVoyager WHERE bib_id = ?");
 				doesBibExist.setInt(1,id);
 				int count;
 				try (ResultSet rs = doesBibExist.executeQuery()) {
@@ -603,7 +602,7 @@ public class MarcXmlToRdf {
 			} else if (type.equals(RecordType.HOLDINGS)) {
 				if (doesMfhdExist == null)
 					doesMfhdExist = dbForUnsuppressedIdFiltering.prepareStatement
-						("SELECT COUNT(*) FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?");
+						("SELECT COUNT(*) FROM mfhdRecsVoyager WHERE mfhd_id = ?");
 				doesMfhdExist.setInt(1,id);
 				int count;
 				try (ResultSet rs = doesMfhdExist.executeQuery()) {

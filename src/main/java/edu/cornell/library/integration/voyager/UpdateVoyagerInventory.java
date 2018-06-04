@@ -19,30 +19,29 @@ import java.util.Map.Entry;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class UpdateVoyagerInventory {
 
 	final static String bibVoyInsert =
-			"INSERT INTO "+CurrentDBTable.BIB_VOY+" (bib_id,record_date,active) VALUES (?,?,?)";
+			"INSERT INTO bibRecsVoyager (bib_id,record_date,active) VALUES (?,?,?)";
 	final static String bibVoyQuery =
-			"SELECT record_date, active FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?";
+			"SELECT record_date, active FROM bibRecsVoyager WHERE bib_id = ?";
 	final static String bibVoyUpdate =
-			"UPDATE "+CurrentDBTable.BIB_VOY+" SET record_date = ?, active = ? WHERE bib_id = ?";
+			"UPDATE bibRecsVoyager SET record_date = ?, active = ? WHERE bib_id = ?";
 	final static String mfhdVoyUpdate =
-			"UPDATE "+CurrentDBTable.MFHD_VOY+""+ " SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
+			"UPDATE mfhdRecsVoyager SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
 	final static String mfhdVoyDelete =
-			"DELETE FROM "+CurrentDBTable.MFHD_VOY+" WHERE mfhd_id = ?";
+			"DELETE FROM mfhdRecsVoyager WHERE mfhd_id = ?";
 	final static String mfhdVoyInsert =
-			"INSERT INTO "+CurrentDBTable.MFHD_VOY+" (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
+			"INSERT INTO mfhdRecsVoyager (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
 	final static String itemVoyUpdate =
-			"UPDATE "+CurrentDBTable.ITEM_VOY+" SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
+			"UPDATE itemRecsVoyager SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
 	final static String itemVoyInsert =
-			"INSERT INTO "+CurrentDBTable.ITEM_VOY+" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+			"INSERT INTO itemRecsVoyager (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
 	final static String itemVoyDelete =
-			"DELETE FROM "+CurrentDBTable.ITEM_VOY+" WHERE item_id = ?";
+			"DELETE FROM itemRecsVoyager WHERE item_id = ?";
 	final static String bibForMfhdQuery =
-			"SELECT m.bib_id FROM "+CurrentDBTable.MFHD_VOY+" as m , "+CurrentDBTable.BIB_VOY+" as b "
+			"SELECT m.bib_id FROM mfhdRecsVoyager as m , bibRecsVoyager as b "
 			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
 	public UpdateVoyagerInventory( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
@@ -81,7 +80,7 @@ public class UpdateVoyagerInventory {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();
 				ResultSet c_rs = c_stmt.executeQuery(
-						"SELECT bib_id, record_date, active FROM "+CurrentDBTable.BIB_VOY+" ORDER BY 1");
+						"SELECT bib_id, record_date, active FROM bibRecsVoyager ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC"
 						+ " from BIB_MASTER"
@@ -90,8 +89,7 @@ public class UpdateVoyagerInventory {
 			if ( ! c_rs.next() )
 				throw new SQLException("Error: Voyager BIB_MASTER table must not have zero records.");
 			if ( ! v_rs.next() )
-				throw new SQLException("Error: InventoryDB "+CurrentDBTable.BIB_VOY+
-						" table must not have zero records.");
+				throw new SQLException("Error: InventoryDB bibRecsVoyager table must not have zero records.");
 
 			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
@@ -251,8 +249,8 @@ public class UpdateVoyagerInventory {
 				Statement v_stmt = voyager.createStatement();
 				ResultSet c_rs = c_stmt.executeQuery(
 						"SELECT mfhd_id, m.bib_id, m.record_date, b.active"
-						+ " FROM "+CurrentDBTable.MFHD_VOY+" AS m"
-						+ " LEFT JOIN "+CurrentDBTable.BIB_VOY+" AS b ON b.bib_id = m.bib_id"
+						+ " FROM mfhdRecsVoyager AS m"
+						+ " LEFT JOIN bibRecsVoyager AS b ON b.bib_id = m.bib_id"
 						+ " ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select MFHD_MASTER.MFHD_ID, BIB_MFHD.BIB_ID, UPDATE_DATE"
@@ -264,8 +262,7 @@ public class UpdateVoyagerInventory {
 			if ( ! c_rs.next() )
 				throw new SQLException("Error: Voyager MFHD_MASTER table must not have zero records.");
 			if ( ! v_rs.next() )
-				throw new SQLException("Error: InventoryDB "+CurrentDBTable.MFHD_VOY+
-						" table must not have zero records.");
+				throw new SQLException("Error: InventoryDB mfhdRecsVoyager table must not have zero records.");
 
 			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
@@ -428,9 +425,7 @@ public class UpdateVoyagerInventory {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement();
 				ResultSet c_rs = c_stmt.executeQuery(
-						"SELECT item_id, mfhd_id, record_date"
-						+ " FROM "+CurrentDBTable.ITEM_VOY
-						+" ORDER BY 1");
+						"SELECT item_id, mfhd_id, record_date FROM itemRecsVoyager ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select ITEM.ITEM_ID, MFHD_ITEM.MFHD_ID, ITEM.MODIFY_DATE"
 								+"  from MFHD_ITEM, ITEM"
@@ -440,8 +435,7 @@ public class UpdateVoyagerInventory {
 			if ( ! c_rs.next() )
 				throw new SQLException("Error: Voyager ITEM table must not have zero records.");
 			if ( ! v_rs.next() )
-				throw new SQLException("Error: InventoryDB "+CurrentDBTable.ITEM_VOY+
-						" table must not have zero records.");
+				throw new SQLException("Error: InventoryDB itemRecsVoyager table must not have zero records.");
 
 			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {

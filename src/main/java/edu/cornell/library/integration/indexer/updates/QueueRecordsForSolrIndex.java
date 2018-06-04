@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 public class QueueRecordsForSolrIndex {
@@ -47,8 +46,7 @@ public class QueueRecordsForSolrIndex {
 
 		try (   Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement(
-						"INSERT INTO "+CurrentDBTable.QUEUE.toString()
-						+" (bib_id, cause, priority) VALUES (?, ?, ?)") ){
+						"INSERT INTO indexQueue (bib_id, cause, priority) VALUES (?, ?, ?)") ){
 
 			pstmt.setInt(3, priority.ordinal());
 			pstmt.setString(2, cause);
