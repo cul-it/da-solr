@@ -843,16 +843,17 @@
         online, 
         language_display, 
         pub_info_display,
-		pub_date_display,
+	pub_date_display,
         pub_date_facet,
-		url_access_display,
-		url_access_json,
+	url_access_display,
+	url_access_json,
     	holdings_record_display,
-		item_record_display,
-		edition_display,
-	    title_uniform_display,
-	    other_id_display,
-	    availability_json
+	item_record_display,
+	edition_display,
+	title_uniform_display,
+	other_id_display,
+	availability_json,
+	acquired_dt
       </str>
      
       <str name="facet">true</str>

@@ -353,7 +353,7 @@ public class Config {
     	} 
     	return null;
     }
-    
+
     public String getXmlDir() throws IOException {
     	if (values.containsKey("xmlDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("xmlDir"));
@@ -361,7 +361,15 @@ public class Config {
     	}
 		return null;
     }
-    
+
+    public String getMrcDir() throws IOException {
+    	if (values.containsKey("mrcDir")) {
+    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("mrcDir"));
+    		return values.get("mrcDir");
+    	}
+		return null;
+    }
+
     public String getNtDir() throws IOException {
     	if (values.containsKey("ntDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("ntDir"));

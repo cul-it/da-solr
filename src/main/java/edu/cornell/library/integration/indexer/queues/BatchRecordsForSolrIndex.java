@@ -31,7 +31,7 @@ public class BatchRecordsForSolrIndex {
 		boolean isTestMode = b.isTestMode();
 
         try (Statement stmt = current.createStatement()) {
-        	stmt.executeQuery("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
+        	stmt.execute("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
         			+CurrentDBTable.QUEUE+" AS q READ, "
         			+CurrentDBTable.BIB_SOLR+" AS s READ, "
         			+CurrentDBTable.BIB_VOY+" AS v READ"); }

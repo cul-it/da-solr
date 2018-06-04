@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.marc.DataField.PDF_closeRTL;
+import static edu.cornell.library.integration.marc.MarcRecord.MARC_DATE_FORMAT;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,8 +24,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -213,7 +216,7 @@ public class IndexingUtilities {
 		Collection<Object> bibid_display = doc.getFieldValues("bibid_display");
 		String[] parts = ((String)bibid_display.iterator().next()).split("\\|", 2);
 		ref.id = Integer.valueOf(parts[0]);
-		ref.timestamp = new Timestamp(marcDateFormat.parse(parts[1]).getTime() );
+		ref.timestamp = new Timestamp((new SimpleDateFormat( MARC_DATE_FORMAT )).parse(parts[1]).getTime() );
 
 		ref.format = String.join(",",doc.getFieldValues("format"));
 
@@ -271,7 +274,6 @@ public class IndexingUtilities {
 		return ref;
 	}
 	private static final ObjectMapper mapper = new ObjectMapper();
-	public final static SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static class TitleMatchReference {
 		public int id;
@@ -364,6 +366,8 @@ public class IndexingUtilities {
 
 	
 
+	private static final List<String> tokensNeedingPeriods = Collections.unmodifiableList(
+			Arrays.asList( "etc", "Jr", "Sr", "Inc", "Co" ));
 	public static String removeTrailingPunctuation ( String s, String unwantedChars ) {
 		if (s == null) return null;
 		if (unwantedChars == null) return s;
@@ -382,9 +386,16 @@ public class IndexingUtilities {
 				&& ! Character.isJavaIdentifierPart(s.charAt(cursor-1))
 				&& s.charAt(cursor-1) != '-')
 			needsPeriod = true;
-		// Ends with etc., so keep the period
-		else if (cursor >= 2 && s.substring(cursor-2, cursor+1).equals("etc") )
-			needsPeriod = true;
+		// Back up to find beginning of last token. If last token is on tokensNeedingPeriods, keep the period.
+		else if (cursor > 0){
+			int reverseCursor = cursor;
+			while (reverseCursor > 0
+					&& Character.isJavaIdentifierPart(s.charAt(reverseCursor-1)))
+				reverseCursor--;
+			String lastToken = s.substring(reverseCursor,cursor+1);
+			if (tokensNeedingPeriods.contains(lastToken))
+				needsPeriod = true;
+		}
 
 		if (isRightToLeft) {
 			if (needsPeriod) return s.substring(0, cursor+1)+'.'+PDF_closeRTL;
