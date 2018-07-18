@@ -32,6 +32,8 @@ public class SimpleProc implements ResultSetToFields {
 
 		for ( SolrField f : vals.fields )
 			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+		for ( BooleanSolrField f : vals.boolFields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
 
 		return fields;
 	}
