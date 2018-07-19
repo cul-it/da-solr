@@ -9,10 +9,12 @@ import com.hp.hpl.jena.query.ResultSet;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
 import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
@@ -30,6 +32,8 @@ public class SimpleProc implements ResultSetToFields {
 
 		for ( SolrField f : vals.fields )
 			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
+		for ( BooleanSolrField f : vals.boolFields )
+			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
 
 		return fields;
 	}
@@ -40,6 +44,7 @@ public class SimpleProc implements ResultSetToFields {
 	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
 
 		SolrFields sfs = new SolrFields();
+		boolean f300e = false;
 
 		for (DataField f : rec.matchSortAndFlattenDataFields()) {
 			String displayField = "notes";
@@ -146,6 +151,7 @@ public class SimpleProc implements ResultSetToFields {
 				displaySubfields = "3abcefg";
 				displayField = "description_display";
 				searchSubfields = "abcefg";
+				for (Subfield sf: f.subfields) if (sf.code.equals('e')) f300e = true;
 				break;
 			case 310:
 				displaySubfields = "ab";
@@ -269,6 +275,7 @@ public class SimpleProc implements ResultSetToFields {
 					}
 				}
 			}
+			if (f300e) sfs.add(new BooleanSolrField("f300e_b",true));
 		}
 
 		return sfs;

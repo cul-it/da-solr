@@ -17,7 +17,6 @@ import java.util.TreeSet;
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 
 /**
@@ -59,10 +58,8 @@ public class IndexRecordListComparison {
 		Map<Integer,ChangedBib> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
-				+ "FROM "+CurrentDBTable.MFHD_VOY+" as v, "
-						+CurrentDBTable.MFHD_SOLR+" as s "
-				+"WHERE v.mfhd_id = s.mfhd_id "
-				+ " AND v.bib_id != s.bib_id") ) {
+				+ "FROM mfhdRecsVoyager as v, mfhdRecsSolr as s "
+				+"WHERE v.mfhd_id = s.mfhd_id AND v.bib_id != s.bib_id") ) {
 			while (rs.next())
 				m.put(rs.getInt(1), new ChangedBib(rs.getInt(3),rs.getInt(2)));
 		}
@@ -73,14 +70,13 @@ public class IndexRecordListComparison {
 		Map<Integer,ChangedBib> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
-				+ "FROM "+CurrentDBTable.ITEM_VOY+" as v, "
-						+CurrentDBTable.ITEM_SOLR+ " as s "
+				+ "FROM itemRecsVoyager as v, itemRecsSolr as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND v.mfhd_id != s.mfhd_id") ){
 			while (rs.next())
 				m.put(rs.getInt(1),
-						new ChangedBib(getBibForMfhd(CurrentDBTable.MFHD_SOLR,rs.getInt(3)),
-								getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2))));
+						new ChangedBib(getBibForMfhd("mfhdRecsSolr",rs.getInt(3)),
+								getBibForMfhd("mfhdRecsVoyager",rs.getInt(2))));
 		}
 		return m;
 	}
@@ -91,12 +87,11 @@ public class IndexRecordListComparison {
 		// new items
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.item_id, v.mfhd_id"
-				+ " from "+CurrentDBTable.ITEM_VOY+" as v "
-				+ "left join "+CurrentDBTable.ITEM_SOLR+" as s"
-						+ " on s.item_id = v.item_id "
+				+ " from itemRecsVoyager as v "
+				+ "left join itemRecsSolr as s on s.item_id = v.item_id "
 				+ "where s.mfhd_id is null") ) {
 			while (rs.next())
-				m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+				m.put(rs.getInt(1),getBibForMfhd("mfhdRecsVoyager",rs.getInt(2)));
 		}
 		return m;
 	}
@@ -107,11 +102,10 @@ public class IndexRecordListComparison {
 		// deleted items
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.item_id, s.mfhd_id "
-				+ "from "+CurrentDBTable.ITEM_SOLR+" as s "
-				+ "left join "+CurrentDBTable.ITEM_VOY+" as v"
-						+ " on s.item_id = v.item_id "
+				+ "from itemRecsSolr as s "
+				+ "left join itemRecsVoyager as v on s.item_id = v.item_id "
 				+ "where v.mfhd_id is null") ){
-			while (rs.next()) m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+			while (rs.next()) m.put(rs.getInt(1),getBibForMfhd("mfhdRecsVoyager",rs.getInt(2)));
 		}
 		return m;
 	}
@@ -120,13 +114,12 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new HashMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
-				+ "FROM "+CurrentDBTable.ITEM_VOY+" as v,"
-						+CurrentDBTable.ITEM_SOLR+ " as s "
+				+ "FROM itemRecsVoyager as v, itemRecsSolr as s "
 				+"WHERE v.item_id = s.item_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
 				+ "     OR ( v.record_date is not null AND s.record_date is null))")){
 			while (rs.next())
-				m.put(rs.getInt(1),getBibForMfhd(CurrentDBTable.MFHD_VOY,rs.getInt(2)));
+				m.put(rs.getInt(1),getBibForMfhd("mfhdRecsVoyager",rs.getInt(2)));
 		}
 		return m;
 	}
@@ -136,9 +129,8 @@ public class IndexRecordListComparison {
 		Map<Integer,Integer> m = new TreeMap<>();
 		try ( ResultSet rs = stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id"
-				+ " from "+CurrentDBTable.MFHD_VOY+" as v "
-				+ "left join "+CurrentDBTable.MFHD_SOLR+" as s"
-						+ " on s.mfhd_id = v.mfhd_id "
+				+ " from mfhdRecsVoyager as v "
+				+ "left join mfhdRecsSolr as s on s.mfhd_id = v.mfhd_id "
 				+ "where s.bib_id is null") ) {
 			while (rs.next())
 				m.put(rs.getInt(1),rs.getInt(2));
@@ -151,9 +143,8 @@ public class IndexRecordListComparison {
 		// deleted mfhds
 		try ( ResultSet rs = stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id"
-				+ " from "+CurrentDBTable.MFHD_SOLR+" as s "
-				+ "left join "+CurrentDBTable.MFHD_VOY+" as v"
-						+ " on s.mfhd_id = v.mfhd_id "
+				+ " from mfhdRecsSolr as s "
+				+ "left join mfhdRecsVoyager as v on s.mfhd_id = v.mfhd_id "
 				+ "where v.bib_id is null") ) {
 			while (rs.next()) m.put(rs.getInt(1),rs.getInt(2));
 		}
@@ -165,8 +156,7 @@ public class IndexRecordListComparison {
 		// updated holdings
 		try ( ResultSet rs = stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id "
-				+ "FROM "+CurrentDBTable.MFHD_VOY+" as v,"
-						+CurrentDBTable.MFHD_SOLR+" as s "
+				+ "FROM mfhdRecsVoyager as v, mfhdRecsSolr as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
 				+ " AND (v.record_date > date_add(s.record_date,interval 15 second) "
 				+ "     OR ( v.record_date is not null AND s.record_date is null))") ) {
@@ -179,9 +169,8 @@ public class IndexRecordListComparison {
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
 		Set<Integer> l = new TreeSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
-				"select v.bib_id from "+CurrentDBTable.BIB_VOY+" as v "
-				+ "left join "+CurrentDBTable.BIB_SOLR+" as s"
-						+ " on s.bib_id = v.bib_id "
+				"select v.bib_id from bibRecsVoyager as v "
+				+ "left join bibRecsSolr as s on s.bib_id = v.bib_id "
 				+ "where s.bib_id is null AND v.active = 1") ) {
 			while (rs.next()) l.add(rs.getInt(1));
 		}
@@ -192,9 +181,8 @@ public class IndexRecordListComparison {
 		
 		Set<Integer> l = new TreeSet<>();
 		try ( ResultSet rs = stmt.executeQuery(
-				"select s.bib_id from "+CurrentDBTable.BIB_SOLR+" as s "
-				+ "left join "+CurrentDBTable.BIB_VOY+" as v"
-						+ " on s.bib_id = v.bib_id "
+				"select s.bib_id from bibRecsSolr as s "
+				+ "left join bibRecsVoyager as v on s.bib_id = v.bib_id "
 				+ "where s.active = 1 AND ( v.bib_id is null OR v.active = 0 )") ) {
 			while (rs.next()) l.add(rs.getInt(1));
 		}
@@ -206,8 +194,7 @@ public class IndexRecordListComparison {
 		try (   Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(
 				"SELECT v.bib_id"
-				+ " FROM "+CurrentDBTable.BIB_VOY+" as v, "
-						+CurrentDBTable.BIB_SOLR+" as s "
+				+ " FROM bibRecsVoyager as v, bibRecsSolr as s "
 				+ "WHERE v.bib_id = s.bib_id"
 				+ "  AND v.record_date > date_add(s.record_date,interval 15 second)"
 				+ "  AND v.active = 1") ) {
@@ -220,7 +207,7 @@ public class IndexRecordListComparison {
 		Set<Integer> l = new HashSet<>();
 		try (   Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(
-				"SELECT bib_id FROM "+CurrentDBTable.QUEUE
+				"SELECT bib_id FROM indexQueue"
 				+ " WHERE done_date = 0"
 				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal()
 				+ " AND cause != '"+DataChangeUpdateType.DELETE+"'") ){
@@ -230,8 +217,8 @@ public class IndexRecordListComparison {
 	}
 
 	@SuppressWarnings("resource") // for preparedstatement
-	private int getBibForMfhd( CurrentDBTable table, int mfhdId ) throws SQLException {
-		String statementKey = "mfhd2bib_"+table.toString();
+	private int getBibForMfhd( String table, int mfhdId ) throws SQLException {
+		String statementKey = "mfhd2bib_"+table;
 		if ( ! pstmts.containsKey(statementKey))
 			pstmts.put(statementKey, conn.prepareStatement(
 					"SELECT bib_id FROM "+table+" WHERE mfhd_id = ?"));
@@ -252,8 +239,7 @@ public class IndexRecordListComparison {
 			return;
 		if ( ! pstmts.containsKey("queueBib"))
 			pstmts.put("queueBib", conn.prepareStatement(
-					"INSERT INTO "+CurrentDBTable.QUEUE+
-					" (bib_id, priority, cause) VALUES (?, 0, ?)"));
+					"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?, 0, ?)"));
 		PreparedStatement pstmt = pstmts.get("queueBib");
 		pstmt.setString(2, type.toString());
 		for (Integer bib : bibsToAdd) {

@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
 
 /** Evaluate populated fields for conditions of membership for any collections.
@@ -57,7 +56,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		// compare bib, mfhd and item list and dates to inventory, updating if need be
 		Timestamp origBibDate = null;
 		final String origBibDateQuery =
-				"SELECT record_date FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
+				"SELECT record_date FROM bibRecsSolr WHERE bib_id = ?";
 		try (PreparedStatement origBibDateStmt = conn.prepareStatement(origBibDateQuery)) {
 			origBibDateStmt.setInt(1, bibid);
 			try (ResultSet rs = origBibDateStmt.executeQuery()) {
@@ -91,7 +90,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private static void compareDocument(Connection conn, SolrInputDocument document, Integer bibid) throws SQLException {
 		final String solrDocumentFromDBQuery = 
-				"SELECT solr_document FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
+				"SELECT solr_document FROM bibRecsSolr WHERE bib_id = ?";
 		String origDoc = null;
 		try (PreparedStatement solrDocumentFromDB = conn.prepareStatement(solrDocumentFromDBQuery)) {
 			solrDocumentFromDB.setInt(1, bibid);
@@ -111,7 +110,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private static void pushSolrDocumentToDatabase(Connection conn, SolrInputDocument document, Integer bibid) throws SQLException {
 		final String solrDocumentToDBQuery = 
-				"UPDATE "+CurrentDBTable.BIB_SOLR+" SET solr_document = ? WHERE bib_id = ?";
+				"UPDATE bibRecsSolr SET solr_document = ? WHERE bib_id = ?";
 		try (PreparedStatement solrDocumentToDB = conn.prepareStatement(solrDocumentToDBQuery)) {
 		solrDocumentToDB.setString(1,ClientUtils.toXML(document).replaceAll("</field>","$0\n"));
 		solrDocumentToDB.setInt(2,bibid);
@@ -121,8 +120,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 	private static void markBibAsDoneInIndexQueue(Connection conn, Integer bibid) throws SQLException {
 		final String markDoneInQueueQuery =
-				"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
-						+ " WHERE bib_id = ? AND done_date = 0";
+				"UPDATE indexQueue SET done_date = NOW() WHERE bib_id = ? AND done_date = 0";
 		try (PreparedStatement markDoneInQueueStmt = conn.prepareStatement(markDoneInQueueQuery)) {
 		markDoneInQueueStmt.setInt(1, bibid);
 		markDoneInQueueStmt.executeUpdate();
@@ -137,13 +135,12 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			System.out.println("bib with multiple associated works: "+bibid);
 
 		final String recordsForWorkQuery =
-				"SELECT bib.* FROM "+CurrentDBTable.BIB_SOLR+" AS bib, "
-						+CurrentDBTable.BIB2WORK+" AS works "
+				"SELECT bib.* FROM bibRecsSolr AS bib, bib2work AS works "
 				+ "WHERE works.bib_id = bib.bib_id "
 				+ "AND works.work_id = ? "
 				+ "AND bib.active = 1 AND works.active = 1 ";
 		final String markBibForUpdateQuery =
-				"INSERT INTO "+CurrentDBTable.QUEUE
+				"INSERT INTO indexQueue"
 				+ " (bib_id, priority, cause) VALUES"
 				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
 						+DataChangeUpdateType.TITLELINK+"')";
@@ -352,9 +349,8 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
 		// pull existing values from DB are the descriptive fields changed?
 		final String origDescQuery =
-				"SELECT format, url, sites, libraries, edition,"
-						+ " pub_date, title, language, active"
-						+ " FROM "+CurrentDBTable.BIB_SOLR+" WHERE bib_id = ?";
+				"SELECT format, url, sites, libraries, edition, pub_date, title, language, active"
+						+ " FROM bibRecsSolr WHERE bib_id = ?";
 		boolean descChanged = false;
 		try (  PreparedStatement origDescStmt = conn.prepareStatement( origDescQuery )  ) {
 
@@ -377,7 +373,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		// update db appropriately
 		if (descChanged) {
 			final String updateDescQuery =
-					"UPDATE "+CurrentDBTable.BIB_SOLR
+					"UPDATE bibRecsSolr"
 					+" SET record_date = ?, format = ?, "
 					+ "url = ?, sites = ?, libraries = ?, "
 					+ "edition = ?, pub_date = ?, title = ?, language = ?, "
@@ -400,9 +396,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 		if ( ! descChanged ) {
 			final String updateIndexedDateQuery =
-					"UPDATE "+CurrentDBTable.BIB_SOLR
-					+" SET record_date = ?, index_date = NOW(), active = 1 "
-					+"WHERE bib_id = ?";
+					"UPDATE bibRecsSolr SET record_date = ?, index_date = NOW(), active = 1 WHERE bib_id = ?";
 			try (  PreparedStatement updateIndexedDateStmt = conn.prepareStatement(updateIndexedDateQuery)  ) {
 				updateIndexedDateStmt.setTimestamp(1, ref.timestamp);
 				updateIndexedDateStmt.setInt(2, bibid);
@@ -427,8 +421,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 		Set<Integer> previousOclcIds = new HashSet<>();
 		final String origWorksQuery =
-				"SELECT DISTINCT oclc_id FROM "+CurrentDBTable.BIB2WORK+
-				" WHERE bib_id = ? AND active = 1";
+				"SELECT DISTINCT oclc_id FROM bib2work WHERE bib_id = ? AND active = 1";
 		try (  PreparedStatement origWorksStmt = conn.prepareStatement(origWorksQuery)  ){
 
 			origWorksStmt.setInt(1, bibid);
@@ -459,7 +452,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		TitleMatchReference ref = pullReferenceFields(document);
 
 		final String insertBibQuery =
-				"INSERT INTO "+CurrentDBTable.BIB_SOLR+
+				"INSERT INTO bibRecsSolr"+
 				" (bib_id, record_date, format, sites, libraries, "
 				+ "index_date, edition, pub_date, title, language) "
 						+ "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
@@ -483,8 +476,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		List<HoldingRecord> holdings = extractHoldingsFromSolrField(
 				document.getFieldValues("holdings_display"));
 		final String insertMfhdQuery =
-				"INSERT INTO "+CurrentDBTable.MFHD_SOLR+" (bib_id, mfhd_id, record_date) "
-						+ "VALUES (?, ?, ?)";
+				"INSERT INTO mfhdRecsSolr (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
 		try (  PreparedStatement insertMfhdStmt = conn.prepareStatement(insertMfhdQuery)  ){
 
 			for (HoldingRecord holding : holdings ) {
@@ -504,8 +496,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		List<ItemRecord> items = extractItemsFromSolrField(
 				document.getFieldValues("item_display"));
 		final String insertItemQuery =
-				"INSERT INTO "+CurrentDBTable.ITEM_SOLR+
-				" (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
+				"INSERT INTO itemRecsSolr (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
 		try (  PreparedStatement insertItemStmt = conn.prepareStatement(insertItemQuery)  ){
 
 			for (ItemRecord item : items ) {
@@ -539,24 +530,22 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		final String findWorksForOclcIdQuery =
 			"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?";
 		final String checkForDeactivatedBibWorkMappingQuery =
-				"SELECT * FROM "+CurrentDBTable.BIB2WORK+
-				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?";
+				"SELECT * FROM bib2work WHERE bib_id = ? AND oclc_id = ? AND work_id = ?";
 		final String activateBibWorkMappingQuery =
-				"UPDATE "+CurrentDBTable.BIB2WORK+
+				"UPDATE bib2work"+
 				"  SET active = 1, mod_date = NOW() "+
 				" WHERE bib_id = ? AND oclc_id = ? AND work_id = ?";
 		final String insertBibWorkMappingQuery =
-				"INSERT INTO "+CurrentDBTable.BIB2WORK+
-				" (bib_id, oclc_id, work_id) VALUES (?, ?, ?)";
+				"INSERT INTO bib2work (bib_id, oclc_id, work_id) VALUES (?, ?, ?)";
 		final String findBibsForAddedWorksQuery =
 				"SELECT bib_id"
-				+ " FROM "+CurrentDBTable.BIB2WORK
+				+ " FROM bib2work"
 				+" WHERE work_id = ?"
 				+ "  AND oclc_id = ?"
 				+ "  AND bib_id != ?"
 				+ "  AND active = 1";
 		final String markBibForUpdateQuery =
-				"INSERT INTO "+CurrentDBTable.QUEUE+" (bib_id, priority, cause)"
+				"INSERT INTO indexQueue (bib_id, priority, cause)"
 				+ " VALUES (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
 						+DataChangeUpdateType.TITLELINK+"')";
 
@@ -620,18 +609,16 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		if (removedOclcIds.isEmpty()) 
 			return;
 		final String updateBibWorkMappingQuery =
-				"UPDATE "+CurrentDBTable.BIB2WORK+
-				" SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?";
+				"UPDATE bib2work SET active = 0, mod_date = NOW() WHERE bib_id = ? AND oclc_id = ?";
 		final String findBibsForDeactivatedWorksQuery =
 				"SELECT distinct b.bib_id"
-				+ " FROM "+CurrentDBTable.BIB2WORK+" as a, "
-						+CurrentDBTable.BIB2WORK+" as b"
+				+ " FROM bib2work as a, bib2work as b"
 				+ " WHERE a.work_id = b.work_id"
 				+ "   AND a.bib_id = ? AND a.oclc_id = ?"
 				+ "   AND b.bib_id != a.bib_id"
 				+ "   AND b.active = 1";
 		final String markBibForUpdateQuery =
-				"INSERT INTO "+CurrentDBTable.QUEUE
+				"INSERT INTO indexQueue"
 				+ " (bib_id, priority, cause) VALUES"
 				+ " (?,"+DataChangeUpdateType.TITLELINK.getPriority().ordinal()+", '"
 						+DataChangeUpdateType.TITLELINK+"')";
@@ -661,9 +648,9 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 			Connection conn, int bibid) throws SQLException {
 		List<HoldingRecord> holdings = new ArrayList<>();
 		final String origMfhdQuery =
-				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+				"SELECT mfhd_id FROM mfhdRecsSolr WHERE bib_id = ?";
 		final String deleteItemQuery =
-				"DELETE FROM "+CurrentDBTable.ITEM_SOLR+" WHERE mfhd_id = ?";
+				"DELETE FROM itemRecsSolr WHERE mfhd_id = ?";
 		try (   PreparedStatement origMfhdStmt = conn.prepareStatement(origMfhdQuery);
 				PreparedStatement deleteItemStmt = conn.prepareStatement(deleteItemQuery)   ){
 
@@ -679,7 +666,7 @@ public class UpdateSolrInventoryDB implements DocumentPostProcess{
 		}
 
 		try (  PreparedStatement deleteMfhdStmt = conn.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?")  ){
+				"DELETE FROM mfhdRecsSolr WHERE bib_id = ?")  ){
 
 			deleteMfhdStmt.setInt(1, bibid);
 			deleteMfhdStmt.executeUpdate();

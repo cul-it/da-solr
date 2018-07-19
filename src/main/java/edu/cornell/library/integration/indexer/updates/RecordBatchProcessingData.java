@@ -20,7 +20,6 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 public class RecordBatchProcessingData {
@@ -117,7 +116,7 @@ public class RecordBatchProcessingData {
 			return;
 
 		try ( PreparedStatement pstmt = current.prepareStatement(
-				"UPDATE "+CurrentDBTable.QUEUE+" SET cause = ? AND priority = ? "+
+				"UPDATE indexQueue SET cause = ? AND priority = ? "+
 				"WHERE bib_id = ? AND cause = '"+DataChangeUpdateType.BIB_UPDATE+"'") ){
 
 			pstmt.setString(1,"Batch: "+((jt.description.isEmpty())?jt.code:jt.description));
@@ -136,7 +135,7 @@ public class RecordBatchProcessingData {
 		Boolean matching = false;
 
 		try ( PreparedStatement pstmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?") ){
+				"SELECT record_date FROM bibRecsVoyager WHERE bib_id = ?") ){
 
 			pstmt.setInt(1, bib);
 			try ( ResultSet rs = pstmt.executeQuery() ){

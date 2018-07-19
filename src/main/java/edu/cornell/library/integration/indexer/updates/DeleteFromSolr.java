@@ -18,7 +18,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Utility to delete bibs from Solr index.
@@ -59,9 +58,8 @@ public class DeleteFromSolr {
 
         	Set<Integer> deleteQueue = new HashSet<>();
         	final String getQueuedQuery =
-        			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
-        			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 "
-        			+" AND cause = ?";
+        			"SELECT bib_id FROM indexQueue"
+        			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 AND cause = ?";
         	try (  PreparedStatement deleteQueueStmt = conn.prepareStatement(getQueuedQuery) ) {
         		deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
         		try (  ResultSet deleteQueueRS = deleteQueueStmt.executeQuery()  ) {
@@ -86,9 +84,7 @@ public class DeleteFromSolr {
         		System.out.println(String.valueOf(knockOnUpdates.size())
         				+" documents identified as needing update because they share a work_id with deleted rec(s).");
         		final String markBibForUpdateQuery =
-        				"INSERT INTO "+CurrentDBTable.QUEUE
-        				+ " (bib_id, priority, cause) VALUES"
-            			+ " (?,?,?)";
+        				"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?,?,?)";
         		try (  PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ){
 
         			for (int bib_id : knockOnUpdates) {
@@ -117,24 +113,20 @@ public class DeleteFromSolr {
 
     	
        	final String bibQuery =
-    			"UPDATE "+CurrentDBTable.BIB_SOLR+
-    			" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?";
+    			"UPDATE bibRecsSolr SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?";
     	final String markDoneInQueueQuery =
-    			"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
-    					+ " WHERE bib_id = ? AND done_date = 0";
+    			"UPDATE indexQueue SET done_date = NOW() WHERE bib_id = ? AND done_date = 0";
     	final String workQuery =
-    			"UPDATE "+CurrentDBTable.BIB2WORK+
-    			" SET active = 0, mod_date = NOW() WHERE bib_id = ?";
+    			"UPDATE bib2work SET active = 0, mod_date = NOW() WHERE bib_id = ?";
     	final String mfhdQuery =
-    			"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    			"SELECT mfhd_id FROM mfhdRecsSolr WHERE bib_id = ?";
     	final String mfhdDelQuery =
-    			"DELETE FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    			"DELETE FROM mfhdRecsSolr WHERE bib_id = ?";
     	final String itemQuery =
-    			"DELETE FROM "+CurrentDBTable.ITEM_SOLR+" WHERE mfhd_id = ?";
+    			"DELETE FROM itemRecsSolr WHERE mfhd_id = ?";
     	final String knockOnUpdateQuery =
     			"SELECT b.bib_id"
-        			+ " FROM "+CurrentDBTable.BIB2WORK+" AS a, "
-            				+CurrentDBTable.BIB2WORK+" AS b "
+        			+ " FROM bib2work AS a, bib2work AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"
