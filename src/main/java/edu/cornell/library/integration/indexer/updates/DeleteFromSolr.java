@@ -39,6 +39,7 @@ public class DeleteFromSolr {
 		List<String> requiredArgs = new ArrayList<>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
+		requiredArgs.add("callnumSolrUrl");
 
         SolrBuildConfig config = SolrBuildConfig.loadConfig(argv,requiredArgs);
 
@@ -47,13 +48,16 @@ public class DeleteFromSolr {
 
     public static void doTheDelete(SolrBuildConfig config) throws Exception  {
 
-        String solrURL = config.getSolrUrl();                                        
+        String solrURL = config.getSolrUrl();
+        String callnumSolrURL = config.getCallnumSolrUrl();
 
         System.out.println("Deleting BIB IDs found in queue with: "
         		+DataChangeUpdateType.DELETE);
         System.out.println("from Solr at: " + solrURL);
+        System.out.println("              " + callnumSolrURL);
 
         try (   SolrClient solr = new HttpSolrClient( solrURL );
+        		SolrClient callnumSolr = new HttpSolrClient( callnumSolrURL );
         		Connection conn = config.getDatabaseConnection("Current")  ){
 
         	Set<Integer> deleteQueue = new HashSet<>();
@@ -78,7 +82,7 @@ public class DeleteFromSolr {
 
         	System.out.println("Deleting " + deleteQueue.size() + " documents from Solr index.");
     		Set<Integer> knockOnUpdates = new HashSet<>();
-        	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
+        	processDeleteQueue(deleteQueue,solr,callnumSolr,conn,knockOnUpdates);
 
         	if ( ! knockOnUpdates.isEmpty()) {
         		System.out.println(String.valueOf(knockOnUpdates.size())
@@ -101,8 +105,8 @@ public class DeleteFromSolr {
         } 
     }
 
-    private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
-    		Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
+    private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, SolrClient callnumSolr,
+    		Connection conn, Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
 
 
 		int batchSize = 1000;
@@ -173,7 +177,7 @@ public class DeleteFromSolr {
 				mfhdDelStmt.addBatch();
 	
 				if( ids.size() >= batchSize ){
-					pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+					pushUpdates(solr,callnumSolr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 					ids.clear();
 				}
 	
@@ -182,7 +186,7 @@ public class DeleteFromSolr {
 				}
     		}
     		if( ids.size() > 0 ) {
-    			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+    			pushUpdates(solr,callnumSolr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 				conn.commit();
     		}
 
@@ -190,11 +194,13 @@ public class DeleteFromSolr {
 		return lineNum;
     	
     }
-    private static void pushUpdates(SolrClient solr, List<String> ids, PreparedStatement bibStmt,
+    private static void pushUpdates(SolrClient solr, SolrClient callnumSolr, List<String> ids, PreparedStatement bibStmt,
     		PreparedStatement markDoneInQueueStmt, PreparedStatement workStmt,
     		PreparedStatement mfhdDelStmt, PreparedStatement itemStmt)
     				throws SolrServerException, IOException, SQLException {
 		solr.deleteById( ids );
+		for (String bibId : ids)
+			callnumSolr.deleteByQuery( "bibid:"+bibId );
 		bibStmt.executeBatch();
 		markDoneInQueueStmt.executeBatch();
 		workStmt.executeBatch();

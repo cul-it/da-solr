@@ -439,6 +439,12 @@ public class SolrBuildConfig {
     	}
 		return null;
     }
+    public String getCallnumSolrUrl() {
+    	if (values.containsKey("callnumSolrUrl")) {
+    		return values.get("callnumSolrUrl");
+    	}
+		return null;
+    }
     public String getBlacklightSolrUrl() {
     	if (values.containsKey("blacklightSolrUrl")) {
     		return values.get("blacklightSolrUrl");
