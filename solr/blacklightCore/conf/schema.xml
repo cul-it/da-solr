@@ -306,8 +306,9 @@
     <field name="new_shelf"             type="string" docValues="true" stored="true"  multiValued="true" />
   
     <!-- call number uses custom type -->
-    <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="callnum_sort"    type="callNumberSort"       indexed="true" stored="true"  multiValued="false" />
+    <field name="lc_callnum_full"   type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
+    <field name="lc_callnum_suffix" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
+    <field name="callnum_sort"      type="callNumberSort"       indexed="true" stored="true"  multiValued="false" />
 
     <!-- fields used for facet, display, and results filtering, only need to be stored where order is important -->
     <field name="format"                type="string" docValues="true" stored="false" multiValued="true"/>

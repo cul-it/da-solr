@@ -751,9 +751,9 @@
       <str name="f.pubplace_starts.qf"> pubplace_startsC pubplace_startsP pubplace_startsCJK </str>
       <str name="f.pubplace_quoted.qf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
       
-      <str name="f.lc_callnum.qf"> lc_callnum_full </str>
-      <str name="f.lc_callnum.pf"> lc_callnum_full </str>
-      <str name="f.lc_callnum_starts.qf"> lc_callnum_full </str>
+      <str name="f.lc_callnum.qf"> lc_callnum_full lc_callnum_suffix </str>
+      <str name="f.lc_callnum.pf"></str>
+      <str name="f.lc_callnum_starts.qf"> lc_callnum_full lc_callnum_suffix </str>
 
       <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
