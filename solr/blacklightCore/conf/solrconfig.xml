@@ -17,19 +17,11 @@
 
   <indexConfig>
 
-<!--
-	<mergePolicy class="org.apache.solr.index.TieredMergePolicy">
-		<int name="maxMergeAtOnce">10</int>
-		<int name="segmentsPerTier">10</int>
-	</mergePolicy>
--->
-    <!-- 
-    <mergeFactor>10</mergeFactor>
-      -->
-
-    <!-- 
-       <mergeScheduler class="org.apache.lucene.index.ConcurrentMergeScheduler"/>
-       -->
+    <mergePolicyFactory class="org.apache.solr.index.TieredMergePolicyFactory">
+      <int name="maxMergeAtOnce">10</int>
+      <int name="segmentsPerTier">10</int>
+    </mergePolicyFactory>
+    <mergedSegmentWarmer class="org.apache.lucene.index.SimpleMergedSegmentWarmer"/>
 
   </indexConfig>
 
