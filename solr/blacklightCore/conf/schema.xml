@@ -181,12 +181,12 @@
     <fieldType name="numericLeftAnchored" class="solr.TextField" >
     <analyzer type="index">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
-		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+	<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20"/>
     </analyzer>
     <analyzer type="query">
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
-		<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+	<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
     </analyzer>
     </fieldType>
     
@@ -287,37 +287,37 @@
     <field name="author_display" type="string" indexed="false" stored="true" multiValued="false"/>
     <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
 
-    <!-- these fields are also used for display, so they must be stored -->
-    <!-- these display fields are now being used for search -->
     <field name="isbn_t" type="text" indexed="true" stored="true" multiValued="true"/>
-    <field name="language_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="subject_topic_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="subject_era_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="subject_geo_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="subject_content_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="author_facet" type="string" indexed="true" stored="true" multiValued="true" />
-    <!-- pub_date is used for facet and display so it must be indexed and stored -->
-    <field name="pub_date" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="pub_date_facet" type="int" indexed="true" stored="true" multiValued="false"/>
-    <field name="pub_date_sort" type="int" indexed="true" stored="true" multiValued="false"/>
-    <field name="acquired" type="int" indexed="true" stored="true" multiValued="false"/>
-    <field name="acquired_month" type="string" indexed="true" stored="true" multiValued="false"/>
-    <field name="new_shelf" type="string" indexed="true" stored="true" multiValued="true" />
+
+    <field name="language_facet"        type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="subject_topic_facet"   type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="subject_era_facet"     type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="subject_geo_facet"     type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="subject_content_facet" type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="author_facet"          type="string" docValues="true" stored="false" multiValued="true" />
+    <field name="location"              type="string" docValues="true" stored="false" multiValued="true"/>
+
+    <field name="pub_date"              type="string" indexed="false"  stored="true"  multiValued="true"/>
+    <field name="pub_date_facet"        type="int"    docValues="true" stored="false" multiValued="false"/>
+    <field name="pub_date_sort"         type="int"    indexed="true"   stored="false" multiValued="false"/>
+
+    <field name="acquired"              type="int"    docValues="true" stored="false" multiValued="false"/>
+    <field name="acquired_month"        type="string" docValues="true" stored="false" multiValued="false"/>
+    <field name="new_shelf"             type="string" docValues="true" stored="true"  multiValued="true" />
   
     <!-- call number uses custom type -->
     <field name="lc_callnum_full" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="callnum_sort" type="callNumberSort" indexed="true" stored="true" multiValued="false" />
+    <field name="callnum_sort"    type="callNumberSort"       indexed="true" stored="true"  multiValued="false" />
 
-    <!-- fields used for facet, display, and results filtering, so they must be stored and indexed -->
-    <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="location" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="collection" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-    <field name="source" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-    <field name="online" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="sixfivethree" type="string" indexed="true" stored="true" multiValued="true"/>
+    <!-- fields used for facet, display, and results filtering, only need to be stored where order is important -->
+    <field name="format"                type="string" docValues="true" stored="false" multiValued="true"/>
+    <field name="collection"            type="string" docValues="true" stored="false" multiValued="true"/>
+    <field name="type"                  type="string" docValues="true" stored="false" multiValued="false" required="true"/>
+    <field name="source"                type="string" docValues="true" stored="false" multiValued="false" required="true"/>
+    <field name="online"                type="string" docValues="true" stored="false" multiValued="true"/>
+    <field name="sixfivethree"          type="string" docValues="true" stored="false" multiValued="true"/>
     <!-- format_main_facet is used for type-aggregated relevance sorting, so it must be single valued-->
-    <field name="format_main_facet" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="format_main_facet"     type="string" docValues="true" stored="false" multiValued="false"/>
 
 	<!--  Single-valued json fields are the exception (currently) -->
     <field name="holdings_json" type="string" indexed="false" stored="true" multiValued="false" />
@@ -340,17 +340,17 @@
     <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     <dynamicField name="random*" type="random" />
-    <dynamicField name="*_filing" type="string" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_filing" type="string" docValues="true" stored="false" multiValued="true"/>
     <dynamicField name="*_exact" type="exact" indexed="true" stored="false" multiValued="true" />
 
-    <dynamicField name="*_facet" type="string" indexed="true" stored="true" multiValued="true" />
+    <dynamicField name="*_facet" type="string" docValues="true" stored="false" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="filing" indexed="true" stored="false" multiValued="false"/>
-	<dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
+    <dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_unstemP" type="textNoStemP" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsC" type="textLeftAnchoredC" indexed="true" stored="false" multiValued="true" />
