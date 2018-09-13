@@ -15,7 +15,6 @@ import java.util.List;
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
@@ -80,15 +79,15 @@ public class IdentifyCurrentVoyagerRecords {
 			c_stmt.execute("SET unique_checks=0");
 
 			// Starting with bibs, create the destination table, then populated it from Voyager
-			c_stmt.execute("drop table if exists "+CurrentDBTable.BIB_VOY);
-			c_stmt.execute("create table "+CurrentDBTable.BIB_VOY+"( "
+			c_stmt.execute("drop table if exists bibRecsVoyager");
+			c_stmt.execute("create table bibRecsVoyager ( "
 					+ "bib_id int(10) unsigned not null, "
 					+ "record_date timestamp not null, "
 					+ "active int not null, "
 					+ "marc_xml blob null, "
 					+ "key (bib_id) ) "
 					+ "ENGINE=MyISAM");
-			c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY+" disable keys");
+			c_stmt.execute("alter table bibRecsVoyager disable keys");
 			current.commit();
 			DownloadMARC getMARC = new DownloadMARC( config );
 
@@ -96,8 +95,7 @@ public class IdentifyCurrentVoyagerRecords {
 						("select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC "
 								+ " from BIB_MASTER");
 					PreparedStatement pstmt = current.prepareStatement
-							("insert into "+CurrentDBTable.BIB_VOY+
-									" (bib_id, record_date, active, marc_xml) values ( ? , ? , ? , ? )")) {
+							("insert into bibRecsVoyager (bib_id, record_date, active) values ( ? , ? , ? )")  ) {
 
 				int i = 0;
 				while (rs.next()) {
@@ -121,7 +119,7 @@ public class IdentifyCurrentVoyagerRecords {
 				pstmt.executeBatch();
 				System.out.println("Bib count: "+i);
 			}
-		    c_stmt.execute("alter table "+CurrentDBTable.BIB_VOY+" enable keys");
+		    c_stmt.execute("alter table bibRecsVoyager enable keys");
 		    current.commit();
 		}
 	}
@@ -135,8 +133,8 @@ public class IdentifyCurrentVoyagerRecords {
 
 			setRecordCheckDate(c_stmt, RecordType.HOLDINGS);
 
-			c_stmt.execute("drop table if exists "+CurrentDBTable.MFHD_VOY.toString());
-			c_stmt.execute("create table "+CurrentDBTable.MFHD_VOY.toString()+"( "
+			c_stmt.execute("drop table if exists mfhdRecsVoyager");
+			c_stmt.execute("create table mfhdRecsVoyager ( "
 					+ "bib_id int(10) unsigned not null, "
 					+ "mfhd_id int(10) unsigned not null, "
 					+ "record_date timestamp null, "
@@ -144,7 +142,8 @@ public class IdentifyCurrentVoyagerRecords {
 					+ "key (mfhd_id), "
 					+ "key (bib_id) ) "
 					+ "ENGINE=MyISAM");
-			c_stmt.execute("alter table "+CurrentDBTable.MFHD_VOY.toString()+" disable keys");
+			c_stmt.execute("alter table mfhdRecsVoyager disable keys");
+
 			current.commit();
 			DownloadMARC getMARC = new DownloadMARC( config );
 
@@ -154,10 +153,9 @@ public class IdentifyCurrentVoyagerRecords {
 	    				+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
 	    				+ "  and SUPPRESS_IN_OPAC = 'N'");
 					PreparedStatement pstmt = current.prepareStatement
-	    				("insert into "+CurrentDBTable.MFHD_VOY.toString()+
-	    						" (bib_id, mfhd_id, record_date, marc_xml) values (?, ?, ?, ?)");
+	    				("insert into mfhdRecsVoyager (bib_id, mfhd_id, record_date) values (?, ?, ?)");
 					PreparedStatement bibConfirm = current.prepareStatement(
-	    				"select bib_id from "+CurrentDBTable.BIB_VOY.toString()+" where bib_id = ?") ){
+	    				"select bib_id from bibRecsVoyager where bib_id = ?") ){
 				int i = 0;
 				while (rs.next()) {
 					int bib_id = rs.getInt(1);
@@ -177,10 +175,10 @@ public class IdentifyCurrentVoyagerRecords {
 					}
 				}
 				pstmt.executeBatch();
+				current.commit();
+				c_stmt.execute("alter table mfhdRecsVoyager enable keys");
 				System.out.println("Mfhd count: "+i);
 			}
-			c_stmt.execute("alter table "+CurrentDBTable.MFHD_VOY.toString()+" enable keys");
-			current.commit();
 		}
 	}
 
@@ -188,14 +186,15 @@ public class IdentifyCurrentVoyagerRecords {
 		try (   Statement c_stmt = current.createStatement();
 				Statement v_stmt = voyager.createStatement()  ){
 
-			c_stmt.execute("drop table if exists "+CurrentDBTable.ITEM_VOY.toString());
-			c_stmt.execute("create table "+CurrentDBTable.ITEM_VOY.toString()+"( "
+			c_stmt.execute("drop table if exists itemRecsVoyager");
+			c_stmt.execute("create table itemRecsVoyager ( "
 					+ "mfhd_id int(10) unsigned not null, "
 					+ "item_id int(10) unsigned not null, "
 					+ "record_date timestamp null, "
 					+ "key (item_id) ) "
 					+ "ENGINE=MyISAM");
-			c_stmt.execute("alter table "+CurrentDBTable.ITEM_VOY.toString()+" disable keys");
+			c_stmt.execute("alter table itemRecsVoyager disable keys");
+
 			current.commit();
 
 			try (   ResultSet rs = v_stmt.executeQuery
@@ -203,10 +202,9 @@ public class IdentifyCurrentVoyagerRecords {
 							+"  from MFHD_ITEM, ITEM"
 							+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID");
 					PreparedStatement pstmt = current.prepareStatement
-							("insert into "+CurrentDBTable.ITEM_VOY.toString()+
-									" (mfhd_id, item_id, record_date) values (?, ?, ?)");
+							("insert into itemRecsVoyager (mfhd_id, item_id, record_date) values (?, ?, ?)");
 					PreparedStatement mfhdConfirm = current.prepareStatement(
-		    				"select mfhd_id from "+CurrentDBTable.MFHD_VOY.toString()+" where mfhd_id = ?")) {
+		    				"select mfhd_id from mfhdRecsVoyager where mfhd_id = ?")) {
 
 				int i = 0;
 				while (rs.next()) {
@@ -228,7 +226,7 @@ public class IdentifyCurrentVoyagerRecords {
 				pstmt.executeBatch();
 				pstmt.close();
 				System.out.println("Item count: "+i);
-				c_stmt.execute("alter table "+CurrentDBTable.ITEM_VOY.toString()+" enable keys");
+				c_stmt.execute("alter table itemRecsVoyager enable keys");
 				current.commit();
 			}
 			c_stmt.execute("SET unique_checks=1");
@@ -236,12 +234,12 @@ public class IdentifyCurrentVoyagerRecords {
 	}
 
 	private static void setRecordCheckDate(Statement c_stmt, RecordType recType) throws SQLException {
-		c_stmt.execute("create table if not exists "+CurrentDBTable.RECORD_CHECK+" ( "
+		c_stmt.execute("create table if not exists recordCheckDate ( "
 				+ "type varchar(15) not null, "
 				+ "check_date timestamp not null,"
 				+ "primary key ( type ) ) "
 				+ "ENGINE=MyISAM");
-		c_stmt.execute("REPLACE INTO "+CurrentDBTable.RECORD_CHECK+" (type, check_date) values ( '"
+		c_stmt.execute("REPLACE INTO recordCheckDate (type, check_date) values ( '"
 				+recType.name()+"', NOW())");
 	}
 

@@ -18,7 +18,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  * Utility to delete bibs from Solr index.
@@ -40,6 +39,7 @@ public class DeleteFromSolr {
 		List<String> requiredArgs = new ArrayList<>();
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.add("solrUrl");
+		requiredArgs.add("callnumSolrUrl");
 
         Config config = Config.loadConfig(argv,requiredArgs);
 
@@ -48,20 +48,22 @@ public class DeleteFromSolr {
 
     public static void doTheDelete(Config config) throws Exception  {
 
-        String solrURL = config.getSolrUrl();                                        
+        String solrURL = config.getSolrUrl();
+        String callnumSolrURL = config.getCallnumSolrUrl();
 
         System.out.println("Deleting BIB IDs found in queue with: "
         		+DataChangeUpdateType.DELETE);
         System.out.println("from Solr at: " + solrURL);
+        System.out.println("              " + callnumSolrURL);
 
         try (   SolrClient solr = new HttpSolrClient( solrURL );
+        		SolrClient callnumSolr = new HttpSolrClient( callnumSolrURL );
         		Connection conn = config.getDatabaseConnection("Current")  ){
 
         	Set<Integer> deleteQueue = new HashSet<>();
         	final String getQueuedQuery =
-        			"SELECT bib_id FROM "+CurrentDBTable.QUEUE
-        			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 "
-        			+" AND cause = ?";
+        			"SELECT bib_id FROM indexQueue"
+        			+" WHERE done_date = 0 AND priority = 0 and batched_date = 0 AND cause = ?";
         	try (  PreparedStatement deleteQueueStmt = conn.prepareStatement(getQueuedQuery) ) {
         		deleteQueueStmt.setString(1,DataChangeUpdateType.DELETE.toString());
         		try (  ResultSet deleteQueueRS = deleteQueueStmt.executeQuery()  ) {
@@ -80,15 +82,13 @@ public class DeleteFromSolr {
 
         	System.out.println("Deleting " + deleteQueue.size() + " documents from Solr index.");
     		Set<Integer> knockOnUpdates = new HashSet<>();
-        	processDeleteQueue(deleteQueue,solr,conn,knockOnUpdates);
+        	processDeleteQueue(deleteQueue,solr,callnumSolr,conn,knockOnUpdates);
 
         	if ( ! knockOnUpdates.isEmpty()) {
         		System.out.println(String.valueOf(knockOnUpdates.size())
         				+" documents identified as needing update because they share a work_id with deleted rec(s).");
         		final String markBibForUpdateQuery =
-        				"INSERT INTO "+CurrentDBTable.QUEUE
-        				+ " (bib_id, priority, cause) VALUES"
-            			+ " (?,?,?)";
+        				"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?,?,?)";
         		try (  PreparedStatement markBibForUpdateStmt = conn.prepareStatement(markBibForUpdateQuery)  ){
 
         			for (int bib_id : knockOnUpdates) {
@@ -105,8 +105,8 @@ public class DeleteFromSolr {
         } 
     }
 
-    private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, Connection conn,
-    		Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
+    private static int processDeleteQueue(Set<Integer> deleteQueue,SolrClient solr, SolrClient callnumSolr,
+    		Connection conn, Set<Integer> knockOnUpdates) throws SQLException, SolrServerException, IOException {
 
 
 		int batchSize = 1000;
@@ -117,24 +117,20 @@ public class DeleteFromSolr {
 
     	
        	final String bibQuery =
-    			"UPDATE "+CurrentDBTable.BIB_SOLR+
-    			" SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?";
+    			"UPDATE bibRecsSolr SET active = 0, linking_mod_date = NOW() WHERE bib_id = ?";
     	final String markDoneInQueueQuery =
-    			"UPDATE "+CurrentDBTable.QUEUE+" SET done_date = NOW()"
-    					+ " WHERE bib_id = ? AND done_date = 0";
+    			"UPDATE indexQueue SET done_date = NOW() WHERE bib_id = ? AND done_date = 0";
     	final String workQuery =
-    			"UPDATE "+CurrentDBTable.BIB2WORK+
-    			" SET active = 0, mod_date = NOW() WHERE bib_id = ?";
+    			"UPDATE bib2work SET active = 0, mod_date = NOW() WHERE bib_id = ?";
     	final String mfhdQuery =
-    			"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    			"SELECT mfhd_id FROM mfhdRecsSolr WHERE bib_id = ?";
     	final String mfhdDelQuery =
-    			"DELETE FROM "+CurrentDBTable.MFHD_SOLR+" WHERE bib_id = ?";
+    			"DELETE FROM mfhdRecsSolr WHERE bib_id = ?";
     	final String itemQuery =
-    			"DELETE FROM "+CurrentDBTable.ITEM_SOLR+" WHERE mfhd_id = ?";
+    			"DELETE FROM itemRecsSolr WHERE mfhd_id = ?";
     	final String knockOnUpdateQuery =
     			"SELECT b.bib_id"
-        			+ " FROM "+CurrentDBTable.BIB2WORK+" AS a, "
-            				+CurrentDBTable.BIB2WORK+" AS b "
+        			+ " FROM bib2work AS a, bib2work AS b "
             		+ "WHERE b.work_id = a.work_id"
             		+ " AND a.bib_id = ?"
             		+ " AND a.bib_id != b.bib_id"
@@ -181,7 +177,7 @@ public class DeleteFromSolr {
 				mfhdDelStmt.addBatch();
 	
 				if( ids.size() >= batchSize ){
-					pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+					pushUpdates(solr,callnumSolr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 					ids.clear();
 				}
 	
@@ -190,7 +186,7 @@ public class DeleteFromSolr {
 				}
     		}
     		if( ids.size() > 0 ) {
-    			pushUpdates(solr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
+    			pushUpdates(solr,callnumSolr,ids,bibStmt,markDoneInQueueStmt,workStmt,mfhdDelStmt,itemStmt);
 				conn.commit();
     		}
 
@@ -198,11 +194,13 @@ public class DeleteFromSolr {
 		return lineNum;
     	
     }
-    private static void pushUpdates(SolrClient solr, List<String> ids, PreparedStatement bibStmt,
+    private static void pushUpdates(SolrClient solr, SolrClient callnumSolr, List<String> ids, PreparedStatement bibStmt,
     		PreparedStatement markDoneInQueueStmt, PreparedStatement workStmt,
     		PreparedStatement mfhdDelStmt, PreparedStatement itemStmt)
     				throws SolrServerException, IOException, SQLException {
 		solr.deleteById( ids );
+		for (String bibId : ids)
+			callnumSolr.deleteByQuery( "bibid:"+bibId );
 		bibStmt.executeBatch();
 		markDoneInQueueStmt.executeBatch();
 		workStmt.executeBatch();

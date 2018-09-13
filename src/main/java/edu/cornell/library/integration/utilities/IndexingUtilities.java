@@ -62,7 +62,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class IndexingUtilities {
 
@@ -90,7 +89,7 @@ public class IndexingUtilities {
 	public static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
         Set<Integer> mfhdIds = new HashSet<>();        
 		try (PreparedStatement pstmt = current.prepareStatement(
-				"SELECT mfhd_id FROM "+CurrentDBTable.MFHD_VOY.toString()+" WHERE bib_id = ?")) {
+				"SELECT mfhd_id FROM mfhdRecsVoyager WHERE bib_id = ?")) {
 			for (Integer bibid : bibIds) {
 				pstmt.setInt(1,bibid);
 				try (ResultSet rs = pstmt.executeQuery()) {
@@ -113,7 +112,7 @@ public class IndexingUtilities {
 	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
 		boolean inBIB_VOY = false;
 		try (PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+				"SELECT record_date FROM bibRecsVoyager WHERE bib_id = ?")) {
 			bibVoyQStmt.setInt(1, bib_id);
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
 				while (rs.next())
@@ -123,7 +122,7 @@ public class IndexingUtilities {
 		if ( ! inBIB_VOY )
 			return;
 		try (PreparedStatement bibVoyDStmt = current.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.BIB_VOY+" WHERE bib_id = ?")) {
+				"DELETE FROM bibRecsVoyager WHERE bib_id = ?")) {
 			bibVoyDStmt.setInt(1, bib_id);
 			bibVoyDStmt.executeUpdate();
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
@@ -131,9 +130,7 @@ public class IndexingUtilities {
 	}
 	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
-				"INSERT INTO "+CurrentDBTable.QUEUE
-				+" (bib_id, priority, cause)"
-				+" VALUES (?, ?, ?)")) {
+				"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
 			bibQueueStmt.setInt(2, type.getPriority().ordinal());
 			bibQueueStmt.setString(3,type.toString());
@@ -143,8 +140,7 @@ public class IndexingUtilities {
 	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
 			throws SQLException {
 		try (PreparedStatement bibQueueDStmt = current.prepareStatement(
-				"DELETE FROM "+CurrentDBTable.QUEUE
-				+" WHERE bib_id = ? AND done_date = 0")) {
+				"DELETE FROM indexQueue WHERE bib_id = ? AND done_date = 0")) {
 			for (Integer bib_id : bib_ids) {
 				bibQueueDStmt.setInt(1, bib_id);
 				bibQueueDStmt.addBatch();

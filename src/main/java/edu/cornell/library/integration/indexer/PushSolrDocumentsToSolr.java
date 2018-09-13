@@ -17,7 +17,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 /**
  *  Pushes an existing set of Solr documents into an empty Solr index.
@@ -39,14 +38,13 @@ public class PushSolrDocumentsToSolr {
 			  Connection current = config.getDatabaseConnection("Current")) {
 			int maxBib = 0;
 			try (Statement stmt = current.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT MAX(bib_id) FROM "+CurrentDBTable.BIB_SOLR)) {
+				ResultSet rs = stmt.executeQuery("SELECT MAX(bib_id) FROM bibRecsSolr")) {
 
 				while (rs.next()) maxBib = rs.getInt(1);
 			}
 			int cursor = 0;
 			try (PreparedStatement pstmt = current.prepareStatement(
-					"SELECT solr_document FROM "+CurrentDBTable.BIB_SOLR+
-					" WHERE bib_id between ? AND ? AND active = 1")) {
+					"SELECT solr_document FROM bibRecsSolr WHERE bib_id between ? AND ? AND active = 1")) {
 				Collection<SolrInputDocument> docs = new HashSet<>();
 				while (cursor < maxBib) {
 					pstmt.setInt(1, cursor + 1);

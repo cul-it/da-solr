@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class AddToQueue {
 
@@ -16,7 +15,7 @@ public class AddToQueue {
 		try (
 				Connection current = config.getDatabaseConnection("Current");
 				PreparedStatement stmt = current.prepareStatement(
-						"INSERT INTO "+CurrentDBTable.GEN_Q+" ( bib_id, cause, priority, record_date )"+
+						"INSERT INTO generationQueue ( bib_id, cause, priority, record_date )"+
 					" VALUES (?, ?, ?, ?)");){
 
 			stmt.setInt(1, bib_id);

@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
-import edu.cornell.library.integration.utilities.DaSolrUtilities.CurrentDBTable;
 
 public class BatchRecordsForSolrIndex {
 
@@ -31,14 +30,14 @@ public class BatchRecordsForSolrIndex {
 		boolean isTestMode = b.isTestMode();
 
         try (Statement stmt = current.createStatement()) {
-        	stmt.execute("LOCK TABLES "+CurrentDBTable.QUEUE+" WRITE, "
-        			+CurrentDBTable.QUEUE+" AS q READ, "
-        			+CurrentDBTable.BIB_SOLR+" AS s READ, "
-        			+CurrentDBTable.BIB_VOY+" AS v READ"); }
+        	stmt.execute("LOCK TABLES indexQueue WRITE, "
+        			+"indexQueue AS q READ, "
+        			+"bibRecsSolr AS s READ, "
+        			+"bibRecsVoyager AS v READ"); }
         try (PreparedStatement pstmt = current.prepareStatement(
         		" SELECT q.bib_id, cause, priority"
-        		+"  FROM "+CurrentDBTable.QUEUE+" AS q"
-        		+"  JOIN "+CurrentDBTable.BIB_VOY+" AS v ON q.bib_id = v.bib_id"
+        		+"  FROM indexQueue AS q"
+        		+"  JOIN bibRecsVoyager AS v ON q.bib_id = v.bib_id"
         		+" WHERE done_date = 0 AND batched_date = 0 AND active = 1"
         		+" ORDER BY priority"
         		+" LIMIT " + startingTarget*2);
@@ -60,9 +59,8 @@ public class BatchRecordsForSolrIndex {
         	int adjustedTotalTarget = addedBibs.size() + remainingTarget;
         	try (PreparedStatement pstmt = current.prepareStatement(
         			"SELECT s.bib_id"
-        			+" FROM "+CurrentDBTable.BIB_SOLR+" AS s"
-        			+" LEFT JOIN "+CurrentDBTable.QUEUE+" AS q"
-        					+ " ON (s.bib_id = q.bib_id AND q.done_date = 0)"
+        			+" FROM bibRecsSolr AS s"
+        			+" LEFT JOIN indexQueue AS q ON (s.bib_id = q.bib_id AND q.done_date = 0)"
         			+" WHERE active = 1"
         			+" AND queued_date IS NULL"
         			+" ORDER BY index_date"
@@ -81,8 +79,8 @@ public class BatchRecordsForSolrIndex {
         }
         if ( ! isTestMode ) {
 	        try (PreparedStatement batchStmt = current.prepareStatement(
-	        		"UPDATE "+CurrentDBTable.QUEUE
-	        		+" SET batched_date = NOW() WHERE bib_id = ? AND done_date = 0 AND batched_date = 0")) {
+	        		"UPDATE indexQueue SET batched_date = NOW() "
+	        				+"WHERE bib_id = ? AND done_date = 0 AND batched_date = 0")) {
 	        	for (int bib_id : addedBibs) {
 	        		batchStmt.setInt(1,bib_id);
 	        		batchStmt.addBatch();

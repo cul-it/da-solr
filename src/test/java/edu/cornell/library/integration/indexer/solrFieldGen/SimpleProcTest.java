@@ -52,6 +52,13 @@ public class SimpleProcTest {
 		"description_display: Here's a 300 note.\n"+
 		"notes_t: Here's a 300 note.\n";
 		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"300",' ',' ',"‡a 178 p. : ‡b ill. (some col.) ; ‡c 24 cm + ‡e 1 CD-ROM."));
+		expected =
+		"description_display: 178 p. : ill. (some col.) ; 24 cm + 1 CD-ROM.\n" + 
+		"notes_t: 178 p. : ill. (some col.) ; 24 cm + 1 CD-ROM.\n" + 
+		"f300e_b: true\n";
+		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test

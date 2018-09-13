@@ -517,8 +517,8 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: D - World History:D - History (General)\n"+
 		"lc_callnum_facet: D - World History:D - History (General):D501-680 - World War I (1914-1918)\n"+
 		"barcode_t: 31924124262290\n"+
-		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"2wkloan\",\"item_id\":\"10309656\",\"year\":\"\",\"item_type_id\":\"14\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\",\"temp_item_type_id\":\"0\",\"mfhd_id\":\"10245520\",\"recalls_placed\":\"0\",\"create_date\":\"2017-06-08 08:29:25.0\",\"item_barcode\":\"31924124262290\",\"modify_date\":\"2017-06-10 16:22:04.0\",\"perm_location\":{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\",\"library\":\"Olin Library\"}}\n"+
-		"item_display: 10309656|10245520|20170610162204\n"+
+		"item_record_display: {\"copy_number\":\"1\",\"item_type_name\":\"book\",\"item_id\":\"10309656\",\"year\":\"\",\"item_type_id\":\"3\",\"chron\":\"\",\"caption\":\"\",\"holds_placed\":\"0\",\"temp_location\":\"0\",\"on_reserve\":\"N\",\"item_enum\":\"\",\"item_sequence_number\":\"1\",\"temp_item_type_id\":\"0\",\"mfhd_id\":\"10245520\",\"recalls_placed\":\"0\",\"create_date\":\"2017-06-08 08:29:25.0\",\"item_barcode\":\"31924124262290\",\"modify_date\":\"2018-07-02 11:13:38.0\",\"perm_location\":{\"code\":\"olin\",\"number\":99,\"name\":\"Olin Library\",\"library\":\"Olin Library\"}}\n"+
+		"item_display: 10309656|10245520|20180702111338\n"+
 		"location_facet: Olin Library\n"+
 		"location: Olin Library\n"+
 		"location: Olin Library > Olin Library\n"+
