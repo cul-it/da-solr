@@ -68,6 +68,7 @@ public class IndexingUtilitiesTest {
 		assertEquals("imarah abu al ila 0000 taftish al nihai",
 				getFilingForm("ʼImārah, Abū al-ʼIlā. | Taftish al-nihā’ī"));
 		assertEquals("anarkhiia evoliutsiia bez nasiliia",getFilingForm("Anarkhii︠a︡ ėvoli︠u︡t︠s︡ii︠a︡ bez nasilii︠a︡"));
+		assertEquals("bhura kri cha ra to",getFilingForm("Bhurāʺ krīʺ, Cha rā toʻ"));
 
 	    // non-Roman scripts are not fully or well supported in filing
 		assertEquals("قيرواني محمد الطيب الطويلي",getFilingForm("قيرواني، محمد الطيب الطويلي"));
