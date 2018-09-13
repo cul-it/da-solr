@@ -8,7 +8,7 @@ thor => thorprot
 homer => homerprot
 tardis => tardisprot
 stars => star
-works working => work
+works, working => work
 locks => lock
 
 # computer languages
