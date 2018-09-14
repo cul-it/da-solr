@@ -32,7 +32,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
@@ -42,7 +42,7 @@ public class IndexHeadings {
 	private Connection connection = null;
 	// This structure should contain only up to six PreparedStatement objects at most.
 	private Map<HeadType,Map<String,String>> queries = new HashMap<>();
-	SolrBuildConfig config;
+	Config config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
 	/**
@@ -62,10 +62,9 @@ public class IndexHeadings {
 	public IndexHeadings(String[] args) throws Exception {
 
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
-
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(null,requiredArgs);
 		if (args.length > 0) {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 			try {

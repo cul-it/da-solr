@@ -19,10 +19,10 @@ import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -34,7 +34,7 @@ import edu.cornell.library.integration.utilities.CharacterSetUtils;
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
  */
-public class PubInfo implements ResultSetToFields {
+public class PubInfo implements ResultSetToFields, SolrFieldGenerator {
 
 	private final static String INFORMATION =  "pub_info_display";
 	private final static String PRODUCTION =   "pub_prod_display";
@@ -47,7 +47,7 @@ public class PubInfo implements ResultSetToFields {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addControlFieldResultSet( rec, results.get("eight") );
@@ -55,13 +55,20 @@ public class PubInfo implements ResultSetToFields {
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_264") );
 
 		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec );
+		SolrFields vals = generateSolrFields( rec, null );
 		for ( SolrField f : vals.fields )
 			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec ) {
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("008","260","264"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		SolrFields sfs = new SolrFields();
 

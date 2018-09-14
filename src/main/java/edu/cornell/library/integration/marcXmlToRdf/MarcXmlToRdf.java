@@ -50,13 +50,13 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-import edu.cornell.library.integration.ilcommons.service.DavService;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
+import edu.cornell.library.integration.webdav.DavService;
 
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.

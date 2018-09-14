@@ -9,19 +9,19 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class AuthorTitleTest {
 
-	static SolrBuildConfig config = null;
+	static Config config = null;
+	SolrFieldGenerator gen = new AuthorTitle();
 
 	@BeforeClass
 	public static void setup() {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Headings");
-		config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		config = Config.loadConfig(null,requiredArgs);
 	}
 
 	@Test
@@ -30,17 +30,17 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(1,"245",'1','4',"‡a The national law journal"));
 		String expected =
 		"title_sort: national law journal\n"+
-		"title_display: The national law journal\n"+
-		"subtitle_display: \n"+
-		"fulltitle_display: The national law journal\n"+
 		"title_t: The national law journal\n"+
 		"title_exact: The national law journal\n"+
 		"title_t: national law journal\n"+
 		"title_exact: national law journal\n"+
 		"title_sms_compat_display: The national law journal\n"+
 		"title_2letter_s: na\n"+
-		"title_1letter_s: n\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		"title_1letter_s: n\n"+
+		"title_display: The national law journal\n"+
+		"fulltitle_display: The national law journal\n"+
+		"subtitle_display: \n";
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -59,9 +59,6 @@ public class AuthorTitleTest {
 		"authority_author_t: Cupe, Mariano León, 1932-\n"+
 		"author_sort: leon cupe mariano 1932\n"+
 		"title_sort: cabana historia cultura y tradicion\n"+
-		"title_display: Cabana, historia, cultura y tradición\n"+
-		"subtitle_display: \n"+
-		"fulltitle_display: Cabana, historia, cultura y tradición\n"+
 		"title_t: Cabana, historia, cultura y tradición\n"+
 		"title_exact: Cabana, historia, cultura y tradición\n"+
 		"title_sms_compat_display: Cabana, historia, cultura y tradicion\n"+
@@ -69,10 +66,12 @@ public class AuthorTitleTest {
 		"title_1letter_s: c\n"+
 		"authortitle_facet: León Cupe, Mariano, 1932- | Cabana, historia, cultura y tradición\n"+
 		"authortitle_filing: leon cupe mariano 1932 0000 cabana historia cultura y tradicion\n"+
+		"title_display: Cabana, historia, cultura y tradición\n"+
+		"fulltitle_display: Cabana, historia, cultura y tradición\n"+
+		"subtitle_display: \n"+
 		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
 		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
-//		System.out.println( AuthorTitle.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -91,9 +90,6 @@ public class AuthorTitleTest {
 		"authority_author_t: Fewer, Tom\n"+
 		"author_sort: fewer t n\n"+
 		"title_sort: waterford people a biographical dictionary\n"+
-		"title_display: Waterford people\n"+
-		"subtitle_display: a biographical dictionary\n"+
-		"fulltitle_display: Waterford people : a biographical dictionary\n"+
 		"title_t: Waterford people : a biographical dictionary\n"+
 		"title_exact: Waterford people : a biographical dictionary\n"+
 		"title_main_exact: Waterford people\n"+
@@ -102,9 +98,12 @@ public class AuthorTitleTest {
 		"title_1letter_s: w\n"+
 		"authortitle_facet: Fewer, T. N. | Waterford people\n"+
 		"authortitle_filing: fewer t n 0000 waterford people\n"+
+		"title_display: Waterford people\n"+
+		"fulltitle_display: Waterford people : a biographical dictionary\n"+
+		"subtitle_display: a biographical dictionary\n"+
 		"title_responsibility_display: T. N. Fewer.\n"+
 		"author_245c_t: T. N. Fewer.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -123,9 +122,6 @@ public class AuthorTitleTest {
 		+ "\"relator\":\"speaker\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: kalavrezos nicholas\n"+
 		"title_sort: lumps and bumps in the mouth and lips\n"+
-		"title_display: Lumps and bumps in the mouth and lips\n"+
-		"subtitle_display: \n"+
-		"fulltitle_display: Lumps and bumps in the mouth and lips\n"+
 		"title_t: Lumps and bumps in the mouth and lips\n"+
 		"title_exact: Lumps and bumps in the mouth and lips\n"+
 		"title_sms_compat_display: Lumps and bumps in the mouth and lips\n"+
@@ -133,9 +129,12 @@ public class AuthorTitleTest {
 		"title_1letter_s: l\n"+
 		"authortitle_facet: Kalavrezos, Nicholas, | Lumps and bumps in the mouth and lips\n"+
 		"authortitle_filing: kalavrezos nicholas 0000 lumps and bumps in the mouth and lips\n"+
+		"title_display: Lumps and bumps in the mouth and lips\n"+
+		"fulltitle_display: Lumps and bumps in the mouth and lips\n"+
+		"subtitle_display: \n"+
 		"title_responsibility_display: Nicholas Kalavrezos.\n"+
 		"author_245c_t: Nicholas Kalavrezos.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -168,19 +167,19 @@ public class AuthorTitleTest {
 		"authortitle_filing: speed john 1552 1629 0000 theatre of the empire of great britaine\n"+
 		"title_uniform_t: Theatre of the empire of Great Britaine\n"+
 		"title_sort: britains tudor maps county by county\n"+
-		"title_display: Britain's Tudor maps\n"+
-		"subtitle_display: county by county\n"+
-		"fulltitle_display: Britain's Tudor maps : county by county\n"+
 		"title_t: Britain's Tudor maps : county by county\n"+
 		"title_exact: Britain's Tudor maps : county by county\n"+
 		"title_main_exact: Britain's Tudor maps\n"+
 		"title_sms_compat_display: Britain's Tudor maps\n"+
 		"title_2letter_s: br\n"+
 		"title_1letter_s: b\n"+
+		"title_display: Britain's Tudor maps\n"+
+		"fulltitle_display: Britain's Tudor maps : county by county\n"+
+		"subtitle_display: county by county\n"+
 		"title_responsibility_display: John Speed ; introduction by Nigel Nicolson ; country commentaries"+
 									" by Alasdair Hawkyard.\n"+
 		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -200,9 +199,6 @@ public class AuthorTitleTest {
 		+ ",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"author_sort: papademetropoulos loukas p\n"+
 		"title_sort: ennoia tou oikou ston euripide alkeste medeia hippolytos\n"+
-		"title_display: Hē ennoia tou oikou ston Euripidē\n"+
-		"subtitle_display: Alkēstē, Mēdeia, Hippolytos\n"+
-		"fulltitle_display: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_t: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_exact: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_t: ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
@@ -214,9 +210,12 @@ public class AuthorTitleTest {
 		"title_1letter_s: e\n"+
 		"authortitle_facet: Papadēmētropoulos, Loukas P., | ennoia tou oikou ston Euripidē\n"+
 		"authortitle_filing: papademetropoulos loukas p 0000 ennoia tou oikou ston euripide\n"+
+		"title_display: Hē ennoia tou oikou ston Euripidē\n"+
+		"fulltitle_display: Hē ennoia tou oikou ston Euripidē : Alkēstē, Mēdeia, Hippolytos\n"+
+		"subtitle_display: Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_responsibility_display: Loukas Papadēmētropoulos.\n"+
 		"author_245c_t: Loukas Papadēmētropoulos.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -230,27 +229,27 @@ public class AuthorTitleTest {
 				+ " Шедеви.",true));
 		String expected =
 		"title_sort: aleksandr i mariia pavlovna elizaveta alekseevna perepiska iz trekh uglov 1804 1826\n"+
-		"title_display: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna\n"+
-		"subtitle_display: perepiska iz trekh uglov 1804-1826\n"+
-		"fulltitle_display: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
 		"title_t: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
 		"title_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
 		"title_main_exact: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna\n"+
 		"title_sms_compat_display: Aleksandr I, Mariia Pavlovna, Elizaveta Alekseevna\n"+
 		"title_2letter_s: al\n"+
 		"title_1letter_s: a\n"+
-		"title_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
-		"subtitle_vern_display: переписка из трех углов 1804-1826\n"+
 		"title_t: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
-		"fulltitle_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна : "
-		+ "переписка из трех углов 1804-1826\n"+
 		"title_exact: Александр I, Мария Павловна, Елизавета Алексеевна : переписка из трех углов 1804-1826\n"+
 		"title_main_exact: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
+		"title_display: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna\n"+
+		"title_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна\n"+
+		"fulltitle_display: Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta Alekseevna : perepiska iz trekh uglov 1804-1826\n"+
+		"fulltitle_vern_display: Александр I, Мария Павловна, Елизавета Алексеевна : "
+		+ "переписка из трех углов 1804-1826\n"+
+		"subtitle_display: perepiska iz trekh uglov 1804-1826\n"+
+		"subtitle_vern_display: переписка из трех углов 1804-1826\n"+
 		"title_responsibility_display: подготовка писем Е. Дмитриевой и Ф. Шедеви. /"
 		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
 		"author_245c_t: подготовка писем Е. Дмитриевой и Ф. Шедеви.\n"+
 		"author_245c_t: podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -287,25 +286,25 @@ public class AuthorTitleTest {
 		"authortitle_filing: taga futoshi 1968 0000 danshi mondai no jidai korean\n"+
 		"title_uniform_t: Danshi mondai no jidai. Korean\n"+
 		"title_sort: namja munje ui sidae danshi mondai no jidai chendo wa kyoyuk ui chongchihak\n"+
-		"title_display: Namja munje ŭi sidae\n"+
-		"subtitle_display: Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
-		"fulltitle_display: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"title_t: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"title_exact: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
 		"title_main_exact: Namja munje ŭi sidae\n"+
 		"title_sms_compat_display: Namja munje ui sidae\n"+
 		"title_2letter_s: na\n"+
 		"title_1letter_s: n\n"+
-		"title_vern_display: 남자 문제 의 시대\n"+
-		"subtitle_vern_display: 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_t_cjk: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
-		"fulltitle_vern_display: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_exact: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_main_exact: 남자 문제 의 시대\n"+
+		"title_display: Namja munje ŭi sidae\n"+
+		"title_vern_display: 남자 문제 의 시대\n"+
+		"fulltitle_display: Namja munje ŭi sidae = Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
+		"fulltitle_vern_display: 남자 문제 의 시대 = 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
+		"subtitle_display: Danshi mondai no jidai? : chendŏ wa kyoyuk ŭi chŏngch'ihak\n"+
+		"subtitle_vern_display: 男子問題の時代? : 젠더 와 교육 의 정치학\n"+
 		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
 		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
 		"author_245c_t: Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -326,10 +325,6 @@ public class AuthorTitleTest {
 		"author_sort: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia\n"+
 		"title_sort: tjita dan daja pemuda islam menjongsong mutamar por gpii ke ix 25 sd 31 oktober 1959 "
 		+ "di djakarta 48&\n"+
-		"title_display: Tjita dan daja pemuda Islam\n"+
-		"subtitle_display: menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n"+
-		"fulltitle_display: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
-		+ " 31 Oktober 1959 di Djakarta\n"+
 		"title_t: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31"
 		+ " Oktober 1959 di Djakarta\n"+
 		"title_exact: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
@@ -341,8 +336,12 @@ public class AuthorTitleTest {
 		"authortitle_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia) |"
 		+ " Tjita dan daja pemuda Islam\n"+
 		"authortitle_filing: gerakan pemuda islam indonesia mutamar 9th 1959 jakarta indonesia 0000"
-		+ " tjita dan daja pemuda islam\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		+ " tjita dan daja pemuda islam\n"+
+		"title_display: Tjita dan daja pemuda Islam\n"+
+		"fulltitle_display: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
+		+ " 31 Oktober 1959 di Djakarta\n"+
+		"subtitle_display: menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n";
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -380,10 +379,6 @@ public class AuthorTitleTest {
 		+ "Chinese\n"+
 		"title_sort: fo jiao yi shu de zao qi jie duan the beginnings of buddhist art and other essays in indian "
 		+ "and central asian archaeology\n"+
-		"title_display: Fo jiao yi shu de zao qi jie duan\n"+
-		"subtitle_display: The beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology\n"+
-		"fulltitle_display: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in "
-		+ "Indian and Central-Asian archaeology\n"+
 		"title_t: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian and "
 		+ "Central-Asian archaeology\n"+
 		"title_exact: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in Indian "
@@ -392,23 +387,24 @@ public class AuthorTitleTest {
 		"title_sms_compat_display: Fo jiao yi shu de zao qi jie duan\n"+
 		"title_2letter_s: fo\n"+
 		"title_1letter_s: f\n"+
-		"title_vern_display: 佛教艺术的早期阶段\n"+
-		"subtitle_vern_display: The beginnings of Buddhist art and other essays in Indian and Central-Asian "
-		+ "archaeology\n"+
 		"title_t_cjk: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
 		+ "archaeology\n"+
-		"fulltitle_vern_display: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and "
-		+ "Central-Asian archaeology\n"+
 		"title_exact: 佛教艺术的早期阶段 = The beginnings of Buddhist art and other essays in Indian and Central-Asian "
 		+ "archaeology\n"+
 		"title_main_exact: 佛教艺术的早期阶段\n"+
 		"authortitle_facet: Foucher, A. (Alfred), 1865-1952. | 佛教艺术的早期阶段\n"+
 		"authortitle_filing: foucher a alfred 1865 1952 0000 佛教艺术的早期阶段\n"+
+		"title_display: Fo jiao yi shu de zao qi jie duan\n"+
+		"title_vern_display: 佛教艺术的早期阶段\n"+
+		"fulltitle_display: Fo jiao yi shu de zao qi jie duan = The beginnings of Buddhist art and other essays in "
+		+ "Indian and Central-Asian archaeology\n"+
+		"fulltitle_vern_display: 佛教艺术的早期阶段\n"+
+		"subtitle_display: The beginnings of Buddhist art and other essays in Indian and Central-Asian archaeology\n"+
 		"title_responsibility_display: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校. / cA Fuxie (A. Foucher)"
 		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n"+
 		"author_245c_t_cjk: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.\n"+
 		"author_245c_t: cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -436,9 +432,6 @@ public class AuthorTitleTest {
 		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
 		"author_sort: grebenshchikova g a\n"+
 		"title_sort: chernomorskii flot v period pravleniia ekateriny ii\n"+
-		"title_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
-		"subtitle_display: \n"+
-		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_exact: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_sms_compat_display: Chernomorskii flot v period pravleniia Ekateriny II\n"+
@@ -446,14 +439,16 @@ public class AuthorTitleTest {
 		"title_1letter_s: c\n"+
 		"authortitle_facet: Grebenshchikova, G. A., | Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"authortitle_filing: grebenshchikova g a 0000 chernomorskii flot v period pravleniia ekateriny ii\n"+
-		"title_vern_display: Черноморский флот в период правления Екатерины II\n"+
-		"subtitle_vern_display: \n"+
 		"title_t: Черноморский флот в период правления Екатерины II\n"+
-		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
 		"title_exact: Черноморский флот в период правления Екатерины II\n"+
 		"authortitle_facet: Гребенщикова, Г. А, | Черноморский флот в период правления Екатерины II\n"+
-		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		"authortitle_filing: гребенщикова г а 0000 черноморскии флот в период правления екатерины ii\n"+
+		"title_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"title_vern_display: Черноморский флот в период правления Екатерины II\n"+
+		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
+		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
+		"subtitle_display: \n";
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -468,9 +463,8 @@ public class AuthorTitleTest {
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
-		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\","
-		+ "\"search1\":\"Korea (South). President (1993-1998 : Kim)\",\"relator\":\"\","
-		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
+		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South)."
+		+ " President (1993-1998 : Kim)\",\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
 		"author_facet: 金泳三, 1927-\n"+
 		"author_pers_filing: 金泳三 1927\n"+
@@ -478,7 +472,7 @@ public class AuthorTitleTest {
 		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_sort: korea south president 1993 1998 kim\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -531,7 +525,7 @@ public class AuthorTitleTest {
 		+ "\"authorizedForm\":false}\n"+
 		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
 		"author_sort: guo li gu gong bo wu yuan\n";
-		assertEquals( expected, AuthorTitle.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
 }

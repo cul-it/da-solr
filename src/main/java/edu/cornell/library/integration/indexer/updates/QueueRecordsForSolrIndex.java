@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 public class QueueRecordsForSolrIndex {
@@ -16,16 +16,16 @@ public class QueueRecordsForSolrIndex {
 			+ "<cause> : e.g. 'Add new field for xyzzy'\n"
 			+ "<inputfile> : path to text file containing list of affected bibs.";
 	public static void main(String[] args) {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		try {
-			new QueueRecordsForSolrIndex( SolrBuildConfig.loadConfig(null,requiredArgs),args);
+			new QueueRecordsForSolrIndex( Config.loadConfig(null,requiredArgs),args);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
-	public QueueRecordsForSolrIndex(SolrBuildConfig config, String[] args) throws Exception { 
+	public QueueRecordsForSolrIndex(Config config, String[] args) throws Exception { 
 		if (args.length != 3) {
 			throw new IllegalArgumentException(usage + "("+String.valueOf(args.length)+")");
 		}

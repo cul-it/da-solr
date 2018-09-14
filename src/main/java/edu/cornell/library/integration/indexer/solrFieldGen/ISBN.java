@@ -2,17 +2,19 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -22,11 +24,11 @@ import edu.cornell.library.integration.marc.Subfield;
  * DISCOVERYACCESS-2661
  * | q data handled according to 2016 updated PCC standard per DISCOVERYACCESS-3242
  */
-public class ISBN implements ResultSetToFields {
+public class ISBN implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("isbn"));
@@ -39,10 +41,14 @@ public class ISBN implements ResultSetToFields {
 		return fields;
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("020"); }
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
 
 		SolrFields vals = new SolrFields();
 		for (DataField f: rec.matchSortAndFlattenDataFields()) {

@@ -1,0 +1,72 @@
+# Based on Cornell Library's documented call number prefixes as of Aug 1, 2018:
+# https://confluence.cornell.edu/display/LTSP/Holdings+Locations
+# with the following adjustments:
+# Added "Disk"
+# Added "Popular Reading Area"
+# Added "Temp"
+# Added "Grout"
+# Replaced "Bennett Coll." with "Bennett Collection"
+A.D. White
+Adelmann
+Anhinga
+Archives
+Asia Rare
+Basom Reading Lounge
+Bennett Collection
+Boyle
+Common
+Cornelliana
+Dance Periodicals
+Dante
+Dean Room
+Disk
+Electronic Reserve
+Ellis
+Field Guides
+Flat
+Fuertes Collection
+Grout
+Hill
+History of Science
+Hollister
+Hotel
+Human Sexuality
+Huntington
+Icelandic
+Indexes
+Lavoisier
+Locked Case
+Maps
+Marshall Collection
+Medical Diss.
+Microfiche
+Microform Area
+Network
+New & Noteworthy Books
+Newspapers
+Obichere Collection
+Office
+ONLINE
+Oversize
+Petrarch
+Popular Reading Area
+Prep
+Project
+Range
+Rare Books
+Reading Room
+Rolled
+Room 701
+Safe
+Sargent Collection
+Seventh Level
+Shaw
+Shelf
+Special Reserve
+Temp
+Thesis
+Trials
+Undersize
+Vertical File
+Witchcraft
+Wordsworth

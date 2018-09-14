@@ -3,8 +3,6 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeApostrophes;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.standardizeSpaces;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
@@ -56,48 +54,4 @@ public class ResultSetUtilities {
 		fields.put(fieldName, field);
 	}
 
-	public static class SolrField {
-		String fieldName;
-		String fieldValue;
-		public SolrField ( String fieldName, String fieldValue ) {
-			this.fieldName = fieldName;
-			this.fieldValue = fieldValue;
-		}
-	}
-	public static class BooleanSolrField {
-		String fieldName;
-		Boolean fieldValue;
-		public BooleanSolrField ( String fieldName, Boolean fieldValue ) {
-			this.fieldName = fieldName;
-			this.fieldValue = fieldValue;
-		}
-	}
-	public static class SolrFields {
-		List<SolrField> fields = new ArrayList<>();
-		List<BooleanSolrField> boolFields = new ArrayList<>();
-		public void add( SolrField sf ) {
-			if (sf == null) return;
-			this.fields.add(sf);
-		}
-		public void add( BooleanSolrField sf ) {
-			if (sf == null) return;
-			this.boolFields.add(sf);
-		}
-		public void addAll(List<SolrField> sfs) {
-			if (sfs == null) return;
-			this.fields.addAll(sfs);
-		}
-		public void addAll( SolrFields other ) {
-			this.fields.addAll( other.fields );
-			this.boolFields.addAll( other.boolFields );
-		}
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			for (SolrField f : this.fields)
-				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
-			for (BooleanSolrField f : this.boolFields)
-				sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
-			return sb.toString();
-		}
-	}
 }

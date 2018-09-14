@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import static edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.getBibsToIndex;
+import static edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.getBibsToIndex;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.getHoldingsForBibs;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
@@ -8,19 +8,19 @@ import java.sql.Connection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
-import edu.cornell.library.integration.indexer.BatchRecordsForSolrIndex.BatchLogic;
+import edu.cornell.library.integration.indexer.queues.BatchRecordsForSolrIndex.BatchLogic;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.voyager.DownloadMARC;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class RetrieveUpdatesBatch {
 
 	
-	public RetrieveUpdatesBatch(SolrBuildConfig config, BatchLogic b) throws Exception {
+	public RetrieveUpdatesBatch(Config config, BatchLogic b) throws Exception {
 
 		try ( Connection current = config.getDatabaseConnection("Current")) {
 

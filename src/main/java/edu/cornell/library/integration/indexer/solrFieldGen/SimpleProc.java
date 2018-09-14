@@ -1,28 +1,30 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
-public class SimpleProc implements ResultSetToFields {
+public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("notes"));
@@ -38,10 +40,23 @@ public class SimpleProc implements ResultSetToFields {
 		return fields;
 	}
 
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList(
+				"010","022","024","028","035","210","222","242","243","246","247","250","255","300","310",
+				"362","500","501","502","503","504","506","508","511","513","515","518","520","521","522",
+				"523","524","525","527","530","533","534","535","537","538","540","541","544","545","547",
+				"550","556","561","565","567","570","580","582","773","856","899","902","903","940");
+	}
+
 	/**
 	 * @param config Is unused, but included to follow a consistent method signature. 
 	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		SolrFields sfs = new SolrFields();
 		boolean f300e = false;
@@ -246,8 +261,8 @@ public class SimpleProc implements ResultSetToFields {
 				displaySubfields = "b";
 				break;
 			case 903:
-				searchField = "barcode_t";
-				cjkSearchField = "barcode_t_cjk";
+				searchField = "barcode_addl_t";
+				cjkSearchField = "barcode_addl_t";
 				searchSubfields = "p";
 				break;
 			case 940:    displaySubfields = "a";         searchSubfields = "a";        break;

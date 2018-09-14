@@ -13,20 +13,20 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class DownloadMARC {
-	SolrBuildConfig config;
+	Config config;
 	DavService davService;
 	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;
 
-	public DownloadMARC(SolrBuildConfig config) {
+	public DownloadMARC(Config config) {
 		davService = DavServiceFactory.getDavService(config);
 		this.config = config;
 	}
@@ -44,32 +44,28 @@ public class DownloadMARC {
 		int recCount = 0;
 		StringBuilder recs = new StringBuilder();
 
-		try ( Connection voyager = config.getDatabaseConnection("Voy");
-				PreparedStatement pstmt = prepareStatement(voyager,type) ){
-
-			for( Integer id : ids ) {
-				String rec = queryVoyager(pstmt,id);
-				if (rec != null) {
-					recs.append(rec);
-					errorChecking(rec,type,id);
-					if (++recCount == 1_000) {
-						StringBuilder url = new StringBuilder();
-						url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
-						if (type.equals(RecordType.BIBLIOGRAPHIC))
-							url.append("bib.");
-						else if (type.equals(RecordType.HOLDINGS))
-							url.append("mfhd.");
-						else
-							url.append("auth.");
-						url.append(fileSeqNo).append(".xml");
-						writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
-						recCount = 0;
-						fileSeqNo++;
-						recs.setLength(0);
-					}
-				} else
-					notFoundIds.add(id);
-			}
+		for( Integer id : ids ) {
+			String rec = queryVoyager(type,id);
+			if (rec != null) {
+				recs.append(rec);
+				errorChecking(rec,type,id);
+				if (++recCount == 1_000) {
+					StringBuilder url = new StringBuilder();
+					url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
+					if (type.equals(RecordType.BIBLIOGRAPHIC))
+						url.append("bib.");
+					else if (type.equals(RecordType.HOLDINGS))
+						url.append("mfhd.");
+					else
+						url.append("auth.");
+					url.append(fileSeqNo).append(".xml");
+					writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
+					recCount = 0;
+					fileSeqNo++;
+					recs.setLength(0);
+				}
+			} else
+				notFoundIds.add(id);
 		}
 		if (recCount > 0) {
 			StringBuilder url = new StringBuilder();
@@ -99,10 +95,7 @@ public class DownloadMARC {
 	public String downloadMrc(RecordType type, Integer id)
 			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
 
-		try ( Connection voyager = config.getDatabaseConnection("Voy");
-				PreparedStatement pstmt = prepareStatement(voyager,type) ){
-			return queryVoyager(pstmt,id);
-		}
+		return queryVoyager(type,id);
 	}
 
 	/**
@@ -151,25 +144,33 @@ public class DownloadMARC {
 			davService.saveFile(filename, is);
 		}
 	}
-	private static String queryVoyager(PreparedStatement pstmt, Integer id)
-			throws SQLException, IOException, InterruptedException {
-		pstmt.setInt(1, id);
+	private String queryVoyager(RecordType type, Integer id)
+			throws SQLException, IOException, InterruptedException, ClassNotFoundException {
 		String marcRecord = null;
 
 		int retryLimit = 4;
 		boolean succeeded = false;
 		while (retryLimit > 0 && ! succeeded)
 
-			try (   ByteArrayOutputStream bb = new ByteArrayOutputStream();
-					ResultSet rs = pstmt.executeQuery()  ) {
-				while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
-				if (bb.size() == 0)
-					return null;
-				bb.close();
-				marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
-				succeeded = true;
+			try (
+					Connection voyager = config.getDatabaseConnection("Voy");
+					PreparedStatement pstmt = prepareStatement(voyager,type); ) {
+
+				pstmt.setInt(1, id);
+				try ( 
+						ResultSet rs = pstmt.executeQuery();
+						ByteArrayOutputStream bb = new ByteArrayOutputStream();) {
+
+					while (rs.next()) bb.write(rs.getBytes("RECORD_SEGMENT"));
+					if (bb.size() == 0)
+						return null;
+					bb.close();
+					marcRecord = new String( bb.toByteArray(), StandardCharsets.UTF_8 );
+					succeeded = true;
+				}
 			} catch ( SQLException | IOException e ) {
 				System.out.println(e.getClass().getName()+" querying record from Voyager.");
+				e.printStackTrace();
 				if (retryLimit-- > 0) {
 					System.out.println("Will retry in 20 seconds.");
 					Thread.sleep(20_000);

@@ -16,23 +16,23 @@ import java.util.Set;
 
 import com.googlecode.sardine.DavResource;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class RecordBatchProcessingData {
 
 	public static void main(String[] args) throws Exception {
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(SolrBuildConfig.getRequiredArgsForWebdav());
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+		requiredArgs.addAll(Config.getRequiredArgsForWebdav());
 		requiredArgs.add("batchInfoDir");
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(null, requiredArgs);
+		Config config = Config.loadConfig(null, requiredArgs);
 		new RecordBatchProcessingData( config );
 	}
 
-	public RecordBatchProcessingData(SolrBuildConfig config) throws Exception {
+	public RecordBatchProcessingData(Config config) throws Exception {
 
 		DavService davService = DavServiceFactory.getDavService( config );
 		String batchDirUrl = config.getWebdavBaseUrl()+"/"+config.getBatchInfoDir();

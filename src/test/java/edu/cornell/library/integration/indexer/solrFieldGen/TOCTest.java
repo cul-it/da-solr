@@ -2,26 +2,30 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 import org.junit.Test;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class TOCTest {
 
+	SolrFieldGenerator gen = new TOC();
+
 	@Test
-	public void testSimpleTOC() {
+	public void testSimpleTOC() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0',' ',"‡a 12344567 (pbk.)"));
 		String expected =
 		"contents_display: 12344567 (pbk.)\n"+
 		"toc_t: 12344567 (pbk.)\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testPartTOC() {
+	public void testPartTOC() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'2',' ',
 				"‡g v. 2/2 (Sept. 1890), pp. 188-210. ‡t \"Great Krishna Mulvaney\" ‡r Rudyard Kipling."));
@@ -30,11 +34,11 @@ public class TOCTest {
 		"title_addl_t: \"Great Krishna Mulvaney\"\n"+
 		"author_addl_t: Rudyard Kipling.\n"+
 		"toc_t: v. 2/2 (Sept. 1890), pp. 188-210. \"Great Krishna Mulvaney\" Rudyard Kipling.\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testEnhancedAuthors() {
+	public void testEnhancedAuthors() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0',' ',
 				"‡g Vol. 2 / ‡r A cura di Gino Ruozzi. -- ‡g v. 3 / ‡r A cura di Carminella Biondi,"
@@ -45,11 +49,11 @@ public class TOCTest {
 		"author_addl_t: A cura di Gino Ruozzi. --\n"+
 		"author_addl_t: A cura di Carminella Biondi, Carla Pellandra, Elena Pessini.\n"+
 		"toc_t: Vol. 2 / A cura di Gino Ruozzi. -- v. 3 / A cura di Carminella Biondi, Carla Pellandra, Elena Pessini.\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testEnhancedTitles() {
+	public void testEnhancedTitles() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0','0',"‡g v. 1. ‡t Systematic handbook -- ‡g v. 2. ‡t Prayer."));
 		String expected =
@@ -58,11 +62,11 @@ public class TOCTest {
 		"title_addl_t: Systematic handbook --\n"+
 		"title_addl_t: Prayer.\n"+
 		"toc_t: v. 1. Systematic handbook -- v. 2. Prayer.\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testNonRoman1() {
+	public void testNonRoman1() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,5,"505",'0','0',"‡6 880-05 ‡g \"A mozhet, i︠a︡ lishʹ pochva dli︠a︡ romana?\""
 				+ " : ob avtore ėtikh vospominaniĭ / ‡r Irina Emelʹi︠a︡nova -- ‡t V plenu vremeni / ‡r Olʹga Ivinskai︠a︡ "
@@ -92,11 +96,11 @@ public class TOCTest {
 		"author_addl_t: Irina Emelʹi︠a︡nova.\n"+
 		"toc_t: \"A mozhet, i︠a︡ lishʹ pochva dli︠a︡ romana?\" : ob avtore ėtikh vospominaniĭ / Irina Emelʹi︠a︡nova --"
 		+ " V plenu vremeni / Olʹga Ivinskai︠a︡ -- Legendy Potapovskogo pereulka / Irina Emelʹi︠a︡nova.\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testNonRomanCJK() {
+	public void testNonRomanCJK() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡g v. 1. ‡t Zhang quan : Nanjin zheng fu --"
 				+ " ‡g v. 2. Fen qi : kang zhan ji zhan hou -- ‡g v. 3. Yi han : kang zhan ji zhan hou (xu).", false));
@@ -116,11 +120,11 @@ public class TOCTest {
 		"title_addl_t: Zhang quan : Nanjin zheng fu --\n"+
 		"toc_t: v. 1. Zhang quan : Nanjin zheng fu -- v. 2. Fen qi : kang zhan ji zhan hou -- v. 3. Yi han :"
 		+ " kang zhan ji zhan hou (xu).\n";
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
-	public void testNonRomanMultiplePairs() {
+	public void testNonRomanMultiplePairs() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡a v.1 -- v.2", false));
 		rec.dataFields.add(new DataField(2,8,"505",'0','0',"‡6 880-08 ‡a v.3 -- v.4", false));
@@ -140,7 +144,7 @@ public class TOCTest {
 		"contents_display: v.4\n"+
 		"toc_t: v.3 -- v.4\n";
 //		System.out.println( TOC.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\""));
-		assertEquals( expected, TOC.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
 	}
 }
 

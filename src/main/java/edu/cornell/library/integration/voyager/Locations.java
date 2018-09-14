@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
 /**
@@ -124,7 +124,7 @@ public final class Locations {
 	 * to retrieve and index the data. Otherwise, the instance will simply give access to the
 	 * already loaded data.
 	 */
-	public Locations(final SolrBuildConfig config) throws ClassNotFoundException, SQLException {
+	public Locations(final Config config) throws ClassNotFoundException, SQLException {
 
 		if (_byCode.isEmpty())
 			populateLocationMaps(config);
@@ -143,7 +143,7 @@ public final class Locations {
 			+ "LOCATION.LOCATION_NAME "
 			+"FROM LOCATION ";
 
-	private static void populateLocationMaps(final SolrBuildConfig config)
+	private static void populateLocationMaps(final Config config)
 			throws ClassNotFoundException, SQLException {
 		System.out.println("Retrieving location data from Voyager");
 		libraryPatterns = IndexingUtilities.loadPatternMap("library_names.txt");
@@ -180,8 +180,8 @@ public final class Locations {
 	public static void main( String[] args ) throws Exception {
 
 		// Execution synopsis
-		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForDB("Voy");
-		Locations locations = new Locations( SolrBuildConfig.loadConfig(args,requiredFields) );
+		Collection<String> requiredFields = Config.getRequiredArgsForDB("Voy");
+		Locations locations = new Locations( Config.loadConfig(args,requiredFields) );
 		Location l = locations.getByCode("fine,res");
 		System.out.println(l.toString());
 		l = locations.getByNumber(33);

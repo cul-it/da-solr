@@ -1,0 +1,12 @@
+  <record>
+    <leader>00183nx  a22000851  4500</leader>
+    <controlfield tag="001">8616583</controlfield>
+    <controlfield tag="004">8226661</controlfield>
+    <controlfield tag="005">20130807150941.0</controlfield>
+    <controlfield tag="008">1308070u||||8|||4001uu|||0000000</controlfield>
+    <datafield tag="852" ind1="0" ind2=" ">
+      <subfield code="b">serv,remo</subfield>
+      <subfield code="h">E744</subfield>
+      <subfield code="i">.A44 1963</subfield>
+    </datafield>
+  </record>

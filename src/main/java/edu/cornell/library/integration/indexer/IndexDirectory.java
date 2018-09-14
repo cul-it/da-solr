@@ -19,7 +19,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
 import edu.cornell.library.integration.hadoop.map.BibFileIndexingMapper;
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 /**
  * Index all the files in a given WEBDAV directory. It is intended as a simple way to 
@@ -64,9 +64,9 @@ public class IndexDirectory {
      */
     MockRecordWriter recordWriter;   
     
-    SolrBuildConfig config;
+    Config config;
 
-    public void setSolrBuildConfig( SolrBuildConfig conf ) {
+    public void setSolrBuildConfig( Config conf ) {
     	config = conf;
     }
     

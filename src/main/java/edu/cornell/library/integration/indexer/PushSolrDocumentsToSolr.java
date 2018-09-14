@@ -16,7 +16,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
 
 /**
  *  Pushes an existing set of Solr documents into an empty Solr index.
@@ -29,9 +29,9 @@ public class PushSolrDocumentsToSolr {
 
 	public static void main(String[] args) throws Exception {
 
-		List<String> requiredArgs = SolrBuildConfig.getRequiredArgsForDB("Current");
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.add("solrUrl");
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(args, requiredArgs);
+		Config config = Config.loadConfig(args, requiredArgs);
         System.out.println("Populating Solr index at: "+config.getSolrUrl());
 
 		try ( SolrClient solr = new HttpSolrClient( config.getSolrUrl() );

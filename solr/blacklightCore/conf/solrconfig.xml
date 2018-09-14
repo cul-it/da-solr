@@ -11,25 +11,17 @@
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <lib dir="/cul/data/solr/instancelibs/bl1/"/>
+  <lib dir="/cul/data/solr/instancelibs/bl2/"/>
 
   <dataDir>${solr.data.dir:}</dataDir>
 
   <indexConfig>
 
-<!--
-	<mergePolicy class="org.apache.solr.index.TieredMergePolicy">
-		<int name="maxMergeAtOnce">10</int>
-		<int name="segmentsPerTier">10</int>
-	</mergePolicy>
--->
-    <!-- 
-    <mergeFactor>10</mergeFactor>
-      -->
-
-    <!-- 
-       <mergeScheduler class="org.apache.lucene.index.ConcurrentMergeScheduler"/>
-       -->
+    <mergePolicyFactory class="org.apache.solr.index.TieredMergePolicyFactory">
+      <int name="maxMergeAtOnce">10</int>
+      <int name="segmentsPerTier">10</int>
+    </mergePolicyFactory>
+    <mergedSegmentWarmer class="org.apache.lucene.index.SimpleMergedSegmentWarmer"/>
 
   </indexConfig>
 
@@ -751,9 +743,9 @@
       <str name="f.pubplace_starts.qf"> pubplace_startsC pubplace_startsP pubplace_startsCJK </str>
       <str name="f.pubplace_quoted.qf"> pubplace_unstemC pubplace_unstemP pubplace_t_cjk </str>
       
-      <str name="f.lc_callnum.qf"> lc_callnum_full </str>
-      <str name="f.lc_callnum.pf"> lc_callnum_full </str>
-      <str name="f.lc_callnum_starts.qf"> lc_callnum_full </str>
+      <str name="f.lc_callnum.qf"> lc_callnum_full lc_callnum_suffix </str>
+      <str name="f.lc_callnum.pf"></str>
+      <str name="f.lc_callnum_starts.qf"> lc_callnum_full lc_callnum_suffix </str>
 
       <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
       <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
@@ -843,16 +835,17 @@
         online, 
         language_display, 
         pub_info_display,
-		pub_date_display,
+	pub_date_display,
         pub_date_facet,
-		url_access_display,
-		url_access_json,
+	url_access_display,
+	url_access_json,
     	holdings_record_display,
-		item_record_display,
-		edition_display,
-	    title_uniform_display,
-	    other_id_display,
-	    acquired_dt
+	item_record_display,
+	edition_display,
+	title_uniform_display,
+	other_id_display,
+	availability_json,
+	acquired_dt
       </str>
      
       <str name="facet">true</str>

@@ -49,11 +49,11 @@ import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 import edu.cornell.library.integration.hadoop.BibFileToSolr;
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceImpl;
 import edu.cornell.library.integration.indexer.RecordToDocument;
 import edu.cornell.library.integration.indexer.RecordToDocumentMARC;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceImpl;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceModel;
 
@@ -104,7 +104,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         if( url == null || url.trim().length() == 0 ) 
             return; //skip blank lines
  
-		SolrBuildConfig config = SolrBuildConfig.loadConfig(context.getConfiguration());
+		Config config = Config.loadConfig(context.getConfiguration());
 
 		File tmpDir = Files.createTempDir();
 		log.info("Using tmpDir " + tmpDir.getAbsolutePath() + " for file based RDF store.");
@@ -255,7 +255,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
         }	    	            
     }
 
-	private static SolrInputDocument createSolrDocument(String bibUri, SolrBuildConfig config) throws Exception{
+	private static SolrInputDocument createSolrDocument(String bibUri, Config config) throws Exception{
 		SolrInputDocument doc=null;
 		try{
 			RecordToDocument r2d = new RecordToDocumentMARC();
@@ -365,7 +365,7 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	
 	private Model loadBaseModel() throws IOException {		
 		Model baseModel = ModelFactory.createDefaultModel();		
-		String[] baseNtFiles = {"/shadows.nt","/fieldGroups.nt"};
+		String[] baseNtFiles = {"/fieldGroups.nt"};
 		for( String fileName : baseNtFiles ){		    
 			try (InputStream in = getClass().getResourceAsStream(fileName)) {
 				if( in == null )

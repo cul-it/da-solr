@@ -6,6 +6,7 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +17,10 @@ import org.apache.solr.common.SolrInputField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
@@ -31,13 +32,13 @@ import edu.cornell.library.integration.utilities.NameUtils;
  * process the whole 7xx range into a wide variety of fields
  *
  */
-public class TitleChange implements ResultSetToFields {
+public class TitleChange implements ResultSetToFields, SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+			Map<String, ResultSet> results, Config config) throws Exception {
 
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("added_entry") );
@@ -50,7 +51,17 @@ public class TitleChange implements ResultSetToFields {
 		return fields;
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config )
+	@Override
+	public String getVersion() { return "1.0"; }
+
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("700","710","711","720","730","740",
+				"760","762","765","767","770","772","773","774","775","776","777","780","785","786","787");
+	}
+
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
@@ -95,7 +106,7 @@ public class TitleChange implements ResultSetToFields {
 		return sfs;
 	}
 
-	private static List<SolrField> processAuthorAddedEntryFields(SolrBuildConfig config, DataFieldSet fs)
+	private static List<SolrField> processAuthorAddedEntryFields(Config config, DataFieldSet fs)
 			throws ClassNotFoundException, SQLException, IOException {
 		List<FieldValues> ctsValsList  = NameUtils.authorAndOrTitleValues(fs);
 		if (ctsValsList == null) return null;

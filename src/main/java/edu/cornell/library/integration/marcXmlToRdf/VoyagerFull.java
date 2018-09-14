@@ -2,11 +2,11 @@ package edu.cornell.library.integration.marcXmlToRdf;
 
 import java.util.Collection;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.ilcommons.service.DavService;
-import edu.cornell.library.integration.ilcommons.service.DavServiceFactory;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.Mode;
 import edu.cornell.library.integration.marcXmlToRdf.MarcXmlToRdf.OutputFormat;
+import edu.cornell.library.integration.webdav.DavService;
+import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class VoyagerFull {
 	
@@ -22,13 +22,13 @@ public class VoyagerFull {
 	
 	public VoyagerFull(String[] args) throws Exception {
 		
-		Collection<String> requiredFields = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredFields = Config.getRequiredArgsForWebdav();
 		requiredFields.add("fullXmlBibDir");
 		requiredFields.add("fullXmlMfhdDir");
 		requiredFields.add("n3Dir");
-		requiredFields.addAll( SolrBuildConfig.getRequiredArgsForDB("Current") );
-		SolrBuildConfig config =
-				SolrBuildConfig.loadConfig( args, requiredFields );
+		requiredFields.addAll( Config.getRequiredArgsForDB("Current") );
+		Config config =
+				Config.loadConfig( args, requiredFields );
 		
 		davService = DavServiceFactory.getDavService(config);				
 		
