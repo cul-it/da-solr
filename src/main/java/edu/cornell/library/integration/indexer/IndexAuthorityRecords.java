@@ -124,21 +124,28 @@ public class IndexAuthorityRecords {
 				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
 				+ "PRIMARY KEY  (`id`), "
 				+ "KEY `uk` (`type_desc`,`sort`(100))) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `note`");
 		stmt.execute("CREATE TABLE `note` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`note` text NOT NULL, "
 				+ "KEY (`heading_id`)) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
+
+		stmt.execute("DROP TABLE IF EXISTS `authority`");
+		stmt.execute("CREATE TABLE `authority` ( "
+				+ "`heading_id` int(10) unsigned NOT NULL, "
+				+ "`authority_id` text NOT NULL, "
+				+ "KEY (`heading_id`)) "
+				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `ref_type`");
 		stmt.execute("CREATE TABLE `ref_type` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `reference`");
 		stmt.execute("CREATE TABLE `reference` ( "
@@ -148,21 +155,21 @@ public class IndexAuthorityRecords {
 				+ "`ref_desc` varchar(256) NOT NULL DEFAULT '', "
 				+ " PRIMARY KEY (`from_heading`,`to_heading`,`ref_type`,`ref_desc`), "
 				+ " KEY (`to_heading`) ) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
 		stmt.execute("CREATE TABLE `type_desc` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=latin1");
 
 		stmt.execute("DROP TABLE IF EXISTS `rda`");
 		stmt.execute("CREATE TABLE `rda` ( "
 				+ "`heading_id` int(10) unsigned NOT NULL, "
 				+ "`rda` text NOT NULL, "
 				+ "KEY `heading_id` (`heading_id`)) "
-				+ "ENGINE=InnoDB DEFAULT CHARSET=utf8");
+				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
 		try ( PreparedStatement insertDesc = connection.prepareStatement(
@@ -388,6 +395,8 @@ public class IndexAuthorityRecords {
 		Integer heading_id = getMainHeadingRecordId(heading,headingSort,htd,isUndifferentiated);
 		for (String note : notes)
 			insertNote(heading_id, note);
+		if (lccn != null)
+			insertAuthorityId(heading_id, lccn);
 
 		expectedNotes.removeAll(foundNotes);
 		if ( ! expectedNotes.isEmpty())
@@ -480,6 +489,15 @@ public class IndexAuthorityRecords {
 		}
 	}
 
+	private void insertAuthorityId(Integer heading_id, String auth_id) throws SQLException {
+		try ( PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO authority (heading_id, authority_id) VALUES (? , ?)") ){
+			stmt.setInt(1, heading_id);
+			stmt.setString(2, auth_id);
+			stmt.executeUpdate();
+		}
+	}
+
 	private Integer getMainHeadingRecordId(String heading, String headingSort,
 			HeadTypeDesc htd, Boolean isUndifferentiated) throws SQLException {
 
@@ -545,7 +563,6 @@ public class IndexAuthorityRecords {
 	 */
 	private static void buildXRefHeading( Relation r, DataField f , String mainHeading ) {
 		String heading = dashedHeading(f, r.headingTypeDesc, null);
-		r.headingOrig = heading;
 		String headingWOPeriods = heading.replaceAll("\\.", "");
 		if (headingWOPeriods.length() > 5) {
 			r.heading = heading;
@@ -821,8 +838,6 @@ public class IndexAuthorityRecords {
 		public String relationship = null;
 		public String reciprocalRelationship = null;
 		public String heading = null;
-		public String headingOrig = null; // access to original heading before
-		                                  // parenthesized main heading optionally added.
 		public String headingSort = null;
 		public HeadTypeDesc headingTypeDesc = null;
 		public Collection<RecordSet> applicableContexts = new HashSet<>();
