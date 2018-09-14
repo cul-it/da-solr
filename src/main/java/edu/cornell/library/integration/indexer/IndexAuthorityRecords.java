@@ -56,7 +56,7 @@ public class IndexAuthorityRecords {
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
-		requiredArgs.add("xmlDir");
+		requiredArgs.add("mrcDir");
 
 		Config config = Config.loadConfig(args,requiredArgs);
 		try {
