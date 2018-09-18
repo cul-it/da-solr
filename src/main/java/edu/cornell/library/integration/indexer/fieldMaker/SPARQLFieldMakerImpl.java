@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrInputField;
 
 import com.hp.hpl.jena.query.ResultSet;
@@ -26,15 +23,10 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 	
 			
 	/** Objects to process the results of the SPARQL queries into fields */
-	List<ResultSetToFields> resultSetToFields;
+	private List<ResultSetToFields> resultSetToFields;
 	
 	public SPARQLFieldMakerImpl() {
 		super();
-	}
-	
-	public SPARQLFieldMakerImpl setName(String name){
-		super.name = name;
-		return this;
 	}
 
 	public SPARQLFieldMakerImpl addQuery(String key, String query){
@@ -66,10 +58,6 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 			for( ResultSetToFields r2f : resultSetToFields ){
 				if( r2f != null ){					
 					Map<String,SolrInputField> newFields =r2f.toFields( results, config ) ;
-					if (config.isDebugClass(r2f.getClass()) ) {
-						System.out.println(r2f.getClass().getName()+" fields derived:");
-						dumpFieldsToStdout(newFields);
-					}
 					if( newFields != null)
 						fields.putAll( newFields);
 				}
@@ -78,16 +66,4 @@ public class SPARQLFieldMakerImpl extends SPARQLFieldMakerBase{
 		return fields;
 		
 	}		
-
-	/* debug utility */
-	private static void dumpFieldsToStdout( Map<String,SolrInputField> newFields ) {
-		for (Entry<String,SolrInputField> entry : newFields.entrySet()) {
-			System.out.println(entry.getKey());
-			for (Object value : entry.getValue().getValues())
-				System.out.println("\t"+value.toString());
-		}
-		
-	}
-
-	static final Log log = LogFactory.getLog( SPARQLFieldMakerImpl.class);
 }

@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -20,12 +19,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,17 +39,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -137,34 +125,13 @@ public class IndexingUtilities {
 			bibQueueStmt.executeUpdate();
 		}
 	}
-	public static void removeBibsFromUpdateQueue( Connection current, Set<Integer> bib_ids)
-			throws SQLException {
-		try (PreparedStatement bibQueueDStmt = current.prepareStatement(
-				"DELETE FROM indexQueue WHERE bib_id = ? AND done_date = 0")) {
-			for (Integer bib_id : bib_ids) {
-				bibQueueDStmt.setInt(1, bib_id);
-				bibQueueDStmt.addBatch();
-			}
-			bibQueueDStmt.executeBatch();
-		}
-	}
-
-	public static void optimizeIndex( String solrCoreURL ) throws IOException, SolrServerException {
-		System.out.println("Optimizing index at: "+solrCoreURL+".");
-		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		System.out.println("\tstarting at: "+dateFormat.format(Calendar.getInstance().getTime()));
-		try ( SolrClient solr = new HttpSolrClient( solrCoreURL ) ) {
-			solr.optimize();
-		}
-		System.out.println("\tcompleted at: "+dateFormat.format(Calendar.getInstance().getTime()));
-	}
 
 	/**
 	 * 
 	 * @param urls - a list of url_access_display values
 	 * @return A comma-separated list of online provider names
 	 */
-	public static String identifyOnlineServices(Collection<Object> urls) {
+	private static String identifyOnlineServices(Collection<Object> urls) {
 		if (urlPatterns == null)
 			urlPatterns = loadPatternMap("online_site_identifications.txt");
 		List<String> identifiedSites = new ArrayList<>();
@@ -203,7 +170,7 @@ public class IndexingUtilities {
 		}
 		return patternMap;
 	}
-	static Map<String,String> urlPatterns = null;
+	private static Map<String,String> urlPatterns = null;
 
 	@SuppressWarnings("unchecked")
 	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
@@ -301,7 +268,7 @@ public class IndexingUtilities {
 			return m.group(1)+"-"+m.group(2)+"-"+m.group(3);
 		return date;
 	}
-	static Pattern yyyymmdd = null;
+	private static Pattern yyyymmdd = null;
 
 	public static String substituteInRecordURI(String recordURI, String query) {
 		if( query == null )
@@ -309,15 +276,6 @@ public class IndexingUtilities {
 		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		
 	}
 
-	public static String toString(SolrInputDocument doc) {
-		String out ="SolrInputDocument[\n" ;
-		for( String name : doc.getFieldNames()){
-			SolrInputField f = doc.getField(name);
-			out = out + "  " + name +": '" + f.toString() + "'\n";
-		}
-		return out + "]\n";						
-	}
-	
 	/**
 	 * For all newFields, add them to doc, taking into account
 	 * fields that already exist in doc and merging the
@@ -342,7 +300,7 @@ public class IndexingUtilities {
 	/**
 	 * Call existingField.addValue() for all values form newField.
 	 */
-	public static void mergeValuesForField(SolrInputField existingField,
+	private static void mergeValuesForField(SolrInputField existingField,
 			SolrInputField newField) {
 		for( Object value  : newField.getValues() ){
 			existingField.addValue(value, 1.0f);
@@ -353,7 +311,7 @@ public class IndexingUtilities {
 	 * Any time a comma is followed by a character that is not a space, a
 	 * space will be inserted.
 	 */
-	static Pattern commaFollowedByNonSpace = null;
+	private static Pattern commaFollowedByNonSpace = null;
 	public static String insertSpaceAfterCommas( String s ) {
 		if (commaFollowedByNonSpace == null)
 			commaFollowedByNonSpace = Pattern.compile(",([^\\s])");
@@ -450,23 +408,6 @@ public class IndexingUtilities {
 			}
 		}
 		return doc;
-	}
-	
-	//from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java	
-	public static String prettyXMLFormat(String input) {
-	    try {
-	        Source xmlInput = new StreamSource(new StringReader(input));
-	        StringWriter stringWriter = new StringWriter();
-	        StreamResult xmlOutput = new StreamResult(stringWriter);
-	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//        transformerFactory.setAttribute("indent-number", indent); //removed this line due to runtime exception
-		    Transformer transformer = transformerFactory.newTransformer(); 
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.transform(xmlInput, xmlOutput);
-		    return xmlOutput.getWriter().toString();
-	} catch (Exception e) {
-	    throw new RuntimeException(e); // simple exception handling, please review it
-	    }
 	}
 
 }

@@ -33,11 +33,10 @@ import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchRef
  *  */
 public class UpdateSolrInventoryDB implements DocumentPostProcess{
 
-	final static Boolean debug = false;
 	private final SimpleDateFormat marcDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	private Set<Long> workids = new HashSet<>();
-	static ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public void p(String recordURI, Config config,

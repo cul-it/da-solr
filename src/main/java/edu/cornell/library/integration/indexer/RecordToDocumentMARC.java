@@ -20,18 +20,18 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
   List<? extends FieldMaker> getFieldMakers() {
     return Arrays.asList(
 
-        new SPARQLFieldMakerImpl().setName("holdings_data")
+        new SPARQLFieldMakerImpl()//.setName("holdings_data")
         .addQuery("control_fields",standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlFields"))
         .addQuery("data_fields",standardHoldingsDataFieldGroupSPARQL("marcrdf:DataFields"))
         .addQuery("description", standardDataFieldSPARQL("300"))
         .addQuery("leader",standardLeaderSPARQL())
         .addResultSetToFields(new HoldingsAndItems()),
 
-        new SPARQLFieldMakerImpl().setName("boost")
+        new SPARQLFieldMakerImpl()//.setName("boost")
         .addQuery("001", standardControlFieldSPARQL("001"))
         .addResultSetToFields(new RecordBoost()),
 
-        new SPARQLFieldMakerImpl().setName("marc")
+        new SPARQLFieldMakerImpl()//.setName("marc")
         .addQuery("leader",standardLeaderSPARQL())
         .addQuery("marc_control_fields",
             "SELECT * WHERE {\n"
@@ -42,12 +42,12 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         .addQuery("marc_data_fields", standardDataFieldGroupSPARQL("marcrdf:DataFields"))
         .addResultSetToFields(new MARC()),
 
-        new SPARQLFieldMakerImpl().setName("rec_type")
+        new SPARQLFieldMakerImpl()//.setName("rec_type")
         .addQuery("948",standardDataFieldSPARQL("948"))
         .addQuery("holdings_852",standardHoldingsDataFieldSPARQL("852"))
         .addResultSetToFields(new RecordType()),
 
-        new SPARQLFieldMakerImpl().setName("format")
+        new SPARQLFieldMakerImpl()//.setName("format")
         .addQuery("leader",standardLeaderSPARQL())
         .addQuery("007", standardControlFieldSPARQL("007"))
         .addQuery("008", standardControlFieldSPARQL("008"))
@@ -60,40 +60,40 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
         getLanguageFieldMaker(),
 
-        new SPARQLFieldMakerImpl().setName("pub_info")
+        new SPARQLFieldMakerImpl()//.setName("pub_info")
         .addQuery("eight", standardControlFieldSPARQL("008"))
         .addQuery("pub_info_260", standardDataFieldSPARQL("260"))
         .addQuery("pub_info_264", standardDataFieldSPARQL("264"))
         .addResultSetToFields(new PubInfo()),
 
-        new SPARQLFieldMakerImpl().setName("title130")
+        new SPARQLFieldMakerImpl()//.setName("title130")
         .addQuery("title_130", standardDataFieldSPARQL("130"))
         .addResultSetToFields(new Title130()),
 
-        new SPARQLFieldMakerImpl().setName("title_changes")
+        new SPARQLFieldMakerImpl()//.setName("title_changes")
         .addQuery("added_entry", standardDataFieldGroupSPARQL("marcrdf:AddedEntry"))
         .addQuery("linking_entry", standardDataFieldGroupSPARQL("marcrdf:LinkingEntry"))
         .addResultSetToFields(new TitleChange()),
 
-        new SPARQLFieldMakerImpl().setName("title_series_display")
+        new SPARQLFieldMakerImpl()//.setName("title_series_display")
         .addQuery("title_series", standardDataFieldGroupSPARQL("marcrdf:Series"))
         .addResultSetToFields(new TitleSeries()),
 
-        new SPARQLFieldMakerImpl().setName("author and main title")
+        new SPARQLFieldMakerImpl()//.setName("author and main title")
         .addQuery("title", standardDataFieldSPARQL("245"))
         .addQuery("title_240", standardDataFieldSPARQL("240"))
         .addQuery("main_entry", standardDataFieldGroupSPARQL("marcrdf:MainEntryAuthor"))
         .addResultSetToFields(new AuthorTitle()),
 
-        new SPARQLFieldMakerImpl().setName("table of contents")
+        new SPARQLFieldMakerImpl()//.setName("table of contents")
         .addQuery("table of contents", standardDataFieldSPARQL("505"))
         .addResultSetToFields(new TOC()),
 
-        new SPARQLFieldMakerImpl().setName("notes")
+        new SPARQLFieldMakerImpl()//.setName("notes")
         .addQuery("notes", standardDataFieldGroupSPARQL("marcrdf:SimpleProcFields"))
         .addResultSetToFields(new SimpleProc()),
 
-        new SPARQLFieldMakerImpl().setName("urls")
+        new SPARQLFieldMakerImpl()//.setName("urls")
         .addQuery("urls", standardDataFieldSPARQL("856"))
         .addQuery("locations", standardHoldingsDataFieldSPARQL("852"))
         .addQuery("urls_mfhd", standardHoldingsDataFieldSPARQL("856"))
@@ -101,53 +101,53 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
 
         getHathiLinks(),
 
-        new SPARQLFieldMakerImpl().setName("database codes")
+        new SPARQLFieldMakerImpl()//.setName("database codes")
         .addQuery("899", standardDataFieldSPARQL("899"))
         .addResultSetToFields(new DBCode()),
 
-        new SPARQLFieldMakerImpl().setName("citation_reference_note")
+        new SPARQLFieldMakerImpl()//.setName("citation_reference_note")
         .addQuery("field510", standardDataFieldSPARQL("510"))
         .addResultSetToFields(new CitationReferenceNote()),
 
-        new SPARQLFieldMakerImpl().setName("instrumentation")
+        new SPARQLFieldMakerImpl()//.setName("instrumentation")
         .addQuery("instrumentation", standardDataFieldSPARQL("382"))
         .addResultSetToFields(new Instrumentation()),
 
-        new SPARQLFieldMakerImpl().setName("finding_aids_index_notes")
+        new SPARQLFieldMakerImpl()//.setName("finding_aids_index_notes")
         .addQuery("finding_index_notes", standardDataFieldSPARQL("555"))
         .addResultSetToFields(new FindingAids()),
 
-        new SPARQLFieldMakerImpl().setName("fact_or_fiction")
+        new SPARQLFieldMakerImpl()//.setName("fact_or_fiction")
         .addQuery("eight", standardControlFieldSPARQL("008"))
         .addQuery("leader",standardLeaderSPARQL())
         .addResultSetToFields(new FactOrFiction()),
 
-        new SPARQLFieldMakerImpl().setName("subject")
+        new SPARQLFieldMakerImpl()//.setName("subject")
         .addQuery("subjects", standardDataFieldGroupSPARQL("marcrdf:SubjectTermEntry"))
         .addResultSetToFields(new Subject()),
 
-        new SPARQLFieldMakerImpl().setName("newbooks")
+        new SPARQLFieldMakerImpl()//.setName("newbooks")
         .addQuery("007", standardControlFieldSPARQL("007"))
         .addQuery("948", standardDataFieldSPARQL("948"))
         .addQuery("mfhdControl", standardHoldingsControlFieldGroupSPARQL("marcrdf:ControlFields"))
         .addQuery("mfhd852", standardHoldingsDataFieldSPARQL("852"))
         .addResultSetToFields(new NewBooks()),
 
-        new SPARQLFieldMakerImpl().setName("isbn")
+        new SPARQLFieldMakerImpl()//.setName("isbn")
         .addQuery("isbn", standardDataFieldSPARQL("020"))
         .addResultSetToFields(new ISBN())
     );
   }
 
-  public static SPARQLFieldMakerImpl getHathiLinks() {
-    return new SPARQLFieldMakerImpl().setName("hathi links")
+  private static SPARQLFieldMakerImpl getHathiLinks() {
+    return new SPARQLFieldMakerImpl()//.setName("hathi links")
         .addQuery("oclcid", standardDataFieldSPARQL("035"))
         .addQuery("903_barcode", standardDataFieldSPARQL("903"))
         .addResultSetToFields(new HathiLinks());
   }
 
-  public static SPARQLFieldMakerImpl getLanguageFieldMaker() {
-    return new SPARQLFieldMakerImpl().setName("language")
+  private static SPARQLFieldMakerImpl getLanguageFieldMaker() {
+    return new SPARQLFieldMakerImpl()//.setName("language")
         .addQuery("language_008", standardControlFieldSPARQL("008"))
         .addQuery("language_note", standardDataFieldSPARQL("546"))
         .addQuery("languages_041", standardDataFieldSPARQL("041"))
@@ -224,4 +224,5 @@ public class RecordToDocumentMARC extends RecordToDocumentBase {
         + " ?sfield marcrdf:code ?code.\n"
         + " ?sfield marcrdf:value ?value. }";
   }
+
 }

@@ -31,8 +31,6 @@ import edu.cornell.library.integration.marc.Subfield;
  * 
  */
 public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
-	
-	final static Boolean debug = false;
 
 	@Override
 	public Map<String, SolrInputField> toFields(
@@ -89,7 +87,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings"); }
 
-  	static Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
+  	private static Integer twoYearsAgo = Integer.valueOf(twoYearsAgo());
   	@Override
 	public SolrFields generateSolrFields ( MarcRecord bib, Config config ) {
 	  	Collection<String> loccodes = new HashSet<>();
@@ -149,7 +147,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 
 	  	// Stop processing if record is microform
 	  	for (ControlField f : bib.controlFields)
-	  		if (f.tag.equals("007") && ! f.value.isEmpty() && f.value.substring(0,1).equals('h'))
+	  		if (f.tag.equals("007") && ! f.value.isEmpty() && f.value.substring(0,1).equals("h"))
 	  			return vals;
 
 	  	Integer acquiredDate = null;
@@ -159,7 +157,6 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 	  			acquiredDate = date;
 	  	}
 	  	if (acquiredDate != null) {
-		  	if (debug) System.out.println("Of "+f948as.size()+" recent 948a's, "+acquiredDate+" seems to be the most recent.");
 		  	String date_s = acquiredDate.toString().replaceAll("(\\d{4})(\\d{2})(\\d{2})", "$1-$2-$3T00:00:00Z");
 		  	vals.add(new SolrField("acquired_dt",date_s));
 		  	vals.add(new SolrField("acquired_month",date_s.substring(0,7)));
@@ -167,7 +164,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 		return vals;
 	}
 	
-    public static String twoYearsAgo(  ) {
+    private static String twoYearsAgo(  ) {
     	Calendar now = Calendar.getInstance();
     	String thisYear = new SimpleDateFormat("yyyy").format(now.getTime());
     	Integer twoYearsAgo = Integer.valueOf(thisYear) - 2;

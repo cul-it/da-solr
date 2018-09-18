@@ -17,8 +17,6 @@ import edu.cornell.library.integration.marc.DataField;
  */
 public class CallNumber {
 
-	final boolean debug = false;
-
 	// Solr field names
 	private final static String sort =   "callnum_sort";
 	private final static String search = "lc_callnum_full";
@@ -159,7 +157,7 @@ public class CallNumber {
 		}
 	}
 
-	public static class Sort implements Comparable<Sort>{
+	private static class Sort implements Comparable<Sort>{
 		String sortVal;
 		Boolean isLC;
 		Boolean isHolding;

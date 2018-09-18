@@ -16,6 +16,5 @@ public interface RecordToDocument {
 	 * @throws Exception */
 	public 	SolrInputDocument buildDoc(String recordURI, Config config ) 
 	throws RDFServiceException, Exception;
- 
-	public RecordToDocument setDebug(boolean d);
+
 }

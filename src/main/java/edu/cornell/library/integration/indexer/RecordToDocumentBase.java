@@ -29,13 +29,7 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	
 	/** list of objects to build the fields of the solr doc. */
 	abstract List<? extends FieldMaker> getFieldMakers();	
-	
-	public RecordToDocument setDebug(boolean d){
-		debug = d;
-		return this;
-	}
-	boolean debug = false;
-	
+
 	/** Factory for empty local in-memory RDF stores. */
 	static RDFServiceFactory getLocalStoreFactory(){		
 		return new RDFServiceFactory(){
@@ -71,15 +65,10 @@ public abstract class RecordToDocumentBase implements RecordToDocument{
 	public SolrInputDocument buildDoc(String recordURI,
 			Config config) throws Exception {	
 
-		if(debug)
-			System.out.println("building document for " + recordURI);
-
 		//get all the fields
 		SolrInputDocument doc = new SolrInputDocument();
 		for( FieldMaker maker : getFieldMakers()){
-			if( debug )
-				System.out.println("executing: " + maker.getName());
-			
+
 			try {
 				//this needs to merge the values from fields with the same key
 				combineFields( doc, maker.buildFields(recordURI,config));

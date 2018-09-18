@@ -68,9 +68,7 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.jena.model.RDFServiceMod
  */
 public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 	Log log = LogFactory.getLog(BibFileIndexingMapper.class);
-	
-	protected boolean debug = false;
-	
+
     //hadoop directory for the input splits that are completed 
     Path doneDir;
 	
@@ -263,7 +261,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 			if( doc == null ){
 				throw new Exception("No document created for " + bibUri);				
 			}
-			//if (debug) System.out.println(IndexingUtilities.prettyFormat( ClientUtils.toXML( doc ) ));
 		}catch(Throwable er){			
 			throw new Exception ("Could not create solr document for " +bibUri, er);			
 		}
@@ -297,8 +294,6 @@ public class BibFileIndexingMapper <K> extends Mapper<K, Text, Text, Text>{
 				      QuerySolution soln = results.nextSolution() ;
 				      Resource r = soln.getResource("URI") ; //result variable must be a resource
 				      bibUris.add( r.getURI() );
-				      if (debug)
-				    	  log.info("URI in file: "+r.getURI() );
 				    }
 				  } finally { qexec.close() ; }
 			}catch(com.hp.hpl.jena.query.QueryParseException ex){

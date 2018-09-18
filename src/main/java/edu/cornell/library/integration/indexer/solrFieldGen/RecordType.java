@@ -28,8 +28,6 @@ import edu.cornell.library.integration.marc.Subfield;
  */
 public class RecordType implements ResultSetToFields, SolrFieldGenerator {
 
-	protected boolean debug = false;
-	
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, ResultSet> results, Config config) throws Exception {

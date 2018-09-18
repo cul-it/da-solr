@@ -61,9 +61,7 @@ import edu.cornell.library.integration.webdav.DavService;
 //TODO: The coding for individual files as src or dest material is 
 // incomplete and untested where it exists.
 public class MarcXmlToRdf {
-	
-	private static Boolean debug = false;
-	
+
 	private static String logfile = "xmltordf.log";
 	private static BufferedWriter logout;
 	private Integer groupsize = 1000;
@@ -357,7 +355,6 @@ public class MarcXmlToRdf {
 				for (Path file: stream) {
 					String filename = file.toString();
 					if (filename.endsWith(".gz")) continue;
-					if (debug) System.out.println("gzipping "+filename);
 					IndexingUtilities.gzipFile(filename,filename+".gz");
 				}
 			}
@@ -470,8 +467,6 @@ public class MarcXmlToRdf {
 						String targetFile = (destFilenamePrefix != null) 
 								? dirToProcessInto+"/"+destFilenamePrefix+"."+swapFileExt(currentInputFile)
 										: dirToProcessInto+"/"+swapFileExt(currentInputFile);
-						if (debug)
-							System.out.println("Opening output handle for "+targetFile);
 						out = openFileForWrite(targetFile);
 					} else {
 						// dest is a file, and not on dav

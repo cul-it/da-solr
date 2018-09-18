@@ -52,8 +52,6 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  */
 public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 
-	private static Boolean debug = false;
-
 	@Override
 	public Map<String, SolrInputField> toFields(
 			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
@@ -255,8 +253,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 		SolrFields callNumberSolrFields = cn.getCallNumberFields(config);
 		sfs.addAll(callNumberSolrFields);
 
-		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
-
 		// ITEM DATA
 		Integer emptyItemCount[] = {0};
 		try (Connection conn = config.getDatabaseConnection("Voy")){
@@ -370,8 +366,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 
         	boolean foundItems = false;
 
-			if (debug)
-				System.out.println(h.id);
 			String query = 
 					"SELECT CORNELLDB.MFHD_ITEM.*,"
 					+ "     CORNELLDB.ITEM.*,"
@@ -384,8 +378,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
-			if (debug)
-				System.out.println(query);
 
 	        ResultSetMetaData rsmd = null;
 	        try (Statement stmt = conn.createStatement();
@@ -400,9 +392,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 	        		String loc = null;
 	        		Location tempLibrary = null;
 	        		String barcode = "";
-	        		
-	        		if (debug) 
-	        			System.out.println();
+
 	        		for (int i=1; i <= mdcolumnCount ; i++) {
 	        			String colname = rsmd.getColumnName(i).toLowerCase();
 	        			if (colname.equals("create_location_id")
@@ -438,8 +428,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 	       				if ((colname.equals("temp_location")
 	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
-	       					if (debug)
-	       						System.out.println(colname+": "+value);
 	       					Location l = locations.getByNumber(Integer.valueOf(value));
 	       					if (l != null) {
 		       					if (colname.equals("perm_location"))
@@ -450,8 +438,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 	       					} else record.put(colname, value);
 	       				} else {
 	       					record.put(colname, value);
-	       					if (debug)
-	       						System.out.println(colname+": "+value);
 	       				}
 	        		}
 	        		
@@ -585,8 +571,6 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 
 		for (Map<String,Object> record : items.values()) {
 	 		String json = mapper.writeValueAsString(record);
-			if (debug)
-				System.out.println(json);
 			sfs.add(new SolrField( "item_record_display",json) );
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));

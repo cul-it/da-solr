@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,13 +52,10 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
  */
 public class Config {
 
-	protected static boolean debug = false;
-
 	private Map<String,String> values = new HashMap<>();
 	private Map<String,ComboPooledDataSource> databases = new HashMap<>();
 	private Map<String,RDFService> rdfservices = new HashMap<>();
-    static DavService davService = null;
-    private List<Class<?>> debugRSTFs = new ArrayList<>();
+    private static DavService davService = null;
     
     public static List<String> getRequiredArgsForDB( String db ) {
     	List<String> list = new ArrayList<>();
@@ -78,13 +74,6 @@ public class Config {
     	list.add("webdavUser");
     	list.add("webdavPassword");
     	return list;
-    }
-
-    public void setDebugRSTFClass( Class<?> c ) {
-    	debugRSTFs.add(c);
-    }
-    public boolean isDebugClass( Class<?> c ) {
-    	return debugRSTFs.contains(c);
     }
 
     public Boolean isProduction( ) {
@@ -290,14 +279,6 @@ public class Config {
 		return null;
     }
 
-    public String getDailyItemDir() throws IOException {
-    	if (values.containsKey("dailyItemDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyItemDir"));
-    		return values.get("dailyItemDir");
-    	}
-		return null;
-    }
-
     public String getDailyItemFilenamePrefix() {
     	if (values.containsKey("dailyItemFilenamePrefix")) {
     		return values.get("dailyItemFilenamePrefix");
@@ -309,28 +290,6 @@ public class Config {
     	if (values.containsKey("dailyMfhdSuppressedDir")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdSuppressedDir"));
     		return values.get("dailyMfhdSuppressedDir");
-    	}
-		return null;
-    }
-
-    public String getDailyMfhdSuppressedFilenamePrefix() {
-    	if (values.containsKey("dailyMfhdSuppressedFilenamePrefix")) {
-    		return values.get("dailyMfhdSuppressedFilenamePrefix");
-    	}
-		return null;
-    }
-
-    public String getDailyMfhdUnsuppressedDir() throws IOException {
-    	if (values.containsKey("dailyMfhdUnsuppressedDir")) {
-    		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyMfhdUnsuppressedDir"));
-    		return values.get("dailyMfhdUnsuppressedDir");
-    	}
-		return null;
-    }
-
-    public String getDailyMfhdUnsuppressedFilenamePrefix() {
-    	if (values.containsKey("dailyMfhdUnsuppressedFilenamePrefix")) {
-    		return values.get("dailyMfhdUnsuppressedFilenamePrefix");
     	}
 		return null;
     }
@@ -548,9 +507,7 @@ public class Config {
     	Boolean pooling = true; //default if not specified in config
     	if (values.containsKey("databasePooling"+id))
     		pooling = Boolean.valueOf( values.get("databasePooling"+id) );
-    	
-    	if (debug) System.out.println("Database connection pooling: "+pooling);
-    	
+
     	if ( pooling )  {
 	    	if ( ! databases.containsKey(id)) {
 		    	ComboPooledDataSource cpds = new ComboPooledDataSource(); 
@@ -576,7 +533,6 @@ public class Config {
 		    	cpds.setInitialPoolSize(1);
 		    	databases.put(id, cpds);
 	    	}
-	    	if (debug) System.out.println("Connection pool established. Obtaining and returning connection.");
 	    	Connection c = databases.get(id).getConnection();
         	if (driver.contains("mysql")) {
             	try (Statement stmt = c.createStatement()) {
@@ -587,18 +543,13 @@ public class Config {
     	}
 		Class.forName(driver);
 	   
-		if (debug) System.out.println("Establishing database connection.");
 		Connection c = DriverManager.getConnection(url,user,pass);
-		if (debug) System.out.println("database connection established.");
 		if (driver.contains("mysql")) {
 			try (Statement stmt = c.createStatement()) {
 				stmt.executeUpdate("SET NAMES utf8");
 			}
 		}
 		return c;
-    }
-    public void setDatabaseMaxStatements(String id, int maxStatements) {
-    	values.put("databaseMaxStatements"+id, String.valueOf(maxStatements));
     }
     public void setDatabasePoolsize(String id, int size) {
     	values.put("databasePoolsize"+id, String.valueOf(size));
@@ -628,8 +579,6 @@ public class Config {
     public Configuration valuesToHadoopConfig(Configuration hadoopConf) {
     	for (String key : values.keySet())  {
     		hadoopConf.set(key, values.get(key));
-    		if (debug)
-    			System.out.println("Copying "+key+" to hadoopConfig");
     	}
     	return hadoopConf;
     }
@@ -645,52 +594,12 @@ public class Config {
             Map.Entry<String, String> entry = i.next();
             String field = entry.getKey();
             String value = entry.getValue();
-            if (debug) System.out.println(field+" => "+value);
         	String valueWDate = insertIterationContext(value);
-        	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
         	solrBuildConfig.values.put(field,valueWDate);
-        }
-        if (solrBuildConfig.values.containsKey("debugRSTF")) {
-        	String[] debugClasses = solrBuildConfig.values.get("debugRSTF").split(",\\s*");
-        	for (String className : debugClasses) {
-        		try {
-        			solrBuildConfig.setDebugRSTFClass(
-        					Class.forName("edu.cornell.library.integration.indexer.solrFieldGen."+className));
-				} catch (ClassNotFoundException e) {
-					System.out.println("Debug for class "+className+" failed due to ClassNotFoundException.");
-					e.printStackTrace();
-				}
-        	}
         }
     	return solrBuildConfig;
     }
-    
-    /**
-     * A utility method to load properties from command line or environment.
-     * 
-     * Configured jobs on integration servers or automation systems are
-     * expected to use the environment variable VOYAGER_TO_SOLR_CONFIG to indicate the property
-     * file to use.
-     * 
-     * Development jobs are expected to use command line arguments.
-     *  
-     * If properties files exist on the command line use those, 
-     * If the environment variable VOYAGER_TO_SOLR_CONFIG exists use those,
-     * If both environment variable VOYAGER_TO_SOLR_CONFIG and command line arguments exist, 
-     * throw an error because that is a confused state and likely a problem.
-     *  
-     * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma separated list of files.
-     * 
-     *  argv may be null to force use of the environment variable. Should be 
-     *  argv from main().
-     * @throws Exception if no configuration is found or if there are problems with the configuration.
-     */
-    @Deprecated
-    public static Config loadConfig( String[] argv ) {
-    	Collection<String> requiredFields = new HashSet<>();
-        return loadConfig(argv,requiredFields);        
-    }
-    
+
     /**
      * A utility method to load properties from command line or environment.
      * 
@@ -748,7 +657,6 @@ public class Config {
     	List<InputStream> inputStreams = new ArrayList<>();
     	for (String arg : argv) {
     		if (arg.endsWith(".properties")) {
-    			if (debug) System.out.println("loading from command line arg: "+arg);
     			inputStreams.add(getFile(arg));
     		}
     	}
@@ -778,7 +686,7 @@ public class Config {
      * 
      * If inB is null, only inA will be loaded. 
      */
-    public static Config loadFromPropertiesFile(List<InputStream> inputs) 
+    private static Config loadFromPropertiesFile(List<InputStream> inputs) 
             throws IOException{
         
         Properties prop = new Properties();
@@ -789,14 +697,11 @@ public class Config {
         
         Config conf = new Config();
 
-        if (debug) System.out.println("Adding all properties to program config.");
         Iterator<String> i = prop.stringPropertyNames().iterator();
         while (i.hasNext()) {
         	String field = i.next();
         	String value = prop.getProperty(field);
-        	if (debug) System.out.println(field+" => "+value);
         	String valueWDate = insertIterationContext(value);
-        	if (debug) if ( ! value.equals(valueWDate)) System.out.println("\t\t==> "+valueWDate);
         	conf.values.put(field,valueWDate);
         	
         }
@@ -828,13 +733,13 @@ public class Config {
     	}
 		return value;
     }
-	static String today = null;
+	private static String today = null;
  
     /**
      * Returns empty String if configuration is good.
      * Otherwise, it returns a message describing what is missing or problematic.
      */
-    public static String checkConfiguration( Collection<String> requiredArgs, Config checkMe){
+    private static String checkConfiguration( Collection<String> requiredArgs, Config checkMe){
         String errMsgs = "";
 
         // fields required for select processes
@@ -943,7 +848,7 @@ public class Config {
     	davService.mkDirRecursive( path );
     }
     
-    protected static InputStream getFile(String name ) throws FileNotFoundException{
+    private static InputStream getFile(String name ) throws FileNotFoundException{
         File f = new File(name);
         if( f.exists() ){
             return new FileInputStream(f);
@@ -958,9 +863,9 @@ public class Config {
     /**
      * Name of environment variable for configuration files.
      */
-    public final static String VOYAGER_TO_SOLR_CONFIG = "VoyagerToSolrConfig";
+    private final static String VOYAGER_TO_SOLR_CONFIG = "VoyagerToSolrConfig";
     
-    public final static String HELP = 
+    private final static String HELP = 
             "On the command line the first two parameters may be configuration property files.\n"+
             "Ex. java someClass staging.properties dav.properties \n" +
             "Or the environment variable VoyagerToSolrConfig can be set to one or two properties files:\n" +

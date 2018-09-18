@@ -31,8 +31,6 @@ import edu.cornell.library.integration.marc.Subfield;
  */
 public class Format implements ResultSetToFields, SolrFieldGenerator {
 
-	protected boolean debug = false;
-
 	private static Collection<String> rareLocCodes = Arrays.asList(
 			"asia,ranx","asia,rare",
 			"ech,rare","ech,ranx",
@@ -129,20 +127,16 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 		Boolean isMicroform = false;
 		String format = null;
 		
-		if (category.equals("h")) {
+		if (category.equals("h"))
 			isMicroform = true;
-			if (debug) System.out.println("Microform due to category:h.");
-		}
 
 		Iterator<String> i = sf245hs.iterator();
 		while (i.hasNext())
 			if (i.next().toLowerCase().contains("[electronic resource]")) {
 				Iterator<String> j = sf948fs.iterator();
 				while (j.hasNext())
-					if (j.next().toLowerCase().equals("j")) {
+					if (j.next().toLowerCase().equals("j"))
 						format = "Journal/Periodical";
-						if (debug) System.out.println("Journal/Periodical format due to 245h: [electronic resource] and 948f: j.");
-					}			
 			}
 
 
@@ -151,30 +145,23 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 			String val = i.next();
 			if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
 				format = "Database";
-				if (debug) System.out.println("format:Database due to 948f: webfeatdb OR fd.");
 				
 				// format:Database differs from database_b flag.
 				// The latter is used for Database ERMS.
-				if (val.equals("webfeatdb")) {
+				if (val.equals("webfeatdb"))
 					isDatabase = true;
-					if (debug) System.out.println("Database_b true due to 948f: webfeatdb.");
-				}
 			}
 		}
 
 		i = sf653as.iterator();
 		while (i.hasNext()) {
 			String val = i.next();
-			if (val.equalsIgnoreCase("research guide")) {
+			if (val.equalsIgnoreCase("research guide"))
 				format = "Research Guide";
-				if (debug) System.out.println("format:Research Guide due to 653a: research guide.");
-			} else if (val.equalsIgnoreCase("course guide")) {
+			else if (val.equalsIgnoreCase("course guide"))
 				format = "Course Guide";
-				if (debug) System.out.println("format:Course Guide due to 653a: course guide.");
-			} else if (val.equalsIgnoreCase("library guide")) {
+			else if (val.equalsIgnoreCase("library guide"))
 				format = "Library Guide";
-				if (debug) System.out.println("format:Library Guide due to 653a: library guide.");
-			}
 		}
 
 		if (format == null) {
@@ -182,115 +169,80 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 				if ((bibliographic_level.equals("a"))
 						|| (bibliographic_level.equals("m"))
 						|| (bibliographic_level.equals("d"))
-						|| (bibliographic_level.equals("c")) ) {
+						|| (bibliographic_level.equals("c")) )
 					format = "Book";
-					if (debug) System.out.println("Book due to record_type:a and bibliographic_level in: a,m,d,c.");
-				} else if ((bibliographic_level.equals("b"))
-						|| (bibliographic_level.equals("s"))) {
+				else if ((bibliographic_level.equals("b"))
+						|| (bibliographic_level.equals("s")))
 					format = "Journal/Periodical";
-					if (debug) System.out.println("Journal/Periodical due to record_type:a and bibliographic_level in: b,s.");
-				} else if (bibliographic_level.equals("i")) {
-					if (typeOfContinuingResource.equals("w")) {
+				else if (bibliographic_level.equals("i")) {
+					if (typeOfContinuingResource.equals("w"))
 						format = "Website";
-						if (debug) System.out.println("Website due to record_type:a, bibliographic_level:i and typeOfContinuingResource:w.");
-					} else if (typeOfContinuingResource.equals("m")) {
+					else if (typeOfContinuingResource.equals("m"))
 						format = "Book";
-						if (debug) System.out.println("Book due to record_type:a, bibliographic_level:i and typeOfContinuingResource:m.");
-					} else if (typeOfContinuingResource.equals("d")) {
+					else if (typeOfContinuingResource.equals("d"))
 						format = "Database";
-						if (debug) System.out.println("Database due to record_type:a, bibliographic_level:i and typeOfContinuingResource:d.");
-					} else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("p")) {
+					else if (typeOfContinuingResource.equals("n") || typeOfContinuingResource.equals("p"))
 						format = "Journal/Periodical";
-						if (debug) System.out.println("Journal/Periodical due to record_type:a, bibliographic_level:i and typeOfContinuingResource in:n,p.");
-					}
+
 				}
 			} else if (record_type.equals("t")) {
-				if (bibliographic_level.equals("a")) {
+				if (bibliographic_level.equals("a"))
 					format = "Book";
-					if (debug) System.out.println("Book due to record_type:t and bibliographic_level: a.");
-				}
-			} else if ((record_type.equals("c"))
-					|| (record_type.equals("d"))) {
+			} else if ((record_type.equals("c")) || (record_type.equals("d"))) {
 				format = "Musical Score";
-				if (debug) System.out.println("Musical Score due to record_type: c or d.");
-			} else if ((record_type.equals("e"))
-					|| (record_type.equals("f"))) {
+			} else if ((record_type.equals("e")) || (record_type.equals("f"))) {
 				format = "Map";
-				if (debug) System.out.println("Map due to record_type: e or f.");
 			} else if (record_type.equals("g")) {
 				format = "Video";
-				if (debug) System.out.println("Video due to record_type: g.");
 			} else if (record_type.equals("i")) {
 				format = "Non-musical Recording";
-				if (debug) System.out.println("Non-musical Recording due to record_type: i.");
 			} else if (record_type.equals("j")) {
 				format = "Musical Recording";
-				if (debug) System.out.println("Musical Recording due to record_type: j.");
 			} else if (record_type.equals("k")) {
 				format = "Image";
-				if (debug) System.out.println("Image due to record_type: k.");
 			} else if (record_type.equals("m")) {
-				if (sf948fs.contains("evideo")) {
+				if (sf948fs.contains("evideo"))
 					format = "Video";
-					if (debug) System.out.println("Video due to record_type: m and 948f: evideo.");
-				} else if (sf948fs.contains("eaudio")) {
+				else if (sf948fs.contains("eaudio"))
 					format = "Musical Recording";
-					if (debug) System.out.println("Musical Recording due to record_type: m and 948f: eaudio.");
-				} else if (sf948fs.contains("escore")) {
+				else if (sf948fs.contains("escore"))
 					format = "Musical Score";
-					if (debug) System.out.println("Musical Score due to record_type: m and 948f: escore.");
-				} else if (sf948fs.contains("emap")) {
+				else if (sf948fs.contains("emap"))
 					format = "Map";
-					if (debug) System.out.println("Map due to record_type: m and 948f: emap.");
-				} else {
+				else
 					format = "Computer File";
-					if (debug) System.out.println("Computer File due to record_type: m and 948f not in: eaudio, evideo, escore.");
-				}
 			} else if (record_type.equals("o")) {
 				format = "Kit";
-				if (debug) System.out.println("Kit due to record_type: o.");
 			} else if (record_type.equals("p")) { // p means "mixed materials", classifying as 
 				Iterator<String> iter = loccodes.iterator();   // archival if in rare location
 				while (iter.hasNext()) {
 					String loccode = iter.next();
 					if (rareLocCodes.contains(loccode)) {
 						format = "Manuscript/Archive"; //ARCHIVAL
-						if (debug) System.out.println("Manuscript/Archive due to record_type: p and loccode on rare location list.");
 						break;
 					}
 				}
-				if (debug)
-					if ( format == null )
-						System.out.println("format:Miscellaneous due to record_type: p and no rare location code.");
 			} else if (record_type.equals("r")) {
 				format = "Object";
-				if (debug) System.out.println("Object due to record_type: r.");
 			}
 		}
 		if (format == null) {
-			if (record_type.equals("t")) {
-				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a',
-											   //captured above. MANUSCRIPT
-				if (debug) System.out.println("Manuscript/Archive due to record_type: t.");
-			} else if (category.equals("q")) {
+			if (record_type.equals("t"))
+				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a' captured above. MANUSCRIPT
+			else if (category.equals("q"))
 				format = "Musical Score";
-				if (debug) System.out.println("Musical Score due to category:q.");
-			} else if (category.equals("v")) {
+			else if (category.equals("v"))
 				format = "Video";
-				if (debug) System.out.println("Video due to category:v.");
-			} else {
+			else
 				format = "Miscellaneous";
-				if (debug) System.out.println("format:Miscellaneous due to no format conditions met.");
-			}
+
 		}
 
 		SolrFields sfs = new SolrFields();
 		if (isThesis) {  //Thesis is an "additional" format, and won't override main format entry.
 			sfs.add(new SolrField("format","Thesis"));
-			if (format.equals("Manuscript/Archive")) {
+			if (format.equals("Manuscript/Archive")) // unless the main format is Manuscript/Archive
 				format = null;
-				if (debug) System.out.println("Not Manuscript/Archive due to collision with format:Thesis.");				
-			}
 		}
 		if (isMicroform) {  //Microform is an "additional" format, and won't override main format entry.
 			sfs.add(new SolrField("format","Microform"));

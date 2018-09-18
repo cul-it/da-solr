@@ -16,9 +16,6 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 public abstract class SPARQLFieldMakerBase implements FieldMaker{
 
-	/** Human readable name for this FieldMaker. Used in debugging */
-	String name;
-
 	/** Gets the SPARQL queries to run. These get run against the
 	 * main store. This should return a 
 	 * Map of name_for_query -> SPARQL_query */
@@ -26,8 +23,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 
 	Map<String,String> defaultPrefixes;
 
-	protected boolean debug = false;
-	
 	public SPARQLFieldMakerBase() {
 		this.defaultPrefixes = new HashMap<>();
 		defaultPrefixes.put("marcrdf", "http://marcrdf.library.cornell.edu/canonical/0.1/");
@@ -37,11 +32,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		defaultPrefixes.put("xsd",     "http://www.w3.org/2001/XMLSchema#");
 		
 	}
-	
-	public String getName() {
-		return name;
-	}
-	// setName(String name) is in implementations for fluent style
 
 	public Map<String, String> getQueries() {
 		return queries;
@@ -71,14 +61,7 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 					}
 					querybuild.append(substituteInRecordURI( recordURI, queries.get(queryName) ));
 					String query = querybuild.toString();
-					debugRemoteQuery( query );
 					ResultSet rs = sparqlSelectQuery(query, triplestore);
-					if (debug && query.contains("loccode")) {
-						try ( InputStream is = triplestore.sparqlSelectQuery(query, RDFService.ResultFormat.TEXT) ) {
-							String bib_xml = convertStreamToString(is);
-							System.out.println(bib_xml);
-						}
-					}
 					results.put(queryName, rs);			
 				}
 			}
@@ -106,13 +89,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 	}	
 	
 	
-	private void debugRemoteQuery(String query) {
-		if( debug ) {
-			if (query.contains("loccode"))
-				System.out.println("Remote query for " + getName() + ":'" + query + "'");
-		}
-	}
-
 	/**
 	 * Convert the result sets generated from running the SPARQL queries to
 	 * SolrInputFields.
