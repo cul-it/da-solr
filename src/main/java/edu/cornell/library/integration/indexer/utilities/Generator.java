@@ -28,6 +28,7 @@ public enum Generator { // NO_UCD
 	NEWBOOKS(    NewBooks.class ),
 	RECORDTYPE(  RecordType.class ),
 	RECORDBOOST( RecordBoost.class ),
+	OTHERIDS(    OtherIDs.class ),
 	@Deprecated
 	HOLDINGS(    HoldingsAndItems.class);
 

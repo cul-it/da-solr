@@ -32,7 +32,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
  *		Generator.AUTHORTITLE, Generator.SUBJECT));
  * gen.generateSolr(rec, config);</pre> *
  */
-public class GenerateSolrFields {
+class GenerateSolrFields {
 
 	// INSTANCE VARIABLES
 	private final EnumSet<Generator> activeGenerators; // provided to constructor
@@ -41,7 +41,7 @@ public class GenerateSolrFields {
 	private Map<Generator,Timestamp> generatorTimestamps = null; // generated on first generateSolr() call
 
 	// CONSTRUCTOR
-	public GenerateSolrFields( EnumSet<Generator> activeGenerators, String tableNamePrefix ) {
+	GenerateSolrFields( EnumSet<Generator> activeGenerators, String tableNamePrefix ) {
 		this.activeGenerators = activeGenerators;
 		this.tableNamePrefix = tableNamePrefix;
 		this.fieldsSupported = constructFieldsSupported( activeGenerators );
@@ -71,7 +71,7 @@ public class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	public String generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
+	String generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -102,11 +102,11 @@ public class GenerateSolrFields {
 				sectionsGenerated++;
 		}
 
-		System.out.println(rec.id+": "+sectionsGenerated+" generated, "
-				+sectionsChanged+" sections ("+changedOutputs.toString()+") changed.");
-		if (sectionsGenerated > 0) {
+		System.out.println(rec.id+": "+sectionsGenerated+" generated, "+sectionsChanged+" sections ("+
+				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+") changed.");
+		if (sectionsChanged > 0) {
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,config);
-			return changedOutputs.toString();
+			return (sectionsChanged == activeGenerators.size())?"all Solr field segments":changedOutputs.toString();
 		}
 		touchBibVisitDate(tableNamePrefix,rec.id, config);
 		return null;
@@ -188,7 +188,7 @@ public class GenerateSolrFields {
 		}
 		
 	}
-	static String sql = null;
+	private static String sql = null;
 
 
 	private static void touchBibVisitDate(String tableNamePrefix, String bibId, Config config) throws ClassNotFoundException, SQLException {

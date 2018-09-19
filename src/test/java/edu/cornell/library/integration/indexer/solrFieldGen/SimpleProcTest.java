@@ -72,16 +72,6 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void test035() throws ClassNotFoundException, SQLException, IOException {
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)924835975"));
-		String expected =
-		"other_id_display: (OCoLC)924835975\n"+
-		"id_t: (OCoLC)924835975\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
-	}
-
-	@Test
 	public void testEdition() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"250",' ',' ',"‡a First edition."));

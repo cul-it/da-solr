@@ -41,12 +41,12 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 	}
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
 		return Arrays.asList(
-				"010","022","024","028","035","210","222","242","243","246","247","250","255","300","310",
+				"010","022","210","222","242","243","246","247","250","255","300","310",
 				"362","500","501","502","503","504","506","508","511","513","515","518","520","521","522",
 				"523","524","525","527","530","533","534","535","537","538","540","541","544","545","547",
 				"550","556","561","565","567","570","580","582","773","856","899","902","903","940");
@@ -83,27 +83,6 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 				displayField = "issn_display";
 				displaySubfields = "a";
 				searchSubfields = "al";
-				break;
-			case 24:
-				searchField = "id_t";
-				cjkSearchField = "id_t_cjk";
-				displayField = "other_identifier_display";
-				displaySubfields = "a";
-				searchSubfields = "a";
-				break;
-			case 28:
-				searchField = "id_t";
-				cjkSearchField = "id_t_cjk";
-				displayField = "publisher_number_display";
-				displaySubfields = "a";
-				searchSubfields = "a";
-				break;
-			case 35:
-				searchField = "id_t";
-				cjkSearchField = "id_t_cjk";
-				displayField = "other_id_display";
-				displaySubfields = "a";
-				searchSubfields = "a";
 				break;
 			case 74:
 			case 86:

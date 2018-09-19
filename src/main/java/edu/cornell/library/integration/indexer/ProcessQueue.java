@@ -46,7 +46,8 @@ public class ProcessQueue {
 
 		try (	Connection current = config.getDatabaseConnection("Current");
 				Statement stmt = current.createStatement();
-				PreparedStatement nextBibStmt = current.prepareStatement("SELECT bib_id FROM generationQueue LIMIT 1");
+				PreparedStatement nextBibStmt = current.prepareStatement
+						("SELECT bib_id FROM generationQueue ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
 						("SELECT id, cause, record_date FROM generationQueue WHERE bib_id = ?");
 				PreparedStatement deprioritizeStmt = current.prepareStatement
