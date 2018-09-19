@@ -6,7 +6,7 @@ import edu.cornell.library.integration.indexer.solrFieldGen.*;
  * An enumeration of classes implementing SolrFieldGenerator to be used by
  * GenerateSolrFields. Enumeration keys should be at most 24 characters.
  */
-public enum Generator {
+public enum Generator { // NO_UCD
 	AUTHORTITLE( AuthorTitle.class ),
 	TITLE130(    Title130.class ),
 	SUBJECT(     Subject.class ),

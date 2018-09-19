@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.indexer.utilities.Generator;
 import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.Generator;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -71,7 +71,7 @@ public class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	public int generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
+	public String generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -89,25 +89,28 @@ public class GenerateSolrFields {
 			.collect(Collectors.toList());
 
 		int sectionsChanged = 0, sectionsGenerated = 0;
+
+		EnumSet<Generator> changedOutputs = EnumSet.noneOf(Generator.class);
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
-			Generator gen = newGeneratorData.gen;
-			System.out.println("Generator: "+gen+
-					"; MARC Segment: "+newGeneratorData.marcStatus+
-					"; Solr fields: "+newGeneratorData.solrStatus);
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
-					newGeneratorData.solrStatus.equals(Status.CHANGED))
+					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
 				sectionsChanged++;
+				changedOutputs.add(newGeneratorData.gen);
+			}
 			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
 				sectionsGenerated++;
 		}
 
-		System.out.println(rec.id+": "+sectionsGenerated+" generated, "+sectionsChanged+" sections changed.");
-		if (sectionsGenerated > 0)
+		System.out.println(rec.id+": "+sectionsGenerated+" generated, "
+				+sectionsChanged+" sections ("+changedOutputs.toString()+") changed.");
+		if (sectionsGenerated > 0) {
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,config);
-		return sectionsChanged;
+			return changedOutputs.toString();
+		}
+		touchBibVisitDate(tableNamePrefix,rec.id, config);
+		return null;
 	}
-
 
 	/**
 	 * Create a table with the tableName specified in the constructor, in the Current database
@@ -121,6 +124,7 @@ public class GenerateSolrFields {
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
 		sbMainTableCreate.append("bib_id  INT(10) UNSIGNED NOT NULL PRIMARY KEY,\n");
+		sbMainTableCreate.append("visit_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n");
 		for ( Generator gen : activeGenerators ) {
 			String genName = gen.name().toLowerCase();
 			sbMainTableCreate.append(genName).append("_marc_segment          TEXT DEFAULT NULL,\n");
@@ -147,7 +151,7 @@ public class GenerateSolrFields {
 			EnumSet<Generator> activeGenerators,
 			List<BibGeneratorData> newValues,
 			String tableNamePrefix,
-			String bib_id,
+			String bibId,
 			Config config) throws ClassNotFoundException, SQLException {
 
 		if (sql == null) {
@@ -173,7 +177,7 @@ public class GenerateSolrFields {
 		try ( Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			int parameterIndex = 1;
-			pstmt.setString(parameterIndex++, bib_id);
+			pstmt.setString(parameterIndex++, bibId);
 			for (Generator gen : activeGenerators) {
 				BibGeneratorData data = newValuesMap.get(gen);
 				pstmt.setString(parameterIndex++, data.marcSegment);
@@ -186,14 +190,25 @@ public class GenerateSolrFields {
 	}
 	static String sql = null;
 
+
+	private static void touchBibVisitDate(String tableNamePrefix, String bibId, Config config) throws ClassNotFoundException, SQLException {
+		try ( Connection conn = config.getDatabaseConnection("Current");
+				PreparedStatement pstmt = conn.prepareStatement
+						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE bib_id = ?")) {
+			pstmt.setString(1, bibId);
+			pstmt.executeUpdate();
+		}		
+	}
+
+
 	private static Map<Generator, BibGeneratorData> pullPreviousFieldDataFromDB
-	(EnumSet<Generator> activeGenerators,String tableNamePrefix, String bib_id, Config config)
+	(EnumSet<Generator> activeGenerators,String tableNamePrefix, String bibId, Config config)
 			throws SQLException, ClassNotFoundException {
 
 		Map<Generator,BibGeneratorData> allData = new HashMap<>();
 		try ( Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+tableNamePrefix+"Data WHERE bib_id = ?") ){
-			pstmt.setInt(1, Integer.valueOf(bib_id));
+			pstmt.setInt(1, Integer.valueOf(bibId));
 			try ( ResultSet rs = pstmt.executeQuery() ) {
 				while (rs.next()) {
 					for ( Generator gen : activeGenerators) {

@@ -1,0 +1,163 @@
+  <record>
+    <leader>02581cam a2200457 i 4500</leader>
+    <controlfield tag="001">8226661</controlfield>
+    <controlfield tag="005">20170526204740.0</controlfield>
+    <controlfield tag="006">m     o  d        </controlfield>
+    <controlfield tag="007">cr bn nnnauuuu</controlfield>
+    <controlfield tag="008">130525s1963    alubh   ob    000 0 eng d</controlfield>
+    <datafield tag="035" ind1=" " ind2=" ">
+      <subfield code="a">ccn00398223</subfield>
+    </datafield>
+    <datafield tag="035" ind1=" " ind2=" ">
+      <subfield code="a">8226661</subfield>
+    </datafield>
+    <datafield tag="035" ind1=" " ind2=" ">
+      <subfield code="a">(OCoLC)559742470</subfield>
+    </datafield>
+    <datafield tag="040" ind1=" " ind2=" ">
+      <subfield code="a">CASSD</subfield>
+      <subfield code="b">eng</subfield>
+      <subfield code="e">rda</subfield>
+      <subfield code="c">CASSD</subfield>
+      <subfield code="d">NIC</subfield>
+    </datafield>
+    <datafield tag="043" ind1=" " ind2=" ">
+      <subfield code="a">n-us---</subfield>
+    </datafield>
+    <datafield tag="050" ind1=" " ind2="4">
+      <subfield code="a">E744</subfield>
+      <subfield code="b">.A44 1963</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+      <subfield code="a">American civil-military decisions :</subfield>
+      <subfield code="b">a book of case studies /</subfield>
+      <subfield code="c">edited by Harold Stein.</subfield>
+    </datafield>
+    <datafield tag="264" ind1=" " ind2="1">
+      <subfield code="a">[University, Ala.] :</subfield>
+      <subfield code="b">Published in cooperation with the Inter-University Case Program by University of Alabama Press,</subfield>
+      <subfield code="c">[1963]</subfield>
+    </datafield>
+    <datafield tag="264" ind1=" " ind2="2">
+      <subfield code="a">[Buffalo, New York] :</subfield>
+      <subfield code="b">William S. Hein &amp; Co.,</subfield>
+      <subfield code="c">[between 2009 and 2013]</subfield>
+    </datafield>
+    <datafield tag="300" ind1=" " ind2=" ">
+      <subfield code="a">1 online resource (705 pages) :</subfield>
+      <subfield code="b">maps, facsimiles.</subfield>
+    </datafield>
+    <datafield tag="336" ind1=" " ind2=" ">
+      <subfield code="a">text</subfield>
+      <subfield code="2">rdacontent</subfield>
+    </datafield>
+    <datafield tag="337" ind1=" " ind2=" ">
+      <subfield code="a">computer</subfield>
+      <subfield code="2">rdamedia</subfield>
+    </datafield>
+    <datafield tag="338" ind1=" " ind2=" ">
+      <subfield code="a">online resource</subfield>
+      <subfield code="2">rdacarrier</subfield>
+    </datafield>
+    <datafield tag="588" ind1=" " ind2=" ">
+      <subfield code="a">Description based on print version record.</subfield>
+    </datafield>
+    <datafield tag="500" ind1=" " ind2=" ">
+      <subfield code="a">"A Twentieth Century Fund study."</subfield>
+    </datafield>
+    <datafield tag="504" ind1=" " ind2=" ">
+      <subfield code="a">Includes bibliographical references.</subfield>
+    </datafield>
+    <datafield tag="505" ind1="0" ind2="0">
+      <subfield code="t">The Far Eastern crisis of 1961-1962: Stimson, Hoover, and the armed services /</subfield>
+      <subfield code="r">M.D. Reagan --</subfield>
+      <subfield code="t">The helium controversy /</subfield>
+      <subfield code="r">M.D. Reagan --</subfield>
+      <subfield code="t">Birth and death of the M-Day plan /</subfield>
+      <subfield code="r">A.A. Blum --</subfield>
+      <subfield code="t">Aid to Russia: the first year /</subfield>
+      <subfield code="r">M.D. Bernstein and F.L. Loewenheim --</subfield>
+      <subfield code="t">The United States fleet: diplomacy, strategy, and the allocation of ships (1940-1941) /</subfield>
+      <subfield code="r">R.J. Quinlan --</subfield>
+      <subfield code="t">The Italian armistice /</subfield>
+      <subfield code="r">R.J. Quinlan --</subfield>
+      <subfield code="t">Directives for the occupation of Germany: the Washington controversy /</subfield>
+      <subfield code="r">P.Y. Hammond --</subfield>
+      <subfield code="t">Super carriers and B-36 bombers: appropriations, strategy, and politics /</subfield>
+      <subfield code="r">P.Y. Hammond --</subfield>
+      <subfield code="t">To the Yalu and back /</subfield>
+      <subfield code="r">M. Lichterman --</subfield>
+      <subfield code="t">The American decision to rearm Germany /</subfield>
+      <subfield code="r">L.W. Martin --</subfield>
+      <subfield code="t">Bases in Spain /</subfield>
+      <subfield code="r">T.J. Lowi --</subfield>
+      <subfield code="t">Another TOC item /</subfield>
+      <subfield code="r">Anon</subfield>
+    </datafield>
+    <datafield tag="651" ind1=" " ind2="0">
+      <subfield code="a">United States</subfield>
+      <subfield code="x">Foreign relations</subfield>
+      <subfield code="y">20th century.</subfield>
+    </datafield>
+    <datafield tag="651" ind1=" " ind2="0">
+      <subfield code="a">United States</subfield>
+      <subfield code="x">Military policy.</subfield>
+    </datafield>
+    <datafield tag="655" ind1=" " ind2="0">
+      <subfield code="a">Electronic books.</subfield>
+    </datafield>
+    <datafield tag="700" ind1="1" ind2=" ">
+      <subfield code="a">Stein, Harold,</subfield>
+      <subfield code="d">1902-1966.</subfield>
+    </datafield>
+    <datafield tag="776" ind1="0" ind2="8">
+      <subfield code="c">Original</subfield>
+      <subfield code="w">(DLC)   62016825</subfield>
+    </datafield>
+    <datafield tag="856" ind1="4" ind2="0">
+      <subfield code="3">HeinOnline Legal Classics Library</subfield>
+      <subfield code="u">http://proxy.library.cornell.edu/login?url=http://www.heinonline.org/HOL/Page?handle=hein.beal/acmildb0001&amp;id=1&amp;collection=beal&amp;index=beal</subfield>
+      <subfield code="z">Connect to full text. Access limited to authorized subscribers.</subfield>
+    </datafield>
+    <datafield tag="899" ind1=" " ind2=" ">
+      <subfield code="a">HeinOnlineLCL</subfield>
+    </datafield>
+    <datafield tag="906" ind1=" " ind2=" ">
+      <subfield code="a">gs</subfield>
+    </datafield>
+    <datafield tag="948" ind1="2" ind2=" ">
+      <subfield code="a">20170526</subfield>
+      <subfield code="b">m</subfield>
+      <subfield code="d">batch</subfield>
+      <subfield code="e">law</subfield>
+      <subfield code="x">update</subfield>
+    </datafield>
+    <datafield tag="948" ind1="0" ind2=" ">
+      <subfield code="a">20130807</subfield>
+      <subfield code="b">i</subfield>
+      <subfield code="d">batch</subfield>
+      <subfield code="e">law</subfield>
+    </datafield>
+    <datafield tag="948" ind1="1" ind2=" ">
+      <subfield code="a">20130807</subfield>
+      <subfield code="b">s</subfield>
+      <subfield code="d">batch</subfield>
+      <subfield code="e">law</subfield>
+      <subfield code="f">ebk</subfield>
+    </datafield>
+    <datafield tag="948" ind1="3" ind2=" ">
+      <subfield code="a">20130807</subfield>
+      <subfield code="h">HeinOnline</subfield>
+      <subfield code="i">COR_HEINn20130614.mrc</subfield>
+    </datafield>
+    <datafield tag="948" ind1="2" ind2=" ">
+      <subfield code="a">20160613</subfield>
+      <subfield code="b">m</subfield>
+      <subfield code="d">batch</subfield>
+      <subfield code="e">lts</subfield>
+      <subfield code="x">WorldShare</subfield>
+    </datafield>
+    <datafield tag="995" ind1=" " ind2=" ">
+      <subfield code="a">NoEx</subfield>
+    </datafield>
+  </record>

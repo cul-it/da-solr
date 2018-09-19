@@ -38,10 +38,14 @@ public class GenerateSolrFieldsTest {
 	}
 
 	@Test
-	public void test8226661() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
+	public void testRecordModification() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
-		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" )));
+		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ));
+		rec.holdings.add(holdingRec);
 		gen.generateSolr(rec, config);
+		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ));
+		rec2.holdings.add(holdingRec);
+		gen.generateSolr(rec2, config);
 	}
 
 	private static String resourceAsString( String filename ) throws IOException {

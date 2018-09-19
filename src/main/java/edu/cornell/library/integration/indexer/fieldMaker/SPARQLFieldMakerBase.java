@@ -68,15 +68,6 @@ public abstract class SPARQLFieldMakerBase implements FieldMaker{
 		}
 		return results;
 	}
-	
-	public static String convertStreamToString(java.io.InputStream is) {
-		String answer = null;
-		try (java.util.Scanner scanner = new java.util.Scanner(is)) {
-			scanner.useDelimiter("\\A");
-			answer =  scanner.hasNext() ? scanner.next() : "";
-		}
-	    return answer;
-	}
 
 	@Override
 	public Map<? extends String, ? extends SolrInputField> buildFields(

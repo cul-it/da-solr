@@ -12,6 +12,11 @@ public class AddToQueue {
 				"INSERT INTO generationQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
+	public static PreparedStatement availabilityQueueStmt( Connection current ) throws SQLException {
+		return current.prepareStatement(
+				"INSERT INTO availabilityQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
+	}
+
 	public static void add2QueueBatch(PreparedStatement stmt, int bib_id, Timestamp mod_date, String cause) throws SQLException {
 		stmt.setInt(1, bib_id);
 		stmt.setString(2, cause);
@@ -20,4 +25,11 @@ public class AddToQueue {
 		stmt.addBatch();
 	}
 
+	public static void add2Queue(PreparedStatement stmt, int bib_id, int priority, Timestamp mod_date, String cause) throws SQLException {
+		stmt.setInt(1, bib_id);
+		stmt.setString(2, cause);
+		stmt.setInt(3, 5);
+		stmt.setTimestamp(4, mod_date);
+		stmt.executeUpdate();
+	}
 }
