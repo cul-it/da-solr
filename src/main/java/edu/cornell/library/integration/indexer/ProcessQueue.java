@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.Generator;
@@ -93,20 +99,20 @@ public class ProcessQueue {
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("Generating Solr fields for bib "+bib+" "+recordChanges.toString());
 
-				Timestamp bibModDate = VoyagerUtilities.confirmBibRecordActive( voyager, bib);
-				if (bibModDate == null)
+				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
+				if (v.bib == null)
 					continue;
-				Map<Integer,Timestamp> mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
+				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
 
 				// Retrieve records
 				MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC,
 						marc.downloadXml(MarcRecord.RecordType.BIBLIOGRAPHIC, bib));
-				for (Integer mfhdId : mfhds.keySet()) {
+				for (Integer mfhdId : v.mfhds.keySet()) {
 					rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS,
 						marc.downloadXml(MarcRecord.RecordType.HOLDINGS, mfhdId)));
 				}
 
-				String solrChanges = gen.generateSolr(rec, config);
+				String solrChanges = gen.generateSolr(rec, config, mapper.writeValueAsString(v));
 				if (solrChanges != null)
 					AddToQueue.add2Queue(availabilityQueueStmt, bib, 5, minChangeDate, solrChanges);
 
@@ -119,4 +125,18 @@ public class ProcessQueue {
 			} while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime);
 		}
 	}
+
+	@JsonAutoDetect(fieldVisibility = Visibility.ANY)
+	private class Versions {
+		@JsonProperty("bib")      Timestamp bib;
+		@JsonProperty("holdings") Map<Integer,Timestamp> mfhds;
+		public Versions ( Timestamp bibTime ) {
+			this.bib = bibTime;
+		}
+	}
+	static ObjectMapper mapper = new ObjectMapper();
+	static {
+		mapper.setSerializationInclusion(Include.NON_NULL);
+	}
+
 }

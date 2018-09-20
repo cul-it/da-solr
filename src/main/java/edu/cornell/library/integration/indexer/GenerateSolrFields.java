@@ -71,7 +71,7 @@ class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	String generateSolr( MarcRecord rec, Config config ) throws SQLException, ClassNotFoundException {
+	String generateSolr( MarcRecord rec, Config config, String recordVersions ) throws SQLException, ClassNotFoundException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -105,7 +105,7 @@ class GenerateSolrFields {
 		System.out.println(rec.id+": "+sectionsGenerated+" generated, "+sectionsChanged+" sections ("+
 				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+") changed.");
 		if (sectionsChanged > 0) {
-			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,config);
+			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
 			return (sectionsChanged == activeGenerators.size())?"all Solr field segments":changedOutputs.toString();
 		}
 		touchBibVisitDate(tableNamePrefix,rec.id, config);
@@ -152,12 +152,13 @@ class GenerateSolrFields {
 			List<BibGeneratorData> newValues,
 			String tableNamePrefix,
 			String bibId,
+			String recordVersions,
 			Config config) throws ClassNotFoundException, SQLException {
 
 		if (sql == null) {
 			StringBuilder sbSql = new StringBuilder();
 			sbSql.append("REPLACE INTO ").append(tableNamePrefix).append("Data (");
-			sbSql.append("bib_id,\n");
+			sbSql.append("bib_id, record_dates, \n");
 			for (Generator gen : activeGenerators) {
 				String genName = gen.name().toLowerCase();
 				sbSql.append(genName).append("_marc_segment,\n");
@@ -166,7 +167,7 @@ class GenerateSolrFields {
 			}
 			sbSql.setCharAt(sbSql.length()-2, ')');
 			sbSql.append("VALUES ( ");
-			int questionMarksNeeded = activeGenerators.size()*3+1;
+			int questionMarksNeeded = activeGenerators.size()*3+2;
 			for (int i = 1 ; i <= questionMarksNeeded; i++) sbSql.append("?,");
 			sbSql.setCharAt(sbSql.length()-1, ')');
 			sql = sbSql.toString();
@@ -178,6 +179,7 @@ class GenerateSolrFields {
 				PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			int parameterIndex = 1;
 			pstmt.setString(parameterIndex++, bibId);
+			pstmt.setString(parameterIndex++, recordVersions);
 			for (Generator gen : activeGenerators) {
 				BibGeneratorData data = newValuesMap.get(gen);
 				pstmt.setString(parameterIndex++, data.marcSegment);

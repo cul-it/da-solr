@@ -34,7 +34,7 @@ public class GenerateSolrFieldsTest {
 	public void test4087458() throws IOException, XMLStreamException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "4087458.xml" ));
 		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" )));
-		gen.generateSolr(rec, config);
+		gen.generateSolr(rec, config, null);
 	}
 
 	@Test
@@ -42,10 +42,10 @@ public class GenerateSolrFieldsTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
 		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ));
 		rec.holdings.add(holdingRec);
-		gen.generateSolr(rec, config);
+		gen.generateSolr(rec, config, null);
 		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ));
 		rec2.holdings.add(holdingRec);
-		gen.generateSolr(rec2, config);
+		gen.generateSolr(rec2, config, null);
 	}
 
 	private static String resourceAsString( String filename ) throws IOException {
