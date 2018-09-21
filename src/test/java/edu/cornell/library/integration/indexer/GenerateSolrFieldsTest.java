@@ -2,13 +2,16 @@ package edu.cornell.library.integration.indexer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,6 +31,15 @@ public class GenerateSolrFieldsTest {
 		config = Config.loadConfig(null,requiredArgs);
 		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 		gen.setUpDatabase(config);
+	}
+
+	@AfterClass
+	public static void cleanup() throws ClassNotFoundException, SQLException {
+		try (   Connection inventory = config.getDatabaseConnection("Current");
+				Statement stmt = inventory.createStatement()) {
+			stmt.executeUpdate("DROP TABLE solrGenTestData");
+			stmt.executeUpdate("DROP TABLE solrGenTestGenerators");
+		}
 	}
 
 	@Test
