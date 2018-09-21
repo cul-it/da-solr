@@ -269,8 +269,8 @@ public class SimpleProc implements ResultSetToFields, SolrFieldGenerator {
 					}
 				}
 			}
-			if (f300e) sfs.add(new BooleanSolrField("f300e_b",true));
 		}
+		if (f300e) sfs.add(new BooleanSolrField("f300e_b",true));
 
 		return sfs;
 	}
