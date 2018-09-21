@@ -124,10 +124,11 @@ class GenerateSolrFields {
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
 		sbMainTableCreate.append("bib_id  INT(10) UNSIGNED NOT NULL PRIMARY KEY,\n");
+		sbMainTableCreate.append("record_dates text,\n");
 		sbMainTableCreate.append("visit_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n");
 		for ( Generator gen : activeGenerators ) {
 			String genName = gen.name().toLowerCase();
-			sbMainTableCreate.append(genName).append("_marc_segment          TEXT DEFAULT NULL,\n");
+			sbMainTableCreate.append(genName).append("_marc_segment          LONGTEXT DEFAULT NULL,\n");
 			sbMainTableCreate.append(genName).append("_solr_fields           LONGTEXT DEFAULT NULL,\n");
 			sbMainTableCreate.append(genName).append("_solr_fields_gen_date  TIMESTAMP NULL,\n");
 		}

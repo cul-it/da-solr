@@ -42,7 +42,7 @@ public class GenerateSolrFieldsTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
 		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ));
 		rec.holdings.add(holdingRec);
-		gen.generateSolr(rec, config, null);
+		gen.generateSolr(rec, config, "");
 		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ));
 		rec2.holdings.add(holdingRec);
 		gen.generateSolr(rec2, config, null);
