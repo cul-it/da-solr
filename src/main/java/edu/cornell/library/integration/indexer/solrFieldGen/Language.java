@@ -76,6 +76,10 @@ public class Language implements ResultSetToFields, SolrFieldGenerator {
 		for (ControlField cf : rec.controlFields) {
 			if (! cf.tag.equals("008"))
 				continue;
+			if ( cf.value.length() < 38 ) {
+				System.out.println( "Error: Corrupt 008 field on b"+rec.id );
+				continue;
+			}
 			String langCode = cf.value.substring(35,38).toLowerCase();
 			if (langCode.trim().isEmpty() || langCode.equals("|||"))
 				continue;
