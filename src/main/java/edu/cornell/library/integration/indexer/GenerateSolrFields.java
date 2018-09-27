@@ -347,11 +347,11 @@ class GenerateSolrFields {
 					recordChunks.get(supportingClass).controlFields.add(f);
 
 		for (DataField f : rec.dataFields)
-			if (fieldsSupported.containsKey(f.tag))
-				for( Generator supportingClass : fieldsSupported.get(f.tag))
+			if (fieldsSupported.containsKey(f.mainTag))
+				for( Generator supportingClass : fieldsSupported.get(f.mainTag))
 					recordChunks.get(supportingClass).dataFields.add(f);
 			else
-				System.out.println( "Unrecognized field "+f.tag+" in record "+rec.id );
+				System.out.println( "Unrecognized field "+f.mainTag+" in record "+rec.id );
 
 		if (fieldsSupported.containsKey("holdings"))
 			for (Generator supportingClass : fieldsSupported.get("holdings"))

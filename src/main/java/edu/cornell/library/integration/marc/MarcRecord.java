@@ -450,9 +450,11 @@ public class MarcRecord implements Comparable<MarcRecord>{
 							f.ind2 = r.getAttributeValue(i).charAt(0);
 					f.subfields = processSubfields(r);
 
-					if (f.tag.equals("880"))
-						for (Subfield sf : f.subfields) if (subfield6Pattern.matcher(sf.value).matches()) {
-							f.mainTag = sf.value.substring(0,3);
+					for (Subfield sf : f.subfields) if (sf.code.equals('6'))
+						if (subfield6Pattern.matcher(sf.value).matches()) {
+							if (f.tag.equals("880"))
+								f.mainTag = sf.value.substring(0,3);
+							f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
 							break;
 						}
 					if (f.mainTag == null)
@@ -464,7 +466,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 		return;
 	}
-	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-.*");
+	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
 	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws XMLStreamException {
 		TreeSet<Subfield> fields = new TreeSet<>();
