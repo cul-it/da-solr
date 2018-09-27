@@ -106,6 +106,7 @@ public class ProcessQueue {
 					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
+					continue;
 				}
 				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
 
