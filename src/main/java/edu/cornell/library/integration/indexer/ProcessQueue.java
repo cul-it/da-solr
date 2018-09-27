@@ -47,7 +47,7 @@ public class ProcessQueue {
 
 		config.setDatabasePoolsize("Current", 3);
 		config.setDatabasePoolsize("Voy", 3);
-		GenerateSolrFields gen = new GenerateSolrFields( EnumSet.allOf(Generator.class),"solrFields");
+		GenerateSolrFields gen = new GenerateSolrFields( EnumSet.allOf(Generator.class),"solrFields" );
 		DownloadMARC marc = new DownloadMARC(config);
 
 		try (	Connection current = config.getDatabaseConnection("Current");
@@ -60,6 +60,8 @@ public class ProcessQueue {
 						("UPDATE generationQueue SET priority = 9 WHERE id = ?");
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
+				PreparedStatement deqByBibStmt = current.prepareStatement
+						("DELETE FROM generationQueue WHERE bib_id = ?");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				
@@ -100,8 +102,11 @@ public class ProcessQueue {
 				System.out.println("Generating Solr fields for bib "+bib+" "+recordChanges.toString());
 
 				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
-				if (v.bib == null)
-					continue;
+				if (v.bib == null) {
+					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
+					deqByBibStmt.setInt(1, bib);
+					deqByBibStmt.executeUpdate();
+				}
 				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
 
 				// Retrieve records

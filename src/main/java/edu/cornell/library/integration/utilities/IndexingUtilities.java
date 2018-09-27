@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.cornell.library.integration.indexer.queues.AddToQueue;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class IndexingUtilities {
@@ -110,10 +111,12 @@ public class IndexingUtilities {
 		if ( ! inBIB_VOY )
 			return;
 		try (PreparedStatement bibVoyDStmt = current.prepareStatement(
-				"DELETE FROM bibRecsVoyager WHERE bib_id = ?")) {
+				"DELETE FROM bibRecsVoyager WHERE bib_id = ?");
+				PreparedStatement queueDeleteStmt = AddToQueue.deleteQueueStmt(current)) {
 			bibVoyDStmt.setInt(1, bib_id);
 			bibVoyDStmt.executeUpdate();
-			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.DELETE);
+			queueDeleteStmt.setInt(1,bib_id);
+			queueDeleteStmt.executeUpdate();
 		}
 	}
 	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {

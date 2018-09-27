@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import edu.cornell.library.integration.indexer.queues.AddToQueue;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.indexer.utilities.Config;
 
@@ -168,7 +169,8 @@ public class UpdateVoyagerInventory {
 			System.out.println(deletedBibs.size()+" deleted bibs.");
 
 			try (   PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate );
-					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
+					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery );
+					PreparedStatement bibDeleteQueueStmt = AddToQueue.deleteQueueStmt(current)) {
 
 				int i = 0;
 				int queuedCount = 0;
@@ -188,10 +190,12 @@ public class UpdateVoyagerInventory {
 					bibVoyUStmt.setBoolean(2, false);
 					bibVoyUStmt.setInt(3, bib_id);
 					bibVoyUStmt.addBatch();
-					if ( queue(current, bib_id, DataChangeUpdateType.DELETE) )
-						queuedCount++;
-					if ( ++i % 10_000 == 0)
+					AddToQueue.add2DeleteQueueBatch(bibDeleteQueueStmt, bib_id);
+					queuedCount++;
+					if ( ++i % 10_000 == 0) {
+						bibDeleteQueueStmt.executeBatch();
 						bibVoyUStmt.executeBatch();
+					}
 				}
 				System.out.println("\t"+queuedCount+" bibs deletes queued.");
 
@@ -220,11 +224,13 @@ public class UpdateVoyagerInventory {
 							if ( queue(current, bib_id, DataChangeUpdateType.ADD) )
 								queuedCountAdd++;
 					} else if ( c_active != null && c_active ){
-						if ( queue(current, bib_id, DataChangeUpdateType.DELETE) )
-							queuedCountDel++;
+						AddToQueue.add2DeleteQueueBatch(bibDeleteQueueStmt, bib_id);
+						queuedCountDel++;
 					}
-					if ( ++i % 10_000 == 0)
+					if ( ++i % 10_000 == 0) {
 						bibVoyUStmt.executeBatch();
+						bibDeleteQueueStmt.executeBatch();
+					}
 				}
 				if ( queuedCountUpd > 0 )
 					System.out.println("\t"+queuedCountUpd+" bib updates queued.");
@@ -234,6 +240,7 @@ public class UpdateVoyagerInventory {
 					System.out.println("\t"+queuedCountDel+" bib deletes queued.");
 
 				bibVoyUStmt.executeBatch();
+				bibDeleteQueueStmt.executeBatch();
 			}
 		}
 	}
