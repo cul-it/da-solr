@@ -1,30 +1,23 @@
 package edu.cornell.library.integration.indexer.updates;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
+import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
-import edu.cornell.library.integration.webdav.DavService;
-import edu.cornell.library.integration.webdav.DavServiceFactory;
-
-import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -53,47 +46,45 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.addBib
  */
 public class IdentifyChangedRecords {
 	
-	DavService davService;
-	Config config;
-	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-	Set<Integer> updatedBibs = new HashSet<>();
+	private Config config;
+	private Set<Integer> updatedBibs = new HashSet<>();
 	private static Timestamp max_date = null;
 
-	final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM bibRecsVoyager";
-	final static String maxBibQueryOther = "SELECT max(bib_id) FROM bibRecsVoyager";
-	final static String maxMfhdQuery = "SELECT max(mfhd_id) FROM mfhdRecsVoyager";
-	final static String maxItemQuery = "SELECT max(item_id) FROM itemRecsVoyager";
-	final static String recentBibQuery =
+	private final static String maxBibQueryFirstPass = "SELECT max(bib_id), max(record_date) FROM bibRecsVoyager";
+	private final static String maxBibQueryOther = "SELECT max(bib_id) FROM bibRecsVoyager";
+	private final static String maxMfhdQuery = "SELECT max(mfhd_id) FROM mfhdRecsVoyager";
+	private final static String maxItemQuery = "SELECT max(item_id) FROM itemRecsVoyager";
+	private final static String recentBibQuery =
 			"select BIB_ID, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
 					+" where ( BIB_ID > ? or UPDATE_DATE > ?)";
-	final static String recentMfhdQuery =
+	private final static String recentMfhdQuery =
 			"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, UPDATE_DATE"
 					+"  from BIB_MFHD, MFHD_MASTER"
 					+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
 					+ "  and SUPPRESS_IN_OPAC = 'N'"
 					+ "  and ( MFHD_MASTER.MFHD_ID > ? or UPDATE_DATE > ?)";
-	final static String recentItemQuery =
+	private final static String recentItemQuery =
 			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.MODIFY_DATE"
 		    		+"  from MFHD_ITEM, ITEM"
 		    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 		    		+ "  and ( ITEM.ITEM_ID > ? or MODIFY_DATE > ?)";
-	final static String bibVoyQuery =
+	private final static String bibVoyQuery =
 			"SELECT record_date, active FROM bibRecsVoyager WHERE bib_id = ?";
-	final static String bibVoyUpdate =
+	private final static String bibVoyUpdate =
 			"UPDATE bibRecsVoyager SET record_date = ? , active = ? WHERE bib_id = ?";
-	final static String bibVoyInsert =
+	private final static String bibVoyInsert =
 			"INSERT INTO bibRecsVoyager (bib_id,record_date,active) VALUES (?,?,?)";
-	final static String mfhdVoyQuery =
+	private final static String mfhdVoyQuery =
 			"SELECT bib_id, record_date FROM mfhdRecsVoyager WHERE mfhd_id = ?";
-	final static String mfhdVoyUpdate =
+	private final static String mfhdVoyUpdate =
 			"UPDATE mfhdRecsVoyager SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
-	final static String mfhdVoyInsert =
+	private final static String mfhdVoyInsert =
 			"INSERT INTO mfhdRecsVoyager (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)";
-	final static String itemVoyQuery =
+	private final static String itemVoyQuery =
 			"SELECT mfhd_id, record_date FROM itemRecsVoyager WHERE item_id = ?";
-	final static String itemVoyUpdate =
+	private final static String itemVoyUpdate =
 			"UPDATE itemRecsVoyager SET record_date = ?, mfhd_id = ? WHERE item_id = ?";
-	final static String itemVoyInsert =
+	private final static String itemVoyInsert =
 			"INSERT INTO itemRecsVoyager (mfhd_id, item_id, record_date) VALUES (?, ?, ?)";
 
 	public static void main(String[] args)  {
@@ -116,7 +107,7 @@ public class IdentifyChangedRecords {
 		}
 	}
 
-	public IdentifyChangedRecords(Config config, Boolean thorough) throws Exception {
+	IdentifyChangedRecords(Config config, Boolean thorough) throws Exception {
 		this.config = config;
 		int retryLimit = 4;
 		boolean succeeded = false;
@@ -413,17 +404,14 @@ public class IdentifyChangedRecords {
 
 	private void thoroughIdentifiationOfChanges() throws Exception {
 
-	    this.davService = DavServiceFactory.getDavService( config );
 		System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
 
 		IndexRecordListComparison c = new IndexRecordListComparison(config);
 
 		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
-		produceAddFile( bibsToAdd );
 		Set<Integer> bibsToDelete = c.bibsInIndexNotVoyager();
 		System.out.println("Bibs To Delete from Solr: "+bibsToDelete.size());
-		produceDeleteFile( bibsToDelete );
 
 		System.out.println("Bibs To Update:");
 
@@ -501,75 +489,12 @@ public class IdentifyChangedRecords {
 		bibsToUpdate.removeAll(bibsToAdd);
 
 		System.out.println("Bibs To Update in Solr: "+totalBibsToUpdateCount);		
-		produceUpdateFile(bibsToUpdate);
-		c.queueBibs( bibsToDelete, DataChangeUpdateType.DELETE );
+		c.queueDeletes( bibsToDelete );
 		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
 
 		c = null; // to allow GC
 	
  	}
-
-	private void produceDeleteFile( Set<Integer> bibsToDelete ) throws Exception {
-
-		// Write a file of BIBIDs that are in the Solr index but not voyager
-		if ( bibsToDelete != null && bibsToDelete.size() > 0) {
-			String deleteReport = bibsToDelete.stream().map(Object::toString)
-					.collect(Collectors.joining("\n", "", "\n"));
-
-			String deleteReportFile = 
-			        config.getWebdavBaseUrl() + "/" + config.getDailyBibDeletes() + "/"
-			        + "bibListForDelete-"+ currentDate + ".txt";			
-			try {
-				davService.saveFile( deleteReportFile ,
-						new ByteArrayInputStream(deleteReport.getBytes(StandardCharsets.UTF_8)));
-				System.out.println("Wrote report to " + deleteReportFile);
-			} catch (Exception e) {
-				throw new Exception("Could not save report of deletes to '" + deleteReportFile + "'" , e);
-			}		
-		}
-		
-	}
-	
-	private void produceAddFile(Set<Integer> bibsToAdd) throws Exception {
-
-		// Write a file of BIBIDs that are in Voyager but not in the Solr index
-		if ( bibsToAdd != null && bibsToAdd.size() > 0) {
-
-			String addReport = bibsToAdd.stream().map(Object::toString)
-					.collect(Collectors.joining("\n", "", "\n"));
-			String addReportFile =
-			        config.getWebdavBaseUrl() + "/" + config.getDailyBibAdds() + "/"
-			        + "bibListToAdd-"+ currentDate + ".txt";
-			try {
-				davService.saveFile( addReportFile ,
-						new ByteArrayInputStream(addReport.getBytes(StandardCharsets.UTF_8)));
-				System.out.println("Wrote report to " + addReportFile);
-			} catch (Exception e) {
-				throw new Exception("Could not save report of adds to '" + addReportFile + "'" , e);
-			}
-		}
-
-	}
-
-	private void produceUpdateFile( Set<Integer> bibsToUpdate) throws Exception {
-
-		if (bibsToUpdate != null && bibsToUpdate.size() > 0){
-
-			String updateReport = bibsToUpdate.stream().map(Object::toString)
-					.collect(Collectors.joining("\n", "", "\n"));
-
-			String fileName = config.getWebdavBaseUrl() + "/" + config.getDailyBibUpdates() + "/"
-			        + "bibListForUpdate-"+ currentDate + ".txt";
-			try {			    
-				davService.saveFile(fileName,
-						new ByteArrayInputStream(updateReport.getBytes(StandardCharsets.UTF_8)));
-				System.out.println("Wrote report to " + fileName);
-			} catch (Exception e) {
-			    throw new Exception("Could not save list of "
-			            + "BIB IDs that need update to file '" + fileName + "'",e);   
-			}
-		}
-	}
 
 	public static enum DataChangeUpdateType {
 		ADD("Added Record",IndexQueuePriority.DATACHANGE),
@@ -580,7 +505,7 @@ public class IdentifyChangedRecords {
 		ITEM_ADD("Item Record Added",IndexQueuePriority.DATACHANGE),
 		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
 		ITEM_DELETE("Item Record Removed",IndexQueuePriority.DATACHANGE),
-		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
+//		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
 		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE_SECONDARY),
 		
 		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);

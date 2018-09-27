@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import edu.cornell.library.integration.indexer.queues.AddToQueue;
 import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
@@ -208,8 +209,7 @@ public class IndexRecordListComparison {
 				ResultSet rs = stmt.executeQuery(
 				"SELECT bib_id FROM indexQueue"
 				+ " WHERE done_date = 0"
-				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal()
-				+ " AND cause != '"+DataChangeUpdateType.DELETE+"'") ){
+				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal() )){
 			while (rs.next()) l.add(rs.getInt(1));
 		}
 		return l;
@@ -249,6 +249,17 @@ public class IndexRecordListComparison {
 		pstmt.executeBatch();
 	}
 
+	public void queueDeletes( Set<Integer> bibsToDelete ) throws SQLException {
+		if (bibsToDelete == null || bibsToDelete.isEmpty())
+			return;
+		if ( ! pstmts.containsKey("deleteQueueBib"))
+			pstmts.put("deleteQueueBib", AddToQueue.deleteQueueStmt(conn));
+		for (Integer bib : bibsToDelete) {
+			if (bib == null || bib.equals(0)) continue;
+			AddToQueue.add2DeleteQueueBatch(pstmts.get("deleteQueueBib"), bib);
+		}
+		pstmts.get("deleteQueueBib").executeBatch();
+	}
 
 	public class ChangedBib {
 		public int original;

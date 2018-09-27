@@ -81,7 +81,6 @@ public class IterativeUpdateFromVoyager {
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );
 			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
-			DeleteFromSolr.doTheDelete(config);
 			new RetrieveUpdatesBatch(config, b);
 			new IncrementalBibFileToSolr(config);
 		}

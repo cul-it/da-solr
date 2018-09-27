@@ -618,7 +618,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
 		public Boolean diverseEnumFound = false;
 	}
 
-	public static class Holdings {
+	private static class Holdings {
 		public String id;
 		public String modified_date = null;
 		public String copy_number = null;

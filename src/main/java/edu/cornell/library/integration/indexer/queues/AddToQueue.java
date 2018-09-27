@@ -17,6 +17,12 @@ public class AddToQueue {
 				"INSERT INTO availabilityQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
+	public static PreparedStatement deleteQueueStmt( Connection current ) throws SQLException {
+		return current.prepareStatement(
+				"INSERT INTO deleteQueue ( bib_id, cause, priority, record_date ) "+
+				"VALUES (?, 'Record Deleted or Suppressed', 0, NOW())");
+	}
+
 	public static void add2QueueBatch(PreparedStatement stmt, int bib_id, Timestamp mod_date, String cause) throws SQLException {
 		stmt.setInt(1, bib_id);
 		stmt.setString(2, cause);
@@ -28,8 +34,14 @@ public class AddToQueue {
 	public static void add2Queue(PreparedStatement stmt, int bib_id, int priority, Timestamp mod_date, String cause) throws SQLException {
 		stmt.setInt(1, bib_id);
 		stmt.setString(2, cause);
-		stmt.setInt(3, 5);
+		stmt.setInt(3, priority);
 		stmt.setTimestamp(4, mod_date);
 		stmt.executeUpdate();
 	}
+
+	public static void add2DeleteQueueBatch(PreparedStatement stmt, int bib_id) throws SQLException {
+		stmt.setInt(1, bib_id);
+		stmt.addBatch();
+	}
+
 }

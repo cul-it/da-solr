@@ -42,11 +42,8 @@ public class BatchRecordsForSolrIndex {
         		+" ORDER BY priority"
         		+" LIMIT " + startingTarget*2);
         		ResultSet rs = pstmt.executeQuery()) {
-        	final String delete = DataChangeUpdateType.DELETE.toString();
 
         	while (rs.next() && addedBibs.size() < startingTarget) {
-        		if (rs.getString(2).equals(delete))
-        			continue;
         		if (! b.addQueuedItemToBatch(rs,addedBibs.size()))
         			continue;
         		int bib_id = rs.getInt(1);
