@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.solr.common.SolrInputField;
 
@@ -139,7 +140,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 
 	  	Collection<String> f948as = new HashSet<>();
 	  	for (DataField f : bib.dataFields)   if (f.tag.equals("948") && f.ind1.equals('1'))
-	  		for (Subfield sf : f.subfields)  if (sf.code.equals('a'))
+	  		for (Subfield sf : f.subfields)  if (sf.code.equals('a') && yyyymmdd.matcher(sf.value).matches())
 	  			if (Integer.valueOf(sf.value) > twoYearsAgo)
 	  				f948as.add(sf.value);
 
@@ -163,6 +164,7 @@ public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
 	  	}
 		return vals;
 	}
+	private static Pattern yyyymmdd = Pattern.compile("[0-9]{6}");
 	
     private static String twoYearsAgo(  ) {
     	Calendar now = Calendar.getInstance();
