@@ -843,7 +843,7 @@
 	item_record_display,
 	edition_display,
 	title_uniform_display,
-	other_id_display,
+	oclc_id_display,
 	availability_json,
 	acquired_dt
       </str>
