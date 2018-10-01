@@ -119,12 +119,14 @@ public class IndexingUtilities {
 			queueDeleteStmt.executeUpdate();
 		}
 	}
-	public static void addBibToUpdateQueue(Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
+	public static void addBibToUpdateQueue(Connection current, Integer bib_id,
+			DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
-				"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?, ?, ?)")) {
+				"INSERT INTO generationQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
 			bibQueueStmt.setInt(2, type.getPriority().ordinal());
 			bibQueueStmt.setString(3,type.toString());
+			bibQueueStmt.setTimestamp(4, recordDate);
 			bibQueueStmt.executeUpdate();
 		}
 	}
