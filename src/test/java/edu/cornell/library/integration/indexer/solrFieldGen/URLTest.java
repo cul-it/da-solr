@@ -73,6 +73,16 @@ public class URLTest {
 	}
 
 	@Test
+	public void testFindingAidURL() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"856",'4','2',"‡3 Finding aid ‡u http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107"));
+		String expected =
+		"url_findingaid_display: http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107|Finding aid\n" + 
+		"notes_t: Finding aid\n";
+		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+	}
+	
+	@Test
 	public void testJustURL() throws IOException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		MarcRecord holdings = new MarcRecord(MarcRecord.RecordType.HOLDINGS);

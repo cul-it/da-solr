@@ -109,38 +109,39 @@ public class URL implements ResultSetToFields, SolrFieldGenerator {
 				jsonModel.put( "description", String.join(" ",linkLabel) );
 
 			String relation = isOnline? "access" : "other"; //this is a default and may change later
-			if (relation.equals("access") && jsonModel.containsKey("description")) {
+			if (jsonModel.containsKey("description")) { 
 				String lc = ((String)jsonModel.get("description")).toLowerCase();
-				if (lc.contains("table of contents")
-						|| lc.contains("tables of contents")
-						|| lc.endsWith(" toc")
-						|| lc.contains(" toc ")
-						|| lc.startsWith("toc ")
-						|| lc.equals("toc")
-						|| lc.contains("cover image")
-						|| lc.equals("cover")
-						|| lc.contains("publisher description")
-						|| lc.contains("contributor biographical information")
-						|| lc.contains("inhaltsverzeichnis")  //table of contents
-						|| lc.contains("beschreibung") // description
-						|| lc.contains("klappentext") // blurb
-						|| lc.contains("buchcover")
-						|| lc.contains("publisher's summary")
-						|| lc.contains("executive summary")
-						|| lc.startsWith("summary")
-						|| lc.startsWith("about the")
-						|| lc.contains("additional information")
-						|| lc.contains("'s website") // eg author's website, publisher's website
-						|| lc.startsWith("companion") // e.g. companion website
-						|| lc.contains("record available for display")
-						|| lc.startsWith("related") // related web site, related electronic resource...
-						|| lc.contains("internet movie database")
-						|| lc.contains("more information")
-						|| lc.equals("hathitrust – access limited to full-text search")) {
-					relation = "other";
-				}	
 				if (lc.contains("finding aid"))
 					relation = "findingaid";
+				if (relation.equals("access") && 
+						(lc.contains("table of contents")
+							|| lc.contains("tables of contents")
+							|| lc.endsWith(" toc")
+							|| lc.contains(" toc ")
+							|| lc.startsWith("toc ")
+							|| lc.equals("toc")
+							|| lc.contains("cover image")
+							|| lc.equals("cover")
+							|| lc.contains("publisher description")
+							|| lc.contains("contributor biographical information")
+							|| lc.contains("inhaltsverzeichnis")  //table of contents
+							|| lc.contains("beschreibung") // description
+							|| lc.contains("klappentext") // blurb
+							|| lc.contains("buchcover")
+							|| lc.contains("publisher's summary")
+							|| lc.contains("executive summary")
+							|| lc.startsWith("summary")
+							|| lc.startsWith("about the")
+							|| lc.contains("additional information")
+							|| lc.contains("'s website") // eg author's website, publisher's website
+							|| lc.startsWith("companion") // e.g. companion website
+							|| lc.contains("record available for display")
+							|| lc.startsWith("related") // related web site, related electronic resource...
+							|| lc.contains("internet movie database")
+							|| lc.contains("more information")
+							|| lc.equals("hathitrust – access limited to full-text search"))) {
+					relation = "other";
+				}
 			}
 	
 			// There shouldn't be multiple URLs, but we're just going to iterate through
