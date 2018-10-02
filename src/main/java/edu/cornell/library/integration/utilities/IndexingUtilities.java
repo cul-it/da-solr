@@ -59,7 +59,7 @@ public class IndexingUtilities {
 		DATACHANGE_SECONDARY("Secondary Data Change"),
 		CODECHANGE_PRIORITY2("Code Change 2"),
 		CODECHANGE_PRIORITY3("Code Change 3"),
-		CODECHANGE_PRIORITY4("Code Change 4"),
+		ITEM_RECORD_CHANGE("Item Record Change"),
 		NOT_RECENTLY_UPDATED("Refresh Old Solr Record");
 
 		private String string;
@@ -123,6 +123,17 @@ public class IndexingUtilities {
 			DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO generationQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
+			bibQueueStmt.setInt(1, bib_id);
+			bibQueueStmt.setInt(2, type.getPriority().ordinal());
+			bibQueueStmt.setString(3,type.toString());
+			bibQueueStmt.setTimestamp(4, recordDate);
+			bibQueueStmt.executeUpdate();
+		}
+	}
+	public static void addBibToAvailQueue(Connection current, Integer bib_id,
+			DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
+		try (PreparedStatement bibQueueStmt = current.prepareStatement(
+				"INSERT INTO availabilityQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
 			bibQueueStmt.setInt(2, type.getPriority().ordinal());
 			bibQueueStmt.setString(3,type.toString());

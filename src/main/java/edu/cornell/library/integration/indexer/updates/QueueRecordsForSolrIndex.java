@@ -33,7 +33,7 @@ public class QueueRecordsForSolrIndex {
 		switch (args[0]) {
 		case "2": priority = IndexQueuePriority.CODECHANGE_PRIORITY2; break;
 		case "3": priority = IndexQueuePriority.CODECHANGE_PRIORITY3; break;
-		case "4": priority = IndexQueuePriority.CODECHANGE_PRIORITY4; break;
+		case "4": priority = IndexQueuePriority.ITEM_RECORD_CHANGE; break;
 		default:
 			throw new IllegalArgumentException("First argument must be 2, 3, or 4, where 2 is the highest allowable priority.\n\n"+usage);
 		}

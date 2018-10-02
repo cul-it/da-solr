@@ -34,39 +34,8 @@ public class IterativeUpdateFromVoyager {
 		config.setDatabasePoolsize("Current", 2);
 		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();
 		if (quittingTime == null) quittingTime = 19;
-		System.out.println("Processing updates to Voyager until: "+quittingTime+":00.");
+		System.out.println("Looking for updates to Voyager until: "+quittingTime+":00.");
 		boolean timeToQuit = false;
-
-		int batchSizeIfUpdates = 30;
-		int batchSizeIfNoUpdates = 100;
-		/* If any priority 0 or 1 items are queued, lower priority items will only be accepted to
-		 * the point where the total batch is $batchSizeIfUpdates items. Otherwise, the default size of
-		 * $batchSizeIfNoUpdates items is the limit.
-		 */
-		BatchLogic b = new BatchLogic() {
-			Integer topPriority = null;
-			public void startNewBatch() {
-				topPriority = null;
-			}
-			public int targetBatchSize() { return batchSizeIfNoUpdates; }
-			public boolean addQueuedItemToBatch(ResultSet rs,int currentBatchSize) throws SQLException {
-				if (topPriority == null)
-					topPriority = rs.getInt("priority");
-				if (currentBatchSize < batchSizeIfUpdates)
-					return true;
-				if (topPriority <= 1) {
-					rs.afterLast();
-					return false;
-				}
-				return true;
-			}
-			public int unqueuedTargetCount(int currentBatchSize) {
-				if (currentBatchSize == 0) return batchSizeIfNoUpdates;
-				if (currentBatchSize >= batchSizeIfUpdates) return 0;
-				return batchSizeIfUpdates - currentBatchSize;
-			}
-			public boolean isTestMode() { return false; }
-		};
 
 		int i = 0;
 		while ( ! timeToQuit || isQueueRemaining(config) ) {
@@ -81,8 +50,7 @@ public class IterativeUpdateFromVoyager {
 			config.setWebdavBaseUrl(webdavBaseURL + "/" + (++i) );
 			config.setLocalBaseFilePath(localBaseFilePath + "/" + i);
 			new IdentifyChangedRecords(config,false);
-			new RetrieveUpdatesBatch(config, b);
-			new IncrementalBibFileToSolr(config);
+			Thread.sleep(250);
 		}
 	}
 

@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -40,10 +39,6 @@ public class ProcessQueue {
 	}
 
 	public ProcessQueue(Config config) throws Exception {
-
-		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();
-		if (quittingTime == null) quittingTime = 19;
-		System.out.println("Processing Voyager records until: "+quittingTime+":00.");
 
 		config.setDatabasePoolsize("Current", 3);
 		config.setDatabasePoolsize("Voy", 3);
@@ -128,7 +123,7 @@ public class ProcessQueue {
 				}
 				deqStmt.executeBatch();
 				
-			} while (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) != quittingTime);
+			} while (true);
 		}
 	}
 

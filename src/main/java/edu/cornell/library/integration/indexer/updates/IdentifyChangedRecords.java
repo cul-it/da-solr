@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.indexer.updates;
 
+import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToAvailQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
@@ -9,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +119,6 @@ public class IdentifyChangedRecords {
 					System.out.println("Launching thorough check for Voyager record changes.");
 					thoroughIdentifiationOfChanges();
 				} else {
-					System.out.println("Launching quick check for Voyager record changes.");
 					quickIdentificationOfChanges();
 				}
 				succeeded = true;
@@ -144,7 +146,7 @@ public class IdentifyChangedRecords {
 					while (rs.next()) max_date = rs.getTimestamp(1);
 				}
 
-			Timestamp ts = Timestamp.valueOf("2018-09-21 00:28:10.444");
+			Timestamp ts = max_date;
 			ts.setTime(ts.getTime() - (10/*seconds*/
 										* 1000/*millis per second*/));
 
@@ -159,8 +161,6 @@ public class IdentifyChangedRecords {
 							if (bibDate == null) bibDate = rs.getTimestamp(2);
 							String suppress_in_opac = rs.getString(4);
 							int bib_id = rs.getInt(1);
-							if (updatedBibs.contains(bib_id))
-								continue;
 							queueBib( current, bib_id, bibDate, 
 									suppress_in_opac != null && suppress_in_opac.equals("N") );
 							if (bibDate != null && 0 > bibDate.compareTo(max_date))
@@ -170,7 +170,8 @@ public class IdentifyChangedRecords {
 				}
 
 				int bibCount = updatedBibs.size();
-				System.out.println("Queued from poling bib data: "+bibCount);
+				if ( bibCount > 0)
+					System.out.println("Queued from poling bib data: "+bibCount);
 
 				try ( PreparedStatement pstmt = voyager.prepareStatement( recentMfhdQuery )){
 					pstmt.setTimestamp(1, ts);
@@ -185,7 +186,8 @@ public class IdentifyChangedRecords {
 				}
 
 				int mfhdCount = updatedBibs.size() - bibCount;
-				System.out.println("Queued from poling holdings data: "+mfhdCount);
+				if ( mfhdCount > 0)
+					System.out.println("Queued from poling holdings data: "+mfhdCount);
 
 				try ( PreparedStatement pstmt = voyager.prepareStatement( recentItemQuery )){
 					pstmt.setTimestamp(1, ts);
@@ -200,11 +202,15 @@ public class IdentifyChangedRecords {
 				}
 
 				int itemCount = updatedBibs.size() - bibCount - mfhdCount;
-				System.out.println("Queued from poling item data: "+itemCount);
-				System.out.println("Total bibs queued: "+updatedBibs.size());
+				if ( itemCount > 0 )
+					System.out.println("Queued from poling item data: "+itemCount);
+				if ( ! updatedBibs.isEmpty() )
+					System.out.println( (new Timestamp(System.currentTimeMillis())).toLocalDateTime().format(formatter)
+							+" "+updatedBibs.toString() );
 			}
 		}
 	}
+	private static DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,FormatStyle.MEDIUM);
 
 	private void queueBib(Connection current, int bib_id, Timestamp update_date, Boolean isActive) throws SQLException {
 		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
@@ -223,20 +229,16 @@ public class IdentifyChangedRecords {
 							bibVoyUStmt.setInt(3, bib_id);
 							bibVoyUStmt.executeUpdate();
 						}
-						if ( ! updatedBibs.contains(bib_id)) {
-
-							if (isActive) {
-								updatedBibs.add(bib_id);
-								if (previouslyActive) 
-									addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE, update_date);
-								else
-									addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD, update_date);
-							} else {
-								if (previouslyActive)
-									queueBibDelete( current, bib_id );
-								// else - ignore change to suppressed record
-							}
-							
+						if (isActive) {
+							updatedBibs.add(bib_id);
+							if (previouslyActive) 
+								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE, update_date);
+							else
+								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD, update_date);
+						} else {
+							if (previouslyActive)
+								queueBibDelete( current, bib_id );
+							// else - ignore change to suppressed record
 						}
 					} // else bib is unchanged - do nothing
 					return;
@@ -341,7 +343,7 @@ public class IdentifyChangedRecords {
 						if (bib_id > 0
 								&& isBibActive(current,bib_id)
 								&& ! updatedBibs.contains(bib_id)) {
-							addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+							addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
 							updatedBibs.add(bib_id);
 						}
 
@@ -351,7 +353,7 @@ public class IdentifyChangedRecords {
 									&& old_bib_id != bib_id
 									&& isBibActive(current,old_bib_id)
 									&& ! updatedBibs.contains(old_bib_id)) {
-								addBibToUpdateQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+								addBibToAvailQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
 								updatedBibs.add(old_bib_id);
 							}
 						}
@@ -372,7 +374,7 @@ public class IdentifyChangedRecords {
 		if (bib_id > 0
 				&& isBibActive(current,bib_id)
 				&& ! updatedBibs.contains(bib_id)) {
-			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+			addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
 			updatedBibs.add(bib_id);
 		}
 	}
@@ -500,9 +502,9 @@ public class IdentifyChangedRecords {
 		MFHD_ADD("Holdings Record Added",IndexQueuePriority.DATACHANGE),
 		MFHD_UPDATE("Holdings Record Change",IndexQueuePriority.DATACHANGE),
 		MFHD_DELETE("Holdings Record Removed",IndexQueuePriority.DATACHANGE),
-		ITEM_ADD("Item Record Added",IndexQueuePriority.DATACHANGE),
-		ITEM_UPDATE("Item Record Change",IndexQueuePriority.DATACHANGE),
-		ITEM_DELETE("Item Record Removed",IndexQueuePriority.DATACHANGE),
+		ITEM_ADD("Item Record Added",IndexQueuePriority.ITEM_RECORD_CHANGE),
+		ITEM_UPDATE("Item Record Change",IndexQueuePriority.ITEM_RECORD_CHANGE),
+		ITEM_DELETE("Item Record Removed",IndexQueuePriority.ITEM_RECORD_CHANGE),
 //		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
 		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE_SECONDARY),
 		
