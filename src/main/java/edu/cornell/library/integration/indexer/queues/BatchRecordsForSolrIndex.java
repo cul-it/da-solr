@@ -55,7 +55,7 @@ public class BatchRecordsForSolrIndex {
         if (remainingTarget > 0) {
         	int adjustedTotalTarget = addedBibs.size() + remainingTarget;
         	try (PreparedStatement pstmt = current.prepareStatement(
-        			"SELECT s.bib_id"
+        			"SELECT s.bib_id, s.queued_date"
         			+" FROM bibRecsSolr AS s"
         			+" LEFT JOIN indexQueue AS q ON (s.bib_id = q.bib_id AND q.done_date = 0)"
         			+" WHERE active = 1"
@@ -68,7 +68,7 @@ public class BatchRecordsForSolrIndex {
             		if ( ! addedBibs.contains(bib_id) ) {
             			addedBibs.add(bib_id);
             			if ( ! isTestMode )
-            				addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR);
+            				addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.AGE_IN_SOLR, rs.getTimestamp(2));
             		}      		
         		}
         		
