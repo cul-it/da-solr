@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.common.SolrInputField;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -28,23 +25,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * so only records that should NOT be returned in Blacklight work-level searches should
  * vary from this.
  */
-public class HathiLinks implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		for ( com.hp.hpl.jena.query.ResultSet rs : results.values() )
-			JenaResultsToMarcRecord.addDataFieldResultSet(rec,rs);
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, config );
-
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-
-		return fields;
-	}
+public class HathiLinks implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }

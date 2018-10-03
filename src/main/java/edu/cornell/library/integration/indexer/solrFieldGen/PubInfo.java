@@ -6,27 +6,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
-import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 
@@ -34,7 +27,7 @@ import edu.cornell.library.integration.utilities.CharacterSetUtils;
  * processing date result sets into fields pub_date, pub_date_sort, pub_date_display
  * 
  */
-public class PubInfo implements ResultSetToFields, SolrFieldGenerator {
+public class PubInfo implements SolrFieldGenerator {
 
 	private final static String INFORMATION =  "pub_info_display";
 	private final static String PRODUCTION =   "pub_prod_display";
@@ -42,24 +35,8 @@ public class PubInfo implements ResultSetToFields, SolrFieldGenerator {
 	private final static String MANUFACTURE =  "pub_manu_display";
 	private final static String COPYRIGHT =    "pub_copy_display";
 
-	static final Pattern p = Pattern.compile("^[0-9]{4}$");
-	static final int current_year = Calendar.getInstance().get(Calendar.YEAR);
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addControlFieldResultSet( rec, results.get("eight") );
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_260") );
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("pub_info_264") );
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, null );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
-	}
+	private static final Pattern p = Pattern.compile("^[0-9]{4}$");
+	private static final int current_year = Calendar.getInstance().get(Calendar.YEAR);
 
 	@Override
 	public String getVersion() { return "1.0"; }

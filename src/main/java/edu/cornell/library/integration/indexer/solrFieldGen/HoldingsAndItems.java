@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
 
 import java.io.ByteArrayOutputStream;
@@ -26,16 +25,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.CallNumber;
-import edu.cornell.library.integration.indexer.utilities.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.ModifyCallNumbers;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -50,56 +45,7 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
  * For a bib record with multiple holdings records, each holdings record will have it's own holdings_record_display.
  */
-public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, Config config) throws Exception {
-
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			while( rs.hasNext() ){
-				QuerySolution sol = rs.nextSolution();
-
-
-				if ( resultKey.equals("description")) {
-
-					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
-
-				} else if ( resultKey.equals("leader") ) {
-
-					bibRec.leader = nodeToString(sol.get("leader"));
-
-				} else {
-	 				String recordURI = nodeToString(sol.get("mfhd"));
-					MarcRecord rec;
-					if (holdingRecs.containsKey(recordURI)) {
-						rec = holdingRecs.get(recordURI);
-					} else {
-						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-						holdingRecs.put(recordURI, rec);
-					}
-					if (resultKey.contains("control")) {
-						JenaResultsToMarcRecord.addControlFieldQuerySolution(rec,sol);
-					} else if (resultKey.contains("data")) {
-						JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
-					}
-
-				}
-			}
-		}
-		bibRec.holdings.addAll(holdingRecs.values());
-		SolrFields vals = generateSolrFields( bibRec, config );
-		Map<String,SolrInputField> fields = new HashMap<>();
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		for ( BooleanSolrField f : vals.boolFields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
-	}
+public class HoldingsAndItems implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }
@@ -559,7 +505,7 @@ public class HoldingsAndItems implements ResultSetToFields, SolrFieldGenerator {
     					record.get("chron") + record.get("year");
 				if (enumeration.isEmpty()) {
 					Holdings h = holdings.get(record.get("mfhd_id").toString());
-					record.put("item_enum", StringUtils.join(",  ",h.holdings_desc));
+					record.put("item_enum", String.join(",  ",h.holdings_desc));
 				}
 			}
 		}

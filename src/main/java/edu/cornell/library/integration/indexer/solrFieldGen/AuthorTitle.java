@@ -14,20 +14,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
-import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
@@ -44,30 +37,9 @@ import edu.cornell.library.integration.utilities.NameUtils;
  * error, but a post-processor will remove extra values before submission leading
  * to a successful submission.
  */
-public class AuthorTitle implements ResultSetToFields, SolrFieldGenerator {
+public class AuthorTitle implements SolrFieldGenerator {
 
 	static ObjectMapper mapper = new ObjectMapper();
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("title") );
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("title_240") );
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("main_entry") );
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, config );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-		for ( BooleanSolrField f : vals.boolFields ) {
-			SolrInputField boolField = new SolrInputField(f.fieldName);
-			boolField.setValue(f.fieldValue, 1.0f);
-			fields.put(f.fieldName, boolField);
-		}
-		return fields;
-	}
 
 	@Override
 	public String getVersion() { return "1.0"; }

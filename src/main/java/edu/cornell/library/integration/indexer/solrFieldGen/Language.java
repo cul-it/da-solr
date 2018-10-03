@@ -11,11 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -31,29 +26,11 @@ import edu.cornell.library.integration.marc.Subfield;
  * No accounting is made here for codes which are deprecated for use in new records,
  * as their meaning, if found, is not changed by their deprecation.
  */
-public class Language implements ResultSetToFields, SolrFieldGenerator {
+public class Language implements SolrFieldGenerator {
 
 	private static Map<String,Code> codes = new HashMap<>();
 	static {
 		Arrays.stream(Code.values()).forEach( c -> codes.put(c.toString().toLowerCase(),c) );
-	}
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("language_008"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("language_note"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("languages_041"));
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-
-		SolrFields vals = generateSolrFields( rec , null );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-
-		return fields;
 	}
 
 	@Override

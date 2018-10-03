@@ -4,21 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
-import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -31,56 +22,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * more time has passed.
  * 
  */
-public class NewBooks implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			while( rs.hasNext() ){
-				QuerySolution sol = rs.nextSolution();
-
-
-				if ( resultKey.equals("948")) {
-
-					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
-
-				} else if ( resultKey.equals("008") ) {
-
-					JenaResultsToMarcRecord.addControlFieldQuerySolution(bibRec, sol);
-
-				} else {
-	 				String recordURI = ResultSetUtilities.nodeToString(sol.get("mfhd"));
-					MarcRecord rec;
-					if (holdingRecs.containsKey(recordURI)) {
-						rec = holdingRecs.get(recordURI);
-					} else {
-						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-						holdingRecs.put(recordURI, rec);
-					}
-					if (resultKey.contains("Control")) {
-						JenaResultsToMarcRecord.addControlFieldQuerySolution(rec,sol);
-					} else {
-						JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
-					}
-
-				}
-			}
-		}
-		bibRec.holdings.addAll(holdingRecs.values());
-		SolrFields vals = generateSolrFields( bibRec, config );
-		Map<String,SolrInputField> fields = new HashMap<>();
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		for ( BooleanSolrField f : vals.boolFields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
-	}
+public class NewBooks implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }

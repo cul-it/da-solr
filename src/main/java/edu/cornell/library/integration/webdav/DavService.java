@@ -4,7 +4,6 @@ package edu.cornell.library.integration.webdav;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.List;
 
 import com.googlecode.sardine.DavResource;
@@ -49,13 +48,6 @@ public interface DavService {
 
    /**
     * @param url
-    * @return a File as a String
-    * @throws Exception
-    */
-   public String getFileAsString(String url) throws Exception;
-   
-   /**
-    * @param url
     * @return an InputStream
     * @throws Exception
     */
@@ -66,54 +58,13 @@ public interface DavService {
     * outFile and return a File to outFile.
     */
    public File getFile(String url, String localOutFile) throws Exception;
-   
-   /**
-    * @param url
-    * @return
-    * @throws Exception
-    */
-   public Path getNioPath(String url) throws Exception;
-   
+
    /**
     * @param url
     * @param dataStream
     * @throws Exception
     */
    public void saveFile(String url, InputStream dataStream) throws IOException;
-   
-	/**
-	 * @param url
-	 * @param path
-	 * @throws Exception
-	 */
-	public void saveNioPath(String url, Path path) throws Exception;
-   
-   /**
-    * @param url
-    * @param bytes
-    * @throws Exception
-    */
-   public void saveBytesToFile(String url, byte[] bytes ) throws Exception;
-   
-   /**
-    * @param url
-    * @throws Exception
-    */
-   public void deleteFile(String url) throws Exception;
-   
-   /**
-    * @param srcUrl
-    * @param destUrl
-    * @throws Exception
-    */
-   public void moveFile(String srcUrl, String destUrl) throws Exception;
-
-   
-   /**
-    * Attempt to make the directory on the WEBDAV server.
- * @throws IOException 
-    */
-   public void mkDir(String dir) throws IOException;
 
    /**
     * Attempt to make the directory on the WEBDAV server.

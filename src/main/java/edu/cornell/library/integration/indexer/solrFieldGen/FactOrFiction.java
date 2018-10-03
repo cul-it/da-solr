@@ -1,17 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
-
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -23,23 +14,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
  * Fact and Fiction records. Some control field values, such as 'poetry' are
  * ambiguous.
  */
-public class FactOrFiction implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.leader = nodeToString(results.get("leader").nextSolution().get("leader"));
-		JenaResultsToMarcRecord.addControlFieldResultSet( rec, results.get("eight") );
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, null );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
-	}
+public class FactOrFiction implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }

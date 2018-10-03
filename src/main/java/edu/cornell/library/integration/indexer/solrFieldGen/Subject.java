@@ -18,19 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.solr.common.SolrInputField;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hp.hpl.jena.query.ResultSet;
 
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
+import edu.cornell.library.integration.indexer.utilities.AuthorityData;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
+import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
-import edu.cornell.library.integration.indexer.utilities.AuthorityData;
-import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -41,26 +37,10 @@ import edu.cornell.library.integration.utilities.FieldValues;
  * process subject field values into display, facet, search, and browse/filing fields
  *
  */
-public class Subject implements ResultSetToFields, SolrFieldGenerator {
+public class Subject implements SolrFieldGenerator {
 
-	static ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			final Map<String, ResultSet> results, final Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addDataFieldResultSet( rec, results.get("subjects") );
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, config );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		for ( BooleanSolrField f : vals.boolFields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
-	}
 
 	@Override
 	public String getVersion() { return "1.0"; }

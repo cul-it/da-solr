@@ -20,8 +20,8 @@ import edu.cornell.library.integration.webdav.DavService;
 import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class DownloadMARC {
-	Config config;
-	DavService davService;
+	private Config config;
+	private DavService davService;
 	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;

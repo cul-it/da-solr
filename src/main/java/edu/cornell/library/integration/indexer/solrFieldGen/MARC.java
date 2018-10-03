@@ -1,20 +1,11 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -25,37 +16,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
  * processing all bibliographic MARC data into a MARC XML blob to insert into Solr doc
  * 
  */
-public class MARC implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();		
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.leader = nodeToString(results.get("leader").nextSolution().get("leader"));	
-		
-		if (results.containsKey("marc_control_fields")) {
-			ResultSet marc_control_fields = results.get("marc_control_fields");
-			JenaResultsToMarcRecord.addControlFieldResultSet(rec,marc_control_fields,true);
-		}
-		
-		if (results.containsKey("marc_data_fields")) {
-			ResultSet marc_data_fields = results.get("marc_data_fields");
-			JenaResultsToMarcRecord.addDataFieldResultSet( rec, marc_data_fields );
-		}
-		SolrFields vals = generateSolrFields( rec, null );
-
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-
-		return fields;
-	}
+public class MARC implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }

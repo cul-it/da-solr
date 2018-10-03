@@ -22,12 +22,6 @@ task wrapper(type: Wrapper) {
 dependencies {
    compile fileTree(dir: 'libs', include: '*.jar')   
 
-   compile 'org.apache.hadoop:hadoop-core:1.0.3'
-
-   //get us core, tdb, arq, and iri
-   compile 'org.apache.jena:apache-jena:2.11.1'
-
-   compile 'commons-io:commons-io:2.4'
    compile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
    runtime fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
 
@@ -72,7 +66,7 @@ task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Gets a list of BIB, MFHD and item\
  records updates from the Voyager database for the previous day"
- main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
+ main='edu.cornell.library.integration.voyager.IdentifyChangedRecords'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
 }
@@ -155,47 +149,10 @@ task (ConvertMarcToXml, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '1024m'
 }
 
-task( marcXmlToTxt, dependsOn: 'assemble', type: JavaExec) {
- description = "Convert all MARC XML to TXT representation of MARC"
- maxHeapSize = '1500m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToTxt'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task( runExtractReport, dependsOn: 'assemble', type: JavaExec) {
- description = "Generated a tab-delimited report of extracted values"
- maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.RunExtractReport'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task( marcXmlToNT, dependsOn: 'assemble', type: JavaExec) {
- description = "Convert all MARC XML to N-Triples"
- maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToNT'
- classpath = sourceSets.main.runtimeClasspath
-}
-
-task( marcXmlToN3, dependsOn: 'assemble', type: JavaExec) {
- description = "Convert all MARC XML to N3"
- maxHeapSize = '1024m'
- main = 'edu.cornell.library.integration.marcXmlToRdf.MarcToN3'
- classpath = sourceSets.main.runtimeClasspath
-}
-
 task (indexHeadings, dependsOn: 'assemble', type: JavaExec){
    group="Full Build Steps"
    description="Indexes unauthorized headings and record counts based on Blacklight Solr index" 
    main='edu.cornell.library.integration.indexer.IndexHeadings'
-   maxHeapSize = '3000m'
-   classpath = sourceSets.main.runtimeClasspath
-}
-
-task (fullVoyagerXmlToNt, dependsOn: 'assemble', type: JavaExec){
-   group="Full Build Steps"
-   description="Converts Voyager MARC XML to MARC N-Triples." 
-   jvmArgs=['-agentlib:hprof=cpu=samples,interval=20,depth=5']
-   main='edu.cornell.library.integration.marcXmlToRdf.VoyagerFull'
    maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
@@ -207,7 +164,6 @@ task (indexAuthority, dependsOn: 'assemble', type: JavaExec){
    maxHeapSize = '3000m'
    classpath = sourceSets.main.runtimeClasspath
 }
-
 
 task libJar(type: Jar){
     description = 'Create a jar of all the dependencies of this project, but no classes from this project'
@@ -235,15 +191,6 @@ task copyToLib(type: Copy) {
     from configurations.runtime
 }
 
-
-task (IdentifyDeletedRecords, dependsOn:'assemble', type: JavaExec){
- description="Gets a list of BIB and MFHD\
- records updates from the Voyager database for the previous day"
-
- main='edu.cornell.library.integration.indexer.updates.IdentifyDeletedRecords'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '2048m'
-}
 task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
  description="Gets a list of BIB, MFHD and item records from the Solr index"
  main='edu.cornell.library.integration.indexer.updates.IdentifyCurrentSolrRecords'
@@ -253,22 +200,8 @@ task (IdentifyCurrentSolrRecords, dependsOn:'assemble', type: JavaExec){
 
 task (QuickIdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  description="Attempts to quickly but imperfectly identify changed Voyager records."
- main='edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords'
+ main='edu.cornell.library.integration.voyager.IdentifyChangedRecords'
  args = [ 'false' ]
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '512m'
-}
-task (TestLocations, dependsOn:'assemble', type: JavaExec){
- description="Test Voyager Locations Module"
- main='edu.cornell.library.integration.voyager.Locations'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1024m'
-}
-
-task (BuildDisplayFieldTestRecordSuite, dependsOn:'assemble', type: JavaExec){
- description="Automatically identify a test suite of records to be used for display\
-              field testing, and populate a database with their display field contents."
- main='edu.cornell.library.integration.indexTesting.BuildDisplayFieldTestRecordSuite'
- classpath = sourceSets.main.runtimeClasspath
- maxHeapSize = '1024m'
 }

@@ -1,15 +1,8 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
@@ -19,23 +12,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 /**
  * Process Uniform title in field 130.
  */
-public class Title130 implements ResultSetToFields, SolrFieldGenerator {
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("title_130"));
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, null );
-
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-
-		return fields;
-	}
+public class Title130 implements SolrFieldGenerator {
 
 	@Override
 	public String getVersion() { return "1.0"; }

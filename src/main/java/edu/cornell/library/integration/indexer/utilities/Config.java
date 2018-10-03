@@ -22,13 +22,10 @@ import java.util.Properties;
 
 import javax.naming.ConfigurationException;
 
-import org.apache.hadoop.conf.Configuration;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.webdav.DavService;
 import edu.cornell.library.integration.webdav.DavServiceFactory;
-import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
 
 
 /**
@@ -54,7 +51,6 @@ public class Config {
 
 	private Map<String,String> values = new HashMap<>();
 	private Map<String,ComboPooledDataSource> databases = new HashMap<>();
-	private Map<String,RDFService> rdfservices = new HashMap<>();
     private static DavService davService = null;
     
     public static List<String> getRequiredArgsForDB( String db ) {
@@ -454,19 +450,7 @@ public class Config {
     	}
 		return null;
     }
-    
-    
-   public RDFService getRDFService(String id) {
-	   if (rdfservices.containsKey(id))
-		   return rdfservices.get(id);
-	   return null;
-   }
-   
-   public void setRDFService( String id, RDFService rdf ) {
-	   rdfservices.put(id, rdf);
-   }
-    
-    
+
     /**
      * 
      * @param id : database identifier used in config properties file
@@ -555,12 +539,6 @@ public class Config {
     	values.put("databasePoolsize"+id, String.valueOf(size));
     }
 
-    public void closeDatabaseConnectionPools() {
-    	for (String dbid : databases.keySet())
-    		databases.get(dbid).close();
-    }
-
-
     public String getDailyReports() throws IOException {
     	if (values.containsKey("dailyReports")) {
     		makeDirIfNeeded(values.get("webdavBaseUrl") + "/" + values.get("dailyReports"));
@@ -571,33 +549,6 @@ public class Config {
     
     public void setDailyReports(String reports){
         values.put("dailyReports", insertIterationContext(reports));
-    }
-    
-    /* Populate Config values into Hadoop context mapper
-     * 
-     */
-    public Configuration valuesToHadoopConfig(Configuration hadoopConf) {
-    	for (String key : values.keySet())  {
-    		hadoopConf.set(key, values.get(key));
-    	}
-    	return hadoopConf;
-    }
-    
-    /*
-     * Convert Hadoop Configuration to Config, inserting any dates into
-     * config values where XXXX appears.
-     */
-    public static Config loadConfig( Configuration hadoopConf ) {
-        Config solrBuildConfig = new Config();
-        Iterator<Map.Entry<String, String>> i = hadoopConf.iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, String> entry = i.next();
-            String field = entry.getKey();
-            String value = entry.getValue();
-        	String valueWDate = insertIterationContext(value);
-        	solrBuildConfig.values.put(field,valueWDate);
-        }
-    	return solrBuildConfig;
     }
 
     /**

@@ -50,7 +50,7 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 		this.linkNumber = linkNumber;
 		this.fields = fields;
 	}
-	public static class Builder {
+	static class Builder {
 		private Integer id = null;
 		private String mainTag = null;
 		private Integer linkNumber = null;
@@ -71,28 +71,28 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 				}
 			};
 		}
-		public Builder setId(Integer id) {
+		Builder setId(Integer id) {
 			this.id = id;
 			return this;
 		}
 		public Integer getId() {
 			return this.id;
 		}
-		public Builder setMainTag(String mainTag) {
+		Builder setMainTag(String mainTag) {
 			this.mainTag = mainTag;
 			return this;
 		}
 		public String getMainTag() {
 			return this.mainTag;
 		}
-		public Builder setLinkNumber(Integer linkNumber) {
+		Builder setLinkNumber(Integer linkNumber) {
 			this.linkNumber = linkNumber;
 			return this;
 		}
 		public Integer getLinkNumber() {
 			return this.linkNumber;
 		}
-		public Builder addToFields(DataField field) {
+		Builder addToFields(DataField field) {
 			this.fields.add(field);
 			return this;
 		}
@@ -100,7 +100,7 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 			this.fields.addAll(fields);
 			return this;
 		}
-		public DataFieldSet build() throws IllegalArgumentException {
+		DataFieldSet build() throws IllegalArgumentException {
 			if (id == null)
 				throw new IllegalArgumentException("id is a necessary field for a FieldSet.");
 			if (mainTag == null)

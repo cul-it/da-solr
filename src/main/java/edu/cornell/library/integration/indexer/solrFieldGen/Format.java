@@ -1,22 +1,12 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
@@ -29,7 +19,7 @@ import edu.cornell.library.integration.marc.Subfield;
 /**
  * process various record values into complicated determination of item format.  
  */
-public class Format implements ResultSetToFields, SolrFieldGenerator {
+public class Format implements SolrFieldGenerator {
 
 	private static Collection<String> rareLocCodes = Arrays.asList(
 			"asia,ranx","asia,rare",
@@ -44,44 +34,6 @@ public class Format implements ResultSetToFields, SolrFieldGenerator {
 			"sasa,ranx","sasa,rare",
 			"vet,rare",
 			"was,rare","was,ranx");
-
-	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, Config config) throws Exception {
-
-		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
-		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("007"));
-		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("008"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("245"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("502"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("652"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("948"));
-		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-		while ( results.get("holdings_852").hasNext() ) {
-			QuerySolution sol = results.get("holdings_852").nextSolution();
-			String recordURI = nodeToString(sol.get("mfhd"));
-			MarcRecord holdingRec;
-			if (holdingRecs.containsKey(recordURI)) {
-				holdingRec = holdingRecs.get(recordURI);
-			} else {
-				holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-				holdingRec.id = recordURI.substring(recordURI.lastIndexOf('/')+1);
-				holdingRecs.put(recordURI, holdingRec);
-			}
-			JenaResultsToMarcRecord.addDataFieldQuerySolution(holdingRec,sol);
-		}
-		rec.holdings.addAll(holdingRecs.values());
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, config );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-		for ( BooleanSolrField f : vals.boolFields ) {
-			SolrInputField boolField = new SolrInputField(f.fieldName);
-			boolField.setValue(f.fieldValue, 1.0f);
-			fields.put(f.fieldName, boolField);
-		}
-		return fields;
-	}
 
 	@Override
 	public String getVersion() { return "1.0"; }

@@ -7,15 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.io.IOUtils;
 
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
@@ -24,7 +17,7 @@ import com.googlecode.sardine.impl.SardineException;
 
 
 
-public class DavServiceImpl implements DavService {
+class DavServiceImpl implements DavService {
 
     private String davUser;
     private String davPass;
@@ -35,7 +28,7 @@ public class DavServiceImpl implements DavService {
      * @param davUser
      * @param davPass
      */
-    public DavServiceImpl(String davUser, String davPass) {
+    DavServiceImpl(String davUser, String davPass) {
         this.davUser = davUser;
         this.davPass = davPass;
     }
@@ -132,22 +125,6 @@ public class DavServiceImpl implements DavService {
         }
     }
 
-
-    /* (non-Javadoc)
-     * @see edu.cornell.library.integration.service.DavService#getFileAsString(java.lang.String)
-     */
-    public String getFileAsString(String url) throws IOException {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            String result;
-            try (InputStream istream = sardine.get(url)) {
-            	result = IOUtils.toString(istream, StandardCharsets.UTF_8); }
-            return result;
-        }catch(IOException e){
-            throw new IOException("Problem while getting file as a String: " + url ,e );
-        }
-    }
-
     /* (non-Javadoc)
      * @see edu.cornell.library.integration.service.DavService#getFileAsInputStream(java.lang.String)
      */
@@ -197,24 +174,6 @@ public class DavServiceImpl implements DavService {
         }
     }
 
-    public Path getNioPath(String url) throws Exception {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            final Path path;
-            try (InputStream is  = sardine.get(url)) {
-            	CopyOption[] options = new CopyOption[]{
-            			StandardCopyOption.REPLACE_EXISTING
-            	};
-            	path = Files.createTempFile("nio-temp", ".tmp");
-            	path.toFile().deleteOnExit();
-            	Files.copy(is, path, options);	 
-            }
-            return path;
-        }catch(Exception e){
-            throw new Exception("Problem getting file as NIO Path: " + url , e);
-        }
-    }
-
     /* (non-Javadoc)
      * @see edu.cornell.library.integration.service.DavService#saveFile(java.lang.String, java.io.InputStream)
      */
@@ -227,72 +186,6 @@ public class DavServiceImpl implements DavService {
         }
 
     }
-
-    /* (non-Javadoc)
-     * @see edu.cornell.library.integration.webdav.DavService#saveNioPath(java.lang.String, java.nio.file.Path)
-     */
-    public void saveNioPath(String url, Path path) throws Exception {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            File file = path.toFile();
-            try (InputStream dataStream = new FileInputStream(file)) {
-            	sardine.put(url, dataStream); }
-        }catch(IOException e){       
-            throw new IOException("Problem while saving NIO Path to " + url ,e );       
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see edu.cornell.library.integration.service.DavService#saveBytesToFile(java.lang.String, byte[])
-     */
-    public void saveBytesToFile(String url, byte[] bytes) throws IOException {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            sardine.put(url, bytes);   
-        }catch(IOException e){
-            throw new IOException("Problem while saving to file " + url, e);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see edu.cornell.library.integration.webdav.DavService#deleteFile(java.lang.String)
-     */
-    public void deleteFile(String url) throws IOException {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            sardine.delete(url);
-        }catch(IOException e){
-            throw new IOException("Problem deleting " + url, e);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see edu.cornell.library.integration.webdav.DavService#moveFile(java.lang.String, java.lang.String)
-     */
-    public void moveFile(String srcUrl, String destUrl) throws IOException {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            sardine.move(srcUrl, destUrl);
-        }catch(IOException e){
-            throw new IOException("Problem moving file from " + srcUrl + " to " + destUrl, e);
-        }
-    }
-
-    @Override
-    public void mkDir(String dir) throws IOException {
-        try{
-            Sardine sardine = SardineFactory.begin(getDavUser(), getDavPass());
-            sardine.createDirectory( dir );
-        }catch(SardineException se){
-            //oddly this seems to be an exception that gets thrown even when this works.
-            if( se.getStatusCode() != 301 ){
-                throw new IOException("Problem creating directory " + dir , se);
-            }
-        }catch(IOException e){
-            throw new IOException("Problem creating directory " + dir , e);
-        }   
-    }    
-
 
     @Override
     public void mkDirRecursive(String dir) throws IOException {
