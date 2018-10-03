@@ -163,7 +163,7 @@ public class IdentifyChangedRecords {
 							int bib_id = rs.getInt(1);
 							queueBib( current, bib_id, bibDate, 
 									suppress_in_opac != null && suppress_in_opac.equals("N") );
-							if (bibDate != null && 0 > bibDate.compareTo(max_date))
+							if (0 < bibDate.compareTo(max_date))
 								max_date = bibDate;
 						}
 					}
