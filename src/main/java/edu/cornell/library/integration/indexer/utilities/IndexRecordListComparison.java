@@ -15,8 +15,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 
 /**

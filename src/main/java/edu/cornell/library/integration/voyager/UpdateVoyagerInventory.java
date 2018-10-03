@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class UpdateVoyagerInventory {
 

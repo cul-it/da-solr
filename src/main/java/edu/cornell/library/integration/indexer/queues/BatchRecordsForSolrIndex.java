@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class BatchRecordsForSolrIndex {
 

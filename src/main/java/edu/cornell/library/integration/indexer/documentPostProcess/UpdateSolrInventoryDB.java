@@ -24,9 +24,9 @@ import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities.TitleMatchReference;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 /** Evaluate populated fields for conditions of membership for any collections.
  * (Currently only "Law Library".)

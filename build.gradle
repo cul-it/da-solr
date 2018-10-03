@@ -77,11 +77,11 @@ task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  maxHeapSize = '2048m'
 }
 
-task (IterativeUpdateFromVoyager, dependsOn:'assemble', type: JavaExec){
+task (MonitorCatalogRecordChanges, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"
  description="Uses the quick method to identify changed records in Voyager,\
   and updates them in Solr. Continues until the time is after 5pm."
- main='edu.cornell.library.integration.indexer.updates.IterativeUpdateFromVoyager'
+ main='edu.cornell.library.integration.indexer.updates.MonitorCatalogRecordChanges'
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
 }

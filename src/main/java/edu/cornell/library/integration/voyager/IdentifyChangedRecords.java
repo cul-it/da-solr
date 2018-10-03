@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.updates;
+package edu.cornell.library.integration.voyager;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToAvailQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
@@ -108,7 +108,7 @@ public class IdentifyChangedRecords {
 		}
 	}
 
-	IdentifyChangedRecords(Config config, Boolean thorough) throws Exception {
+	public IdentifyChangedRecords(Config config, Boolean thorough) throws Exception {
 		this.config = config;
 		int retryLimit = 4;
 		boolean succeeded = false;

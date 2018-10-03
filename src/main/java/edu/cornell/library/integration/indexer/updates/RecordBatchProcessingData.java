@@ -16,9 +16,9 @@ import java.util.Set;
 
 import com.googlecode.sardine.DavResource;
 
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.webdav.DavService;
 import edu.cornell.library.integration.webdav.DavServiceFactory;
 
