@@ -855,13 +855,6 @@
       <str name="facet.field">online</str>
       <str name="facet.field">language_facet</str>
       <str name="facet.field">location_facet</str>
-      
-      <str name="spellcheck">true</str>
-      <str name="spellcheck.dictionary">default</str>
-      <str name="spellcheck.onlyMorePopular">true</str>
-      <str name="spellcheck.extendedResults">true</str>
-      <str name="spellcheck.collate">false</str>
-      <str name="spellcheck.count">5</str>
     </lst>
     <lst name="appends">
       <str name="fq">type:Catalog</str>
