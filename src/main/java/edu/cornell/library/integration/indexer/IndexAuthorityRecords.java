@@ -147,7 +147,7 @@ public class IndexAuthorityRecords {
 		stmt.execute("CREATE TABLE `authority` ("
 				+ "`id` int(10) unsigned NOT NULL auto_increment, "
 				+ "`source` int(1) unsigned NOT NULL, "
-				+ "`nativeId` varchar(40) NOT NULL, "
+				+ "`nativeId` varchar(80) NOT NULL, "
 				+ "`nativeHeading` text NOT NULL, "
 				+ "`voyagerId` varchar(10) NOT NULL, "
 				+ "`undifferentiated` tinyint(1) unsigned NOT NULL default '0', "
