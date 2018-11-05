@@ -552,6 +552,10 @@ public class IndexAuthorityRecords {
 		for ( AuthoritySource source : AuthoritySource.values() )
 			if (source.prefix() != null && a.lccn.startsWith(source.prefix()))
 				a.source = source;
+		if (a.source == null) {
+			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
+			return;
+		}
 
 		Integer authorityId = null;
 		try ( PreparedStatement stmt = connection.prepareStatement(
