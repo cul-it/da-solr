@@ -3,19 +3,12 @@ package edu.cornell.library.integration.indexer.solrFieldGen;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.Script;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -26,28 +19,18 @@ import edu.cornell.library.integration.utilities.IndexingUtilities;
  * Build Call number display and facet fields in two steps. 
  * All code is executed in each pass, so it needs to have necessary conditionals.
  */
-public class TitleSeries implements ResultSetToFields {
+public class TitleSeries implements SolrFieldGenerator {
 
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+	public String getVersion() { return "1.0"; }
 
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("title_series"));
-
-		Map<String,SolrInputField> fields = new HashMap<>();
-		SolrFields vals = generateSolrFields( rec, null );
-
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);
-
-		return fields;
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("830","490","440","400","410","411","800","810","811");
 	}
 
-	/**
-	 * @param config Is unused, but included to follow a consistent method signature. 
-	 */
-	public static SolrFields generateSolrFields( MarcRecord rec, SolrBuildConfig config ) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
 
 		SolrFields sfs = new SolrFields();
 		List<DataField> fs = rec.matchSortAndFlattenDataFields();

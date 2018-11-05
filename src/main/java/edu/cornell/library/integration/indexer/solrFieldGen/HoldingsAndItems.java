@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.insertSpaceAfterCommas;
 
 import java.io.ByteArrayOutputStream;
@@ -13,6 +12,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,17 +25,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.solr.common.SolrInputField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hp.hpl.jena.query.QuerySolution;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.BooleanSolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.CallNumber;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.ModifyCallNumbers;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.BooleanSolrField;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -47,60 +45,18 @@ import edu.cornell.library.integration.voyager.Locations.Location;
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
  * For a bib record with multiple holdings records, each holdings record will have it's own holdings_record_display.
  */
-public class HoldingsAndItems implements ResultSetToFields {
-
-	private static Boolean debug = false;
+public class HoldingsAndItems implements SolrFieldGenerator {
 
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, com.hp.hpl.jena.query.ResultSet> results, SolrBuildConfig config) throws Exception {
+	public String getVersion() { return "1.0"; }
 
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		Map<String,MarcRecord> holdingRecs = new HashMap<>();
-
-		for( String resultKey: results.keySet()){
-			com.hp.hpl.jena.query.ResultSet rs = results.get(resultKey);
-			while( rs.hasNext() ){
-				QuerySolution sol = rs.nextSolution();
-
-
-				if ( resultKey.equals("description")) {
-
-					JenaResultsToMarcRecord.addDataFieldQuerySolution(bibRec,sol);
-
-				} else if ( resultKey.equals("leader") ) {
-
-					bibRec.leader = nodeToString(sol.get("leader"));
-
-				} else {
-	 				String recordURI = nodeToString(sol.get("mfhd"));
-					MarcRecord rec;
-					if (holdingRecs.containsKey(recordURI)) {
-						rec = holdingRecs.get(recordURI);
-					} else {
-						rec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-						holdingRecs.put(recordURI, rec);
-					}
-					if (resultKey.contains("control")) {
-						JenaResultsToMarcRecord.addControlFieldQuerySolution(rec,sol);
-					} else if (resultKey.contains("data")) {
-						JenaResultsToMarcRecord.addDataFieldQuerySolution(rec,sol);
-					}
-
-				}
-			}
-		}
-		bibRec.holdings.addAll(holdingRecs.values());
-		SolrFields vals = generateSolrFields( bibRec, config );
-		Map<String,SolrInputField> fields = new HashMap<>();
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		for ( BooleanSolrField f : vals.boolFields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-		return fields;
+	@Override
+	public List<String> getHandledFields() {
+		return Arrays.asList("leader","008","050","100","110","300","950","holdings");
 	}
 
-	public static SolrFields generateSolrFields( MarcRecord bibRec, SolrBuildConfig config )
+	@Override
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config config )
 			throws ClassNotFoundException, SQLException, IOException {
 		Collection<String> descriptions = new HashSet<>();
 		boolean description_with_e = false;
@@ -111,14 +67,18 @@ public class HoldingsAndItems implements ResultSetToFields {
 		Collection<Map<String,Object>> boundWiths = new ArrayList<>();
 		ObjectMapper mapper = new ObjectMapper();
 		Collection<Location> workLocations = new LinkedHashSet<>();
+		CallNumber cn = new CallNumber();
 
 
 
 		for (DataField f : bibRec.dataFields) {
-			descriptions.add(f.concatenateSubfieldsOtherThan6());
-			for (Subfield sf : f.subfields)
-				if (sf.code.equals('e'))
-					description_with_e = true;
+			if (f.mainTag.equals("300")) {
+				descriptions.add(f.concatenateSubfieldsOtherThan6());
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('e'))
+						description_with_e = true;
+			} else if (f.mainTag.equals("050") || f.mainTag.equals("950"))
+				cn.tabulateCallNumber(f);
 		}
 		rectypebiblvl = bibRec.leader.substring(6,8);
 
@@ -139,7 +99,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 			for( DataFieldSet fs: sortedFields ) {
 
 				for (DataField f: fs.getFields()) {
-					String callno = null;
 					switch (f.tag) {
 					case "506":
 						// restrictions on access note
@@ -177,7 +136,10 @@ public class HoldingsAndItems implements ResultSetToFields {
 								// a concatenation of all the call number fields. If there are (erroneously)
 								// multiple subfield ‡h entries in one field, the callno will be overwritten
 								// and not duplicated in the call number array.
-								callno = f.concatenateSpecificSubfields("hijklm"); break CODE;
+								callnos.add( ModifyCallNumbers.modify(bibRec,
+										f.concatenateSpecificSubfields("hijklm") ) );
+								cn.tabulateCallNumber(f);
+								break CODE;
 							case 'z':
 								notes.add(sf.value); break CODE;
 							case 't':
@@ -200,8 +162,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 					case "876":
 						registerBoundWith(config, rec.id, f, boundWiths);
 					}
-					if (callno != null)
-						callnos.add(callno);
 				}
 			}
 
@@ -236,7 +196,8 @@ public class HoldingsAndItems implements ResultSetToFields {
 			holding_ids.add(holding.id);
 
 		}
-		if (debug) System.out.println("holdings found: "+StringUtils.join(", ", holding_ids));
+		SolrFields callNumberSolrFields = cn.getCallNumberFields(config);
+		sfs.addAll(callNumberSolrFields);
 
 		// ITEM DATA
 		Integer emptyItemCount[] = {0};
@@ -271,12 +232,29 @@ public class HoldingsAndItems implements ResultSetToFields {
 			}
 		if ( isAtTheLibrary )
 			sfs.add(new SolrField("online","At the Library"));
+		if ( isInLawCollection(locations,workLocations, callNumberSolrFields) )
+			sfs.add(new SolrField("collection","Law Library"));
 
 		return sfs;
 	}
 
+	private static boolean isInLawCollection(
+			Locations locations,
+			Collection<Location> workLocations,
+			SolrFields callNumberSolrFields) {
+
+		for (Location l : workLocations)
+			if (l.code.startsWith("law"))
+				return true;
+		if (workLocations.contains(locations.getByCode("serv,remo")))
+			for (SolrField f : callNumberSolrFields.fields)
+				if (f.fieldName.equals("lc_callnum_facet") && f.fieldValue.startsWith("K"))
+					return true;
+		return false;
+	}
+
 	private static void registerBoundWith(
-			SolrBuildConfig config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
+			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
 					throws ClassNotFoundException, SQLException {
 		String item_enum = "";
 		String barcode = null;
@@ -334,8 +312,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 
         	boolean foundItems = false;
 
-			if (debug)
-				System.out.println(h.id);
 			String query = 
 					"SELECT CORNELLDB.MFHD_ITEM.*,"
 					+ "     CORNELLDB.ITEM.*,"
@@ -348,8 +324,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 					" WHERE CORNELLDB.MFHD_ITEM.MFHD_ID = '" + h.id + "'" +
 					   " AND CORNELLDB.MFHD_ITEM.ITEM_ID = CORNELLDB.ITEM.ITEM_ID" +
 					   " AND CORNELLDB.ITEM.ITEM_TYPE_ID = CORNELLDB.ITEM_TYPE.ITEM_TYPE_ID" ;
-			if (debug)
-				System.out.println(query);
 
 	        ResultSetMetaData rsmd = null;
 	        try (Statement stmt = conn.createStatement();
@@ -364,9 +338,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 	        		String loc = null;
 	        		Location tempLibrary = null;
 	        		String barcode = "";
-	        		
-	        		if (debug) 
-	        			System.out.println();
+
 	        		for (int i=1; i <= mdcolumnCount ; i++) {
 	        			String colname = rsmd.getColumnName(i).toLowerCase();
 	        			if (colname.equals("create_location_id")
@@ -402,8 +374,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 	       				if ((colname.equals("temp_location")
 	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
-	       					if (debug)
-	       						System.out.println(colname+": "+value);
 	       					Location l = locations.getByNumber(Integer.valueOf(value));
 	       					if (l != null) {
 		       					if (colname.equals("perm_location"))
@@ -414,8 +384,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 	       					} else record.put(colname, value);
 	       				} else {
 	       					record.put(colname, value);
-	       					if (debug)
-	       						System.out.println(colname+": "+value);
 	       				}
 	        		}
 	        		
@@ -445,7 +413,9 @@ public class HoldingsAndItems implements ResultSetToFields {
 		        		enumStats.put(loc, stats);
 	        		}
 	        		items.put(Integer.valueOf((String)record.get("item_id")),record);
-	        		if (barcode.isEmpty())
+	        		if (! barcode.isEmpty())
+       					sfs.add(new SolrField( "barcode_t",barcode) );
+	        		else
 	        			emptyItemCount[0]++;
 	        		foundItems = true;
 	        		if (tempLibrary != null)
@@ -535,7 +505,7 @@ public class HoldingsAndItems implements ResultSetToFields {
     					record.get("chron") + record.get("year");
 				if (enumeration.isEmpty()) {
 					Holdings h = holdings.get(record.get("mfhd_id").toString());
-					record.put("item_enum", StringUtils.join(",  ",h.holdings_desc));
+					record.put("item_enum", String.join(",  ",h.holdings_desc));
 				}
 			}
 		}
@@ -547,8 +517,6 @@ public class HoldingsAndItems implements ResultSetToFields {
 
 		for (Map<String,Object> record : items.values()) {
 	 		String json = mapper.writeValueAsString(record);
-			if (debug)
-				System.out.println(json);
 			sfs.add(new SolrField( "item_record_display",json) );
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));
@@ -596,7 +564,7 @@ public class HoldingsAndItems implements ResultSetToFields {
 		public Boolean diverseEnumFound = false;
 	}
 
-	public static class Holdings {
+	private static class Holdings {
 		public String id;
 		public String modified_date = null;
 		public String copy_number = null;

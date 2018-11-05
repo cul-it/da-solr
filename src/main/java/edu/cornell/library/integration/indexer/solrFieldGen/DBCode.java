@@ -1,60 +1,42 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * 856‡i should be access instructions, but has been used to store code keys
  * that map database records to information about access restrictions
  */
-public class DBCode implements ResultSetToFields {
+public class DBCode implements SolrFieldGenerator {
 
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
-		
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
-		
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();
+	public String getVersion() { return "1.0"; }
 
-		Set<String> dbcodes = new HashSet<>();
-		Set<String> providercodes = new HashSet<>();
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("899"); }
 
-					String instructions = nodeToString(sol.get("v"));
-					if (instructions.contains("_")) {
-						String[] codes = instructions.split("_",2);
-						if (codes.length == 2) {
-							providercodes.add(codes[0]);
-							dbcodes.add(codes[1]);
-						}
+	/**
+	 * @param config Is unused, but included to follow a consistent method signature. 
+	 */
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
+		SolrFields vals = new SolrFields();
+		for (DataField f : rec.dataFields)
+			for (Subfield sf : f.subfields) if (sf.code.equals('a'))
+				if (sf.value.contains("_")) {
+					String[] codes = sf.value.split("_",2);
+					if (codes.length == 2) {
+						vals.add(new SolrField("providercode",codes[0]));
+						vals.add(new SolrField("dbcode",codes[1]));
 					}
 				}
-			}
-		}
-		for ( String dbcode : dbcodes )
-			addField(fields,"dbcode",dbcode);
-		for ( String providercode : providercodes )
-			addField(fields,"providercode",providercode);
-		return fields;
-	}	
-
+		return vals;
+	}
 }

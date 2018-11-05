@@ -5,8 +5,11 @@
 # tweaks for K-Stemmer, relating to words that should or should not be in dictionary
 waterers, waterer => watererprot
 thor => thorprot
+homer => homerprot
+tardis => tardisprot
 stars => star
-works => work
+works, working => work
+locks => lock
 
 # computer languages
 # these are explicit mappings so when WDF drops the non-letter chars, c++ is not equivalent to c

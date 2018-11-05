@@ -11,14 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.ResultSet;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.JenaResultsToMarcRecord;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrField;
-import edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -31,7 +26,7 @@ import edu.cornell.library.integration.marc.Subfield;
  * No accounting is made here for codes which are deprecated for use in new records,
  * as their meaning, if found, is not changed by their deprecation.
  */
-public class Language implements ResultSetToFields {
+public class Language implements SolrFieldGenerator {
 
 	private static Map<String,Code> codes = new HashMap<>();
 	static {
@@ -39,24 +34,13 @@ public class Language implements ResultSetToFields {
 	}
 
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+	public String getVersion() { return "1.0"; }
 
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		JenaResultsToMarcRecord.addControlFieldResultSet(rec,results.get("language_008"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("language_note"));
-		JenaResultsToMarcRecord.addDataFieldResultSet(rec,results.get("languages_041"));
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("008","041","546"); }
 
-		Map<String,SolrInputField> fields = new HashMap<>();
-
-		SolrFields vals = generateSolrFields( rec );
-		for ( SolrField f : vals.fields )
-			ResultSetUtilities.addField(fields, f.fieldName, f.fieldValue);		
-
-		return fields;
-	}
-
-	public static SolrFields generateSolrFields(MarcRecord rec) {
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 
 		List<String> display = new ArrayList<>();
 		List<String> facet = new ArrayList<>();
@@ -69,6 +53,10 @@ public class Language implements ResultSetToFields {
 		for (ControlField cf : rec.controlFields) {
 			if (! cf.tag.equals("008"))
 				continue;
+			if ( cf.value.length() < 38 ) {
+				System.out.println( "Error: Corrupt 008 field on b"+rec.id );
+				continue;
+			}
 			String langCode = cf.value.substring(35,38).toLowerCase();
 			if (langCode.trim().isEmpty() || langCode.equals("|||"))
 				continue;

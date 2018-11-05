@@ -18,10 +18,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.BlacklightField;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.utilities.FilingNormalization;
 
 /**
@@ -68,9 +68,9 @@ public class IdentifyHeadings {
 	public IdentifyHeadings() throws Exception {
 
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = SolrBuildConfig.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
 		requiredArgs.add("blacklightSolrUrl");
-		SolrBuildConfig	config = SolrBuildConfig.loadConfig(null,requiredArgs);
+		Config	config = Config.loadConfig(null,requiredArgs);
 
 
 		Collection<BlacklightField> blFields = new ArrayList<>();
@@ -95,7 +95,7 @@ public class IdentifyHeadings {
 		}
 	}
 
-	private static void processBlacklightFieldHeaderData(SolrBuildConfig config, BlacklightField blf) throws Exception {
+	private static void processBlacklightFieldHeaderData(Config config, BlacklightField blf) throws Exception {
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 				blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
 
@@ -115,7 +115,7 @@ public class IdentifyHeadings {
 		}
 	}
 
-	private static int pollHeadings(SolrBuildConfig config, URL queryUrl, BlacklightField blf) throws Exception {
+	private static int pollHeadings(Config config, URL queryUrl, BlacklightField blf) throws Exception {
 
 		// save terms info for field to temporary file.
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.facetField()+"-", ".xml");

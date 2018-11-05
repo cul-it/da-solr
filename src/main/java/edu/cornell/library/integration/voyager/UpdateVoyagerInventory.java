@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig.getRequiredArgsForDB;
+import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 
 import java.sql.Connection;
@@ -17,8 +17,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
-import edu.cornell.library.integration.indexer.updates.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.indexer.queues.AddToQueue;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class UpdateVoyagerInventory {
 
@@ -44,7 +45,7 @@ public class UpdateVoyagerInventory {
 			"SELECT m.bib_id FROM mfhdRecsVoyager as m , bibRecsVoyager as b "
 			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
-	public UpdateVoyagerInventory( SolrBuildConfig config ) throws ClassNotFoundException, SQLException {
+	public UpdateVoyagerInventory( Config config ) throws ClassNotFoundException, SQLException {
 	    try (   Connection voyager = config.getDatabaseConnection("Voy");
 	    		Connection current = config.getDatabaseConnection("Current") ) {
 
@@ -63,7 +64,7 @@ public class UpdateVoyagerInventory {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new UpdateVoyagerInventory( SolrBuildConfig.loadConfig(args, requiredArgs) );
+			new UpdateVoyagerInventory( Config.loadConfig(args, requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
@@ -155,7 +156,7 @@ public class UpdateVoyagerInventory {
 					bibVoyIStmt.setBoolean(3, v_entry.getValue().active);
 					bibVoyIStmt.addBatch();
 					if (v_entry.getValue().active)
-						if ( queue(current, bib_id, DataChangeUpdateType.ADD) )
+						if ( queue(current, bib_id, DataChangeUpdateType.ADD, v_entry.getValue().time) )
 							queuedCount++;
 					if ( ++i % 10_000 == 0)
 						bibVoyIStmt.executeBatch();
@@ -168,7 +169,8 @@ public class UpdateVoyagerInventory {
 			System.out.println(deletedBibs.size()+" deleted bibs.");
 
 			try (   PreparedStatement bibVoyUStmt = current.prepareStatement( bibVoyUpdate );
-					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
+					PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery );
+					PreparedStatement bibDeleteQueueStmt = AddToQueue.deleteQueueStmt(current)) {
 
 				int i = 0;
 				int queuedCount = 0;
@@ -188,10 +190,12 @@ public class UpdateVoyagerInventory {
 					bibVoyUStmt.setBoolean(2, false);
 					bibVoyUStmt.setInt(3, bib_id);
 					bibVoyUStmt.addBatch();
-					if ( queue(current, bib_id, DataChangeUpdateType.DELETE) )
-						queuedCount++;
-					if ( ++i % 10_000 == 0)
+					AddToQueue.add2DeleteQueueBatch(bibDeleteQueueStmt, bib_id);
+					queuedCount++;
+					if ( ++i % 10_000 == 0) {
+						bibDeleteQueueStmt.executeBatch();
 						bibVoyUStmt.executeBatch();
+					}
 				}
 				System.out.println("\t"+queuedCount+" bibs deletes queued.");
 
@@ -214,17 +218,19 @@ public class UpdateVoyagerInventory {
 					bibVoyUStmt.addBatch();
 					if (v_entry.getValue().active) {
 						if ( c_active != null && c_active ) {
-							if ( queue(current, bib_id, DataChangeUpdateType.BIB_UPDATE) )
+							if ( queue(current, bib_id, DataChangeUpdateType.BIB_UPDATE, v_entry.getValue().time) )
 								queuedCountUpd++;
 						} else
-							if ( queue(current, bib_id, DataChangeUpdateType.ADD) )
+							if ( queue(current, bib_id, DataChangeUpdateType.ADD, v_entry.getValue().time) )
 								queuedCountAdd++;
 					} else if ( c_active != null && c_active ){
-						if ( queue(current, bib_id, DataChangeUpdateType.DELETE) )
-							queuedCountDel++;
+						AddToQueue.add2DeleteQueueBatch(bibDeleteQueueStmt, bib_id);
+						queuedCountDel++;
 					}
-					if ( ++i % 10_000 == 0)
+					if ( ++i % 10_000 == 0) {
 						bibVoyUStmt.executeBatch();
+						bibDeleteQueueStmt.executeBatch();
+					}
 				}
 				if ( queuedCountUpd > 0 )
 					System.out.println("\t"+queuedCountUpd+" bib updates queued.");
@@ -234,6 +240,7 @@ public class UpdateVoyagerInventory {
 					System.out.println("\t"+queuedCountDel+" bib deletes queued.");
 
 				bibVoyUStmt.executeBatch();
+				bibDeleteQueueStmt.executeBatch();
 			}
 		}
 	}
@@ -343,7 +350,7 @@ public class UpdateVoyagerInventory {
 					mfhdVoyIStmt.setInt(2, mfhd_id);
 					mfhdVoyIStmt.setTimestamp(3, v_entry.getValue().time);
 					mfhdVoyIStmt.addBatch();
-					if ( queue(current, bib_id, DataChangeUpdateType.MFHD_ADD) )
+					if ( queue(current, bib_id, DataChangeUpdateType.MFHD_ADD, v_entry.getValue().time) )
 						queuedCount++;
 					if ( ++i % 10_000 == 0)
 						mfhdVoyIStmt.executeBatch();
@@ -365,7 +372,7 @@ public class UpdateVoyagerInventory {
 					mfhdVoyDStmt.addBatch();
 					int v_bib_id = v_entry.getValue();
 					if ( isBibActive( current , v_bib_id ))
-						if ( queue(current, v_bib_id, DataChangeUpdateType.MFHD_DELETE) )
+						if ( queue(current, v_bib_id, DataChangeUpdateType.MFHD_DELETE, new Timestamp(System.currentTimeMillis())) )
 							queuedCount++;
 					if ( ++i % 10_000 == 0)
 						mfhdVoyDStmt.executeBatch();
@@ -389,10 +396,10 @@ public class UpdateVoyagerInventory {
 					Integer old_bib_id = v_entry.getValue().old_bib_id;
 					if (isBibActive(current,bib_id)) {
 						if (old_bib_id != null) {
-							if ( queue(current, bib_id, DataChangeUpdateType.MFHD_ADD) )
+							if ( queue(current, bib_id, DataChangeUpdateType.MFHD_ADD, v_entry.getValue().time) )
 								queuedCount++;
 						} else
-							if ( queue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE) )
+							if ( queue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE, v_entry.getValue().time) )
 								queuedCount++;
 						mfhdVoyUStmt.setTimestamp(1, v_entry.getValue().time);
 						mfhdVoyUStmt.setInt(2, bib_id);
@@ -405,7 +412,7 @@ public class UpdateVoyagerInventory {
 						mfhdVoyDStmt.executeUpdate();
 					}
 					if ( old_bib_id != null && isBibActive(current,old_bib_id))
-						if ( queue(current, old_bib_id, DataChangeUpdateType.MFHD_DELETE) )
+						if ( queue(current, old_bib_id, DataChangeUpdateType.MFHD_DELETE,  new Timestamp(System.currentTimeMillis())) )
 							queuedCount++;
 				}
 				mfhdVoyUStmt.executeBatch();
@@ -510,7 +517,7 @@ public class UpdateVoyagerInventory {
 					itemVoyIStmt.setInt(2, item_id);
 					itemVoyIStmt.setTimestamp(3, v_entry.getValue().time);
 					itemVoyIStmt.addBatch();
-					if ( queue(current, bib_id, DataChangeUpdateType.ITEM_ADD) )
+					if ( queue(current, bib_id, DataChangeUpdateType.ITEM_ADD, v_entry.getValue().time) )
 						queuedCount++;
 					if ( ++i % 10_000 == 0)
 						itemVoyIStmt.executeBatch();
@@ -533,7 +540,7 @@ public class UpdateVoyagerInventory {
 
 					Integer bib_id = bibForMfhd(current,v_entry.getValue());
 					if (bib_id != null)
-						if ( queue(current, bib_id, DataChangeUpdateType.ITEM_DELETE) )
+						if ( queue(current, bib_id, DataChangeUpdateType.ITEM_DELETE, new Timestamp(System.currentTimeMillis())) )
 							queuedCount++;
 					if ( ++i % 10_000 == 0)
 						itemVoyDStmt.executeBatch();
@@ -559,10 +566,10 @@ public class UpdateVoyagerInventory {
 
 					if (bib_id != null) {
 						if (old_bib_id != null) {
-							if ( queue(current, bib_id, DataChangeUpdateType.ITEM_ADD) )
+							if ( queue(current, bib_id, DataChangeUpdateType.ITEM_ADD, v_entry.getValue().time) )
 								queuedCount++;
 						} else
-							if ( queue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE) )
+							if ( queue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE, v_entry.getValue().time) )
 								queuedCount++;
 						itemVoyUStmt.setTimestamp(1, v_entry.getValue().time);
 						itemVoyUStmt.setInt(2, mfhd_id);
@@ -575,7 +582,7 @@ public class UpdateVoyagerInventory {
 						itemVoyDStmt.executeUpdate();
 					}
 					if ( old_bib_id != null )
-						if ( queue(current, old_bib_id, DataChangeUpdateType.ITEM_DELETE) )
+						if ( queue(current, old_bib_id, DataChangeUpdateType.ITEM_DELETE, new Timestamp(System.currentTimeMillis())) )
 							queuedCount++;
 				}
 				itemVoyUStmt.executeBatch();
@@ -585,10 +592,10 @@ public class UpdateVoyagerInventory {
 	}
 
 	final static Set<Integer> queuedBibs = new HashSet<>();
-	private static boolean queue( Connection current, Integer bib_id, DataChangeUpdateType type) throws SQLException {
+	private static boolean queue( Connection current, Integer bib_id, DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
 		if (queuedBibs.contains(bib_id))
 			return false;
-		addBibToUpdateQueue(current, bib_id, type);
+		addBibToUpdateQueue(current, bib_id, type, recordDate);
 		queuedBibs.add(bib_id);
 		return true;
 	}

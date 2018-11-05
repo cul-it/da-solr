@@ -27,7 +27,7 @@ public class DataField implements Comparable<DataField> {
 		return this.toString('\u2021');
 	}
 
-	public String toString(final Character subfieldSeparator) {
+	String toString(final Character subfieldSeparator) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(this.tag);
 		sb.append(" ");
@@ -42,6 +42,27 @@ public class DataField implements Comparable<DataField> {
 			sb.append(sf.value.trim());
 		}
 		return sb.toString();
+	}
+
+	StringBuilder toStringBuilder() {
+		return this.toStringBuilder('\u2021');
+	}
+
+	private StringBuilder toStringBuilder(final Character subfieldSeparator) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.tag);
+		sb.append(" ");
+		sb.append(this.ind1);
+		sb.append(this.ind2);
+
+		for(final Subfield sf : this.subfields) {
+			sb.append(" ");
+			sb.append(subfieldSeparator);
+			sb.append(sf.code);
+			sb.append(" ");
+			sb.append(sf.value.trim());
+		}
+		return sb;
 	}
 
 	public String concatenateSubfieldsOtherThan6() {
@@ -251,7 +272,7 @@ public class DataField implements Comparable<DataField> {
 	 * @throws IllegalArgumentException
 	 *  will be thrown if <b>targetCount</b> characters exceeds the length of string <b>s</b>.
 	 */
-	public static String stripLeadCharsFromString( String s, Integer targetCount, String reserves )
+	static String stripLeadCharsFromString( String s, Integer targetCount, String reserves )
 			throws IllegalArgumentException {
 
 		int pos = 0;
@@ -302,32 +323,6 @@ public class DataField implements Comparable<DataField> {
 		this.ind2 = ind2;
 		this.mainTag = tag;
 		this.subfields = parseSubfields(subfields,'‡');
-	}
-	public DataField( int id, String tag, Character ind1, Character ind2,
-			String subfields, Character subfieldSeparator ) {
-		this.id = id;
-		this.tag = tag;
-		this.ind1 = ind1;
-		this.ind2 = ind2;
-		this.mainTag = tag;
-		this.subfields = parseSubfields(subfields,subfieldSeparator);
-	}
-	public DataField( int id, int linkNumber, String tag ) {
-		this.id = id;
-		this.linkNumber = linkNumber;
-		this.tag = tag;
-		this.mainTag = tag;
-	}
-	public DataField( int id, String tag, Boolean eighteighty ) {
-		this.id = id;
-		this.tag = (eighteighty)?"880":tag;
-		this.mainTag = tag;
-	}
-	public DataField( int id, int linkNumber, String tag, Boolean eighteighty ) {
-		this.id = id;
-		this.linkNumber = linkNumber;
-		this.tag = (eighteighty)?"880":tag;
-		this.mainTag = tag;
 	}
 
 	public static enum Script {

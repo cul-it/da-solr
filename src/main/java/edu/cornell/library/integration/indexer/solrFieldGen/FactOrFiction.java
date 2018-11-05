@@ -1,57 +1,37 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.MarcRecord;
 
 /**
  * Using control fixed fields present in Book type MARC bib records to identify
  * Fact and Fiction records. Some control field values, such as 'poetry' are
  * ambiguous.
  */
-public class FactOrFiction implements ResultSetToFields {
+public class FactOrFiction implements SolrFieldGenerator {
 
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+	public String getVersion() { return "1.0"; }
 
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("leader","008"); }
 
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();
-		String chars6and7 = "";
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
+
+		String chars6and7 = rec.leader.substring(6,8);
 		String char33 = "";
+		for (ControlField f : rec.controlFields)
+			if (f.tag.equals("008") && f.value.length() >= 34)
+				char33 = f.value.substring(33,34);
 
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					Iterator<String> names = sol.varNames();
-					while(names.hasNext() ){						
-						String name = names.next();
-						RDFNode node = sol.get(name);
-						if (name.equals("char33")) 
-							char33 = nodeToString( node );
-						else
-							chars6and7 = nodeToString( node );
-					}
-				}
-			}
-		}
-
+		SolrFields vals = new SolrFields();
 		if (chars6and7.equalsIgnoreCase("aa") 
 			|| chars6and7.equalsIgnoreCase("ac")
 			|| chars6and7.equalsIgnoreCase("ad")
@@ -60,16 +40,16 @@ public class FactOrFiction implements ResultSetToFields {
 			) {
 			if (char33.equals("0") ||
 					char33.equalsIgnoreCase("i")) {
-				addField(fields,"subject_content_facet","Non-Fiction (books)");
+				vals.add(new SolrField("subject_content_facet","Non-Fiction (books)"));
 			} else if (char33.equals("1") ||
 					char33.equalsIgnoreCase("d") ||
 					char33.equalsIgnoreCase("f") ||
 					char33.equalsIgnoreCase("j")) {
-				addField(fields,"subject_content_facet","Fiction (books)");
+				vals.add(new SolrField("subject_content_facet","Fiction (books)"));
 			}
 		}
 		
-		return fields;
+		return vals;
 
 	}
 }

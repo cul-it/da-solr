@@ -55,7 +55,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	public MarcRecord( RecordType type , String marc21OrMarcXml ) throws IOException, XMLStreamException {
 		this( type );
-		String marcXml = ( marc21OrMarcXml.contains("<record>") )
+		String marcXml = ( marc21OrMarcXml.contains("<record") )
 				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
 		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
@@ -127,9 +127,14 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 
 		for( final DataField f: this.dataFields) {
-			sb.append(f.toString());
+			sb.append(f.toStringBuilder());
 			sb.append("\n");
 		}
+
+		if (this.type.equals(RecordType.BIBLIOGRAPHIC))
+			for (MarcRecord holdings : this.holdings)
+				sb.append('\n').append(holdings.toString());
+
 		return sb.toString();
 	}
 
@@ -146,6 +151,16 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			fields.addAll(fs.getFields());
 		return fields;
 	}
+
+	public List<DataField> matchSortAndFlattenDataFields(String mainTag) {
+		Collection<DataFieldSet> individualSets = matchAndSortDataFields(false);
+		List<DataField> fields = new ArrayList<>();
+		for (DataFieldSet fs : individualSets)
+			if (fs.getMainTag().equals(mainTag))
+				fields.addAll(fs.getFields());
+		return fields;
+	}
+
 	public TreeSet<DataFieldSet> matchAndSortDataFields(boolean forceVernMatch) {
 		// Put all fields with link occurrence numbers into matchedFields to be grouped by
 		// their occurrence numbers. Everything else goes in sorted fields keyed by field id
@@ -418,6 +433,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					ControlField f = new ControlField(++id,tag,r.getElementText());
 					if (f.tag.equals("001"))
 						this.id = f.value;
+					else if (f.tag.equals("005"))
+						this.modifiedDate = f.value;
 					this.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
@@ -432,9 +449,16 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							f.ind2 = r.getAttributeValue(i).charAt(0);
 					f.subfields = processSubfields(r);
+
 					for (Subfield sf : f.subfields) if (sf.code.equals('6'))
-						if (subfield6Pattern.matcher(sf.value).matches())
-							f.mainTag = sf.value.substring(0,3);
+						if (subfield6Pattern.matcher(sf.value).matches()) {
+							if (f.tag.equals("880"))
+								f.mainTag = sf.value.substring(0,3);
+							f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
+							break;
+						}
+					if (f.mainTag == null)
+						f.mainTag = f.tag;
 					this.dataFields.add(f);
 				}
 		
@@ -442,7 +466,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 		return;
 	}
-	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-.*");
+	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
 	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws XMLStreamException {
 		TreeSet<Subfield> fields = new TreeSet<>();

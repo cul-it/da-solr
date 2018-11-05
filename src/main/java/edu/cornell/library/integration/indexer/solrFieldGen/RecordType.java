@@ -1,21 +1,14 @@
 package edu.cornell.library.integration.indexer.solrFieldGen;
 
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.addField;
-import static edu.cornell.library.integration.indexer.solrFieldGen.ResultSetUtilities.nodeToString;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.solr.common.SolrInputField;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-
-import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
+import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.indexer.utilities.SolrFields;
+import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
+import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 /**
  * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
@@ -23,69 +16,36 @@ import edu.cornell.library.integration.ilcommons.configuration.SolrBuildConfig;
  * so only records that should NOT be returned in Blacklight work-level searches should
  * vary from this.
  */
-public class RecordType implements ResultSetToFields {
+public class RecordType implements SolrFieldGenerator {
 
-	protected boolean debug = false;
-	
 	@Override
-	public Map<String, SolrInputField> toFields(
-			Map<String, ResultSet> results, SolrBuildConfig config) throws Exception {
+	public String getVersion() { return "1.0"; }
 
-		//The results object is a Map of query names to ResultSets that
-		//were created by the fieldMaker objects.
+	@Override
+	public List<String> getHandledFields() { return Arrays.asList("948","holdings"); }
 
-		//This method needs to return a map of fields:
-		Map<String,SolrInputField> fields = new HashMap<>();
-		Collection<String> sf948hs = new HashSet<>();
-		Collection<String> sf852xs = new HashSet<>();
+	@Override
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
+
 		Boolean isShadow = false;
-		
 
-		for( String resultKey: results.keySet()){
-			ResultSet rs = results.get(resultKey);
-			if (debug) System.out.println("Result Key: "+resultKey);
-			if( rs != null){
-				while(rs.hasNext()){
-					QuerySolution sol = rs.nextSolution();
-					Iterator<String> names = sol.varNames();
-					while(names.hasNext() ){						
-						String name = names.next();
-						RDFNode node = sol.get(name);
-						if (debug) System.out.println("Field: "+name);
-						if (name.equals("sf948h")) {
-							sf948hs.add(nodeToString( node ));
-							if (debug) System.out.println("sf948h = "+nodeToString( node ));
-						} else if (name.equals("sf852x")) {
-							sf852xs.add(nodeToString( node ));
-							if (debug) System.out.println("sf852x = "+nodeToString( node ));
-						}
+		for ( DataField f : rec.dataFields )
+			if ( f.tag.equals("948") )
+				for ( Subfield sf : f.subfields )
+					if ( sf.code.equals('h') && sf.value.equalsIgnoreCase("public services shadow record") )
+						isShadow = true;
 
-					}
-				}
-			}
-		}
+		for ( MarcRecord hRec : rec.holdings ) 
+			for ( DataField f : hRec.dataFields )
+				if ( f.tag.equals("852") )
+					for ( Subfield sf : f.subfields )
+						if ( sf.code.equals('x') && sf.value.equalsIgnoreCase("public services shadow record") )
+							isShadow = true;
 
-		Iterator<String> i = sf948hs.iterator();
-		while (i.hasNext())
-			if (i.next().toLowerCase().equals("public services shadow record")) {
-				isShadow = true;
-				if (debug) System.out.println("type:Shadow due to 948‡h = \"PUBLIC SERVICES SHADOW RECORD\".");
-			}
-		i = sf852xs.iterator();
-		while (i.hasNext())
-			if (i.next().toLowerCase().equals("public services shadow record")) {
-				isShadow = true;
-				if (debug) System.out.println("type:Shadow due to mfhd 852‡x = \"PUBLIC SERVICES SHADOW RECORD\".");
-			}
-		
-		if (isShadow) {
-			addField(fields,"type","Shadow");
-		} else {
-			addField(fields,"type","Catalog");
-		}
-
-		addField(fields,"source","Voyager");
-		return fields;
-
+		SolrFields sfs = new SolrFields();
+		sfs.add(new SolrField("type",isShadow?"Shadow":"Catalog"));
+		sfs.add(new SolrField("source","Voyager"));
+		return sfs;
 	}
+
 }
