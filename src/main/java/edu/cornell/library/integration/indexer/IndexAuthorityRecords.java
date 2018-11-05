@@ -83,7 +83,6 @@ public class IndexAuthorityRecords {
         while (i.hasNext()) {
 			String srcFile = i.next();
 			System.out.println(srcFile);
-			if ( srcFile.contains("001") || srcFile.contains("002") ) continue;
 			boolean processedFile = false;
 			while ( ! processedFile ) {
 				try {
