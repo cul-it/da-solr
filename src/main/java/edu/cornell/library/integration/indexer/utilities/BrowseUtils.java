@@ -119,4 +119,24 @@ public class BrowseUtils {
 
 	}
 
+	public static enum AuthoritySource {
+		LCNAF ("Library of Congress Name Authority File", "n"),
+		LCSH  ("Library of Congress Subject Headings",    "s"),
+		LCGFT ("Library of Congress Genre/Form Terms",    "g"),
+		LOCAL ("Local Authority File",                  "loc");
+
+		private final String name;
+		private final String idPrefix;
+
+		private AuthoritySource(final String name, final String idPrefix) {
+			this.name = name;
+			this.idPrefix = idPrefix;
+		}
+
+		@Override
+		public String toString() { return name; }
+
+		public String prefix() { return idPrefix; }
+	}
+
 }
