@@ -558,7 +558,22 @@ public class IndexAuthorityRecords {
 		}
 
 		Integer authorityId = null;
-		try ( PreparedStatement stmt = connection.prepareStatement(
+
+		// Get record id if already exists
+		try ( PreparedStatement pstmt = connection.prepareStatement(
+				"SELECT id FROM authority " +
+				"WHERE source = ? AND nativeId = ?") ){
+			pstmt.setInt    (1, a.source.ordinal());
+			pstmt.setString (2, a.lccn);
+			try ( ResultSet resultSet = pstmt.executeQuery() ) {
+				while (resultSet.next())
+					authorityId = resultSet.getInt(1);
+			}
+		}
+		if ( authorityId != null )
+			System.out.println("Possible duplicate authority ID: "+authorityId);
+
+		else try ( PreparedStatement stmt = connection.prepareStatement(
 				"INSERT INTO authority"
 				+ " (source, nativeId, nativeHeading, voyagerId, undifferentiated)"
 				+ " VALUES (?,?,?,?,?)",
