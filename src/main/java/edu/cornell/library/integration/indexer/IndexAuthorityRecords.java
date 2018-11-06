@@ -249,9 +249,11 @@ public class IndexAuthorityRecords {
 						a.expectedNotes.add("666");
 					else if (recordType.equals('c'))
 						a.expectedNotes.add("664");
-					Character undifferentiated = f.value.charAt(32);
-					if (undifferentiated.equals('b'))
-						a.isUndifferentiated = true;
+					if ( f.value.length() >= 32 ) {
+						Character undifferentiated = f.value.charAt(32);
+						if (undifferentiated.equals('b'))
+							a.isUndifferentiated = true;
+					}
 				}
 			}
 		}
