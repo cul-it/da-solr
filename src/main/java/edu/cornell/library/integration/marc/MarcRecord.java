@@ -482,8 +482,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("code"))
 							code = r.getAttributeValue(i).charAt(0);
-					if (code != null)
-						subfields.add(new Subfield(++id,code,r.getElementText().trim()));
+					if (code == null) code = ' ';
+					subfields.add(new Subfield(++id,code,r.getElementText().trim()));
 				}
 		}
 		return subfields; // We should never reach this line.
