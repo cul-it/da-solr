@@ -347,7 +347,8 @@ public class IndexingUtilities {
 		boolean isRightToLeft = s.endsWith(PDF_closeRTL);
 		if (isRightToLeft)
 			cursor -= PDF_closeRTL.length();
-		while (cursor >= 0 && unwantedChars.indexOf( s.charAt(cursor) ) != -1)
+		while (cursor >= 0 && unwantedChars.indexOf( s.charAt(cursor) ) != -1
+				&& ! (cursor >= 2 && s.substring(cursor-2,cursor+1).equals("...") ))
 			cursor--;
 
 		boolean needsPeriod = false;
