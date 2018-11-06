@@ -282,9 +282,14 @@ public class IndexAuthorityRecords {
 				// equivalent values
 				Relation r = determineRelationship(f);
 				if (r != null) {
-					a.expectedNotes.addAll(r.expectedNotes);
-					r.heading = processHeadingField(f,a.mainHead.val);
-					a.sees.add(r);
+					if ( a.mainHead == null ) {
+						System.out.println("Found 4xx relation while main heading is null.");
+						System.out.println(rec.toString());
+					} else {
+						a.expectedNotes.addAll(r.expectedNotes);
+						r.heading = processHeadingField(f,a.mainHead.val);
+						a.sees.add(r);
+					}
 				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
