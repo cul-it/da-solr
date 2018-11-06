@@ -604,7 +604,7 @@ public class IndexAuthorityRecords {
 		if (authorityId == null) return;
 
 		try (PreparedStatement pstmt = connection.prepareStatement(
-				"INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
+				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
 			pstmt.setInt(1, a.mainHead.id);
 			pstmt.setInt(2, authorityId);
 			pstmt.executeUpdate();
