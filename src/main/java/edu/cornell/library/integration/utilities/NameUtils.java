@@ -15,14 +15,13 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.indexer.utilities.AuthorityData;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
-import edu.cornell.library.integration.indexer.utilities.RelatorSet;
-import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.Script;
+import edu.cornell.library.integration.metadata.support.AuthorityData;
+import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
+import edu.cornell.library.integration.metadata.support.AuthorityData.HeadTypeDesc;
+import edu.cornell.library.integration.metadata.support.RelatorSet;
+import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 
 public class NameUtils {

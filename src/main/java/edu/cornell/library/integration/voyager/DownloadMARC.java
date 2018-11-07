@@ -13,9 +13,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
+import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.webdav.DavService;
 import edu.cornell.library.integration.webdav.DavServiceFactory;
 

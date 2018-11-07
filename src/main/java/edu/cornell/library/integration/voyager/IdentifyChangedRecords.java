@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
-import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
+import edu.cornell.library.integration.utilities.Config;
+import edu.cornell.library.integration.utilities.IndexRecordListComparison;
+import edu.cornell.library.integration.utilities.IndexRecordListComparison.ChangedBib;
 import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 /**

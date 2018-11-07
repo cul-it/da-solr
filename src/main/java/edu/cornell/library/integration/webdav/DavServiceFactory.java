@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.webdav;
  
-import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.utilities.Config;
 
 public class DavServiceFactory {
 

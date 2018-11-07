@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
+import static edu.cornell.library.integration.utilities.Config.getRequiredArgsForDB;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
 
 import java.sql.Connection;
@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.utilities.AddToQueue;
+import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class UpdateVoyagerInventory {

@@ -3,9 +3,9 @@ package edu.cornell.library.integration.utilities;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
 
 public class FieldValues {
 	public HeadType type;

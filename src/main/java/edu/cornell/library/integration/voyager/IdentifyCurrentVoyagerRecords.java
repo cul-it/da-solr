@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
+import static edu.cornell.library.integration.utilities.Config.getRequiredArgsForDB;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,8 +11,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.utilities.AddToQueue;
+import edu.cornell.library.integration.utilities.Config;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
