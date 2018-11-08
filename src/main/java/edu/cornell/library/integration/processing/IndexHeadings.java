@@ -32,14 +32,14 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import edu.cornell.library.integration.metadata.support.AuthorityData.BlacklightField;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.utilities.Config;
 
 public class IndexHeadings {
 
 	private Connection connection = null;
 	// This structure should contain only up to six PreparedStatement objects at most.
-	private Map<HeadType,Map<String,String>> queries = new HashMap<>();
+	private Map<HeadingCategory,Map<String,String>> queries = new HashMap<>();
 	Config config;
 	private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
@@ -100,10 +100,10 @@ public class IndexHeadings {
 	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
-					blf.fieldName(),blf.headingTypeDesc(),blf.headingType());
+					blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
 
-		if ( ! queries.containsKey(blf.headingType()))
-			queries.put(blf.headingType(), new HashMap<String,String>());
+		if ( ! queries.containsKey(blf.headingCategory()))
+			queries.put(blf.headingCategory(), new HashMap<String,String>());
 
 		String blacklightSolrUrl = config.getBlacklightSolrUrl();
 
@@ -158,7 +158,7 @@ public class IndexHeadings {
 							if (r.getAttributeLocalName(i).equals("name"))
 								heading = r.getAttributeValue(i);
 						recordCount = Integer.valueOf(r.getElementText());
-						addCountToDB(blf,queries.get(blf.headingType()),heading, recordCount);
+						addCountToDB(blf,queries.get(blf.headingCategory()),heading, recordCount);
 						if (++headingCount % 10_000 == 0) {
 							System.out.printf("%s => %d\n",heading,recordCount);
 							connection.commit();
@@ -174,10 +174,10 @@ public class IndexHeadings {
 	private void addCountToDB(BlacklightField blf, Map<String,String> qs, String headingSort, Integer count)
 			throws SQLException, InterruptedException {
 
-		String count_field = blf.headingType().dbField();
+		String count_field = blf.headingCategory().dbField();
 		// update record count in db
 		if ( ! qs.containsKey("update")) {
-			qs.put("update", String.format( "UPDATE heading SET %s = ? WHERE type_desc = ? AND sort = ?", count_field));
+			qs.put("update", String.format("UPDATE heading SET %s = ? WHERE heading_type = ? AND sort = ?", count_field));
 		}
 		int rowsAffected;
 		try ( PreparedStatement uStmt = connection.prepareStatement( qs.get("update") ) ) {
@@ -194,7 +194,7 @@ public class IndexHeadings {
 					if (headingDisplay == null) return;
 					if ( ! qs.containsKey("insert")) {
 						qs.put("insert",String.format(
-								"INSERT INTO heading (heading, sort, type_desc, %s) " +
+								"INSERT INTO heading (heading, sort, heading_type, %s) " +
 										"VALUES (?, ?, ?, ?)", count_field));
 					}
 					try ( PreparedStatement iStmt = connection.prepareStatement( qs.get("insert") ) ) {

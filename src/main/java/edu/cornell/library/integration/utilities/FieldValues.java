@@ -5,29 +5,29 @@ import java.util.List;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.Subfield;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
 
 public class FieldValues {
-	public HeadType type;
+	public HeadingCategory category;
 	public String author;
 	public String title;
 
 	public FieldValues (String author) {
-		type = HeadType.AUTHOR;
+		category = HeadingCategory.AUTHOR;
 		this.author = author;
 	}
 	public FieldValues (String author,String title) {
 		if (author != null) {
-			type = HeadType.AUTHORTITLE;
+			category = HeadingCategory.AUTHORTITLE;
 			this.author = author;
 		} else {
-			type = HeadType.TITLE;
+			category = HeadingCategory.TITLE;
 		}
 		this.title = title;
 	}
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.type.toString()).append(": ");
+		sb.append(this.category.toString()).append(": ");
 		if (this.author != null) {
 			sb.append("A(").append(this.author).append(')');
 			if (this.title != null)

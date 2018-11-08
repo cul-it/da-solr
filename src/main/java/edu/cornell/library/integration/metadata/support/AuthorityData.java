@@ -18,13 +18,13 @@ public class AuthorityData {
 	public int headingId = 0;
 	private Boolean undifferentiated = false;
 
-	public AuthorityData( Config config, String heading, HeadTypeDesc htd)
+	public AuthorityData( Config config, String heading, HeadingType ht)
 			throws ClassNotFoundException, SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
-						"SELECT main_entry, id, undifferentiated FROM heading WHERE type_desc = ? AND sort = ?")  ){
-				isAuthorizedStmt.setInt(1, htd.ordinal());
+						"SELECT main_entry, id, undifferentiated FROM heading WHERE heading_type = ? AND sort = ?")  ){
+				isAuthorizedStmt.setInt(1, ht.ordinal());
 				isAuthorizedStmt.setString(2, getFilingForm(heading));
 				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
 					while (rs.next()) {
@@ -65,100 +65,56 @@ public class AuthorityData {
 			throw new IllegalArgumentException( "Please use default constructor if a heading may be authorized");
 	}
 
-	public static enum HeadTypeDesc {
-		PERSNAME("Personal Name","pers"),
-		CORPNAME("Corporate Name","corp"),
-		EVENT("Event","event"),
-		GENHEAD("General Heading","gen"),
-		TOPIC("Topical Term","topic"),
-		GEONAME("Geographic Name","geo"),
-		CHRONTERM("Chronological Term","era"),
-		GENRE("Genre/Form Term","genr"),
-		MEDIUM("Medium of Performance","med"),
-		WORK("Work","work");
-
-		private final String string;
-		private final String abbrev;
-
-		private HeadTypeDesc(final String name,final String abbrev) {
-			string = name;
-			this.abbrev = abbrev;
-		}
-
-		@Override
-		public String toString() { return string; }
-		public String abbrev() { return abbrev; }
-	}
-
 	public static enum BlacklightField {
-		AUTHOR_PERSON    (HeadType.AUTHOR,       HeadTypeDesc.PERSNAME),
-		AUTHOR_CORPORATE (HeadType.AUTHOR,       HeadTypeDesc.CORPNAME),
-		AUTHOR_EVENT     (HeadType.AUTHOR,       HeadTypeDesc.EVENT),
-		SUBJECT_PERSON   (HeadType.SUBJECT,      HeadTypeDesc.PERSNAME),
-		SUBJECT_CORPORATE(HeadType.SUBJECT,      HeadTypeDesc.CORPNAME),
-		SUBJECT_EVENT    (HeadType.SUBJECT,      HeadTypeDesc.EVENT),
-		AUTHORTITLE_WORK (HeadType.AUTHORTITLE,  HeadTypeDesc.WORK),
-		SUBJECT_WORK     (HeadType.SUBJECT,      HeadTypeDesc.WORK),
-		SUBJECT_TOPIC    (HeadType.SUBJECT,      HeadTypeDesc.TOPIC),
-		SUBJECT_PLACE    (HeadType.SUBJECT,      HeadTypeDesc.GEONAME),
-		SUBJECT_CHRON    (HeadType.SUBJECT,      HeadTypeDesc.CHRONTERM),
-		SUBJECT_GENRE    (HeadType.SUBJECT,      HeadTypeDesc.GENRE);
+		AUTHOR_PERSON    (HeadingCategory.AUTHOR,      HeadingType.PERSNAME),
+		AUTHOR_CORPORATE (HeadingCategory.AUTHOR,      HeadingType.CORPNAME),
+		AUTHOR_EVENT     (HeadingCategory.AUTHOR,      HeadingType.EVENT),
+		SUBJECT_PERSON   (HeadingCategory.SUBJECT,     HeadingType.PERSNAME),
+		SUBJECT_CORPORATE(HeadingCategory.SUBJECT,     HeadingType.CORPNAME),
+		SUBJECT_EVENT    (HeadingCategory.SUBJECT,     HeadingType.EVENT),
+		AUTHORTITLE_WORK (HeadingCategory.AUTHORTITLE, HeadingType.WORK),
+		SUBJECT_WORK     (HeadingCategory.SUBJECT,     HeadingType.WORK),
+		SUBJECT_TOPIC    (HeadingCategory.SUBJECT,     HeadingType.TOPIC),
+		SUBJECT_PLACE    (HeadingCategory.SUBJECT,     HeadingType.GEONAME),
+		SUBJECT_CHRON    (HeadingCategory.SUBJECT,     HeadingType.CHRONTERM),
+		SUBJECT_GENRE    (HeadingCategory.SUBJECT,     HeadingType.GENRE);
 
-		private final HeadType _ht;
-		private final HeadTypeDesc _htd;
+		private final HeadingCategory hc;
+		private final HeadingType ht;
 
-		BlacklightField(final HeadType ht, final HeadTypeDesc htd) {
-			_ht = ht;
-			_htd = htd;
+		BlacklightField(final HeadingCategory hc, final HeadingType ht) {
+			this.hc = hc;
+			this.ht = ht;
 		}
 
-
-		public HeadType headingType() { return _ht; }
-		public HeadTypeDesc headingTypeDesc() { return _htd; }
+		public HeadingCategory headingCategory() { return hc; }
+		public HeadingType headingTypeDesc() { return ht; }
 		public String browseCtsName() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( ! _ht.equals(HeadType.AUTHORTITLE) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(hc.toString());
+			if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
+				sb.append('_').append(ht.abbrev());
 			sb.append("_browse");
 			return sb.toString();
 		}
 		public String fieldName() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( ! _ht.equals(HeadType.AUTHORTITLE) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(hc.toString());
+			if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
+				sb.append('_').append(ht.abbrev());
 			sb.append("_filing");
 			return sb.toString();
 		}
 		public String facetField() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( _ht.equals(HeadType.SUBJECT) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(hc.toString());
+			if ( hc.equals(HeadingCategory.SUBJECT) )
+				sb.append('_').append(ht.abbrev());
 			sb.append("_facet");
 			return sb.toString();
 		}
 	}
 
-	public static enum HeadType {
-		AUTHOR("author","works_by"),
-		SUBJECT("subject","works_about"),
-		AUTHORTITLE("authortitle","works"),
-		TITLE("title","works");
-
-		private final String string;
-		private final String field;
-
-		private HeadType(final String name, final String dbField) {
-			string = name;
-			field = dbField;
-		}
-
-		@Override
-		public String toString() { return string; }
-		public String dbField() { return field; }
-	}
 
 	public static enum RecordSet {
 		NAME("name"),

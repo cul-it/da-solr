@@ -17,12 +17,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.Script;
+import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.metadata.support.AuthorityData;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadTypeDesc;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
+import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.metadata.support.RelatorSet;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
-import edu.cornell.library.integration.marc.DataFieldSet;
 
 public class NameUtils {
 
@@ -115,19 +115,19 @@ public class NameUtils {
 		String search1 = NameUtils.displayValue( fs.getFields().get(0), true );
 		String facet1 = NameUtils.facetValue( fs.getFields().get(0) );
 		String facet2 = NameUtils.facetValue( fs.getFields().get(1) );
-		HeadTypeDesc htd;
+		HeadingType ht;
 		String filingField;
 		if ( fs.getMainTag().endsWith("00")) {
-			htd = HeadTypeDesc.PERSNAME;
+			ht = HeadingType.PERSNAME;
 			filingField = "author_pers_filing";
 		} else if ( fs.getMainTag().endsWith("10") ) {
-			htd = HeadTypeDesc.CORPNAME;
+			ht = HeadingType.CORPNAME;
 			filingField = "author_corp_filing";
 		} else if ( fs.getMainTag().endsWith("11") ) {
-			htd = HeadTypeDesc.EVENT;
+			ht = HeadingType.EVENT;
 			filingField = "author_event_filing";
 		} else {
-			htd = null; filingField = null;
+			ht = null; filingField = null;
 		}
 
 		List<SolrField> sfs = new ArrayList<>();
@@ -150,9 +150,9 @@ public class NameUtils {
 		json.put("name2", display2);
 		json.put("search2", ctsValsList.get(1).author);
 		json.put("relator", (new RelatorSet(fs.getFields().get(0))).toString() );
-		if (htd != null) json.put("type", htd.toString());
-		final AuthorityData authData = (htd != null) 
-				? new AuthorityData(config,ctsValsList.get(ctsValsList.size()-1).author,htd)
+		if (ht != null) json.put("type", ht.toString());
+		final AuthorityData authData = (ht != null) 
+				? new AuthorityData(config,ctsValsList.get(ctsValsList.size()-1).author,ht)
 						: new AuthorityData(false);
 		json.put("authorizedForm", authData.authorized);
 		final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
@@ -175,7 +175,7 @@ public class NameUtils {
 		boolean isCJK = f.getScript().equals(Script.CJK);
 
 		List<SolrField> sfs = new ArrayList<>();
-		if ( ! isMainAuthor && ctsVals.type.equals(HeadType.AUTHORTITLE)) {
+		if ( ! isMainAuthor && ctsVals.category.equals(HeadingCategory.AUTHORTITLE)) {
 			String browseDisplay = ctsVals.author+" | "+ctsVals.title;
 			String relation;
 			if (f.ind2.equals('2')) {
@@ -203,19 +203,19 @@ public class NameUtils {
 			if (display == null)
 				return sfs;
 			String facet = NameUtils.facetValue( f );
-			HeadTypeDesc htd;
+			HeadingType ht;
 			String filingField;
 			if (f.mainTag.endsWith("00")) {
-				htd = HeadTypeDesc.PERSNAME;
+				ht = HeadingType.PERSNAME;
 				filingField = "author_pers_filing";
 			} else if ( f.mainTag.endsWith("10")) {
-				htd = HeadTypeDesc.CORPNAME;
+				ht = HeadingType.CORPNAME;
 				filingField = "author_corp_filing";
 			} else if ( f.mainTag.endsWith("11")) {
-				htd = HeadTypeDesc.EVENT;
+				ht = HeadingType.EVENT;
 				filingField = "author_event_filing";
 			} else {
-				htd = null; filingField = null;
+				ht = null; filingField = null;
 			}
 
 			sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display ));
@@ -230,9 +230,9 @@ public class NameUtils {
 			json.put("name1", display);
 			json.put("search1", ctsVals.author);
 			json.put("relator", (new RelatorSet(f)).toString() );
-			if (htd != null) json.put("type", htd.toString());
-			final AuthorityData authData = (htd != null) 
-					? new AuthorityData(config,ctsVals.author,htd) : new AuthorityData(false);
+			if (ht != null) json.put("type", ht.toString());
+			final AuthorityData authData = (ht != null) 
+					? new AuthorityData(config,ctsVals.author,ht) : new AuthorityData(false);
 			json.put("authorizedForm", authData.authorized);
 			final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);

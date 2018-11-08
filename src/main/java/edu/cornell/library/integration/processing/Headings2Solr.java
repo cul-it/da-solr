@@ -26,27 +26,27 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.metadata.support.AuthorityData.BlacklightField;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadTypeDesc;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
+import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 
 public class Headings2Solr {
 
 	private Connection connection = null;
 	private Config config;
-	private List<Integer> authorTypes = Arrays.asList(HeadTypeDesc.PERSNAME.ordinal(),
-			HeadTypeDesc.CORPNAME.ordinal(),HeadTypeDesc.EVENT.ordinal());
-	private final HeadTypeDesc[] HeadTypeDescs = HeadTypeDesc.values();
+	private List<Integer> authorTypes = Arrays.asList(HeadingType.PERSNAME.ordinal(),
+			HeadingType.CORPNAME.ordinal(),HeadingType.EVENT.ordinal());
+	private final HeadingType[] headingTypes = HeadingType.values();
 	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final Map<HeadType,HashMap<HeadTypeDesc,String>> blacklightFields = new HashMap<>();
+	private static final Map<HeadingCategory,HashMap<HeadingType,String>> blacklightFields = new HashMap<>();
 	private static DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
 	static {
 		for ( BlacklightField blf : BlacklightField.values() ) {
-			if (! blacklightFields.containsKey(blf.headingType()))
-				blacklightFields.put(blf.headingType(), new HashMap<HeadTypeDesc,String>());
-			blacklightFields.get(blf.headingType()).put(blf.headingTypeDesc(), blf.browseCtsName());
+			if (! blacklightFields.containsKey(blf.headingCategory()))
+				blacklightFields.put(blf.headingCategory(), new HashMap<HeadingType,String>());
+			blacklightFields.get(blf.headingCategory()).put(blf.headingTypeDesc(), blf.browseCtsName());
 		}
 	}
 
@@ -71,25 +71,26 @@ public class Headings2Solr {
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getSubjectSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadType.SUBJECT);
+			findWorks(solr_u, solr_q, HeadingCategory.SUBJECT);
 			solr_u.blockUntilFinished();
 		}
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadType.AUTHOR);
+			findWorks(solr_u, solr_q, HeadingCategory.AUTHOR);
 			solr_u.blockUntilFinished();
 		}
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorTitleSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
 						new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadType.AUTHORTITLE);
+			findWorks(solr_u, solr_q, HeadingCategory.AUTHORTITLE);
 			solr_u.blockUntilFinished();
 		}
 		connection.close();
 	}
 
-	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadType ht) throws Exception  {
+	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadingCategory hc)
+			throws Exception  {
 		String query =
 			"SELECT h.* "
 			+ "FROM heading as h"
@@ -98,8 +99,8 @@ public class Headings2Solr {
 			+ "  ON (r2.from_heading = h.id"
 			+ "    AND h2.id = r2.to_heading )"
 
-			+ " WHERE h."+ht.dbField()+" > 0"
-			+ "    OR h2."+ht.dbField()+" > 0"
+			+ " WHERE h."+hc.dbField()+" > 0"
+			+ "    OR h2."+hc.dbField()+" > 0"
 			+ " GROUP BY h.id";
 		Collection<SolrInputDocument> docs = new ArrayList<>();
 		Date mostRecentDate = getMostRecentSolrDate( solr_q );
@@ -122,22 +123,22 @@ public class Headings2Solr {
 					doc.addField("id", id);
 					doc.addField("heading", rs.getString("heading"));
 					doc.addField("headingSort", rs.getString("sort"));
-					References xrefs = getXRefs(id, ht);
+					References xrefs = getXRefs(id, hc);
 					if (xrefs.seeJson != null)
 						doc.addField("see", xrefs.seeJson);
 					if (xrefs.seeAlsoJson != null)
 						doc.addField("seeAlso", xrefs.seeAlsoJson);
 					doc.addField("alternateForm", getAltForms(id));
-					HeadTypeDesc htd = HeadTypeDescs[ rs.getInt("type_desc") ];
-					if ( ! ht.equals(HeadType.AUTHORTITLE))
-						doc.addField("headingTypeDesc", htd.toString());
-					doc.addField("blacklightField", blacklightFields.get(ht).get(htd));
+					HeadingType ht = headingTypes[ rs.getInt("heading_type") ];
+					if ( ! hc.equals(HeadingCategory.AUTHORTITLE))
+						doc.addField("headingTypeDesc", ht.toString());
+					doc.addField("blacklightField", blacklightFields.get(hc).get(ht));
 					doc.addField("authority", rs.getBoolean("authority"));
 					doc.addField("mainEntry", rs.getBoolean("main_entry"));
 					doc.addField("notes", getNotes(id));
 					String rda = getRda(id);
 					if (rda != null) doc.addField("rda_json", rda);
-					doc.addField("count",rs.getInt(ht.dbField()));
+					doc.addField("count",rs.getInt(hc.dbField()));
 					doc.addField("counts_json", countsJson(rs));
 					docs.add(doc);
 					if (docs.size() == 5_000) {
@@ -167,7 +168,7 @@ public class Headings2Solr {
 	}
 
 	private static PreparedStatement ref_pstmt = null;
-	private References getXRefs(int id, HeadType ht) throws SQLException, JsonProcessingException {
+	private References getXRefs(int id, HeadingCategory hc) throws SQLException, JsonProcessingException {
 		Collection<String> seeRefs = new ArrayList<>();
 		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<>();
 		if (ref_pstmt == null)
@@ -182,18 +183,18 @@ public class Headings2Solr {
 		try (  ResultSet rs = ref_pstmt.getResultSet() ) {
 
 			while (rs.next()) {
-				int count = rs.getInt(ht.dbField());
+				int count = rs.getInt(hc.dbField());
 				if (count == 0) continue;
 				Map<String,Object> vals = new HashMap<>();
 				vals.put("count", count);
 				vals.put("worksAbout", rs.getInt("works_about"));
 				vals.put("heading", rs.getString("heading"));
-				int type_desc = rs.getInt("type_desc");
-				if (authorTypes.contains(type_desc))
+				int heading_type = rs.getInt("heading_type");
+				if (authorTypes.contains(heading_type))
 					vals.put("worksBy", rs.getInt("works_by"));
-				if (HeadTypeDesc.WORK.ordinal() == type_desc)
+				if (HeadingType.WORK.ordinal() == heading_type)
 					vals.put("works", rs.getInt("works"));
-				vals.put("headingTypeDesc", HeadTypeDescs[  rs.getInt("type_desc") ].toString());
+				vals.put("headingTypeDesc", headingTypes[  rs.getInt("heading_type") ].toString());
 				String ref_desc = rs.getString("ref_desc");
 				String relationship = null;
 				if (ref_desc != null && ! ref_desc.isEmpty())
@@ -224,11 +225,11 @@ public class Headings2Solr {
 	}
 
 	private String countsJson( ResultSet rs ) throws SQLException {
-		int type_desc = rs.getInt("type_desc");
-		if (authorTypes.contains(type_desc ))
+		int heading_type = rs.getInt("heading_type");
+		if (authorTypes.contains(heading_type ))
 			return String.format("{\"worksBy\":%d,\"worksAbout\":%d}",
 					rs.getInt("works_by"),rs.getInt("works_about"));
-		if (HeadTypeDesc.WORK.ordinal() == type_desc)
+		if (HeadingType.WORK.ordinal() == heading_type)
 			return String.format("{\"worksAbout\":%d,\"works\":%d}",
 					rs.getInt("works_about"),rs.getInt("works"));
 		return String.format("{\"worksAbout\":%d}",rs.getInt("works_about"));

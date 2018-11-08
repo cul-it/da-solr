@@ -13,7 +13,7 @@ import java.util.List;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
@@ -89,8 +89,8 @@ public class TitleChange implements SolrFieldGenerator {
 		// Check for special case - exactly two matching AUTHOR entries
 		List<DataField> fields = fs.getFields();
 		if ( fields.size() == 2
-				&& ctsValsList.get(0).type.equals(HeadType.AUTHOR)
-				&& ctsValsList.get(0).type.equals(HeadType.AUTHOR)
+				&& ctsValsList.get(0).category.equals(HeadingCategory.AUTHOR)
+				&& ctsValsList.get(1).category.equals(HeadingCategory.AUTHOR)
 				&& fields.get(0).mainTag.equals(fields.get(1).mainTag)) {
 			return NameUtils.combinedRomanNonRomanAuthorEntry( config, fs, ctsValsList, false );
 		}

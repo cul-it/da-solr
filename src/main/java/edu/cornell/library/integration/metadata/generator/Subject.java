@@ -25,8 +25,8 @@ import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadTypeDesc;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
+import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.SolrFields;
@@ -98,7 +98,7 @@ public class Subject implements SolrFieldGenerator {
 			final Set<String> values_browse = new HashSet<>();
 			final Set<String> valuesMain_json = new HashSet<>();
 			final Set<String> values880_json = new HashSet<>();
-			HeadTypeDesc htd = HeadTypeDesc.GENHEAD; //default
+			HeadingType ht = HeadingType.GENHEAD; //default
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
@@ -107,43 +107,43 @@ public class Subject implements SolrFieldGenerator {
 				switch (f.mainTag) {
 				case "600":
 					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdq;tklnpmors");
-					htd = (vals.type.equals(HeadType.AUTHOR)) ?
-							HeadTypeDesc.PERSNAME : HeadTypeDesc.WORK;
+					ht = (vals.category.equals(HeadingCategory.AUTHOR)) ?
+							HeadingType.PERSNAME : HeadingType.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "610":
 					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcd;tklnpmors");
-					htd = (vals.type.equals(HeadType.AUTHOR)) ?
-							HeadTypeDesc.CORPNAME : HeadTypeDesc.WORK;
+					ht = (vals.category.equals(HeadingCategory.AUTHOR)) ?
+							HeadingType.CORPNAME : HeadingType.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "611":
 					vals = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcden;tklpmors");
-					htd = (vals.type.equals(HeadType.AUTHOR)) ?
-							HeadTypeDesc.EVENT : HeadTypeDesc.WORK;
+					ht = (vals.category.equals(HeadingCategory.AUTHOR)) ?
+							HeadingType.EVENT : HeadingType.WORK;
 					dashed_fields = "vxyz";
 					break;
 				case "630":
 					main_fields = "adfghklmnoprst";
 					dashed_fields = "vxyz";
-					htd = HeadTypeDesc.WORK;
+					ht = HeadingType.WORK;
 					break;
 				case "648":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					facet_type = "era";
-					htd = HeadTypeDesc.CHRONTERM;
+					ht = HeadingType.CHRONTERM;
 					break;
 				case "650":
 					main_fields = "abcd";
 					dashed_fields = "vxyz";
-					htd = HeadTypeDesc.TOPIC;
+					ht = HeadingType.TOPIC;
 					break;
 				case "651":
 					main_fields = "a";
 					dashed_fields = "vxyz";
 					facet_type = "geo";
-					htd = HeadTypeDesc.GEONAME;
+					ht = HeadingType.GEONAME;
 					break;
 				case "653":
 					// This field list is used for subject_display and sixfivethree.
@@ -152,13 +152,13 @@ public class Subject implements SolrFieldGenerator {
 				case "654":
 					main_fields = "abe";
 					dashed_fields = "vyz";
-					htd = HeadTypeDesc.TOPIC;
+					ht = HeadingType.TOPIC;
 					break;
 				case "655":
 					main_fields = "ab"; //655 facet_type over-ridden for FAST facet
 					dashed_fields = "vxyz";
 					facet_type = "genre";
-					htd = HeadTypeDesc.GENRE;
+					ht = HeadingType.GENRE;
 					break;
 				case "656":
 					main_fields = "ak";
@@ -174,7 +174,7 @@ public class Subject implements SolrFieldGenerator {
 				case "662":
 					main_fields = "abcdfgh";
 					facet_type = "geo";
-					htd = HeadTypeDesc.GEONAME;
+					ht = HeadingType.GEONAME;
 					break;
 				case "690":
 				case "691":
@@ -195,7 +195,7 @@ public class Subject implements SolrFieldGenerator {
 				if (vals != null) {
 					final StringBuilder sb = new StringBuilder();
 					sb.append(vals.author);
-					if (vals.type.equals(HeadType.AUTHORTITLE))
+					if (vals.category.equals(HeadingCategory.AUTHORTITLE))
 						sb.append(" | ").append(vals.title);
 					primarySubjectTerm = sb.toString();
 				} else if (main_fields != null) {
@@ -207,8 +207,8 @@ public class Subject implements SolrFieldGenerator {
 					final List<Object> json = new ArrayList<>();
 					final Map<String,Object> subj1 = new HashMap<>();
 					subj1.put("subject", primarySubjectTerm);
-					subj1.put("type", htd.toString());
-					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,htd);
+					subj1.put("type", ht.toString());
+					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
 					subj1.put("authorized", authData.authorized);
 					if (authData.authorized && authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
@@ -229,7 +229,7 @@ public class Subject implements SolrFieldGenerator {
 						sb_breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);
 						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
-						authData = new AuthorityData(config,sb_breadcrumbed.toString(),htd);
+						authData = new AuthorityData(config,sb_breadcrumbed.toString(),ht);
 						subj.put("authorized", authData.authorized);
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
@@ -269,10 +269,10 @@ public class Subject implements SolrFieldGenerator {
 					subjectDisplay.add(disp);
 			}
 			for (final String s: values_browse)
-				if (htd != null) {
-					if ( ! htd.abbrev().equals("topic") || ! unwantedFacetValues.contains(s) )
-						sfs.add(new SolrField("subject_"+htd.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
-					sfs.add(new SolrField("subject_"+htd.abbrev()+"_filing",getFilingForm(s)));
+				if (ht != null) {
+					if ( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(s) )
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
+					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",getFilingForm(s)));
 				}
 
 			if ( ! h.isFAST || ! recordHasLCSH) {

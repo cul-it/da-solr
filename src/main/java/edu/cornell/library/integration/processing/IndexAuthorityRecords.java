@@ -34,10 +34,10 @@ import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadType;
-import edu.cornell.library.integration.metadata.support.AuthorityData.HeadTypeDesc;
 import edu.cornell.library.integration.metadata.support.AuthorityData.RecordSet;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
+import edu.cornell.library.integration.metadata.support.HeadingCategory;
+import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
@@ -48,8 +48,8 @@ public class IndexAuthorityRecords {
 
 	private Connection connection = null;
 	private DavService davService;
-	private static EnumSet<HeadTypeDesc> authorTypes = EnumSet.of(
-			HeadTypeDesc.PERSNAME, HeadTypeDesc.CORPNAME, HeadTypeDesc.EVENT);
+	private static EnumSet<HeadingType> authorTypes = EnumSet.of(
+			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
 	/**
 	 * @param args
@@ -119,13 +119,13 @@ public class IndexAuthorityRecords {
 				+ "`parent_id` int(10) unsigned NOT NULL default '0', "
 				+ "`heading` text, "
 				+ "`sort` mediumtext NOT NULL, "
-				+ "`type_desc` tinyint(3) unsigned NOT NULL, "
+				+ "`heading_type` tinyint(3) unsigned NOT NULL, "
 				+ "`works_by` mediumint(8) unsigned NOT NULL default '0', "
 				+ "`works_about` mediumint(8) unsigned NOT NULL default '0', "
 				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
 				+ "PRIMARY KEY  (`id`), "
 				+ "KEY `parent_id` (`parent_id`), "
-				+ "KEY `uk` (`type_desc`,`parent_id`,`sort`(100))) "
+				+ "KEY `uk` (`heading_type`,`parent_id`,`sort`(100))) "
 				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `note`");
@@ -192,8 +192,8 @@ public class IndexAuthorityRecords {
 				+ "KEY (`authority_id`)) "
 				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
-		stmt.execute("DROP TABLE IF EXISTS `type_desc`");
-		stmt.execute("CREATE TABLE `type_desc` ( "
+		stmt.execute("DROP TABLE IF EXISTS `heading_type`");
+		stmt.execute("CREATE TABLE `heading_type` ( "
 				+ "`id` tinyint(3) unsigned NOT NULL, "
 				+ "`name` varchar(256) NOT NULL, "
 				+ "PRIMARY KEY  (`id`)) "
@@ -209,8 +209,8 @@ public class IndexAuthorityRecords {
 		}
 
 		try ( PreparedStatement insertDesc = connection.prepareStatement(
-				"INSERT INTO type_desc (id,name) VALUES (? , ?)") ) {
-		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
+				"INSERT INTO heading_type (id,name) VALUES (? , ?)") ) {
+		for ( HeadingType ht : HeadingType.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
 			insertDesc.executeUpdate();
@@ -433,37 +433,37 @@ public class IndexAuthorityRecords {
 	private static Heading processHeadingField( DataField f, String mainHeading ) {
 
 		Heading parentHeading = null;
-		HeadTypeDesc htd = null;
+		HeadingType ht = null;
 		FieldValues fvs = NameUtils.authorAndOrTitleValues(f);
 		switch (f.tag.substring(1)) {
 		case "00":
 		case "10":
 		case "11":
-			HeadTypeDesc authorType = (f.tag.endsWith("00")) ? HeadTypeDesc.PERSNAME :
-				                      (f.tag.endsWith("10")) ? HeadTypeDesc.CORPNAME :
-				                    	                       HeadTypeDesc.EVENT;
-			if (fvs.type.equals(HeadType.AUTHORTITLE)) {
+			HeadingType authorType = (f.tag.endsWith("00")) ? HeadingType.PERSNAME :
+				                      (f.tag.endsWith("10")) ? HeadingType.CORPNAME :
+				                    	                       HeadingType.EVENT;
+			if (fvs.category.equals(HeadingCategory.AUTHORTITLE)) {
 				parentHeading = new Heading
 						(fvs.author,getFilingForm(fvs.author),authorType);
-				htd = HeadTypeDesc.WORK;
+				ht = HeadingType.WORK;
 				if ( ! fvs.author.equals(NameUtils.facetValue(f)) )
 					System.out.println(NameUtils.facetValue(f)+"\n"+fvs.author);
 			} else
-				htd = authorType;
+				ht = authorType;
 			break;
 
-		case "30":	htd = HeadTypeDesc.WORK;		break;
-		case "48":	htd = HeadTypeDesc.CHRONTERM;	break;
-		case "50":	htd = HeadTypeDesc.TOPIC;		break;
-		case "51":	htd = HeadTypeDesc.GEONAME;		break;
-		case "55":	htd = HeadTypeDesc.GENRE;		break;
-		case "62":	htd = HeadTypeDesc.MEDIUM;		break;
+		case "30":	ht = HeadingType.WORK;		break;
+		case "48":	ht = HeadingType.CHRONTERM;	break;
+		case "50":	ht = HeadingType.TOPIC;		break;
+		case "51":	ht = HeadingType.GEONAME;	break;
+		case "55":	ht = HeadingType.GENRE;		break;
+		case "62":	ht = HeadingType.MEDIUM;	break;
 		default:
 			// If the entry is for a subdivision (main entry >=180), we won't do anything with it.
 			return null;
 		}
 
-		String heading = dashedHeading(f, htd, fvs);
+		String heading = dashedHeading(f, ht, fvs);
 
 		// If mainHeading is supplied, this is a 4xx reference. Evaluate the possibility of
 		// adding the mainHeading as a parenthetical. If five or fewer capital letters discounting
@@ -481,7 +481,7 @@ public class IndexAuthorityRecords {
 			heading = heading+" ("+mainHeading+")";
 		}
 
-		return new Heading( heading, getFilingForm(heading),htd ,parentHeading);
+		return new Heading( heading, getFilingForm(heading),ht ,parentHeading);
 	}
 
 	private static String nativeHeading( DataField f ) {
@@ -492,15 +492,15 @@ public class IndexAuthorityRecords {
 		return main;
 	}
 
-	private static String dashedHeading(DataField f, HeadTypeDesc htd, FieldValues nameFieldVals) {
+	private static String dashedHeading(DataField f, HeadingType ht, FieldValues nameFieldVals) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
-		if (htd.equals(HeadTypeDesc.WORK)) {
+		if (ht.equals(HeadingType.WORK)) {
 			if (f.tag.endsWith("30"))
 				heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
 			else
 				heading = nameFieldVals.title;
-		} else if (authorTypes.contains(htd)){
+		} else if (authorTypes.contains(ht)){
 			heading = NameUtils.facetValue(f);
 		} else {
 			heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
@@ -629,8 +629,8 @@ public class IndexAuthorityRecords {
 		// Get record id if already exists
 		try ( PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE type_desc = ? AND parent_id = ? AND sort = ?") ){
-			pstmt.setInt(1,h.headTypeDesc.ordinal());
+				"WHERE heading_type = ? AND parent_id = ? AND sort = ?") ){
+			pstmt.setInt(1,h.HeadingType.ordinal());
 			pstmt.setInt(2,(h.parent == null)?0:h.parent.id);
 			pstmt.setString(3,h.sort);
 			try ( ResultSet resultSet = pstmt.executeQuery() ) {
@@ -643,12 +643,12 @@ public class IndexAuthorityRecords {
 
 		// Create record and return id, otherwise
 		try (PreparedStatement pstmt = connection.prepareStatement(
-				"INSERT INTO heading (heading, sort, type_desc, parent_id) VALUES (?, ?, ?, ?)",
+				"INSERT INTO heading (heading, sort, heading_type, parent_id) VALUES (?, ?, ?, ?)",
 				Statement.RETURN_GENERATED_KEYS) ) {
 
 			pstmt.setString(1, Normalizer.normalize(h.val, Normalizer.Form.NFC));
 			pstmt.setString(2, h.sort);
-			pstmt.setInt(3,    h.headTypeDesc.ordinal());
+			pstmt.setInt(3,    h.HeadingType.ordinal());
 			pstmt.setInt(4,   (h.parent == null)?0:h.parent.id);
 			int affectedCount = pstmt.executeUpdate();
 			if (affectedCount < 1) 
@@ -889,21 +889,21 @@ public class IndexAuthorityRecords {
 		Integer id = null;
 		final String val;
 		final String sort;
-		final HeadTypeDesc headTypeDesc;
+		final HeadingType HeadingType;
 		Heading parent = null;
-		Heading( String heading, String headingSort, HeadTypeDesc headTypeDesc ) {
+		Heading( String heading, String headingSort, HeadingType HeadingType ) {
 			this.val = heading;
 			this.sort = headingSort;
-			this.headTypeDesc = headTypeDesc;
+			this.HeadingType = HeadingType;
 		}
-		Heading( String heading, String headingSort, HeadTypeDesc headTypeDesc, Heading parent ) {
-			this(heading,headingSort,headTypeDesc);
+		Heading( String heading, String headingSort, HeadingType HeadingType, Heading parent ) {
+			this(heading,headingSort,HeadingType);
 			this.parent = parent;
 		}
 		@Override
 		public String toString () {
-			return String.format("[type_desc: %s; sort: \"%s\"%s]",
-					this.headTypeDesc.toString(), this.val,
+			return String.format("[heading_type: %s; sort: \"%s\"%s]",
+					this.HeadingType.toString(), this.val,
 					(parent != null)?String.format(" parent:[%s]",this.parent.toString()):"");
 		}
 		@Override
