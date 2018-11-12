@@ -430,7 +430,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
 							tag = r.getAttributeValue(i);
-					ControlField f = new ControlField(++id,tag,r.getElementText().trim());
+					ControlField f = new ControlField(++id,tag,r.getElementText());
 					if (f.tag.equals("001"))
 						this.id = f.value;
 					else if (f.tag.equals("005"))
