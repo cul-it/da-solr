@@ -15,7 +15,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 
@@ -209,7 +208,7 @@ public class IndexRecordListComparison {
 				ResultSet rs = stmt.executeQuery(
 				"SELECT bib_id FROM indexQueue"
 				+ " WHERE done_date = 0"
-				+ " AND priority = "+IndexQueuePriority.DATACHANGE.ordinal() )){
+				+ " AND priority = "+DataChangeUpdateType.BIB_UPDATE.getPriority() )){
 			while (rs.next()) l.add(rs.getInt(1));
 		}
 		return l;

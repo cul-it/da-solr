@@ -20,7 +20,6 @@ import java.util.Set;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison;
 import edu.cornell.library.integration.indexer.utilities.IndexRecordListComparison.ChangedBib;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 /**
  * Identify record changes from Voyager. This is done by comparing the
@@ -497,29 +496,28 @@ public class IdentifyChangedRecords {
  	}
 
 	public static enum DataChangeUpdateType {
-		ADD("Added Record",IndexQueuePriority.DATACHANGE),
-		BIB_UPDATE("Bibliographic Record Update",IndexQueuePriority.DATACHANGE),
-		MFHD_ADD("Holdings Record Added",IndexQueuePriority.DATACHANGE),
-		MFHD_UPDATE("Holdings Record Change",IndexQueuePriority.DATACHANGE),
-		MFHD_DELETE("Holdings Record Removed",IndexQueuePriority.DATACHANGE),
-		ITEM_ADD("Item Record Added",IndexQueuePriority.ITEM_RECORD_CHANGE),
-		ITEM_UPDATE("Item Record Change",IndexQueuePriority.ITEM_RECORD_CHANGE),
-		ITEM_DELETE("Item Record Removed",IndexQueuePriority.ITEM_RECORD_CHANGE),
-//		DELETE("Record Deleted or Suppressed",IndexQueuePriority.DATACHANGE),
-		TITLELINK("Title Link Update",IndexQueuePriority.DATACHANGE_SECONDARY),
+		ADD("Added Record",5),
+		BIB_UPDATE("Bibliographic Record Update",5),
+		MFHD_ADD("Holdings Record Added",5),
+		MFHD_UPDATE("Holdings Record Change",5),
+		MFHD_DELETE("Holdings Record Removed",5),
+		ITEM_ADD("Item Record Added",3),
+		ITEM_UPDATE("Item Record Change",3),
+		ITEM_DELETE("Item Record Removed",3),
+		TITLELINK("Title Link Update",7),
 		
-		AGE_IN_SOLR("Age of Record in Solr",IndexQueuePriority.NOT_RECENTLY_UPDATED);
+		AGE_IN_SOLR("Age of Record in Solr",6);
 
 		private String string;
-		private IndexQueuePriority priority;
+		private Integer priority;
 
-		private DataChangeUpdateType(String name, IndexQueuePriority priority) {
+		private DataChangeUpdateType(String name, Integer priority) {
 			string = name;
 			this.priority = priority;
 		}
 
 		public String toString() { return string; }
-		public IndexQueuePriority getPriority () { return priority; }
+		public Integer getPriority () { return priority; }
 	}
 	
 }
