@@ -118,6 +118,7 @@ public class IdentifyChangedRecords {
 					System.out.println("Launching thorough check for Voyager record changes.");
 					thoroughIdentifiationOfChanges();
 				} else {
+					System.out.println("Launching quick check for Voyager record changes.");
 					quickIdentificationOfChanges();
 				}
 				succeeded = true;
@@ -417,29 +418,34 @@ public class IdentifyChangedRecords {
 		Set<Integer> bibsToUpdate = c.bibsNewerInVoyagerThanIndex();
 		System.out.println("\tbibsNewerInVoyagerThanIndex: "+bibsToUpdate.size());
 
-		Set<Integer> markedBibs = c.bibsMarkedAsNeedingReindexingDueToDataChange();
-		System.out.println("\tbibsMarkedAsNeedingReindexingDueToDataChange: "+markedBibs.size());
-
-		Map<Integer,Integer> tempMap = c.mfhdsNewerInVoyagerThanIndex();
-		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
-		Set<Integer> mfhdsToUpdate = new HashSet<>();
-		mfhdsToUpdate.addAll(tempMap.values());
-		tempMap.clear();
-
-		tempMap = c.itemsNewerInVoyagerThanIndex();
-		System.out.println("\titemsNewerInVoyagerThanIndex: "+tempMap.size());
-		Set<Integer> itemsToUpdate = new HashSet<>();
-		itemsToUpdate.addAll(tempMap.values());
-		tempMap.clear();
-
-		tempMap = c.mfhdsInIndexNotVoyager();
+		Map<Integer,Integer> tempMap = c.mfhdsInIndexNotVoyager();
 		System.out.println("\tmfhdsInIndexNotVoyager: "+tempMap.size());
+		Set<Integer> mfhdsToUpdate = new HashSet<>();
 		mfhdsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.mfhdsInVoyagerNotIndex();
 		System.out.println("\tmfhdsInVoyagerNotIndex: "+tempMap.size());
 		mfhdsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		tempMap = c.mfhdsNewerInVoyagerThanIndex();
+		System.out.println("\tmfhdsNewerInVoyagerThanIndex: "+tempMap.size());
+		mfhdsToUpdate.addAll(tempMap.values());
+		tempMap.clear();
+
+		Map<Integer,ChangedBib> tempCBMap = c.mfhdsAttachedToDifferentBibs();
+		System.out.println("\tmfhdsAttachedToDifferentBibs: "+tempCBMap.size());
+		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
+			mfhdsToUpdate.add(cb.original);
+			mfhdsToUpdate.add(cb.changed);
+		}
+		tempCBMap.clear();
+/*
+		tempMap = c.itemsNewerInVoyagerThanIndex();
+		System.out.println("\titemsNewerInVoyagerThanIndex: "+tempMap.size());
+		Set<Integer> itemsToUpdate = new HashSet<>();
+		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
 
 		tempMap = c.itemsInIndexNotVoyager();
@@ -451,14 +457,6 @@ public class IdentifyChangedRecords {
 		System.out.println("\titemsInVoyagerNotIndex: "+tempMap.size());
 		itemsToUpdate.addAll(tempMap.values());
 		tempMap.clear();
-		
-		Map<Integer,ChangedBib> tempCBMap = c.mfhdsAttachedToDifferentBibs();
-		System.out.println("\tmfhdsAttachedToDifferentBibs: "+tempCBMap.size());
-		for ( IndexRecordListComparison.ChangedBib cb : tempCBMap.values()) {
-			mfhdsToUpdate.add(cb.original);
-			mfhdsToUpdate.add(cb.changed);
-		}
-		tempCBMap.clear();
 
 		tempCBMap = c.itemsAttachedToDifferentMfhds();
 		System.out.println("\titemsAttachedToDifferentMfhds: "+tempCBMap.size());
@@ -467,36 +465,32 @@ public class IdentifyChangedRecords {
 			itemsToUpdate.add(cb.changed);
 		}
 		tempCBMap.clear();
-
-		bibsToUpdate.removeAll(bibsToDelete);
+*/
+		c.queueBibs( bibsToAdd, DataChangeUpdateType.BIB_ADD );
 		bibsToUpdate.removeAll(bibsToAdd);
+		c.queueDeletes(bibsToDelete);
+		bibsToUpdate.removeAll(bibsToDelete);
 		c.queueBibs( bibsToUpdate, DataChangeUpdateType.BIB_UPDATE );
 		mfhdsToUpdate.removeAll(bibsToDelete);
 		mfhdsToUpdate.removeAll(bibsToAdd);
 		mfhdsToUpdate.removeAll(bibsToUpdate);
 		c.queueBibs( mfhdsToUpdate, DataChangeUpdateType.MFHD_UPDATE );
-		itemsToUpdate.removeAll(bibsToDelete);
+/*		itemsToUpdate.removeAll(bibsToDelete);
 		itemsToUpdate.removeAll(bibsToAdd);
 		itemsToUpdate.removeAll(bibsToUpdate);
 		itemsToUpdate.removeAll(mfhdsToUpdate);
 		c.queueBibs( itemsToUpdate, DataChangeUpdateType.ITEM_UPDATE );
 		int totalBibsToUpdateCount = bibsToUpdate.size()+mfhdsToUpdate.size()+itemsToUpdate.size();
 
-		bibsToUpdate.addAll(markedBibs);
-		markedBibs.clear();
-		bibsToUpdate.removeAll(bibsToDelete);
-		bibsToUpdate.removeAll(bibsToAdd);
-
-		System.out.println("Bibs To Update in Solr: "+totalBibsToUpdateCount);		
-		c.queueDeletes( bibsToDelete );
-		c.queueBibs( bibsToAdd, DataChangeUpdateType.ADD );
-
+		System.out.println("Bibs To Update in Solr: "+totalBibsToUpdateCount);
+*/
 		c = null; // to allow GC
 	
  	}
 
 	public static enum DataChangeUpdateType {
 		ADD("Added Record",5),
+		BIB_ADD("Bibliographic Record Added",5),
 		BIB_UPDATE("Bibliographic Record Update",5),
 		MFHD_ADD("Holdings Record Added",5),
 		MFHD_UPDATE("Holdings Record Change",5),

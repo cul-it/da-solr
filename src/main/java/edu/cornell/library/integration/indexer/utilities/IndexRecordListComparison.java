@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -202,18 +202,6 @@ public class IndexRecordListComparison {
 		return l;
 	}
 
-	public Set<Integer> bibsMarkedAsNeedingReindexingDueToDataChange() throws SQLException {
-		Set<Integer> l = new HashSet<>();
-		try (   Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery(
-				"SELECT bib_id FROM indexQueue"
-				+ " WHERE done_date = 0"
-				+ " AND priority = "+DataChangeUpdateType.BIB_UPDATE.getPriority() )){
-			while (rs.next()) l.add(rs.getInt(1));
-		}
-		return l;
-	}
-
 	@SuppressWarnings("resource") // for preparedstatement
 	private int getBibForMfhd( String table, int mfhdId ) throws SQLException {
 		String statementKey = "mfhd2bib_"+table;
@@ -231,39 +219,49 @@ public class IndexRecordListComparison {
 	}
 
 	
-	@SuppressWarnings("resource") // for preparedstatement
 	public void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
-		if (bibsToAdd == null || bibsToAdd.isEmpty())
-			return;
-		if ( ! pstmts.containsKey("queueBib"))
-			pstmts.put("queueBib", conn.prepareStatement(
-					"INSERT INTO indexQueue (bib_id, priority, cause) VALUES (?, 0, ?)"));
-		PreparedStatement pstmt = pstmts.get("queueBib");
-		pstmt.setString(2, type.toString());
-		for (Integer bib : bibsToAdd) {
-			if (bib == null || bib.equals(0)) continue;
-			pstmt.setInt(1, bib);
-			pstmt.addBatch();
+		if ( bibsToAdd == null || bibsToAdd.isEmpty() ) return;
+
+		if ( type.toString().startsWith("Bibliographic") || type.toString().startsWith("Holdings") ) {
+			System.out.printf("Queuing %d bibs to generationQueue due to %s.\n", bibsToAdd.size(), type.toString());
+			try( PreparedStatement pstmt = AddToQueue.generationQueueStmt(conn) ){
+
+				int i = 0;
+				for (Integer bibId : bibsToAdd ) {
+					AddToQueue.add2QueueBatch(pstmt, bibId, new Timestamp(System.currentTimeMillis()), type);
+					if ( ++i % 1_000 == 0 )
+						pstmt.executeBatch();
+				}
+				pstmt.executeBatch();
+			}
 		}
-		pstmt.executeBatch();
+
+		if ( type.toString().startsWith("Item") || type.toString().startsWith("Holdings") ) {
+			System.out.printf("Queuing %d bibs to availabilityQueue due to %s.\n", bibsToAdd.size(), type.toString());
+			try( PreparedStatement pstmt = AddToQueue.availabilityQueueStmt(conn) ){
+				for (Integer bibId : bibsToAdd )
+					AddToQueue.add2QueueBatch(pstmt, bibId, new Timestamp(System.currentTimeMillis()), type);
+				pstmt.executeBatch();
+			}
+		}
 	}
 
 	public void queueDeletes( Set<Integer> bibsToDelete ) throws SQLException {
 		if (bibsToDelete == null || bibsToDelete.isEmpty())
 			return;
-		if ( ! pstmts.containsKey("deleteQueueBib"))
-			pstmts.put("deleteQueueBib", AddToQueue.deleteQueueStmt(conn));
-		for (Integer bib : bibsToDelete) {
-			if (bib == null || bib.equals(0)) continue;
-			AddToQueue.add2DeleteQueueBatch(pstmts.get("deleteQueueBib"), bib);
+		try ( PreparedStatement pstmt = AddToQueue.deleteQueueStmt(conn) ) {
+			for (Integer bib : bibsToDelete) {
+				if (bib == null || bib.equals(0)) continue;
+				AddToQueue.add2DeleteQueueBatch(pstmt, bib);
+			}
+			pstmt.executeBatch();
 		}
-		pstmts.get("deleteQueueBib").executeBatch();
 	}
 
 	public class ChangedBib {
 		public int original;
 		public int changed;
-		public ChangedBib( int original, int changed ) {
+		private ChangedBib( int original, int changed ) {
 			this.original = original;
 			this.changed = changed;
 		}
