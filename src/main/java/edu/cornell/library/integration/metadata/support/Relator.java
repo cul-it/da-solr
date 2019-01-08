@@ -8,15 +8,19 @@ package edu.cornell.library.integration.metadata.support;
  * records.<br/>
  * <br/>
  * Relator r = Relator.valueOf("aut"); <br/>
- * // r now has value Relator.aut.<br/>
- * r.toString();<br/>
- * // returns "Author". <br/>
+ * // or <br/>
+ * Relator r = Relator.valueOfString("author"); <br/>
+ * // r now has value Relator.aut.<br/><br/>
+ * r.toString(); // returns "author". <br/>
+ * r.name();     // returns "aut". <br/>
  * <br/>
  * Relator r = Relator.valueOf("invalid code"); <br/>
  *   // -> throws IllegalArgumentException
+ * Relator r = Relator.valueOfString("invalid term"); <br/>
+ *   // -> returns null
  * 
  */
-public enum Relator {
+enum Relator {
 	abr("abridger"),
 	acp("art copyist"),
 	act("actor"),
@@ -294,7 +298,7 @@ public enum Relator {
 		this.string = string;
 	}
 
-	public static Relator valueOfString( String string ) {
+	static Relator valueOfString( String string ) {
 		for ( Relator r : Relator.values() ) {
 			if (r.toString().equals(string))
 				return r;

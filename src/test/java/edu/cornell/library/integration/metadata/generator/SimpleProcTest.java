@@ -31,6 +31,27 @@ public class SimpleProcTest {
 	}
 
 	@Test
+	public void test581() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC); //b9691888
+		rec.dataFields.add(new DataField(1,"581",' ',' ',
+				"‡a Murmurs of Earth : the Voyager interstellar record /"
+				+ " Carl Sagan [and others]. 1st ed. New York : Random House, ©1978. ‡z 9780394410470"));
+		String expected =
+		"works_about_display: Murmurs of Earth : the Voyager interstellar record /"
+		+ " Carl Sagan [and others]. 1st ed. New York : Random House, ©1978. 9780394410470\n" + 
+		"notes_t: Murmurs of Earth : the Voyager interstellar record /"
+		+ " Carl Sagan [and others]. 1st ed. New York : Random House, ©1978.\n";
+		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+
+		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC); //b2082571
+		rec.dataFields.add(new DataField(1,"581",' ',' ',"‡3 Letter ‡a published in WHAT THEY WROTE by Carol Kammen."));
+		expected =
+		"works_about_display: Letter published in WHAT THEY WROTE by Carol Kammen.\n" + 
+		"notes_t: published in WHAT THEY WROTE by Carol Kammen.\n";
+		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
 	public void test541() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"541",'1',' ',"‡a Here's a 541 note."));

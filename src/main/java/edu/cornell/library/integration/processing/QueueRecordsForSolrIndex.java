@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 
 public class QueueRecordsForSolrIndex {
 
@@ -29,14 +28,11 @@ public class QueueRecordsForSolrIndex {
 		if (args.length != 3) {
 			throw new IllegalArgumentException(usage + "("+String.valueOf(args.length)+")");
 		}
-		IndexQueuePriority priority = null;
-		switch (args[0]) {
-		case "2": priority = IndexQueuePriority.CODECHANGE_PRIORITY2; break;
-		case "3": priority = IndexQueuePriority.CODECHANGE_PRIORITY3; break;
-		case "4": priority = IndexQueuePriority.ITEM_RECORD_CHANGE; break;
-		default:
+		Integer priority ;
+		if (args[0].equals("2") || args[0].equals("3") || args[0].equals("4"))
+			priority = Integer.valueOf( args[0] );
+		else 
 			throw new IllegalArgumentException("First argument must be 2, 3, or 4, where 2 is the highest allowable priority.\n\n"+usage);
-		}
 		String cause = args[1];
 		if (cause.length() > 256)
 			throw new IllegalArgumentException("Second argument must be a short description (<= 256 bytes) of the cause for the update.\n\n"+usage);
@@ -48,7 +44,7 @@ public class QueueRecordsForSolrIndex {
 				PreparedStatement pstmt = conn.prepareStatement(
 						"INSERT INTO indexQueue (bib_id, cause, priority) VALUES (?, ?, ?)") ){
 
-			pstmt.setInt(3, priority.ordinal());
+			pstmt.setInt(3, priority);
 			pstmt.setString(2, cause);
 
 			try (BufferedReader br = new BufferedReader(new FileReader(filename))) {

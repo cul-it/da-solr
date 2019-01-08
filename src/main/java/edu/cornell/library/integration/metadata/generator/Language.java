@@ -133,8 +133,8 @@ public class Language implements SolrFieldGenerator {
 	 * an option here, as two of the established language codes 'int' and 'new' are Java reserved words and
 	 * cannot be used in lower case. (Of the two, 'int' is now deprecated in favor of 'ina', but may still
 	 * potentially be found in records. The more commonly used of the two, 'new' is not deprecated and does
-	 * appear. */
-	private enum Code {
+	 * appear.) */
+	public enum Code {
         AAR("Afar"),
         ABK("Abkhaz"),
         ACE("Achinese"),

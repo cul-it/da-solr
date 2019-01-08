@@ -17,7 +17,6 @@ import java.util.Set;
 import com.googlecode.sardine.DavResource;
 
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.utilities.IndexingUtilities.IndexQueuePriority;
 import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 import edu.cornell.library.integration.webdav.DavService;
 import edu.cornell.library.integration.webdav.DavServiceFactory;
@@ -120,7 +119,7 @@ public class RecordBatchProcessingData {
 				"WHERE bib_id = ? AND cause = '"+DataChangeUpdateType.BIB_UPDATE+"'") ){
 
 			pstmt.setString(1,"Batch: "+((jt.description.isEmpty())?jt.code:jt.description));
-			pstmt.setInt(1, jt.priority.ordinal());
+			pstmt.setInt(1, jt.priority);
 			for (Integer bib : bibsToUpdate) {
 				pstmt.setInt(3, bib);
 				pstmt.addBatch();
@@ -162,20 +161,19 @@ public class RecordBatchProcessingData {
 		try ( ResultSet rs = identifyBatchPstmt.executeQuery() ){
 
 			while (rs.next()) {
-				jt = new JobType(typeCode,rs.getString("job_description"),
-						IndexQueuePriority.values()[rs.getInt("processing_priority")]);
+				jt = new JobType(typeCode,rs.getString("job_description"),rs.getInt("processing_priority"));
 			}
 		}
 		if (jt == null)
-			jt = new JobType(typeCode,null,IndexQueuePriority.DATACHANGE_SECONDARY);
+			jt = new JobType(typeCode,null,7);
 		return jt;
 	}
 
 	private class JobType {
 		String code = null;
 		String description = null;
-		IndexQueuePriority priority = null;
-		public JobType(String code, String description, IndexQueuePriority priority) {
+		Integer priority = null;
+		public JobType(String code, String description, Integer priority) {
 			this.code = code;
 			this.description = description;
 			this.priority = priority;

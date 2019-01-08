@@ -25,12 +25,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -43,51 +41,10 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
 
 public class IndexingUtilities {
-
-	public static enum IndexQueuePriority {
-		DATACHANGE("Data Change"),
-		DATACHANGE_SECONDARY("Secondary Data Change"),
-		CODECHANGE_PRIORITY2("Code Change 2"),
-		CODECHANGE_PRIORITY3("Code Change 3"),
-		ITEM_RECORD_CHANGE("Item Record Change"),
-		NOT_RECENTLY_UPDATED("Refresh Old Solr Record");
-
-		private String string;
-
-		private IndexQueuePriority(String name) {
-			string = name;
-		}
-
-		public String toString() { return string; }
-	}
-
-    /**
-	 * Gets the MFHD IDs related to all the BIB IDs in bibIds 
-     * @throws SQLException 
-	 */
-	public static Set<Integer> getHoldingsForBibs( Connection current, Set<Integer> bibIds) throws SQLException {
-        Set<Integer> mfhdIds = new HashSet<>();        
-		try (PreparedStatement pstmt = current.prepareStatement(
-				"SELECT mfhd_id FROM mfhdRecsVoyager WHERE bib_id = ?")) {
-			for (Integer bibid : bibIds) {
-				pstmt.setInt(1,bibid);
-				try (ResultSet rs = pstmt.executeQuery()) {
-					while (rs.next())
-						mfhdIds.add(rs.getInt(1));
-				}
-			}
-		}
-        return mfhdIds;
-	}	
 
 	/**
 	 * bib_id is either already in CurrentDBTable.BIB_VOY and presumably in Solr, or it may have been
@@ -123,7 +80,7 @@ public class IndexingUtilities {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO generationQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
-			bibQueueStmt.setInt(2, type.getPriority().ordinal());
+			bibQueueStmt.setInt(2, type.getPriority());
 			bibQueueStmt.setString(3,type.toString());
 			bibQueueStmt.setTimestamp(4, recordDate);
 			bibQueueStmt.executeUpdate();
@@ -134,7 +91,7 @@ public class IndexingUtilities {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO availabilityQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
-			bibQueueStmt.setInt(2, type.getPriority().ordinal());
+			bibQueueStmt.setInt(2, type.getPriority());
 			bibQueueStmt.setString(3,type.toString());
 			bibQueueStmt.setTimestamp(4, recordDate);
 			bibQueueStmt.executeUpdate();
@@ -203,21 +160,6 @@ public class IndexingUtilities {
 			ref.sites = identifyOnlineServices(urlJsons);
 			if (ref.sites == null)
 				ref.sites = "Online";
-			if (urlJsons.size() == 1) {
-				String urlJson = urlJsons.iterator().next().toString();
-				try {
-					JsonNode node = mapper.readTree(urlJson);
-					if (node.isObject()) {
-						ObjectNode obj = (ObjectNode) node;
-						if ( obj.has("url")  )
-							ref.url = obj.get("url").asText(); 
-					}
-				} catch (IOException e) {
-					System.out.println( "IOException: Failed to parse json with"
-							+ " the same library that generated it. ("+e.getMessage()+")" );
-					System.out.println(urlJson);
-				}
-			}
 		}
 
 		if (doc.containsKey("location_facet")) {
@@ -251,12 +193,10 @@ public class IndexingUtilities {
 
 		return ref;
 	}
-	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public static class TitleMatchReference {
 		public int id;
 		public String format = null;
-		public String url = null;
 		public String sites = null;
 		public String libraries = null;
 		public String edition = null;
@@ -285,43 +225,6 @@ public class IndexingUtilities {
 	}
 	private static Pattern yyyymmdd = null;
 
-	public static String substituteInRecordURI(String recordURI, String query) {
-		if( query == null )
-			return null;			
-		return query.replaceAll("\\$recordURI\\$", "<"+recordURI+">");		
-	}
-
-	/**
-	 * For all newFields, add them to doc, taking into account
-	 * fields that already exist in doc and merging the
-	 * values of the new and existing fields. 
-	 */
-	public static void combineFields(SolrInputDocument doc,
-			Map<? extends String, ? extends SolrInputField> newFields) {		
-		for( String newFieldKey : newFields.keySet() ){
-			SolrInputField newField = newFields.get(newFieldKey);
-
-			if (newField.getValueCount() == 0) continue;
-			
-			if( doc.containsKey( newFieldKey )){
-				SolrInputField existingField=doc.get(newFieldKey);
-				mergeValuesForField(existingField, newField);
-			}else{
-				doc.put(newFieldKey, newField);				
-			}
-		}		
-	}
-
-	/**
-	 * Call existingField.addValue() for all values form newField.
-	 */
-	private static void mergeValuesForField(SolrInputField existingField,
-			SolrInputField newField) {
-		for( Object value  : newField.getValues() ){
-			existingField.addValue(value, 1.0f);
-		}
-	}
-	
 	/**
 	 * Any time a comma is followed by a character that is not a space, a
 	 * space will be inserted.
