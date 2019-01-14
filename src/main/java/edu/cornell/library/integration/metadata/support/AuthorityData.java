@@ -16,33 +16,39 @@ public class AuthorityData {
 	public Boolean authorized = false;
 	public List<String> alternateForms = null;
 	public int headingId = 0;
-	private Boolean undifferentiated = false;
+	public List<String> authorityId = new ArrayList<>();
 
 	public AuthorityData( Config config, String heading, HeadingType ht)
 			throws ClassNotFoundException, SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
-						"SELECT main_entry, id, undifferentiated FROM heading WHERE heading_type = ? AND sort = ?")  ){
+						"SELECT main_entry, heading.id, authority.id"+
+						"  FROM heading, authority2heading, authority"+
+						" WHERE heading_type = ? AND sort = ?"+
+						"   AND heading.id = authority2heading.heading_id"+
+						"   AND authority2heading.authority_id = authority.id")  ){
 				isAuthorizedStmt.setInt(1, ht.ordinal());
 				isAuthorizedStmt.setString(2, getFilingForm(heading));
 				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
 					while (rs.next()) {
-						authorized = rs.getBoolean(1);
+						authorized = authorized || rs.getBoolean(1);
 						headingId = rs.getInt(2);
-						undifferentiated = rs.getBoolean(3);
 					}
 				}
 			}
 
-			if ( ! authorized || undifferentiated)
+			if ( ! authorized )
 				return;
 
 			try ( PreparedStatement alternateFormsStmt = conn.prepareStatement(
-					"SELECT heading FROM heading, reference "
-					+ "WHERE to_heading = ? "
-					+ "AND from_heading = heading.id "
-					+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
+					"SELECT heading FROM heading, reference, authority2reference, authority "
+					+" WHERE to_heading = ? "
+					+" AND from_heading = heading.id "
+					+" AND ref_type = "+ReferenceType.FROM4XX.ordinal()
+					+" AND reference.id = authority2reference.reference_id"
+					+" AND authority2reference.authority_id = authority.id"
+					+" AND authority.undifferentiated = 0"
 					+" ORDER BY sort") ){
 				alternateFormsStmt.setInt(1, headingId);
 				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){

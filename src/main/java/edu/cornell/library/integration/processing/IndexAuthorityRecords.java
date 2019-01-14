@@ -125,7 +125,7 @@ public class IndexAuthorityRecords {
 				+ "`works` mediumint(8) unsigned NOT NULL default '0', "
 				+ "PRIMARY KEY  (`id`), "
 				+ "KEY `parent_id` (`parent_id`), "
-				+ "KEY `uk` (`heading_type`,`parent_id`,`sort`(100))) "
+				+ "KEY `uk` (`heading_type`,`sort`(100))) "
 				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 		stmt.execute("DROP TABLE IF EXISTS `note`");
@@ -499,7 +499,7 @@ public class IndexAuthorityRecords {
 			if (f.tag.endsWith("30"))
 				heading = f.concatenateSpecificSubfields("abcdeghjklmnopqrstu");
 			else
-				heading = nameFieldVals.title;
+				heading = nameFieldVals.author+" | "+nameFieldVals.title;
 		} else if (authorTypes.contains(ht)){
 			heading = NameUtils.facetValue(f);
 		} else {
@@ -629,10 +629,9 @@ public class IndexAuthorityRecords {
 		// Get record id if already exists
 		try ( PreparedStatement pstmt = connection.prepareStatement(
 				"SELECT id FROM heading " +
-				"WHERE heading_type = ? AND parent_id = ? AND sort = ?") ){
+				"WHERE heading_type = ? AND sort = ?") ){
 			pstmt.setInt(1,h.HeadingType.ordinal());
-			pstmt.setInt(2,(h.parent == null)?0:h.parent.id);
-			pstmt.setString(3,h.sort);
+			pstmt.setString(2,h.sort);
 			try ( ResultSet resultSet = pstmt.executeQuery() ) {
 				while (resultSet.next()) {
 					h.id = resultSet.getInt(1);
