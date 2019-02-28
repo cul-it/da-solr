@@ -118,7 +118,7 @@ public class IdentifyChangedRecords {
 					System.out.println("Launching thorough check for Voyager record changes.");
 					thoroughIdentifiationOfChanges();
 				} else {
-					System.out.println("Launching quick check for Voyager record changes.");
+//					System.out.println("Launching quick check for Voyager record changes.");
 					quickIdentificationOfChanges();
 				}
 				succeeded = true;
