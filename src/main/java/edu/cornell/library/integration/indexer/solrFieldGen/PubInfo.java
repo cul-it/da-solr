@@ -39,7 +39,7 @@ public class PubInfo implements SolrFieldGenerator {
 	private static final int current_year = Calendar.getInstance().get(Calendar.YEAR);
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("008","260","264"); }
