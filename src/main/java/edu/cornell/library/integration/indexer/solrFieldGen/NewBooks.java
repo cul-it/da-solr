@@ -25,7 +25,7 @@ import edu.cornell.library.integration.marc.Subfield;
 public class NewBooks implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings"); }
