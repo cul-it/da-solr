@@ -71,7 +71,7 @@ public class NewBooks implements SolrFieldGenerator {
 
 	  		String date = null;
 	  		for (ControlField f : hold.controlFields) if (f.tag.equals("005")) {
-	  			if (f.value.length() < 6) continue HOLD;
+	  			if (f.value.length() < 8) continue HOLD;
 	  			date = f.value.substring(0, 8);
 	  			if (Integer.valueOf(date) < twoYearsAgo) continue HOLD;
 	  		}
@@ -106,8 +106,8 @@ public class NewBooks implements SolrFieldGenerator {
 	  	}
 		return vals;
 	}
-	private static Pattern yyyymmdd = Pattern.compile("[0-9]{6}");
-	
+	private static Pattern yyyymmdd = Pattern.compile("[0-9]{8}");
+
     private static String twoYearsAgo(  ) {
     	Calendar now = Calendar.getInstance();
     	String thisYear = new SimpleDateFormat("yyyy").format(now.getTime());
