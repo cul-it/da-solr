@@ -57,6 +57,8 @@ public class ProcessQueue {
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE bib_id = ?");
+				PreparedStatement deleteSolrFieldsData = current.prepareStatement
+						("DELETE FROM solrFieldsData where bib_id = ?");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				
@@ -102,6 +104,8 @@ public class ProcessQueue {
 					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
+					deleteSolrFieldsData.setInt(1, bib);
+					deleteSolrFieldsData.executeUpdate();
 					continue;
 				}
 				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
