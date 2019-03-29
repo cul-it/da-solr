@@ -3,6 +3,7 @@ package edu.cornell.library.integration.indexer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -59,7 +60,10 @@ public class ProcessQueue {
 						("DELETE FROM generationQueue WHERE bib_id = ?");
 				PreparedStatement deleteSolrFieldsData = current.prepareStatement
 						("DELETE FROM solrFieldsData where bib_id = ?");
+				PreparedStatement oldestSolrFieldsData = current.prepareStatement
+						("SELECT bib_id FROM solrFieldsData ORDER BY visit_date LIMIT 50");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
+				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				
 				) {
@@ -75,7 +79,7 @@ public class ProcessQueue {
 
 				if (bib == null || priority == null) {
 					stmt.execute("UNLOCK TABLES");
-					Thread.sleep(1000);
+					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
 					continue;
 				}
 
@@ -130,6 +134,18 @@ public class ProcessQueue {
 				
 			} while (true);
 		}
+	}
+
+	private static void queueRecordsNotRecentlyVisited(PreparedStatement oldestSolrFieldsData,
+			PreparedStatement generationQueueStmt) throws SQLException {
+
+		System.out.println("Queuing not recently generated Solr fields for re-generation.");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
+			while(rs.next())
+				AddToQueue.add2Queue(generationQueueStmt, rs.getInt(1), 8, timestamp, "Age of Record");
+		}
+		
 	}
 
 	@JsonAutoDetect(fieldVisibility = Visibility.ANY)
