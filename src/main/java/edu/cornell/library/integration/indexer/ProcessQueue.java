@@ -139,7 +139,6 @@ public class ProcessQueue {
 	private static void queueRecordsNotRecentlyVisited(PreparedStatement oldestSolrFieldsData,
 			PreparedStatement generationQueueStmt) throws SQLException {
 
-		System.out.println("Queuing not recently generated Solr fields for re-generation.");
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
 			while(rs.next())
