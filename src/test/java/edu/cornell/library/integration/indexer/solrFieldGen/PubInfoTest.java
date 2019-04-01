@@ -83,4 +83,46 @@ public class PubInfoTest {
 		"pub_date_t: 2004\n";
 		assertEquals( expected, gen.generateSolrFields(rec,null).toString());
 	}
+
+	@Test
+	public void testRPDates_missingSecondDate() throws ClassNotFoundException, SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.id = "10310563";
+			rec.controlFields.add(new ControlField(1,"008","130613r1864||||enk     o     ||1 0|eng|d"));
+			String expected =
+			"pub_date_sort: 1864\n" + 
+			"pub_date_facet: 1864\n" + 
+			"pub_date_t: 1864\n" + 
+			"pub_date_t: ||||\n";
+			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		}
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.id = "717506";
+			rec.controlFields.add(new ControlField(1,"008","781009r196016uuit            000 0 lat d"));
+			String expected =
+			"pub_date_sort: 1600\n" + 
+			"pub_date_facet: 1600\n" + 
+			"pub_date_t: 16uu\n" + 
+			"pub_date_t: 1960\n";
+			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		}
+	}
+
+	@Test
+	public void testCompletelyMissing008dates() throws ClassNotFoundException, SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.controlFields.add(new ControlField(1,"008","130613s||||||||enk     o     ||1 0|eng|d"));
+			String expected = "pub_date_t: ||||\n";
+			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		}
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.controlFields.add(new ControlField(1,"008","130613p||||||||enk     o     ||1 0|eng|d"));
+			String expected = "pub_date_t: ||||\n";
+			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		}
+	}
 }

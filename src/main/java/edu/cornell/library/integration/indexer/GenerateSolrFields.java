@@ -90,6 +90,7 @@ class GenerateSolrFields {
 
 		int sectionsChanged = 0, sectionsGenerated = 0;
 
+		EnumSet<Generator> generated = EnumSet.noneOf(Generator.class);
 		EnumSet<Generator> changedOutputs = EnumSet.noneOf(Generator.class);
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
@@ -98,17 +99,28 @@ class GenerateSolrFields {
 				sectionsChanged++;
 				changedOutputs.add(newGeneratorData.gen);
 			}
-			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
+			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
 				sectionsGenerated++;
+				generated.add(newGeneratorData.gen);
+			}
 		}
 
-		System.out.println(rec.id+": "+sectionsGenerated+" generated, "+sectionsChanged+" sections ("+
-				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+") changed.");
-		if (sectionsChanged > 0) {
+		EnumSet<Generator> generatedNotChanged = generated.clone();
+		generatedNotChanged.removeAll(changedOutputs);
+		if ( ! changedOutputs.isEmpty() || ! generated.isEmpty() )
+		System.out.println(rec.id+": "+
+				sectionsChanged+" changed ("+
+				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+")"+
+				((generated.size() > 0) ?
+				("; also generated "+generatedNotChanged.size()+" ("+
+				((generatedNotChanged.size() == activeGenerators.size())
+						?"all":generatedNotChanged.toString())+"), "):""));
+		if (generated.size() > 0)
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
+		else 
+			touchBibVisitDate(tableNamePrefix,rec.id, config);
+		if (changedOutputs.size() > 0)
 			return (sectionsChanged == activeGenerators.size())?"all Solr field segments":changedOutputs.toString();
-		}
-		touchBibVisitDate(tableNamePrefix,rec.id, config);
 		return null;
 	}
 

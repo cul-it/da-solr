@@ -469,25 +469,24 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
 	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws XMLStreamException {
-		TreeSet<Subfield> fields = new TreeSet<>();
+		TreeSet<Subfield> subfields = new TreeSet<>();
 		int id = 0;
 		while (r.hasNext()) {
 			int event = r.next();
 			if (event == XMLStreamConstants.END_ELEMENT)
 				if (r.getLocalName().equals("datafield"))
-					return fields;
+					return subfields;
 			if (event == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("subfield")) {
-					Subfield f = new Subfield();
-					f.id = ++id;
+					Character code = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("code"))
-							f.code = r.getAttributeValue(i).charAt(0);
-					f.value = r.getElementText();
-					fields.add(f);
+							code = r.getAttributeValue(i).charAt(0);
+					if (code == null) code = ' ';
+					subfields.add(new Subfield(++id,code,r.getElementText().trim()));
 				}
 		}
-		return fields; // We should never reach this line.
+		return subfields; // We should never reach this line.
 	}
 
 	public static enum RecordType {

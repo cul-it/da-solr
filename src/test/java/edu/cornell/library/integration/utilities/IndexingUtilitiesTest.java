@@ -78,14 +78,14 @@ public class IndexingUtilitiesTest {
 
 	@Test
 	public void removeTrailingPunctuationTest() {
-		assertEquals("Hi",         removeTrailingPunctuation("Hi.....",      ". "));
+		assertEquals("Hi.....",    removeTrailingPunctuation("Hi.....",      ". "));
 		assertEquals("Hi",         removeTrailingPunctuation("Hi /",         "./ "));
 		assertEquals("Smith, J.R.",removeTrailingPunctuation("Smith, J.R.,", ",. "));
 		assertEquals("Smith, John",removeTrailingPunctuation("Smith, John.,",",. "));
 		assertEquals("A, B, etc.", removeTrailingPunctuation("A, B, etc. /", "/,. "));
 		assertEquals("etc.",       removeTrailingPunctuation("etc. /",       "/,. "));
 		assertEquals("A",          removeTrailingPunctuation("A.",           "/,. "));
-		assertEquals("",           removeTrailingPunctuation(".....",        ". "));
+		assertEquals(".....",      removeTrailingPunctuation(".....",        ". "));
 		assertEquals("",           removeTrailingPunctuation("",             ""));
 		assertEquals("",           removeTrailingPunctuation("",             null));
 		assertEquals("asdf.",      removeTrailingPunctuation("asdf.",        null));
@@ -96,19 +96,21 @@ public class IndexingUtilitiesTest {
 		assertEquals("363909803X", removeTrailingPunctuation("363909803X",   "/. "));
 		assertEquals("12-X",       removeTrailingPunctuation("12-X",         "/. "));
 		assertEquals("Jr.",        removeTrailingPunctuation("Jr",           "/. "));
+		assertEquals("Social Security accountability report for ...",
+				                   removeTrailingPunctuation("Social Security accountability report for ...","/. "));
 		assertEquals("Herndon, James B., Jr.",  removeTrailingPunctuation("Herndon, James B., Jr.",    "/. "));
 		assertEquals("Herndon, James B., Jr.",  removeTrailingPunctuation("Herndon, James B., Jr",    "/. "));
 		assertEquals("NetLibrary, Inc.",        removeTrailingPunctuation("NetLibrary, Inc.",    "/. "));
 		assertEquals("NetLibrary, Inc.",        removeTrailingPunctuation("NetLibrary, Inc",    "/. "));
 		assertNull(removeTrailingPunctuation(null,"3"));
-		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi....."+PDF_closeRTL,      ". "));
+		assertEquals("Hi....."+PDF_closeRTL,    removeTrailingPunctuation("Hi....."+PDF_closeRTL,      ". "));
 		assertEquals("Hi"+PDF_closeRTL,         removeTrailingPunctuation("Hi /"+PDF_closeRTL,         "./ "));
 		assertEquals("Smith, J.R."+PDF_closeRTL,removeTrailingPunctuation("Smith, J.R.,"+PDF_closeRTL, ",. "));
 		assertEquals("Smith, John"+PDF_closeRTL,removeTrailingPunctuation("Smith, John.,"+PDF_closeRTL,",. "));
 		assertEquals("A, B, etc."+PDF_closeRTL, removeTrailingPunctuation("A, B, etc. /"+PDF_closeRTL, "/,. "));
 		assertEquals("etc."+PDF_closeRTL,       removeTrailingPunctuation("etc. /"+PDF_closeRTL,       "/,. "));
 		assertEquals("A"+PDF_closeRTL,          removeTrailingPunctuation("A."+PDF_closeRTL,           "/,. "));
-		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation("....."+PDF_closeRTL,        ". "));
+		assertEquals("....."+PDF_closeRTL,      removeTrailingPunctuation("....."+PDF_closeRTL,        ". "));
 		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             ""));
 		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             null));
 		assertEquals("asdf."+PDF_closeRTL,      removeTrailingPunctuation("asdf."+PDF_closeRTL,        null));

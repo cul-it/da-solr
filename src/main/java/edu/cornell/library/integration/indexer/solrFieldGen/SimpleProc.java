@@ -16,7 +16,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities;
 public class SimpleProc implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -24,7 +24,7 @@ public class SimpleProc implements SolrFieldGenerator {
 				"010","022","210","222","242","243","246","247","250","255","300","310",
 				"362","500","501","502","503","504","506","508","511","513","515","518","520","521","522",
 				"523","524","525","527","530","533","534","535","537","538","540","541","544","545","547",
-				"550","556","561","565","567","570","580","582","773","856","899","902","903","940");
+				"550","556","561","565","567","570","580","581","582","773","856","899","902","903","940");
 	}
 
 	/**
@@ -197,6 +197,11 @@ public class SimpleProc implements SolrFieldGenerator {
 			case 567:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 570:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 580:    displaySubfields = "3a";        searchSubfields = "a";        break;
+			case 581:
+				displayField = "works_about_display";
+				displaySubfields = "3az";
+				searchSubfields = "a";
+				break;
 			case 582:    displaySubfields = "3a";        searchSubfields = "a";        break;
 			case 773:
 				displayField = "in_display";

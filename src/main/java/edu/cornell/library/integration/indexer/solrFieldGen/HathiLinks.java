@@ -28,10 +28,10 @@ import edu.cornell.library.integration.marc.Subfield;
 public class HathiLinks implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
-	public List<String> getHandledFields() { return Arrays.asList("035","903"); }
+	public List<String> getHandledFields() { return Arrays.asList("035"); }
 
 	@Override
 	// This field generator uses currently untracked HathiTrust content data, so should be regenerated more often.
@@ -42,7 +42,6 @@ public class HathiLinks implements SolrFieldGenerator {
 			throws ClassNotFoundException, SQLException, IOException {
 
 		Collection<String> oclcids = new HashSet<>();
-		Collection<String> barcodes = new HashSet<>();
 
 		for (DataField f : rec.dataFields) {
 			if (f.mainTag.equals("035")) {
@@ -50,10 +49,6 @@ public class HathiLinks implements SolrFieldGenerator {
 					if (sf.code.equals('a'))
 						if (sf.value.startsWith("(OCoLC"))
 							oclcids.add(sf.value.substring(sf.value.lastIndexOf(')')+1));
-			} else if (f.mainTag.equals("903")) {
-				for (Subfield sf : f.subfields)
-					if (sf.code.equals('p'))
-						barcodes.add(sf.value);
 			}
 		}
 
@@ -67,23 +62,19 @@ public class HathiLinks implements SolrFieldGenerator {
 	 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
 	 					+ " WHERE FIND_IN_SET( ? , OCLC_Numbers)");
 	 			for (String oclcid : oclcids) {
-					pstmt.setString(1, barcode);
+					pstmt.setString(1, oclcid);
 					java.sql.ResultSet rs = pstmt.executeQuery();
 					tabulateResults(rs);
 				}
 				pstmt.close();
 			} */
 			
-			if (barcodes.size() > 0) {
-				try (  PreparedStatement pstmt = conn.prepareStatement
-						("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
-						+ " WHERE Volume_Identifier = ?")  ) {
-					for (String barcode : barcodes ) {
-						pstmt.setString(1, "coo."+barcode);
-						try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
-							tabulateResults(rs,availableHathiMaterials,denyTitles); }
-					}
-				}
+			try (  PreparedStatement pstmt = conn.prepareStatement
+					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
+					+ " WHERE Source = 'coo' AND Source_Inst_Record_Number = ?")  ) {
+				pstmt.setString(1, rec.id);
+				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+					tabulateResults(rs,availableHathiMaterials,denyTitles); }
 			}
 			URL url = new URL();
 			
