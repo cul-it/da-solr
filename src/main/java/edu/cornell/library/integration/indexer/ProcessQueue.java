@@ -101,7 +101,7 @@ public class ProcessQueue {
 					deprioritizeStmt.executeBatch();
 				}
 				stmt.execute("UNLOCK TABLES");
-				System.out.println("Generating Solr fields for bib "+bib+" "+recordChanges.toString());
+				System.out.println("** "+bib+": "+recordChanges.toString());
 
 				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
 				if (v.bib == null) {

@@ -114,7 +114,7 @@ class GenerateSolrFields {
 				((generated.size() > 0) ?
 				("; also generated "+generatedNotChanged.size()+" ("+
 				((generatedNotChanged.size() == activeGenerators.size())
-						?"all":generatedNotChanged.toString())+"), "):""));
+						?"all":generatedNotChanged.toString())+")"):""));
 		if (generated.size() > 0)
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
 		else 
