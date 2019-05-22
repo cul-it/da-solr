@@ -13,6 +13,12 @@ public class ControlField implements Comparable<ControlField> {
 			this.tag = tag;
 			this.value = value;
 		}
+
+		@Override
+		public String toString() {
+			return this.tag+" "+this.value;
+		}
+
 		@Override
 		public int compareTo(final ControlField other) {
 			return Integer.compare(this.id, other.id);

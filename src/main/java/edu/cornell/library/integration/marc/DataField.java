@@ -14,7 +14,7 @@ public class DataField implements Comparable<DataField> {
 
 	public int id;
 	public String tag;
-	public String alttag; //subfield 6 tag number for an 880 field
+//	public String alttag; //subfield 6 tag number for an 880 field
 	public Character ind1 = ' ';
 	public Character ind2 = ' ';
 	public TreeSet<Subfield> subfields = new TreeSet<>();
@@ -314,6 +314,14 @@ public class DataField implements Comparable<DataField> {
 		this.ind2 = ind2;
 		this.mainTag = tag;
 		this.subfields = parseSubfields(subfields,'‡');
+	}
+	public DataField( int id, String tag, Character ind1, Character ind2, TreeSet<Subfield> subfields ) {
+		this.id = id;
+		this.tag = tag;
+		this.ind1 = ind1;
+		this.ind2 = ind2;
+		this.mainTag = tag;
+		this.subfields = subfields;
 	}
 	public DataField( int id, int linkNumber, String tag, Character ind1, Character ind2, String subfields, Boolean is880 ) {
 		this.id = id;

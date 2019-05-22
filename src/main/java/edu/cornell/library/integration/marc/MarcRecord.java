@@ -438,7 +438,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					this.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
-					f.id = ++id;
+					f.id = id += 100;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag")) {
 							f.tag = r.getAttributeValue(i);
