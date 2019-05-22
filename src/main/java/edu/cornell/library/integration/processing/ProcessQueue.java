@@ -3,6 +3,7 @@ package edu.cornell.library.integration.processing;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -57,7 +58,12 @@ public class ProcessQueue {
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE bib_id = ?");
+				PreparedStatement deleteSolrFieldsData = current.prepareStatement
+						("DELETE FROM solrFieldsData where bib_id = ?");
+				PreparedStatement oldestSolrFieldsData = current.prepareStatement
+						("SELECT bib_id FROM solrFieldsData ORDER BY visit_date LIMIT 50");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
+				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				
 				) {
@@ -73,7 +79,7 @@ public class ProcessQueue {
 
 				if (bib == null || priority == null) {
 					stmt.execute("UNLOCK TABLES");
-					Thread.sleep(1000);
+					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
 					continue;
 				}
 
@@ -95,13 +101,15 @@ public class ProcessQueue {
 					deprioritizeStmt.executeBatch();
 				}
 				stmt.execute("UNLOCK TABLES");
-				System.out.println("Generating Solr fields for bib "+bib+" "+recordChanges.toString());
+				System.out.println("** "+bib+": "+recordChanges.toString());
 
 				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
 				if (v.bib == null) {
 					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
+					deleteSolrFieldsData.setInt(1, bib);
+					deleteSolrFieldsData.executeUpdate();
 					continue;
 				}
 				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
@@ -126,6 +134,17 @@ public class ProcessQueue {
 				
 			} while (true);
 		}
+	}
+
+	private static void queueRecordsNotRecentlyVisited(PreparedStatement oldestSolrFieldsData,
+			PreparedStatement generationQueueStmt) throws SQLException {
+
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
+			while(rs.next())
+				AddToQueue.add2Queue(generationQueueStmt, rs.getInt(1), 8, timestamp, "Age of Record");
+		}
+		
 	}
 
 	@JsonAutoDetect(fieldVisibility = Visibility.ANY)

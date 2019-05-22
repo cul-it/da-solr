@@ -118,7 +118,7 @@ public class IdentifyChangedRecords {
 					System.out.println("Launching thorough check for Voyager record changes.");
 					thoroughIdentifiationOfChanges();
 				} else {
-					System.out.println("Launching quick check for Voyager record changes.");
+//					System.out.println("Launching quick check for Voyager record changes.");
 					quickIdentificationOfChanges();
 				}
 				succeeded = true;
@@ -204,6 +204,7 @@ public class IdentifyChangedRecords {
 				int itemCount = updatedBibs.size() - bibCount - mfhdCount;
 				if ( itemCount > 0 )
 					System.out.println("Queued from poling item data: "+itemCount);
+
 				if ( ! updatedBibs.isEmpty() )
 					System.out.println( (new Timestamp(System.currentTimeMillis())).toLocalDateTime().format(formatter)
 							+" "+updatedBibs.toString() );

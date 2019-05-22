@@ -35,11 +35,11 @@ public class PubInfo implements SolrFieldGenerator {
 	private final static String MANUFACTURE =  "pub_manu_display";
 	private final static String COPYRIGHT =    "pub_copy_display";
 
-	private static final Pattern p = Pattern.compile("^[0-9]{4}$");
+	private static final Pattern pYear = Pattern.compile("^([0-9]{2,4})u*$");
 	private static final int current_year = Calendar.getInstance().get(Calendar.YEAR);
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("008","260","264"); }
@@ -77,18 +77,23 @@ public class PubInfo implements SolrFieldGenerator {
 		case 'p':
 		case 'r':
 			primarySortDate = machineDates.get(1);
-			break;
+			Matcher m = pYear.matcher(primarySortDate);
+			if (m.matches())
+				break;
 		default:
 			primarySortDate = machineDates.get(0);
+			Matcher m2 = pYear.matcher(primarySortDate);
+			if ( ! m2.matches())
+				return machineDates;
 		}
-		Matcher m = p.matcher(primarySortDate);
-		if (m.matches()) {
-			int year = Integer.valueOf(primarySortDate);
-			if (year <= current_year + 1) {
-				sfs.fields.add( new SolrField( "pub_date_sort",primarySortDate));
-				sfs.fields.add( new SolrField( "pub_date_facet",primarySortDate));
-			}
+
+		primarySortDate = primarySortDate.replaceAll("u","0");
+		int year = Integer.valueOf(primarySortDate);
+		if (year <= current_year + 1) {
+			sfs.fields.add( new SolrField( "pub_date_sort",primarySortDate));
+			sfs.fields.add( new SolrField( "pub_date_facet",primarySortDate));
 		}
+
 		return machineDates;
 	}
 

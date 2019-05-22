@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 
@@ -31,8 +30,7 @@ public class HathiLinksTest {
 	@Test
 	public void testTitleLink() throws SQLException, IOException, ClassNotFoundException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
-		rec.dataFields.add( new DataField( 1, "903",' ',' ',"‡p 31924090258827"));
-		rec.dataFields.add( new DataField( 2, "903",' ',' ',"‡p 31924090258827"));
+		rec.id = "318";
 		String expected =
 		"url_access_display: http://catalog.hathitrust.org/Record/008595162|HathiTrust (multiple volumes)\n"+
 		"notes_t: HathiTrust (multiple volumes)\n"+
@@ -46,7 +44,7 @@ public class HathiLinksTest {
 	@Test
 	public void testVolumeLink() throws SQLException, IOException, ClassNotFoundException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
-		rec.dataFields.add( new DataField( 1, "903",' ',' ',"‡p 31924005214295"));
+		rec.id = "178";
 		String expected =
 		"url_access_display: http://hdl.handle.net/2027/coo.31924005214295|HathiTrust\n"+
 		"notes_t: HathiTrust\n"+
@@ -59,14 +57,28 @@ public class HathiLinksTest {
 	@Test
 	public void testRestrictedLink() throws SQLException, IOException, ClassNotFoundException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
-		rec.dataFields.add( new DataField( 1, "903",' ',' ',"‡p 31924014757649"));
-		rec.dataFields.add( new DataField( 2, "903",' ',' ',"‡p 31924003850009"));
+		rec.id = "4";
 		String expected =
 		"url_other_display: http://catalog.hathitrust.org/Record/009226070"
 		+ "|HathiTrust – Access limited to full-text search\n"+
 		"notes_t: HathiTrust – Access limited to full-text search\n"+
 		"hathi_title_data: 009226070\n";
-//		System.out.println(HathiLinks.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
 		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
+
+	@Test
+	public void testMicrosoftLSDILink() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "1460864";
+		String expected =
+		"url_access_display: http://hdl.handle.net/2027/coo1.ark:/13960/t20c5hb54|HathiTrust\n"+
+		"notes_t: HathiTrust\n"+
+		"url_access_json: {\"description\":\"HathiTrust\","
+		+ "\"url\":\"http://hdl.handle.net/2027/coo1.ark:/13960/t20c5hb54\"}\n"+
+		"online: Online\n"+
+		"hathi_title_data: 100763896\n";
+//		System.out.println(gen.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
+		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+	}
+
 }

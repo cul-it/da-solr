@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author kiru
  */
-public class RecordLine {
+class RecordLine {
 	
    public static final String LN = System.getProperty("line.separator"); 
 
