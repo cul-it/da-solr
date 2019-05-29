@@ -39,7 +39,7 @@ dependencies {
    compile 'com.google.guava:guava:14.0'
 
 	compile 'org.apache.solr:solr-solrj:6.0.0'
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
 
 }
 
