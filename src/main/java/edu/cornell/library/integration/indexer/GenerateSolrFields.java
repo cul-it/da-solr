@@ -277,6 +277,8 @@ class GenerateSolrFields {
 			if (Timestamp.valueOf(now.minus(gen.getInstance().resultsShelfLife())).after(origData.solrGenDate)
 					|| genModDate.after(origData.solrGenDate))
 				marcStatus = Status.STALE;
+			else if ( forced )
+				marcStatus = Status.FORCED;
 			else {
 				origData.marcStatus = Status.UNCHANGED;
 				origData.solrStatus = Status.UNGENERATED;
@@ -393,5 +395,5 @@ class GenerateSolrFields {
 		public Generator getGenerator() { return this.gen; }
 	}
 
-	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE; }
+	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED; }
 }
