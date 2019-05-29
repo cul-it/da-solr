@@ -204,6 +204,7 @@ public class IdentifyChangedRecords {
 				int itemCount = updatedBibs.size() - bibCount - mfhdCount;
 				if ( itemCount > 0 )
 					System.out.println("Queued from poling item data: "+itemCount);
+
 				if ( ! updatedBibs.isEmpty() )
 					System.out.println( (new Timestamp(System.currentTimeMillis())).toLocalDateTime().format(formatter)
 							+" "+updatedBibs.toString() );

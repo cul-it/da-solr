@@ -7,11 +7,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -87,11 +89,17 @@ public class ProcessQueue {
 				List<String> recordChanges = new ArrayList<>();
 				Set<Integer> queueIds = new HashSet<>();
 				Timestamp minChangeDate = null;
+				EnumSet<Generator> forcedGenerators = EnumSet.noneOf(Generator.class);
 				try ( ResultSet rs = allForBibStmt.executeQuery() ) {
 					while (rs.next()) {
 						Integer id = rs.getInt("id");
 						Timestamp recordDate = rs.getTimestamp("record_date");
-						recordChanges.add(rs.getString("cause")+" "+recordDate);
+						String cause = rs.getString("cause");
+						recordChanges.add(cause+" "+recordDate);
+						forcedGenerators.addAll(
+								Arrays.stream(Generator.values())
+								.filter(e -> cause.contains(e.name()))
+								.collect(Collectors.toSet()));
 						deprioritizeStmt.setInt(1,id);
 						deprioritizeStmt.addBatch();
 						if (minChangeDate == null || minChangeDate.after(recordDate))
@@ -101,7 +109,7 @@ public class ProcessQueue {
 					deprioritizeStmt.executeBatch();
 				}
 				stmt.execute("UNLOCK TABLES");
-				System.out.println("Generating Solr fields for bib "+bib+" "+recordChanges.toString());
+				System.out.println("** "+bib+": "+recordChanges.toString());
 
 				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
 				if (v.bib == null) {
@@ -122,7 +130,8 @@ public class ProcessQueue {
 						marc.downloadXml(MarcRecord.RecordType.HOLDINGS, mfhdId)));
 				}
 
-				String solrChanges = gen.generateSolr(rec, config, mapper.writeValueAsString(v));
+				String solrChanges = gen.generateSolr(
+						rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges != null)
 					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges);
 

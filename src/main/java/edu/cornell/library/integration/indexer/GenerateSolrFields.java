@@ -71,7 +71,12 @@ class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	String generateSolr( MarcRecord rec, Config config, String recordVersions ) throws SQLException, ClassNotFoundException {
+	String generateSolr( MarcRecord rec, Config config, String recordVersions )
+			throws SQLException {
+		return generateSolr( rec, config, recordVersions, EnumSet.noneOf(Generator.class));
+	}
+	String generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
+			throws SQLException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -85,6 +90,7 @@ class GenerateSolrFields {
 			.parallelStream()
 			.map(entry -> processRecordChunkWithGenerator(
 					entry.getKey(), generatorTimestamps.get(entry.getKey()),entry.getValue(),
+					forcedGenerators.contains(entry.getKey()),
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
 
@@ -114,7 +120,7 @@ class GenerateSolrFields {
 				((generated.size() > 0) ?
 				("; also generated "+generatedNotChanged.size()+" ("+
 				((generatedNotChanged.size() == activeGenerators.size())
-						?"all":generatedNotChanged.toString())+"), "):""));
+						?"all":generatedNotChanged.toString())+")"):""));
 		if (generated.size() > 0)
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
 		else 
@@ -131,7 +137,7 @@ class GenerateSolrFields {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public void setUpDatabase( Config config ) throws ClassNotFoundException, SQLException {
+	public void setUpDatabase( Config config ) throws SQLException {
 
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
@@ -166,7 +172,7 @@ class GenerateSolrFields {
 			String tableNamePrefix,
 			String bibId,
 			String recordVersions,
-			Config config) throws ClassNotFoundException, SQLException {
+			Config config) throws SQLException {
 
 		if (sql == null) {
 			StringBuilder sbSql = new StringBuilder();
@@ -206,7 +212,7 @@ class GenerateSolrFields {
 	private static String sql = null;
 
 
-	private static void touchBibVisitDate(String tableNamePrefix, String bibId, Config config) throws ClassNotFoundException, SQLException {
+	private static void touchBibVisitDate(String tableNamePrefix, String bibId, Config config) throws SQLException {
 		try ( Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement
 						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE bib_id = ?")) {
@@ -218,7 +224,7 @@ class GenerateSolrFields {
 
 	private static Map<Generator, BibGeneratorData> pullPreviousFieldDataFromDB
 	(EnumSet<Generator> activeGenerators,String tableNamePrefix, String bibId, Config config)
-			throws SQLException, ClassNotFoundException {
+			throws SQLException {
 
 		Map<Generator,BibGeneratorData> allData = new HashMap<>();
 		try ( Connection conn = config.getDatabaseConnection("Current");
@@ -260,7 +266,7 @@ class GenerateSolrFields {
 	}
 
 	private static BibGeneratorData processRecordChunkWithGenerator(
-			Generator gen,Timestamp genModDate, MarcRecord recChunk,
+			Generator gen,Timestamp genModDate, MarcRecord recChunk, boolean forced,
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
 		String marcSegment = recChunk.toString();
@@ -271,6 +277,8 @@ class GenerateSolrFields {
 			if (Timestamp.valueOf(now.minus(gen.getInstance().resultsShelfLife())).after(origData.solrGenDate)
 					|| genModDate.after(origData.solrGenDate))
 				marcStatus = Status.STALE;
+			else if ( forced )
+				marcStatus = Status.FORCED;
 			else {
 				origData.marcStatus = Status.UNCHANGED;
 				origData.solrStatus = Status.UNGENERATED;
@@ -297,7 +305,7 @@ class GenerateSolrFields {
 
 	private static Map<Generator, Timestamp> getGeneratorTimestamps(
 			EnumSet<Generator> activeGenerators, Timestamp now, String tableNamePrefix, Config config)
-			throws ClassNotFoundException, SQLException {
+			throws SQLException {
 		String getQuery = "SELECT version, mod_date FROM "+tableNamePrefix+"Generators WHERE name = ?";
 		String setQuery =
 				"REPLACE INTO "+tableNamePrefix+"Generators ( name, version, mod_date ) VALUES ( ?, ?, ? )";
@@ -387,5 +395,5 @@ class GenerateSolrFields {
 		public Generator getGenerator() { return this.gen; }
 	}
 
-	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE; }
+	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED; }
 }
