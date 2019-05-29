@@ -110,8 +110,6 @@ public class ProcessQueue {
 				}
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
-				if ( ! forcedGenerators.isEmpty() )
-					System.out.println("Forcing segments to generate: "+forcedGenerators);
 
 				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
 				if (v.bib == null) {

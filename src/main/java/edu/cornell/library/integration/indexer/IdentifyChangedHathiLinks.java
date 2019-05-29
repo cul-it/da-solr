@@ -20,7 +20,7 @@ import edu.cornell.library.integration.indexer.utilities.Config;
 public class IdentifyChangedHathiLinks {
 
 
-	public static void main(String[] args) throws FileNotFoundException, IOException, SQLException {
+	public static void main(String[] args) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.add("hathiUpdatesFilesDirectory");
 		Config config = Config.loadConfig(args, requiredArgs);
@@ -30,16 +30,16 @@ public class IdentifyChangedHathiLinks {
 	}
 
 	public IdentifyChangedHathiLinks(Config config)
-			throws FileNotFoundException, IOException, SQLException {
+			throws IOException, SQLException {
 
 		DateFormat format = new SimpleDateFormat("yyyyMMdd");
 		Calendar date = Calendar.getInstance();
 		date.add(Calendar.DATE, -1);
-		String filename = "hathi_upd_"+format.format(date.getTime())+".txt";
-		System.out.println(config.getHathiUpdatesFilesDirectory()+File.separator+filename);
+		String filepath = config.getHathiUpdatesFilesDirectory()+File.separator
+				+"hathi_upd_"+format.format(date.getTime())+".txt";
+		System.out.println(filepath);
 
-		try (BufferedReader br = new BufferedReader(new FileReader(
-				config.getHathiUpdatesFilesDirectory()+File.separator+filename));
+		try (BufferedReader br = new BufferedReader(new FileReader(filepath));
 				Connection current = config.getDatabaseConnection("Current");
 				PreparedStatement addToGenQ = AddToQueue.generationQueueStmt(current)) {
 			String line;
@@ -52,6 +52,9 @@ public class IdentifyChangedHathiLinks {
 						new Timestamp(date.getTimeInMillis()), "HATHILINKS updated");
 				System.out.printf( "Queued b%s: %s\n",sourceId,fields[11]);
 			}
+		} catch ( FileNotFoundException e ) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
