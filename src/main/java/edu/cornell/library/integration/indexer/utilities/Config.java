@@ -289,7 +289,12 @@ public class Config {
     	}
 		return null;
     }
-    
+
+    public String getHathiUpdatesFilesDirectory() {
+    	if (values.containsKey("hathiUpdatesFilesDirectory"))
+    		return values.get("hathiUpdatesFilesDirectory");
+    	return null;
+    }
     public String[] getMarc2XmlDirs() throws IOException {
     	if (values.containsKey("marc2XmlDirs")) {
     		String[] aliases = values.get("marc2XmlDirs").split(",");
@@ -458,7 +463,7 @@ public class Config {
      * @throws ClassNotFoundException 
      * @throws SQLException 
      */
-    public Connection getDatabaseConnection(String id) throws SQLException, ClassNotFoundException {
+    public Connection getDatabaseConnection(String id) throws SQLException {
     	String driver =  values.get("databaseDriver"+id);
     	if (driver == null) {
     		System.out.println("Value not found for databaseDriver"+id);
@@ -525,7 +530,6 @@ public class Config {
         	}
 	    	return c;
     	}
-		Class.forName(driver);
 	   
 		Connection c = DriverManager.getConnection(url,user,pass);
 		if (driver.contains("mysql")) {
