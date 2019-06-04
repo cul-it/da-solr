@@ -48,9 +48,11 @@ public class IdentifyChangedHathiLinks {
 				String source = fields[20];
 				String sourceId = fields[6];
 				if ( ! source.equals("COO") ) continue;
-				AddToQueue.add2Queue(addToGenQ, Integer.valueOf(sourceId), 6,
-						new Timestamp(date.getTimeInMillis()), "HATHILINKS updated");
-				System.out.printf( "Queued b%s: %s\n",sourceId,fields[11]);
+				for ( String bibId : sourceId.split(",") ) {
+					AddToQueue.add2Queue(addToGenQ, Integer.valueOf(bibId), 6,
+							new Timestamp(date.getTimeInMillis()), "HATHILINKS updated");
+					System.out.printf( "Queued b%s: %s\n",bibId,fields[11]);
+				}
 			}
 		} catch ( FileNotFoundException e ) {
 			e.printStackTrace();
