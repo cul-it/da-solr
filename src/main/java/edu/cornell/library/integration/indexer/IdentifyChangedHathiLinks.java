@@ -23,7 +23,7 @@ public class IdentifyChangedHathiLinks {
 	public static void main(String[] args) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.add("hathiUpdatesFilesDirectory");
-		Config config = Config.loadConfig(args, requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
 
 		new IdentifyChangedHathiLinks(config);
 

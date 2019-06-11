@@ -52,11 +52,8 @@ public class Headings2Solr {
 	}
 
 	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
-		requiredArgs.add("authorSolrUrl");
-		requiredArgs.add("subjectSolrUrl");
-		requiredArgs.add("authorTitleSolrUrl");
-		config = Config.loadConfig(args,requiredArgs);
+		Collection<String> requiredArgs = Arrays.asList("authorSolrUrl","subjectSolrUrl","authorTitleSolrUrl");
+		config = Config.loadConfig(requiredArgs);
 
 		connection = config.getDatabaseConnection("Headings");
 

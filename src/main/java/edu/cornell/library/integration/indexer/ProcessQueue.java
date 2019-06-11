@@ -36,7 +36,7 @@ public class ProcessQueue {
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Hathi"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("CallNos"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Headings"));
-		Config config = Config.loadConfig(args, requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
 
 		new ProcessQueue(config);
 	}
