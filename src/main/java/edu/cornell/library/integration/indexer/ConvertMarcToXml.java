@@ -76,7 +76,7 @@ public class ConvertMarcToXml {
 	private static void convertMrcToXml(File srcFile, String destDir)
 			throws FileNotFoundException, IOException {
 
-		File destFile = new File ( destDir, srcFile.getName().replace(".mrc$", ".xml") );
+		File destFile = new File ( destDir, srcFile.getName().replaceAll(".mrc$", ".xml") );
 
 		try ( FileInputStream is = new FileInputStream(srcFile);
 				FileOutputStream out = new FileOutputStream(destFile) ){
