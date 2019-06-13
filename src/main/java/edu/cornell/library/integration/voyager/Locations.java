@@ -181,7 +181,7 @@ public final class Locations {
 
 		// Execution synopsis
 		Collection<String> requiredFields = Config.getRequiredArgsForDB("Voy");
-		Locations locations = new Locations( Config.loadConfig(args,requiredFields) );
+		Locations locations = new Locations( Config.loadConfig(requiredFields) );
 		Location l = locations.getByCode("fine,res");
 		System.out.println(l.toString());
 		l = locations.getByNumber(33);

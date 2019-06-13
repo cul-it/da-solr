@@ -17,8 +17,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -38,8 +36,6 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
  * to a successful submission.
  */
 public class AuthorTitle implements SolrFieldGenerator {
-
-	static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public String getVersion() { return "1.0"; }

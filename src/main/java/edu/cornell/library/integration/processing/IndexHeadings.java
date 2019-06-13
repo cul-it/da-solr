@@ -60,9 +60,9 @@ public class IndexHeadings {
 	public IndexHeadings(String[] args) throws Exception {
 
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.add("blacklightSolrUrl");
-		config = Config.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(requiredArgs);
 		if (args.length > 0) {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 			try {

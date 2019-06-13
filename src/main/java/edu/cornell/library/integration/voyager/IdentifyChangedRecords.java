@@ -92,15 +92,14 @@ public class IdentifyChangedRecords {
 		if (args.length > 0)
 			thorough = Boolean.valueOf(args[0]);
 
-		List<String> requiredArgs = Config.getRequiredArgsForWebdav();
-		requiredArgs.addAll(Config.getRequiredArgsForDB("Current"));
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		if (thorough)
 			requiredArgs.addAll(IndexRecordListComparison.requiredArgs());
 		else
 			requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyChangedRecords( Config.loadConfig( null, requiredArgs ),thorough);
+			new IdentifyChangedRecords( Config.loadConfig( requiredArgs ),thorough);
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);
@@ -486,7 +485,7 @@ public class IdentifyChangedRecords {
 		System.out.println("Bibs To Update in Solr: "+totalBibsToUpdateCount);
 */
 		c = null; // to allow GC
-	
+
  	}
 
 	public static enum DataChangeUpdateType {
@@ -511,6 +510,7 @@ public class IdentifyChangedRecords {
 			this.priority = priority;
 		}
 
+		@Override
 		public String toString() { return string; }
 		public Integer getPriority () { return priority; }
 	}

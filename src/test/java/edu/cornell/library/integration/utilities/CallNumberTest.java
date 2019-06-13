@@ -19,24 +19,24 @@ public class CallNumberTest {
 	@BeforeClass
 	public static void setup() {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("CallNos");
-		config = Config.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(requiredArgs);
 	}
 
 	@Test
-	public void testNoCallNo() throws ClassNotFoundException, SQLException {
+	public void testNoCallNo() throws SQLException {
 		CallNumber cn = new CallNumber();
 		assertEquals("",cn.getCallNumberFields(config).toString());
 	}
 
 	@Test
-	public void testEmptyCallNo() throws ClassNotFoundException, SQLException {
+	public void testEmptyCallNo() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'0',' ',"‡h"));
 		assertEquals("",cn.getCallNumberFields(config).toString());
 	}
 
 	@Test
-	public void testHoldingCallNo() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNo() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'0',' ',"‡h QA611 ‡i .R123.6"));
 //		System.out.println(cn.summarizeCallNumbers(config).toString());
@@ -50,7 +50,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testHoldingCallNoWithPrefix() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNoWithPrefix() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'0',' ',"‡k Thesis ‡h QA611 ‡i .R123.6"));
 		String expected =
@@ -64,7 +64,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testHoldingCallNoThesisInSubfieldH() throws ClassNotFoundException, SQLException {
+	public void testHoldingCallNoThesisInSubfieldH() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'0',' ',"‡h Thesis QA611 ‡i .R123.6"));
 		String expected =
@@ -78,7 +78,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testNonLCHoldingCallNo() throws ClassNotFoundException, SQLException {
+	public void testNonLCHoldingCallNo() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'0',' ',"‡h Film 1-0-3"));
 		String expected =
@@ -88,7 +88,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testBib050CallNo() throws ClassNotFoundException, SQLException {
+	public void testBib050CallNo() throws SQLException {
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"050",'0',' ',"‡a QA611 ‡b .R123.6"));
 		String expected =
@@ -101,7 +101,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testSortSelectionBetweenThreeHoldings() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenThreeHoldings() throws SQLException {
 		// Between call numbers from holdings, the one that is LC should be sorted.
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"852",'1',' ',"‡h Video 7"));
@@ -119,7 +119,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testSortSelectionBetweenBibCallnos() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenBibCallnos() throws SQLException {
 		// Between two call numbers from bibs, the one that is LC should be sorted.
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(1,"050",'1',' ',"‡a Video 7"));
@@ -137,7 +137,7 @@ public class CallNumberTest {
 	}
 
 	@Test
-	public void testSortSelectionBetweenBibAndHoldings() throws ClassNotFoundException, SQLException {
+	public void testSortSelectionBetweenBibAndHoldings() throws SQLException {
 		// The call number holdings should be preferred for sort even if non-LC 
 		CallNumber cn = new CallNumber();
 		cn.tabulateCallNumber(new DataField(2,"050",'0',' ',"‡a QA611 ‡b .R123.6"));

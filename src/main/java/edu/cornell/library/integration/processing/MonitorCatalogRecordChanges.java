@@ -11,7 +11,7 @@ public class MonitorCatalogRecordChanges {
 	public static void main(String[] args) throws Exception {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
-		Config config = Config.loadConfig(args,requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
 
 		Integer quittingTime = config.getEndOfIterativeCatalogUpdates();
 		if (quittingTime == null) quittingTime = 19;

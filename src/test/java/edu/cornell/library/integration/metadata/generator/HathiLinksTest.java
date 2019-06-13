@@ -18,7 +18,7 @@ public class HathiLinksTest {
 
 	@BeforeClass
 	public static void setup() {
-		config = Config.loadConfig(null,Config.getRequiredArgsForDB("Hathi"));
+		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
 	}
 
 	@Test

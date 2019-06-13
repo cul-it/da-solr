@@ -96,7 +96,7 @@ public class CallNumber {
 		return;
 	}
 
-	public SolrFields getCallNumberFields( Config config ) throws ClassNotFoundException, SQLException {
+	public SolrFields getCallNumberFields( Config config ) throws SQLException {
 
 		if ( ! sortCandidates.isEmpty() )
 			sfs.add(new SolrField(sort,chooseSortValue(sortCandidates)));
@@ -108,7 +108,7 @@ public class CallNumber {
 	}
 
 	private static SolrFields buildHierarchicalFacetValues(Config config, Set<Classification> classes)
-			throws SQLException, ClassNotFoundException {
+			throws SQLException {
 		Set<String> facetVals = new LinkedHashSet<>();
 		try (   Connection conn = config.getDatabaseConnection("CallNos");
 				PreparedStatement pstmt = conn.prepareStatement

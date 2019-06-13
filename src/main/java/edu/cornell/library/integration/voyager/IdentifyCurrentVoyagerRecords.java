@@ -30,7 +30,7 @@ public class IdentifyCurrentVoyagerRecords {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new IdentifyCurrentVoyagerRecords( Config.loadConfig(args, requiredArgs) );
+			new IdentifyCurrentVoyagerRecords( Config.loadConfig(requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);

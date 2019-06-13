@@ -66,9 +66,9 @@ public class IdentifyHeadings {
 	public IdentifyHeadings() throws Exception {
 
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
+		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.add("blacklightSolrUrl");
-		Config	config = Config.loadConfig(null,requiredArgs);
+		Config	config = Config.loadConfig(requiredArgs);
 
 		EnumSet<BlacklightField> blFields = EnumSet.of(
 

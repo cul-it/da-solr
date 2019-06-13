@@ -39,7 +39,7 @@ public class CompareMARCWithVoyager {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
 
-		Config config = Config.loadConfig(args,requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
 
 		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\dec20bibs\\export-marc";
 

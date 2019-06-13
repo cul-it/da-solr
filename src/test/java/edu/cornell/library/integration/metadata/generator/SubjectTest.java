@@ -21,7 +21,7 @@ public class SubjectTest {
 	@BeforeClass
 	public static void setup() {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(requiredArgs);
 	}
 
 	@Test

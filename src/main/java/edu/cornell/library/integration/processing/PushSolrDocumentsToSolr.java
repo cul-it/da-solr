@@ -31,7 +31,7 @@ public class PushSolrDocumentsToSolr {
 
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.add("solrUrl");
-		Config config = Config.loadConfig(args, requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
         System.out.println("Populating Solr index at: "+config.getSolrUrl());
 
 		try ( SolrClient solr = new HttpSolrClient( config.getSolrUrl() );
