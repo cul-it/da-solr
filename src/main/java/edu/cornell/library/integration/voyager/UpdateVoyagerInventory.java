@@ -46,15 +46,15 @@ public class UpdateVoyagerInventory {
 			"SELECT m.bib_id FROM mfhdRecsVoyager as m , bibRecsVoyager as b "
 			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
-	public UpdateVoyagerInventory( Config config ) throws ClassNotFoundException, SQLException {
-	    try (   Connection voyager = config.getDatabaseConnection("Voy");
-	    		Connection current = config.getDatabaseConnection("Current") ) {
+	public UpdateVoyagerInventory( Config config ) throws SQLException {
+		try (	Connection voyager = config.getDatabaseConnection("Voy");
+				Connection current = config.getDatabaseConnection("Current") ) {
 
-    		updateBibVoyTable  ( voyager, current );
-    		updateMfhdVoyTable ( voyager, current );
-    		updateItemVoyTable ( voyager, current );
+			updateBibVoyTable  ( voyager, current );
+			updateMfhdVoyTable ( voyager, current );
+			updateItemVoyTable ( voyager, current );
 
-	    }
+		}
 
 	}
 
@@ -64,7 +64,7 @@ public class UpdateVoyagerInventory {
 		requiredArgs.addAll(getRequiredArgsForDB("Current"));
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
-		try{        
+		try{
 			new UpdateVoyagerInventory( Config.loadConfig(requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
@@ -80,18 +80,21 @@ public class UpdateVoyagerInventory {
 		Set<Integer> deletedBibs = new HashSet<>();
 
 		try (   Statement c_stmt = current.createStatement();
-				Statement v_stmt = voyager.createStatement();
-				ResultSet c_rs = c_stmt.executeQuery(
-						"SELECT bib_id, record_date, active FROM bibRecsVoyager ORDER BY 1");
+				Statement v_stmt = voyager.createStatement() ) {
+
+			v_stmt.setFetchSize(1_000_000);
+
+		try (	ResultSet c_rs = c_stmt.executeQuery(
+				"SELECT bib_id, record_date, active FROM bibRecsVoyager ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
-						"select BIB_ID, UPDATE_DATE, CREATE_DATE, SUPPRESS_IN_OPAC"
-						+ " from BIB_MASTER"
-						+ " order by BIB_ID")  ){
+					"select BIB_ID, UPDATE_DATE, CREATE_DATE, SUPPRESS_IN_OPAC"
+					+ " from BIB_MASTER"
+					+ " order by BIB_ID")  ){
 
 			if ( ! c_rs.next() )
-				throw new SQLException("Error: Voyager BIB_MASTER table must not have zero records.");
-			if ( ! v_rs.next() )
 				throw new SQLException("Error: InventoryDB bibRecsVoyager table must not have zero records.");
+			if ( ! v_rs.next() )
+				throw new SQLException("Error: Voyager BIB_MASTER table must not have zero records.");
 
 			int c_id = 0, v_id = 0; 
 			while ( ! c_rs.isAfterLast() && ! v_rs.isAfterLast() ) {
@@ -147,7 +150,7 @@ public class UpdateVoyagerInventory {
 				c_rs.next();
 
 			}
-		}
+		}}
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newBibs.isEmpty() ) {
@@ -260,18 +263,21 @@ public class UpdateVoyagerInventory {
 		Map<Integer,Integer> deletedMfhds = new HashMap<>();
 
 		try (   Statement c_stmt = current.createStatement();
-				Statement v_stmt = voyager.createStatement();
-				ResultSet c_rs = c_stmt.executeQuery(
+				Statement v_stmt = voyager.createStatement() ) {
+
+			v_stmt.setFetchSize(1_000_000);
+
+		try (	ResultSet c_rs = c_stmt.executeQuery(
 						"SELECT mfhd_id, m.bib_id, m.record_date, b.active"
 						+ " FROM mfhdRecsVoyager AS m"
 						+ " LEFT JOIN bibRecsVoyager AS b ON b.bib_id = m.bib_id"
 						+ " ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select MFHD_MASTER.MFHD_ID, BIB_MFHD.BIB_ID, UPDATE_DATE, CREATE_DATE"
-			    				+"  from BIB_MFHD, MFHD_MASTER"
-			    				+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
-			    				+ "  and SUPPRESS_IN_OPAC = 'N'"
-			    				+ " order by MFHD_MASTER.MFHD_ID")  ){
+						+"  from BIB_MFHD, MFHD_MASTER"
+						+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
+						+ "  and SUPPRESS_IN_OPAC = 'N'"
+						+ " order by MFHD_MASTER.MFHD_ID")  ){
 
 			if ( ! c_rs.next() )
 				throw new SQLException("Error: Voyager MFHD_MASTER table must not have zero records.");
@@ -345,7 +351,7 @@ public class UpdateVoyagerInventory {
 				c_rs.next();
 
 			}
-		}
+		}}
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newMfhds.isEmpty() ) {
@@ -445,8 +451,11 @@ public class UpdateVoyagerInventory {
 		Map<Integer,Integer> deletedItems = new HashMap<>();
 
 		try (   Statement c_stmt = current.createStatement();
-				Statement v_stmt = voyager.createStatement();
-				ResultSet c_rs = c_stmt.executeQuery(
+				Statement v_stmt = voyager.createStatement() ) {
+
+			v_stmt.setFetchSize(1_000_000);
+
+		try (	ResultSet c_rs = c_stmt.executeQuery(
 						"SELECT item_id, mfhd_id, record_date FROM itemRecsVoyager ORDER BY 1");
 				ResultSet v_rs = v_stmt.executeQuery(
 						"select ITEM.ITEM_ID, MFHD_ITEM.MFHD_ID, ITEM.MODIFY_DATE"
@@ -511,7 +520,7 @@ public class UpdateVoyagerInventory {
 				c_rs.next();
 
 			}
-		}
+		}}
 
 		// Step 2: Update inventory database and indexing queue.
 		if ( ! newItems.isEmpty() ) {
