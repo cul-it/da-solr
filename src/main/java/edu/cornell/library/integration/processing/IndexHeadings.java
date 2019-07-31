@@ -113,7 +113,7 @@ public class IndexHeadings {
 		while (numFound > 0) {
 			URL queryUrl = new URL(blacklightSolrUrl+
 					"/select?qt=standard&q=id:*&rows=0&facet=true&facet.sort=index&facet.mincount=1&facet.field=" +
-					blf.fieldName() +"&facet.limit="+batchSize+"&facet.offset="+currentOffset);
+					blf.fieldName() +"&facet.limit="+batchSize+"&facet.offset="+currentOffset+"&wt=xml");
 			numFound = addCountsToDB( queryUrl, blf );
 			currentOffset += batchSize;
 		}
@@ -321,7 +321,7 @@ public class IndexHeadings {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(config.getBlacklightSolrUrl());
-		sb.append("/select?&qt=standard&rows=0&echoParams=none" );
+		sb.append("/select?&qt=standard&rows=0&echoParams=none&wt=xml" );
 		// all records
 		sb.append( "&q=*%3A*" ); // q=*:*
 		// filtered by filing value
