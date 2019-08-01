@@ -27,6 +27,10 @@ import edu.cornell.library.integration.marc.Subfield;
  */
 public class HathiLinks implements SolrFieldGenerator {
 
+	private final String hathiLinkTextVolume = "HathiTrust";
+	private final String hathiLinkTextTitle  = "HathiTrust (multiple volumes)";
+	private final String hathiLinkTextDeny   = "HathiTrust – Access limited to full-text search";
+
 	@Override
 	public String getVersion() { return "1.1"; }
 
@@ -93,31 +97,31 @@ public class HathiLinks implements SolrFieldGenerator {
 				}
 				if (count == 1) {
 					// volume link
-					sfs.addAll(url.generateSolrFields(buildMarcWith856("HathiTrust",
-							"http://hdl.handle.net/2027/"+volumes.iterator().next()),null).fields);
+					sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextVolume,
+							"http://hdl.handle.net/2027/"+volumes.iterator().next(), true),null).fields);
 				} else {
 					// title link
-					sfs.addAll(url.generateSolrFields(buildMarcWith856("HathiTrust (multiple volumes)",
-							"http://catalog.hathitrust.org/Record/"+title),null).fields);
+					sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextTitle,
+							"http://catalog.hathitrust.org/Record/"+title, true),null).fields);
 				}
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
 			for ( String title : denyTitles ) {
-				sfs.addAll(url.generateSolrFields(buildMarcWith856(
-						"HathiTrust – Access limited to full-text search",
-						"http://catalog.hathitrust.org/Record/"+title),null).fields);
+				sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextDeny,
+						"http://catalog.hathitrust.org/Record/"+title, false),null).fields);
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
 		}
 		return sfs;
 	}
 
-	private static MarcRecord buildMarcWith856( String description, String url) {
+	private static MarcRecord buildMarcWith856( String description, String url, boolean online) {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField( 1, "856");
 		f.subfields.add(new Subfield( 1, 'u', url));
 		f.subfields.add(new Subfield( 2, 'z', description));
 		rec.dataFields.add(f);
+		if (!online) return rec;
 		MarcRecord h = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
 		h.id = "1";
 		h.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
