@@ -52,17 +52,19 @@ public class Headings2Solr {
 
 	public static void main(String[] args) {
 		try {
-			new Headings2Solr(args);
+			new Headings2Solr();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
-	public Headings2Solr(String[] args) throws Exception {
-		Collection<String> requiredArgs = Arrays.asList("authorSolrUrl","subjectSolrUrl","authorTitleSolrUrl");
+	public Headings2Solr() throws SolrServerException, IOException, SQLException {
+		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		requiredArgs.addAll( Arrays.asList("authorSolrUrl","subjectSolrUrl","authorTitleSolrUrl") );
 		config = Config.loadConfig(requiredArgs);
 
+		config.setDatabasePoolsize("Headings", 2);
 		connection = config.getDatabaseConnection("Headings");
 
 		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getSubjectSolrUrl());
@@ -87,7 +89,7 @@ public class Headings2Solr {
 	}
 
 	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadingCategory hc)
-			throws Exception  {
+			throws SolrServerException, IOException, SQLException {
 		String query =
 			"SELECT h.* "
 			+ "FROM heading as h"
@@ -130,8 +132,9 @@ public class Headings2Solr {
 					if ( ! hc.equals(HeadingCategory.AUTHORTITLE))
 						doc.addField("headingTypeDesc", ht.toString());
 					doc.addField("blacklightField", blacklightFields.get(hc).get(ht));
-					doc.addField("authority", rs.getBoolean("authority"));
-					doc.addField("mainEntry", rs.getBoolean("main_entry"));
+					AuthorityStatus as = getIsAuthorized(id);
+					doc.addField("authority", ! as.equals(AuthorityStatus.NONE) );
+					doc.addField("mainEntry", as.equals(AuthorityStatus.MAIN) );
 					doc.addField("notes", getNotes(id));
 					String rda = getRda(id);
 					if (rda != null) doc.addField("rda_json", rda);
@@ -163,6 +166,28 @@ public class Headings2Solr {
 		}
 		return null;
 	}
+
+	// TODO Expand this to include authority identifiers in Solr args
+	private static PreparedStatement isAuth_pstmt = null;
+	private AuthorityStatus getIsAuthorized(int id) throws SQLException {
+		AuthorityStatus as = AuthorityStatus.NONE;
+		if ( isAuth_pstmt == null )
+			isAuth_pstmt = connection.prepareStatement(
+					"SELECT main_entry FROM authority2heading"+
+					" WHERE heading_id = ?" );
+		isAuth_pstmt.setInt(1, id);
+		isAuth_pstmt.execute();
+		try ( ResultSet rs = isAuth_pstmt.getResultSet() ) {
+			while (rs.next())
+				if ( rs.getBoolean("main_entry") )
+					as = AuthorityStatus.MAIN;
+				else if ( as.equals(AuthorityStatus.NONE) )
+					as = AuthorityStatus.XREF;
+		}
+		return as;
+	}
+	private enum AuthorityStatus{ MAIN, XREF, NONE; }
+
 
 	private static PreparedStatement ref_pstmt = null;
 	private References getXRefs(int id, HeadingCategory hc) throws SQLException, JsonProcessingException {
