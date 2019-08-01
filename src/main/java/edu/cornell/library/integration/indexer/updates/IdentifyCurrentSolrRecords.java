@@ -48,7 +48,7 @@ public class IdentifyCurrentSolrRecords {
 		requiredArgs.add("solrUrl");
 
 		try{        
-			new IdentifyCurrentSolrRecords( Config.loadConfig(args, requiredArgs));
+			new IdentifyCurrentSolrRecords( Config.loadConfig(requiredArgs));
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);

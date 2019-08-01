@@ -32,7 +32,7 @@ public class GenerateSolrFieldsTest {
 	@BeforeClass
 	public static void setup() throws SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(requiredArgs);
 		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 		gen.setUpDatabase(config);
 	}

@@ -1,10 +1,11 @@
 package edu.cornell.library.integration.voyager;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,25 +17,22 @@ import java.util.regex.Pattern;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
-import edu.cornell.library.integration.webdav.DavService;
-import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class DownloadMARC {
 	private Config config;
-	private DavService davService;
 	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
 	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;
 
 	public DownloadMARC(Config config) {
-		davService = DavServiceFactory.getDavService(config);
 		this.config = config;
 	}
 	/**
 	 * Retrieve specified MARC records from Voyager, convert to XML and save.
 	 * @param type Record type is necessary for querying Voyager, and is used in file names
 	 * @param ids List of identifiers of desired records
-	 * @param dir relative directory for output. Will be relative to webdavBaseUrl.
+	 * @param dir absolute directory for output.
+	 * @return Set of identifiers not saved
 	 * @throws Exception
 	 */
 	public Set<Integer> saveXml (RecordType type, Set<Integer> ids, String dir) throws Exception {
@@ -50,16 +48,7 @@ public class DownloadMARC {
 				recs.append(rec);
 				errorChecking(rec,type,id);
 				if (++recCount == 1_000) {
-					StringBuilder url = new StringBuilder();
-					url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
-					if (type.equals(RecordType.BIBLIOGRAPHIC))
-						url.append("bib.");
-					else if (type.equals(RecordType.HOLDINGS))
-						url.append("mfhd.");
-					else
-						url.append("auth.");
-					url.append(fileSeqNo).append(".xml");
-					writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
+					writeFile(getFilePath(dir,type,fileSeqNo),MarcRecord.marcToXml(recs.toString()));
 					recCount = 0;
 					fileSeqNo++;
 					recs.setLength(0);
@@ -67,33 +56,28 @@ public class DownloadMARC {
 			} else
 				notFoundIds.add(id);
 		}
-		if (recCount > 0) {
-			StringBuilder url = new StringBuilder();
-			url.append(config.getWebdavBaseUrl()).append('/').append(dir).append('/');
-			if (type.equals(RecordType.BIBLIOGRAPHIC))
-				url.append("bib.");
-			else if (type.equals(RecordType.HOLDINGS))
-				url.append("mfhd.");
-			else
-				url.append("auth.");
-			url.append(fileSeqNo).append(".xml");
-			writeFile(url.toString(),MarcRecord.marcToXml(recs.toString()));
-		}
+		if (recCount > 0)
+			writeFile(getFilePath(dir,type,fileSeqNo),MarcRecord.marcToXml(recs.toString()));
 		return notFoundIds;
 	}
 
+	private static String getFilePath( String dir, RecordType type, int fileSeqNo ) {
+		return String.format("%s/%s%s.xml", dir,
+				(type.equals(RecordType.BIBLIOGRAPHIC)?"bib.":
+					(type.equals(RecordType.HOLDINGS))?"mfhd.":"auth."),
+				fileSeqNo);
+	}
 	/**
 	 * Retrieve specified MARC record and return MARC21 format as string.
 	 * @param type (RecordType.BIBLIOGRAPHIC, RecordType.HOLDINGS, RecordType.AUTHORITY)
 	 * @param id
 	 * @return String MARC21 encoded MARC file; null if id not found in Voyager
 	 * @throws SQLException
-	 * @throws ClassNotFoundException
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
 	public String downloadMrc(RecordType type, Integer id)
-			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
+			throws SQLException, IOException, InterruptedException {
 
 		return queryVoyager(type,id);
 	}
@@ -104,12 +88,11 @@ public class DownloadMARC {
 	 * @param id
 	 * @return String XML encoded MARC file; null if id not found in Voyager
 	 * @throws SQLException
-	 * @throws ClassNotFoundException
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
 	public String downloadXml(RecordType type, Integer id)
-			throws SQLException, ClassNotFoundException, IOException, InterruptedException {
+			throws SQLException, IOException, InterruptedException {
 		return MarcRecord.marcToXml(downloadMrc(type,id));
 	}
 
@@ -139,13 +122,13 @@ public class DownloadMARC {
 			return voyager.prepareStatement(
 					"SELECT * FROM AUTH_DATA WHERE AUTH_DATA.AUTH_ID = ? ORDER BY AUTH_DATA.SEQNUM");
 	}
-	private void writeFile(String filename, String recs) throws Exception {
-		try (InputStream is = new ByteArrayInputStream(recs.toString().getBytes(StandardCharsets.UTF_8))) {
-			davService.saveFile(filename, is);
-		}
+
+	private static void writeFile(String filename, String recs) throws IOException {
+		Files.write(Paths.get(filename), recs.getBytes(),StandardOpenOption.CREATE_NEW);
 	}
+
 	private String queryVoyager(RecordType type, Integer id)
-			throws SQLException, IOException, InterruptedException, ClassNotFoundException {
+			throws SQLException, IOException, InterruptedException {
 		String marcRecord = null;
 
 		int retryLimit = 4;

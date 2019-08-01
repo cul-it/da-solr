@@ -65,7 +65,7 @@ public class UpdateVoyagerInventory {
 		requiredArgs.addAll(getRequiredArgsForDB("Voy"));
 
 		try{        
-			new UpdateVoyagerInventory( Config.loadConfig(args, requiredArgs) );
+			new UpdateVoyagerInventory( Config.loadConfig(requiredArgs) );
 		}catch( Exception e){
 			e.printStackTrace();
 			System.exit(1);

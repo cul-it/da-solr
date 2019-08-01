@@ -20,7 +20,7 @@ public class CallNumberTest {
 	@BeforeClass
 	public static void setup() {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("CallNos");
-		config = Config.loadConfig(null,requiredArgs);
+		config = Config.loadConfig(requiredArgs);
 	}
 
 	@Test

@@ -17,7 +17,7 @@ public class QueueRecordsForSolrIndex {
 	public static void main(String[] args) {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		try {
-			new QueueRecordsForSolrIndex( Config.loadConfig(null,requiredArgs),args);
+			new QueueRecordsForSolrIndex( Config.loadConfig(requiredArgs),args);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

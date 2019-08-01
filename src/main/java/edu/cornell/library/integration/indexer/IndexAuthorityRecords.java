@@ -4,6 +4,10 @@ import static edu.cornell.library.integration.utilities.FilingNormalization.getF
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,21 +20,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.http.ConnectionClosedException;
+import javax.xml.stream.XMLStreamException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadType;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.HeadTypeDesc;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.RecordSet;
 import edu.cornell.library.integration.indexer.utilities.BrowseUtils.ReferenceType;
+import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -38,13 +41,10 @@ import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
-import edu.cornell.library.integration.webdav.DavService;
-import edu.cornell.library.integration.webdav.DavServiceFactory;
 
 public class IndexAuthorityRecords {
 
 	private Connection connection = null;
-	private DavService davService;
 	private static List<Integer> authorTypes = Arrays.asList(
 			HeadTypeDesc.PERSNAME.ordinal(),
 			HeadTypeDesc.CORPNAME.ordinal(),
@@ -55,10 +55,10 @@ public class IndexAuthorityRecords {
 	 */
 	public static void main(String[] args) {
 		// load configuration for location of index, location of authorities
-		Collection<String> requiredArgs = Config.getRequiredArgsForWebdav();
-		requiredArgs.add("mrcDir");
+		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		requiredArgs.add("authorityMarcDirectory");
 
-		Config config = Config.loadConfig(args,requiredArgs);
+		Config config = Config.loadConfig(requiredArgs);
 		try {
 			new IndexAuthorityRecords(config);
 		} catch (Exception e) {
@@ -67,38 +67,35 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	public IndexAuthorityRecords(Config config) throws Exception {
-        this.davService = DavServiceFactory.getDavService(config);
+	public IndexAuthorityRecords(Config config)
+			throws SQLException, FileNotFoundException, IOException, XMLStreamException {
 
 		connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
 		setUpDatabase();
 
-		String mrcDir = config.getWebdavBaseUrl() + "/" + config.getMrcDir();
+		String mrcDir = config.getAuthorityMarcDirectory();
 		System.out.println("Looking for authority MARC in directory: "+mrcDir);
-        List<String> authMrcFiles = davService.getFileUrlList(mrcDir);
-        System.out.println("Found: "+authMrcFiles.size()+" files.");
-        Iterator<String> i = authMrcFiles.iterator();
-        while (i.hasNext()) {
-			String srcFile = i.next();
+		File[] srcList = (new File(mrcDir)).listFiles();
+		if ( srcList == null ) {
+			System.out.printf( "'%s' is not a valid directory.\n",mrcDir);
+			return;
+		}
+		if (srcList.length == 0) {
+			System.out.printf("No files available to process in '%s'.\n",mrcDir);
+			return;
+		}
+		System.out.println("Found: "+srcList.length+" files.");
+		for (File srcFile : srcList) {
 			System.out.println(srcFile);
-			boolean processedFile = false;
-			while ( ! processedFile ) {
-				try {
-					processFile( srcFile );
-					processedFile = true;
-				} catch (ConnectionClosedException e) {
-					System.out.println("Lost access to mrc file read. Waiting 2 minutes, and will try again.\n");
-					e.printStackTrace();
-					Thread.sleep(120 /* s */ * 1000 /* ms/s */);
-				}
-			}
-        }
-        connection.close();
+			processFile( srcFile );
+		}
+		connection.close();
 	}
 
-	private void processFile( String srcFile ) throws Exception {
-		try (  InputStream is = davService.getFileAsInputStream(srcFile);
+	private void processFile( File srcFile )
+			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
+		try (  InputStream is = new FileInputStream( srcFile );
 				Scanner s1 = new Scanner(is);
 				Scanner s2 = s1.useDelimiter("\\A")) {
 			String marc21OrMarcXml = s2.hasNext() ? s2.next() : "";
@@ -108,6 +105,7 @@ public class IndexAuthorityRecords {
 				createHeadingRecordsFromAuthority(rec);
 		}
 	}
+
 	private void setUpDatabase() throws SQLException {
 		try ( Statement stmt = connection.createStatement() ) {
 
