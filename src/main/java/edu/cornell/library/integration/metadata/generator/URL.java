@@ -2,12 +2,11 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +27,7 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
@@ -39,17 +38,16 @@ public class URL implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 
 		boolean isOnline = isOnline(bibRec.holdings);
-		int accessLinksFound = 0;
 
 		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields();
 		for (MarcRecord holdingsRec : bibRec.holdings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
 
+		List<Map<String,Object>> allProcessedLinks = new ArrayList<>();
 		for (DataField f : allLinkFields) {
-			Map<String,Object> jsonModel = new HashMap<>();
+			Map<String,Object> processedLink = new HashMap<>();
 
-			Set<String> urls = new HashSet<>();
-			urls.addAll(f.valueListForSpecificSubfields("u"));
+			List<String> urls = f.valueListForSpecificSubfields("u");
 			String instructions = f.concatenateSpecificSubfields("i");
 			String linkLabel = f.concatenateSpecificSubfields("3yz");
 
@@ -59,16 +57,25 @@ public class URL implements SolrFieldGenerator {
 				for (String code : codes) {
 					String[] parts = code.split("=",2);
 					if (parts.length == 2 && ! parts[1].equals("?"))
-						jsonModel.put(parts[0].toLowerCase(), parts[1]);
+						processedLink.put(parts[0].toLowerCase(), parts[1]);
 				}
 			}
 
+			if (urls.size() > 1)
+				System.out.printf("b%s 856 field has two ‡u values.\n",bibRec.bib_id);
+			if (urls.isEmpty()) {
+				System.out.printf("b%s 856 field has no ‡u value.\n",bibRec.bib_id);
+				continue;
+			}
+			String url = urls.iterator().next();
+			processedLink.put("url", url);
+
 			if ( ! linkLabel.isEmpty())
-				jsonModel.put( "description", String.join(" ",linkLabel) );
+				processedLink.put( "description", String.join(" ",linkLabel) );
 
 			String relation = isOnline? "access" : "other"; //this is a default and may change later
-			if (jsonModel.containsKey("description")) { 
-				String lc = ((String)jsonModel.get("description")).toLowerCase();
+			if (processedLink.containsKey("description")) { 
+				String lc = ((String)processedLink.get("description")).toLowerCase();
 				if (lc.contains("finding aid"))
 					relation = "findingaid";
 				if (relation.equals("access") && 
@@ -79,6 +86,7 @@ public class URL implements SolrFieldGenerator {
 							|| lc.startsWith("toc ")
 							|| lc.equals("toc")
 							|| lc.contains("cover image")
+							|| lc.contains("cover art")
 							|| lc.equals("cover")
 							|| lc.contains("publisher description")
 							|| lc.contains("contributor biographical information")
@@ -102,38 +110,65 @@ public class URL implements SolrFieldGenerator {
 				}
 			}
 	
-			// There shouldn't be multiple URLs, but we're just going to iterate through
-			// them anyway.
-			for (String url: urls) {
-				String urlRelation = relation;
-				String url_lc = url.toLowerCase();
-				if (url_lc.contains("://plates.library.cornell.edu")) {
-					urlRelation = "bookplate";
-					if (jsonModel.containsKey("description"))
-						sfs.add( new SolrField ("donor_t", ((String)jsonModel.get("description")) ));
-					sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
-				} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
-					urlRelation = "pda";
-				}
-				if ( ! jsonModel.containsKey("description")) {
-					sfs.add( new SolrField ("url_"+urlRelation+"_display",url));						
-				} else {
-					sfs.add( new SolrField ("url_"+urlRelation+"_display",url + "|" + jsonModel.get("description")));
-					sfs.add( new SolrField ("notes_t",((String)jsonModel.get("description"))));
-				}
-				if (urlRelation.equals("access")) {
-					jsonModel.put("url", url);
-					ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-					mapper.writeValue(jsonstream, jsonModel);
-					sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
-					accessLinksFound++;
-				}
+			String url_lc = ((String)processedLink.get("url")).toLowerCase();
+			if (url_lc.contains("://plates.library.cornell.edu")) {
+				relation = "bookplate";
+				if (processedLink.containsKey("description"))
+					sfs.add( new SolrField ("donor_t", ((String)processedLink.get("description")) ));
+				sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
+			} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
+				relation = "pda";
 			}
+			processedLink.put("relation", relation);
+
+			allProcessedLinks.add(processedLink);
 
 		}
-		if (isOnline && accessLinksFound >= 1)
+		if (isOnline) {
+			int accessLinkCount = countLinksByType( allProcessedLinks, "access" );
+			if ( accessLinkCount == 0 ) {
+				if ( countLinksByType( allProcessedLinks, "other" ) >= 1 )
+					reassignOtherLinksToAccess(allProcessedLinks);
+				else
+					isOnline = false;
+			}
+			
+		}
+
+		for (Map<String,Object> link : allProcessedLinks) {
+			String relation = (String)link.get("relation");
+			String url = (String)link.get("url");
+			if ( ! link.containsKey("description")) {
+				sfs.add( new SolrField ("url_"+relation+"_display",url));						
+			} else {
+				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + link.get("description")));
+				sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
+			}
+			if (relation.equals("access")) {
+				link.remove("relation");
+				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
+				mapper.writeValue(jsonstream, link);
+				sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
+			}
+		}
+		if (isOnline)
 			sfs.add(new SolrField("online","Online"));
+
 		return sfs;
+	}
+
+	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {
+		for (Map<String,Object> link : allProcessedLinks)
+			if ( ((String)link.get("relation")).equals("other") )
+				link.put("relation", "access");
+	}
+
+	private static int countLinksByType(List<Map<String, Object>> allProcessedLinks, String linkType) {
+		int count = 0;
+		for (Map<String,Object> link : allProcessedLinks)
+			if ( ((String)link.get("relation")).equals(linkType) )
+					count++;
+		return count;
 	}
 
 	private static boolean isOnline(TreeSet<MarcRecord> holdings) {
