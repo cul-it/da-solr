@@ -17,6 +17,7 @@ import edu.cornell.library.integration.indexer.utilities.SolrFields.SolrField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
 
@@ -27,7 +28,7 @@ import edu.cornell.library.integration.utilities.NameUtils;
 public class TitleChange implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -147,7 +148,8 @@ public class TitleChange implements SolrFieldGenerator {
 		List<SolrField> sfs = new ArrayList<>();
 		for (DataField f : fs.getFields()) {
 			FieldValues authorTitle = FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcgknpqrst");
-			sfs.add(new SolrField("title_uniform_t",authorTitle.title));
+			if ( ! authorTitle.title.isEmpty() )
+				sfs.add(new SolrField("title_uniform_t",authorTitle.title));
 			if (f.tag.equals("880")) {
 				if (f.getScript().equals(DataField.Script.CJK))
 					sfs.add(new SolrField("title_uniform_t_cjk",authorTitle.title));
@@ -159,6 +161,12 @@ public class TitleChange implements SolrFieldGenerator {
 					sfs.add(new SolrField("title_uniform_t_cjk",authorTitle.title));
 			}
 			// display no longer dependent on ind1 = '0'.
+			if ( fs.getMainTag().equals("776") ) {
+				String display = get776DisplayForm( f, authorTitle );
+				if ( ! display.isEmpty() )
+					sfs.add(new SolrField("other_form_display",display));
+				continue;
+			}
 			StringBuilder sb = new StringBuilder();
 			sb.append( f.concatenateSpecificSubfields("i") ).append(' ');
 			if (authorTitle.author != null)
@@ -168,5 +176,66 @@ public class TitleChange implements SolrFieldGenerator {
 		}
 		return sfs;
 	}
+
+	private static String get776DisplayForm( DataField f, FieldValues at ) {
+		StringBuilder sb = new StringBuilder();
+		boolean atAdded = false;
+		for ( Subfield sf : f.subfields ) {
+			switch (sf.code) {
+
+			// author title fields "abdgknpqrst"
+			case 'a': case 'b': case 'd': case 'g': case 'k': case 'n':
+			case 'p': case 'q': case 'r': case 's': case 't':
+				if ( ! atAdded ) {
+					if (sb.length() > 0 ) sb.append(' ');
+					if (at.author != null)
+						sb.append(at.author).append(" | ");
+					sb.append(at.title);
+					atAdded = true;
+				}
+				break;
+
+			// identifier fields (try to display only when vocabulary is identified)
+			case 'x':
+				if (sb.length() > 0 ) sb.append(' ');
+				sb.append("ISSN: ").append(sf.value);
+				break;
+			case 'z':
+				if (sb.length() > 0 ) sb.append(' ');
+				sb.append("ISBN: ").append(sf.value);
+				break;
+			case 'o':
+			case 'w':
+				boolean display = false;
+				int length = sb.length();
+				if ( length > 0 && (
+						sb.lastIndexOf(":") == length - 1 ||
+						sb.lastIndexOf("number") == length - 6 ||
+						sb.lastIndexOf("no.") == length - 3 ||
+						sb.lastIndexOf("UPC") == length - 3 ||
+						sb.lastIndexOf("code") == length - 3 ||
+						sb.lastIndexOf("Identifier") == length - 10
+						))
+					display = true;
+				else if (  sf.value.indexOf(')') != -1
+						|| sf.value.indexOf(':') != -1 )
+					display = true;
+				if ( ! display )
+					break;
+
+			// Other fields to display
+			case 'h':
+
+			// qualifier fields
+			case 'c':
+			case 'i':
+				if (sb.length() > 0 ) sb.append(' ');
+				sb.append(sf.value);
+				break;
+			}
+		}
+		return sb.toString();
+	}
+
 
 }

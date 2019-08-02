@@ -67,6 +67,7 @@ public class FieldValues {
 		boolean hasA = false;
 		boolean hasDefiniteTitleSubfield = false;
 		MeaningOfSubfieldABasedOnSubfield7 seven = MeaningOfSubfieldABasedOnSubfield7.UNK;
+		subfields = subfields.replaceAll("c", "")+"d";
 
 		for (Subfield sf : f.subfields)
 			switch (sf.code) {
