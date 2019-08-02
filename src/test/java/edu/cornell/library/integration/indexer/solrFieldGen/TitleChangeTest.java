@@ -247,6 +247,15 @@ public class TitleChangeTest {
 			rec.dataFields.add(new DataField(1,"776",'1',' ',"‡o 5161733129"));
 			assertEquals( "", gen.generateSolrFields(rec, config).toString() );
 		}
+		{ // b 10205060
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'0','8',
+					"‡z 9781315116143 ‡z 9781351652728 ‡z 9781351648110 ‡z 9781351638531"));
+			assertEquals(
+					"other_form_display: ISBN: 9781315116143 ISBN: 9781351652728"
+					+ " ISBN: 9781351648110 ISBN: 9781351638531\n",
+					gen.generateSolrFields(rec, config).toString() );
+		}
 	}
 
 	@Test
