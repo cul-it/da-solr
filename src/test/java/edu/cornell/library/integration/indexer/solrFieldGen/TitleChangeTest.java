@@ -192,7 +192,7 @@ public class TitleChangeTest {
 			+ " Leiden, Netherlands : Brill, c2013"
 			+ " Historical materialism book series ; Volume 62."
 			+ " viii, 197 pages"
-			+ " ISSN: 1570-1522"
+			+ " ISSN: 1570-1522,"
 			+ " ISBN: 9789004265745\n";
 		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 		}
@@ -252,8 +252,8 @@ public class TitleChangeTest {
 			rec.dataFields.add(new DataField(1,"776",'0','8',
 					"‡z 9781315116143 ‡z 9781351652728 ‡z 9781351648110 ‡z 9781351638531"));
 			assertEquals(
-					"other_form_display: ISBN: 9781315116143 ISBN: 9781351652728"
-					+ " ISBN: 9781351648110 ISBN: 9781351638531\n",
+					"other_form_display: ISBN: 9781315116143, ISBN: 9781351652728,"
+					+ " ISBN: 9781351648110, ISBN: 9781351638531\n",
 					gen.generateSolrFields(rec, config).toString() );
 		}
 	}
