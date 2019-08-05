@@ -28,7 +28,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class TitleChange implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.1a"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -180,6 +180,7 @@ public class TitleChange implements SolrFieldGenerator {
 	private static String get776DisplayForm( DataField f, FieldValues at ) {
 		StringBuilder sb = new StringBuilder();
 		boolean atAdded = false;
+		boolean lastSFIdentifier = false;
 		for ( Subfield sf : f.subfields ) {
 			switch (sf.code) {
 
@@ -192,36 +193,43 @@ public class TitleChange implements SolrFieldGenerator {
 						sb.append(at.author).append(" | ");
 					sb.append(at.title);
 					atAdded = true;
+					lastSFIdentifier = false;
 				}
 				break;
 
 			// identifier fields (try to display only when vocabulary is identified)
 			case 'x':
-				if (sb.length() > 0 ) sb.append(' ');
+				if ( lastSFIdentifier ) sb.append(", ");
+				else if (sb.length() > 0 ) sb.append(' ');
 				sb.append("ISSN: ").append(sf.value);
+				lastSFIdentifier = true;
 				break;
 			case 'z':
-				if (sb.length() > 0 ) sb.append(' ');
+				if ( lastSFIdentifier ) sb.append(", ");
+				else if (sb.length() > 0 ) sb.append(' ');
 				sb.append("ISBN: ").append(sf.value);
+				lastSFIdentifier = true;
 				break;
 			case 'o':
 			case 'w':
 				boolean display = false;
 				int length = sb.length();
-				if ( length > 0 && (
-						sb.lastIndexOf(":") == length - 1 ||
-						sb.lastIndexOf("number") == length - 6 ||
-						sb.lastIndexOf("no.") == length - 3 ||
-						sb.lastIndexOf("UPC") == length - 3 ||
-						sb.lastIndexOf("code") == length - 3 ||
-						sb.lastIndexOf("Identifier") == length - 10
-						))
+				if ( (length != 0 && sb.lastIndexOf(":") == length - 1) ||
+					( length != 2 && (sb.lastIndexOf("no.") == length - 3 || sb.lastIndexOf("UPC") == length - 3)) ||
+					( length != 3 && sb.lastIndexOf("code") == length - 4) ||
+					( length != 5 && sb.lastIndexOf("number") == length - 6) ||
+					( length != 9 && sb.lastIndexOf("Identifier") == length - 10) )
 					display = true;
 				else if (  sf.value.indexOf(')') != -1
 						|| sf.value.indexOf(':') != -1 )
 					display = true;
 				if ( ! display )
 					break;
+				if ( lastSFIdentifier ) sb.append(", ");
+				else if (sb.length() > 0 ) sb.append(' ');
+				sb.append(sf.value);
+				lastSFIdentifier = true;
+				break;
 
 			// Other fields to display
 			case 'h':
@@ -231,6 +239,7 @@ public class TitleChange implements SolrFieldGenerator {
 			case 'i':
 				if (sb.length() > 0 ) sb.append(' ');
 				sb.append(sf.value);
+				lastSFIdentifier = false;
 				break;
 			}
 		}
