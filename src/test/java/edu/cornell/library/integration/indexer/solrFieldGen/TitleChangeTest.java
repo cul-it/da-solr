@@ -168,16 +168,94 @@ public class TitleChangeTest {
 
 	@Test
 	public void testAuthorTitleSegregationOf776() throws ClassNotFoundException, SQLException, IOException {
-		// Example from DISCOVERYACCESS-3445
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Print version: ‡a Rosengarten, Frank, 1927- ‡t"
-				+ " Revolutionary Marxism of Antonio Gramsci. ‡d Leiden, Netherlands : Brill, c2013 ‡h viii,"
-				+ " 197 pages ‡k Historical materialism book series ; Volume 62. ‡x 1570-1522 ‡z 9789004265745"
-				+ " ‡w 2013041807"));
-		String expected = "title_uniform_t: Revolutionary Marxism of Antonio Gramsci. Historical materialism book series ; Volume 62.\n"+
-				"other_form_display: Print version: Rosengarten, Frank, 1927-"
-				+ " | Revolutionary Marxism of Antonio Gramsci. Historical materialism book series ; Volume 62.\n";
+		{ // Example from DISCOVERYACCESS-3445 b10047079
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'0','8',
+					"‡i Print version: "
+					+ "‡a Rosengarten, Frank, 1927- "
+					+ "‡t Revolutionary Marxism of Antonio Gramsci. "
+					+ "‡d Leiden, Netherlands : Brill, c2013 "
+					+ "‡h viii, 197 pages "
+					+ "‡k Historical materialism book series ; Volume 62. "
+					+ "‡x 1570-1522 "
+					+ "‡z 9789004265745 "
+					+ "‡w 2013041807"));
+			String expected =
+			"title_uniform_t:"
+			+ " Revolutionary Marxism of Antonio Gramsci."
+			+ " Leiden, Netherlands : Brill, c2013"
+			+ " Historical materialism book series ; Volume 62.\n" + 
+			"other_form_display:"
+			+ " Print version:"
+			+ " Rosengarten, Frank, 1927-"
+			+ " | Revolutionary Marxism of Antonio Gramsci."
+			+ " Leiden, Netherlands : Brill, c2013"
+			+ " Historical materialism book series ; Volume 62."
+			+ " viii, 197 pages"
+			+ " ISSN: 1570-1522,"
+			+ " ISBN: 9789004265745\n";
 		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		}
+		{ // 7655324
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'0','8',
+					"‡a United States. "
+					+ "‡b Congress "
+					+ "‡n (111th, 1st session : "
+					+ "‡d 2009). "
+					+ "‡t Concurrent resolution on the budget for fiscal year 2010 "
+					+ "‡h 149 p. "
+					+ "‡w (OCoLC)320776469"));
+			String expected =
+			"title_uniform_t:"
+			+ " Concurrent resolution on the budget for fiscal year 2010\n" + 
+			"other_form_display:"
+			+ " United States. Congress (111th, 1st session : 2009)."
+			+ " | Concurrent resolution on the budget for fiscal year 2010"
+			+ " 149 p."
+			+ " (OCoLC)320776469\n";
+			assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		}
+	}
+
+	@Test
+	public void testNonBib776Fields() throws ClassNotFoundException, SQLException, IOException {
+		{ // b 9926193
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Original: ‡w (Voyager)3605552"));
+			assertEquals(
+					"other_form_display: Original: (Voyager)3605552\n",
+					gen.generateSolrFields(rec, config).toString() );
+		}
+		{ // b 10646825
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'1',' ',
+					"‡c Original publisher catalog number ‡o 724355800626"));
+			assertEquals(
+					"other_form_display: Original publisher catalog number 724355800626\n",
+					gen.generateSolrFields(rec, config).toString() );
+		}
+		{ // b 8599594
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'1',' ',"‡x 2234-3164"));
+			assertEquals(
+					"other_form_display: ISSN: 2234-3164\n",
+					gen.generateSolrFields(rec, config).toString() );
+		}
+		{ // b 10705523 unqualified identifier suppressed from display
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'1',' ',"‡o 5161733129"));
+			assertEquals( "", gen.generateSolrFields(rec, config).toString() );
+		}
+		{ // b 10205060
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"776",'0','8',
+					"‡z 9781315116143 ‡z 9781351652728 ‡z 9781351648110 ‡z 9781351638531"));
+			assertEquals(
+					"other_form_display: ISBN: 9781315116143, ISBN: 9781351652728,"
+					+ " ISBN: 9781351648110, ISBN: 9781351638531\n",
+					gen.generateSolrFields(rec, config).toString() );
+		}
 	}
 
 	@Test
@@ -238,7 +316,7 @@ public class TitleChangeTest {
 				"‡a In vitro cellular & developmental biology. ‡p Animal (Online)"));
 		String expected =
 		"title_uniform_t: Animal (Online)\n"+
-		"other_form_display:  In vitro cellular & developmental biology. | Animal (Online)\n";
+		"other_form_display: In vitro cellular & developmental biology. | Animal (Online)\n";
 		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
 	}
 
