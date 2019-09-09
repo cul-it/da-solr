@@ -12,7 +12,7 @@ import edu.cornell.library.integration.marc.Subfield;
 
 public class OtherIDs implements SolrFieldGenerator {
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("024","028","035"); }
@@ -20,8 +20,13 @@ public class OtherIDs implements SolrFieldGenerator {
 	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 		SolrFields sfs = new SolrFields();
-		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
-			if (sf.code.equals('a')) {
+		for (DataField f : rec.dataFields) {
+			boolean isDoi = false;
+			for (Subfield sf : f.subfields)
+				if ( sf.code.equals('2') && sf.value.trim().equals("doi") )
+					isDoi = true;
+
+			for (Subfield sf : f.subfields) if (sf.code.equals('a')) {
 
 				// search fields
 				if (f.getScript().equals(DataField.Script.CJK))
@@ -35,6 +40,8 @@ public class OtherIDs implements SolrFieldGenerator {
 				case "035":
 					if (sf.value.startsWith("(OCoLC)"))
 						sfs.add(new SolrField("oclc_id_display",sf.value.substring(7).trim()));
+					else if ( isDoi )
+						sfs.add(new SolrField("doi_display",sf.value));
 					else
 						sfs.add(new SolrField("other_id_display",sf.value));
 					break;
@@ -43,6 +50,7 @@ public class OtherIDs implements SolrFieldGenerator {
 					break;
 				}
 			}
+	}
 		return sfs;
 	}
 }
