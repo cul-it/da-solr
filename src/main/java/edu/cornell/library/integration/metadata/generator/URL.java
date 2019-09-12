@@ -27,7 +27,7 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
@@ -48,23 +48,28 @@ public class URL implements SolrFieldGenerator {
 			Map<String,Object> processedLink = new HashMap<>();
 
 			List<String> urls = f.valueListForSpecificSubfields("u");
-			String instructions = f.concatenateSpecificSubfields("i");
+			List<String> instructions = f.valueListForSpecificSubfields("i");
 			String linkLabel = f.concatenateSpecificSubfields("3yz");
 
-			if (instructions != null &&
-					(instructions.contains("dbcode") || instructions.contains("providercode"))) {
-				String[] codes = instructions.split(";\\s*");
+			for (String instruction : instructions)
+			if (instruction.contains("dbcode") || instruction.contains("providercode")) {
+				String[] codes = instruction.split(";\\s*");
 				for (String code : codes) {
 					String[] parts = code.split("=",2);
-					if (parts.length == 2 && ! parts[1].equals("?"))
-						processedLink.put(parts[0].toLowerCase(), parts[1]);
+					if (parts.length == 2 && ! parts[1].equals("?")) {
+						String field = parts[0].toLowerCase();
+						if ( field.equals("dbcode") || field.equals("providercode") || field.equals("ssid") )
+							processedLink.put(field, parts[1]);
+						else
+							System.out.printf("Unexpected field in b%s 856$i: %s\n",bibRec.id,field);
+					}
 				}
 			}
 
 			if (urls.size() > 1)
-				System.out.printf("b%s 856 field has two ‡u values.\n",bibRec.bib_id);
+				System.out.printf("b%s 856 field has two ‡u values.\n",bibRec.id);
 			if (urls.isEmpty()) {
-				System.out.printf("b%s 856 field has no ‡u value.\n",bibRec.bib_id);
+				System.out.printf("b%s 856 field has no ‡u value.\n",bibRec.id);
 				continue;
 			}
 			String url = urls.iterator().next();
