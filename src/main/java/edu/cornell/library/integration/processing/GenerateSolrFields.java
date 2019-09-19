@@ -71,11 +71,11 @@ class GenerateSolrFields {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	String generateSolr( MarcRecord rec, Config config, String recordVersions )
+	BibChangeSummary generateSolr( MarcRecord rec, Config config, String recordVersions )
 			throws SQLException {
 		return generateSolr( rec, config, recordVersions, EnumSet.noneOf(Generator.class));
 	}
-	String generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
+	BibChangeSummary generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
 			throws SQLException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
@@ -94,19 +94,18 @@ class GenerateSolrFields {
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
 
-		int sectionsChanged = 0, sectionsGenerated = 0;
-
 		EnumSet<Generator> generated = EnumSet.noneOf(Generator.class);
 		EnumSet<Generator> changedOutputs = EnumSet.noneOf(Generator.class);
+		EnumSet<Generator> changedHeadingsBlocks = EnumSet.noneOf(Generator.class);
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
 					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
-				sectionsChanged++;
 				changedOutputs.add(newGeneratorData.gen);
+				if ( newGeneratorData.triggerHeadingsUpdate )
+					changedHeadingsBlocks.add(newGeneratorData.gen);
 			}
 			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
-				sectionsGenerated++;
 				generated.add(newGeneratorData.gen);
 			}
 		}
@@ -115,8 +114,8 @@ class GenerateSolrFields {
 		generatedNotChanged.removeAll(changedOutputs);
 		if ( ! changedOutputs.isEmpty() || ! generated.isEmpty() )
 		System.out.println(rec.id+": "+
-				sectionsChanged+" changed ("+
-				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+")"+
+				changedOutputs.size()+" changed ("+
+				((changedOutputs.size() == activeGenerators.size())?"all":changedOutputs.toString())+")"+
 				((generated.size() > 0) ?
 				("; also generated "+generatedNotChanged.size()+" ("+
 				((generatedNotChanged.size() == activeGenerators.size())
@@ -125,9 +124,14 @@ class GenerateSolrFields {
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
 		else 
 			touchBibVisitDate(tableNamePrefix,rec.id, config);
-		if (changedOutputs.size() > 0)
-			return (sectionsChanged == activeGenerators.size())?"all Solr field segments":changedOutputs.toString();
-		return null;
+		if (changedOutputs.size() > 0) {
+			String changeSummary = (changedOutputs.size() == activeGenerators.size())
+					?"all Solr field segments":changedOutputs.toString();
+			if (changedHeadingsBlocks.size() > 0)
+				return new BibChangeSummary(changeSummary,changedHeadingsBlocks.toString());
+			return new BibChangeSummary(changeSummary);
+		}
+		return new BibChangeSummary(null);
 	}
 
 	/**
@@ -300,6 +304,8 @@ class GenerateSolrFields {
 		newData.solrStatus = (origData.solrSegment == null) ? Status.NEW :
 			( solrFields.equals(origData.solrSegment) ) ? Status.UNCHANGED : Status.CHANGED;
 		newData.gen = gen;
+		if ( ! newData.solrStatus.equals(Status.UNCHANGED) && gen.getInstance().providesHeadingBrowseData() )
+			newData.triggerHeadingsUpdate = true;
 		return newData;
 	}
 
@@ -380,6 +386,18 @@ class GenerateSolrFields {
 		return recordChunks;
 	}
 
+	public static class BibChangeSummary {
+		final String changedSegments;
+		final String changedHeadingsSegments;
+		BibChangeSummary(String segments) {
+			this.changedSegments = segments;
+			this.changedHeadingsSegments = null;
+		}
+		BibChangeSummary(String segments, String changedHeadingsSegments) {
+			this.changedSegments = segments;
+			this.changedHeadingsSegments = changedHeadingsSegments;
+		}
+	}
 	private static class BibGeneratorData {
 		final String marcSegment;
 		final String solrSegment;
@@ -387,6 +405,7 @@ class GenerateSolrFields {
 		Status marcStatus = null;
 		Status solrStatus = null;
 		Generator gen = null;
+		boolean triggerHeadingsUpdate = false;
 		public BibGeneratorData( String marcSegment, String solrSegment, Timestamp solrGenDate) {
 			this.marcSegment = marcSegment;
 			this.solrSegment = solrSegment;

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
@@ -65,6 +66,7 @@ public class ProcessQueue {
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
 						("SELECT bib_id FROM solrFieldsData ORDER BY visit_date LIMIT 50");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
+				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				
@@ -130,10 +132,14 @@ public class ProcessQueue {
 						marc.downloadXml(MarcRecord.RecordType.HOLDINGS, mfhdId)));
 				}
 
-				String solrChanges = gen.generateSolr(
+				BibChangeSummary solrChanges = gen.generateSolr(
 						rec, config, mapper.writeValueAsString(v),forcedGenerators);
-				if (solrChanges != null)
-					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges);
+				if (solrChanges.changedSegments != null) {
+					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges.changedSegments);
+					if (solrChanges.changedHeadingsSegments != null)
+						AddToQueue.add2Queue(headingsQueueStmt, bib, priority, minChangeDate,
+								solrChanges.changedHeadingsSegments);
+				}
 
 				for (Integer id : queueIds) {
 					deqStmt.setInt(1, id);

@@ -19,6 +19,11 @@ public class AddToQueue {
 				"INSERT INTO availabilityQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
+	public static PreparedStatement headingsQueueStmt( Connection current ) throws SQLException {
+		return current.prepareStatement(
+				"INSERT INTO headingsQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
+	}
+
 	public static PreparedStatement deleteQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
 				"INSERT INTO deleteQueue ( bib_id, cause, priority, record_date ) "+

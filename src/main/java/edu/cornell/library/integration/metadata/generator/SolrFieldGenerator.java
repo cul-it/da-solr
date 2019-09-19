@@ -37,6 +37,12 @@ public interface SolrFieldGenerator {
 	public default Duration resultsShelfLife() { return Duration.ofDays(180); }
 
 	/**
+	 * If a SolrFieldGenerator provides data in output that will be used to populate the headings browse
+	 * features, a change to its data will trigger an evaluation of the bib's links to headings.
+	 */
+	public default boolean providesHeadingBrowseData() { return false; }
+
+	/**
 	 * Process a subset of a bibliographic MARC (possibly with holdings), into a set of Solr fields.
 	 * @param rec A subset of a bibliographic MARC (possibly with holdings), contents determined by getHandledFields().
 	 * @param config Config gives implementations access to databases as needed. 
