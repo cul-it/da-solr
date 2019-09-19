@@ -46,6 +46,9 @@ public class AuthorTitle implements SolrFieldGenerator {
 	}
 
 	@Override
+	public boolean providesHeadingBrowseData() { return true; }
+
+	@Override
 	// This field generator uses currently untracked authority data, so should be regenerated more often.
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 

@@ -30,6 +30,9 @@ public class TitleSeries implements SolrFieldGenerator {
 	}
 
 	@Override
+	public boolean providesHeadingBrowseData() { return true; }
+
+	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
 
 		SolrFields sfs = new SolrFields();
