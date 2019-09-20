@@ -29,7 +29,7 @@ import edu.cornell.library.integration.utilities.Generator;
 import edu.cornell.library.integration.voyager.DownloadMARC;
 import edu.cornell.library.integration.voyager.VoyagerUtilities;
 
-public class ProcessQueue {
+public class ProcessGenerationQueue {
 
 	public static void main(String[] args) throws Exception {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
@@ -39,10 +39,10 @@ public class ProcessQueue {
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Headings"));
 		Config config = Config.loadConfig(requiredArgs);
 
-		new ProcessQueue(config);
+		new ProcessGenerationQueue(config);
 	}
 
-	public ProcessQueue(Config config) throws Exception {
+	public ProcessGenerationQueue(Config config) throws Exception {
 
 		config.setDatabasePoolsize("Current", 3);
 		config.setDatabasePoolsize("Voy", 3);
