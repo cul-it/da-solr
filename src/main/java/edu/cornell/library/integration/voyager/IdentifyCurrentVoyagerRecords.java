@@ -45,39 +45,38 @@ public class IdentifyCurrentVoyagerRecords {
 	 * set of tables will be replaced.
 	 * @param config
 	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
 	 * 
 	 */
-	public IdentifyCurrentVoyagerRecords(Config config) throws ClassNotFoundException, SQLException{
+	public IdentifyCurrentVoyagerRecords(Config config) throws SQLException{
 
 		config.setDatabasePoolsize("Current", 2);
 		config.setDatabasePoolsize("Voy", 2);
 
 		try (   Connection voyager = config.getDatabaseConnection("Voy");
-	    		Connection current = config.getDatabaseConnection("Current") ) {
+				Connection current = config.getDatabaseConnection("Current") ) {
 
-	    	current.setAutoCommit(false);
-	    	try (   Statement c_stmt = current.createStatement() ) {
-	    		c_stmt.execute("drop table if exists generationQueue");
-	    		c_stmt.execute("CREATE TABLE generationQueue (" 
-	    				+ " id int(12) NOT NULL PRIMARY KEY AUTO_INCREMENT," 
-	    				+ " bib_id int(10) unsigned NOT NULL," 
-	    				+ " priority tinyint(1) unsigned NOT NULL," 
-	    				+ " cause varchar(256) DEFAULT NULL,"
-	    				+ " record_date timestamp NOT NULL ) " 
-	    				+"ENGINE=MyISAM");
-	    	}
+			current.setAutoCommit(false);
+			try (   Statement c_stmt = current.createStatement() ) {
+				c_stmt.execute("drop table if exists generationQueue");
+				c_stmt.execute("CREATE TABLE generationQueue ("
+						+ " id int(12) NOT NULL PRIMARY KEY AUTO_INCREMENT,"
+						+ " bib_id int(10) unsigned NOT NULL,"
+						+ " priority tinyint(1) unsigned NOT NULL,"
+						+ " cause varchar(256) DEFAULT NULL,"
+						+ " record_date timestamp NOT NULL )"
+						+"ENGINE=MyISAM");
+			}
 
-	    	buildBibVoyTable  ( voyager, current );
-	    	buildMfhdVoyTable ( voyager, current );
-	    	buildItemVoyTable ( voyager, current );
+			buildBibVoyTable  ( voyager, current );
+			buildMfhdVoyTable ( voyager, current );
+			buildItemVoyTable ( voyager, current );
 
-	    	try (   Statement c_stmt = current.createStatement() ) {
-	    		c_stmt.execute("alter table generationQueue add key ( bib_id ) ");
-	    		c_stmt.execute("alter table generationQueue add key ( priority, record_date ) ");
-	    	}
-	    	current.commit();
-	    }
+			try (   Statement c_stmt = current.createStatement() ) {
+				c_stmt.execute("alter table generationQueue add key ( bib_id ) ");
+				c_stmt.execute("alter table generationQueue add key ( priority, record_date ) ");
+			}
+			current.commit();
+		}
 	}
 
 	private static void buildBibVoyTable(Connection voyager, Connection current) throws SQLException {

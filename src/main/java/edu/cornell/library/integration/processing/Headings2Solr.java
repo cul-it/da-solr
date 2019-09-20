@@ -25,10 +25,10 @@ import org.apache.solr.common.SolrInputDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.metadata.support.AuthorityData.BlacklightField;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.metadata.support.HeadingType;
+import edu.cornell.library.integration.utilities.BlacklightHeadingField;
 import edu.cornell.library.integration.utilities.Config;
 
 public class Headings2Solr {
@@ -43,7 +43,7 @@ public class Headings2Solr {
 	private static DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
 	static {
-		for ( BlacklightField blf : BlacklightField.values() ) {
+		for ( BlacklightHeadingField blf : BlacklightHeadingField.values() ) {
 			if (! blacklightFields.containsKey(blf.headingCategory()))
 				blacklightFields.put(blf.headingCategory(), new HashMap<HeadingType,String>());
 			blacklightFields.get(blf.headingCategory()).put(blf.headingTypeDesc(), blf.browseCtsName());
@@ -131,7 +131,7 @@ public class Headings2Solr {
 					HeadingType ht = headingTypes[ rs.getInt("heading_type") ];
 					if ( ! hc.equals(HeadingCategory.AUTHORTITLE))
 						doc.addField("headingTypeDesc", ht.toString());
-					doc.addField("blacklightField", blacklightFields.get(hc).get(ht));
+					doc.addField("BlacklightHeadingField", blacklightFields.get(hc).get(ht));
 					AuthorityStatus as = getIsAuthorized(id);
 					doc.addField("authority", ! as.equals(AuthorityStatus.NONE) );
 					doc.addField("mainEntry", as.equals(AuthorityStatus.MAIN) );

@@ -18,8 +18,7 @@ public class AuthorityData {
 	public int headingId = 0;
 	public List<String> authorityId = new ArrayList<>();
 
-	public AuthorityData( Config config, String heading, HeadingType ht)
-			throws ClassNotFoundException, SQLException {
+	public AuthorityData( Config config, String heading, HeadingType ht) throws SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
@@ -71,55 +70,6 @@ public class AuthorityData {
 			throw new IllegalArgumentException( "Please use default constructor if a heading may be authorized");
 	}
 
-	public static enum BlacklightField {
-		AUTHOR_PERSON    (HeadingCategory.AUTHOR,      HeadingType.PERSNAME),
-		AUTHOR_CORPORATE (HeadingCategory.AUTHOR,      HeadingType.CORPNAME),
-		AUTHOR_EVENT     (HeadingCategory.AUTHOR,      HeadingType.EVENT),
-		SUBJECT_PERSON   (HeadingCategory.SUBJECT,     HeadingType.PERSNAME),
-		SUBJECT_CORPORATE(HeadingCategory.SUBJECT,     HeadingType.CORPNAME),
-		SUBJECT_EVENT    (HeadingCategory.SUBJECT,     HeadingType.EVENT),
-		AUTHORTITLE_WORK (HeadingCategory.AUTHORTITLE, HeadingType.WORK),
-		SUBJECT_WORK     (HeadingCategory.SUBJECT,     HeadingType.WORK),
-		SUBJECT_TOPIC    (HeadingCategory.SUBJECT,     HeadingType.TOPIC),
-		SUBJECT_PLACE    (HeadingCategory.SUBJECT,     HeadingType.GEONAME),
-		SUBJECT_CHRON    (HeadingCategory.SUBJECT,     HeadingType.CHRONTERM),
-		SUBJECT_GENRE    (HeadingCategory.SUBJECT,     HeadingType.GENRE);
-
-		private final HeadingCategory hc;
-		private final HeadingType ht;
-
-		BlacklightField(final HeadingCategory hc, final HeadingType ht) {
-			this.hc = hc;
-			this.ht = ht;
-		}
-
-		public HeadingCategory headingCategory() { return hc; }
-		public HeadingType headingTypeDesc() { return ht; }
-		public String browseCtsName() {
-			final StringBuilder sb = new StringBuilder();
-			sb.append(hc.toString());
-			if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
-				sb.append('_').append(ht.abbrev());
-			sb.append("_browse");
-			return sb.toString();
-		}
-		public String fieldName() {
-			final StringBuilder sb = new StringBuilder();
-			sb.append(hc.toString());
-			if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
-				sb.append('_').append(ht.abbrev());
-			sb.append("_filing");
-			return sb.toString();
-		}
-		public String facetField() {
-			final StringBuilder sb = new StringBuilder();
-			sb.append(hc.toString());
-			if ( hc.equals(HeadingCategory.SUBJECT) )
-				sb.append('_').append(ht.abbrev());
-			sb.append("_facet");
-			return sb.toString();
-		}
-	}
 
 
 	public static enum RecordSet {

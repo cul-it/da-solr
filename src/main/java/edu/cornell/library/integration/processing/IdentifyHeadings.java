@@ -18,7 +18,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import edu.cornell.library.integration.metadata.support.AuthorityData.BlacklightField;
+import edu.cornell.library.integration.utilities.BlacklightHeadingField;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FilingNormalization;
 
@@ -70,27 +70,27 @@ public class IdentifyHeadings {
 		requiredArgs.add("blacklightSolrUrl");
 		Config	config = Config.loadConfig(requiredArgs);
 
-		EnumSet<BlacklightField> blFields = EnumSet.of(
+		EnumSet<BlacklightHeadingField> blFields = EnumSet.of(
 
-/*				BlacklightField.AUTHOR_PERSON,
-				BlacklightField.AUTHOR_CORPORATE,
-				BlacklightField.AUTHOR_EVENT,
-				BlacklightField.SUBJECT_PERSON,
-				BlacklightField.SUBJECT_CORPORATE,
-				BlacklightField.SUBJECT_EVENT, */
-				BlacklightField.AUTHORTITLE_WORK,
-				BlacklightField.SUBJECT_WORK,
-				BlacklightField.SUBJECT_TOPIC,
-				BlacklightField.SUBJECT_PLACE,
-				BlacklightField.SUBJECT_CHRON,
-				BlacklightField.SUBJECT_GENRE  );
+/*				BlacklightHeadingField.AUTHOR_PERSON,
+				BlacklightHeadingField.AUTHOR_CORPORATE,
+				BlacklightHeadingField.AUTHOR_EVENT,
+				BlacklightHeadingField.SUBJECT_PERSON,
+				BlacklightHeadingField.SUBJECT_CORPORATE,
+				BlacklightHeadingField.SUBJECT_EVENT, */
+				BlacklightHeadingField.AUTHORTITLE_WORK,
+				BlacklightHeadingField.SUBJECT_WORK,
+				BlacklightHeadingField.SUBJECT_TOPIC,
+				BlacklightHeadingField.SUBJECT_PLACE,
+				BlacklightHeadingField.SUBJECT_CHRON,
+				BlacklightHeadingField.SUBJECT_GENRE );
 
-		for (BlacklightField blf : blFields) {
-			processBlacklightFieldHeaderData( config, blf );
+		for (BlacklightHeadingField blf : blFields) {
+			processBlacklightHeadingFieldHeaderData( config, blf );
 		}
 	}
 
-	private static void processBlacklightFieldHeaderData(Config config, BlacklightField blf) throws Exception {
+	private static void processBlacklightHeadingFieldHeaderData(Config config, BlacklightHeadingField blf) throws Exception {
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 				blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
 
@@ -99,18 +99,19 @@ public class IdentifyHeadings {
 		int numFound = 1;
 //		int batchSize = 1_000;
 		int currentOffset = 0;
-		int batchSize = 250_000;
+		int batchSize = 50_000;
 //		int currentOffset = 2_250_000;
 		while (numFound > 0) {
 			URL queryUrl = new URL(blacklightSolrUrl+
-					"/select?qt=standard&rows=0&q=*:*&echoParams=none&facet=true&facet.sort=index&facet.field="+blf.facetField()+
+					"/select?qt=standard&rows=0&q=*:*&echoParams=none&facet=true&wt=xml"+
+					"&facet.sort=count&facet.field="+blf.facetField()+
 					"&facet.limit="+batchSize+"&facet.offset="+currentOffset);
 			numFound = pollHeadings( config, queryUrl, blf );
 			currentOffset += batchSize;
 		}
 	}
 
-	private static int pollHeadings(Config config, URL queryUrl, BlacklightField blf) throws Exception {
+	private static int pollHeadings(Config config, URL queryUrl, BlacklightHeadingField blf) throws Exception {
 
 		// save terms info for field to temporary file.
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.facetField()+"-", ".xml");
@@ -136,10 +137,9 @@ public class IdentifyHeadings {
 				if (r.next() == XMLStreamConstants.START_ELEMENT)
 					if (r.getLocalName().equals("lst"))
 						for (int i = 0; i < r.getAttributeCount(); i++)
-							if (r.getAttributeLocalName(i).equals("name")) {
-								String name = r.getAttributeValue(i);
-								if (name.equals(blf.facetField())) break FF;
-							}
+							if (r.getAttributeLocalName(i).equals("name"))
+								if (r.getAttributeValue(i).equals(blf.facetField()))
+									break FF;
 
 			// process actual results
 			String heading = null;
@@ -161,7 +161,7 @@ public class IdentifyHeadings {
 		return headingCount;
 	}
 
-	private static void addToDB(Connection connection, BlacklightField blf, String heading) throws SQLException {
+	private static void addToDB(Connection connection, BlacklightHeadingField blf, String heading) throws SQLException {
 
 		String sort = FilingNormalization.getFilingForm(heading);
 

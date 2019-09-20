@@ -31,8 +31,8 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import edu.cornell.library.integration.metadata.support.AuthorityData.BlacklightField;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
+import edu.cornell.library.integration.utilities.BlacklightHeadingField;
 import edu.cornell.library.integration.utilities.Config;
 
 public class IndexHeadings {
@@ -90,14 +90,14 @@ public class IndexHeadings {
 		deleteCountsFromDB();
 		connection.setAutoCommit(false);
 
-		for (BlacklightField blf : BlacklightField.values()) {
+		for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
 
-			processBlacklightFieldHeaderData( blf );
+			processBlacklightHeadingFieldHeaderData( blf );
 			connection.commit();
 		}
 	}
 
-	private void processBlacklightFieldHeaderData(BlacklightField blf) throws Exception {
+	private void processBlacklightHeadingFieldHeaderData(BlacklightHeadingField blf) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
@@ -119,7 +119,7 @@ public class IndexHeadings {
 		}
 	}
 
-	private int addCountsToDB(URL queryUrl, BlacklightField blf) throws Exception {
+	private int addCountsToDB(URL queryUrl, BlacklightHeadingField blf) throws Exception {
 
 		// save terms info for field to temporary file.
 		final Path tempPath = Files.createTempFile("indexHeadings-"+blf.fieldName()+"-", ".xml");
@@ -171,7 +171,7 @@ public class IndexHeadings {
 	}
 
 
-	private void addCountToDB(BlacklightField blf, Map<String,String> qs, String headingSort, Integer count)
+	private void addCountToDB(BlacklightHeadingField blf, Map<String,String> qs, String headingSort, Integer count)
 			throws SQLException, InterruptedException {
 
 		String count_field = blf.headingCategory().dbField();
@@ -238,7 +238,7 @@ public class IndexHeadings {
 	}
 
 
-	private String getDisplayHeading(BlacklightField blf, String headingSort)
+	private String getDisplayHeading(BlacklightHeadingField blf, String headingSort)
 			throws IOException, XMLStreamException, URISyntaxException, InterruptedException {
 
 		String facet = blf.facetField();
