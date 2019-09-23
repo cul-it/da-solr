@@ -34,8 +34,7 @@ import edu.cornell.library.integration.voyager.DownloadMARC;
 public class CompareMARCWithVoyager {
 
 	public static void main(String[] args)
-			throws IOException, XMLStreamException, NumberFormatException,
-			ClassNotFoundException, SQLException, InterruptedException {
+			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
 

@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.indexer.solrFieldGen;
+package edu.cornell.library.integration.metadata.generator;
 
 import static org.junit.Assert.assertEquals;
 

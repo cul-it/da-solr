@@ -83,7 +83,7 @@ public class TitleChange implements SolrFieldGenerator {
 	}
 
 	private static List<SolrField> processAuthorAddedEntryFields(Config config, DataFieldSet fs)
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		List<FieldValues> ctsValsList  = NameUtils.authorAndOrTitleValues(fs);
 		if (ctsValsList == null) return null;
 

@@ -46,7 +46,7 @@ public class IndexRecordListComparison {
 		return l;
 	}
 	
-	public IndexRecordListComparison(Config config) throws ClassNotFoundException, SQLException {
+	public IndexRecordListComparison(Config config) throws SQLException {
 
 		conn = config.getDatabaseConnection("Current");
 		stmt = conn.createStatement();

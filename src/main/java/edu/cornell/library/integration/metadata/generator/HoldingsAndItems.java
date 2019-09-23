@@ -254,8 +254,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 	}
 
 	private static void registerBoundWith(
-			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
-					throws ClassNotFoundException, SQLException {
+			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths) throws SQLException {
 		String item_enum = "";
 		String barcode = null;
 		for (Subfield sf : f.subfields) {
