@@ -20,7 +20,7 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
-   compile fileTree(dir: 'libs', include: '*.jar')   
+   compile fileTree(dir: 'libs', include: '*.jar')
 
    compile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
    runtime fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
@@ -125,10 +125,16 @@ task( RecordBatchProcessingData, dependsOn: 'assemble', type: JavaExec) {
  classpath = sourceSets.main.runtimeClasspath
 }
 
-task( processQueue, dependsOn: 'assemble', type: JavaExec) {
+task( processGenerationQueue, dependsOn: 'assemble', type: JavaExec) {
  description = "Process records from the index queue until quitting time. "
  maxHeapSize = '500m'
- main = 'edu.cornell.library.integration.processing.ProcessQueue'
+ main = 'edu.cornell.library.integration.processing.ProcessGenerationQueue'
+ classpath = sourceSets.main.runtimeClasspath
+}
+
+task( processHeadingsQueue, dependsOn: 'assemble', type: JavaExec) {
+ maxHeapSize = '500m'
+ main = 'edu.cornell.library.integration.processing.ProcessHeadingsQueue'
  classpath = sourceSets.main.runtimeClasspath
 }
 
