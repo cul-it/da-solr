@@ -32,7 +32,6 @@ public class HathiLinksTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "318";
 		String expected =
-		"url_access_display: http://catalog.hathitrust.org/Record/008595162|HathiTrust (multiple volumes)\n"+
 		"notes_t: HathiTrust (multiple volumes)\n"+
 		"url_access_json: {\"description\":\"HathiTrust (multiple volumes)\",\"url\":"
 		+ "\"http://catalog.hathitrust.org/Record/008595162\"}\n"+
@@ -46,7 +45,6 @@ public class HathiLinksTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "178";
 		String expected =
-		"url_access_display: http://hdl.handle.net/2027/coo.31924005214295|HathiTrust\n"+
 		"notes_t: HathiTrust\n"+
 		"url_access_json: {\"description\":\"HathiTrust\",\"url\":\"http://hdl.handle.net/2027/coo.31924005214295\"}\n"+
 		"online: Online\n"+
@@ -71,7 +69,6 @@ public class HathiLinksTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "1460864";
 		String expected =
-		"url_access_display: http://hdl.handle.net/2027/coo1.ark:/13960/t20c5hb54|HathiTrust\n"+
 		"notes_t: HathiTrust\n"+
 		"url_access_json: {\"description\":\"HathiTrust\","
 		+ "\"url\":\"http://hdl.handle.net/2027/coo1.ark:/13960/t20c5hb54\"}\n"+
