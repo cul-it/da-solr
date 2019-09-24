@@ -111,10 +111,9 @@ class GenerateSolrFields {
 					System.out.println(newGeneratorData.marcSegment);
 					System.out.println(newGeneratorData.solrSegment);
 				}
-				if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
-					generatedNotChanged.add(newGeneratorData);
-				}
 			}
+			else if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
+				generatedNotChanged.add(newGeneratorData);
 		}
 
 		if ( ! changedOutputs.isEmpty() || ! generatedNotChanged.isEmpty() )
