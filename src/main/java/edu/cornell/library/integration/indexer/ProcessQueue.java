@@ -60,8 +60,11 @@ public class ProcessQueue {
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE bib_id = ?");
-				PreparedStatement deleteSolrFieldsData = current.prepareStatement
-						("DELETE FROM solrFieldsData where bib_id = ?");
+				PreparedStatement bibRecsVoyUpdateStmt = current.prepareStatement
+						("UPDATE bibRecsVoyager SET active = 0 WHERE bib_id = ?");
+				PreparedStatement queueDeleteStmt = current.prepareStatement
+						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
+								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
 						("SELECT bib_id FROM solrFieldsData ORDER BY visit_date LIMIT 50");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
@@ -116,8 +119,10 @@ public class ProcessQueue {
 					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
-					deleteSolrFieldsData.setInt(1, bib);
-					deleteSolrFieldsData.executeUpdate();
+					bibRecsVoyUpdateStmt.setInt(1, bib);
+					bibRecsVoyUpdateStmt.executeUpdate();
+					queueDeleteStmt.setInt(1, bib);
+					queueDeleteStmt.executeUpdate();
 					continue;
 				}
 				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
