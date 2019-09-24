@@ -122,9 +122,9 @@ class GenerateSolrFields {
 				((changedOutputs.size() == activeGenerators.size())?"all":formatBGDList(changedOutputs)),
 				((generatedNotChanged.size() > 0)
 						? ("; also generated "+generatedNotChanged.size()+" ("+formatBGDList(generatedNotChanged))+")":""));
-		if (generatedNotChanged.size() > 0)
+		if (changedOutputs.size() > 0 || generatedNotChanged.size() > 0)
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
-		else 
+		else
 			touchBibVisitDate(tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0) {
 			String changeSummary = (changedOutputs.size() == activeGenerators.size())
