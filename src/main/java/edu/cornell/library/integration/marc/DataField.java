@@ -239,11 +239,21 @@ public class DataField implements Comparable<DataField> {
 
 
 	@Override
-    public int hashCode() {
-      return Integer.hashCode( this.id );
-    }
+	public int hashCode() {
+		return Integer.hashCode( this.id );
+	}
 
-    @Override
+	public DataField deepCopy() {
+		TreeSet<Subfield> sfs = new TreeSet<>();;
+		for ( Subfield sf : this.subfields )
+			sfs.add(new Subfield(sf.id,sf.code,sf.value));
+		DataField newDF = new DataField(this.id,this.tag,this.ind1,this.ind2,this.subfields);
+		newDF.linkNumber = this.linkNumber;
+		return newDF;
+	}
+
+
+	@Override
 	public boolean equals(final Object o){
 		if (this == o) return true;
 		if (o == null) return false;
