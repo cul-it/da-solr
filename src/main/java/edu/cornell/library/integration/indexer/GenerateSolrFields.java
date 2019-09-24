@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.indexer.utilities.Config;
@@ -94,39 +95,31 @@ class GenerateSolrFields {
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
 
-		int sectionsChanged = 0, sectionsGenerated = 0;
-
-		EnumSet<Generator> generated = EnumSet.noneOf(Generator.class);
-		EnumSet<Generator> changedOutputs = EnumSet.noneOf(Generator.class);
+		List<BibGeneratorData> changedOutputs = new ArrayList<>();
+		List<BibGeneratorData> generatedNotChanged = new ArrayList<>();
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
 					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
-				sectionsChanged++;
-				changedOutputs.add(newGeneratorData.gen);
+				changedOutputs.add(newGeneratorData);
 			}
-			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
-				sectionsGenerated++;
-				generated.add(newGeneratorData.gen);
-			}
+			else if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
+				generatedNotChanged.add(newGeneratorData);
 		}
 
-		EnumSet<Generator> generatedNotChanged = generated.clone();
-		generatedNotChanged.removeAll(changedOutputs);
-		if ( ! changedOutputs.isEmpty() || ! generated.isEmpty() )
-		System.out.println(rec.id+": "+
-				sectionsChanged+" changed ("+
-				((sectionsChanged == activeGenerators.size())?"all":changedOutputs.toString())+")"+
-				((generated.size() > 0) ?
-				("; also generated "+generatedNotChanged.size()+" ("+
-				((generatedNotChanged.size() == activeGenerators.size())
-						?"all":generatedNotChanged.toString())+")"):""));
-		if (generated.size() > 0)
+		if ( ! changedOutputs.isEmpty() || ! generatedNotChanged.isEmpty() )
+		System.out.printf(
+				"%s: %d changed (%s)%s\n",rec.id,changedOutputs.size(),
+				((changedOutputs.size() == activeGenerators.size())?"all":formatBGDList(changedOutputs)),
+				((generatedNotChanged.size() > 0)
+						? ("; also generated "+generatedNotChanged.size()+" ("+formatBGDList(generatedNotChanged))+")":""));
+		if (generatedNotChanged.size() > 0)
 			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
 		else 
 			touchBibVisitDate(tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0)
-			return (sectionsChanged == activeGenerators.size())?"all Solr field segments":changedOutputs.toString();
+			return (changedOutputs.size() == activeGenerators.size())
+					?"all Solr field segments":changedOutputs.toString();
 		return null;
 	}
 
@@ -134,7 +127,6 @@ class GenerateSolrFields {
 	 * Create a table with the tableName specified in the constructor, in the Current database
 	 * accessed through the Config.
 	 * @param config
-	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
 	public void setUpDatabase( Config config ) throws SQLException {
@@ -165,6 +157,16 @@ class GenerateSolrFields {
 	}
 
 	// BEGIN PRIVATE RESOURCES
+
+	private static String formatBGDList( List<BibGeneratorData> list ) {
+		StringBuilder sb = new StringBuilder();
+		for (BibGeneratorData bgd : list) {
+			if ( sb.length() != 0 )
+				sb.append(' ');
+			sb.append(bgd.gen).append('(').append(bgd.marcStatus.name().toLowerCase()).append(')');
+		}
+		return sb.toString();
+	}
 
 	private static void pushNewFieldDataToDB(
 			EnumSet<Generator> activeGenerators,
@@ -265,13 +267,20 @@ class GenerateSolrFields {
 		return fieldsSupported;
 	}
 
+	private static Random random = new Random();
+	private static int randomCountDown = random.nextInt(400);
 	private static BibGeneratorData processRecordChunkWithGenerator(
 			Generator gen,Timestamp genModDate, MarcRecord recChunk, boolean forced,
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
 		String marcSegment = recChunk.toString();
-		Status marcStatus = (origData.marcSegment == null) ? Status.NEW :
-			(marcSegment.equals(origData.marcSegment)) ? Status.UNCHANGED : Status.CHANGED;
+		Status marcStatus;
+		if  (origData.marcSegment == null)
+			marcStatus = Status.NEW;
+		else if (marcSegment.equals(origData.marcSegment))
+			marcStatus = Status.UNCHANGED;
+		else
+			marcStatus = Status.CHANGED;
 
 		if (marcStatus.equals(Status.UNCHANGED)) {
 			if (Timestamp.valueOf(now.minus(gen.getInstance().resultsShelfLife())).after(origData.solrGenDate)
@@ -279,6 +288,10 @@ class GenerateSolrFields {
 				marcStatus = Status.STALE;
 			else if ( forced )
 				marcStatus = Status.FORCED;
+			else if (randomCountDown-- == 0 ) {
+				marcStatus = Status.RANDOM;
+				randomCountDown = random.nextInt(400);
+			}
 			else {
 				origData.marcStatus = Status.UNCHANGED;
 				origData.solrStatus = Status.UNGENERATED;
@@ -395,5 +408,5 @@ class GenerateSolrFields {
 		public Generator getGenerator() { return this.gen; }
 	}
 
-	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED; }
+	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED,RANDOM; }
 }

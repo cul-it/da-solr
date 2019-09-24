@@ -100,9 +100,9 @@ public class AuthorTitle implements SolrFieldGenerator {
 				mainTag = f.mainTag;
 				if (mainTag.equals("245")) {
 					if (f.tag.equals("245"))
-						title = f;
+						title = f.deepCopy();
 					else
-						title_vern = f;
+						title_vern = f.deepCopy();
 				} else if (mainTag.equals("240")) {
 					if (f.tag.equals("240"))
 						uniform_title = f;
