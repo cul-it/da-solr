@@ -97,14 +97,14 @@ class GenerateSolrFields {
 
 		List<BibGeneratorData> changedOutputs = new ArrayList<>();
 		List<BibGeneratorData> generatedNotChanged = new ArrayList<>();
-		List<BibGeneratorData> changedHeadingsBlocks = new ArrayList<>();
+		List<Generator> changedHeadingsBlocks = new ArrayList<>();
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
 					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
 				changedOutputs.add(newGeneratorData);
 				if ( newGeneratorData.triggerHeadingsUpdate )
-					changedHeadingsBlocks.add(newGeneratorData);
+					changedHeadingsBlocks.add(newGeneratorData.gen);
 				if ( newGeneratorData.marcStatus.equals(Status.RANDOM) ) {
 					System.out.printf("Randomly regenerated segment %s produced changed output:",
 							newGeneratorData.gen.name());
