@@ -119,7 +119,7 @@ class GenerateSolrFields {
 			touchBibVisitDate(tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0)
 			return (changedOutputs.size() == activeGenerators.size())
-					?"all Solr field segments":changedOutputs.toString();
+					?"all Solr field segments":formatBGDList(changedOutputs);
 		return null;
 	}
 
