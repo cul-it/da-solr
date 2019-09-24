@@ -191,7 +191,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream,holding);
 			String json = jsonstream.toString("UTF-8");
-			sfs.add(new SolrField("holdings_record_display",json));
+//			sfs.add(new SolrField("holdings_record_display",json));
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
 
@@ -254,8 +254,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 	}
 
 	private static void registerBoundWith(
-			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths)
-					throws ClassNotFoundException, SQLException {
+			Config config, String mfhd_id, DataField f, Collection<Map<String,Object>> boundWiths) throws SQLException {
 		String item_enum = "";
 		String barcode = null;
 		for (Subfield sf : f.subfields) {
@@ -517,7 +516,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 
 		for (Map<String,Object> record : items.values()) {
 	 		String json = mapper.writeValueAsString(record);
-			sfs.add(new SolrField( "item_record_display",json) );
+//			sfs.add(new SolrField( "item_record_display",json) );
 			StringBuilder item = new StringBuilder();
 			item.append(record.get("item_id"));
 			String moddate = record.get("modify_date").toString();
