@@ -36,17 +36,11 @@ public class URLTest {
 				+ "url=http://proquest.safaribooksonline.com/9781118529669 ‡z Connect to text."));
 		rec.holdings.add(online);
 		String expected =
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/"
-		+ "cornell/Top?id=10657875|Full text available from Ebrary The Arts Subscription Collection"
-		+ " Connect to text.\n"+
 		"notes_t: Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
 		"url_access_json: {\"providercode\":\"PRVAHD\",\"dbcode\":\"AAGPP\",\"description\":"
 		+ "\"Full text available from Ebrary The Arts Subscription Collection Connect to text.\","
 		+ "\"ssid\":\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
 		+ "http://site.ebrary.com/lib/cornell/Top?id=10657875\"}\n"+
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://proquest."
-		+ "safaribooksonline.com/9781118529669|Full text available from Safari Technical Books "
-		+ "Connect to text.\n"+
 		"notes_t: Full text available from Safari Technical Books Connect to text.\n"+
 		"url_access_json: {\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\",\"description\":"
 		+ "\"Full text available from Safari Technical Books Connect to text.\",\"ssid\":"
@@ -65,8 +59,6 @@ public class URLTest {
 				+ "id=10657875 ‡z Connect to text."));
 		rec.holdings.add(online);
 		String expected =
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?"
-		+ "id=10657875|Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
 		"notes_t: Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
 		"url_access_json: {\"description\":\"Full text available from Ebrary The Arts Subscription Collection"
 		+ " Connect to text.\",\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/"
@@ -92,8 +84,6 @@ public class URLTest {
 		rec.dataFields.add(new DataField(1,"856",'4','0',
 				"‡u http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		String expected =
-		"url_access_display: http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top"
-		+ "?id=10657875\n"+
 		"url_access_json: {\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top"
 		+ "?id=10657875\"}\n"+
 		"online: Online\n";
@@ -126,9 +116,6 @@ public class URLTest {
 		"‡z Full text is available via download of individual chapter PDFs; scroll down for full table of contents."));
 		bibRec.holdings.add(online);
 		String expected =
-		"url_access_display: http://proxy.library.cornell.edu/login?url=https://www.taylorfrancis.com/books/e/"
-		+  "9781466552609|Full text is available via download of individual chapter PDFs; scroll down for full"
-		+  " table of contents.\n" + 
 		"notes_t: Full text is available via download of individual chapter PDFs;"
 		      + " scroll down for full table of contents.\n" + 
 		"url_access_json: {\"providercode\":\"PRVAWR\",\"dbcode\":\"JTX\","
@@ -170,8 +157,6 @@ public class URLTest {
 		"url_other_display: http://www.loc.gov/catdir/enhancements/fy0667/2006046631-t.html|"
 		+ "Available from the U.S. Government Printing Office. Table of contents only\n" + 
 		"notes_t: Available from the U.S. Government Printing Office. Table of contents only\n" + 
-		"url_access_display: http://purl.access.gpo.gov/GPO/LPS77292|Available from the U.S. Government"
-		+ " Printing Office.\n" + 
 		"notes_t: Available from the U.S. Government Printing Office.\n" + 
 		"url_access_json: {\"providercode\":\"PRVLSH\",\"dbcode\":\"ACAJP\",\"description\":"
 		+ "\"Available from the U.S. Government Printing Office.\","
@@ -192,7 +177,6 @@ public class URLTest {
 		"‡u https://purl.fdlp.gov/GPO/gpo86434"));
 		bibRec.holdings.add(online);
 		String expected =
-		"url_access_display: https://purl.fdlp.gov/GPO/gpo86434|Available from the U.S. Government Printing Office\n" + 
 		"notes_t: Available from the U.S. Government Printing Office\n" + 
 		"url_access_json: {\"providercode\":\"PRVLSH\",\"dbcode\":\"ACAJP\","
 		+ "\"description\":\"Available from the U.S. Government Printing Office\","

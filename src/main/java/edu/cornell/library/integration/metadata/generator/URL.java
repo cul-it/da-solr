@@ -143,17 +143,18 @@ public class URL implements SolrFieldGenerator {
 		for (Map<String,Object> link : allProcessedLinks) {
 			String relation = (String)link.get("relation");
 			String url = (String)link.get("url");
-			if ( ! link.containsKey("description")) {
-				sfs.add( new SolrField ("url_"+relation+"_display",url));						
-			} else {
-				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + link.get("description")));
-				sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
-			}
 			if (relation.equals("access")) {
 				link.remove("relation");
 				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 				mapper.writeValue(jsonstream, link);
+				if ( link.containsKey("description") )
+					sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
 				sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
+			} else if ( ! link.containsKey("description")) {
+				sfs.add( new SolrField ("url_"+relation+"_display",url));						
+			} else {
+				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + link.get("description")));
+				sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
 			}
 		}
 		if (isOnline)
