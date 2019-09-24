@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.marc.ControlField;
@@ -104,6 +105,12 @@ class GenerateSolrFields {
 				changedOutputs.add(newGeneratorData.gen);
 				if ( newGeneratorData.triggerHeadingsUpdate )
 					changedHeadingsBlocks.add(newGeneratorData.gen);
+				if ( newGeneratorData.marcStatus.equals(Status.RANDOM) ) {
+					System.out.printf("Randomly regenerated segment %s produced changed output:",
+							newGeneratorData.gen.name());
+					System.out.println(newGeneratorData.marcSegment);
+					System.out.println(newGeneratorData.solrSegment);
+				}
 			}
 			if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
 				generated.add(newGeneratorData.gen);
@@ -269,13 +276,20 @@ class GenerateSolrFields {
 		return fieldsSupported;
 	}
 
+	private static Random random = new Random();
+	private static int randomCountDown = random.nextInt(400);
 	private static BibGeneratorData processRecordChunkWithGenerator(
 			Generator gen,Timestamp genModDate, MarcRecord recChunk, boolean forced,
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
 		String marcSegment = recChunk.toString();
-		Status marcStatus = (origData.marcSegment == null) ? Status.NEW :
-			(marcSegment.equals(origData.marcSegment)) ? Status.UNCHANGED : Status.CHANGED;
+		Status marcStatus;
+		if  (origData.marcSegment == null)
+			marcStatus = Status.NEW;
+		else if (marcSegment.equals(origData.marcSegment))
+			marcStatus = Status.UNCHANGED;
+		else
+			marcStatus = Status.CHANGED;
 
 		if (marcStatus.equals(Status.UNCHANGED)) {
 			if (Timestamp.valueOf(now.minus(gen.getInstance().resultsShelfLife())).after(origData.solrGenDate)
@@ -283,6 +297,10 @@ class GenerateSolrFields {
 				marcStatus = Status.STALE;
 			else if ( forced )
 				marcStatus = Status.FORCED;
+			else if (--randomCountDown == 0 ) {
+				marcStatus = Status.RANDOM;
+				randomCountDown = random.nextInt(400);
+			}
 			else {
 				origData.marcStatus = Status.UNCHANGED;
 				origData.solrStatus = Status.UNGENERATED;
@@ -414,5 +432,5 @@ class GenerateSolrFields {
 		public Generator getGenerator() { return this.gen; }
 	}
 
-	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED; }
+	private enum Status { UNGENERATED,NEW,CHANGED,UNCHANGED,STALE,FORCED,RANDOM; }
 }
