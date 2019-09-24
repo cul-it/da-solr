@@ -97,14 +97,14 @@ class GenerateSolrFields {
 
 		List<BibGeneratorData> changedOutputs = new ArrayList<>();
 		List<BibGeneratorData> generatedNotChanged = new ArrayList<>();
-		List<Generator> changedHeadingsBlocks = new ArrayList<>();
+		List<String> changedHeadingsBlocks = new ArrayList<>();
 		for (BibGeneratorData newGeneratorData : newValues) {
 			if (newGeneratorData == null) continue;
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
 					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
 				changedOutputs.add(newGeneratorData);
 				if ( newGeneratorData.triggerHeadingsUpdate )
-					changedHeadingsBlocks.add(newGeneratorData.gen);
+					changedHeadingsBlocks.add(newGeneratorData.gen.name());
 				if ( newGeneratorData.marcStatus.equals(Status.RANDOM) ) {
 					System.out.printf("Randomly regenerated segment %s produced changed output:",
 							newGeneratorData.gen.name());
@@ -128,7 +128,7 @@ class GenerateSolrFields {
 			touchBibVisitDate(tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0) {
 			String changeSummary = (changedOutputs.size() == activeGenerators.size())
-					?"all Solr field segments":changedOutputs.toString();
+					?"all Solr field segments":formatBGDList(changedOutputs);
 			if (changedHeadingsBlocks.size() > 0)
 				return new BibChangeSummary(changeSummary,changedHeadingsBlocks.toString());
 			return new BibChangeSummary(changeSummary);
