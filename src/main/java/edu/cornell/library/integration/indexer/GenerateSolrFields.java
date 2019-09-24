@@ -102,10 +102,9 @@ class GenerateSolrFields {
 			if (newGeneratorData.solrStatus.equals(Status.NEW) ||
 					newGeneratorData.solrStatus.equals(Status.CHANGED)) {
 				changedOutputs.add(newGeneratorData);
-				if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED)) {
-					generatedNotChanged.add(newGeneratorData);
-				}
 			}
+			else if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
+				generatedNotChanged.add(newGeneratorData);
 		}
 
 		if ( ! changedOutputs.isEmpty() || ! generatedNotChanged.isEmpty() )
