@@ -301,7 +301,7 @@ class GenerateSolrFields {
 				marcStatus = Status.STALE;
 			else if ( forced )
 				marcStatus = Status.FORCED;
-			else if (randomCountDown-- == 0 ) {
+			else if (randomCountDown-- <= 0 ) {
 				marcStatus = Status.RANDOM;
 				randomCountDown = random.nextInt(400);
 			}
