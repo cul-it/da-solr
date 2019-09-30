@@ -192,6 +192,12 @@ public class Config {
 		return null;
 	}
 
+	public int getRandomGeneratorWavelength() {
+		if (values.containsKey("randomGeneratorWavelength"))
+			return Integer.valueOf(values.get("randomGeneratorWavelength"));
+		return 400;
+	}
+
 	/**
 	 * @return the tmpDir on local file system
 	 */

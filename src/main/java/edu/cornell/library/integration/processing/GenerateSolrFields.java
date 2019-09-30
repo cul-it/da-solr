@@ -303,7 +303,7 @@ class GenerateSolrFields {
 				marcStatus = Status.FORCED;
 			else if (randomCountDown-- <= 0 ) {
 				marcStatus = Status.RANDOM;
-				randomCountDown = random.nextInt(400);
+				randomCountDown = random.nextInt(config.getRandomGeneratorWavelength());
 			}
 			else {
 				origData.marcStatus = Status.UNCHANGED;
