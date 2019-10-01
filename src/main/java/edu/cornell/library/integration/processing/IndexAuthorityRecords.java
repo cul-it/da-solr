@@ -29,7 +29,6 @@ import javax.xml.stream.XMLStreamException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.jdbc.MysqlDataTruncation;
 
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -607,10 +606,6 @@ public class IndexAuthorityRecords {
 			try ( ResultSet generatedKeys = stmt.getGeneratedKeys() ) {
 				if (generatedKeys.next())
 					authorityId = generatedKeys.getInt(1); }
-		} catch (MysqlDataTruncation e) {
-			System.out.println(a.lccn);
-			e.printStackTrace();
-			System.exit(1);
 		}
 		if (authorityId == null) return;
 

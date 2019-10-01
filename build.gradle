@@ -28,18 +28,17 @@ dependencies {
    testCompile fileTree(dir: 'lib', include: '*.jar', exclude: 'slf4j-simple-*.jar')   
    testRuntime fileTree(dir: 'lib', include: '*.jar' )   
 
-   //gets a lot of sesame jars   
-   compile 'org.openrdf.sesame:sesame-runtime:2.7.11'
 
    compile 'javax.servlet:servlet-api:2.5'
-   compile 'junit:junit:4.9'  
+   compile 'junit:junit:4.9'
+   compile 'mysql:mysql-connector-java:8.0.17'
 
    compile 'org.apache.httpcomponents:httpmime:4.2.2'
-             
+
    compile 'com.google.guava:guava:14.0'
 
-	compile 'org.apache.solr:solr-solrj:6.0.0'
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
+   compile 'org.apache.solr:solr-solrj:6.0.0'
+   compile 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
 
 }
 
