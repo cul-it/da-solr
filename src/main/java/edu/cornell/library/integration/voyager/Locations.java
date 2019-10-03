@@ -110,7 +110,7 @@ public final class Locations {
 		public int compareTo( final Location other ) {
 			return this.number.compareTo(other.number);
 		}
-		private Location (String code, Integer number, String name, String library) {
+		Location (String code, Integer number, String name, String library) {
 			this.code = code;
 			this.number = number;
 			this.name = name;

@@ -17,12 +17,12 @@ public enum HeadingType {
 	private final String abbrev;
 
 	private HeadingType(final String name,final String abbrev) {
-		string = name;
+		this.string = name;
 		this.abbrev = abbrev;
 	}
 
 	@Override
-	public String toString() { return string; }
-	public String abbrev() { return abbrev; }
+	public String toString() { return this.string; }
+	public String abbrev() { return this.abbrev; }
 
 }

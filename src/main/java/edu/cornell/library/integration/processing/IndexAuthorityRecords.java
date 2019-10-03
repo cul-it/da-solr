@@ -70,7 +70,7 @@ public class IndexAuthorityRecords {
 	public IndexAuthorityRecords(Config config)
 			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
 
-		connection = config.getDatabaseConnection("Headings");
+		this.connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
 		setUpDatabase();
 
@@ -90,7 +90,7 @@ public class IndexAuthorityRecords {
 			System.out.println(srcFile);
 			processFile( srcFile );
 			}
-			connection.close();
+			this.connection.close();
 	}
 
 	private void processFile( File srcFile )
@@ -107,7 +107,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void setUpDatabase() throws SQLException {
-		try ( Statement stmt = connection.createStatement() ) {
+		try ( Statement stmt = this.connection.createStatement() ) {
 
 			stmt.execute("CREATE TABLE `heading` ("
 					+ "`id` int(10) unsigned NOT NULL auto_increment, "
@@ -210,7 +210,7 @@ public class IndexAuthorityRecords {
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
-		try ( PreparedStatement insertDesc = connection.prepareStatement(
+		try ( PreparedStatement insertDesc = this.connection.prepareStatement(
 				"INSERT INTO heading_type (id,name) VALUES (? , ?)") ) {
 		for ( HeadingType ht : HeadingType.values()) {
 			insertDesc.setInt(1, ht.ordinal());
@@ -218,7 +218,7 @@ public class IndexAuthorityRecords {
 			insertDesc.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertDesc = connection.prepareStatement(
+		try ( PreparedStatement insertDesc = this.connection.prepareStatement(
 				"INSERT INTO heading_category (id,name) VALUES (? , ?)") ) {
 		for ( HeadingCategory hc : HeadingCategory.values()) {
 			insertDesc.setInt(1, hc.ordinal());
@@ -226,7 +226,7 @@ public class IndexAuthorityRecords {
 			insertDesc.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertRefType = connection.prepareStatement(
+		try ( PreparedStatement insertRefType = this.connection.prepareStatement(
 				"INSERT INTO ref_type (id,name) VALUES (? , ?)") ) {
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
@@ -234,7 +234,7 @@ public class IndexAuthorityRecords {
 			insertRefType.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertAuthSource = connection.prepareStatement(
+		try ( PreparedStatement insertAuthSource = this.connection.prepareStatement(
 				"INSERT INTO authority_source (id,name) VALUES (? , ?)") ) {
 			for ( AuthoritySource rt : AuthoritySource.values()) {
 				insertAuthSource.setInt(1, rt.ordinal());
@@ -545,7 +545,7 @@ public class IndexAuthorityRecords {
 	private void populateRdaInfo(Integer headingId, Integer authorityId, RdaData data) throws SQLException, JsonProcessingException {
 		String json = data.json();
 		if (json == null) return;
-		try ( PreparedStatement stmt = connection.prepareStatement(
+		try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO rda (heading_id, authority_id, rda) VALUES (?, ?, ?)") ){
 			stmt.setInt(1, headingId);
 			stmt.setInt(2, authorityId);
@@ -555,7 +555,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void insertNote(Integer headingId, Integer authorityId, String note) throws SQLException {
-		try ( PreparedStatement stmt = connection.prepareStatement(
+		try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO note (heading_id, authority_id, note) VALUES (?,?,?)") ){
 			stmt.setInt(1, headingId);
 			stmt.setInt(2, authorityId);
@@ -577,7 +577,7 @@ public class IndexAuthorityRecords {
 		Integer authorityId = null;
 
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"SELECT id FROM authority " +
 				"WHERE source = ? AND nativeId = ?") ){
 			pstmt.setInt    (1, a.source.ordinal());
@@ -590,7 +590,7 @@ public class IndexAuthorityRecords {
 		if ( authorityId != null )
 			System.out.println("Possible duplicate authority ID: "+authorityId);
 
-		else try ( PreparedStatement stmt = connection.prepareStatement(
+		else try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO authority"
 				+ " (source, nativeId, nativeHeading, voyagerId, undifferentiated)"
 				+ " VALUES (?,?,?,?,?)",
@@ -609,7 +609,7 @@ public class IndexAuthorityRecords {
 		}
 		if (authorityId == null) return;
 
-		try (PreparedStatement pstmt = connection.prepareStatement(
+		try (PreparedStatement pstmt = this.connection.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
 			pstmt.setInt(1, a.mainHead.id);
 			pstmt.setInt(2, authorityId);
@@ -619,7 +619,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void storeReferenceAuthority2Heading(Integer headingId, Integer authorityId) throws SQLException {
-		try (PreparedStatement pstmt = connection.prepareStatement(
+		try (PreparedStatement pstmt = this.connection.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,0)")) {
 			pstmt.setInt(1, headingId);
 			pstmt.setInt(2, authorityId);
@@ -633,7 +633,7 @@ public class IndexAuthorityRecords {
 			getHeadingId(h.parent);
 
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"SELECT id FROM heading " +
 				"WHERE heading_type = ? AND sort = ?") ){
 			pstmt.setInt(1,h.HeadingType.ordinal());
@@ -647,7 +647,7 @@ public class IndexAuthorityRecords {
 		}
 
 		// Create record and return id, otherwise
-		try (PreparedStatement pstmt = connection.prepareStatement(
+		try (PreparedStatement pstmt = this.connection.prepareStatement(
 				"INSERT INTO heading (heading, sort, heading_type, parent_id) VALUES (?, ?, ?, ?)",
 				Statement.RETURN_GENERATED_KEYS) ) {
 
@@ -687,7 +687,7 @@ public class IndexAuthorityRecords {
 		if ( relationshipDescription == null )
 			relationshipDescription = "";
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"SELECT id FROM reference " +
 				"WHERE from_heading = ? AND to_heading = ? AND ref_type = ? AND ref_desc = ?") ){
 			pstmt.setInt(1,fromId);
@@ -701,7 +701,7 @@ public class IndexAuthorityRecords {
 		}
 
 		if ( referenceId == null )
-		try (PreparedStatement pstmt = connection.prepareStatement(
+		try (PreparedStatement pstmt = this.connection.prepareStatement(
 				"INSERT INTO reference (from_heading, to_heading, ref_type, ref_desc) " +
 						"VALUES (?, ?, ?, ?)",
 						Statement.RETURN_GENERATED_KEYS) ) {
@@ -721,7 +721,7 @@ public class IndexAuthorityRecords {
 		// If there's a problem, we should already have thrown an SQL exception.
 		if ( referenceId == null ) return;
 
-		try (PreparedStatement pstmt = connection.prepareStatement(
+		try (PreparedStatement pstmt = this.connection.prepareStatement(
 				"REPLACE INTO authority2reference (reference_id, authority_id) VALUES (?,?)")) {
 			pstmt.setInt(1, referenceId);
 			pstmt.setInt(2, authorityId);
@@ -869,19 +869,22 @@ public class IndexAuthorityRecords {
 
 		Map<String,Collection<String>> data = new HashMap<>();
 
+		public RdaData() { }
+
 		public void add(String field, String value) {
-			if ( ! data.containsKey(field))
-				data.put(field, new HashSet<String>());
-			data.get(field).add(value);
+			if ( ! this.data.containsKey(field))
+				this.data.put(field, new HashSet<String>());
+			this.data.get(field).add(value);
 		}
 
 		public String json() throws JsonProcessingException {
-			if (data.isEmpty()) return null;
-			return mapper.writeValueAsString(data);
+			if (this.data.isEmpty()) return null;
+			return mapper.writeValueAsString(this.data);
 		}
 	}
 
 	private static class Relation {	
+		public Relation() { }
 		public String relationship = null;
 		public String reciprocalRelationship = null;
 		public Heading heading = null;
@@ -909,7 +912,7 @@ public class IndexAuthorityRecords {
 		public String toString () {
 			return String.format("[heading_type: %s; sort: \"%s\"%s]",
 					this.HeadingType.toString(), this.val,
-					(parent != null)?String.format(" parent:[%s]",this.parent.toString()):"");
+					(this.parent != null)?String.format(" parent:[%s]",this.parent.toString()):"");
 		}
 		@Override
 	    public int hashCode() { return Integer.hashCode( this.id ); }
@@ -926,6 +929,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private static class AuthorityData {
+		public AuthorityData() { }
 		Integer id = null;
 		String catalogId = null;
 		Heading mainHead = null;

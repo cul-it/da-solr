@@ -144,7 +144,6 @@ public class IndexingUtilities {
 	}
 	private static Map<String,String> urlPatterns = null;
 
-	@SuppressWarnings("unchecked")
 	public static TitleMatchReference pullReferenceFields(SolrDocumentBase<?,?> doc) throws ParseException {
 		TitleMatchReference ref = new TitleMatchReference();
 

@@ -62,30 +62,30 @@ public class Headings2Solr {
 	public Headings2Solr() throws SolrServerException, IOException, SQLException {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Arrays.asList("authorSolrUrl","subjectSolrUrl","authorTitleSolrUrl") );
-		config = Config.loadConfig(requiredArgs);
+		this.config = Config.loadConfig(requiredArgs);
 
-		config.setDatabasePoolsize("Headings", 2);
-		connection = config.getDatabaseConnection("Headings");
+		this.config.setDatabasePoolsize("Headings", 2);
+		this.connection = this.config.getDatabaseConnection("Headings");
 
-		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getSubjectSolrUrl());
+		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getSubjectSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(config.getSubjectSolrUrl(),1000,5) ){
+						new ConcurrentUpdateSolrClient(this.config.getSubjectSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadingCategory.SUBJECT);
 			solr_u.blockUntilFinished();
 		}
-		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorSolrUrl());
+		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getAuthorSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(config.getAuthorSolrUrl(),1000,5) ){
+						new ConcurrentUpdateSolrClient(this.config.getAuthorSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadingCategory.AUTHOR);
 			solr_u.blockUntilFinished();
 		}
-		try ( HttpSolrClient solr_q = new HttpSolrClient(config.getAuthorTitleSolrUrl());
+		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getAuthorTitleSolrUrl());
 				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(config.getAuthorTitleSolrUrl(),1000,5) ){
+						new ConcurrentUpdateSolrClient(this.config.getAuthorTitleSolrUrl(),1000,5) ){
 			findWorks(solr_u, solr_q, HeadingCategory.AUTHORTITLE);
 			solr_u.blockUntilFinished();
 		}
-		connection.close();
+		this.connection.close();
 	}
 
 	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadingCategory hc)
@@ -110,7 +110,7 @@ public class Headings2Solr {
 		/* This method requires its own connection to the database so it can buffer results
 		 * which keeps the connection used tied up and unavailable for other queries
 		 */
-		try (   Connection connectionFindWorks = config.getDatabaseConnection("Headings");
+		try (   Connection connectionFindWorks = this.config.getDatabaseConnection("Headings");
 				Statement stmt = connectionFindWorks.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
 						java.sql.ResultSet.CONCUR_READ_ONLY) ) {
 			stmt.setFetchSize(Integer.MIN_VALUE);
@@ -128,10 +128,11 @@ public class Headings2Solr {
 					if (xrefs.seeAlsoJson != null)
 						doc.addField("seeAlso", xrefs.seeAlsoJson);
 					doc.addField("alternateForm", getAltForms(id));
-					HeadingType ht = headingTypes[ rs.getInt("heading_type") ];
+
+					HeadingType ht = this.headingTypes[ rs.getInt("heading_type") ];
 					if ( ! hc.equals(HeadingCategory.AUTHORTITLE))
 						doc.addField("headingTypeDesc", ht.toString());
-					doc.addField("BlacklightHeadingField", blacklightFields.get(hc).get(ht));
+					doc.addField("blacklightField", blacklightFields.get(hc).get(ht));
 					AuthorityStatus as = getIsAuthorized(id);
 					doc.addField("authority", ! as.equals(AuthorityStatus.NONE) );
 					doc.addField("mainEntry", as.equals(AuthorityStatus.MAIN) );
@@ -172,7 +173,7 @@ public class Headings2Solr {
 	private AuthorityStatus getIsAuthorized(int id) throws SQLException {
 		AuthorityStatus as = AuthorityStatus.NONE;
 		if ( isAuth_pstmt == null )
-			isAuth_pstmt = connection.prepareStatement(
+			isAuth_pstmt = this.connection.prepareStatement(
 					"SELECT main_entry FROM authority2heading"+
 					" WHERE heading_id = ?" );
 		isAuth_pstmt.setInt(1, id);
@@ -194,7 +195,7 @@ public class Headings2Solr {
 		Collection<String> seeRefs = new ArrayList<>();
 		Map<String,Collection<Object>> seeAlsoRefs = new HashMap<>();
 		if (ref_pstmt == null)
-			ref_pstmt = connection.prepareStatement(
+			ref_pstmt = this.connection.prepareStatement(
 					" SELECT r.ref_type, r.ref_desc, h.* "
 					+ " FROM reference AS r, heading AS h "
 					+ "WHERE r.from_heading = ? "
@@ -212,11 +213,11 @@ public class Headings2Solr {
 				vals.put("worksAbout", rs.getInt("works_about"));
 				vals.put("heading", rs.getString("heading"));
 				int heading_type = rs.getInt("heading_type");
-				if (authorTypes.contains(heading_type))
+				if (this.authorTypes.contains(heading_type))
 					vals.put("worksBy", rs.getInt("works_by"));
 				if (HeadingType.WORK.ordinal() == heading_type)
 					vals.put("works", rs.getInt("works"));
-				vals.put("headingTypeDesc", headingTypes[  rs.getInt("heading_type") ].toString());
+				vals.put("headingTypeDesc", this.headingTypes[  rs.getInt("heading_type") ].toString());
 				String ref_desc = rs.getString("ref_desc");
 				String relationship = null;
 				if (ref_desc != null && ! ref_desc.isEmpty())
@@ -248,7 +249,7 @@ public class Headings2Solr {
 
 	private String countsJson( ResultSet rs ) throws SQLException {
 		int heading_type = rs.getInt("heading_type");
-		if (authorTypes.contains(heading_type ))
+		if (this.authorTypes.contains(heading_type ))
 			return String.format("{\"worksBy\":%d,\"worksAbout\":%d}",
 					rs.getInt("works_by"),rs.getInt("works_about"));
 		if (HeadingType.WORK.ordinal() == heading_type)
@@ -260,7 +261,7 @@ public class Headings2Solr {
 	private static PreparedStatement note_pstmt = null;
 	private Collection<String> getNotes( int id ) throws SQLException {
 		if (note_pstmt == null)
-			note_pstmt = connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
+			note_pstmt = this.connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
 		note_pstmt.setInt(1, id);
 		note_pstmt.execute();
 		Collection<String> notes = new ArrayList<>();
@@ -274,7 +275,7 @@ public class Headings2Solr {
 	private static PreparedStatement alt_pstmt = null;
 	private Collection<String> getAltForms( int id ) throws SQLException {
 		if (alt_pstmt == null)
-			alt_pstmt = connection.prepareStatement(
+			alt_pstmt = this.connection.prepareStatement(
 					"SELECT heading FROM heading, reference "
 					+ "WHERE to_heading = ? "
 					+ "AND from_heading = heading.id "
@@ -293,7 +294,7 @@ public class Headings2Solr {
 	private static PreparedStatement rda_pstmt = null;
 	private String getRda( int id ) throws SQLException {
 		if (rda_pstmt == null)
-			rda_pstmt = connection.prepareStatement("SELECT rda FROM rda WHERE heading_id = ?");
+			rda_pstmt = this.connection.prepareStatement("SELECT rda FROM rda WHERE heading_id = ?");
 		rda_pstmt.setInt(1, id);
 		rda_pstmt.execute();
 		String rda = null;
@@ -305,6 +306,7 @@ public class Headings2Solr {
 	}
 	
 	private class References {
+		public References() { }
 		public String seeAlsoJson = null;
 		public Collection<String> seeJson = null;
 	}

@@ -10,12 +10,12 @@ public enum HeadingCategory {
 	private final String field;
 
 	private HeadingCategory(final String name, final String dbField) {
-		string = name;
-		field = dbField;
+		this.string = name;
+		this.field = dbField;
 	}
 
 	@Override
-	public String toString() { return string; }
-	public String dbField() { return field; }
+	public String toString() { return this.string; }
+	public String dbField() { return this.field; }
 
 }

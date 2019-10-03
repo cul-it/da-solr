@@ -16,7 +16,7 @@ task wrapper(type: Wrapper) {
     description = "Setups up gradle wrapper. see\
  http://www.gradle.org/docs/current/userguide/gradle_wrapper.html"
 
-    gradleVersion = '1.4'
+    gradleVersion = '4.10.3'
 }
 
 dependencies {

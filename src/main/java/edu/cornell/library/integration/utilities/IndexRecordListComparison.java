@@ -48,14 +48,14 @@ public class IndexRecordListComparison {
 	
 	public IndexRecordListComparison(Config config) throws SQLException {
 
-		conn = config.getDatabaseConnection("Current");
-		stmt = conn.createStatement();
+		this.conn = config.getDatabaseConnection("Current");
+		this.stmt = this.conn.createStatement();
 
 	}
 
 	public Map<Integer,ChangedBib> mfhdsAttachedToDifferentBibs() throws SQLException {
 		Map<Integer,ChangedBib> m = new HashMap<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id, s.bib_id "
 				+ "FROM mfhdRecsVoyager as v, mfhdRecsSolr as s "
 				+"WHERE v.mfhd_id = s.mfhd_id AND v.bib_id != s.bib_id") ) {
@@ -67,7 +67,7 @@ public class IndexRecordListComparison {
 	
 	public Map<Integer,ChangedBib> itemsAttachedToDifferentMfhds() throws SQLException {
 		Map<Integer,ChangedBib> m = new HashMap<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id, s.mfhd_id "
 				+ "FROM itemRecsVoyager as v, itemRecsSolr as s "
 				+"WHERE v.item_id = s.item_id "
@@ -84,7 +84,7 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> itemsInVoyagerNotIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<>();
 		// new items
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select v.item_id, v.mfhd_id"
 				+ " from itemRecsVoyager as v "
 				+ "left join itemRecsSolr as s on s.item_id = v.item_id "
@@ -99,7 +99,7 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> itemsInIndexNotVoyager() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<>();
 		// deleted items
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select s.item_id, s.mfhd_id "
 				+ "from itemRecsSolr as s "
 				+ "left join itemRecsVoyager as v on s.item_id = v.item_id "
@@ -111,7 +111,7 @@ public class IndexRecordListComparison {
 	
 	public Map<Integer,Integer> itemsNewerInVoyagerThanIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"SELECT v.item_id, v.mfhd_id "
 				+ "FROM itemRecsVoyager as v, itemRecsSolr as s "
 				+"WHERE v.item_id = s.item_id "
@@ -126,7 +126,7 @@ public class IndexRecordListComparison {
 	
 	public Map<Integer,Integer> mfhdsInVoyagerNotIndex() throws SQLException {
 		Map<Integer,Integer> m = new TreeMap<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select v.mfhd_id, v.bib_id"
 				+ " from mfhdRecsVoyager as v "
 				+ "left join mfhdRecsSolr as s on s.mfhd_id = v.mfhd_id "
@@ -140,7 +140,7 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> mfhdsInIndexNotVoyager() throws SQLException {
 		Map<Integer,Integer> m = new TreeMap<>();
 		// deleted mfhds
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select s.mfhd_id, s.bib_id"
 				+ " from mfhdRecsSolr as s "
 				+ "left join mfhdRecsVoyager as v on s.mfhd_id = v.mfhd_id "
@@ -153,7 +153,7 @@ public class IndexRecordListComparison {
 	public Map<Integer,Integer> mfhdsNewerInVoyagerThanIndex() throws SQLException {
 		Map<Integer,Integer> m = new HashMap<>();
 		// updated holdings
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"SELECT v.mfhd_id, v.bib_id "
 				+ "FROM mfhdRecsVoyager as v, mfhdRecsSolr as s "
 				+"WHERE v.mfhd_id = s.mfhd_id "
@@ -167,7 +167,7 @@ public class IndexRecordListComparison {
 	
 	public Set<Integer> bibsInVoyagerNotIndex() throws SQLException {
 		Set<Integer> l = new TreeSet<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select v.bib_id from bibRecsVoyager as v "
 				+ "left join bibRecsSolr as s on s.bib_id = v.bib_id "
 				+ "where s.bib_id is null AND v.active = 1") ) {
@@ -179,7 +179,7 @@ public class IndexRecordListComparison {
 	public Set<Integer> bibsInIndexNotVoyager() throws SQLException {
 		
 		Set<Integer> l = new TreeSet<>();
-		try ( ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"select s.bib_id from bibRecsSolr as s "
 				+ "left join bibRecsVoyager as v on s.bib_id = v.bib_id "
 				+ "where s.active = 1 AND ( v.bib_id is null OR v.active = 0 )") ) {
@@ -190,8 +190,7 @@ public class IndexRecordListComparison {
 
 	public Set<Integer> bibsNewerInVoyagerThanIndex() throws SQLException {
 		Set<Integer> l = new TreeSet<>();
-		try (   Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery(
+		try ( ResultSet rs = this.stmt.executeQuery(
 				"SELECT v.bib_id"
 				+ " FROM bibRecsVoyager as v, bibRecsSolr as s "
 				+ "WHERE v.bib_id = s.bib_id"
@@ -205,11 +204,11 @@ public class IndexRecordListComparison {
 	@SuppressWarnings("resource") // for preparedstatement
 	private int getBibForMfhd( String table, int mfhdId ) throws SQLException {
 		String statementKey = "mfhd2bib_"+table;
-		if ( ! pstmts.containsKey(statementKey))
-			pstmts.put(statementKey, conn.prepareStatement(
+		if ( ! this.pstmts.containsKey(statementKey))
+			this.pstmts.put(statementKey, this.conn.prepareStatement(
 					"SELECT bib_id FROM "+table+" WHERE mfhd_id = ?"));
 		int bibid = 0;
-		PreparedStatement pstmt = pstmts.get(statementKey);
+		PreparedStatement pstmt = this.pstmts.get(statementKey);
 		pstmt.setInt(1, mfhdId);
 		try ( ResultSet rs = pstmt.executeQuery() ) {
 			while (rs.next())
@@ -224,7 +223,7 @@ public class IndexRecordListComparison {
 
 		if ( type.toString().startsWith("Bibliographic") || type.toString().startsWith("Holdings") ) {
 			System.out.printf("Queuing %d bibs to generationQueue due to %s.\n", bibsToAdd.size(), type.toString());
-			try( PreparedStatement pstmt = AddToQueue.generationQueueStmt(conn) ){
+			try( PreparedStatement pstmt = AddToQueue.generationQueueStmt(this.conn) ){
 
 				int i = 0;
 				for (Integer bibId : bibsToAdd ) {
@@ -238,7 +237,7 @@ public class IndexRecordListComparison {
 
 		if ( type.toString().startsWith("Item") || type.toString().startsWith("Holdings") ) {
 			System.out.printf("Queuing %d bibs to availabilityQueue due to %s.\n", bibsToAdd.size(), type.toString());
-			try( PreparedStatement pstmt = AddToQueue.availabilityQueueStmt(conn) ){
+			try( PreparedStatement pstmt = AddToQueue.availabilityQueueStmt(this.conn) ){
 				for (Integer bibId : bibsToAdd )
 					AddToQueue.add2QueueBatch(pstmt, bibId, new Timestamp(System.currentTimeMillis()), type);
 				pstmt.executeBatch();
@@ -249,7 +248,7 @@ public class IndexRecordListComparison {
 	public void queueDeletes( Set<Integer> bibsToDelete ) throws SQLException {
 		if (bibsToDelete == null || bibsToDelete.isEmpty())
 			return;
-		try ( PreparedStatement pstmt = AddToQueue.deleteQueueStmt(conn) ) {
+		try ( PreparedStatement pstmt = AddToQueue.deleteQueueStmt(this.conn) ) {
 			for (Integer bib : bibsToDelete) {
 				if (bib == null || bib.equals(0)) continue;
 				AddToQueue.add2DeleteQueueBatch(pstmt, bib);
@@ -261,7 +260,7 @@ public class IndexRecordListComparison {
 	public class ChangedBib {
 		public int original;
 		public int changed;
-		private ChangedBib( int original, int changed ) {
+		ChangedBib( int original, int changed ) {
 			this.original = original;
 			this.changed = changed;
 		}
