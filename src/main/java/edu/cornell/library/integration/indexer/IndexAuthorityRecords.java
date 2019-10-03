@@ -70,7 +70,7 @@ public class IndexAuthorityRecords {
 	public IndexAuthorityRecords(Config config)
 			throws SQLException, FileNotFoundException, IOException, XMLStreamException {
 
-		connection = config.getDatabaseConnection("Headings");
+		this.connection = config.getDatabaseConnection("Headings");
 		//set up database (including populating description maps)
 		setUpDatabase();
 
@@ -90,7 +90,7 @@ public class IndexAuthorityRecords {
 			System.out.println(srcFile);
 			processFile( srcFile );
 		}
-		connection.close();
+		this.connection.close();
 	}
 
 	private void processFile( File srcFile )
@@ -107,7 +107,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void setUpDatabase() throws SQLException {
-		try ( Statement stmt = connection.createStatement() ) {
+		try ( Statement stmt = this.connection.createStatement() ) {
 
 		stmt.execute("DROP TABLE IF EXISTS `heading`");
 		stmt.execute("CREATE TABLE `heading` ("
@@ -170,7 +170,7 @@ public class IndexAuthorityRecords {
 				+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
-		try ( PreparedStatement insertDesc = connection.prepareStatement(
+		try ( PreparedStatement insertDesc = this.connection.prepareStatement(
 				"INSERT INTO type_desc (id,name) VALUES (? , ?)") ) {
 		for ( HeadTypeDesc ht : HeadTypeDesc.values()) {
 			insertDesc.setInt(1, ht.ordinal());
@@ -178,7 +178,7 @@ public class IndexAuthorityRecords {
 			insertDesc.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertRefType = connection.prepareStatement(
+		try ( PreparedStatement insertRefType = this.connection.prepareStatement(
 				"INSERT INTO ref_type (id,name) VALUES (? , ?)") ) {
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
@@ -470,7 +470,7 @@ public class IndexAuthorityRecords {
 	private void populateRdaInfo(Integer heading_id, RdaData data) throws SQLException, JsonProcessingException {
 		String json = data.json();
 		if (json == null) return;
-		try ( PreparedStatement stmt = connection.prepareStatement(
+		try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO rda (heading_id, rda) VALUES (?, ?)") ){
 			stmt.setInt(1, heading_id);
 			stmt.setString(2, json);
@@ -479,7 +479,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void insertNote(Integer heading_id, String note) throws SQLException {
-		try ( PreparedStatement stmt = connection.prepareStatement(
+		try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO note (heading_id, note) VALUES (? , ?)") ){
 			stmt.setInt(1, heading_id);
 			stmt.setString(2, note);
@@ -488,7 +488,7 @@ public class IndexAuthorityRecords {
 	}
 
 	private void insertAuthorityId(Integer heading_id, String auth_id) throws SQLException {
-		try ( PreparedStatement stmt = connection.prepareStatement(
+		try ( PreparedStatement stmt = this.connection.prepareStatement(
 				"INSERT INTO authority (heading_id, authority_id) VALUES (? , ?)") ){
 			stmt.setInt(1, heading_id);
 			stmt.setString(2, auth_id);
@@ -502,7 +502,7 @@ public class IndexAuthorityRecords {
 		Integer recordId = null;
 		boolean undifferentiated = false;
 
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"SELECT id, undifferentiated FROM heading " +
 				"WHERE type_desc = ? AND sort = ?") ){
 			pstmt.setInt(1, htd.ordinal());
@@ -517,7 +517,7 @@ public class IndexAuthorityRecords {
 		if (recordId != null) {
 			// update sql record to make sure it's a main entry now; heading overrides
 			// possibly different heading form populated from xref
-			try ( PreparedStatement pstmt = connection.prepareStatement(
+			try ( PreparedStatement pstmt = this.connection.prepareStatement(
 					"UPDATE heading SET main_entry = 1, heading = ? WHERE id = ?") ){
 				pstmt.setString(1, heading); 
 				pstmt.setInt(2, recordId);
@@ -526,7 +526,7 @@ public class IndexAuthorityRecords {
 			// if the record was inserted as differentiated, but this one is undifferentiated
 			// the update it.
 			if (isUndifferentiated && ! undifferentiated) {
-				try ( PreparedStatement pstmt = connection.prepareStatement(
+				try ( PreparedStatement pstmt = this.connection.prepareStatement(
 						"UPDATE heading SET undifferentiated = 1 WHERE id = ?") ) {
 					pstmt.setInt(1, recordId);
 					pstmt.executeUpdate();
@@ -535,7 +535,7 @@ public class IndexAuthorityRecords {
 		} else {
 
 			// create new record
-			try (PreparedStatement pstmt = connection.prepareStatement(
+			try (PreparedStatement pstmt = this.connection.prepareStatement(
 					"INSERT INTO heading (heading, sort, type_desc, authority, main_entry, undifferentiated) " +
 					"VALUES (?, ?, ?, 1, 1, ?)",
                     Statement.RETURN_GENERATED_KEYS) ) {
@@ -593,7 +593,7 @@ public class IndexAuthorityRecords {
 	private void insertRef(int from_id, int to_id,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"REPLACE INTO reference (from_heading, to_heading, ref_type, ref_desc)"
 				+ " VALUES (?, ?, ?, ?)")  ){
 			pstmt.setInt(1, from_id);
@@ -612,7 +612,7 @@ public class IndexAuthorityRecords {
 
 		Integer recordId = null;
 
-		try ( PreparedStatement pstmt = connection.prepareStatement(
+		try ( PreparedStatement pstmt = this.connection.prepareStatement(
 				"SELECT id FROM heading " +
 				"WHERE type_desc = ? and sort = ?") ) {
 
@@ -625,7 +625,7 @@ public class IndexAuthorityRecords {
 		}
 		if (recordId == null) {
 			// create new record
-			try ( PreparedStatement pstmt = connection.prepareStatement(
+			try ( PreparedStatement pstmt = this.connection.prepareStatement(
 					"INSERT INTO heading (heading, sort, type_desc, authority) " +
 					"VALUES (?, ?, ?, 1)",
                     Statement.RETURN_GENERATED_KEYS) ) {
@@ -820,19 +820,22 @@ public class IndexAuthorityRecords {
 
 		Map<String,Collection<String>> data = new HashMap<>();
 
+		public RdaData() { }
+
 		public void add(String field, String value) {
-			if ( ! data.containsKey(field))
-				data.put(field, new HashSet<String>());
-			data.get(field).add(value);
+			if ( ! this.data.containsKey(field))
+				this.data.put(field, new HashSet<String>());
+			this.data.get(field).add(value);
 		}
 
 		public String json() throws JsonProcessingException {
-			if (data.isEmpty()) return null;
-			return mapper.writeValueAsString(data);
+			if (this.data.isEmpty()) return null;
+			return mapper.writeValueAsString(this.data);
 		}
 	}
 
 	private static class Relation {	
+		public Relation() { }
 		public String relationship = null;
 		public String reciprocalRelationship = null;
 		public String heading = null;

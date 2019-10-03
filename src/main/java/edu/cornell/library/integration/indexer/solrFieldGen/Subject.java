@@ -298,6 +298,7 @@ public class Subject implements SolrFieldGenerator {
 	}
 
 	private static class Heading {
+		public Heading() { }
 		boolean isFAST = false;
 		boolean isLCGFT = false;
 		DataFieldSet fs = null;

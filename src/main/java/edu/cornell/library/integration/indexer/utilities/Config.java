@@ -59,117 +59,117 @@ public class Config {
 	}
 
 	public Boolean isProduction() {
-		if (values.containsKey("production") && values.get("production").equals("true"))
+		if (this.values.containsKey("production") && this.values.get("production").equals("true"))
 			return true;
 		return false;
 	}
 
 	public String getLocalBaseFilePath() {
-		if (values.containsKey("localBaseFilePath")) {
-			return values.get("localBaseFilePath");
+		if (this.values.containsKey("localBaseFilePath")) {
+			return this.values.get("localBaseFilePath");
 		}
 		return null;
 	}
 
 	public void setLocalBaseFilePath(String path) {
-		values.put("localBaseFilePath", path);
+		this.values.put("localBaseFilePath", path);
 	}
 
 	public String getBatchInfoDir() {
-		if (values.containsKey("batchInfoDir")) {
-			return values.get("batchInfoDir");
+		if (this.values.containsKey("batchInfoDir")) {
+			return this.values.get("batchInfoDir");
 		}
 		return null;
 	}
 
 	public String getHathiUpdatesFilesDirectory() {
-		if (values.containsKey("hathiUpdatesFilesDirectory"))
-			return values.get("hathiUpdatesFilesDirectory");
+		if (this.values.containsKey("hathiUpdatesFilesDirectory"))
+			return this.values.get("hathiUpdatesFilesDirectory");
 		return null;
 	}
 
 	public String getAuthorityMarcDirectory() {
-		if (values.containsKey("authorityMarcDirectory"))
-			return values.get("authorityMarcDirectory");
+		if (this.values.containsKey("authorityMarcDirectory"))
+			return this.values.get("authorityMarcDirectory");
 		return null;
 	}
 
 	public String[] getMarc2XmlDirs() {
-		if (values.containsKey("marc2XmlDirs"))
-			return values.get("marc2XmlDirs").split(",");
+		if (this.values.containsKey("marc2XmlDirs"))
+			return this.values.get("marc2XmlDirs").split(",");
 		return null;
 	}
 
 	public String getNonVoyUriPrefix() {
-		if (values.containsKey("nonVoyUriPrefix")) {
-			return values.get("nonVoyUriPrefix");
+		if (this.values.containsKey("nonVoyUriPrefix")) {
+			return this.values.get("nonVoyUriPrefix");
 		}
 		return null;
 	}
 
 	public String getNonVoyIdPrefix() {
-		if (values.containsKey("nonVoyIdPrefix")) {
-			return values.get("nonVoyIdPrefix");
+		if (this.values.containsKey("nonVoyIdPrefix")) {
+			return this.values.get("nonVoyIdPrefix");
 		}
 		return null;
 	}
 
 	public String getReportList() {
-		if (values.containsKey("reportList")) {
-			return values.get("reportList");
+		if (this.values.containsKey("reportList")) {
+			return this.values.get("reportList");
 		}
 		return null;
 	}
 
 	public String getSolrUrl() {
-		if (values.containsKey("solrUrl")) {
-			return values.get("solrUrl");
+		if (this.values.containsKey("solrUrl")) {
+			return this.values.get("solrUrl");
 		}
 		return null;
 	}
 
 	public String getBlacklightSolrUrl() {
-		if (values.containsKey("blacklightSolrUrl")) {
-			return values.get("blacklightSolrUrl");
+		if (this.values.containsKey("blacklightSolrUrl")) {
+			return this.values.get("blacklightSolrUrl");
 		}
 		return null;
 	}
 
 	public String getAuthorSolrUrl() {
-		if (values.containsKey("authorSolrUrl")) {
-			return values.get("authorSolrUrl");
+		if (this.values.containsKey("authorSolrUrl")) {
+			return this.values.get("authorSolrUrl");
 		}
 		return null;
 	}
 
 	public String getAuthorTitleSolrUrl() {
-		if (values.containsKey("authorTitleSolrUrl")) {
-			return values.get("authorTitleSolrUrl");
+		if (this.values.containsKey("authorTitleSolrUrl")) {
+			return this.values.get("authorTitleSolrUrl");
 		}
 		return null;
 	}
 
 	public String getSubjectSolrUrl() {
-		if (values.containsKey("subjectSolrUrl")) {
-			return values.get("subjectSolrUrl");
+		if (this.values.containsKey("subjectSolrUrl")) {
+			return this.values.get("subjectSolrUrl");
 		}
 		return null;
 	}
 
 	public String getCallnumSolrUrl() {
-		if (values.containsKey("callnumSolrUrl")) {
-			return values.get("callnumSolrUrl");
+		if (this.values.containsKey("callnumSolrUrl")) {
+			return this.values.get("callnumSolrUrl");
 		}
 		return null;
 	}
 
 	public void setTestMode(boolean b) {
-		values.put("testMode", (b) ? "true" : "false");
+		this.values.put("testMode", (b) ? "true" : "false");
 	}
 
 	public boolean getTestMode() {
-		if (values.containsKey("testMode")) {
-			return (values.get("testMode").equals("true")) ? true : false;
+		if (this.values.containsKey("testMode")) {
+			return (this.values.get("testMode").equals("true")) ? true : false;
 		}
 		return false;
 	}
@@ -178,9 +178,9 @@ public class Config {
 		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
 				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
 				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
-		if (values.containsKey("endOfIterativeCatalogUpdates")) {
+		if (this.values.containsKey("endOfIterativeCatalogUpdates")) {
 			try {
-				Integer hour = Integer.valueOf(values.get("endOfIterativeCatalogUpdates"));
+				Integer hour = Integer.valueOf(this.values.get("endOfIterativeCatalogUpdates"));
 				if (hour < 1 || hour > 24)
 					throw new ConfigurationException(usage);
 				return hour;
@@ -193,8 +193,8 @@ public class Config {
 	}
 
 	public int getRandomGeneratorWavelength() {
-		if (values.containsKey("randomGeneratorWavelength"))
-			return Integer.valueOf(values.get("randomGeneratorWavelength"));
+		if (this.values.containsKey("randomGeneratorWavelength"))
+			return Integer.valueOf(this.values.get("randomGeneratorWavelength"));
 		return 400;
 	}
 
@@ -202,8 +202,8 @@ public class Config {
 	 * @return the tmpDir on local file system
 	 */
 	public String getTmpDir() {
-		if (values.containsKey("tmpDir")) {
-			return values.get("tmpDir");
+		if (this.values.containsKey("tmpDir")) {
+			return this.values.get("tmpDir");
 		}
 		return null;
 	}
@@ -214,41 +214,41 @@ public class Config {
 	 * @throws SQLException
 	 */
 	public Connection getDatabaseConnection(String id) throws SQLException {
-		String driver = values.get("databaseDriver" + id);
+		String driver = this.values.get("databaseDriver" + id);
 		if (driver == null) {
 			System.out.println("Value not found for databaseDriver" + id);
-			for (String key : values.keySet())
-				System.out.println(key + ": " + values.get(key));
+			for (String key : this.values.keySet())
+				System.out.println(key + ": " + this.values.get(key));
 			System.exit(1);
 		}
-		String url = values.get("databaseURL" + id);
+		String url = this.values.get("databaseURL" + id);
 		if (url == null) {
 			System.out.println("Value not found for databaseURL" + id);
 			System.exit(1);
 		}
-		String user = values.get("databaseUser" + id);
+		String user = this.values.get("databaseUser" + id);
 		if (user == null) {
 			System.out.println("Value not found for databaseUser" + id);
 			System.exit(1);
 		}
-		String pass = values.get("databasePass" + id);
+		String pass = this.values.get("databasePass" + id);
 		if (pass == null) {
 			System.out.println("Value not found for databasePass" + id);
 			System.exit(1);
 		}
-		String maxStatementStr = values.get("databaseMaxStatements" + id);
+		String maxStatementStr = this.values.get("databaseMaxStatements" + id);
 		Integer maxStatements = (maxStatementStr == null) ? 35 : Integer.valueOf(maxStatementStr);
-		String poolsize = values.get("databasePoolsize" + id);
+		String poolsize = this.values.get("databasePoolsize" + id);
 		int pool = 1;
 		if (poolsize != null)
 			pool = Integer.valueOf(poolsize);
 
 		Boolean pooling = true; // default if not specified in config
-		if (values.containsKey("databasePooling" + id))
-			pooling = Boolean.valueOf(values.get("databasePooling" + id));
+		if (this.values.containsKey("databasePooling" + id))
+			pooling = Boolean.valueOf(this.values.get("databasePooling" + id));
 
 		if (pooling) {
-			if (!databases.containsKey(id)) {
+			if (!this.databases.containsKey(id)) {
 				ComboPooledDataSource cpds = new ComboPooledDataSource();
 				try {
 					cpds.setDriverClass(driver);
@@ -270,10 +270,10 @@ public class Config {
 				cpds.setMinPoolSize(1);
 				cpds.setMaxPoolSize(pool);
 				cpds.setInitialPoolSize(1);
-				databases.put(id, cpds);
+				this.databases.put(id, cpds);
 			}
-			Connection c = databases.get(id).getConnection();
-			if (driver.contains("mysql")) {
+			Connection c = this.databases.get(id).getConnection();
+			if (driver != null && driver.contains("mysql")) {
 				try (Statement stmt = c.createStatement()) {
 					stmt.executeUpdate("SET NAMES utf8");
 				}
@@ -282,7 +282,7 @@ public class Config {
 		}
 		System.out.printf("Connecting to db: %s:%s@%s\n",user,pass,url);
 		Connection c = DriverManager.getConnection(url, user, pass);
-		if (driver.contains("mysql")) {
+		if (driver != null && driver.contains("mysql")) {
 			try (Statement stmt = c.createStatement()) {
 				stmt.executeUpdate("SET NAMES utf8");
 			}
@@ -291,11 +291,11 @@ public class Config {
 	}
 
 	public void setDatabasePoolsize(String id, int size) {
-		values.put("databasePoolsize" + id, String.valueOf(size));
+		this.values.put("databasePoolsize" + id, String.valueOf(size));
 	}
 
 	public void setDailyReports(String reports) {
-		values.put("dailyReports", insertIterationContext(reports));
+		this.values.put("dailyReports", insertIterationContext(reports));
 	}
 
 	/**

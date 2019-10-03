@@ -110,7 +110,7 @@ public final class Locations {
 		public int compareTo( final Location other ) {
 			return this.number.compareTo(other.number);
 		}
-		private Location (String code, Integer number, String name, String library) {
+		Location (String code, Integer number, String name, String library) {
 			this.code = code;
 			this.number = number;
 			this.name = name;
@@ -124,7 +124,7 @@ public final class Locations {
 	 * to retrieve and index the data. Otherwise, the instance will simply give access to the
 	 * already loaded data.
 	 */
-	public Locations(final Config config) throws ClassNotFoundException, SQLException {
+	public Locations(final Config config) throws SQLException {
 
 		if (_byCode.isEmpty())
 			populateLocationMaps(config);
@@ -143,8 +143,7 @@ public final class Locations {
 			+ "LOCATION.LOCATION_NAME "
 			+"FROM LOCATION ";
 
-	private static void populateLocationMaps(final Config config)
-			throws ClassNotFoundException, SQLException {
+	private static void populateLocationMaps(final Config config) throws SQLException {
 		System.out.println("Retrieving location data from Voyager");
 		libraryPatterns = IndexingUtilities.loadPatternMap("library_names.txt");
 

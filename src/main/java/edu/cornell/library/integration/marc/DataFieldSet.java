@@ -11,10 +11,10 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 	private final String mainTag;
 	private final Integer linkNumber;
 	private final List<DataField> fields;
-	public Integer getId() { return id; }
-	public String getMainTag() { return mainTag; }
-	public Integer getLinkNumber() { return linkNumber; }
-	public List<DataField> getFields() { return fields; }
+	public Integer getId() { return this.id; }
+	public String getMainTag() { return this.mainTag; }
+	public Integer getLinkNumber() { return this.linkNumber; }
+	public List<DataField> getFields() { return this.fields; }
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
@@ -44,7 +44,7 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 		return this.id.hashCode();
 	}
 
-	private DataFieldSet ( Integer id, String mainTag, Integer linkNumber, List<DataField> fields) {
+	DataFieldSet ( Integer id, String mainTag, Integer linkNumber, List<DataField> fields) {
 		this.id = id;
 		this.mainTag = mainTag;
 		this.linkNumber = linkNumber;
@@ -96,24 +96,24 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 			this.fields.add(field);
 			return this;
 		}
-		public Builder addToFields(List<DataField> fields) {
+		Builder addToFields(List<DataField> fields) {
 			this.fields.addAll(fields);
 			return this;
 		}
 		DataFieldSet build() throws IllegalArgumentException {
-			if (id == null)
+			if (this.id == null)
 				throw new IllegalArgumentException("id is a necessary field for a FieldSet.");
-			if (mainTag == null)
+			if (this.mainTag == null)
 				throw new IllegalArgumentException("mainTag is a necessary field for a FieldSet.");
 
-			switch (fields.size()) {
+			switch (this.fields.size()) {
 			case 0:
 				throw new IllegalArgumentException("At least one field is necessary in a FieldSet");
 			case 1:
-				return new DataFieldSet(id,mainTag,linkNumber,fields);
+				return new DataFieldSet(this.id,this.mainTag,this.linkNumber,this.fields);
 			default:
-				Collections.sort(fields, comp);
-				return new DataFieldSet(id,mainTag,linkNumber,fields);
+				Collections.sort(this.fields, comp);
+				return new DataFieldSet(this.id,this.mainTag,this.linkNumber,this.fields);
 			}
 		}
 	}

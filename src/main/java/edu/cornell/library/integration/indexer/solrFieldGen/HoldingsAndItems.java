@@ -564,6 +564,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 	}
 
 	private static class Holdings {
+		public Holdings() { }
 		public String id;
 		public String modified_date = null;
 		public String copy_number = null;
