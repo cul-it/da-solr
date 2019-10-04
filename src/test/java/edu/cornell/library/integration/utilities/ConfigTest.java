@@ -9,7 +9,6 @@ import edu.cornell.library.integration.indexer.utilities.Config;
 
 public class VoyagerToSolrConfigurationTest {
 
-	@SuppressWarnings("static-method")
 	@Test
 	public void testInsertDate() {
 		String test = "No replacement";

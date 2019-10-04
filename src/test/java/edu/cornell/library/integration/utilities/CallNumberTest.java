@@ -12,7 +12,6 @@ import edu.cornell.library.integration.indexer.utilities.CallNumber;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
 
-@SuppressWarnings("static-method")
 public class CallNumberTest {
 
 	static Config config = null;
