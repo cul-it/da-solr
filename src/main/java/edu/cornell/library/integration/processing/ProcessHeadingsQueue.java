@@ -7,12 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.cornell.library.integration.utilities.BlacklightHeadingField;
 import edu.cornell.library.integration.utilities.Config;
+import edu.cornell.library.integration.utilities.FilingNormalization;
 
 public class ProcessHeadingsQueue {
 
@@ -34,22 +37,22 @@ public class ProcessHeadingsQueue {
 				PreparedStatement allForBibStmt = current.prepareStatement
 						("SELECT id, cause, record_date FROM headingsQueue WHERE bib_id = ?");
 				PreparedStatement deprioritizeStmt = current.prepareStatement
-						("UPDATE generationQueue SET priority = 9 WHERE id = ?");
+						("UPDATE headingsQueue SET priority = 9 WHERE id = ?");
 				PreparedStatement previousHeadingsStmt = headings.prepareStatement(
 						"SELECT heading_id, heading FROM bib2heading WHERE bib_id = ? AND generator = ?");
 						) {
-			SolrHeadingBlock.SUBJECT.addBlockQuery( current.prepareStatement(
+			SolrHeadingBlock.SUBJECT.setBlockQuery( current.prepareStatement(
 					"SELECT subject_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
-			SolrHeadingBlock.AUTHORTITLE.addBlockQuery( current.prepareStatement(
+			SolrHeadingBlock.AUTHORTITLE.setBlockQuery( current.prepareStatement(
 					"SELECT authortitle_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
-			SolrHeadingBlock.SERIES.addBlockQuery( current.prepareStatement(
+			SolrHeadingBlock.SERIES.setBlockQuery( current.prepareStatement(
 					"SELECT series_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
 
 			while(true) {
-				// Identify Bib to generate data for
+				// Identify Bib and Generator blocks to update headings for
 				Integer bib = null;
 				Integer priority = null;
-				stmt.execute("LOCK TABLES generationQueue WRITE");
+				stmt.execute("LOCK TABLES headingsQueue WRITE");
 				try (ResultSet rs = nextBibStmt.executeQuery()){
 					while (rs.next()) { bib = rs.getInt(1); priority = rs.getInt(2); }
 				}
@@ -86,6 +89,7 @@ public class ProcessHeadingsQueue {
 
 				for ( SolrHeadingBlock b : changes)
 					lookForChangesToHeadings( bib, b, previousHeadingsStmt );
+				System.exit(0);
 			}
 		}
 	}
@@ -107,9 +111,29 @@ public class ProcessHeadingsQueue {
 			System.out.println("\nCurrent Headings");
 			while (newFields.next()) {
 				String[] blockFields = newFields.getString(1).split("\n");
+				for ( String lookedForFilingField : b.filingFields.keySet() )
+					for ( String actualField : blockFields )
+						if ( actualField.startsWith(lookedForFilingField) ) {
+							String sortForm = actualField.substring(lookedForFilingField.length()+2);
+							String displayForm = findDisplayForm(blockFields,sortForm,b.filingFields.get(lookedForFilingField));
+							System.out.printf("%s (%s): %s, %s\n", displayForm, sortForm,
+									b.filingFields.get(lookedForFilingField).headingCategory(),
+									b.filingFields.get(lookedForFilingField).headingTypeDesc());
+						}
 			}
 		}
 		
+	}
+
+	private static String findDisplayForm(String[] blockFields, String sortForm, BlacklightHeadingField bhf) {
+		String displayFormFieldName = bhf.facetField();
+		for ( String blockField : blockFields )
+			if ( blockField.startsWith(displayFormFieldName) ) {
+				String fieldValue = blockField.substring(displayFormFieldName.length()+2);
+				if ( FilingNormalization.getFilingForm(fieldValue).equals(sortForm) )
+					return fieldValue;
+			}
+		return null;
 	}
 
 	private enum SolrHeadingBlock {
@@ -130,13 +154,14 @@ public class ProcessHeadingsQueue {
 		SERIES(EnumSet.of(
 				BlacklightHeadingField.AUTHORTITLE_WORK));
 
-		EnumSet<BlacklightHeadingField> fields = null;
+		Map<String,BlacklightHeadingField> filingFields = new HashMap<>();
 		PreparedStatement blockQuery = null;
-		public void addBlockQuery( PreparedStatement blockQuery ) {
+		public void setBlockQuery( PreparedStatement blockQuery ) {
 			this.blockQuery = blockQuery;
 		}
 		SolrHeadingBlock( EnumSet<BlacklightHeadingField> fields ) {
-			this.fields = fields;
+			for ( BlacklightHeadingField bhf : fields )
+				this.filingFields.put(bhf.fieldName(),bhf);
 		}
 	}
 }
