@@ -38,7 +38,7 @@ public class PubInfoTest {
 		"pub_date_display: 2014\n"+
 		"pub_date_t:     \n"+
 		"pub_date_t: 2014\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class PubInfoTest {
 		"pub_date_t: [2014]\n"+
 		"pub_date_t: ©2014\n"+
 		"pub_date_t: ℗2014,\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class PubInfoTest {
 		"publisher_t: 吉川弘文館\n"+
 		"pub_date_display: 2004\n"+
 		"pub_date_t: 2004\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class PubInfoTest {
 			"pub_date_facet: 1864\n" + 
 			"pub_date_t: 1864\n" + 
 			"pub_date_t: ||||\n";
-			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+			assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 		}
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -106,7 +106,7 @@ public class PubInfoTest {
 			"pub_date_facet: 1600\n" + 
 			"pub_date_t: 16uu\n" + 
 			"pub_date_t: 1960\n";
-			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+			assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 		}
 	}
 
@@ -116,13 +116,13 @@ public class PubInfoTest {
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.controlFields.add(new ControlField(1,"008","130613s||||||||enk     o     ||1 0|eng|d"));
 			String expected = "pub_date_t: ||||\n";
-			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+			assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 		}
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.controlFields.add(new ControlField(1,"008","130613p||||||||enk     o     ||1 0|eng|d"));
 			String expected = "pub_date_t: ||||\n";
-			assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+			assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 		}
 	}
 }

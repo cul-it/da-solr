@@ -26,29 +26,29 @@ public enum BlacklightHeadingField {
 		this.ht = ht;
 	}
 
-	public HeadingCategory headingCategory() { return hc; }
-	public HeadingType headingTypeDesc() { return ht; }
+	public HeadingCategory headingCategory() { return this.hc; }
+	public HeadingType headingTypeDesc() { return this.ht; }
 	public String browseCtsName() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(hc.toString());
-		if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
-			sb.append('_').append(ht.abbrev());
+		sb.append(this.hc.toString());
+		if ( ! this.hc.equals(HeadingCategory.AUTHORTITLE) )
+			sb.append('_').append(this.ht.abbrev());
 		sb.append("_browse");
 		return sb.toString();
 	}
 	public String fieldName() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(hc.toString());
-		if ( ! hc.equals(HeadingCategory.AUTHORTITLE) )
-			sb.append('_').append(ht.abbrev());
+		sb.append(this.hc.toString());
+		if ( ! this.hc.equals(HeadingCategory.AUTHORTITLE) )
+			sb.append('_').append(this.ht.abbrev());
 		sb.append("_filing");
 		return sb.toString();
 	}
 	public String facetField() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(hc.toString());
-		if ( hc.equals(HeadingCategory.SUBJECT) )
-			sb.append('_').append(ht.abbrev());
+		sb.append(this.hc.toString());
+		if ( this.hc.equals(HeadingCategory.SUBJECT) )
+			sb.append('_').append(this.ht.abbrev());
 		sb.append("_facet");
 		return sb.toString();
 	}

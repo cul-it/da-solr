@@ -22,6 +22,6 @@ public class DBCodeTest {
 		String expected =
 		"providercode: PRVLSH\n"+
 		"dbcode: ACAJP\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString());
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 }

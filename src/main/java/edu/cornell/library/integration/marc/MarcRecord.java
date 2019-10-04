@@ -50,7 +50,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	public MarcRecord( RecordType type ) {
 		this.type = type;
 		if (type != null && type.equals(RecordType.BIBLIOGRAPHIC))
-			holdings = new TreeSet<>();
+			this.holdings = new TreeSet<>();
 	}
 
 	public MarcRecord( RecordType type , String marc21OrMarcXml ) throws IOException, XMLStreamException {
@@ -70,7 +70,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	}
 
-	public static List<MarcRecord> getMarcRecords( RecordType type, String marc21OrMarcXml ) throws IOException, XMLStreamException {
+	public static List<MarcRecord> getMarcRecords( RecordType type, String marc21OrMarcXml )
+			throws IOException, XMLStreamException {
 		List<MarcRecord> recs = new ArrayList<>();
 		String marcXml = ( marc21OrMarcXml.contains("<record>") )
 				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
@@ -92,12 +93,12 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	public int compareTo(final MarcRecord other) {
 		if ( this.type == null ) {
 			if ( other.type == null )
-				return id.compareTo(other.id);
+				return this.id.compareTo(other.id);
 			return 1;
 		}
 		if ( ! this.type.equals(other.type) )
-			return type.compareTo(other.type);
-		return id.compareTo(other.id);
+			return this.type.compareTo(other.type);
+		return this.id.compareTo(other.id);
 	}
 
 	@Override

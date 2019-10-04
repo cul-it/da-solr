@@ -24,7 +24,7 @@ public class LanguageTest {
 		"language_facet: English\n"+
 		"language_display: English.\n"+
 		"language_articles_t: the a an\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class LanguageTest {
 		String expected =
 		"language_facet: Chinese\n"+
 		"language_display: Chinese.\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class LanguageTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(f);
 		String expected = "language_display: Free text language note.\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class LanguageTest {
 		"language_facet: English\n"+
 		"language_display: In English.\n"+
 		"language_articles_t: the a an\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class LanguageTest {
 		"language_facet: Spanish\n"+
 		"language_display: Spanish.\n"+
 		"language_articles_t: el la lo los las un una\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class LanguageTest {
 		String expected =
 		"language_facet: Vietnamese\n"+
 		"language_display: Vietnamese.\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class LanguageTest {
 		"language_facet: English\n"+
 		"language_display: In Hindi with English subtitles.\n"+
 		"language_articles_t: the a an\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -120,6 +120,6 @@ public class LanguageTest {
 		"language_display: Hindi, English.\n"+
 		"language_articles_t: the a an\n"+
 		"language_articles_t: el la lo los las un una\n";
-		assertEquals(expected,gen.generateSolrFields ( rec, null ).toString());
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 }

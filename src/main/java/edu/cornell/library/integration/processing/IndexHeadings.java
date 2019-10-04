@@ -62,7 +62,7 @@ public class IndexHeadings {
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.add("blacklightSolrUrl");
-		config = Config.loadConfig(requiredArgs);
+		this.config = Config.loadConfig(requiredArgs);
 		if (args.length > 0) {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 			try {
@@ -86,14 +86,14 @@ public class IndexHeadings {
 			}
 		}
 
-		connection = config.getDatabaseConnection("Headings");
+		this.connection = this.config.getDatabaseConnection("Headings");
 		deleteCountsFromDB();
-		connection.setAutoCommit(false);
+		this.connection.setAutoCommit(false);
 
 		for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
 
 			processBlacklightHeadingFieldHeaderData( blf );
-			connection.commit();
+			this.connection.commit();
 		}
 	}
 
@@ -102,10 +102,10 @@ public class IndexHeadings {
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
 
-		if ( ! queries.containsKey(blf.headingCategory()))
-			queries.put(blf.headingCategory(), new HashMap<String,String>());
+		if ( ! this.queries.containsKey(blf.headingCategory()))
+			this.queries.put(blf.headingCategory(), new HashMap<String,String>());
 
-		String blacklightSolrUrl = config.getBlacklightSolrUrl();
+		String blacklightSolrUrl = this.config.getBlacklightSolrUrl();
 
 		int batchSize = 1_000_000;
 		int numFound = 1;
@@ -135,8 +135,7 @@ public class IndexHeadings {
 		int headingCount = 0;
 		try (  FileInputStream fis = new FileInputStream(tempPath.toString())  ){
 
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			XMLStreamReader r  = inputFactory.createXMLStreamReader(fis);
+			XMLStreamReader r  = this.inputFactory.createXMLStreamReader(fis);
 
 			// fast forward to response body
 			FF: while (r.hasNext())
@@ -158,13 +157,13 @@ public class IndexHeadings {
 							if (r.getAttributeLocalName(i).equals("name"))
 								heading = r.getAttributeValue(i);
 						recordCount = Integer.valueOf(r.getElementText());
-						addCountToDB(blf,queries.get(blf.headingCategory()),heading, recordCount);
+						addCountToDB(blf,this.queries.get(blf.headingCategory()),heading, recordCount);
 						if (++headingCount % 10_000 == 0) {
 							System.out.printf("%s => %d\n",heading,recordCount);
-							connection.commit();
+							this.connection.commit();
 						}
 					}
-			connection.commit();
+			this.connection.commit();
 		}
 		Files.delete(tempPath);
 		return headingCount;
@@ -180,7 +179,7 @@ public class IndexHeadings {
 			qs.put("update", String.format("UPDATE heading SET %s = ? WHERE heading_type = ? AND sort = ?", count_field));
 		}
 		int rowsAffected;
-		try ( PreparedStatement uStmt = connection.prepareStatement( qs.get("update") ) ) {
+		try ( PreparedStatement uStmt = this.connection.prepareStatement( qs.get("update") ) ) {
 			uStmt.setInt(1, count);
 			uStmt.setInt(2, blf.headingTypeDesc().ordinal());
 			uStmt.setString(3, headingSort);
@@ -197,7 +196,7 @@ public class IndexHeadings {
 								"INSERT INTO heading (heading, sort, heading_type, %s) " +
 										"VALUES (?, ?, ?, ?)", count_field));
 					}
-					try ( PreparedStatement iStmt = connection.prepareStatement( qs.get("insert") ) ) {
+					try ( PreparedStatement iStmt = this.connection.prepareStatement( qs.get("insert") ) ) {
 						iStmt.setString(1, headingDisplay);
 						iStmt.setString(2, headingSort);
 						iStmt.setInt(3, blf.headingTypeDesc().ordinal());
@@ -218,14 +217,14 @@ public class IndexHeadings {
 		int batchsize = 10_000;
 		int maxId = 0;
 
-		try (   Statement stmt = connection.createStatement();
+		try (   Statement stmt = this.connection.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM heading") ) {
 
 				while (rs.next())
 					maxId = rs.getInt(1);
 		}
 
-		try (  PreparedStatement pstmt = connection.prepareStatement
+		try (  PreparedStatement pstmt = this.connection.prepareStatement
 				("UPDATE heading SET works = 0, works_by = 0, works_about = 0 "
 						+ "WHERE id BETWEEN ? AND ?")  ){
 			for (int left = 0; left < maxId; left += batchsize) {
@@ -277,7 +276,7 @@ public class IndexHeadings {
 		while (true) {
 			try (  InputStream in = queryUrl.openStream() ){
 
-				XMLStreamReader r  = inputFactory.createXMLStreamReader(in);
+				XMLStreamReader r  = this.inputFactory.createXMLStreamReader(in);
 
 				// fast forward to response body
 				FF: while (r.hasNext())
@@ -320,7 +319,7 @@ public class IndexHeadings {
 			String fieldName, String headingSort, String facet, Boolean fullFacetList) throws UnsupportedEncodingException {
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(config.getBlacklightSolrUrl());
+		sb.append(this.config.getBlacklightSolrUrl());
 		sb.append("/select?&qt=standard&rows=0&echoParams=none&wt=xml" );
 		// all records
 		sb.append( "&q=*%3A*" ); // q=*:*

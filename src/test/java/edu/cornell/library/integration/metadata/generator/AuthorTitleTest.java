@@ -40,7 +40,7 @@ public class AuthorTitleTest {
 		"title_display: The national law journal\n"+
 		"fulltitle_display: The national law journal\n"+
 		"subtitle_display: \n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
 		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class AuthorTitleTest {
 		"subtitle_display: a biographical dictionary\n"+
 		"title_responsibility_display: T. N. Fewer.\n"+
 		"author_245c_t: T. N. Fewer.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class AuthorTitleTest {
 		"subtitle_display: \n"+
 		"title_responsibility_display: Nicholas Kalavrezos.\n"+
 		"author_245c_t: Nicholas Kalavrezos.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class AuthorTitleTest {
 		"title_responsibility_display: John Speed ; introduction by Nigel Nicolson ; country commentaries"+
 									" by Alasdair Hawkyard.\n"+
 		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -215,7 +215,7 @@ public class AuthorTitleTest {
 		"subtitle_display: Alkēstē, Mēdeia, Hippolytos\n"+
 		"title_responsibility_display: Loukas Papadēmētropoulos.\n"+
 		"author_245c_t: Loukas Papadēmētropoulos.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -249,7 +249,7 @@ public class AuthorTitleTest {
 		+ " podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n"+
 		"author_245c_t: подготовка писем Е. Дмитриевой и Ф. Шедеви.\n"+
 		"author_245c_t: podgotovka pisem E. Dmitrievoĭ i F. Shedevi.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -304,7 +304,7 @@ public class AuthorTitleTest {
 		"title_responsibility_display: 다가 후토시 지음 ; 책사소 옮김. / Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n"+
 		"author_245c_t_cjk: 다가 후토시 지음 ; 책사소 옮김.\n"+
 		"author_245c_t: Taga Hut'osi chiŭm ; Ch'aeksaso omgim.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -341,7 +341,7 @@ public class AuthorTitleTest {
 		"fulltitle_display: Tjita dan daja pemuda Islam : menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d"
 		+ " 31 Oktober 1959 di Djakarta\n"+
 		"subtitle_display: menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -404,7 +404,7 @@ public class AuthorTitleTest {
 		+ " zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n"+
 		"author_245c_t_cjk: c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.\n"+
 		"author_245c_t: cA Fuxie (A. Foucher) zhu ; Wang Pingxian, Wei Wenjie yi ; Wang Jiqing shen jiao.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -448,7 +448,7 @@ public class AuthorTitleTest {
 		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
 		"subtitle_display: \n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -472,7 +472,7 @@ public class AuthorTitleTest {
 		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_display: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_sort: korea south president 1993 1998 kim\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -525,7 +525,7 @@ public class AuthorTitleTest {
 		+ "\"authorizedForm\":false}\n"+
 		"author_display: 國立故宮博物院 / Guo li gu gong bo wu yuan.\n"+
 		"author_sort: guo li gu gong bo wu yuan\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 }

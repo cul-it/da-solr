@@ -22,7 +22,7 @@ public class OtherIDsTest {
 		String expected =
 		"id_t: (OCoLC)924835975\n"+
 		"oclc_id_display: 924835975\n";
-		assertEquals(expected,gen.generateSolrFields(rec,null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec,null).toString());
 	}
 
 
@@ -42,7 +42,7 @@ public class OtherIDsTest {
 		"oclc_id_display: 904397987\n" + 
 		"id_t: 8903327\n" + 
 		"other_id_display: 8903327\n";
-		assertEquals(expected,gen.generateSolrFields(rec,null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec,null).toString());
 	}
 
 }

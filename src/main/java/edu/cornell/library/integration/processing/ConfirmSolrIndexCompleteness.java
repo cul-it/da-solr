@@ -44,7 +44,7 @@ public class ConfirmSolrIndexCompleteness  {
 		System.out.println("Comparing current Voyager record lists \n"
 		        + "with contents of index at: " + coreUrl+"\n");
 
-		IndexRecordListComparison c = new IndexRecordListComparison(config);
+		IndexRecordListComparison c = new IndexRecordListComparison(this.config);
 
 		reportList( c.bibsInIndexNotVoyager(),
 				"Bib ids in the index but no longer unsuppressed in Voyager.");

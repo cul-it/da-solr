@@ -47,7 +47,7 @@ public class UpdateVoyagerInventory {
 			+"WHERE b.bib_id = m.bib_id AND m.mfhd_id = ? AND b.active = 1";
 
 	public UpdateVoyagerInventory( Config config ) throws SQLException {
-		try (	Connection voyager = config.getDatabaseConnection("Voy");
+		try ( Connection voyager = config.getDatabaseConnection("Voy");
 				Connection current = config.getDatabaseConnection("Current") ) {
 
 			updateBibVoyTable  ( voyager, current );

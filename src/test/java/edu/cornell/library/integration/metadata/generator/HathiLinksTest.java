@@ -23,7 +23,7 @@ public class HathiLinksTest {
 
 	@Test
 	public void testNoHathiLink() throws SQLException, IOException, ClassNotFoundException {
-		assertEquals("",gen.generateSolrFields(
+		assertEquals("",this.gen.generateSolrFields(
 				new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC),config).toString());
 	}
 
@@ -37,7 +37,7 @@ public class HathiLinksTest {
 		+ "\"http://catalog.hathitrust.org/Record/008595162\"}\n"+
 		"online: Online\n"+
 		"hathi_title_data: 008595162\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class HathiLinksTest {
 		"url_access_json: {\"description\":\"HathiTrust\",\"url\":\"http://hdl.handle.net/2027/coo.31924005214295\"}\n"+
 		"online: Online\n"+
 		"hathi_title_data: 100174680\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class HathiLinksTest {
 		+ "|HathiTrust – Access limited to full-text search\n"+
 		"notes_t: HathiTrust – Access limited to full-text search\n"+
 		"hathi_title_data: 009226070\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class HathiLinksTest {
 		"online: Online\n"+
 		"hathi_title_data: 100763896\n";
 //		System.out.println(gen.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 }

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-@SuppressWarnings("static-method")
 public class MarcRecordDataFieldTest {
 
 	@Test
@@ -24,11 +23,11 @@ public class MarcRecordDataFieldTest {
 	@Test
 	public void testStripLeadCharsFromString(){
 		assertTrue(DataField.stripLeadCharsFromString(
-				"1234", 0, titlePrefixChars).equals("1234"));
+				"1234", 0, this.titlePrefixChars).equals("1234"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"1234", 3, titlePrefixChars).equals("4"));
+				"1234", 3, this.titlePrefixChars).equals("4"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"1234", 4, titlePrefixChars).equals(""));
+				"1234", 4, this.titlePrefixChars).equals(""));
 
 		/* The following examples come from the Library of Congress examples for encoding of
 		 * non-filing characters. The stripped forms do not. http://www.loc.gov/marc/bibliographic/bd245.html
@@ -39,52 +38,52 @@ public class MarcRecordDataFieldTest {
 		 * If this ever becomes an issue in our actual catalog, we may need to make an adaptive exception
 		 * to the logic for the Unicode left double quote character. */
 		assertTrue(DataField.stripLeadCharsFromString(
-				"The Year book of medicine.",4,titlePrefixChars)
+				"The Year book of medicine.",4,this.titlePrefixChars)
 				.equals("Year book of medicine."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"A report to the legislature for the year ...", 2, titlePrefixChars)
+				"A report to the legislature for the year ...", 2, this.titlePrefixChars)
 				.equals("report to the legislature for the year ..."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"L'enfant criminal.", 2, titlePrefixChars)
+				"L'enfant criminal.", 2, this.titlePrefixChars)
 				.equals("enfant criminal."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"[The Part of Pennsylvania that ... townships].", 5, titlePrefixChars)
+				"[The Part of Pennsylvania that ... townships].", 5, this.titlePrefixChars)
 				.equals("[Part of Pennsylvania that ... townships]."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"--the serpent--snapping eye", 6, titlePrefixChars)
+				"--the serpent--snapping eye", 6, this.titlePrefixChars)
 				.equals("serpent--snapping eye"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"The ... annual report to the Governor.", 8, titlePrefixChars)
+				"The ... annual report to the Governor.", 8, this.titlePrefixChars)
 				.equals("...annual report to the Governor."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"L'été.", 2, titlePrefixChars).equals("été."));
+				"L'été.", 2, this.titlePrefixChars).equals("été."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"Hē Monē tou Horous Sina.", 4, titlePrefixChars)
+				"Hē Monē tou Horous Sina.", 4, this.titlePrefixChars)
 				.equals("Monē tou Horous Sina."));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"Tōn meionotētōn eunoia :", 5, titlePrefixChars)
+				"Tōn meionotētōn eunoia :", 5, this.titlePrefixChars)
 				.equals("meionotētōn eunoia :"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"Tōn Diōnos Rōmaikōn historiōn eikositria biblia =", 5, titlePrefixChars)
+				"Tōn Diōnos Rōmaikōn historiōn eikositria biblia =", 5, this.titlePrefixChars)
 				.equals("Diōnos Rōmaikōn historiōn eikositria biblia ="));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"The “winter mind” :", 5, titlePrefixChars).equals("“winter mind” :"));
+				"The “winter mind” :", 5, this.titlePrefixChars).equals("“winter mind” :"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"The \"winter mind\" :", 5, titlePrefixChars)
+				"The \"winter mind\" :", 5, this.titlePrefixChars)
 				.equals("\"winter mind\" :"));
 		assertTrue(DataField.stripLeadCharsFromString(
-				"ʻImma, ou, Rites, coutumes et croyances...", 1, titlePrefixChars)
+				"ʻImma, ou, Rites, coutumes et croyances...", 1, this.titlePrefixChars)
 				.equals("Imma, ou, Rites, coutumes et croyances..."));
 
 		// An incorrectly coded count of characters to remove may leave a floating diacritic.
 		// That diacritic should also be removed.
 		assertTrue(DataField.stripLeadCharsFromString(
-				"Hē Monē tou Horous Sina.", 2, titlePrefixChars)
+				"Hē Monē tou Horous Sina.", 2, this.titlePrefixChars)
 				.equals(" Monē tou Horous Sina."));
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public void testStripBytesFromStringTooGreedyException(){
-		DataField.stripLeadCharsFromString("Hē Monē tou Horous Sina.", 50, titlePrefixChars);
+		DataField.stripLeadCharsFromString("Hē Monē tou Horous Sina.", 50, this.titlePrefixChars);
 	}
 
 

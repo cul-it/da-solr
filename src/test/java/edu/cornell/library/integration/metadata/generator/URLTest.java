@@ -47,7 +47,7 @@ public class URLTest {
 		+ "\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
 		+ "http://proquest.safaribooksonline.com/9781118529669\"}\n"+
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class URLTest {
 		+ " Connect to text.\",\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/"
 		+ "cornell/Top?id=10657875\"}\n"+
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class URLTest {
 		String expected =
 		"url_findingaid_display: http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107|Finding aid\n" + 
 		"notes_t: Finding aid\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 	
 	@Test
@@ -87,7 +87,7 @@ public class URLTest {
 		"url_access_json: {\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top"
 		+ "?id=10657875\"}\n"+
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class URLTest {
 		"donor_s: DNR00450\n"+
 		"url_bookplate_display: http://plates.library.cornell.edu/donor/DNR00450|From the Estate of Charles A. Leslie.\n"+
 		"notes_t: From the Estate of Charles A. Leslie.\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class URLTest {
 		                                 + " scroll down for full table of contents.\","
 		+ "\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.taylorfrancis.com/books/e/9781466552609\"}\n" + 
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class URLTest {
 		String expected =
 		"url_other_display: http://midwesttapes.com/images/movies/000/000/000/011/353/000000000011353737.jpg|View cover art\n" + 
 		"notes_t: View cover art\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class URLTest {
 		+ "\"Available from the U.S. Government Printing Office.\","
 		+ "\"url\":\"http://purl.access.gpo.gov/GPO/LPS77292\"}\n" + 
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 
@@ -182,7 +182,7 @@ public class URLTest {
 		+ "\"description\":\"Available from the U.S. Government Printing Office\","
 		+ "\"url\":\"https://purl.fdlp.gov/GPO/gpo86434\"}\n" + 
 		"online: Online\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 }

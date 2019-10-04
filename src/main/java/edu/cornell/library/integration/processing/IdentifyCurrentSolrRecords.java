@@ -58,52 +58,52 @@ public class IdentifyCurrentSolrRecords {
 	@SuppressWarnings("unchecked")
 	public IdentifyCurrentSolrRecords(Config config) throws Exception {
 
-		marcDateFormat = new SimpleDateFormat( MARC_DATE_FORMAT );
-	    current = config.getDatabaseConnection("Current");
-	    current.setAutoCommit(false);
-	    setUpTables();
+		this.marcDateFormat = new SimpleDateFormat( MARC_DATE_FORMAT );
+		this.current = config.getDatabaseConnection("Current");
+		this.current.setAutoCommit(false);
+		setUpTables();
 
-	    int fetchsize = 5000;
-	    long offset = 0;
+		int fetchsize = 5000;
+		long offset = 0;
 
-	    try ( HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl()) ){
-	    SolrQuery query = new SolrQuery();
-	    query.setQuery("id:*");
-	    query.setFields("bibid_display","online","location_facet","url_access_json",
-	    		"format","title_display","title_vern_display","title_uniform_display",
-	    		"language_facet","edition_display","pub_date_display","timestamp",
-	    		"type","other_id_display","holdings_display","item_display");
-	    query.set("defType", "lucene");
-	    query.setRows(0);
-	    Long totalRecords = solr.query(query).getResults().getNumFound();
-	    query.setRows(fetchsize);
+		try ( HttpSolrClient solr = new HttpSolrClient(config.getSolrUrl()) ){
+			SolrQuery query = new SolrQuery();
+			query.setQuery("id:*");
+			query.setFields("bibid_display","online","location_facet","url_access_json",
+					"format","title_display","title_vern_display","title_uniform_display",
+					"language_facet","edition_display","pub_date_display","timestamp",
+					"type","other_id_display","holdings_display","item_display");
+			query.set("defType", "lucene");
+			query.setRows(0);
+			Long totalRecords = solr.query(query).getResults().getNumFound();
+			query.setRows(fetchsize);
 
-	    while (offset < totalRecords) {
-	    	query.setStart((int) offset);
-		    for (SolrDocument doc : solr.query(query).getResults()) {
-		    	int bibid = processSolrBibData(doc);
+			while (offset < totalRecords) {
+				query.setStart((int) offset);
+				for (SolrDocument doc : solr.query(query).getResults()) {
+					int bibid = processSolrBibData(doc);
 
-		    	if (((String) doc.getFieldValue("type")).equals("Catalog"))
-		    		processWorksData((ArrayList<Object>) doc.getFieldValue("other_id_display"),bibid);
+					if (((String) doc.getFieldValue("type")).equals("Catalog"))
+						processWorksData((ArrayList<Object>) doc.getFieldValue("other_id_display"),bibid);
 	
-		    	processSolrHoldingsData((ArrayList<Object>) doc.getFieldValue("holdings_display"),bibid);
+					processSolrHoldingsData((ArrayList<Object>) doc.getFieldValue("holdings_display"),bibid);
 	
-		    	processSolrItemData((ArrayList<Object>) doc.getFieldValue("item_display"));	    	
-		    }
-			offset += fetchsize;
-			current.commit();
-	    }
-		for (PreparedStatement pstmt : pstmts.values()) {
-			pstmt.executeBatch();
-			pstmt.close();
+					processSolrItemData((ArrayList<Object>) doc.getFieldValue("item_display"));	    	
+				}
+				offset += fetchsize;
+				this.current.commit();
+			}
+			for (PreparedStatement pstmt : this.pstmts.values()) {
+				pstmt.executeBatch();
+				pstmt.close();
+			}
+			makeDBKeys();
+			this.current.commit();
 		}
-		makeDBKeys();
-		current.commit();
-	    }
 	}
 
 	private void setUpTables() throws SQLException {
-		try ( Statement stmt = current.createStatement() ){
+		try ( Statement stmt = this.current.createStatement() ){
 		
 		stmt.execute("drop table if exists bibRecsSolr");
 		stmt.execute("create table bibRecsSolr ( "
@@ -143,34 +143,34 @@ public class IdentifyCurrentSolrRecords {
 				+ "active int(1) default 1, "
 				+ "mod_date timestamp not null default current_timestamp)");
 		}
-		current.commit();
+		this.current.commit();
 
 	}
 
 	private void makeDBKeys() throws SQLException {
-		try ( Statement stmt = current.createStatement() ) {
+		try ( Statement stmt = this.current.createStatement() ) {
 		stmt.execute("alter table bibRecsSolr  add primary key (bib_id),  add key (index_date)");
 		stmt.execute("alter table mfhdRecsSolr add         key (bib_id),  add key (mfhd_id)");
 		stmt.execute("alter table itemRecsSolr add         key (item_id), add key (mfhd_id)");
 		stmt.execute("alter table bib2work     add         key (work_id), add key (bib_id)");
 		}
-		current.commit();
+		this.current.commit();
 	}
 
 	@SuppressWarnings("resource") // PreparedStatement being left open
 	private int processSolrBibData(SolrDocument doc) throws SQLException, ParseException {
-		bibCount++;
+		this.bibCount++;
 		TitleMatchReference ref = pullReferenceFields(doc);
 
-		if ( ! pstmts.containsKey("bib_insert"))
-			pstmts.put("bib_insert",current.prepareStatement(
+		if ( ! this.pstmts.containsKey("bib_insert"))
+			this.pstmts.put("bib_insert",this.current.prepareStatement(
 					"INSERT INTO bibRecsSolr"+
 					" (bib_id, record_date, format, sites,libraries,index_date,edition,pub_date,language,title) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
 
 		// Attempt to reflect Solr date in table. If fails, record not in Voyager.
 		// note: date comparison comes later.
-		PreparedStatement pstmt = pstmts.get("bib_insert");
+		PreparedStatement pstmt = this.pstmts.get("bib_insert");
 		pstmt.setInt(1, ref.id);
 		pstmt.setTimestamp(2, ref.timestamp);
 		pstmt.setString(3, ref.format);
@@ -182,7 +182,7 @@ public class IdentifyCurrentSolrRecords {
 		pstmt.setString(9, ref.language);
 		pstmt.setString(10, ref.title);
 		pstmt.addBatch();
-		if (++bibCount % 1000 == 0)
+		if (++this.bibCount % 1000 == 0)
 			pstmt.executeBatch();
 		return ref.id;
 	}
@@ -207,13 +207,13 @@ public class IdentifyCurrentSolrRecords {
 		if (oclcIds.isEmpty())
 			return;
 		
-		try ( PreparedStatement pstmt = current.prepareStatement(
+		try ( PreparedStatement pstmt = this.current.prepareStatement(
 				"SELECT work_id FROM workids.work2oclc WHERE oclc_id = ?") ){
-		if (! pstmts.containsKey("work_insert"))
-			pstmts.put("work_insert", current.prepareStatement(
+		if (! this.pstmts.containsKey("work_insert"))
+			this.pstmts.put("work_insert", this.current.prepareStatement(
 				"INSERT INTO bib2work (bib_id, oclc_id, work_id) VALUES (?, ?, ?)"));
 		@SuppressWarnings("resource") // PreparedStatement being left open
-		PreparedStatement insertStmt = pstmts.get("work_insert");
+		PreparedStatement insertStmt = this.pstmts.get("work_insert");
 		for (int oclcId : oclcIds) {
 			pstmt.setInt(1, oclcId);
 			try ( ResultSet rs = pstmt.executeQuery() ){
@@ -223,11 +223,11 @@ public class IdentifyCurrentSolrRecords {
 					insertStmt.setInt(2, oclcId);
 					insertStmt.setLong(3, workid);
 					insertStmt.addBatch();
-					workCount++;
+					this.workCount++;
 				}
 			}
 		}
-		if (workCount % 1000 == 0)
+		if (this.workCount % 1000 == 0)
 			insertStmt.executeBatch();
 		}
 	}
@@ -237,11 +237,11 @@ public class IdentifyCurrentSolrRecords {
 		if (solrHoldings == null)
 			return;
 
-		if ( ! pstmts.containsKey("mfhd_insert"))
-			pstmts.put("mfhd_insert",current.prepareStatement(
+		if ( ! this.pstmts.containsKey("mfhd_insert"))
+			this.pstmts.put("mfhd_insert",this.current.prepareStatement(
 					"INSERT INTO mfhdRecsSolr (bib_id, mfhd_id, record_date) VALUES (?, ?, ?)"));
 		@SuppressWarnings("resource") // PreparedStatement being left open
-		PreparedStatement pstmt = pstmts.get("mfhd_insert");
+		PreparedStatement pstmt = this.pstmts.get("mfhd_insert");
 		for (int i = 0; i < solrHoldings.size(); i++) {
 			String holding = (String) solrHoldings.get(i);
 			if (holding.isEmpty()) continue;
@@ -250,18 +250,18 @@ public class IdentifyCurrentSolrRecords {
 			if (holding.contains("|")) {
 				String[] parts = holding.split("\\|",2);
 				holdingsId = Integer.valueOf(parts[0]);
-				modified = new Timestamp( marcDateFormat.parse(parts[1]).getTime() );
+				modified = new Timestamp( this.marcDateFormat.parse(parts[1]).getTime() );
 			} else if (! holding.isEmpty()) {
 				holdingsId = Integer.valueOf(holding);
 			} else {
 				continue;
 			}
-			mfhdCount++;
+			this.mfhdCount++;
 			pstmt.setInt(1, bibid);
 			pstmt.setInt(2, holdingsId);
 			pstmt.setTimestamp(3, modified);
 			pstmt.addBatch();
-			if (++mfhdCount % 1000 == 0)
+			if (++this.mfhdCount % 1000 == 0)
 				pstmt.executeBatch();
 		}
 	}
@@ -272,14 +272,14 @@ public class IdentifyCurrentSolrRecords {
 		if (solrItems == null)
 			return;
 
-		if ( ! pstmts.containsKey("item_insert"))
-			pstmts.put("item_insert", current.prepareStatement(
+		if ( ! this.pstmts.containsKey("item_insert"))
+			this.pstmts.put("item_insert", this.current.prepareStatement(
 					"INSERT INTO itemRecsSolr (mfhd_id, item_id, record_date) VALUES (?, ?, ?)"));
-		PreparedStatement pstmt = pstmts.get("item_insert");
+		PreparedStatement pstmt = this.pstmts.get("item_insert");
 		for (int i = 0; i < solrItems.size(); i++) {
 			String item = (String) solrItems.get(i);
 			if (item.isEmpty()) continue;
-			itemCount++;
+			this.itemCount++;
 			Timestamp modified = null;
 			String[] parts = item.split("\\|");
 			int itemId = 0, mfhdId = 0;
@@ -298,15 +298,14 @@ public class IdentifyCurrentSolrRecords {
 				throw e;
 			}
 			if (parts.length > 2)
-				modified = new Timestamp( marcDateFormat.parse(parts[2]).getTime() );
+				modified = new Timestamp( this.marcDateFormat.parse(parts[2]).getTime() );
 			pstmt.setInt(1, mfhdId);
 			pstmt.setInt(2, itemId);
 			pstmt.setTimestamp(3, modified);
 			pstmt.addBatch();
-			if (++itemCount % 1000 == 0)
+			if (++this.itemCount % 1000 == 0)
 				pstmt.executeBatch();
 		}
-	}		
+	}
 
-	
 }

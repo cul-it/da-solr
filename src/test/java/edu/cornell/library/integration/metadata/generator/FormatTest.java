@@ -32,7 +32,7 @@ public class FormatTest {
 		"format: Book\n"+
 		"format_main_facet: Book\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class FormatTest {
 		"format: Journal/Periodical\n"+
 		"format_main_facet: Journal/Periodical\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class FormatTest {
 		"format: Musical Score\n"+
 		"format_main_facet: Musical Score\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class FormatTest {
 		"format: Website\n"+
 		"format_main_facet: Website\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class FormatTest {
 		"format: Database\n"+
 		"format_main_facet: Database\n"+
 		"database_b: true\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class FormatTest {
 		"format: Manuscript/Archive\n"+
 		"format_main_facet: Manuscript/Archive\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -146,6 +146,6 @@ public class FormatTest {
 		"format: Manuscript/Archive\n"+
 		"format_main_facet: Manuscript/Archive\n"+
 		"database_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }

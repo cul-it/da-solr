@@ -136,8 +136,8 @@ public class IdentifyChangedRecords {
 	}
 
 	private void quickIdentificationOfChanges() throws Exception {
-		updatedBibs.clear();
-		try (   Connection current = config.getDatabaseConnection("Current");
+		this.updatedBibs.clear();
+		try (   Connection current = this.config.getDatabaseConnection("Current");
 				Statement stmtCurrent = current.createStatement() ) {
 
 			if ( max_date == null )
@@ -149,7 +149,7 @@ public class IdentifyChangedRecords {
 			ts.setTime(ts.getTime() - (10/*seconds*/
 										* 1000/*millis per second*/));
 
-			try ( Connection voyager = config.getDatabaseConnection("Voy") ){
+			try ( Connection voyager = this.config.getDatabaseConnection("Voy") ){
 
 				try ( PreparedStatement pstmt = voyager.prepareStatement(recentBibQuery) ){
 					pstmt.setTimestamp(1, ts);
@@ -168,7 +168,7 @@ public class IdentifyChangedRecords {
 					}
 				}
 
-				int bibCount = updatedBibs.size();
+				int bibCount = this.updatedBibs.size();
 				if ( bibCount > 0)
 					System.out.println("Queued from poling bib data: "+bibCount);
 
@@ -184,7 +184,7 @@ public class IdentifyChangedRecords {
 					}
 				}
 
-				int mfhdCount = updatedBibs.size() - bibCount;
+				int mfhdCount = this.updatedBibs.size() - bibCount;
 				if ( mfhdCount > 0)
 					System.out.println("Queued from poling holdings data: "+mfhdCount);
 
@@ -200,13 +200,13 @@ public class IdentifyChangedRecords {
 					}
 				}
 
-				int itemCount = updatedBibs.size() - bibCount - mfhdCount;
+				int itemCount = this.updatedBibs.size() - bibCount - mfhdCount;
 				if ( itemCount > 0 )
 					System.out.println("Queued from poling item data: "+itemCount);
 
-				if ( ! updatedBibs.isEmpty() )
+				if ( ! this.updatedBibs.isEmpty() )
 					System.out.println( (new Timestamp(System.currentTimeMillis())).toLocalDateTime().format(formatter)
-							+" "+updatedBibs.toString() );
+							+" "+this.updatedBibs.toString() );
 			}
 		}
 	}
@@ -230,7 +230,7 @@ public class IdentifyChangedRecords {
 							bibVoyUStmt.executeUpdate();
 						}
 						if (isActive) {
-							updatedBibs.add(bib_id);
+							this.updatedBibs.add(bib_id);
 							if (previouslyActive) 
 								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE, update_date);
 							else
@@ -253,8 +253,8 @@ public class IdentifyChangedRecords {
 			bibVoyIStmt.setBoolean(3, isActive);
 			bibVoyIStmt.executeUpdate();
 		}
-		if ( isActive && ! updatedBibs.contains(bib_id) ) {
-			updatedBibs.add(bib_id);
+		if ( isActive && ! this.updatedBibs.contains(bib_id) ) {
+			this.updatedBibs.add(bib_id);
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD, update_date);
 		}
 	}
@@ -280,15 +280,15 @@ public class IdentifyChangedRecords {
 								mfhdVoyUStmt.setInt(3, mfhd_id);
 								mfhdVoyUStmt.executeUpdate();
 							}
-							if (! updatedBibs.contains(bib_id)) {
+							if (! this.updatedBibs.contains(bib_id)) {
 								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE, update_date);
-								updatedBibs.add(bib_id);
+								this.updatedBibs.add(bib_id);
 							}
 	
 							if (old_bib != bib_id
-									&& ! updatedBibs.contains(old_bib)) {
+									&& ! this.updatedBibs.contains(old_bib)) {
 								addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE, update_date);
-								updatedBibs.add(old_bib);
+								this.updatedBibs.add(old_bib);
 							}
 						} // else mfhd is unchanged - do nothing
 						return;
@@ -298,7 +298,7 @@ public class IdentifyChangedRecords {
 						mfhdVoyDelStmt.setInt(1, mfhd_id);
 						mfhdVoyDelStmt.executeUpdate();
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_DELETE,update_date);
-						updatedBibs.add(bib_id);
+						this.updatedBibs.add(bib_id);
 					}
 					return;
 				}
@@ -313,9 +313,9 @@ public class IdentifyChangedRecords {
 				mfhdVoyIStmt.setTimestamp(3, update_date);
 				mfhdVoyIStmt.executeUpdate();
 			}
-		if (! updatedBibs.contains(bib_id)) {
+		if (! this.updatedBibs.contains(bib_id)) {
 			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
-			updatedBibs.add(bib_id);
+			this.updatedBibs.add(bib_id);
 		}
 	}
 
@@ -342,9 +342,9 @@ public class IdentifyChangedRecords {
 						int bib_id = getBibIdForMfhd(current, mfhd_id);
 						if (bib_id > 0
 								&& isBibActive(current,bib_id)
-								&& ! updatedBibs.contains(bib_id)) {
+								&& ! this.updatedBibs.contains(bib_id)) {
 							addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
-							updatedBibs.add(bib_id);
+							this.updatedBibs.add(bib_id);
 						}
 
 						if (mfhd_id != old_mfhd) {
@@ -352,9 +352,9 @@ public class IdentifyChangedRecords {
 							if ( old_bib_id > 0
 									&& old_bib_id != bib_id
 									&& isBibActive(current,old_bib_id)
-									&& ! updatedBibs.contains(old_bib_id)) {
+									&& ! this.updatedBibs.contains(old_bib_id)) {
 								addBibToAvailQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
-								updatedBibs.add(old_bib_id);
+								this.updatedBibs.add(old_bib_id);
 							}
 						}
 					} // else item is unchanged - do nothing
@@ -373,9 +373,9 @@ public class IdentifyChangedRecords {
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
 		if (bib_id > 0
 				&& isBibActive(current,bib_id)
-				&& ! updatedBibs.contains(bib_id)) {
+				&& ! this.updatedBibs.contains(bib_id)) {
 			addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
-			updatedBibs.add(bib_id);
+			this.updatedBibs.add(bib_id);
 		}
 	}
 
@@ -404,9 +404,9 @@ public class IdentifyChangedRecords {
 
 	private void thoroughIdentifiationOfChanges() throws Exception {
 
-		System.out.println("Comparing to contents of index at: " + config.getSolrUrl() );
+		System.out.println("Comparing to contents of index at: " + this.config.getSolrUrl() );
 
-		IndexRecordListComparison c = new IndexRecordListComparison(config);
+		IndexRecordListComparison c = new IndexRecordListComparison(this.config);
 
 		Set<Integer> bibsToAdd = c.bibsInVoyagerNotIndex();
 		System.out.println("Bibs To Add to Solr: "+bibsToAdd.size());
@@ -506,13 +506,13 @@ public class IdentifyChangedRecords {
 		private Integer priority;
 
 		private DataChangeUpdateType(String name, Integer priority) {
-			string = name;
+			this.string = name;
 			this.priority = priority;
 		}
 
 		@Override
-		public String toString() { return string; }
-		public Integer getPriority () { return priority; }
+		public String toString() { return this.string; }
+		public Integer getPriority () { return this.priority; }
 	}
 	
 }

@@ -22,7 +22,7 @@ public class InstrumentationTest {
 		String expected =
 		"instrumentation_display: For soprano voice; violin (2); viola; cello. Total performers: 5\n"+
 		"notes_t: For soprano voice; violin (2); viola; cello. Total performers: 5\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class InstrumentationTest {
 		String expected =
 		"instrumentation_display: For soprano voice; clarinet; violin; cello; double bass; piano. Total performers: 6\n"+
 		"notes_t: For soprano voice; clarinet; violin; cello; double bass; piano. Total performers: 6\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class InstrumentationTest {
 		String expected =
 		"instrumentation_display: For mixed chorus [SATB]; orchestra\n"+
 		"notes_t: For mixed chorus [SATB]; orchestra\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}	
 
 	@Test
@@ -58,7 +58,7 @@ public class InstrumentationTest {
 		+ " violin (2); viola; cello; double bass. Total performers: 11\n"+
 		"notes_t: For flute/piccolo; oboe; clarinet [doubles on E♭ clarinet]; bassoon; horn; piano; violin (2); viola;"
 		+ " cello; double bass. Total performers: 11\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class InstrumentationTest {
 		String expected =
 		"instrumentation_display: For mixed chorus; organ or piano; bowed string ensemble\n"+
 		"notes_t: For mixed chorus; organ or piano; bowed string ensemble\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}
 
 	@Test
@@ -89,6 +89,6 @@ public class InstrumentationTest {
 		"notes_t: [Third work]: For percussion ensemble. Total performers: 2\n"+
 		"instrumentation_display: [Fourth work]: For percussion ensemble. Total performers: 5\n"+
 		"notes_t: [Fourth work]: For percussion ensemble. Total performers: 5\n";
-		assertEquals( expected , gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected , this.gen.generateSolrFields(rec,null).toString() );
 	}
 }

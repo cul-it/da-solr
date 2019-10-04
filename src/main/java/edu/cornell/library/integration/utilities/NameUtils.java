@@ -170,8 +170,7 @@ public class NameUtils {
 	}
 
 	public static List<SolrField> singleAuthorEntry(
-			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor)
-			throws SQLException, IOException {
+			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor) throws SQLException, IOException {
 		boolean isCJK = f.getScript().equals(Script.CJK);
 
 		List<SolrField> sfs = new ArrayList<>();

@@ -34,7 +34,7 @@ public class TitleChangeTest {
 		"author_pers_filing: smith john 1900 1999\n"+
 		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
 		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class TitleChangeTest {
 		"authority_author_t: Gao, Yanyi, 1957-\n"+
 		"authority_author_t: 高彦颐, 1957-\n"+
 		"authority_author_t_cjk: 高彦颐, 1957-\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class TitleChangeTest {
 		+ " B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|"
 		+ "Barber, Samuel, 1910-1981.\n"+
 		"title_uniform_t: Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class TitleChangeTest {
 		"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":\"Yao, Jianing, translator\","
 		+ "\"search2\":\"Yao, Jianing,\",\"relator\":\"translator\","
 		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class TitleChangeTest {
 		+ "\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: 法律出版社. 法规出版分社.\n"+
 		"authority_author_t_cjk: 法律出版社. 法规出版分社.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(1,"730",'0','2',"‡i Container of (work): ‡a All the way (Television program)"));
 		String expected = "title_uniform_t: All the way (Television program)\n"+
 		"included_work_display: Container of (work): All the way (Television program)|All the way (Television program)\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class TitleChangeTest {
 		"title_addl_t: Historic structure report. Architectural data section. Phase II, Exterior preservation.\n"+
 		"related_work_display: Historic structure report. Architectural data section."
 		+ " Phase II, Exterior preservation.|Historic structure report.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 //		System.out.println( gen.generateSolrFields(rec, config).toString().replaceAll("\"","\\\\\"") );
 	}
 
@@ -194,7 +194,7 @@ public class TitleChangeTest {
 			+ " viii, 197 pages"
 			+ " ISSN: 1570-1522,"
 			+ " ISBN: 9789004265745\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 		}
 		{ // 7655324
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -214,7 +214,7 @@ public class TitleChangeTest {
 			+ " | Concurrent resolution on the budget for fiscal year 2010"
 			+ " 149 p."
 			+ " (OCoLC)320776469\n";
-			assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+			assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 		}
 	}
 
@@ -225,7 +225,7 @@ public class TitleChangeTest {
 			rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Original: ‡w (Voyager)3605552"));
 			assertEquals(
 					"other_form_display: Original: (Voyager)3605552\n",
-					gen.generateSolrFields(rec, config).toString() );
+					this.gen.generateSolrFields(rec, config).toString() );
 		}
 		{ // b 10646825
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -233,19 +233,19 @@ public class TitleChangeTest {
 					"‡c Original publisher catalog number ‡o 724355800626"));
 			assertEquals(
 					"other_form_display: Original publisher catalog number 724355800626\n",
-					gen.generateSolrFields(rec, config).toString() );
+					this.gen.generateSolrFields(rec, config).toString() );
 		}
 		{ // b 8599594
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'1',' ',"‡x 2234-3164"));
 			assertEquals(
 					"other_form_display: ISSN: 2234-3164\n",
-					gen.generateSolrFields(rec, config).toString() );
+					this.gen.generateSolrFields(rec, config).toString() );
 		}
 		{ // b 10705523 unqualified identifier suppressed from display
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'1',' ',"‡o 5161733129"));
-			assertEquals( "", gen.generateSolrFields(rec, config).toString() );
+			assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 		}
 		{ // b 10205060
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -254,7 +254,7 @@ public class TitleChangeTest {
 			assertEquals(
 					"other_form_display: ISBN: 9781315116143, ISBN: 9781351652728,"
 					+ " ISBN: 9781351648110, ISBN: 9781351638531\n",
-					gen.generateSolrFields(rec, config).toString() );
+					this.gen.generateSolrFields(rec, config).toString() );
 		}
 	}
 
@@ -276,7 +276,7 @@ public class TitleChangeTest {
 		+ " mundo huius temporis Nn. 19-21. English.|Constitutio pastoralis de ecclesia in mundo huius"
 		+ " temporis Nn. 19-21. English.|Vatican Council (2nd : 1962-1965).\n"+
 		"title_uniform_t: Constitutio pastoralis de ecclesia in mundo huius temporis Nn. 19-21. English.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -293,7 +293,7 @@ public class TitleChangeTest {
 		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
 		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"relator\":\"\","
 		+ "\"type\":\"Event\",\"authorizedForm\":false}\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -306,7 +306,7 @@ public class TitleChangeTest {
 		"author_facet: al-Salimi, Abdulrahman\n"+
 		"author_addl_json: {\"name1\":\"al-Salimi, Abdulrahman\",\"search1\":\"al-Salimi, Abdulrahman\","
 		+ "\"relator\":\"\",\"authorizedForm\":false}\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -317,13 +317,13 @@ public class TitleChangeTest {
 		String expected =
 		"title_uniform_t: Animal (Online)\n"+
 		"other_form_display: In vitro cellular & developmental biology. | Animal (Online)\n";
-		assertEquals( expected, gen.generateSolrFields(rec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
 	public void test2812927() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
-		assertEquals( "", gen.generateSolrFields(rec, config).toString() );
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}	
 }

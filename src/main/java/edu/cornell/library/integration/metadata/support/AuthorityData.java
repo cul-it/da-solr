@@ -31,13 +31,13 @@ public class AuthorityData {
 				isAuthorizedStmt.setString(2, getFilingForm(heading));
 				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
 					while (rs.next()) {
-						authorized = authorized || rs.getBoolean(1);
-						headingId = rs.getInt(2);
+						this.authorized = this.authorized || rs.getBoolean(1);
+						this.headingId = rs.getInt(2);
 					}
 				}
 			}
 
-			if ( ! authorized )
+			if ( ! this.authorized )
 				return;
 
 			try ( PreparedStatement alternateFormsStmt = conn.prepareStatement(
@@ -49,12 +49,12 @@ public class AuthorityData {
 					+" AND authority2reference.authority_id = authority.id"
 					+" AND authority.undifferentiated = 0"
 					+" ORDER BY sort") ){
-				alternateFormsStmt.setInt(1, headingId);
+				alternateFormsStmt.setInt(1, this.headingId);
 				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){
 					while (rs.next()) {
-						if (alternateForms == null)
-							alternateForms = new ArrayList<>();
-						alternateForms.add(rs.getString(1));
+						if (this.alternateForms == null)
+							this.alternateForms = new ArrayList<>();
+						this.alternateForms.add(rs.getString(1));
 					}
 				}
 			}
@@ -80,11 +80,11 @@ public class AuthorityData {
 		private final String string;
 
 		private RecordSet(final String name) {
-			string = name;
+			this.string = name;
 		}
 
 		@Override
-		public String toString() { return string; }
+		public String toString() { return this.string; }
 	}
 
 	public static enum ReferenceType {
@@ -96,11 +96,11 @@ public class AuthorityData {
 		private final String string;
 
 		private ReferenceType(final String name) {
-			string = name;
+			this.string = name;
 		}
 
 		@Override
-		public String toString() { return string; }
+		public String toString() { return this.string; }
 
 	}
 
@@ -119,9 +119,9 @@ public class AuthorityData {
 		}
 
 		@Override
-		public String toString() { return name; }
+		public String toString() { return this.name; }
 
-		public String prefix() { return idPrefix; }
+		public String prefix() { return this.idPrefix; }
 	}
 
 }

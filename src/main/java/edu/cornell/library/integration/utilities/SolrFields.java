@@ -30,10 +30,11 @@ public class SolrFields {
 		this.fields.addAll( other.fields );
 		this.boolFields.addAll( other.boolFields );
 	}
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		if (recordBoost != 1)
-			sb.append('^').append(recordBoost).append('\n');
+		if (this.recordBoost != 1)
+			sb.append('^').append(this.recordBoost).append('\n');
 		for (SolrField f : this.fields)
 			sb.append(f.fieldName).append(": ").append(f.fieldValue).append('\n');
 		for (BooleanSolrField f : this.boolFields)
