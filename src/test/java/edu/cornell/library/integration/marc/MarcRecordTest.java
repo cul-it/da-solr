@@ -11,7 +11,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.junit.Test;
 
-@SuppressWarnings("static-method")
 public class MarcRecordTest {
 
 	@Test

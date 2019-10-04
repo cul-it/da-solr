@@ -32,6 +32,6 @@ public class MARCTest {
 		+ "</record>\n" + 
 		"id: 12345\n"+
 		"bibid_display: 12345\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }

@@ -79,18 +79,18 @@ class GenerateSolrFields {
 	String generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
 			throws SQLException {
 
-		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,activeGenerators,this.fieldsSupported);
+		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,this.activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
-				activeGenerators,tableNamePrefix,rec.id,config);
+				this.activeGenerators,this.tableNamePrefix,rec.id,config);
 		LocalDateTime now = LocalDateTime.now();
-		if (generatorTimestamps == null)
-			generatorTimestamps = getGeneratorTimestamps(
-					activeGenerators, Timestamp.valueOf(now), this.tableNamePrefix, config );
+		if (this.generatorTimestamps == null)
+			this.generatorTimestamps = getGeneratorTimestamps(
+					this.activeGenerators, Timestamp.valueOf(now), this.tableNamePrefix, config );
 
 		List<BibGeneratorData> newValues = recordChunks.entrySet()
 			.parallelStream()
 			.map(entry -> processRecordChunkWithGenerator(
-					entry.getKey(), generatorTimestamps.get(entry.getKey()),entry.getValue(),
+					entry.getKey(), this.generatorTimestamps.get(entry.getKey()),entry.getValue(),
 					forcedGenerators.contains(entry.getKey()),
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
@@ -110,15 +110,15 @@ class GenerateSolrFields {
 		if ( ! changedOutputs.isEmpty() || ! generatedNotChanged.isEmpty() )
 		System.out.printf(
 				"%s: %d changed (%s)%s\n",rec.id,changedOutputs.size(),
-				((changedOutputs.size() == activeGenerators.size())?"all":formatBGDList(changedOutputs)),
+				((changedOutputs.size() == this.activeGenerators.size())?"all":formatBGDList(changedOutputs)),
 				((generatedNotChanged.size() > 0)
 						? ("; also generated "+generatedNotChanged.size()+" ("+formatBGDList(generatedNotChanged))+")":""));
 		if (changedOutputs.size() > 0 || generatedNotChanged.size() > 0)
-			pushNewFieldDataToDB(activeGenerators,newValues,tableNamePrefix,rec.id,recordVersions, config);
+			pushNewFieldDataToDB(this.activeGenerators,newValues,this.tableNamePrefix,rec.id,recordVersions, config);
 		else
-			touchBibVisitDate(tableNamePrefix,rec.id, config);
+			touchBibVisitDate(this.tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0)
-			return (changedOutputs.size() == activeGenerators.size())
+			return (changedOutputs.size() == this.activeGenerators.size())
 					?"all Solr field segments":formatBGDList(changedOutputs);
 		return null;
 	}
@@ -136,7 +136,7 @@ class GenerateSolrFields {
 		sbMainTableCreate.append("bib_id  INT(10) UNSIGNED NOT NULL PRIMARY KEY,\n");
 		sbMainTableCreate.append("record_dates text,\n");
 		sbMainTableCreate.append("visit_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n");
-		for ( Generator gen : activeGenerators ) {
+		for ( Generator gen : this.activeGenerators ) {
 			String genName = gen.name().toLowerCase();
 			sbMainTableCreate.append(genName).append("_marc_segment          LONGTEXT DEFAULT NULL,\n");
 			sbMainTableCreate.append(genName).append("_solr_fields           LONGTEXT DEFAULT NULL,\n");

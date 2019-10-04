@@ -305,5 +305,5 @@ enum Relator {
 		}
 		return null;
 	}
-	public String toString() { return string; }
+	@Override public String toString() { return this.string; }
 }

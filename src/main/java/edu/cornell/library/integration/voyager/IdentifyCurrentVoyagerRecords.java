@@ -45,10 +45,9 @@ public class IdentifyCurrentVoyagerRecords {
 	 * set of tables will be replaced.
 	 * @param config
 	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
 	 * 
 	 */
-	public IdentifyCurrentVoyagerRecords(Config config) throws ClassNotFoundException, SQLException{
+	public IdentifyCurrentVoyagerRecords(Config config) throws SQLException{
 
 		config.setDatabasePoolsize("Current", 2);
 		config.setDatabasePoolsize("Voy", 2);

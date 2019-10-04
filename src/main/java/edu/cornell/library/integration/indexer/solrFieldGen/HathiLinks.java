@@ -97,17 +97,17 @@ public class HathiLinks implements SolrFieldGenerator {
 				}
 				if (count == 1) {
 					// volume link
-					sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextVolume,
+					sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextVolume,
 							"http://hdl.handle.net/2027/"+volumes.iterator().next(), true),null).fields);
 				} else {
 					// title link
-					sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextTitle,
+					sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextTitle,
 							"http://catalog.hathitrust.org/Record/"+title, true),null).fields);
 				}
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
 			for ( String title : denyTitles ) {
-				sfs.addAll(url.generateSolrFields(buildMarcWith856(hathiLinkTextDeny,
+				sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextDeny,
 						"http://catalog.hathitrust.org/Record/"+title, false),null).fields);
 				sfs.add(new SolrField("hathi_title_data",title));
 			}

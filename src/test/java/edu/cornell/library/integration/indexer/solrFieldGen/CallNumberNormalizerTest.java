@@ -40,9 +40,9 @@ public class CallNumberNormalizerTest {
 
 	@Test
 	public void testCallNumberRegex() {
-		assertEquals(expectedNormalized,
+		assertEquals(this.expectedNormalized,
 				String.join(" ",
-				callNo
+				this.callNo
 				.replaceAll("\\.(?!\\d)", " ")
 				.replaceAll("([a-zA-Z])(\\d)", "$1 $2")
 				.replaceAll("(\\d)([a-zA-Z])", "$1 $2")

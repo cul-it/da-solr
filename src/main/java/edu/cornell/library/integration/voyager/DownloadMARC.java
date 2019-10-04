@@ -136,7 +136,7 @@ public class DownloadMARC {
 		while (retryLimit > 0 && ! succeeded)
 
 			try (
-					Connection voyager = config.getDatabaseConnection("Voy");
+					Connection voyager = this.config.getDatabaseConnection("Voy");
 					PreparedStatement pstmt = prepareStatement(voyager,type); ) {
 
 				pstmt.setInt(1, id);

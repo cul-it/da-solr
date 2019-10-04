@@ -21,7 +21,7 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk.)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -31,7 +31,7 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 9782709656825\n"+
 		"isbn_display: 9782709656825 (pbk.)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -41,7 +41,7 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 9789712726187\n"+
 		"isbn_display: 9789712726187 (book 3 ; np)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class ISBNTest {
 		"isbn_display: 4892032867 (中卷)\n"+
 		"isbn_t: 4892032867\n"+
 		"isbn_display: 4892032867 (v. 2)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -64,13 +64,13 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk.)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 	@Test
 	public void testNewerStyleZ() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡z 12344567 ‡q (pbk.)"));
-		assertEquals( "", gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( "", this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk. ; ebook)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class ISBNTest {
 		"isbn_display: 9789860433265 (平裝)\n"+
 		"isbn_t: 9789860433265\n"+
 		"isbn_display: 9789860433265\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk.)\n";
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
@@ -114,6 +114,6 @@ public class ISBNTest {
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk. ; ebook)\n";
 //		System.out.println( ISBN.generateSolrFields ( rec, null ).toString().replaceAll("\"","\\\\\"") );
-		assertEquals( expected, gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 }

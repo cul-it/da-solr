@@ -109,7 +109,7 @@ public class NameUtils {
 
 	public static List<SolrField> combinedRomanNonRomanAuthorEntry(
 			Config config, DataFieldSet fs, List<FieldValues> ctsValsList, Boolean isMainAuthor )
-					throws SQLException, ClassNotFoundException, IOException {
+					throws SQLException, IOException {
 
 		String display1 = NameUtils.displayValue( fs.getFields().get(0), false );
 		String display2 = NameUtils.displayValue( fs.getFields().get(1), true );
@@ -171,8 +171,7 @@ public class NameUtils {
 	}
 
 	public static List<SolrField> singleAuthorEntry(
-			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor)
-			throws SQLException, ClassNotFoundException, IOException {
+			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor) throws SQLException, IOException {
 		boolean isCJK = f.getScript().equals(Script.CJK);
 
 		List<SolrField> sfs = new ArrayList<>();

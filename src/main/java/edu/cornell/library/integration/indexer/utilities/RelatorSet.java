@@ -18,12 +18,12 @@ public class RelatorSet {
 			if (sf.code.equals('4')) {
 				String code = sf.value.toLowerCase().replaceAll("[^a-z]", "");
 				try {
-					relators.add(Relator.valueOf(code).toString());
+					this.relators.add(Relator.valueOf(code).toString());
 				} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
 					Relator r = Relator.valueOfString(sf.value.toLowerCase().replaceAll("\\.", ""));
 					if ( r != null ) {
 						System.out.println("Relator value \""+sf.value+"\" provided in $4.");
-						relators.add( r.toString() );
+						this.relators.add( r.toString() );
 					} else
 						System.out.println("Unexpected relator code: \""+sf.value+"\".");
 				}
@@ -31,13 +31,14 @@ public class RelatorSet {
 			else if ((isEventField && sf.code.equals('j'))
 					|| ( ! isEventField && sf.code.equals('e'))) {
 				String relator = sf.value.toLowerCase();
-				relators.add(removeTrailingPunctuation(relator,".,"));
+				this.relators.add(removeTrailingPunctuation(relator,".,"));
 			}
 		}
 	}
 	public boolean isEmpty() {
 		return this.relators.isEmpty();
 	}
+	@Override
 	public String toString() {
 		return String.join(", ",this.relators);
 	}

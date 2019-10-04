@@ -19,8 +19,7 @@ public class AuthorityData {
 	public int headingId = 0;
 	public Boolean undifferentiated = false;
 
-	public AuthorityData( Config config, String heading, HeadTypeDesc htd)
-			throws ClassNotFoundException, SQLException {
+	public AuthorityData( Config config, String heading, HeadTypeDesc htd) throws SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
@@ -29,14 +28,14 @@ public class AuthorityData {
 				isAuthorizedStmt.setString(2, getFilingForm(heading));
 				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
 					while (rs.next()) {
-						authorized = rs.getBoolean(1);
-						headingId = rs.getInt(2);
-						undifferentiated = rs.getBoolean(3);
+						this.authorized = rs.getBoolean(1);
+						this.headingId = rs.getInt(2);
+						this.undifferentiated = rs.getBoolean(3);
 					}
 				}
 			}
 
-			if ( ! authorized || undifferentiated)
+			if ( ! this.authorized || this.undifferentiated)
 				return;
 
 			try ( PreparedStatement alternateFormsStmt = conn.prepareStatement(
@@ -45,12 +44,12 @@ public class AuthorityData {
 					+ "AND from_heading = heading.id "
 					+ "AND ref_type = "+ReferenceType.FROM4XX.ordinal()
 					+" ORDER BY sort") ){
-				alternateFormsStmt.setInt(1, headingId);
+				alternateFormsStmt.setInt(1, this.headingId);
 				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){
 					while (rs.next()) {
-						if (alternateForms == null)
-							alternateForms = new ArrayList<>();
-						alternateForms.add(rs.getString(1));
+						if (this.alternateForms == null)
+							this.alternateForms = new ArrayList<>();
+						this.alternateForms.add(rs.getString(1));
 					}
 				}
 			}

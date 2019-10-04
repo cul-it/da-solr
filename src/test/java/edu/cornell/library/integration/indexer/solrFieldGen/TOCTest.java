@@ -21,7 +21,7 @@ public class TOCTest {
 		String expected =
 		"contents_display: 12344567 (pbk.)\n"+
 		"toc_t: 12344567 (pbk.)\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class TOCTest {
 		"title_addl_t: \"Great Krishna Mulvaney\"\n"+
 		"author_addl_t: Rudyard Kipling.\n"+
 		"toc_t: v. 2/2 (Sept. 1890), pp. 188-210. \"Great Krishna Mulvaney\" Rudyard Kipling.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class TOCTest {
 		"author_addl_t: A cura di Gino Ruozzi. --\n"+
 		"author_addl_t: A cura di Carminella Biondi, Carla Pellandra, Elena Pessini.\n"+
 		"toc_t: Vol. 2 / A cura di Gino Ruozzi. -- v. 3 / A cura di Carminella Biondi, Carla Pellandra, Elena Pessini.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class TOCTest {
 		"title_addl_t: Systematic handbook --\n"+
 		"title_addl_t: Prayer.\n"+
 		"toc_t: v. 1. Systematic handbook -- v. 2. Prayer.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class TOCTest {
 		"author_addl_t: Irina Emelʹi︠a︡nova.\n"+
 		"toc_t: \"A mozhet, i︠a︡ lishʹ pochva dli︠a︡ romana?\" : ob avtore ėtikh vospominaniĭ / Irina Emelʹi︠a︡nova --"
 		+ " V plenu vremeni / Olʹga Ivinskai︠a︡ -- Legendy Potapovskogo pereulka / Irina Emelʹi︠a︡nova.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class TOCTest {
 		"title_addl_t: Zhang quan : Nanjin zheng fu --\n"+
 		"toc_t: v. 1. Zhang quan : Nanjin zheng fu -- v. 2. Fen qi : kang zhan ji zhan hou -- v. 3. Yi han :"
 		+ " kang zhan ji zhan hou (xu).\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class TOCTest {
 		"contents_display: v.4\n"+
 		"toc_t: v.3 -- v.4\n";
 //		System.out.println( TOC.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\""));
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 }
 

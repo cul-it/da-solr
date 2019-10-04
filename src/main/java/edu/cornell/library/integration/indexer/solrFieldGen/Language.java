@@ -665,8 +665,8 @@ public class Language implements SolrFieldGenerator {
 			this.articles = articles;
 		}
 
-		public String getLanguageName() { return langName; }
-		public String getArticles() { return articles; }
+		public String getLanguageName() { return this.langName; }
+		public String getArticles() { return this.articles; }
 
 	}
 }
