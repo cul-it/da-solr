@@ -11,7 +11,6 @@ import org.junit.Test;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.metadata.support.CallNumber;
 
-@SuppressWarnings("static-method")
 public class CallNumberTest {
 
 	static Config config = null;

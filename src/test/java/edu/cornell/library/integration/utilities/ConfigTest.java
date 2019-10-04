@@ -9,7 +9,6 @@ import edu.cornell.library.integration.utilities.Config;
 
 public class ConfigTest {
 
-	@SuppressWarnings("static-method")
 	@Test
 	public void testInsertDate() {
 		String test = "No replacement";
