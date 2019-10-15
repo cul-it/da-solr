@@ -19,13 +19,13 @@ public class BrowseUtils {
 		private final String abbrev;
 
 		private HeadTypeDesc(final String name,final String abbrev) {
-			string = name;
+			this.string = name;
 			this.abbrev = abbrev;
 		}
 
 		@Override
-		public String toString() { return string; }
-		public String abbrev() { return abbrev; }
+		public String toString() { return this.string; }
+		public String abbrev() { return this.abbrev; }
 	}
 
 	public static class BlacklightField {
@@ -36,32 +36,32 @@ public class BrowseUtils {
 
 
 		public BlacklightField(final HeadType ht, final HeadTypeDesc htd) {
-			_ht = ht;
-			_htd = htd;
+			this._ht = ht;
+			this._htd = htd;
 		}
-		public HeadType headingType() { return _ht; }
-		public HeadTypeDesc headingTypeDesc() { return _htd; }
+		public HeadType headingType() { return this._ht; }
+		public HeadTypeDesc headingTypeDesc() { return this._htd; }
 		public String browseCtsName() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( ! _ht.equals(HeadType.AUTHORTITLE) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(this._ht.toString());
+			if ( ! this._ht.equals(HeadType.AUTHORTITLE) )
+				sb.append('_').append(this._htd.abbrev());
 			sb.append("_browse");
 			return sb.toString();
 		}
 		public String fieldName() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( ! _ht.equals(HeadType.AUTHORTITLE) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(this._ht.toString());
+			if ( ! this._ht.equals(HeadType.AUTHORTITLE) )
+				sb.append('_').append(this._htd.abbrev());
 			sb.append("_filing");
 			return sb.toString();
 		}
 		public String facetField() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append(_ht.toString());
-			if ( _ht.equals(HeadType.SUBJECT) )
-				sb.append('_').append(_htd.abbrev());
+			sb.append(this._ht.toString());
+			if ( this._ht.equals(HeadType.SUBJECT) )
+				sb.append('_').append(this._htd.abbrev());
 			sb.append("_facet");
 			return sb.toString();
 		}
@@ -78,13 +78,13 @@ public class BrowseUtils {
 		private final String field;
 
 		private HeadType(final String name, final String dbField) {
-			string = name;
-			field = dbField;
+			this.string = name;
+			this.field = dbField;
 		}
 
 		@Override
-		public String toString() { return string; }
-		public String dbField() { return field; }
+		public String toString() { return this.string; }
+		public String dbField() { return this.field; }
 	}
 
 	public static enum RecordSet {
@@ -95,11 +95,11 @@ public class BrowseUtils {
 		private final String string;
 
 		private RecordSet(final String name) {
-			string = name;
+			this.string = name;
 		}
 
 		@Override
-		public String toString() { return string; }
+		public String toString() { return this.string; }
 	}
 
 	public static enum ReferenceType {
@@ -111,11 +111,11 @@ public class BrowseUtils {
 		private final String string;
 
 		private ReferenceType(final String name) {
-			string = name;
+			this.string = name;
 		}
 
 		@Override
-		public String toString() { return string; }
+		public String toString() { return this.string; }
 
 	}
 

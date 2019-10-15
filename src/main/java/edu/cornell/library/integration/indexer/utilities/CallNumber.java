@@ -41,21 +41,21 @@ public class CallNumber {
 
 		if ( ! callNumber.isEmpty()) {
 			sortVal = callNumber;
-			sfs.add(new SolrField(search,callNumber));
+			this.sfs.add(new SolrField(search,callNumber));
 		}
 		String callNumber2 = callNumber;
 		if (callNumber.toLowerCase().startsWith("thesis ")) {
 			callNumber2 = callNumber.substring(7);
 			if ( ! callNumber2.isEmpty()) {
 				sortVal = callNumber2;
-				sfs.add(new SolrField(search,callNumber2));
+				this.sfs.add(new SolrField(search,callNumber2));
 			}
 		}
 		if (isHolding) {
 			String callNumberWithPrefix = f.concatenateSpecificSubfields("khi");
 			if ( ! callNumberWithPrefix.isEmpty()
 					&& ! callNumberWithPrefix.equals(callNumber)  && ! callNumberWithPrefix.equals(callNumber2) )
-				sfs.add(new SolrField(search,callNumberWithPrefix));
+				this.sfs.add(new SolrField(search,callNumberWithPrefix));
 		}
 
 		// remaining logic relates to facet values, for which we only want LC call numbers
@@ -76,7 +76,7 @@ public class CallNumber {
 		}
 
 		if (sortVal != null)
-			sortCandidates.add( new Sort( sortVal, isLC, isHolding ) );
+			this.sortCandidates.add( new Sort( sortVal, isLC, isHolding ) );
 
 		if ( ! isLC ) return;
 
@@ -87,7 +87,7 @@ public class CallNumber {
 				if (! Character.isDigit(c) && ! c.equals('.'))
 					break;
 			}
-			classes.add(new Classification(
+			this.classes.add(new Classification(
 					callNumber2.substring(0,initialLetterCount).toUpperCase(),
 					callNumber2.substring(initialLetterCount, initialNumberOffset)));
 		}
@@ -96,13 +96,13 @@ public class CallNumber {
 
 	public SolrFields getCallNumberFields( Config config ) throws SQLException {
 
-		if ( ! sortCandidates.isEmpty() )
-			sfs.add(new SolrField(sort,chooseSortValue(sortCandidates)));
+		if ( ! this.sortCandidates.isEmpty() )
+			this.sfs.add(new SolrField(sort,chooseSortValue(this.sortCandidates)));
 
-		if ( ! classes.isEmpty() )
-			sfs.addAll(buildHierarchicalFacetValues(config,classes));
+		if ( ! this.classes.isEmpty() )
+			this.sfs.addAll(buildHierarchicalFacetValues(config,this.classes));
 
-		return sfs;
+		return this.sfs;
 	}
 
 	private static SolrFields buildHierarchicalFacetValues(Config config, Set<Classification> classes)
@@ -145,15 +145,16 @@ public class CallNumber {
 
 	private static class Classification {
 		public Classification (String letters, String numbers) {
-			l = letters;
-			n = numbers;
+			this.l = letters;
+			this.n = numbers;
 		}
-		public String letters() { return l; }
-		public String numbers() { return n; }
+		public String letters() { return this.l; }
+		public String numbers() { return this.n; }
 		private String l;
 		private String n;
+		@Override
 		public String toString() {
-			return "Classification "+l+":"+n;
+			return "Classification "+this.l+":"+this.n;
 		}
 	}
 

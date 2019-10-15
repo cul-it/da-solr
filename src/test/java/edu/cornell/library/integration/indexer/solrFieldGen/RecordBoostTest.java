@@ -17,14 +17,14 @@ public class RecordBoostTest {
 	public void testShadowRecordLinked() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "5384546";
-		assertEquals( "^100\n", gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( "^100\n", this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
 	public void testUnboosted() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "5";
-		assertEquals( "", gen.generateSolrFields ( rec, null ).toString());
+		assertEquals( "", this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 }

@@ -42,7 +42,7 @@ public class SubjectTest {
 		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class SubjectTest {
 		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: true\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -83,7 +83,22 @@ public class SubjectTest {
 		"subject_json: [{\"subject\":\"2000-2099\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n"+
 		"subject_display: 2000-2099\n"+
 		"fast_b: true\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testChronFASTWithUnwantedSpaces() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
+		String expected =
+		"subject_t: 1900 - 1999\n" + 
+		"fast_era_facet: 1900-1999\n" + 
+		"subject_era_facet: 1900 - 1999\n" + 
+		"subject_era_filing: 1900 1999\n" + 
+		"subject_json: [{\"subject\":\"1900 - 1999\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n" + 
+		"subject_display: 1900-1999\n" + 
+		"fast_b: true\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -100,7 +115,7 @@ public class SubjectTest {
 		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Jesuits today\n"+
 		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Our mission today\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 
 		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Bible. ‡k Paraphrases. ‡p O.T. ‡l English."));
@@ -112,7 +127,7 @@ public class SubjectTest {
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -138,7 +153,7 @@ public class SubjectTest {
 		"subject_display: 朝日新聞 > Indexes\n"+
 		"subject_display: Asahi Shinbun > Indexes\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -156,7 +171,7 @@ public class SubjectTest {
 		"authority_subject_t: Online books\n"+
 		"authority_subject_t: Digital books\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test
@@ -172,6 +187,6 @@ public class SubjectTest {
 		"subject_json: [{\"subject\":\"Textiles and Fashion Design\",\"authorized\":false,\"type\":\"General Heading\"}]\n"+
 		"subject_display: Textiles and Fashion Design\n"+
 		"fast_b: false\n";
-		assertEquals(expected,gen.generateSolrFields(rec, config).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 }

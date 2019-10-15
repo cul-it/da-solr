@@ -23,7 +23,6 @@ import edu.cornell.library.integration.indexer.utilities.Generator;
 import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-@SuppressWarnings("static-method")
 public class GenerateSolrFieldsTest {
 
 	static Config config;

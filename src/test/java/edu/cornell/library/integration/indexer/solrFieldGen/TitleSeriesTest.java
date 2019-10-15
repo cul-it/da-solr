@@ -22,7 +22,7 @@ public class TitleSeriesTest {
 		"title_series_display: International conciliation (Monthly) ; no. 164\n"+
 		"title_series_cts: International conciliation (Monthly) ; no. 164|International conciliation (Monthly) ;\n"+
 		"title_series_t: International conciliation (Monthly) ; no. 164\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class TitleSeriesTest {
 		"title_series_cts: La Mémoire du siècle ; 29|La Mémoire du siècle ;\n"+
 		"title_series_t: La Mémoire du siècle ; 29\n"+
 		"title_series_t: Mémoire du siècle ; 29\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -44,13 +44,14 @@ public class TitleSeriesTest {
 				"‡a Josquin, ‡c des Prez, ‡d -1521. ‡t Works. ‡f 1987. ‡k Critical commentary ; ‡v v. 20."));
 		String expected =
 		"title_series_display: Josquin, des Prez, -1521. | Works. 1987. Critical commentary ; v. 20.\n"+
-		"title_series_cts: Josquin, des Prez, -1521. Works. 1987. Critical commentary ; v. 20.|Works. Critical commentary ;|Josquin, des Prez, -1521.\n"+
+		"title_series_cts: Josquin, des Prez, -1521. Works. 1987. Critical commentary ; v. 20."
+		+ "|Works. Critical commentary ;|Josquin, des Prez, -1521.\n"+
 		"authortitle_filing: josquin des prez 1521 0000 works critical commentary\n"+
 		"authortitle_facet: Josquin, des Prez, -1521. | Works. Critical commentary\n"+
 		"title_series_t: Works. 1987. Critical commentary ; v. 20.\n"+
 		"title_series_t: Works. Critical commentary ;\n"+
 		"author_addl_t: Josquin, des Prez, -1521.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -62,7 +63,7 @@ public class TitleSeriesTest {
 		"title_series_display: Jazāʾirī, Abū Bakr Jābir. Min rasāʾil al-daʻwah.\n"+
 		"title_series_cts: Jazāʾirī, Abū Bakr Jābir. Min rasāʾil al-daʻwah.|Jazāʾirī, Abū Bakr Jābir. Min rasāʾil al-daʻwah.\n"+
 		"title_series_t: Jazāʾirī, Abū Bakr Jābir. Min rasāʾil al-daʻwah.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -91,7 +92,7 @@ public class TitleSeriesTest {
 		+ "| Guo li Beijing da xue yan jiu suo guo xue men cong shu\n"+
 		"title_series_t: Guo li Beijing da xue yan jiu suo guo xue men cong shu.\n"+
 		"author_addl_t: Beijing da xue. Yan jiu suo. Guo xue men.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -106,7 +107,7 @@ public class TitleSeriesTest {
 		"authortitle_facet: United Nations Issues Conference. | Report of the ... United Nations Issues Conference\n"+
 		"title_series_t: Report of the ... United Nations Issues Conference 30th.\n"+
 		"author_addl_t: United Nations Issues Conference.\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -123,7 +124,7 @@ public class TitleSeriesTest {
 		"title_series_display: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]\n"+
 		"title_series_cts: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]|[Reports of the Royal Commission on Historical Manuscripts ;\n"+
 		"title_series_t: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -137,7 +138,7 @@ public class TitleSeriesTest {
 		"title_series_cts: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983|[The Winthrop Pickard Bell lectures in Maritime studies] ;\n"+
 		"title_series_t: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983\n"+
 		"title_series_t: [Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -149,7 +150,7 @@ public class TitleSeriesTest {
 		"title_series_display: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n"+
 		"title_series_cts: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents|Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n"+
 		"title_series_t: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n";
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
 	@Test
@@ -164,6 +165,6 @@ public class TitleSeriesTest {
 		"title_series_cts: Pleadings, oral arguments, documents.|Pleadings, oral arguments, documents.\n"+
 		"title_series_t: Pleadings, oral arguments, documents.\n";
 //		System.out.println( TitleSeries.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\""));
-		assertEquals( expected, gen.generateSolrFields(rec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 }

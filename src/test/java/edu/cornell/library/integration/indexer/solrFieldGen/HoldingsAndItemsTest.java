@@ -44,7 +44,7 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10121881|20170214132422\n"+
 		"multivol_b: false\n";
-		assertEquals(expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals(expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class HoldingsAndItemsTest {
 		"location: Kroch Library Asia > Kroch Library Asia\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 	
 	public void testMultipleCopies()
@@ -132,7 +132,7 @@ public class HoldingsAndItemsTest {
 		"location: Mann Library > Mann Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class HoldingsAndItemsTest {
 		"location: Mann Library > Mann Library Collection Development (Non-Circulating)\n"+
 		"online: At the Library\n"+
 		"multivol_b: true\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class HoldingsAndItemsTest {
 		"mainitem_b: true\n"+
 		"multivolwblank_b: true\n"+
 		"multivol_b: true\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -281,7 +281,7 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"multivol_b: false\n"+
 		"suppress_bound_with_b: true\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 //	@Test
@@ -320,7 +320,7 @@ public class HoldingsAndItemsTest {
 		"location: Olin Library > Olin Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -359,7 +359,7 @@ public class HoldingsAndItemsTest {
 		"location: Olin Library > Olin Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -397,7 +397,7 @@ public class HoldingsAndItemsTest {
 		"location: Olin Library > Olin Library\n"+
 		"online: At the Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -431,7 +431,7 @@ public class HoldingsAndItemsTest {
 		"online: At the Library\n"+
 		"collection: Law Library\n"+
 		"multivol_b: false\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 
 	@Test
@@ -466,6 +466,6 @@ public class HoldingsAndItemsTest {
 		"collection: Law Library\n"+
 		"multivol_b: false\n";
 //		System.out.println(gen.generateSolrFields(bibRec,config).toString().replaceAll("\"","\\\\\""));
-		assertEquals( expected, gen.generateSolrFields(bibRec, config).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
 }

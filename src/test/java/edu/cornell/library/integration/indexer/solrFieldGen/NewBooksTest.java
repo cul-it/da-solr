@@ -37,7 +37,7 @@ public class NewBooksTest {
 		"new_shelf: Africana Library New Books Shelf\n"+
 		"acquired_dt: 3017-07-20T00:00:00Z\n"+
 		"acquired_month: 3017-07\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class NewBooksTest {
 		"new_shelf: Olin Library New & Noteworthy Books\n"+
 		"acquired_dt: 3017-04-26T00:00:00Z\n"+
 		"acquired_month: 3017-04\n";
-		assertEquals( expected, gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
 	@Test
@@ -71,6 +71,6 @@ public class NewBooksTest {
 		holdingRec.dataFields.add(new DataField(2,"852",'0','0',
 				"‡b mann ‡h QL737.M336 ‡i O83x 2003 ‡x transfer from Mann Ellis 5/9/17"));
 		bibRec.holdings.add(holdingRec);
-		assertEquals( "", gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( "", this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 }

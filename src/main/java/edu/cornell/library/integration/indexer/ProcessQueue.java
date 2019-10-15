@@ -66,7 +66,7 @@ public class ProcessQueue {
 						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id FROM solrFieldsData ORDER BY visit_date LIMIT 50");
+						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 50");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
@@ -153,10 +153,9 @@ public class ProcessQueue {
 	private static void queueRecordsNotRecentlyVisited(PreparedStatement oldestSolrFieldsData,
 			PreparedStatement generationQueueStmt) throws SQLException {
 
-		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
 			while(rs.next())
-				AddToQueue.add2Queue(generationQueueStmt, rs.getInt(1), 8, timestamp, "Age of Record");
+				AddToQueue.add2Queue(generationQueueStmt, rs.getInt(1), 8, rs.getTimestamp(2), "Age of Record");
 		}
 		
 	}

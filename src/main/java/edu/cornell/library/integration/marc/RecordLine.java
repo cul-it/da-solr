@@ -44,12 +44,12 @@ class RecordLine {
 	 */
 	public RecordLine(String recordString, int position) {
 		this.position = position;
-		endOfLine = recordString.indexOf("\n", position);
-		beginningOfLine = recordString.substring(0, endOfLine).lastIndexOf("\n") + 1;
-		if(beginningOfLine == -1) {
-			beginningOfLine = 0;
+		this.endOfLine = recordString.indexOf("\n", position);
+		this.beginningOfLine = recordString.substring(0, this.endOfLine).lastIndexOf("\n") + 1;
+		if(this.beginningOfLine == -1) {
+			this.beginningOfLine = 0;
 		}
-		line = recordString.substring(beginningOfLine, endOfLine);
+		this.line = recordString.substring(this.beginningOfLine, this.endOfLine);
 	}
 
 	/**
@@ -57,7 +57,7 @@ class RecordLine {
 	 * @return {@link #beginningOfLine}
 	 */
 	public int getBeginningOfLine() {
-		return beginningOfLine;
+		return this.beginningOfLine;
 	}
 
 	/**
@@ -65,7 +65,7 @@ class RecordLine {
 	 * @return {@link #endOfLine}
 	 */
 	public int getEndOfLine() {
-		return endOfLine;
+		return this.endOfLine;
 	}
 
 	/**
@@ -73,7 +73,7 @@ class RecordLine {
 	 * @return {@link #line}
 	 */
 	public String getLine() {
-		return line;
+		return this.line;
 	}
 	
 	/**
@@ -81,7 +81,7 @@ class RecordLine {
 	 * @return {@link #position}
 	 */
 	public int getPosition() {
-		return position;
+		return this.position;
 	}
 	
 	/**
@@ -89,10 +89,10 @@ class RecordLine {
 	 * @return {@link #positionInLine}
 	 */
 	public int getPositionInLine() {
-		if(positionInLine == -2) {
-			positionInLine = position - beginningOfLine;
+		if(this.positionInLine == -2) {
+			this.positionInLine = this.position - this.beginningOfLine;
 		}
-		return positionInLine;
+		return this.positionInLine;
 	}
 	
 	/**
@@ -100,7 +100,7 @@ class RecordLine {
 	 * @return
 	 */
 	public String getInvalidChar() {
-		return line.substring(getPositionInLine(), getPositionInLine()+1);
+		return this.line.substring(getPositionInLine(), getPositionInLine()+1);
 	}
 
 	/**
@@ -121,8 +121,8 @@ class RecordLine {
 	 */
 	public String getErrorLocation() {
 		StringBuffer invalidCharLocator = new StringBuffer();
-		invalidCharLocator.append(line).append(LN);
-		for(int pos = beginningOfLine; pos < position; pos++) {
+		invalidCharLocator.append(this.line).append(LN);
+		for(int pos = this.beginningOfLine; pos < this.position; pos++) {
 			invalidCharLocator.append('-');
 		}
 		invalidCharLocator.append("^ (");

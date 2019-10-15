@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.ilcommons.configuration;
+package edu.cornell.library.integration.utilities;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -7,9 +7,8 @@ import org.junit.Test;
 
 import edu.cornell.library.integration.indexer.utilities.Config;
 
-public class VoyagerToSolrConfigurationTest {
+public class ConfigTest {
 
-	@SuppressWarnings("static-method")
 	@Test
 	public void testInsertDate() {
 		String test = "No replacement";

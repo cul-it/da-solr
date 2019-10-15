@@ -22,7 +22,7 @@ public class RecordTypeTest {
 		String expected =
 		"type: Catalog\n"+
 		"source: Voyager\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class RecordTypeTest {
 		String expected =
 		"type: Shadow\n"+
 		"source: Voyager\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
@@ -47,6 +47,6 @@ public class RecordTypeTest {
 		String expected =
 		"type: Shadow\n"+
 		"source: Voyager\n";
-		assertEquals(expected,gen.generateSolrFields(rec, null).toString());
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }

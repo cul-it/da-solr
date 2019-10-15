@@ -13,18 +13,19 @@ public class FieldValues {
 	public String title;
 
 	public FieldValues (String author) {
-		type = HeadType.AUTHOR;
+		this.type = HeadType.AUTHOR;
 		this.author = author;
 	}
 	public FieldValues (String author,String title) {
 		if (author != null) {
-			type = HeadType.AUTHORTITLE;
+			this.type = HeadType.AUTHORTITLE;
 			this.author = author;
 		} else {
-			type = HeadType.TITLE;
+			this.type = HeadType.TITLE;
 		}
 		this.title = title;
 	}
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.type.toString()).append(": ");

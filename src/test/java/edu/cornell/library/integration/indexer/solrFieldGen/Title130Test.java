@@ -22,7 +22,7 @@ public class Title130Test {
 		"title_uniform_t: Journal of hip hop studies (Online)\n"+
 		"title_uniform_t: Journal of hip hop studies (Online)\n"+
 		"title_uniform_display: Journal of hip hop studies (Online)|Journal of hip hop studies (Online)\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString() );
 	}
 
 	@Test
@@ -33,6 +33,6 @@ public class Title130Test {
 		"title_uniform_t: El Fénix (Valencia) Indexes.\n"+
 		"title_uniform_t: Fénix (Valencia) Indexes.\n"+
 		"title_uniform_display: El Fénix (Valencia) Indexes.|El Fénix (Valencia) Indexes.\n";
-		assertEquals( expected, gen.generateSolrFields(rec,null).toString() );
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString() );
 	}
 }
