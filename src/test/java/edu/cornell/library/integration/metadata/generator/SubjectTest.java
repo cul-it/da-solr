@@ -87,6 +87,21 @@ public class SubjectTest {
 	}
 
 	@Test
+	public void testChronFASTWithUnwantedSpaces() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
+		String expected =
+		"subject_t: 1900 - 1999\n" + 
+		"fast_era_facet: 1900-1999\n" + 
+		"subject_era_facet: 1900 - 1999\n" + 
+		"subject_era_filing: 1900 1999\n" + 
+		"subject_json: [{\"subject\":\"1900 - 1999\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n" + 
+		"subject_display: 1900-1999\n" + 
+		"fast_b: true\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
 	public void testComplex610() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Jesuits. ‡b Congregatio Generalis ‡n (32nd :"

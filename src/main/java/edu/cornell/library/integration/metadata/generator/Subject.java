@@ -17,6 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -264,7 +266,9 @@ public class Subject implements SolrFieldGenerator {
 					subjectDisplay.add(disp);
 			}
 			for (final String s: valuesMain_breadcrumbed) {
-				final String disp = removeTrailingPunctuation(s,".");
+				String disp = removeTrailingPunctuation(s,".");
+				if (facet_type.equals("era"))
+					disp = normalizeDateRangeSpacing( disp );
 				sfs.add(new SolrField("subject_t",s));
 				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
@@ -299,6 +303,14 @@ public class Subject implements SolrFieldGenerator {
 
 		return sfs;
 	}
+
+	private static String normalizeDateRangeSpacing(String disp) {
+		Matcher m = dateRangePattern.matcher(disp);
+		if (m.matches())
+			return m.group(1)+"-"+m.group(2);
+		return disp;
+	}
+	private static Pattern dateRangePattern = Pattern.compile("(\\d+) - (\\d+)");
 
 	private static class Heading {
 		public Heading() { }
