@@ -77,11 +77,11 @@ public class SubjectTest {
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 2000-2099 ‡2 fast"));
 		String expected =
 		"subject_t: 2000-2099\n"+
-		"fast_era_facet: 2000-2099\n"+
+		"fast_era_facet: 2000 - 2099\n"+
 		"subject_era_facet: 2000-2099\n"+
 		"subject_era_filing: 2000 2099\n"+
 		"subject_json: [{\"subject\":\"2000-2099\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n"+
-		"subject_display: 2000-2099\n"+
+		"subject_display: 2000 - 2099\n"+
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -92,11 +92,11 @@ public class SubjectTest {
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
 		String expected =
 		"subject_t: 1900 - 1999\n" + 
-		"fast_era_facet: 1900-1999\n" + 
+		"fast_era_facet: 1900 - 1999\n" + 
 		"subject_era_facet: 1900 - 1999\n" + 
 		"subject_era_filing: 1900 1999\n" + 
 		"subject_json: [{\"subject\":\"1900 - 1999\",\"authorized\":false,\"type\":\"Chronological Term\"}]\n" + 
-		"subject_display: 1900-1999\n" + 
+		"subject_display: 1900 - 1999\n" + 
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
