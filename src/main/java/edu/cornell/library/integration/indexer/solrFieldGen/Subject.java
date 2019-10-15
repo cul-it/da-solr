@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -304,10 +304,10 @@ public class Subject implements SolrFieldGenerator {
 	private static String normalizeDateRangeSpacing(String disp) {
 		Matcher m = dateRangePattern.matcher(disp);
 		if (m.matches())
-			return m.group(1)+"-"+m.group(2);
+			return m.group(1)+" - "+m.group(2);
 		return disp;
 	}
-	private static Pattern dateRangePattern = Pattern.compile("(\\d+) - (\\d+)");
+	private static Pattern dateRangePattern = Pattern.compile("(\\d+)-(\\d+)");
 
 	private static class Heading {
 		public Heading() { }
