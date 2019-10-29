@@ -54,8 +54,11 @@ public class IdentifyChangedRecords {
 
 	private final static String maxBibTimestampQuery = "SELECT max(record_date) FROM bibRecsVoyager";
 	private final static String recentBibQuery =
-			"select BIB_ID, CREATE_DATE, UPDATE_DATE, SUPPRESS_IN_OPAC from BIB_MASTER"
-					+" where ( CREATE_DATE > ? or UPDATE_DATE > ?)";
+			"SELECT bm.bib_id, COALESCE(update_date,create_date) record_date, bm.suppress_in_opac, bh.operator_id"+
+			"  FROM bib_master bm"+
+			"  LEFT JOIN BIB_HISTORY bh ON bh.bib_id = bm.bib_id AND bh.action_date = COALESCE(update_date,create_date)"+
+			" WHERE COALESCE(update_date,create_date) > ?"+
+			" ORDER BY bm.bib_id";
 	private final static String recentMfhdQuery =
 			"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, CREATE_DATE, UPDATE_DATE, SUPPRESS_IN_OPAC"
 					+"  from BIB_MFHD, MFHD_MASTER"
@@ -153,15 +156,15 @@ public class IdentifyChangedRecords {
 
 				try ( PreparedStatement pstmt = voyager.prepareStatement(recentBibQuery) ){
 					pstmt.setTimestamp(1, ts);
-					pstmt.setTimestamp(2, ts);
 					try ( ResultSet rs = pstmt.executeQuery() ){
 						while (rs.next()) {
-							Timestamp bibDate = rs.getTimestamp(3);
-							if (bibDate == null) bibDate = rs.getTimestamp(2);
-							String suppress_in_opac = rs.getString(4);
+							Timestamp bibDate = rs.getTimestamp(2);
+							String suppress_in_opac = rs.getString(3);
 							int bib_id = rs.getInt(1);
+							String operator = rs.getString(4);
 							queueBib( current, bib_id, bibDate, 
-									suppress_in_opac != null && suppress_in_opac.equals("N") );
+									suppress_in_opac != null && suppress_in_opac.equals("N"),
+									operator == null || operator.startsWith("batch") );
 							if (0 < bibDate.compareTo(max_date))
 								max_date = bibDate;
 						}
@@ -210,9 +213,11 @@ public class IdentifyChangedRecords {
 			}
 		}
 	}
-	private static DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,FormatStyle.MEDIUM);
+	private static DateTimeFormatter formatter =
+			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,FormatStyle.MEDIUM);
 
-	private void queueBib(Connection current, int bib_id, Timestamp update_date, Boolean isActive) throws SQLException {
+	private void queueBib( Connection current, int bib_id, Timestamp update_date, boolean isActive, boolean isBatch)
+			throws SQLException {
 		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ) {
 			bibVoyQStmt.setInt(1, bib_id);
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
@@ -231,10 +236,10 @@ public class IdentifyChangedRecords {
 						}
 						if (isActive) {
 							this.updatedBibs.add(bib_id);
-							if (previouslyActive) 
-								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.BIB_UPDATE, update_date);
-							else
-								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD, update_date);
+							addBibToUpdateQueue(current, bib_id,
+									(isBatch)?DataChangeUpdateType.BIB_BATCH:
+										(previouslyActive)?DataChangeUpdateType.BIB_UPDATE:DataChangeUpdateType.ADD,
+									update_date);
 						} else {
 							if (previouslyActive)
 								queueBibDelete( current, bib_id );
@@ -492,6 +497,7 @@ public class IdentifyChangedRecords {
 		ADD("Added Record",5),
 		BIB_ADD("Bibliographic Record Added",5),
 		BIB_UPDATE("Bibliographic Record Update",5),
+		BIB_BATCH("Bibliographic Record Batch Proc",6),
 		MFHD_ADD("Holdings Record Added",5),
 		MFHD_UPDATE("Holdings Record Change",5),
 		MFHD_DELETE("Holdings Record Removed",5),
