@@ -67,7 +67,7 @@ public class IndexAuthorityRecords {
 			int cursor = 0;
 			int batchSize = 100;
 			while (cursor <= maxId) {
-				for (MarcRecord rec : marc.retrieveRecordsByIdRange(RecordType.AUTHORITY, cursor, cursor+batchSize))
+				for (MarcRecord rec : marc.retrieveRecordsByIdRange(RecordType.AUTHORITY, cursor+1, cursor+batchSize))
 					processAuthorityMarc( headings, rec );
 				cursor += batchSize;
 			}
