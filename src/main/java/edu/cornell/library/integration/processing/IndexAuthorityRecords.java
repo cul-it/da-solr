@@ -4,11 +4,8 @@ import static edu.cornell.library.integration.utilities.FilingNormalization.getF
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Scanner;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -43,71 +39,52 @@ import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
+import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class IndexAuthorityRecords {
 
-	private Connection connection = null;
 	private static EnumSet<HeadingType> authorTypes = EnumSet.of(
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)
+			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		requiredArgs.add("authorityMarcDirectory");
-
+		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));
 		Config config = Config.loadConfig(requiredArgs);
-		try {
-			new IndexAuthorityRecords(config);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
 
-	public IndexAuthorityRecords(Config config)
-			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
-
-		this.connection = config.getDatabaseConnection("Headings");
-		//set up database (including populating description maps)
-		setUpDatabase();
-
-		String mrcDir = config.getAuthorityMarcDirectory();
-		System.out.println("Looking for authority MARC in directory: "+mrcDir);
-		File[] srcList = (new File(mrcDir)).listFiles();
-		if ( srcList == null ) {
-			System.out.printf( "'%s' is not a valid directory.\n",mrcDir);
-			return;
+		int maxId;
+		try ( Connection voyager = config.getDatabaseConnection("Voy") ){
+			maxId = getMaxAuthorityId( voyager );
 		}
-		if (srcList.length == 0) {
-			System.out.printf("No files available to process in '%s'.\n",mrcDir);
-			return;
-		}
-		System.out.println("Found: "+srcList.length+" files.");
-		for (File srcFile : srcList) {
-			System.out.println(srcFile);
-			processFile( srcFile );
+		config.setDatabasePoolsize("Headings", 2);
+		try ( Connection headings = config.getDatabaseConnection("Headings") ) {
+			
+			//set up database (including populating description maps)
+			setUpDatabase(headings);
+
+			DownloadMARC marc = new DownloadMARC(config);
+			int cursor = 0;
+			int batchSize = 100;
+			while (cursor <= maxId) {
+				for (MarcRecord rec : marc.retrieveRecordsByIdRange(RecordType.AUTHORITY, cursor, cursor+batchSize))
+					processAuthorityMarc( headings, rec );
+				cursor += batchSize;
 			}
-			this.connection.close();
-	}
-
-	private void processFile( File srcFile )
-			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
-		try ( InputStream is = new FileInputStream( srcFile );
-				Scanner s1 = new Scanner(is);
-				Scanner s2 = s1.useDelimiter("\\A")) {
-			String marc21OrMarcXml = s2.hasNext() ? s2.next() : "";
-			List<MarcRecord> recs = MarcRecord.getMarcRecords(RecordType.AUTHORITY, marc21OrMarcXml);
-			System.out.println(recs.size() + " records found in file.");
-			for (MarcRecord rec : recs)
-				processAuthorityMarc(rec);
 		}
 	}
 
-	private void setUpDatabase() throws SQLException {
-		try ( Statement stmt = this.connection.createStatement() ) {
+	private static int getMaxAuthorityId(Connection voyager) throws SQLException {
+		try ( Statement stmt = voyager.createStatement();
+				ResultSet rs = stmt.executeQuery("select max(auth_id) from auth_data")) {
+			while ( rs.next() )
+				return rs.getInt(1);
+		}
+		throw new RuntimeException("Max authority record id not determined.");
+	}
+
+	private static void setUpDatabase(Connection headings) throws SQLException {
+		try ( Statement stmt = headings.createStatement() ) {
 
 			stmt.execute("CREATE TABLE `heading` ("
 					+ "`id` int(10) unsigned NOT NULL auto_increment, "
@@ -210,7 +187,7 @@ public class IndexAuthorityRecords {
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
-		try ( PreparedStatement insertDesc = this.connection.prepareStatement(
+		try ( PreparedStatement insertDesc = headings.prepareStatement(
 				"INSERT INTO heading_type (id,name) VALUES (? , ?)") ) {
 		for ( HeadingType ht : HeadingType.values()) {
 			insertDesc.setInt(1, ht.ordinal());
@@ -218,7 +195,7 @@ public class IndexAuthorityRecords {
 			insertDesc.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertDesc = this.connection.prepareStatement(
+		try ( PreparedStatement insertDesc = headings.prepareStatement(
 				"INSERT INTO heading_category (id,name) VALUES (? , ?)") ) {
 		for ( HeadingCategory hc : HeadingCategory.values()) {
 			insertDesc.setInt(1, hc.ordinal());
@@ -226,7 +203,7 @@ public class IndexAuthorityRecords {
 			insertDesc.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertRefType = this.connection.prepareStatement(
+		try ( PreparedStatement insertRefType = headings.prepareStatement(
 				"INSERT INTO ref_type (id,name) VALUES (? , ?)") ) {
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
@@ -234,7 +211,7 @@ public class IndexAuthorityRecords {
 			insertRefType.executeUpdate();
 		}}
 
-		try ( PreparedStatement insertAuthSource = this.connection.prepareStatement(
+		try ( PreparedStatement insertAuthSource = headings.prepareStatement(
 				"INSERT INTO authority_source (id,name) VALUES (? , ?)") ) {
 			for ( AuthoritySource rt : AuthoritySource.values()) {
 				insertAuthSource.setInt(1, rt.ordinal());
@@ -245,7 +222,8 @@ public class IndexAuthorityRecords {
 
 	}
 
-	private void processAuthorityMarc( MarcRecord rec ) throws SQLException, JsonProcessingException  {
+	private static void processAuthorityMarc( Connection headings, MarcRecord rec )
+			throws SQLException, JsonProcessingException  {
 
 		AuthorityData a = new AuthorityData();
 
@@ -342,12 +320,12 @@ public class IndexAuthorityRecords {
 		if ( a.mainHead == null ) return;
 		if ( a.lccn == null ) a.lccn = "local "+a.catalogId;
 
-		getHeadingId(a.mainHead);
-		getAuthorityId(a);
+		getHeadingId(headings, a.mainHead);
+		getAuthorityId(headings, a);
 		if (a.id == null) return;
 
 		for (String note : a.notes)
-			insertNote(a.mainHead.id, a.id, note);
+			insertNote(headings, a.mainHead.id, a.id, note);
 
 		a.expectedNotes.removeAll(foundNotes);
 		if ( ! a.expectedNotes.isEmpty())
@@ -359,7 +337,7 @@ public class IndexAuthorityRecords {
 			if ( ! r.display) continue;
 			if ( r.heading.sort.equals(a.mainHead.sort) 
 					&& Objects.equals(r.heading.parent, a.mainHead.parent)) continue;
-			crossRef(a.mainHead.id,a.id,r, ReferenceType.FROM4XX);
+			crossRef(headings, a.mainHead.id,a.id,r, ReferenceType.FROM4XX);
 		}
 
 		for (Relation r: a.seeAlsos) {
@@ -367,14 +345,14 @@ public class IndexAuthorityRecords {
 			if ( ! r.display) continue;
 			if ( r.heading.sort.equals(a.mainHead.sort) 
 					&& Objects.equals(r.heading.parent, a.mainHead.parent)) continue;
-			crossRef(a.mainHead.id,a.id,r, ReferenceType.FROM5XX);
+			crossRef(headings, a.mainHead.id,a.id,r, ReferenceType.FROM5XX);
 
 			// Where appropriate, populate outgoing 5XX cross references
 			if (r.reciprocalRelationship != null)
-				directRef(a.mainHead.id,a.id,r, ReferenceType.TO5XX);
+				directRef(headings, a.mainHead.id,a.id,r, ReferenceType.TO5XX);
 		}
 
-		populateRdaInfo(a.mainHead.id, a.id, a.rdaData);
+		populateRdaInfo(headings, a.mainHead.id, a.id, a.rdaData);
 
 		return;
 	}
@@ -542,10 +520,11 @@ public class IndexAuthorityRecords {
 		return mapper.writeValueAsString(textBlocks);
 	}
 
-	private void populateRdaInfo(Integer headingId, Integer authorityId, RdaData data) throws SQLException, JsonProcessingException {
+	private static void populateRdaInfo(Connection headings, Integer headingId, Integer authorityId, RdaData data)
+			throws SQLException, JsonProcessingException {
 		String json = data.json();
 		if (json == null) return;
-		try ( PreparedStatement stmt = this.connection.prepareStatement(
+		try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO rda (heading_id, authority_id, rda) VALUES (?, ?, ?)") ){
 			stmt.setInt(1, headingId);
 			stmt.setInt(2, authorityId);
@@ -554,8 +533,9 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void insertNote(Integer headingId, Integer authorityId, String note) throws SQLException {
-		try ( PreparedStatement stmt = this.connection.prepareStatement(
+	private static void insertNote(Connection headings, Integer headingId, Integer authorityId, String note)
+			throws SQLException {
+		try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO note (heading_id, authority_id, note) VALUES (?,?,?)") ){
 			stmt.setInt(1, headingId);
 			stmt.setInt(2, authorityId);
@@ -564,7 +544,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void getAuthorityId(AuthorityData a) throws SQLException {
+	private static void getAuthorityId(Connection headings, AuthorityData a) throws SQLException {
 		if (a.lccn == null) return;
 		for ( AuthoritySource source : AuthoritySource.values() )
 			if (source.prefix() != null && a.lccn.startsWith(source.prefix()))
@@ -577,7 +557,7 @@ public class IndexAuthorityRecords {
 		Integer authorityId = null;
 
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = this.connection.prepareStatement(
+		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT id FROM authority " +
 				"WHERE source = ? AND nativeId = ?") ){
 			pstmt.setInt    (1, a.source.ordinal());
@@ -590,7 +570,7 @@ public class IndexAuthorityRecords {
 		if ( authorityId != null )
 			System.out.println("Possible duplicate authority ID: "+authorityId);
 
-		else try ( PreparedStatement stmt = this.connection.prepareStatement(
+		else try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO authority"
 				+ " (source, nativeId, nativeHeading, voyagerId, undifferentiated)"
 				+ " VALUES (?,?,?,?,?)",
@@ -609,7 +589,7 @@ public class IndexAuthorityRecords {
 		}
 		if (authorityId == null) return;
 
-		try (PreparedStatement pstmt = this.connection.prepareStatement(
+		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
 			pstmt.setInt(1, a.mainHead.id);
 			pstmt.setInt(2, authorityId);
@@ -618,8 +598,9 @@ public class IndexAuthorityRecords {
 		a.id = authorityId;
 	}
 
-	private void storeReferenceAuthority2Heading(Integer headingId, Integer authorityId) throws SQLException {
-		try (PreparedStatement pstmt = this.connection.prepareStatement(
+	private static void storeReferenceAuthority2Heading(Connection headings, Integer headingId, Integer authorityId)
+			throws SQLException {
+		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,0)")) {
 			pstmt.setInt(1, headingId);
 			pstmt.setInt(2, authorityId);
@@ -627,13 +608,13 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void getHeadingId(Heading h) throws SQLException {
+	private static void getHeadingId(Connection headings, Heading h) throws SQLException {
 
 		if (h.parent != null)
-			getHeadingId(h.parent);
+			getHeadingId(headings, h.parent);
 
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = this.connection.prepareStatement(
+		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT id FROM heading " +
 				"WHERE heading_type = ? AND sort = ?") ){
 			pstmt.setInt(1,h.HeadingType.ordinal());
@@ -647,7 +628,7 @@ public class IndexAuthorityRecords {
 		}
 
 		// Create record and return id, otherwise
-		try (PreparedStatement pstmt = this.connection.prepareStatement(
+		try (PreparedStatement pstmt = headings.prepareStatement(
 				"INSERT INTO heading (heading, sort, heading_type, parent_id) VALUES (?, ?, ?, ?)",
 				Statement.RETURN_GENERATED_KEYS) ) {
 
@@ -667,19 +648,22 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private void crossRef(Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt) throws SQLException {
-		getHeadingId( r.heading );
-		insertRef(r.heading.id, mainHeadingId, authorityId, rt, r.relationship);
-		storeReferenceAuthority2Heading( r.heading.id, authorityId );
+	private static void crossRef(
+			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt) throws SQLException {
+		getHeadingId( headings, r.heading );
+		insertRef(headings, r.heading.id, mainHeadingId, authorityId, rt, r.relationship);
+		storeReferenceAuthority2Heading( headings, r.heading.id, authorityId );
 	}
 
-	private void directRef(Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt) throws SQLException {
-		getHeadingId( r.heading );
-		insertRef(mainHeadingId, r.heading.id, authorityId, rt, r.reciprocalRelationship );
-		storeReferenceAuthority2Heading( r.heading.id, authorityId );
+	private static void directRef(
+			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt)
+					throws SQLException {
+		getHeadingId( headings, r.heading );
+		insertRef(headings, mainHeadingId, r.heading.id, authorityId, rt, r.reciprocalRelationship );
+		storeReferenceAuthority2Heading( headings, r.heading.id, authorityId );
 	}
 
-	private void insertRef(int fromId, int toId, int authorityId,
+	private static void insertRef(Connection headings, int fromId, int toId, int authorityId,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
 		Integer referenceId = null;
@@ -687,7 +671,7 @@ public class IndexAuthorityRecords {
 		if ( relationshipDescription == null )
 			relationshipDescription = "";
 		// Get record id if already exists
-		try ( PreparedStatement pstmt = this.connection.prepareStatement(
+		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT id FROM reference " +
 				"WHERE from_heading = ? AND to_heading = ? AND ref_type = ? AND ref_desc = ?") ){
 			pstmt.setInt(1,fromId);
@@ -701,7 +685,7 @@ public class IndexAuthorityRecords {
 		}
 
 		if ( referenceId == null )
-		try (PreparedStatement pstmt = this.connection.prepareStatement(
+		try (PreparedStatement pstmt = headings.prepareStatement(
 				"INSERT INTO reference (from_heading, to_heading, ref_type, ref_desc) " +
 						"VALUES (?, ?, ?, ?)",
 						Statement.RETURN_GENERATED_KEYS) ) {
@@ -721,7 +705,7 @@ public class IndexAuthorityRecords {
 		// If there's a problem, we should already have thrown an SQL exception.
 		if ( referenceId == null ) return;
 
-		try (PreparedStatement pstmt = this.connection.prepareStatement(
+		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2reference (reference_id, authority_id) VALUES (?,?)")) {
 			pstmt.setInt(1, referenceId);
 			pstmt.setInt(2, authorityId);

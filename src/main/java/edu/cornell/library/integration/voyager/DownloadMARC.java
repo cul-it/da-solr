@@ -10,9 +10,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLStreamException;
 
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
@@ -96,6 +102,31 @@ public class DownloadMARC {
 		return MarcRecord.marcToXml(downloadMrc(type,id));
 	}
 
+	public List<MarcRecord> retrieveRecordsByIdRange (RecordType type, Integer from, Integer to)
+			throws SQLException, IOException, XMLStreamException {
+		List<MarcRecord> recs = new ArrayList<>();
+
+		Map<Integer,ByteArrayOutputStream> bytes = new HashMap<>();
+		try ( Connection voyager = this.config.getDatabaseConnection("Voy");
+				PreparedStatement pstmt = prepareRangeStatement(voyager, type)) {
+			pstmt.setInt(1, from);
+			pstmt.setInt(2, to);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while ( rs.next() ) {
+					int id = rs.getInt(1);
+					if ( ! bytes.containsKey(id) )
+						bytes.put(id, new ByteArrayOutputStream());
+					bytes.get(id).write(rs.getBytes(2));
+				}
+			}
+			for ( ByteArrayOutputStream recordBytes : bytes.values() ) {
+				recs.add(new MarcRecord(type,new String( recordBytes.toByteArray(), StandardCharsets.UTF_8 )));
+			}
+		}
+		return recs;
+	}
+
+
 
 	private static void errorChecking(String rec, RecordType type, Integer id) {
         if ( rec.contains("\uFFFD") )
@@ -122,6 +153,19 @@ public class DownloadMARC {
 			return voyager.prepareStatement(
 					"SELECT * FROM AUTH_DATA WHERE AUTH_DATA.AUTH_ID = ? ORDER BY AUTH_DATA.SEQNUM");
 	}
+
+	private static PreparedStatement prepareRangeStatement(Connection voyager , RecordType type) throws SQLException {
+		if (type.equals(RecordType.BIBLIOGRAPHIC))
+			return voyager.prepareStatement(
+					"SELECT BIB_ID, RECORD_SEGMENT FROM BIB_DATA WHERE BIB_ID BETWEEN ? AND ? ORDER BY BIB_ID, SEQNUM");
+		else if (type.equals(RecordType.HOLDINGS))
+			return voyager.prepareStatement(
+					"SELECT MFHD_ID, RECORD_SEGMENT FROM MFHD_DATA WHERE MFHD_ID BETWEEN ? AND ? ORDER BY MFHD_ID, SEQNUM");
+		else
+			return voyager.prepareStatement(
+					"SELECT AUTH_ID, RECORD_SEGMENT FROM AUTH_DATA WHERE AUTH_ID BETWEEN ? AND ? ORDER BY AUTH_ID, SEQNUM");
+	}
+
 
 	private static void writeFile(String filename, String recs) throws IOException {
 		Files.write(Paths.get(filename), recs.getBytes(),StandardOpenOption.CREATE_NEW);
