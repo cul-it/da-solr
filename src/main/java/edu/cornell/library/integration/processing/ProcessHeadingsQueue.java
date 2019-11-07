@@ -267,6 +267,7 @@ public class ProcessHeadingsQueue {
 				if ( FilingNormalization.getFilingForm(fieldValue).equals(sortForm) )
 					return fieldValue;
 			}
+		System.out.printf("Display form not found. (%s) %s\n",bhf,sortForm);
 		return null;
 	}
 
