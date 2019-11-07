@@ -149,7 +149,8 @@ public class ProcessHeadingsQueue {
 							if ( actualField.startsWith(lookedForFilingField) ) {
 								BlacklightHeadingField blField = b.filingFields.get(lookedForFilingField);
 								String sortForm = actualField.substring(lookedForFilingField.length()+2);
-								String displayForm = findDisplayForm(blockFields,sortForm,blField);
+								String displayForm = ( sortForm.equals("electronic books"))?
+										"Electronic books":findDisplayForm(blockFields,sortForm,blField);
 								Heading h = getHeading( headings, displayForm, sortForm,blField);
 
 								if ( curr.containsKey(h) ) curr.get(h).add(blField.headingCategory());
@@ -267,7 +268,6 @@ public class ProcessHeadingsQueue {
 				if ( FilingNormalization.getFilingForm(fieldValue).equals(sortForm) )
 					return fieldValue;
 			}
-		System.out.printf("Display form not found. (%s) %s\n",bhf,sortForm);
 		return null;
 	}
 
