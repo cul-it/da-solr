@@ -37,7 +37,7 @@ public class ProcessHeadingsQueue {
 				PreparedStatement nextBibStmt = current.prepareStatement
 						("SELECT bib_id, priority FROM headingsQueue ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
-						("SELECT id, cause, record_date FROM headingsQueue WHERE bib_id = ?");
+						("SELECT id, cause, record_date FROM headingsQueue WHERE bib_id = ? ORDER BY record_date");
 				PreparedStatement deprioritizeStmt = current.prepareStatement
 						("UPDATE headingsQueue SET priority = 9 WHERE id = ?");
 				PreparedStatement browseQueueStmt = current.prepareStatement
@@ -85,7 +85,7 @@ public class ProcessHeadingsQueue {
 							if ( cause.contains(c.name()) ) changes.add(c);
 						deprioritizeStmt.setInt(1,id);
 						deprioritizeStmt.addBatch();
-						if (minChangeDate == null || minChangeDate.after(recordDate))
+						if (minChangeDate == null)
 							minChangeDate = recordDate;
 						queueIds.add(id);
 					}
