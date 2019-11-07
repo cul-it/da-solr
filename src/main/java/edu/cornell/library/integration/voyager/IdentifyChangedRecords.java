@@ -66,9 +66,9 @@ public class IdentifyChangedRecords {
 					+ "  and ( CREATE_DATE > ? or UPDATE_DATE > ?)";
 	private final static String recentItemQuery =
 			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.CREATE_DATE, ITEM.MODIFY_DATE"
-		    		+"  from MFHD_ITEM, ITEM"
-		    		+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
-		    		+ "  and ( CREATE_DATE > ? or MODIFY_DATE > ?)";
+					+"  from MFHD_ITEM, ITEM"
+					+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
+					+ "  and ( CREATE_DATE > ? or MODIFY_DATE > ?)";
 	private final static String bibVoyQuery =
 			"SELECT record_date, active FROM bibRecsVoyager WHERE bib_id = ?";
 	private final static String bibVoyUpdate =

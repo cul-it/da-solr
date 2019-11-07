@@ -34,6 +34,7 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.RecordSet;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
+import edu.cornell.library.integration.metadata.support.Heading;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
@@ -275,7 +276,7 @@ public class IndexAuthorityRecords {
 						System.out.println(rec.toString());
 					} else {
 						a.expectedNotes.addAll(r.expectedNotes);
-						r.heading = processHeadingField(f,a.mainHead.val);
+						r.heading = processHeadingField(f,a.mainHead.displayForm());
 						a.sees.add(r);
 					}
 				}
@@ -325,7 +326,7 @@ public class IndexAuthorityRecords {
 		if (a.id == null) return;
 
 		for (String note : a.notes)
-			insertNote(headings, a.mainHead.id, a.id, note);
+			insertNote(headings, a.mainHead.id(), a.id, note);
 
 		a.expectedNotes.removeAll(foundNotes);
 		if ( ! a.expectedNotes.isEmpty())
@@ -335,24 +336,24 @@ public class IndexAuthorityRecords {
 		// Populate incoming 4XX cross references
 		for (Relation r: a.sees) {
 			if ( ! r.display) continue;
-			if ( r.heading.sort.equals(a.mainHead.sort) 
-					&& Objects.equals(r.heading.parent, a.mainHead.parent)) continue;
-			crossRef(headings, a.mainHead.id,a.id,r, ReferenceType.FROM4XX);
+			if ( r.heading.sort().equals(a.mainHead.sort()) 
+					&& Objects.equals(r.heading.parent(), a.mainHead.parent())) continue;
+			crossRef(headings, a.mainHead.id(),a.id,r, ReferenceType.FROM4XX);
 		}
 
 		for (Relation r: a.seeAlsos) {
 			// Populate incoming 5XX cross references
 			if ( ! r.display) continue;
-			if ( r.heading.sort.equals(a.mainHead.sort) 
-					&& Objects.equals(r.heading.parent, a.mainHead.parent)) continue;
-			crossRef(headings, a.mainHead.id,a.id,r, ReferenceType.FROM5XX);
+			if ( r.heading.sort().equals(a.mainHead.sort()) 
+					&& Objects.equals(r.heading.parent(), a.mainHead.parent())) continue;
+			crossRef(headings, a.mainHead.id(),a.id,r, ReferenceType.FROM5XX);
 
 			// Where appropriate, populate outgoing 5XX cross references
 			if (r.reciprocalRelationship != null)
-				directRef(headings, a.mainHead.id,a.id,r, ReferenceType.TO5XX);
+				directRef(headings, a.mainHead.id(),a.id,r, ReferenceType.TO5XX);
 		}
 
-		populateRdaInfo(headings, a.mainHead.id, a.id, a.rdaData);
+		populateRdaInfo(headings, a.mainHead.id(), a.id, a.rdaData);
 
 		return;
 	}
@@ -591,7 +592,7 @@ public class IndexAuthorityRecords {
 
 		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
-			pstmt.setInt(1, a.mainHead.id);
+			pstmt.setInt(1, a.mainHead.id());
 			pstmt.setInt(2, authorityId);
 			pstmt.executeUpdate();
 		}
@@ -610,18 +611,18 @@ public class IndexAuthorityRecords {
 
 	private static void getHeadingId(Connection headings, Heading h) throws SQLException {
 
-		if (h.parent != null)
-			getHeadingId(headings, h.parent);
+		if (h.parent() != null)
+			getHeadingId(headings, h.parent());
 
 		// Get record id if already exists
 		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT id FROM heading " +
 				"WHERE heading_type = ? AND sort = ?") ){
-			pstmt.setInt(1,h.HeadingType.ordinal());
-			pstmt.setString(2,h.sort);
+			pstmt.setInt(1,h.headingType().ordinal());
+			pstmt.setString(2,h.sort());
 			try ( ResultSet resultSet = pstmt.executeQuery() ) {
 				while (resultSet.next()) {
-					h.id = resultSet.getInt(1);
+					h.setId(resultSet.getInt(1));
 					return;
 				}
 			}
@@ -632,16 +633,16 @@ public class IndexAuthorityRecords {
 				"INSERT INTO heading (heading, sort, heading_type, parent_id) VALUES (?, ?, ?, ?)",
 				Statement.RETURN_GENERATED_KEYS) ) {
 
-			pstmt.setString(1, Normalizer.normalize(h.val, Normalizer.Form.NFC));
-			pstmt.setString(2, h.sort);
-			pstmt.setInt(3,    h.HeadingType.ordinal());
-			pstmt.setInt(4,   (h.parent == null)?0:h.parent.id);
+			pstmt.setString(1, Normalizer.normalize(h.displayForm(), Normalizer.Form.NFC));
+			pstmt.setString(2, h.sort());
+			pstmt.setInt(3,    h.headingType().ordinal());
+			pstmt.setInt(4,   (h.parent() == null)?0:h.parent().id());
 			int affectedCount = pstmt.executeUpdate();
 			if (affectedCount < 1) 
 				throw new SQLException("Creating Heading Record Failed.");
 			try ( ResultSet generatedKeys = pstmt.getGeneratedKeys() ) {
 				if (generatedKeys.next()) {
-					h.id = generatedKeys.getInt(1);
+					h.setId(generatedKeys.getInt(1));
 					return;
 				}
 			}
@@ -651,16 +652,16 @@ public class IndexAuthorityRecords {
 	private static void crossRef(
 			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt) throws SQLException {
 		getHeadingId( headings, r.heading );
-		insertRef(headings, r.heading.id, mainHeadingId, authorityId, rt, r.relationship);
-		storeReferenceAuthority2Heading( headings, r.heading.id, authorityId );
+		insertRef(headings, r.heading.id(), mainHeadingId, authorityId, rt, r.relationship);
+		storeReferenceAuthority2Heading( headings, r.heading.id(), authorityId );
 	}
 
 	private static void directRef(
 			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt)
 					throws SQLException {
 		getHeadingId( headings, r.heading );
-		insertRef(headings, mainHeadingId, r.heading.id, authorityId, rt, r.reciprocalRelationship );
-		storeReferenceAuthority2Heading( headings, r.heading.id, authorityId );
+		insertRef(headings, mainHeadingId, r.heading.id(), authorityId, rt, r.reciprocalRelationship );
+		storeReferenceAuthority2Heading( headings, r.heading.id(), authorityId );
 	}
 
 	private static void insertRef(Connection headings, int fromId, int toId, int authorityId,
@@ -668,8 +669,7 @@ public class IndexAuthorityRecords {
 
 		Integer referenceId = null;
 
-		if ( relationshipDescription == null )
-			relationshipDescription = "";
+		String description = ( relationshipDescription == null )?"":relationshipDescription;
 		// Get record id if already exists
 		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT id FROM reference " +
@@ -677,7 +677,7 @@ public class IndexAuthorityRecords {
 			pstmt.setInt(1,fromId);
 			pstmt.setInt(2,toId);
 			pstmt.setInt(3,rt.ordinal());
-			pstmt.setString(4,relationshipDescription);
+			pstmt.setString(4,description);
 			try ( ResultSet resultSet = pstmt.executeQuery() ) {
 				while (resultSet.next())
 					referenceId = resultSet.getInt(1);
@@ -693,7 +693,7 @@ public class IndexAuthorityRecords {
 			pstmt.setInt(1, fromId);
 			pstmt.setInt(2, toId);
 			pstmt.setInt(3, rt.ordinal());
-			pstmt.setString(4, relationshipDescription);
+			pstmt.setString(4, description);
 			int affectedCount = pstmt.executeUpdate();
 			if (affectedCount < 1) 
 				throw new SQLException("Creating Reference Record Failed.");
@@ -875,41 +875,6 @@ public class IndexAuthorityRecords {
 		public Collection<RecordSet> applicableContexts = new HashSet<>();
 		public Collection<String> expectedNotes = new HashSet<>();
 		boolean display = true;
-	}
-
-	private static class Heading implements Comparable<Heading> {
-		Integer id = null;
-		final String val;
-		final String sort;
-		final HeadingType HeadingType;
-		Heading parent = null;
-		Heading( String heading, String headingSort, HeadingType HeadingType ) {
-			this.val = heading;
-			this.sort = headingSort;
-			this.HeadingType = HeadingType;
-		}
-		Heading( String heading, String headingSort, HeadingType HeadingType, Heading parent ) {
-			this(heading,headingSort,HeadingType);
-			this.parent = parent;
-		}
-		@Override
-		public String toString () {
-			return String.format("[heading_type: %s; sort: \"%s\"%s]",
-					this.HeadingType.toString(), this.val,
-					(this.parent != null)?String.format(" parent:[%s]",this.parent.toString()):"");
-		}
-		@Override
-	    public int hashCode() { return Integer.hashCode( this.id ); }
-		@Override
-		public int compareTo(final Heading other) { return Integer.compare(this.id, other.id);	}
-		@Override
-		public boolean equals(final Object o) {
-			if (this == o) return true;
-			if (o == null) return false;
-			if (! this.getClass().equals( o.getClass() )) return false;
-			Heading other = (Heading) o;
-			return Objects.equals(this.id, other.id);
-		}
 	}
 
 	private static class AuthorityData {

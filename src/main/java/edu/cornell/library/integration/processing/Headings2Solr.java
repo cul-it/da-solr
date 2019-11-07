@@ -46,7 +46,7 @@ public class Headings2Solr {
 		for ( BlacklightHeadingField blf : BlacklightHeadingField.values() ) {
 			if (! blacklightFields.containsKey(blf.headingCategory()))
 				blacklightFields.put(blf.headingCategory(), new HashMap<HeadingType,String>());
-			blacklightFields.get(blf.headingCategory()).put(blf.headingTypeDesc(), blf.browseCtsName());
+			blacklightFields.get(blf.headingCategory()).put(blf.headingType(), blf.browseCtsName());
 		}
 	}
 

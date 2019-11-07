@@ -27,7 +27,7 @@ public enum BlacklightHeadingField {
 	}
 
 	public HeadingCategory headingCategory() { return this.hc; }
-	public HeadingType headingTypeDesc() { return this.ht; }
+	public HeadingType headingType() { return this.ht; }
 	public String browseCtsName() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(this.hc.toString());

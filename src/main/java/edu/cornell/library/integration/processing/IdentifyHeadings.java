@@ -92,7 +92,7 @@ public class IdentifyHeadings {
 
 	private static void processBlacklightHeadingFieldHeaderData(Config config, BlacklightHeadingField blf) throws Exception {
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
-				blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
+				blf.fieldName(),blf.headingType(),blf.headingCategory());
 
 		String blacklightSolrUrl = config.getBlacklightSolrUrl();
 
@@ -168,7 +168,7 @@ public class IdentifyHeadings {
 		// return if heading already appears in database
 		try ( PreparedStatement checkStmt = connection.prepareStatement(
 				"SELECT * FROM heading WHERE heading_type = ? AND sort = ?")) {
-			checkStmt.setInt(1, blf.headingTypeDesc().ordinal());
+			checkStmt.setInt(1, blf.headingType().ordinal());
 			checkStmt.setString(2, sort);
 			try ( ResultSet rs = checkStmt.executeQuery() ) {
 				while (rs.next())
@@ -181,7 +181,7 @@ public class IdentifyHeadings {
 				"INSERT INTO heading (heading, sort, heading_type) VALUES (?, ?, ?)")) {
 			insertStmt.setString(1, heading);
 			insertStmt.setString(2, sort);
-			insertStmt.setInt(3, blf.headingTypeDesc().ordinal());
+			insertStmt.setInt(3, blf.headingType().ordinal());
 			insertStmt.executeUpdate();
 		}
 		

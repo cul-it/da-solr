@@ -100,7 +100,7 @@ public class IndexHeadings {
 	private void processBlacklightHeadingFieldHeaderData(BlacklightHeadingField blf) throws Exception {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
-					blf.fieldName(),blf.headingTypeDesc(),blf.headingCategory());
+					blf.fieldName(),blf.headingType(),blf.headingCategory());
 
 		if ( ! this.queries.containsKey(blf.headingCategory()))
 			this.queries.put(blf.headingCategory(), new HashMap<String,String>());
@@ -181,7 +181,7 @@ public class IndexHeadings {
 		int rowsAffected;
 		try ( PreparedStatement uStmt = this.connection.prepareStatement( qs.get("update") ) ) {
 			uStmt.setInt(1, count);
-			uStmt.setInt(2, blf.headingTypeDesc().ordinal());
+			uStmt.setInt(2, blf.headingType().ordinal());
 			uStmt.setString(3, headingSort);
 			rowsAffected = uStmt.executeUpdate();
 
@@ -199,7 +199,7 @@ public class IndexHeadings {
 					try ( PreparedStatement iStmt = this.connection.prepareStatement( qs.get("insert") ) ) {
 						iStmt.setString(1, headingDisplay);
 						iStmt.setString(2, headingSort);
-						iStmt.setInt(3, blf.headingTypeDesc().ordinal());
+						iStmt.setInt(3, blf.headingType().ordinal());
 						iStmt.setInt(4, count);
 						iStmt.executeUpdate();
 					}
