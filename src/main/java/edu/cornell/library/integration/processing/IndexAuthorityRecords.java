@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.xml.stream.XMLStreamException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,7 +46,7 @@ public class IndexAuthorityRecords {
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
 	public static void main(String[] args)
-			throws FileNotFoundException, IOException, XMLStreamException, SQLException {
+			throws FileNotFoundException, IOException, SQLException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));

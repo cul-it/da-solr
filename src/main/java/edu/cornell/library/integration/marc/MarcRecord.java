@@ -4,17 +4,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLInputFactory;
@@ -23,13 +23,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import org.marc4j.MarcPermissiveStreamReader;
-import org.marc4j.MarcXmlWriter;
-import org.marc4j.marc.Record;
-import org.marc4j.marc.VariableField;
-import org.marc4j.marc.impl.LeaderImpl;
-import org.marc4j.marc.impl.SubfieldImpl;
 
 /*
  *  MarcRecord Handler Class
@@ -53,10 +46,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			this.holdings = new TreeSet<>();
 	}
 
-	public MarcRecord( RecordType type , String marc21OrMarcXml ) throws IOException, XMLStreamException {
+	public MarcRecord( RecordType type , String marcXml ) throws IOException, XMLStreamException {
 		this( type );
-		String marcXml = ( marc21OrMarcXml.contains("<record") )
-				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
 		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
 		XMLStreamReader r  = input_factory.createXMLStreamReader(is);
@@ -70,11 +61,57 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 	}
 
-	public static List<MarcRecord> getMarcRecords( RecordType type, String marc21OrMarcXml )
+	public MarcRecord( RecordType type , byte[] rawMarc ) {
+		this( type );
+		this.leader = new String( Arrays.copyOfRange(rawMarc,0,24), StandardCharsets.UTF_8 );
+		int dataBaseAddress = Integer.valueOf(new String( Arrays.copyOfRange(rawMarc,12,17) ));
+		byte[] directory = Arrays.copyOfRange(rawMarc, 24, dataBaseAddress);
+		byte[] data = Arrays.copyOfRange(rawMarc, dataBaseAddress,rawMarc.length+1);
+		int directoryPos = 0;
+		int fieldId = 1;
+		while (directoryPos < directory.length-1) {
+			String tag = new String( Arrays.copyOfRange(directory, directoryPos, directoryPos+3));
+			int fieldLength = Integer.valueOf(new String( Arrays.copyOfRange(directory,directoryPos+3,directoryPos+7)));
+			int fieldStartPos = Integer.valueOf(new String( Arrays.copyOfRange(directory,directoryPos+7,directoryPos+12)));
+			byte[] fieldValue =  Arrays.copyOfRange(data, fieldStartPos, fieldStartPos+fieldLength);
+			directoryPos += 12;
+			if ( tag.startsWith("00") )
+				this.controlFields.add( new ControlField( fieldId++, tag, new String(
+						Arrays.copyOfRange(fieldValue,0,fieldValue.length-1),StandardCharsets.UTF_8)));
+			else {
+				char ind1 = (char)fieldValue[0];
+				char ind2 = (char)fieldValue[1];
+				TreeSet<Subfield> subfields = new TreeSet<>();
+				List<Integer> subfieldSeparatorPositions = new ArrayList<>();
+				if (fieldValue[2] != (byte)0x1F)
+					subfieldSeparatorPositions.add(1);
+				for ( int i = 2; i < fieldValue.length ; i++ )
+					if ( fieldValue[i] == (byte)0x1E || fieldValue[i] == (byte)0x1F )
+						subfieldSeparatorPositions.add(i);
+				for ( int i = 0; i < subfieldSeparatorPositions.size() - 1; i++) {
+					int startpos = subfieldSeparatorPositions.get(i)+1;
+					int endpos = subfieldSeparatorPositions.get(i+1);
+					if (startpos >= endpos) continue;
+					subfields.add(new Subfield(startpos,(char)fieldValue[startpos],Normalizer.normalize(
+							new String( Arrays.copyOfRange(fieldValue, startpos+1, endpos),StandardCharsets.UTF_8),Normalizer.Form.NFC)));
+				}
+				this.dataFields.add(new DataField(fieldId++,tag,ind1,ind2,subfields));
+			}
+		}
+		F: for ( DataField f : this.dataFields )
+			for ( Subfield sf : f.subfields )
+				if ( sf.code.equals('6') )
+					if (subfield6Pattern.matcher(sf.value).matches()) {
+						if (f.tag.equals("880"))
+							f.mainTag = sf.value.substring(0,3);
+						f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
+						break F;
+					}
+	}
+
+	public static List<MarcRecord> getMarcRecords( RecordType type, String marcXml )
 			throws IOException, XMLStreamException {
 		List<MarcRecord> recs = new ArrayList<>();
-		String marcXml = ( marc21OrMarcXml.contains("<record>") )
-				? marc21OrMarcXml : marcToXml( marc21OrMarcXml );
 		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
 		XMLStreamReader read  = input_factory.createXMLStreamReader(is);
@@ -102,9 +139,9 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	}
 
 	@Override
-    public int hashCode() {
-      return this.toString().hashCode();
-    }
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
 
     @Override
 	public boolean equals(final Object o){
@@ -133,8 +170,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 
 		if (this.type.equals(RecordType.BIBLIOGRAPHIC))
-			for (MarcRecord holdings : this.holdings)
-				sb.append('\n').append(holdings.toString());
+			for (MarcRecord h : this.holdings)
+				sb.append('\n').append(h.toString());
 
 		return sb.toString();
 	}
@@ -261,162 +298,10 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		return null;
 	}
 
-	public static String marcToXml( InputStream is, OutputStream out ) throws IOException {
-		boolean returnString = false;
-		if (out == null) {
-			returnString = true;
-			out = new ByteArrayOutputStream();
-		}
-		MarcPermissiveStreamReader reader = new MarcPermissiveStreamReader(is,true,true);
-		MarcXmlWriter writer = new MarcXmlWriter(out, "UTF8", true);
-		writer.setUnicodeNormalization(true);
-		Record record = null;
-		String prevRec = null;
-		while (reader.hasNext()) {
-			try {
-				record = reader.next();
-				prevRec = record.getControlFields().get(0).getData();
-			} catch (Exception e) {
-				System.out.println("Error reading record following #"+prevRec);
-				e.printStackTrace();
-				continue;
-			}
-			boolean hasInvalidChars = dealWithBadCharacters(record);
-			if (! hasInvalidChars)
-				writer.write(record);
-		}
-		writer.close();
-		out.close();
-		if (returnString)
-			return out.toString();
-		return null;
-	}
-
-	public static String marcToXml( String marc21 ) throws IOException {
-		String xml;
-		try ( InputStream in = new ByteArrayInputStream(marc21.getBytes(StandardCharsets.UTF_8)) ) {
-			xml = marcToXml( in , null );
-		}
-		return xml;
-	}
-
-    private static final String WEIRD_CHARACTERS = "[\u0001-\u0008\u000b-\u000c\u000e-\u001f]";
-    private static final Pattern WEIRD_CHARACTERS_PATTERN = Pattern.compile(WEIRD_CHARACTERS);
-    private static final String LN = System.getProperty("line.separator");
-
-	/**
-	 * Replace bad characters in a MARC record.
-	 * 
-	 * @return false if everything went fine,
-	 * true if if there are still bad characters after the attempted replacement. 
-	 */
-	private static boolean dealWithBadCharacters(Record record ) {
-		String recordString = record.toString();
-
-		Matcher matcher = WEIRD_CHARACTERS_PATTERN.matcher(recordString);
-		if (!matcher.find())
-			return false;
-
-		List<Integer> invalidCharsIndex = new ArrayList<>();
-		do {
-			invalidCharsIndex.add(matcher.start());
-		} while (matcher.find());
-
-		StringBuffer badCharLocator = new StringBuffer();
-		List<String> invalidChars = new ArrayList<>();
-		for (Integer i : invalidCharsIndex) {
-			RecordLine line = new RecordLine(recordString, i);
-
-			badCharLocator.append(line.getErrorLocation()).append(LN);
-			invalidChars.add(line.getInvalidChar() + " ("
-					+ line.getInvalidCharHexa() + ")" + " position: " + i);
-			String invalidCharacter = (line.getInvalidChar() + " ("
-					+ line.getInvalidCharHexa() + ")" + "position: " + i);
-			String badCharacterLocator = (line.getErrorLocation() + LN);
-
-			modifyRecord(record, line, invalidCharacter, badCharacterLocator);
-
-		}
-
-		//check to make sure we dealt with all the weird characters
-		matcher = WEIRD_CHARACTERS_PATTERN.matcher(record.toString());
-		return matcher.find();
-	}
-
-	/**
-	 * @param record
-	 * @param line
-	 * @param invalidCharacter
-	 * @param badCharacterLocator
-	 */
-	private static void modifyRecord(Record record, RecordLine line,
-			String invalidCharacter, String badCharacterLocator) {
-
-		// change LEADER
-		// String leaderReplaced = "The character is replaced with zero.\n";
-		if (line.getLine().startsWith("LEADER")) {
-			record.setLeader(new LeaderImpl(record.getLeader().toString()
-					.replaceAll(WEIRD_CHARACTERS, "0")));
-		}
-
-		// change control fields 
-//	       String NonleaderReplaced = "The character is replaced with space.\n";
-		if (line.getLine().startsWith("00")) {
-			String tag = line.getLine().substring(0, 3);
-			org.marc4j.marc.ControlField fd = (org.marc4j.marc.ControlField) record.getVariableField(tag);
-			fd.setData(fd.getData().replaceAll(WEIRD_CHARACTERS, " "));
-			record.addVariableField(fd);
-
-		// change data fields
-		} else if (line.getLine().startsWith("LEADER") == false) {
-			String tag = line.getLine().substring(0, 3);
-//	        DataField fd = (DataField) record.getVariableField(tag);
-			List<VariableField> fds = record.getVariableFields(tag);
-			for (VariableField fdv: fds) {
-				org.marc4j.marc.DataField fd = (org.marc4j.marc.DataField) fdv;
-				record.removeVariableField(fd);
-
-				// indicators
-				fd.setIndicator1(String.valueOf(fd.getIndicator1())
-						.replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
-				fd.setIndicator2(String.valueOf(fd.getIndicator2())
-						.replaceAll(WEIRD_CHARACTERS, " ").charAt(0));
-
-				// subfields
-				List<org.marc4j.marc.Subfield> sfs = fd.getSubfields();
-				List<org.marc4j.marc.Subfield> newSfs = new ArrayList<>();
-				List<org.marc4j.marc.Subfield> oldSfs = new ArrayList<>();
-				// replace the subfields' weird characters
-				for (org.marc4j.marc.Subfield sf : sfs) {
-					oldSfs.add(sf);
-					char code;
-					if (WEIRD_CHARACTERS_PATTERN.matcher(
-							String.valueOf(sf.getCode())).find()) {
-						code = String.valueOf(sf.getCode())
-								.replaceAll(WEIRD_CHARACTERS, " ").charAt(0);
-					} else {
-						code = sf.getCode();
-					}
-					newSfs.add(new SubfieldImpl(code, sf.getData().replaceAll(
-							WEIRD_CHARACTERS, " ")));
-				}
-				// remove old subfields ...
-				for (org.marc4j.marc.Subfield sf : oldSfs) {
-					fd.removeSubfield(sf);
-				}
-				// ... and add the new ones
-				for (org.marc4j.marc.Subfield sf : newSfs) {
-					fd.addSubfield(sf);
-				}
-				record.addVariableField(fd);
-			}
-
-		}
-	}
 
 	private void processRecord( XMLStreamReader r ) throws XMLStreamException {
 
-		int id = 0;
+		int fid = 0;
 		while (r.hasNext()) {
 			int event = r.next();
 			if (event == XMLStreamConstants.END_ELEMENT) {
@@ -431,7 +316,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag"))
 							tag = r.getAttributeValue(i);
-					ControlField f = new ControlField(++id,tag,r.getElementText());
+					ControlField f = new ControlField(++fid,tag,r.getElementText());
 					if (f.tag.equals("001"))
 						this.id = f.value;
 					else if (f.tag.equals("005"))
@@ -439,7 +324,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					this.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
-					f.id = id += 100;
+					f.id = fid += 100;
 					for (int i = 0; i < r.getAttributeCount(); i++)
 						if (r.getAttributeLocalName(i).equals("tag")) {
 							f.tag = r.getAttributeValue(i);

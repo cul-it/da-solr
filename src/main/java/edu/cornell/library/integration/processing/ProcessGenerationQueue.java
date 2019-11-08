@@ -131,10 +131,10 @@ public class ProcessGenerationQueue {
 
 				// Retrieve records
 				MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC,
-						marc.downloadXml(MarcRecord.RecordType.BIBLIOGRAPHIC, bib));
+						marc.downloadMrc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib));
 				for (Integer mfhdId : v.mfhds.keySet()) {
 					rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS,
-						marc.downloadXml(MarcRecord.RecordType.HOLDINGS, mfhdId)));
+						marc.downloadMrc(MarcRecord.RecordType.HOLDINGS, mfhdId)));
 				}
 
 				BibChangeSummary solrChanges = gen.generateSolr(
