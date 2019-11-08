@@ -51,6 +51,8 @@ public class ProcessHeadingsQueue {
 					"SELECT authortitle_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
 			SolrHeadingBlock.SERIES.setBlockQuery( current.prepareStatement(
 					"SELECT series_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
+			SolrHeadingBlock.TITLECHANGE.setBlockQuery( current.prepareStatement(
+					"SELECT titlechange_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
 
 			while(true) {
 				// Identify Bib and Generator blocks to update headings for
@@ -287,7 +289,11 @@ public class ProcessHeadingsQueue {
 				BlacklightHeadingField.AUTHOR_EVENT,
 				BlacklightHeadingField.AUTHORTITLE_WORK)),
 		SERIES(EnumSet.of(
-				BlacklightHeadingField.AUTHORTITLE_WORK));
+				BlacklightHeadingField.AUTHORTITLE_WORK)),
+		TITLECHANGE(EnumSet.of(
+				BlacklightHeadingField.AUTHOR_PERSON,
+				BlacklightHeadingField.AUTHOR_CORPORATE,
+				BlacklightHeadingField.AUTHOR_EVENT));
 
 		Map<String,BlacklightHeadingField> filingFields = new HashMap<>();
 		PreparedStatement blockQuery = null;
