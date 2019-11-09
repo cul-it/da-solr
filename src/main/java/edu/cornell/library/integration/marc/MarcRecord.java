@@ -105,8 +105,13 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						if (f.tag.equals("880"))
 							f.mainTag = sf.value.substring(0,3);
 						f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
-						break F;
+						continue F;
 					}
+		for ( ControlField f : this.controlFields )
+			if ( f.tag.equals("001") ) {
+				this.id = f.value;
+				break;
+			}
 	}
 
 	public static List<MarcRecord> getMarcRecords( RecordType type, String marcXml )
