@@ -34,6 +34,7 @@ public class ISBN implements SolrFieldGenerator {
 			boolean aFound = false;
 			Character prevSubfield = null; 
 			for ( Subfield sf : f.subfields ) {
+				if ( sf.value.isEmpty() ) continue;
 				switch (sf.code) {
 				case 'a':
 					// Display values

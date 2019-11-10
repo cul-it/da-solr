@@ -113,7 +113,18 @@ public class ISBNTest {
 		String expected =
 		"isbn_t: 12344567\n"+
 		"isbn_display: 12344567 (pbk. ; ebook)\n";
-//		System.out.println( ISBN.generateSolrFields ( rec, null ).toString().replaceAll("\"","\\\\\"") );
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
+
+	@Test
+	public void testEmptySubfieldQ() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 1907427139 ‡q ‡q (pt. 2 ; ‡q hardback)"));
+		String expected =
+		"isbn_t: 1907427139\n" + 
+		"isbn_display: 1907427139 (pt. 2 ; hardback)\n";
+		assertEquals( 4, rec.dataFields.first().subfields.size() );//confirm loader didn't drop empty sf
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
+	}
+
 }

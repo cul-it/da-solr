@@ -22,6 +22,7 @@ import org.junit.Test;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
+import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class GenerateSolrFieldsTest {
 
@@ -74,6 +75,12 @@ public class GenerateSolrFieldsTest {
 		assertEquals( EnumSet.of(Generator.HATHILINKS), forcedGenerators );
 	}
 
+	@Test
+	public void liveRecord() throws SQLException, IOException, InterruptedException {
+		DownloadMARC marc = new DownloadMARC(config);
+		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, 9149595);
+		gen.generateSolr(rec, config, "");
+	}
 
 	private static String resourceAsString( String filename ) throws IOException {
 		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
