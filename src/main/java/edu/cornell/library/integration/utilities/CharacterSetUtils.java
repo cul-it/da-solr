@@ -85,21 +85,25 @@ public class CharacterSetUtils {
 			case 'ʹ': //02b9
 			case 'ʻ': //02bb
 			case 'ʼ': //02bc
+			case '\u0313': // combining single quote
 				sb.append('\''); break;
 
+			case 'ʺ': //02ba
+			case '\u030b': // combining double quote
+				sb.append('"'); break;
+
+			case '©': sb.append('c'); break; //a9
 			case 'Đ': sb.append('D'); break; //0110
-			case 'đ': sb.append('d'); break; //0111
+			case 'đ': case 'ð': //0111, f0
+				sb.append('d'); break;
+			case 'ı': sb.append('i'); break; //0131
 			case 'Ł': sb.append('L'); break; //0141
 			case 'ł': sb.append('l'); break; //0142
+			case '°': sb.append('o'); break; //b0
 			case 'œ': sb.append("oe");break; //0153
 
-			case '\u0302':
-			case '\u0304':
-			case '\u0325':
-			case '\u031c':
-			case '\u0332':
-			case '\ufe20':
-			case '\ufe21':
+			case '\u02be': case '\u0302': case '\u0304': case '\u0306': case '\u0310': case '\u031c':
+			case '\u0325': case '\u0332': case '\ufe20': case '\ufe21':
 				// c is known to not be supported by the base GSM character set. Most of these are combining diacritics.
 				break;
 			default:
