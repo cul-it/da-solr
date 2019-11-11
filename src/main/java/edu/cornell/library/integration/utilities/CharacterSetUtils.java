@@ -80,9 +80,33 @@ public class CharacterSetUtils {
 					}
 				}
 			}
-			// c is not supported by the GSM character set.
-			System.out.printf("Character unmapped to GSM chars [%c(%x):%c(%x):%c(%x)]\n",
-					c,(int)c,c_withoutDiacritics,(int)c_withoutDiacritics,c_compatibility,(int)c_compatibility);
+
+			switch (c) {
+			case 'ʹ': //02b9
+			case 'ʻ': //02bb
+			case 'ʼ': //02bc
+				sb.append('\''); break;
+
+			case 'Đ': sb.append('D'); break; //0110
+			case 'đ': sb.append('d'); break; //0111
+			case 'Ł': sb.append('L'); break; //0141
+			case 'ł': sb.append('l'); break; //0142
+			case 'œ': sb.append("oe");break; //0153
+
+			case '\u0302':
+			case '\u0304':
+			case '\u0325':
+			case '\u031c':
+			case '\u0332':
+			case '\ufe20':
+			case '\ufe21':
+				// c is known to not be supported by the base GSM character set. Most of these are combining diacritics.
+				break;
+			default:
+				// c is unrecognized and doesn't appear to be supported.
+				System.out.printf("Character unmapped to GSM chars [%c(%x):%c(%x):%c(%x)]\n",
+						c,(int)c,c_withoutDiacritics,(int)c_withoutDiacritics,c_compatibility,(int)c_compatibility);
+			}
 		}
 		return sb.toString().trim();
 	}
