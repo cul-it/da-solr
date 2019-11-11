@@ -71,6 +71,7 @@ public class NewBooksTest {
 		holdingRec.dataFields.add(new DataField(2,"852",'0','0',
 				"‡b mann ‡h QL737.M336 ‡i O83x 2003 ‡x transfer from Mann Ellis 5/9/17"));
 		bibRec.holdings.add(holdingRec);
-		assertEquals( "", this.gen.generateSolrFields(bibRec, null).toString() );
+		assertEquals( "acquired_dt: 2004-07-06T00:00:00Z\nacquired_month: 2004-07\n",
+				this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 }
