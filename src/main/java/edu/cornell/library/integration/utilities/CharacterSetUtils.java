@@ -63,8 +63,8 @@ public class CharacterSetUtils {
 			String s_withoutDiacritics = 
 					Normalizer.normalize(String.valueOf(c), Normalizer.Form.NFD).
 					replaceAll("[\\p{InCombiningDiacriticalMarks}]+", "");
-			Character c_withoutDiacritics = null;
-			Character c_compatibility = null;
+			Character c_withoutDiacritics = 0;
+			Character c_compatibility = 0;
 			if ( ! s_withoutDiacritics.isEmpty()) {
 				c_withoutDiacritics = s_withoutDiacritics.charAt(0);
 				if (gsmChars.contains(c_withoutDiacritics)) {
@@ -81,8 +81,10 @@ public class CharacterSetUtils {
 				}
 			}
 			// c is not supported by the GSM character set.
-			System.out.printf("Character unmapped to GSM chars [%1$c(%1$x):%2$c(%2$x):%3$c(%3$x)]\n",
-					c,c_withoutDiacritics,c_compatibility);
+			System.out.printf("Character unmapped to GSM chars [%c(%x):%c(%x):%c(%x)]\n",
+					c,Character.getNumericValue(c),
+					c_withoutDiacritics,Character.getNumericValue(c_withoutDiacritics),
+					c_compatibility,Character.getNumericValue(c_compatibility));
 		}
 		return sb.toString().trim();
 	}
