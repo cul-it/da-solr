@@ -81,7 +81,8 @@ public class CharacterSetUtils {
 				}
 			}
 			// c is not supported by the GSM character set.
-			System.out.printf("Character unmapped to GSM chars [%c:%c:%c]\n", c,c_withoutDiacritics,c_compatibility);
+			System.out.printf("Character unmapped to GSM chars [%1$c(%1$x):%2$c(%2$x):%3$c(%3$x)]\n",
+					c,c_withoutDiacritics,c_compatibility);
 		}
 		return sb.toString().trim();
 	}
