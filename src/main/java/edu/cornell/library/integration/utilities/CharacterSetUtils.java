@@ -55,7 +55,7 @@ public class CharacterSetUtils {
 		String s = Normalizer.normalize(orig, Normalizer.Form.NFC);
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
-			Character c = s.charAt(i);
+			char c = s.charAt(i);
 			if (gsmChars.contains(c)) {
 				sb.append(c);
 				continue;
@@ -63,8 +63,8 @@ public class CharacterSetUtils {
 			String s_withoutDiacritics = 
 					Normalizer.normalize(String.valueOf(c), Normalizer.Form.NFD).
 					replaceAll("[\\p{InCombiningDiacriticalMarks}]+", "");
-			Character c_withoutDiacritics = 0;
-			Character c_compatibility = 0;
+			char c_withoutDiacritics = 0;
+			char c_compatibility = 0;
 			if ( ! s_withoutDiacritics.isEmpty()) {
 				c_withoutDiacritics = s_withoutDiacritics.charAt(0);
 				if (gsmChars.contains(c_withoutDiacritics)) {
