@@ -29,6 +29,7 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.generator.Language;
+import edu.cornell.library.integration.metadata.support.Relator;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.voyager.DownloadMARC;
 
@@ -44,7 +45,7 @@ public class ASpaceBibImportConvert {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\November14";
+		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\November17";
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
@@ -258,6 +259,42 @@ public class ASpaceBibImportConvert {
 			return this.name() + " (" + this.label + ")";
 		}
 	}
+	private static void applyFullRelatorNames(MarcRecord newMarc) {
+		for ( DataField f : newMarc.dataFields )
+			if ( f.tag.endsWith("00") || f.tag.endsWith("10") || f.tag.endsWith("11") ) {
+				Subfield prev = null;
+				for ( Subfield sf : f.subfields ) {
+					if ( sf.code.equals('4') || sf.code.equals('e') ) {
+						Relator r = null;
+						try {
+							r = Relator.valueOf(sf.value.replaceAll("[^a-z]",""));
+						} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
+							r = Relator.valueOfString(sf.value.replaceAll("[\\.,]*$", "").toLowerCase());
+						}
+						if ( r == null ) {
+							System.out.printf("Unrecognized relator code: %s (B%s)\n",sf.value,newMarc.controlFields.first().value);
+							prev = sf; continue;
+						}
+						if ( sf.equals(f.subfields.last()) )
+							sf.value = r.toString()+'.';
+						else
+							sf.value = r.toString();
+						sf.code = 'e';
+						if ( prev != null ) {
+							Matcher m = neededTerminalPeriod.matcher(prev.value);
+							if ( m.matches() ) {
+								prev.value = prev.value.replaceAll("[\\., ]+$", "\\.,");
+							} else {
+								prev.value = prev.value.replaceAll("[\\., ]+$",",");
+								prev.value = prev.value.replaceAll("- ?,$", "-");
+							}
+						}
+					}
+					prev = sf;
+				}
+			}
+	}
+
 
 	// TITLE
 	private static void apply245numberOfNonfilingChars(MarcRecord newMarc, MarcRecord oldMarc) {
@@ -663,6 +700,8 @@ public class ASpaceBibImportConvert {
 		cleanUp546Spacing(newMarc);
 		cleanUpEmptyFields(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
+		applyFullRelatorNames(newMarc);
+
 		newMarc.leader = newMarc.leader.substring(0, 5) + 'n' + newMarc.leader.substring(6);
 		newMarc.dataFields.add(new DataField(assignNewFieldId(newMarc,899),"899",'1',' ',"‡a culaspacecol"));
 		newMarc.dataFields.add(new DataField(assignNewFieldId(newMarc,952),"952",'8',' ',"‡b rmc ‡h "+collectionId));
@@ -707,6 +746,7 @@ public class ASpaceBibImportConvert {
 		cleanUpEmptyFields(newMarc);
 		flattenUnicodePunctuationAndSpacing(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
+		applyFullRelatorNames(newMarc);
 
 		StringBuilder bibDiffs = compareOldAndNewMarc(oldMarcFields, serializeForComparison(newMarc));
 		if (bibDiffs == null)
@@ -802,4 +842,5 @@ public class ASpaceBibImportConvert {
 
 	private static Pattern century = Pattern.compile("\\[(\\d\\d)--\\]\\.?");
 	private static Pattern undated = Pattern.compile("[Uu]ndated\\.?");
+	private static Pattern neededTerminalPeriod = Pattern.compile(".*(Mrs|Inc|Sr|[A-Z])\\.[\\.,]*$");
 }

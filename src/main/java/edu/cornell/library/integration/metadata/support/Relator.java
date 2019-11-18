@@ -20,7 +20,7 @@ package edu.cornell.library.integration.metadata.support;
  *   // -> returns null
  * 
  */
-enum Relator {
+public enum Relator {
 	abr("abridger"),
 	acp("art copyist"),
 	act("actor"),
@@ -298,7 +298,7 @@ enum Relator {
 		this.string = string;
 	}
 
-	static Relator valueOfString( String string ) {
+	public static Relator valueOfString( String string ) {
 		for ( Relator r : Relator.values() ) {
 			if (r.toString().equals(string))
 				return r;
