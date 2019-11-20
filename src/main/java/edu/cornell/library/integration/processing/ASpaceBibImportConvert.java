@@ -45,7 +45,7 @@ public class ASpaceBibImportConvert {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\November17";
+		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\November19";
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
@@ -581,13 +581,16 @@ public class ASpaceBibImportConvert {
 					f.tag = "264";
 					f.ind2 = '1';
 				}
-/*				if (f.tag.equals("856")) {
+				if (f.tag.equals("856")) {
 					boolean findingAid = false;
 					for (Subfield sf : f.subfields)
 						if ( (sf.code.equals('3') || sf.code.equals('z')) && sf.value.equalsIgnoreCase("Finding aid") )
 							findingAid = true;
+					if ( findingAid ) for (Subfield sf : f.subfields)
+						if ( sf.code.equals('x') && sf.value.equals("aspace_protected") )
+							findingAid = false;
 					if (findingAid) continue;
-				}*/
+				}
 				DataField newF = new DataField(assignNewFieldId(newMarc, Integer.valueOf(f.tag)), f.tag, f.ind1, f.ind2,
 						f.subfields);
 				newMarc.dataFields.add(newF);
@@ -700,7 +703,7 @@ public class ASpaceBibImportConvert {
 		cleanUp546Spacing(newMarc);
 		cleanUpEmptyFields(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
-		applyFullRelatorNames(newMarc);
+//		applyFullRelatorNames(newMarc);
 
 		newMarc.leader = newMarc.leader.substring(0, 5) + 'n' + newMarc.leader.substring(6);
 		newMarc.dataFields.add(new DataField(assignNewFieldId(newMarc,899),"899",'1',' ',"‡a culaspacecol"));
@@ -733,11 +736,8 @@ public class ASpaceBibImportConvert {
 		handleAuthorTitleFields(newMarc);
 		flip245fg_to264_0(newMarc);
 		apply245numberOfNonfilingChars(newMarc, oldMarc);
-		List<DataField> f856s = new ArrayList<>();
-//		for ( DataField f : newMarc.dataFields ) if (f.tag.equals("856"))
-//			for ( Subfield sf : f.subfields ) if ( sf.code.equals('z') ) sf.code = '3';
-		for ( DataField f : newMarc.dataFields ) if (f.tag.equals("856") ) f856s.add(f);
-		for ( DataField f : f856s ) newMarc.dataFields.remove(f);//TODO 856
+		for ( DataField f : newMarc.dataFields ) if (f.tag.equals("856"))
+			for ( Subfield sf : f.subfields ) if ( sf.code.equals('z') ) sf.code = '3'; //TODO remove when aspace exporting 3's.
 		insertVariousVoyagerManagedFields(newMarc, oldMarc);
 		unlinkUnprotected880Fields(newMarc);
 		suppressNoPrimaryCreator(newMarc);
@@ -746,7 +746,7 @@ public class ASpaceBibImportConvert {
 		cleanUpEmptyFields(newMarc);
 		flattenUnicodePunctuationAndSpacing(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
-		applyFullRelatorNames(newMarc);
+//		applyFullRelatorNames(newMarc);
 
 		StringBuilder bibDiffs = compareOldAndNewMarc(oldMarcFields, serializeForComparison(newMarc));
 		if (bibDiffs == null)

@@ -76,7 +76,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			byte[] fieldValue =  Arrays.copyOfRange(data, fieldStartPos, fieldStartPos+fieldLength);
 			directoryPos += 12;
 			if ( tag.startsWith("00") )
-				this.controlFields.add( new ControlField( fieldId++, tag, new String(
+				this.controlFields.add( new ControlField( 100*fieldId++, tag, new String(
 						Arrays.copyOfRange(fieldValue,0,fieldValue.length-1),StandardCharsets.UTF_8)));
 			else {
 				char ind1 = (char)fieldValue[0];
@@ -95,7 +95,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					subfields.add(new Subfield(startpos,(char)fieldValue[startpos],Normalizer.normalize(
 							new String( Arrays.copyOfRange(fieldValue, startpos+1, endpos),StandardCharsets.UTF_8),Normalizer.Form.NFC)));
 				}
-				this.dataFields.add(new DataField(fieldId++,tag,ind1,ind2,subfields));
+				this.dataFields.add(new DataField(100*fieldId++,tag,ind1,ind2,subfields));
 			}
 		}
 		F: for ( DataField f : this.dataFields )
