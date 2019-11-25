@@ -74,4 +74,15 @@ public class NewBooksTest {
 		assertEquals( "acquired_dt: 2004-07-06T00:00:00Z\nacquired_month: 2004-07\n",
 				this.gen.generateSolrFields(bibRec, null).toString() );
 	}
+
+	@Test
+	public void testInvalidAcquisitionDate() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.dataFields.add(new DataField(1,"948",'1',' ',"‡a 20022904 ‡b l ‡d pem2 ‡e lts ‡f ? ‡h ?"));
+		bibRec.id = "520808";
+		assertEquals( "",
+				this.gen.generateSolrFields(bibRec, null).toString() );
+	}
+
+
 }

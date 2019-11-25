@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.metadata.generator;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -72,13 +73,21 @@ public class NewBooks implements SolrFieldGenerator {
 		Integer acquiredDate = null;
 		for (String f948a : f948as) {
 			Integer date = Integer.valueOf(f948a.substring(0, 8));
-			if (acquiredDate == null || acquiredDate < date && Integer.valueOf(f948a.substring(4, 6)) <= 12 )
+			if (acquiredDate == null || acquiredDate < date ) {
 				acquiredDate = date;
+			}
 		}
 		if (acquiredDate != null) {
 			String date_s = acquiredDate.toString().replaceAll("(\\d{4})(\\d{2})(\\d{2})", "$1-$2-$3T00:00:00Z");
-			vals.add(new SolrField("acquired_dt",date_s));
-			vals.add(new SolrField("acquired_month",date_s.substring(0,7)));
+			try {
+				// Validate timestamp by instantiating java.sql.Timestamp.
+				@SuppressWarnings("unused")
+				Timestamp t = Timestamp.valueOf(date_s.replaceAll("[TZ]", " ").trim());
+				vals.add(new SolrField("acquired_dt",date_s));
+				vals.add(new SolrField("acquired_month",date_s.substring(0,7)));
+			} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
+				System.out.printf("B%s has invalid acquisition date: %s\n", bib.id, date_s);
+			}
 		}
 		return vals;
 	}
