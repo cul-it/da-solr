@@ -72,7 +72,7 @@ public class NewBooks implements SolrFieldGenerator {
 		Integer acquiredDate = null;
 		for (String f948a : f948as) {
 			Integer date = Integer.valueOf(f948a.substring(0, 8));
-			if (acquiredDate == null || acquiredDate < date)
+			if (acquiredDate == null || acquiredDate < date && Integer.valueOf(f948a.substring(4, 6)) <= 12 )
 				acquiredDate = date;
 		}
 		if (acquiredDate != null) {
