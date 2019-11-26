@@ -16,7 +16,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities;
 public class SimpleProc implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -44,6 +44,7 @@ public class SimpleProc implements SolrFieldGenerator {
 			String searchSubfields = null;
 			String displayCleanupChars = null;
 			Boolean titleMode = false;
+			Boolean separateSubfields = false;
 			switch (Integer.valueOf(f.mainTag)) {
 			case 10:
 				searchField = "lc_controlnum_s";
@@ -216,6 +217,7 @@ public class SimpleProc implements SolrFieldGenerator {
 				searchSubfields = "ab";
 				break;
 			case 902:
+				separateSubfields = true;
 				displayField = "donor_display";
 				displaySubfields = "b";
 				break;
@@ -228,11 +230,21 @@ public class SimpleProc implements SolrFieldGenerator {
 
 			}
 			if (displaySubfields != null) {
-				String displayValue = f.concatenateSpecificSubfields(displaySubfields);
-				if (displayCleanupChars != null)
-					displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
-				if (! displayValue.isEmpty())
-					sfs.add(new SolrField(displayField,displayValue));
+				if ( separateSubfields ) {
+					List<String> displayValues = f.valueListForSpecificSubfields(displaySubfields);
+					for (String displayValue : displayValues) {
+						if (displayCleanupChars != null)
+							displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
+						if (! displayValue.isEmpty())
+							sfs.add(new SolrField(displayField,displayValue));
+					}
+				} else {
+					String displayValue = f.concatenateSpecificSubfields(displaySubfields);
+					if (displayCleanupChars != null)
+						displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
+					if (! displayValue.isEmpty())
+						sfs.add(new SolrField(displayField,displayValue));
+				}
 			}
 			if (searchSubfields != null) {
 				String searchValue = f.concatenateSpecificSubfields(searchSubfields);

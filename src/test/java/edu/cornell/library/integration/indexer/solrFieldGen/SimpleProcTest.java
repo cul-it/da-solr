@@ -180,4 +180,15 @@ public class SimpleProcTest {
 		"notes_t: Here's the third note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
+
+	@Test
+	public void twoDonor902Field() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"902",' ',' ',"‡a pfnd ‡b Goodkind ‡b Midland Friends"));
+		rec.id = "7461";
+		assertEquals(
+				"donor_display: Goodkind\n" + 
+				"donor_display: Midland Friends\n",
+				this.gen.generateSolrFields(rec, null).toString());
+	}
 }
