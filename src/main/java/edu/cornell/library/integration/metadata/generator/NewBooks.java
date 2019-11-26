@@ -13,6 +13,7 @@ import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
+import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
@@ -24,7 +25,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class NewBooks implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings"); }
@@ -58,37 +59,34 @@ public class NewBooks implements SolrFieldGenerator {
 
 		// Begin New Books Logic
 
-		Collection<String> f948as = new HashSet<>();
+		Timestamp acquisitionDate = null;
 		for (DataField f : bib.dataFields)   if (f.tag.equals("948") && f.ind1.equals('1'))
-			for (Subfield sf : f.subfields)  if (sf.code.equals('a') && yyyymmdd.matcher(sf.value).matches())
-				f948as.add(sf.value);
+			for (Subfield sf : f.subfields)  if (sf.code.equals('a')) {
+				if (! yyyymmdd.matcher(sf.value).matches() ) {
+					System.out.printf("B%s has invalid acquisition date: %s\n", bib.id, sf.value);
+					vals.add(new BooleanSolrField("acquired_date_invalid_b",true));
+				} else {
+					try {
+						Timestamp t = Timestamp.valueOf(sf.value.replaceAll("(\\d{4})(\\d{2})(\\d{2})", "$1-$2-$3 00:00:00"));
+						if ( acquisitionDate == null || t.after(acquisitionDate) )
+							acquisitionDate = t;
+					} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
+						System.out.printf("B%s has invalid acquisition date: %s\n", bib.id, sf.value);
+						vals.add(new BooleanSolrField("acquired_date_invalid_b",true));
+					}
+				}
+			}
 
-		if ( f948as.isEmpty() ) return vals;
+		if ( acquisitionDate == null ) return vals;
 
 		// Stop processing if record is microform
 		for (ControlField f : bib.controlFields)
 			if (f.tag.equals("007") && ! f.value.isEmpty() && f.value.substring(0,1).equals("h"))
 				return vals;
 
-		Integer acquiredDate = null;
-		for (String f948a : f948as) {
-			Integer date = Integer.valueOf(f948a.substring(0, 8));
-			if (acquiredDate == null || acquiredDate < date ) {
-				acquiredDate = date;
-			}
-		}
-		if (acquiredDate != null) {
-			String date_s = acquiredDate.toString().replaceAll("(\\d{4})(\\d{2})(\\d{2})", "$1-$2-$3T00:00:00Z");
-			try {
-				// Validate timestamp by instantiating java.sql.Timestamp.
-				@SuppressWarnings("unused")
-				Timestamp t = Timestamp.valueOf(date_s.replaceAll("[TZ]", " ").trim());
-				vals.add(new SolrField("acquired_dt",date_s));
-				vals.add(new SolrField("acquired_month",date_s.substring(0,7)));
-			} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
-				System.out.printf("B%s has invalid acquisition date: %s\n", bib.id, date_s);
-			}
-		}
+		String formattedDate = String.format("%1$tFT%1$tTZ",acquisitionDate);
+		vals.add(new SolrField("acquired_dt",formattedDate));
+		vals.add(new SolrField("acquired_month",formattedDate.substring(0,7)));
 		return vals;
 	}
 	private static Pattern yyyymmdd = Pattern.compile("[0-9]{8}");

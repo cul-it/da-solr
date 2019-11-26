@@ -80,7 +80,7 @@ public class NewBooksTest {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"948",'1',' ',"‡a 20022904 ‡b l ‡d pem2 ‡e lts ‡f ? ‡h ?"));
 		bibRec.id = "520808";
-		assertEquals( "",
+		assertEquals( "acquired_date_invalid_b: true\n",
 				this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
