@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
+import com.ctc.wstx.exc.WstxEOFException;
+
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -45,7 +47,7 @@ public class ASpaceBibImportConvert {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\November19";
+		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\December2";
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
@@ -54,8 +56,14 @@ public class ASpaceBibImportConvert {
 		StringBuilder allDiffs = new StringBuilder();
 		int changedBibCount = 0;
 		for (String file : listFilesForFolder(new File(marcDirectory))) {
-			MarcRecord newMarc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC,
-					readFile(marcDirectory + "\\" + file));
+			MarcRecord newMarc = null;
+			try {
+				newMarc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC, readFile(marcDirectory + "\\" + file));
+			} catch ( WstxEOFException e ) {
+				System.out.printf("File %s is not valid XML.\n",file);
+				e.printStackTrace();
+				continue;
+			}
 			Matcher m = bibIdFileName.matcher(file);
 			if (m.matches()) {
 				newMarc.id = m.group(1);
