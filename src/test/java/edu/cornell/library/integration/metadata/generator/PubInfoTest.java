@@ -125,4 +125,17 @@ public class PubInfoTest {
 			assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 		}
 	}
+
+	@Test
+	public void complexDateDedupe() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "7982587";
+		rec.controlFields.add(new ControlField(1,"008","120820s2012    th a     b    000 0 thaod"));
+		rec.dataFields.add(new DataField(2,3,"260",' ','1',
+				"‡6 880-03 ‡a Krung Thēp : ‡b Bō̜risat Samnakphim Phō̜. Sō̜. Phatthanā Čhamkat, ‡c 2555 [2012]",false));
+		rec.dataFields.add(new DataField(3,3,"260",' ','1',"‡6 264-03 ‡a กรุงเทพฯ : ‡b บริษัท สำนักพิมพ์ พ.ศ. พัฒนา จำกัด, ‡c 2555 [2012]",true));
+		System.out.println(this.gen.generateSolrFields(rec,null).toString());
+	}
+
+
 }

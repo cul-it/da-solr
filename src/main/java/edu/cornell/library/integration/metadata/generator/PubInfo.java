@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,7 +41,7 @@ public class PubInfo implements SolrFieldGenerator {
 	private static final int current_year = Calendar.getInstance().get(Calendar.YEAR);
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("008","260","264"); }
@@ -51,9 +53,9 @@ public class PubInfo implements SolrFieldGenerator {
 
 		List<String> machineDates = ( rec.controlFields.isEmpty() ) ?  new ArrayList<>() : process008(rec, sfs);
 
-		List<String> humanDates = ( rec.dataFields.isEmpty() ) ? new ArrayList<>() : process26X(rec, sfs);
+		Set<String> humanDates = ( rec.dataFields.isEmpty() ) ? new LinkedHashSet<>() : process26X(rec, sfs);
 
-		List<String> displayDates = dedupeDisplayDates( humanDates );
+		Set<String> displayDates = dedupeDisplayDates( humanDates );
 		if (! displayDates.isEmpty())
 			sfs.fields.add(new SolrField("pub_date_display",String.join(" ", displayDates)));
 		Collection<String> allDates = new TreeSet<>();
@@ -97,8 +99,8 @@ public class PubInfo implements SolrFieldGenerator {
 		return machineDates;
 	}
 
-	private static List<String> process26X(MarcRecord rec, SolrFields sfs) {
-		List<String> humanDates = new ArrayList<>();
+	private static Set<String> process26X(MarcRecord rec, SolrFields sfs) {
+		Set<String> humanDates = new LinkedHashSet<>();
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 		for( DataFieldSet fs: sets ) {
 
@@ -158,7 +160,7 @@ public class PubInfo implements SolrFieldGenerator {
 	 * all represent the same year, then we'll display just the year instead of the duplicates.
 	 * DISCOVERYACCESS-1539
 	 */
-	private static List<String> dedupeDisplayDates( List<String> humanDates ) {
+	private static Set<String> dedupeDisplayDates( Set<String> humanDates ) {
 		if (humanDates.size() < 2) return humanDates;
 		Collection<String> years = new HashSet<>(); //hashset drops duplicates
 		for (String date : humanDates) {
@@ -175,7 +177,7 @@ public class PubInfo implements SolrFieldGenerator {
 				return humanDates;
 		}
 		if (years.size() == 1)
-			return Arrays.asList(years.iterator().next());
+			return new LinkedHashSet<>(Arrays.asList(years.iterator().next()));
 		return humanDates;
 	}
 }
