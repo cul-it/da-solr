@@ -58,7 +58,7 @@ public class ASpaceBibImportConvert {
 		for (String file : listFilesForFolder(new File(marcDirectory))) {
 			MarcRecord newMarc = null;
 			try {
-				newMarc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC, readFile(marcDirectory + "\\" + file));
+				newMarc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC, readFile(marcDirectory + "\\" + file), true);
 			} catch ( WstxEOFException e ) {
 				System.out.printf("File %s is not valid XML.\n",file);
 				e.printStackTrace();

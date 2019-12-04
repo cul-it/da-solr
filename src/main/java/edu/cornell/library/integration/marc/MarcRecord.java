@@ -46,7 +46,12 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			this.holdings = new TreeSet<>();
 	}
 
+	@Deprecated
 	public MarcRecord( RecordType type , String marcXml ) throws IOException, XMLStreamException {
+		this(type, marcXml, true);
+	}
+
+	public MarcRecord( RecordType type , String marcXml, boolean trimSubfields ) throws IOException, XMLStreamException {
 		this( type );
 		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
 		XMLInputFactory input_factory = XMLInputFactory.newInstance();
@@ -54,7 +59,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		while (r.hasNext())
 			if (r.next() == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
-					processRecord(r);
+					processRecord(r, trimSubfields);
 					break; // We only want one record - ignore additional
 				}
 		}
@@ -112,23 +117,6 @@ public class MarcRecord implements Comparable<MarcRecord>{
 				this.id = f.value;
 				break;
 			}
-	}
-
-	public static List<MarcRecord> getMarcRecords( RecordType type, String marcXml )
-			throws IOException, XMLStreamException {
-		List<MarcRecord> recs = new ArrayList<>();
-		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
-		XMLInputFactory input_factory = XMLInputFactory.newInstance();
-		XMLStreamReader read  = input_factory.createXMLStreamReader(is);
-		while (read.hasNext())
-			if (read.next() == XMLStreamConstants.START_ELEMENT)
-				if (read.getLocalName().equals("record")) {
-					MarcRecord rec = new MarcRecord( type );
-					rec.processRecord(read);
-					recs.add(rec);
-				}
-		}
-		return recs;
 	}
 
 	@Override
@@ -304,7 +292,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	}
 
 
-	private void processRecord( XMLStreamReader r ) throws XMLStreamException {
+	private void processRecord( XMLStreamReader r, boolean trimSubfields ) throws XMLStreamException {
 
 		int fid = 0;
 		while (r.hasNext()) {
@@ -339,7 +327,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 							f.ind1 = r.getAttributeValue(i).charAt(0);
 						else if (r.getAttributeLocalName(i).equals("ind2"))
 							f.ind2 = r.getAttributeValue(i).charAt(0);
-					f.subfields = processSubfields(r);
+					f.subfields = processSubfields(r, trimSubfields);
 
 					for (Subfield sf : f.subfields) if (sf.code.equals('6'))
 						if (subfield6Pattern.matcher(sf.value).matches()) {
@@ -359,7 +347,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	}
 	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
-	private static TreeSet<Subfield> processSubfields( XMLStreamReader r ) throws XMLStreamException {
+	private static TreeSet<Subfield> processSubfields( XMLStreamReader r, boolean trimSubfields ) throws XMLStreamException {
 		TreeSet<Subfield> subfields = new TreeSet<>();
 		int id = 0;
 		while (r.hasNext()) {
@@ -374,7 +362,10 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						if (r.getAttributeLocalName(i).equals("code"))
 							code = r.getAttributeValue(i).charAt(0);
 					if (code == null) code = ' ';
-					subfields.add(new Subfield(++id,code,r.getElementText().trim()));
+					if ( trimSubfields )
+						subfields.add(new Subfield(++id,code,r.getElementText().trim()));
+					else
+						subfields.add(new Subfield(++id,code,r.getElementText()));
 				}
 		}
 		return subfields; // We should never reach this line.

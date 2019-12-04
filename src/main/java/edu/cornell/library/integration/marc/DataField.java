@@ -60,7 +60,7 @@ public class DataField implements Comparable<DataField> {
 			sb.append(subfieldSeparator);
 			sb.append(sf.code);
 			sb.append(" ");
-			sb.append(sf.value.trim());
+			sb.append(sf.value);
 		}
 		return sb;
 	}

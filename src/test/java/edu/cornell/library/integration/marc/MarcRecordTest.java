@@ -27,7 +27,7 @@ public class MarcRecordTest {
 				"      <subfield code=\"b\">serv,remo</subfield>\n"+
 				"      <subfield code=\"h\">No call number</subfield>\n"+
 				"    </datafield>\n"+
-				"  </record>" );
+				"  </record>", true );
 		assertEquals(
 				"000    00182nx  a22000851  4500\n"+
 				"001    7797875\n"+

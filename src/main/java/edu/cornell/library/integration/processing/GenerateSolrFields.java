@@ -19,6 +19,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLStreamException;
+
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -73,14 +75,15 @@ class GenerateSolrFields {
 	 *     input data.<br/><br/>
 	 *     If the return value is greater than zero, the updated Solr record data should be pushed to Solr.
 	 * @throws SQLException
-	 * @throws ClassNotFoundException
+	 * @throws XMLStreamException 
+	 * @throws IOException 
 	 */
 	BibChangeSummary generateSolr( MarcRecord rec, Config config, String recordVersions )
-			throws SQLException {
+			throws SQLException, IOException, XMLStreamException {
 		return generateSolr( rec, config, recordVersions, EnumSet.noneOf(Generator.class));
 	}
 	BibChangeSummary generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
-			throws SQLException {
+			throws SQLException, IOException, XMLStreamException {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,this.activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -135,7 +138,7 @@ class GenerateSolrFields {
 		return new BibChangeSummary(null);
 	}
 
-	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData) {
+	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData) throws IOException, XMLStreamException {
 		System.out.printf("Randomly regenerated segment %s produced changed output:\n", newGeneratorData.gen.name());
 		Set<String> newFields = Arrays.stream( newGeneratorData.solrSegment.split("\n") ).collect(Collectors.toSet());
 		Set<String> oldFields = Arrays.stream( newGeneratorData.oldData.solrSegment.split("\n") ).collect(Collectors.toSet());
@@ -143,6 +146,26 @@ class GenerateSolrFields {
 		for (String f : newFields) if (oldFields.contains(f)) commonFields.add(f);
 		newFields.removeAll(commonFields);
 		oldFields.removeAll(commonFields);
+		List<String> newMarc = newFields.stream().filter(f -> f.startsWith("marc_display: "))
+				.map(f -> f.replaceAll("^marc_display: ", "")).collect(Collectors.toList());
+		List<String> oldMarc = oldFields.stream().filter(f -> f.startsWith("marc_display: "))
+				.map(f -> f.replaceAll("^marc_display: ", "")).collect(Collectors.toList());
+		if ( ! newMarc.isEmpty() && ! oldMarc.isEmpty() ) {
+			System.out.println("MARC record compare!");
+			Set<String> newMarcFields = Arrays.stream((new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC,newMarc.get(0),false))
+					.toString().split("\n")).collect(Collectors.toSet());
+			Set<String> oldMarcFields = Arrays.stream((new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC,oldMarc.get(0),false))
+					.toString().split("\n")).collect(Collectors.toSet());
+			Set<String> commonMarcFields = new HashSet<>();
+			for (String f : newMarcFields) if ( oldMarcFields.contains(f) ) commonMarcFields.add(f);
+			newMarcFields.removeAll(commonMarcFields);
+			oldMarcFields.removeAll(commonMarcFields);
+			for ( String f : oldMarcFields ) System.out.printf("-marcfield- %s\n", f);
+			for ( String f : newMarcFields ) System.out.printf("+marcfield+ %s\n", f);
+			oldFields = oldFields.stream().filter(f -> ! f.startsWith("marc_display: ")).collect(Collectors.toSet());
+			newFields = newFields.stream().filter(f -> ! f.startsWith("marc_display: ")).collect(Collectors.toSet());
+			System.exit(0);
+		}
 		for (String f : oldFields) System.out.printf("- %s\n", f);
 		for (String f : newFields) System.out.printf("+ %s\n", f);
 	}

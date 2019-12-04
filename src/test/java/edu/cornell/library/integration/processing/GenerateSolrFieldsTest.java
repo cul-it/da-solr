@@ -48,18 +48,18 @@ public class GenerateSolrFieldsTest {
 
 	@Test
 	public void test4087458() throws IOException, XMLStreamException, SQLException {
-		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "4087458.xml" ));
-		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" )));
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "4087458.xml" ), true);
+		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" ), true));
 		gen.generateSolr(rec, config, null);
 	}
 
 	@Test
 	public void testRecordModification() throws IOException, XMLStreamException, SQLException {
-		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ));
-		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ));
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ), true);
+		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ), true);
 		rec.holdings.add(holdingRec);
 		gen.generateSolr(rec, config, "");
-		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ));
+		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ), true);
 		rec2.holdings.add(holdingRec);
 		gen.generateSolr(rec2, config, null);
 	}
@@ -76,7 +76,7 @@ public class GenerateSolrFieldsTest {
 	}
 
 	@Test
-	public void liveRecord() throws SQLException, IOException, InterruptedException {
+	public void liveRecord() throws SQLException, IOException, InterruptedException, XMLStreamException {
 		DownloadMARC marc = new DownloadMARC(config);
 		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, 9149595);
 		gen.generateSolr(rec, config, "");

@@ -48,7 +48,7 @@ public class CompareMARCWithVoyager {
 		Map<String,Integer> counts = new HashMap<>();
 		BIB: for ( String file : listFilesForFolder( new File( marcDirectory ) ) ) {
 			if ( ! file.endsWith(".xml") ) continue;
-			MarcRecord newMarc = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, readFile(marcDirectory+"\\"+file));
+			MarcRecord newMarc = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, readFile(marcDirectory+"\\"+file), true);
 			for (DataField f : newMarc.dataFields)
 				if (f.mainTag.equals("856"))
 					continue BIB;
