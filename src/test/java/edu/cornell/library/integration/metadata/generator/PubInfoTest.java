@@ -134,7 +134,20 @@ public class PubInfoTest {
 		rec.dataFields.add(new DataField(2,3,"260",' ','1',
 				"‡6 880-03 ‡a Krung Thēp : ‡b Bō̜risat Samnakphim Phō̜. Sō̜. Phatthanā Čhamkat, ‡c 2555 [2012]",false));
 		rec.dataFields.add(new DataField(3,3,"260",' ','1',"‡6 264-03 ‡a กรุงเทพฯ : ‡b บริษัท สำนักพิมพ์ พ.ศ. พัฒนา จำกัด, ‡c 2555 [2012]",true));
-		System.out.println(this.gen.generateSolrFields(rec,null).toString());
+		String expected =
+		"pub_date_sort: 2012\n" + 
+		"pub_date_facet: 2012\n" + 
+		"pub_info_display: กรุงเทพฯ : บริษัท สำนักพิมพ์ พ.ศ. พัฒนา จำกัด, 2555 [2012]\n" + 
+		"pub_info_display: Krung Thēp : Bō̜risat Samnakphim Phō̜. Sō̜. Phatthanā Čhamkat, 2555 [2012]\n" + 
+		"pubplace_display: กรุงเทพฯ / Krung Thēp\n" + 
+		"pubplace_t: กรุงเทพฯ / Krung Thēp\n" + 
+		"publisher_display: บริษัท สำนักพิมพ์ พ.ศ. พัฒนา จำกัด / Bō̜risat Samnakphim Phō̜. Sō̜. Phatthanā Čhamkat\n" + 
+		"publisher_t: บริษัท สำนักพิมพ์ พ.ศ. พัฒนา จำกัด / Bō̜risat Samnakphim Phō̜. Sō̜. Phatthanā Čhamkat\n" + 
+		"pub_date_display: 2555 [2012]\n" + 
+		"pub_date_t:     \n" + 
+		"pub_date_t: 2012\n" + 
+		"pub_date_t: 2555 [2012]\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 
 
