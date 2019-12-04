@@ -247,7 +247,7 @@ public class DataField implements Comparable<DataField> {
 		TreeSet<Subfield> sfs = new TreeSet<>();;
 		for ( Subfield sf : this.subfields )
 			sfs.add(new Subfield(sf.id,sf.code,sf.value));
-		DataField newDF = new DataField(this.id,this.tag,this.ind1,this.ind2,this.subfields);
+		DataField newDF = new DataField(this.id,this.tag,this.ind1,this.ind2,sfs);
 		newDF.linkNumber = this.linkNumber;
 		return newDF;
 	}
