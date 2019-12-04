@@ -9,11 +9,14 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.cornell.library.integration.marc.ControlField;
@@ -105,12 +108,8 @@ class GenerateSolrFields {
 				changedOutputs.add(newGeneratorData);
 				if ( newGeneratorData.triggerHeadingsUpdate )
 					changedHeadingsBlocks.add(newGeneratorData.gen.name());
-				if ( newGeneratorData.marcStatus.equals(Status.RANDOM) ) {
-					System.out.printf("Randomly regenerated segment %s produced changed output:",
-							newGeneratorData.gen.name());
-					System.out.println(newGeneratorData.marcSegment);
-					System.out.println(newGeneratorData.solrSegment);
-				}
+				if ( newGeneratorData.marcStatus.equals(Status.RANDOM) )
+					writeInformationAboutChangesToLog( newGeneratorData );
 			}
 			else if ( ! newGeneratorData.solrStatus.equals(Status.UNGENERATED))
 				generatedNotChanged.add(newGeneratorData);
@@ -134,6 +133,18 @@ class GenerateSolrFields {
 			return new BibChangeSummary(changeSummary);
 		}
 		return new BibChangeSummary(null);
+	}
+
+	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData) {
+		System.out.printf("Randomly regenerated segment %s produced changed output:\n", newGeneratorData.gen.name());
+		Set<String> newFields = Arrays.stream( newGeneratorData.solrSegment.split("\n") ).collect(Collectors.toSet());
+		Set<String> oldFields = Arrays.stream( newGeneratorData.oldData.solrSegment.split("\n") ).collect(Collectors.toSet());
+		Set<String> commonFields = new HashSet<>();
+		for (String f : newFields) if (oldFields.contains(f)) commonFields.add(f);
+		newFields.removeAll(commonFields);
+		oldFields.removeAll(commonFields);
+		for (String f : oldFields) System.out.printf("- %s\n", f);
+		for (String f : newFields) System.out.printf("+ %s\n", f);
 	}
 
 	/**
@@ -322,6 +333,7 @@ class GenerateSolrFields {
 			return null;
 		}
 		BibGeneratorData newData = new BibGeneratorData( marcSegment, solrFields, Timestamp.valueOf(now) );
+		newData.oldData = origData;
 		newData.marcStatus = marcStatus;
 		newData.solrStatus = (origData.solrSegment == null) ? Status.NEW :
 			( solrFields.equals(origData.solrSegment) ) ? Status.UNCHANGED : Status.CHANGED;
@@ -427,6 +439,7 @@ class GenerateSolrFields {
 		Status marcStatus = null;
 		Status solrStatus = null;
 		Generator gen = null;
+		BibGeneratorData oldData = null;
 		boolean triggerHeadingsUpdate = false;
 		public BibGeneratorData( String marcSegment, String solrSegment, Timestamp solrGenDate) {
 			this.marcSegment = marcSegment;
