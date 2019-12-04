@@ -164,7 +164,6 @@ class GenerateSolrFields {
 			for ( String f : newMarcFields ) System.out.printf("+marcfield+ %s\n", f);
 			oldFields = oldFields.stream().filter(f -> ! f.startsWith("marc_display: ")).collect(Collectors.toSet());
 			newFields = newFields.stream().filter(f -> ! f.startsWith("marc_display: ")).collect(Collectors.toSet());
-			System.exit(0);
 		}
 		for (String f : oldFields) System.out.printf("- %s\n", f);
 		for (String f : newFields) System.out.printf("+ %s\n", f);
