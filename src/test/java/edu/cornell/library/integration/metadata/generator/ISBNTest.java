@@ -51,8 +51,10 @@ public class ISBNTest {
 		rec.dataFields.add(new DataField( 2, 1, "020", ' ',' ',"‡6 020-01/$1 ‡a 4892032867 (中卷)", true));
 		String expected =
 		"isbn_t: 4892032867\n"+
+		"isbn_t: 9784892032868\n"+
 		"isbn_display: 4892032867 (中卷)\n"+
 		"isbn_t: 4892032867\n"+
+		"isbn_t: 9784892032868\n"+
 		"isbn_display: 4892032867 (v. 2)\n";
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
@@ -121,10 +123,15 @@ public class ISBNTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 1907427139 ‡q ‡q (pt. 2 ; ‡q hardback)"));
 		String expected =
-		"isbn_t: 1907427139\n" + 
+		"isbn_t: 1907427139\n" +
+		"isbn_t: 9781907427138\n"+
 		"isbn_display: 1907427139 (pt. 2 ; hardback)\n";
 		assertEquals( 4, rec.dataFields.first().subfields.size() );//confirm loader didn't drop empty sf
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
 	}
 
+	public void isbn10to13conv() {
+		// example from https://isbn-information.com/convert-isbn-10-to-isbn-13.html
+		assertEquals( "9781861972712", ISBN.isbn10to13("1861972717"));
+	}
 }
