@@ -20,7 +20,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class ISBN implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.1a"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("020"); }
@@ -51,7 +51,8 @@ public class ISBN implements SolrFieldGenerator {
 					searchISBN = searchISBN.replaceAll("[^0-9]", "");
 					vals.add(new SolrField( "isbn_t", searchISBN ));
 					if (searchISBN.length() == 10) vals.add(new SolrField( "isbn_t", isbn10to13(searchISBN) ));
-
+					else if ( searchISBN.length() == 13 && searchISBN.startsWith("978") )
+						vals.add(new SolrField( "isbn_t", isbn13to10(searchISBN) ));
 					break;
 				case 'c':
 					// Not currently displayed
@@ -87,6 +88,15 @@ public class ISBN implements SolrFieldGenerator {
 			}
 		}
 		return vals;
+	}
+
+	static String isbn13to10(String searchISBN) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(searchISBN.substring(3,12));
+		int checksum = 0;
+		for ( int i = 0; i < 9; i++ ) checksum += (10-i)*Integer.valueOf( sb.substring(i,i+1) );
+		sb.append( (11-(checksum%11))%11 );
+		return sb.toString();
 	}
 
 	static String isbn10to13(String searchISBN) {

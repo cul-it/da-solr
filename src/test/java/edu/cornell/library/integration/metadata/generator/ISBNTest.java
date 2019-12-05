@@ -30,6 +30,7 @@ public class ISBNTest {
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 9782709656825 (pbk.) : ‡c 19,00 EUR"));
 		String expected =
 		"isbn_t: 9782709656825\n"+
+		"isbn_t: 2709656825\n"+
 		"isbn_display: 9782709656825 (pbk.)\n";
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
@@ -40,6 +41,7 @@ public class ISBNTest {
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 9789712726187 ‡q (book 3 : ‡q np)"));
 		String expected =
 		"isbn_t: 9789712726187\n"+
+		"isbn_t: 9712726185\n"+
 		"isbn_display: 9789712726187 (book 3 ; np)\n";
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
@@ -92,8 +94,10 @@ public class ISBNTest {
 		rec.dataFields.add(new DataField( 2, 1, "020", ' ',' ',"‡6 020-01/$1 ‡a 9789860433265 ‡q (平裝)", true));
 		String expected =
 		"isbn_t: 9789860433265\n"+
+		"isbn_t: 9860433267\n"+
 		"isbn_display: 9789860433265 (平裝)\n"+
 		"isbn_t: 9789860433265\n"+
+		"isbn_t: 9860433267\n"+
 		"isbn_display: 9789860433265\n";
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
@@ -130,8 +134,26 @@ public class ISBNTest {
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
 	}
 
+	@Test
 	public void isbn10to13conv() {
-		// example from https://isbn-information.com/convert-isbn-10-to-isbn-13.html
 		assertEquals( "9781861972712", ISBN.isbn10to13("1861972717"));
+		assertEquals( "9780000000002", ISBN.isbn10to13("0000000000"));
+		assertEquals( "9780201882957", ISBN.isbn10to13("0201882957"));
+		assertEquals( "9781420951301", ISBN.isbn10to13("1420951300"));
+		assertEquals( "9780452284234", ISBN.isbn10to13("0452284236"));
+		assertEquals( "9781292101767", ISBN.isbn10to13("1292101768"));
+		assertEquals( "9780345391803", ISBN.isbn10to13("0345391802"));
+		
 	}
+
+	@Test
+	public void isbn13to10conv() {
+		assertEquals( "0000000000", ISBN.isbn13to10("9780000000002"));
+		assertEquals( "0201882957", ISBN.isbn13to10("9780201882957"));
+		assertEquals( "1420951300", ISBN.isbn13to10("9781420951301 "));
+		assertEquals( "0452284236", ISBN.isbn13to10("9780452284234 "));
+		assertEquals( "1292101768", ISBN.isbn13to10("9781292101767"));
+		assertEquals( "0345391802", ISBN.isbn13to10("9780345391803"));
+	}
+
 }
