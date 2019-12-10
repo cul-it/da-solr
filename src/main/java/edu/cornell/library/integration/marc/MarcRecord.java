@@ -98,7 +98,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					int endpos = subfieldSeparatorPositions.get(i+1);
 					if (startpos >= endpos) continue;
 					subfields.add(new Subfield(startpos,(char)fieldValue[startpos],Normalizer.normalize(
-							new String( Arrays.copyOfRange(fieldValue, startpos+1, endpos),StandardCharsets.UTF_8),Normalizer.Form.NFC)));
+							new String( Arrays.copyOfRange(fieldValue, startpos+1, endpos),StandardCharsets.UTF_8)
+							.replaceAll("[\n\r]", " "),Normalizer.Form.NFC)));
 				}
 				this.dataFields.add(new DataField(100*fieldId++,tag,ind1,ind2,subfields));
 			}
