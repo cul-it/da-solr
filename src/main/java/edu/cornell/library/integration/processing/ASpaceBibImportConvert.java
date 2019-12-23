@@ -47,7 +47,7 @@ public class ASpaceBibImportConvert {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\December2";
+		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\December22";
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
@@ -711,7 +711,7 @@ public class ASpaceBibImportConvert {
 		cleanUp546Spacing(newMarc);
 		cleanUpEmptyFields(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
-//		applyFullRelatorNames(newMarc);
+		applyFullRelatorNames(newMarc);
 
 		newMarc.leader = newMarc.leader.substring(0, 5) + 'n' + newMarc.leader.substring(6);
 		newMarc.dataFields.add(new DataField(assignNewFieldId(newMarc,899),"899",'1',' ',"‡a culaspacecol"));
@@ -754,7 +754,7 @@ public class ASpaceBibImportConvert {
 		cleanUpEmptyFields(newMarc);
 		flattenUnicodePunctuationAndSpacing(newMarc);
 		moveSubfield2ToEndOfField(newMarc);
-//		applyFullRelatorNames(newMarc);
+		applyFullRelatorNames(newMarc);
 
 		StringBuilder bibDiffs = compareOldAndNewMarc(oldMarcFields, serializeForComparison(newMarc));
 		if (bibDiffs == null)
