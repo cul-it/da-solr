@@ -24,7 +24,7 @@ public class SimpleProc implements SolrFieldGenerator {
 				"010","022","210","222","242","243","246","247","250","255","300","310",
 				"362","500","501","502","503","504","506","508","511","513","515","518","520","521","522",
 				"523","524","525","527","530","533","534","535","537","538","540","541","544","545","547",
-				"550","556","561","565","567","570","580","581","582","773","856","899","902","903","940");
+				"550","556","561","565","567","570","580","581","582","586","773","856","899","902","903","940");
 	}
 
 	/**
@@ -204,6 +204,11 @@ public class SimpleProc implements SolrFieldGenerator {
 				searchSubfields = "a";
 				break;
 			case 582:    displaySubfields = "3a";        searchSubfields = "a";        break;
+			case 586:
+				displayField = "awards_display";
+				displaySubfields = "3a";
+				searchSubfields = "a";
+				break;
 			case 773:
 				displayField = "in_display";
 				displaySubfields = "abdghikmnopqrstuw";

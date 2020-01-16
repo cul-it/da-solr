@@ -191,4 +191,22 @@ public class SimpleProcTest {
 				"donor_display: Midland Friends\n",
 				this.gen.generateSolrFields(rec, null).toString());
 	}
+
+	@Test
+	public void testAward() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"300",' ',' ',"‡a 66 pages ; ‡c 20 cm"));
+		rec.dataFields.add(new DataField(2,"520",' ',' ',"‡a \"The story of Jackself is ..."));
+		rec.dataFields.add(new DataField(3,"586",' ',' ',"‡a T. S. Eliot Prize for Poetry, 2016."));
+		rec.id = "9909446";
+		String expected =
+		"description_display: 66 pages ; 20 cm\n" + 
+		"notes_t: 66 pages ; 20 cm\n" + 
+		"summary_display: \"The story of Jackself is ...\n" + 
+		"notes_t: \"The story of Jackself is ...\n" + 
+		"awards_display: T. S. Eliot Prize for Poetry, 2016.\n" + 
+		"notes_t: T. S. Eliot Prize for Poetry, 2016.\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
 }
