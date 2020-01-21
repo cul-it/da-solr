@@ -34,7 +34,7 @@ public class Language implements SolrFieldGenerator {
 	}
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("008","041","546"); }
