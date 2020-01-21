@@ -130,6 +130,14 @@ public class LanguageTest {
 		rec.id = "115969";
 		rec.controlFields.add(new ControlField(1,"008","741119c19669999hu fr p       0   a0mul u"));
 		rec.dataFields.add(new DataField(2,"041",'0',' ',"‡a engrusger"));
-		System.out.println(this.gen.generateSolrFields ( rec, null ).toString());
+		String expected =
+		"language_facet: Multiple languages\n" + 
+		"language_facet: English\n" + 
+		"language_facet: Russian\n" + 
+		"language_facet: German\n" + 
+		"language_display: English, Russian, German.\n" + 
+		"language_articles_t: the a an\n" + 
+		"language_articles_t: das dem den der des die ein eine einem einen einer eines\n";
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 }
