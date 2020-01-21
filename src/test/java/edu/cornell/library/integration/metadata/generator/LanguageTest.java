@@ -122,4 +122,14 @@ public class LanguageTest {
 		"language_articles_t: el la lo los las un una\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
+
+	@Test
+	public void concatenatedLanguageCodesInSingleField()
+			throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "115969";
+		rec.controlFields.add(new ControlField(1,"008","741119c19669999hu fr p       0   a0mul u"));
+		rec.dataFields.add(new DataField(2,"041",'0',' ',"‡a engrusger"));
+		System.out.println(this.gen.generateSolrFields ( rec, null ).toString());
+	}
 }
