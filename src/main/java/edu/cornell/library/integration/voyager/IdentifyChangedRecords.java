@@ -287,12 +287,14 @@ public class IdentifyChangedRecords {
 							}
 							if (! this.updatedBibs.contains(bib_id)) {
 								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE, update_date);
+								addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
 								this.updatedBibs.add(bib_id);
 							}
 	
 							if (old_bib != bib_id
 									&& ! this.updatedBibs.contains(old_bib)) {
 								addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE, update_date);
+								addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
 								this.updatedBibs.add(old_bib);
 							}
 						} // else mfhd is unchanged - do nothing
@@ -303,6 +305,7 @@ public class IdentifyChangedRecords {
 						mfhdVoyDelStmt.setInt(1, mfhd_id);
 						mfhdVoyDelStmt.executeUpdate();
 						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_DELETE,update_date);
+						addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_DELETE,update_date);
 						this.updatedBibs.add(bib_id);
 					}
 					return;
