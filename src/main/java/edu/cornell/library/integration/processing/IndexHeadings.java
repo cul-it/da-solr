@@ -112,7 +112,7 @@ public class IndexHeadings {
 		int currentOffset = 0;
 		while (numFound > 0) {
 			URL queryUrl = new URL(blacklightSolrUrl+
-					"/select?qt=standard&q=id:*&rows=0&facet=true&facet.sort=index&facet.mincount=1&facet.field=" +
+					"/select?qt=standard&q=type:Catalog&rows=0&facet=true&facet.sort=index&facet.mincount=1&facet.field=" +
 					blf.fieldName() +"&facet.limit="+batchSize+"&facet.offset="+currentOffset+"&wt=xml");
 			numFound = addCountsToDB( queryUrl, blf );
 			currentOffset += batchSize;
@@ -322,7 +322,7 @@ public class IndexHeadings {
 		sb.append(this.config.getBlacklightSolrUrl());
 		sb.append("/select?&qt=standard&rows=0&echoParams=none&wt=xml" );
 		// all records
-		sb.append( "&q=*%3A*" ); // q=*:*
+		sb.append( "&q=type:Catalog" );
 		// filtered by filing value
 		sb.append( "&fq=" );
 				sb.append(fieldName);
