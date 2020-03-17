@@ -67,7 +67,6 @@ public class HoldingsAndItemsTest {
 		"holdings_display: 10091152|20170321083807\n"+
 		"lc_callnum_full: DS665 .C36 2016\n"+
 		"callnum_sort: DS665 .C36 2016\n"+
-		"barcode_t: 31924124165360\n"+
 		"item_display: 10165353|10091152\n"+
 		"location_facet: Kroch Library Asia\n"+
 		"location: Kroch Library Asia\n"+
@@ -121,9 +120,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_full: TD878.48 .K46 2015\n"+
 		"lc_callnum_full: TD878.48 .K46 2015\n"+
 		"callnum_sort: TD878.48 .K46 2015\n"+
-		"barcode_t: 31924123751350\n"+
-		"barcode_t: 31924123751368\n"+
-		"barcode_t: 31924121536126\n"+
 		"item_display: 9758041|9193817\n"+
 		"item_display: 10159960|10155075\n"+
 		"item_display: 10159965|10155076\n"+
@@ -162,8 +158,6 @@ public class HoldingsAndItemsTest {
 		+ "ZA4050-4775 - Information in specific formats or media\n"+
 		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources:ZA - Information Resources:"
 		+ "ZA4050-4775 - Information in specific formats or media:ZA4050-4480 - Electronic information resources\n"+
-		"barcode_t: 31924123105896\n"+
-		"barcode_t: 31924122947132\n"+
 		"item_display: 10132536|10086111|20170126080507\n"+
 		"item_display: 10132539|10086111|20170126080516\n"+
 		"location_facet: Mann Library\n"+
@@ -199,8 +193,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: M - Music\n"+
 		"lc_callnum_facet: M - Music:M - Music\n"+
 		"lc_callnum_facet: M - Music:M - Music:M3-3.3 - Collected works of individual composers\n"+
-		"barcode_t: 31924123223772\n"+
-		"barcode_t: 31924123223764\n"+
 		"item_display: 10117928|10078053\n"+
 		"item_display: 10117929|10078053|20170103164717\n"+
 		"location_facet: Music Library\n"+
@@ -237,7 +229,6 @@ public class HoldingsAndItemsTest {
 		"callnum_sort: SF1 .E89 no.137\n"+
 		"lc_callnum_facet: S - Agriculture\n"+
 		"lc_callnum_facet: S - Agriculture:SF - Animal Culture\n"+
-		"barcode_addl_t: 31924123150835\n"+
 		"bound_with_json: {\"item_enum\":\"\",\"item_id\":10035199,\"mfhd_id\":\"10016824\","
 		+ "\"barcode\":\"31924123150835\"}\n"+
 		"location_facet: Mann Library\n"+
@@ -274,7 +265,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_full: Film 2600 1774-1850 Reel A-1, no.10.\n"+
 		"callnum_sort: Film 2600 1774-1850 Reel A-1, no.10.\n"+
 		"item_display: 10276119|3639439\n"+
-		"barcode_addl_t: 31924101012320\n"+
 		"location_facet: Library Annex\n"+
 		"location: Library Annex\n"+
 		"location: Library Annex > Library Annex\n"+
@@ -313,7 +303,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works\n"+
 		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works:AC1-195 - Collections of monographs, essays, etc.\n"+
 		"lc_callnum_facet: A - General:AC - Collections, Series, Collected works:AC1-195 - Collections of monographs, essays, etc.:AC1-8 - American and English\n"+
-		"barcode_t: 31924123845202\n"+
 		"item_display: 10125124|10076515|20170119150458\n"+
 		"location_facet: Olin Library\n"+
 		"location: Olin Library\n"+
@@ -352,7 +341,6 @@ public class HoldingsAndItemsTest {
 		"callnum_sort: HN49.V64 L37 2014\n"+
 		"lc_callnum_facet: H - Social Sciences\n"+
 		"lc_callnum_facet: H - Social Sciences:HN - Social History & Conditions, Problems & Reform\n"+
-		"barcode_t: 31924121020675\n"+
 		"item_display: 9610051|9094799\n"+
 		"location_facet: Olin Library\n"+
 		"location: Olin Library\n"+
@@ -390,7 +378,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: D - World History\n"+
 		"lc_callnum_facet: D - World History:D - History (General)\n"+
 		"lc_callnum_facet: D - World History:D - History (General):D501-680 - World War I (1914-1918)\n"+
-		"barcode_t: 31924124262290\n"+
 		"item_display: 10309656|10245520|20180702111338\n"+
 		"location_facet: Olin Library\n"+
 		"location: Olin Library\n"+
@@ -423,7 +410,6 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: K - Law\n"+
 		"lc_callnum_facet: K - Law:KF-KFZ - The United States\n"+
 		"lc_callnum_facet: K - Law:KF-KFZ - The United States:KF - Federal law.  Common and collective state law\n"+
-		"barcode_t: 31924120772565\n"+
 		"item_display: 10398999|10471410\n"+
 		"location_facet: Law Library\n"+
 		"location: Law Library\n"+
