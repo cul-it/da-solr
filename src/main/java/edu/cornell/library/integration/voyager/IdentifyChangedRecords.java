@@ -458,7 +458,7 @@ public class IdentifyChangedRecords {
 */
 		c = null; // to allow GC
 
- 	}
+	}
 
 	public static enum ChangeType {
 		ADD("Added Record",5),

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
 import edu.cornell.library.integration.voyager.DownloadMARC;
-import edu.cornell.library.integration.voyager.VoyagerUtilities;
 
 public class ProcessGenerationQueue {
 
@@ -116,9 +116,9 @@ public class ProcessGenerationQueue {
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
 
-				Versions v = new Versions( VoyagerUtilities.confirmBibRecordActive( voyager, bib) );
+				Versions v = new Versions( getBibRecordModDate( voyager, bib) );
 				if (v.bib == null) {
-					System.out.println("Record appears to be deleted or suppressed. Dequeuing.");
+					System.out.println("Record appears to be deleted. Dequeuing.");
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
 					bibRecsVoyUpdateStmt.setInt(1, bib);
@@ -127,7 +127,7 @@ public class ProcessGenerationQueue {
 					queueDeleteStmt.executeUpdate();
 					continue;
 				}
-				v.mfhds = VoyagerUtilities.confirmActiveMfhdRecords(voyager,bib);
+				v.mfhds = getMhfdRecordModDates(voyager,bib);
 
 				// Retrieve records
 				MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC,
@@ -153,6 +153,38 @@ public class ProcessGenerationQueue {
 				deqStmt.executeBatch();
 				
 			} while (true);
+		}
+	}
+
+	private static Map<Integer,Timestamp> getMhfdRecordModDates( Connection voyager, Integer bibId ) throws SQLException {
+		try ( PreparedStatement pstmt = voyager.prepareStatement
+				("SELECT mfhd_master.mfhd_id, create_date, update_date"
+				+ " FROM mfhd_master, bib_mfhd "
+				+ "WHERE BIB_MFHD.MFHD_ID = mfhd_master.mfhd_id"
+				+ "  AND bib_id = ?"
+				+ "  AND suppress_in_opac = 'N'")) {
+			pstmt.setInt(1, bibId);
+			try ( ResultSet rs = pstmt.executeQuery()) {
+				Map<Integer,Timestamp> mfhds = new HashMap<>();
+				while (rs.next()) {
+					Timestamp mod_date = rs.getTimestamp(3);
+					if (mod_date == null)
+						mod_date = rs.getTimestamp(2);
+					mfhds.put(rs.getInt(1), mod_date);
+				}
+				return mfhds;
+			}
+		}
+	}
+
+	private static Timestamp getBibRecordModDate( Connection voyager, Integer bibId ) throws SQLException {
+		try ( PreparedStatement pstmt = voyager.prepareStatement
+				("SELECT COALESCE(update_date,create_date) FROM bib_master WHERE bib_id = ?")) {
+			pstmt.setInt(1, bibId);
+			try ( ResultSet rs = pstmt.executeQuery()) {
+				if ( ! rs.next()) return null; // deleted
+				return rs.getTimestamp(1);
+			}
 		}
 	}
 
