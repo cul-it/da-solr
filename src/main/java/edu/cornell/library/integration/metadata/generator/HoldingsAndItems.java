@@ -48,7 +48,7 @@ import edu.cornell.library.integration.voyager.Locations.Location;
 public class HoldingsAndItems implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -209,7 +209,6 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 		if (! boundWiths.isEmpty()) {
 			boolean suppressBoundWiths = (boundWiths.size() == emptyItemCount[0]);
 			for (Map<String,Object> boundWith : boundWiths) {
-				sfs.add(new SolrField("barcode_addl_t",boundWith.get("barcode").toString()));
 				if (suppressBoundWiths)
 					continue;
 				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
@@ -412,9 +411,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 		        		enumStats.put(loc, stats);
 	        		}
 	        		items.put(Integer.valueOf((String)record.get("item_id")),record);
-	        		if (! barcode.isEmpty())
-       					sfs.add(new SolrField( "barcode_t",barcode) );
-	        		else
+	        		if ( barcode.isEmpty())
 	        			emptyItemCount[0]++;
 	        		foundItems = true;
 	        		if (tempLibrary != null)
