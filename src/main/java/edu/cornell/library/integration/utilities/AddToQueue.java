@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
 
 public class AddToQueue {
 
@@ -30,7 +30,7 @@ public class AddToQueue {
 				"VALUES (?, 'Record Deleted or Suppressed', 0, NOW())");
 	}
 
-	public static void add2QueueBatch(PreparedStatement stmt, int bib_id, Timestamp mod_date, DataChangeUpdateType type) throws SQLException {
+	public static void add2QueueBatch(PreparedStatement stmt, int bib_id, Timestamp mod_date, ChangeType type) throws SQLException {
 		stmt.setInt(1, bib_id);
 		stmt.setString(2, type.toString());
 		stmt.setInt(3, 8);

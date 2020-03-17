@@ -15,7 +15,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import edu.cornell.library.integration.utilities.AddToQueue;
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
 
 
 /**
@@ -218,7 +218,7 @@ public class IndexRecordListComparison {
 	}
 
 	
-	public void queueBibs(Set<Integer> bibsToAdd, DataChangeUpdateType type) throws Exception {
+	public void queueBibs(Set<Integer> bibsToAdd, ChangeType type) throws Exception {
 		if ( bibsToAdd == null || bibsToAdd.isEmpty() ) return;
 
 		if ( type.toString().startsWith("Bibliographic") || type.toString().startsWith("Holdings") ) {

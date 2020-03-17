@@ -2,7 +2,6 @@ package edu.cornell.library.integration.voyager;
 
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToAvailQueue;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addBibToUpdateQueue;
-import static edu.cornell.library.integration.utilities.IndexingUtilities.queueBibDelete;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,15 +69,13 @@ public class IdentifyChangedRecords {
 					+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 					+ "  and ( CREATE_DATE > ? or MODIFY_DATE > ?)";
 	private final static String bibVoyQuery =
-			"SELECT record_date, active FROM bibRecsVoyager WHERE bib_id = ?";
+			"SELECT record_date FROM bibRecsVoyager WHERE bib_id = ?";
 	private final static String bibVoyUpdate =
 			"UPDATE bibRecsVoyager SET record_date = ? , active = ? WHERE bib_id = ?";
 	private final static String bibVoyInsert =
 			"INSERT INTO bibRecsVoyager (bib_id,record_date,active) VALUES (?,?,?)";
 	private final static String mfhdVoyQuery =
 			"SELECT bib_id, record_date FROM mfhdRecsVoyager WHERE mfhd_id = ?";
-	private final static String mfhdVoyDelete =
-			"DELETE FROM mfhdRecsVoyager WHERE mfhd_id = ?";
 	private final static String mfhdVoyUpdate =
 			"UPDATE mfhdRecsVoyager SET record_date = ?, bib_id = ? WHERE mfhd_id = ?";
 	private final static String mfhdVoyInsert =
@@ -223,7 +220,6 @@ public class IdentifyChangedRecords {
 			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
 				while (rs.next()) {
 					Timestamp old_date = rs.getTimestamp(1);
-					Boolean previouslyActive = rs.getBoolean(2);
 					if (update_date != null
 							&& (old_date == null
 							|| 0 > old_date.compareTo(update_date))) {
@@ -234,17 +230,11 @@ public class IdentifyChangedRecords {
 							bibVoyUStmt.setInt(3, bib_id);
 							bibVoyUStmt.executeUpdate();
 						}
-						if (isActive) {
-							this.updatedBibs.add(bib_id);
-							addBibToUpdateQueue(current, bib_id,
-									(isBatch)?DataChangeUpdateType.BIB_BATCH:
-										(previouslyActive)?DataChangeUpdateType.BIB_UPDATE:DataChangeUpdateType.ADD,
-									update_date);
-						} else {
-							if (previouslyActive)
-								queueBibDelete( current, bib_id );
-							// else - ignore change to suppressed record
-						}
+						this.updatedBibs.add(bib_id);
+						addBibToUpdateQueue(current, bib_id,
+								(isBatch)?ChangeType.BIB_BATCH:
+									(isActive)?ChangeType.BIB_UPDATE:ChangeType.BIB_UPDATE_SUP,
+											update_date);
 					} // else bib is unchanged - do nothing
 					return;
 				}
@@ -260,69 +250,56 @@ public class IdentifyChangedRecords {
 		}
 		if ( isActive && ! this.updatedBibs.contains(bib_id) ) {
 			this.updatedBibs.add(bib_id);
-			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.ADD, update_date);
+			addBibToUpdateQueue(current, bib_id, ChangeType.ADD, update_date);
 		}
 	}
 
 	private void queueMfhd(Connection current, int bib_id, int mfhd_id, Timestamp update_date, boolean active) throws SQLException {
-		if ( ! isBibActive(current,bib_id))
-			return;
 
 		try ( PreparedStatement mfhdVoyQStmt = current.prepareStatement(mfhdVoyQuery) ) {
 			mfhdVoyQStmt.setInt(1, mfhd_id);
 			try ( ResultSet rs = mfhdVoyQStmt.executeQuery() ){
 				while (rs.next()) {
-					if (active) {
-						Timestamp old_date = rs.getTimestamp(2);
-						if (update_date != null
-								&& (old_date == null
-								|| 0 > old_date.compareTo(update_date))) {
-							// mfhd is already in current, but has been updated
-							int old_bib = rs.getInt(1);
-							try ( PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate )){
-								mfhdVoyUStmt.setTimestamp(1, update_date);
-								mfhdVoyUStmt.setInt(2, bib_id);
-								mfhdVoyUStmt.setInt(3, mfhd_id);
-								mfhdVoyUStmt.executeUpdate();
-							}
-							if (! this.updatedBibs.contains(bib_id)) {
-								addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE, update_date);
-								addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
-								this.updatedBibs.add(bib_id);
-							}
-	
-							if (old_bib != bib_id
-									&& ! this.updatedBibs.contains(old_bib)) {
-								addBibToUpdateQueue(current, old_bib, DataChangeUpdateType.MFHD_UPDATE, update_date);
-								addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
-								this.updatedBibs.add(old_bib);
-							}
-						} // else mfhd is unchanged - do nothing
-						return;
-					}
-					// holding has been suppressed
-					try ( PreparedStatement mfhdVoyDelStmt = current.prepareStatement(mfhdVoyDelete) ) {
-						mfhdVoyDelStmt.setInt(1, mfhd_id);
-						mfhdVoyDelStmt.executeUpdate();
-						addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_DELETE,update_date);
-						addBibToAvailQueue(current, bib_id, DataChangeUpdateType.MFHD_DELETE,update_date);
-						this.updatedBibs.add(bib_id);
-					}
+					Timestamp old_date = rs.getTimestamp(2);
+					if (update_date != null
+							&& (old_date == null
+							|| 0 > old_date.compareTo(update_date))) {
+						// mfhd is already in current, but has been updated
+						int old_bib = rs.getInt(1);
+						try ( PreparedStatement mfhdVoyUStmt = current.prepareStatement( mfhdVoyUpdate )){
+							mfhdVoyUStmt.setTimestamp(1, update_date);
+							mfhdVoyUStmt.setInt(2, bib_id);
+							mfhdVoyUStmt.setInt(3, mfhd_id);
+							mfhdVoyUStmt.executeUpdate();
+						}
+						ChangeType type = (active)?ChangeType.MFHD_UPDATE:ChangeType.MFHD_UPDATE_SUP;
+						if (! this.updatedBibs.contains(bib_id)) {
+							addBibToUpdateQueue(current, bib_id,type, update_date);
+							addBibToAvailQueue(current, bib_id,type,update_date);
+							this.updatedBibs.add(bib_id);
+						}
+
+						if (old_bib != bib_id
+								&& ! this.updatedBibs.contains(old_bib)) {
+							addBibToUpdateQueue(current, old_bib,type, update_date);
+							addBibToAvailQueue(current, bib_id,type,update_date);
+							this.updatedBibs.add(old_bib);
+						}
+					} // else mfhd is unchanged - do nothing
 					return;
 				}
 			}
 		}
 
 		// mfhd is not yet in current db
-		if (active)
-			try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ){
-				mfhdVoyIStmt.setInt(1, bib_id);
-				mfhdVoyIStmt.setInt(2, mfhd_id);
-				mfhdVoyIStmt.setTimestamp(3, update_date);
-				mfhdVoyIStmt.executeUpdate();
-			}
+		try ( PreparedStatement mfhdVoyIStmt = current.prepareStatement( mfhdVoyInsert ) ){
+			mfhdVoyIStmt.setInt(1, bib_id);
+			mfhdVoyIStmt.setInt(2, mfhd_id);
+			mfhdVoyIStmt.setTimestamp(3, update_date);
+			mfhdVoyIStmt.executeUpdate();
+		}
 		if (! this.updatedBibs.contains(bib_id)) {
-			addBibToUpdateQueue(current, bib_id, DataChangeUpdateType.MFHD_UPDATE,update_date);
+			addBibToUpdateQueue(current, bib_id, ChangeType.MFHD_ADD,update_date);
 			this.updatedBibs.add(bib_id);
 		}
 	}
@@ -348,10 +325,8 @@ public class IdentifyChangedRecords {
 						}
 
 						int bib_id = getBibIdForMfhd(current, mfhd_id);
-						if (bib_id > 0
-								&& isBibActive(current,bib_id)
-								&& ! this.updatedBibs.contains(bib_id)) {
-							addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+						if (bib_id > 0 && ! this.updatedBibs.contains(bib_id)) {
+							addBibToAvailQueue(current, bib_id, ChangeType.ITEM_UPDATE,update_date);
 							this.updatedBibs.add(bib_id);
 						}
 
@@ -359,9 +334,8 @@ public class IdentifyChangedRecords {
 							int old_bib_id = getBibIdForMfhd(current, old_mfhd);
 							if ( old_bib_id > 0
 									&& old_bib_id != bib_id
-									&& isBibActive(current,old_bib_id)
 									&& ! this.updatedBibs.contains(old_bib_id)) {
-								addBibToAvailQueue(current, old_bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+								addBibToAvailQueue(current, old_bib_id, ChangeType.ITEM_UPDATE,update_date);
 								this.updatedBibs.add(old_bib_id);
 							}
 						}
@@ -379,25 +353,12 @@ public class IdentifyChangedRecords {
 			itemVoyIStmt.executeUpdate();
 		}
 		int bib_id = getBibIdForMfhd(current,mfhd_id);
-		if (bib_id > 0
-				&& isBibActive(current,bib_id)
-				&& ! this.updatedBibs.contains(bib_id)) {
-			addBibToAvailQueue(current, bib_id, DataChangeUpdateType.ITEM_UPDATE,update_date);
+		if (bib_id > 0 && ! this.updatedBibs.contains(bib_id)) {
+			addBibToAvailQueue(current, bib_id, ChangeType.ITEM_ADD,update_date);
 			this.updatedBibs.add(bib_id);
 		}
 	}
 
-	private static boolean isBibActive(Connection current, Integer bib_id) throws SQLException {
-		boolean exists = false;
-		try ( PreparedStatement bibVoyQStmt = current.prepareStatement( bibVoyQuery ) ){
-			bibVoyQStmt.setInt(1, bib_id);
-			try ( ResultSet rs = bibVoyQStmt.executeQuery() ){
-				while (rs.next())
-					exists = rs.getBoolean(2);
-			}
-		}
-		return exists;
-	}
 	private static int getBibIdForMfhd(Connection current, Integer mfhd_id) throws SQLException {
 		Integer bib_id = 0;
 		try ( PreparedStatement mfhdVoyQStmt = current.prepareStatement(mfhdVoyQuery) ) {
@@ -474,15 +435,15 @@ public class IdentifyChangedRecords {
 		}
 		tempCBMap.clear();
 */
-		c.queueBibs( bibsToAdd, DataChangeUpdateType.BIB_ADD );
+		c.queueBibs( bibsToAdd, ChangeType.BIB_ADD );
 		bibsToUpdate.removeAll(bibsToAdd);
 		c.queueDeletes(bibsToDelete);
 		bibsToUpdate.removeAll(bibsToDelete);
-		c.queueBibs( bibsToUpdate, DataChangeUpdateType.BIB_UPDATE );
+		c.queueBibs( bibsToUpdate, ChangeType.BIB_UPDATE );
 		mfhdsToUpdate.removeAll(bibsToDelete);
 		mfhdsToUpdate.removeAll(bibsToAdd);
 		mfhdsToUpdate.removeAll(bibsToUpdate);
-		c.queueBibs( mfhdsToUpdate, DataChangeUpdateType.MFHD_UPDATE );
+		c.queueBibs( mfhdsToUpdate, ChangeType.MFHD_UPDATE );
 /*		itemsToUpdate.removeAll(bibsToDelete);
 		itemsToUpdate.removeAll(bibsToAdd);
 		itemsToUpdate.removeAll(bibsToUpdate);
@@ -496,13 +457,15 @@ public class IdentifyChangedRecords {
 
  	}
 
-	public static enum DataChangeUpdateType {
+	public static enum ChangeType {
 		ADD("Added Record",5),
 		BIB_ADD("Bibliographic Record Added",5),
 		BIB_UPDATE("Bibliographic Record Update",5),
+		BIB_UPDATE_SUP("Bibliographic Record Update - Suppressed",6),
 		BIB_BATCH("Bibliographic Record Batch Proc",6),
 		MFHD_ADD("Holdings Record Added",5),
 		MFHD_UPDATE("Holdings Record Change",5),
+		MFHD_UPDATE_SUP("Holdings Record Change - Suppressed",6),
 		MFHD_DELETE("Holdings Record Removed",5),
 		ITEM_ADD("Item Record Added",3),
 		ITEM_UPDATE("Item Record Change",3),
@@ -514,7 +477,7 @@ public class IdentifyChangedRecords {
 		private String string;
 		private Integer priority;
 
-		private DataChangeUpdateType(String name, Integer priority) {
+		private ChangeType(String name, Integer priority) {
 			this.string = name;
 			this.priority = priority;
 		}

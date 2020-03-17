@@ -13,7 +13,7 @@ import java.util.List;
 
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
@@ -116,7 +116,7 @@ public class IdentifyCurrentVoyagerRecords {
 					add2BibInventory( invStmt, bib_id, mod_date, active );
 					if (active)
 						AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-								(newBib)?DataChangeUpdateType.BIB_ADD:DataChangeUpdateType.BIB_UPDATE);
+								(newBib)?ChangeType.BIB_ADD:ChangeType.BIB_UPDATE);
 
 					if ((++i % 2048) == 0) {
 						invStmt.executeBatch();
@@ -174,7 +174,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 					add2MfhdInventory( invStmt, bib_id, mfhd_id, mod_date );
 					AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-							(newMfhd)?DataChangeUpdateType.MFHD_ADD:DataChangeUpdateType.MFHD_UPDATE );
+							(newMfhd)?ChangeType.MFHD_ADD:ChangeType.MFHD_UPDATE );
 
 					if ((++i % 2048) == 0) {
 						qStmt.executeBatch();
@@ -232,7 +232,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 					add2ItemInventory( invStmt, mfhd_id, item_id, mod_date );
 					AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-							(newItem)?DataChangeUpdateType.ITEM_ADD:DataChangeUpdateType.ITEM_UPDATE );
+							(newItem)?ChangeType.ITEM_ADD:ChangeType.ITEM_UPDATE );
 
 					if ((++i % 2048) == 0) {
 						qStmt.executeBatch();

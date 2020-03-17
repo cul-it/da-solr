@@ -42,7 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
 
 public class IndexingUtilities {
 
@@ -76,7 +76,7 @@ public class IndexingUtilities {
 		}
 	}
 	public static void addBibToUpdateQueue(Connection current, Integer bib_id,
-			DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
+			ChangeType type, Timestamp recordDate) throws SQLException {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO generationQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
@@ -87,7 +87,7 @@ public class IndexingUtilities {
 		}
 	}
 	public static void addBibToAvailQueue(Connection current, Integer bib_id,
-			DataChangeUpdateType type, Timestamp recordDate) throws SQLException {
+			ChangeType type, Timestamp recordDate) throws SQLException {
 		try (PreparedStatement bibQueueStmt = current.prepareStatement(
 				"INSERT INTO availabilityQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
 			bibQueueStmt.setInt(1, bib_id);
