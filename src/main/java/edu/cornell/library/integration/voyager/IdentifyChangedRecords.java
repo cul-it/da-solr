@@ -147,8 +147,7 @@ public class IdentifyChangedRecords {
 				}
 
 			Timestamp ts = max_date;
-			ts.setTime(ts.getTime() - (10/*seconds*/
-										* 1000/*millis per second*/));
+			ts.setTime(ts.getTime() - (10/*seconds*/ * 1000/*millis per second*/));
 
 			try ( Connection voyager = this.config.getDatabaseConnection("Voy") ){
 
@@ -161,8 +160,7 @@ public class IdentifyChangedRecords {
 							int bib_id = rs.getInt(1);
 							String operator = rs.getString(4);
 							queueBib( current, bib_id, bibDate, 
-									suppress_in_opac != null && suppress_in_opac.equals("N"),
-									operator == null || operator.startsWith("batch") );
+									suppress_in_opac != null && suppress_in_opac.equals("N"), isBatchOperator(operator));
 							if (0 < bibDate.compareTo(max_date))
 								max_date = bibDate;
 						}
@@ -180,7 +178,7 @@ public class IdentifyChangedRecords {
 							Timestamp mfhdDate = rs.getTimestamp(3);
 							String operator = rs.getString(5);
 							queueMfhd( current, rs.getInt(1), rs.getInt(2), mfhdDate,
-									rs.getString(4).equals("N"), operator == null || operator.startsWith("batch"));
+									rs.getString(4).equals("N"), isBatchOperator(operator) );
 						}
 					}
 				}
@@ -210,6 +208,13 @@ public class IdentifyChangedRecords {
 							+" "+this.updatedBibs.toString() );
 			}
 		}
+	}
+	private static boolean isBatchOperator(String operator) {
+		if ( operator == null ) return false;
+		if ( operator.isEmpty() ) return false;
+		if ( operator.startsWith("batch") ) return false;
+		if ( operator.contains("null") ) return false;
+		return true;
 	}
 	private static DateTimeFormatter formatter =
 			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,FormatStyle.MEDIUM);
