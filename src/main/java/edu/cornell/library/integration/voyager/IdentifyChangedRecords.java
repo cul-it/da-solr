@@ -59,10 +59,11 @@ public class IdentifyChangedRecords {
 			" WHERE COALESCE(update_date,create_date) > ?"+
 			" ORDER BY bm.bib_id";
 	private final static String recentMfhdQuery =
-			"select BIB_MFHD.BIB_ID, MFHD_MASTER.MFHD_ID, CREATE_DATE, UPDATE_DATE, SUPPRESS_IN_OPAC"
-					+"  from BIB_MFHD, MFHD_MASTER"
-					+" where BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID"
-					+ "  and ( CREATE_DATE > ? or UPDATE_DATE > ?)";
+			"SELECT bm.bib_id, mm.mfhd_id, COALESCE(update_date,create_date) record_date, mm.suppress_in_opac, mh.operator_id"+
+			"  FROM bib_mfhd bm, mfhd_master mm"+
+			"  LEFT JOIN mfhd_history mh ON mm.mfhd_id = mh.mfhd_id AND mh.action_date = COALESCE(update_date,create_date)"+
+			" WHERE bm.mfhd_id = mm.mfhd_id"+
+			"   AND COALESCE(update_date,create_date) > ?";
 	private final static String recentItemQuery =
 			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.CREATE_DATE, ITEM.MODIFY_DATE"
 					+"  from MFHD_ITEM, ITEM"
@@ -174,12 +175,12 @@ public class IdentifyChangedRecords {
 
 				try ( PreparedStatement pstmt = voyager.prepareStatement( recentMfhdQuery )){
 					pstmt.setTimestamp(1, ts);
-					pstmt.setTimestamp(2, ts);
 					try ( ResultSet rs = pstmt.executeQuery() ){
 						while (rs.next()) {
-							Timestamp mfhdDate = rs.getTimestamp(4);
-							if (mfhdDate == null) mfhdDate = rs.getTimestamp(3);
-							queueMfhd( current, rs.getInt(1), rs.getInt(2), mfhdDate, rs.getString(5).equals("N"));
+							Timestamp mfhdDate = rs.getTimestamp(3);
+							String operator = rs.getString(5);
+							queueMfhd( current, rs.getInt(1), rs.getInt(2), mfhdDate,
+									rs.getString(4).equals("N"), operator == null || operator.startsWith("batch"));
 						}
 					}
 				}
@@ -254,7 +255,8 @@ public class IdentifyChangedRecords {
 		}
 	}
 
-	private void queueMfhd(Connection current, int bib_id, int mfhd_id, Timestamp update_date, boolean active) throws SQLException {
+	private void queueMfhd(Connection current, int bib_id, int mfhd_id,
+			Timestamp update_date, boolean active, boolean isBatch) throws SQLException {
 
 		try ( PreparedStatement mfhdVoyQStmt = current.prepareStatement(mfhdVoyQuery) ) {
 			mfhdVoyQStmt.setInt(1, mfhd_id);
@@ -272,7 +274,8 @@ public class IdentifyChangedRecords {
 							mfhdVoyUStmt.setInt(3, mfhd_id);
 							mfhdVoyUStmt.executeUpdate();
 						}
-						ChangeType type = (active)?ChangeType.MFHD_UPDATE:ChangeType.MFHD_UPDATE_SUP;
+						ChangeType type = (isBatch)?ChangeType.MFHD_BATCH:
+							(active)?ChangeType.MFHD_UPDATE:ChangeType.MFHD_UPDATE_SUP;
 						if (! this.updatedBibs.contains(bib_id)) {
 							addBibToUpdateQueue(current, bib_id,type, update_date);
 							addBibToAvailQueue(current, bib_id,type,update_date);
@@ -467,6 +470,7 @@ public class IdentifyChangedRecords {
 		MFHD_UPDATE("Holdings Record Change",5),
 		MFHD_UPDATE_SUP("Holdings Record Change - Suppressed",6),
 		MFHD_DELETE("Holdings Record Removed",5),
+		MFHD_BATCH("Holdings Record Batch Proc",6),
 		ITEM_ADD("Item Record Added",3),
 		ITEM_UPDATE("Item Record Change",3),
 		ITEM_DELETE("Item Record Removed",3),
