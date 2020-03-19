@@ -256,7 +256,7 @@ public class IdentifyChangedRecords {
 		}
 		if ( isActive && ! this.updatedBibs.contains(bib_id) ) {
 			this.updatedBibs.add(bib_id);
-			addBibToUpdateQueue(current, bib_id, ChangeType.ADD, update_date);
+			addBibToUpdateQueue(current, bib_id, (isBatch)?ChangeType.BIB_BATCH:ChangeType.ADD, update_date);
 		}
 	}
 
@@ -307,7 +307,7 @@ public class IdentifyChangedRecords {
 			mfhdVoyIStmt.executeUpdate();
 		}
 		if (! this.updatedBibs.contains(bib_id)) {
-			addBibToUpdateQueue(current, bib_id, ChangeType.MFHD_ADD,update_date);
+			addBibToUpdateQueue(current, bib_id, (isBatch)?ChangeType.MFHD_BATCH:ChangeType.MFHD_ADD,update_date);
 			this.updatedBibs.add(bib_id);
 		}
 	}
