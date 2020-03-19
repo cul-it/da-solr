@@ -210,11 +210,11 @@ public class IdentifyChangedRecords {
 		}
 	}
 	private static boolean isBatchOperator(String operator) {
-		if ( operator == null ) return false;
-		if ( operator.isEmpty() ) return false;
-		if ( operator.startsWith("batch") ) return false;
-		if ( operator.contains("null") ) return false;
-		return true;
+		if ( operator == null ) return true;
+		if ( operator.isEmpty() ) return true;
+		if ( operator.startsWith("batch") ) return true;
+		if ( operator.contains("null") ) return true;
+		return false;
 	}
 	private static DateTimeFormatter formatter =
 			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,FormatStyle.MEDIUM);
