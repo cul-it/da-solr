@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class IdentifyChangedRecords {
 			" WHERE bm.mfhd_id = mm.mfhd_id"+
 			"   AND COALESCE(update_date,create_date) > ?";
 	private final static String recentItemQuery =
-			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, ITEM.CREATE_DATE, ITEM.MODIFY_DATE"
+			"select MFHD_ITEM.MFHD_ID, ITEM.ITEM_ID, COALESCE(ITEM.MODIFY_DATE, ITEM.CREATE_DATE)"
 					+"  from MFHD_ITEM, ITEM"
 					+" where MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID"
 					+ "  and ( CREATE_DATE > ? or MODIFY_DATE > ?)";
@@ -190,12 +191,15 @@ public class IdentifyChangedRecords {
 				try ( PreparedStatement pstmt = voyager.prepareStatement( recentItemQuery )){
 					pstmt.setTimestamp(1, ts);
 					pstmt.setTimestamp(2, ts);
+					Map<Integer,DateAndItem> changedItems = new HashMap<>();
 					try ( ResultSet rs = pstmt.executeQuery() ){
-						while (rs.next()) {
-							Timestamp itemDate = rs.getTimestamp(4);
-							if (itemDate == null) itemDate = rs.getTimestamp(3);
-							queueItem( current, rs.getInt(1), rs.getInt(2), itemDate);
-						}
+						while (rs.next())
+							changedItems.put(rs.getInt(1), new DateAndItem(rs.getTimestamp(3),rs.getInt(2)));
+					}
+					boolean isBatch = changedItems.size() > 4;
+					for (Integer mfhd_id : changedItems.keySet() ) {
+						DateAndItem i = changedItems.get(mfhd_id);
+						queueItem(current,mfhd_id,i.item_id,i.time,isBatch);
 					}
 				}
 
@@ -313,7 +317,7 @@ public class IdentifyChangedRecords {
 	}
 
 	private void queueItem(Connection current, int mfhd_id, int item_id,
-			Timestamp update_date) throws SQLException {
+			Timestamp update_date, boolean isBatch) throws SQLException {
 
 		try ( PreparedStatement itemVoyQStmt = current.prepareStatement( itemVoyQuery ) ){
 			itemVoyQStmt.setInt(1, item_id);
@@ -334,7 +338,8 @@ public class IdentifyChangedRecords {
 
 						int bib_id = getBibIdForMfhd(current, mfhd_id);
 						if (bib_id > 0 && ! this.updatedBibs.contains(bib_id)) {
-							addBibToAvailQueue(current, bib_id, ChangeType.ITEM_UPDATE,update_date);
+							addBibToAvailQueue(current, bib_id,
+									(isBatch)?ChangeType.ITEM_BATCH:ChangeType.ITEM_UPDATE,update_date);
 							this.updatedBibs.add(bib_id);
 						}
 
@@ -343,7 +348,8 @@ public class IdentifyChangedRecords {
 							if ( old_bib_id > 0
 									&& old_bib_id != bib_id
 									&& ! this.updatedBibs.contains(old_bib_id)) {
-								addBibToAvailQueue(current, old_bib_id, ChangeType.ITEM_UPDATE,update_date);
+								addBibToAvailQueue(current, old_bib_id,
+										(isBatch)?ChangeType.ITEM_BATCH:ChangeType.ITEM_UPDATE,update_date);
 								this.updatedBibs.add(old_bib_id);
 							}
 						}
@@ -465,6 +471,16 @@ public class IdentifyChangedRecords {
 
 	}
 
+	private static class DateAndItem {
+		Timestamp time;
+		Integer item_id;
+		public DateAndItem( Timestamp time, Integer item_id) {
+			this.time = time;
+			this.item_id = item_id;
+		}
+	}
+
+
 	public static enum ChangeType {
 		ADD("Added Record",5),
 		BIB_ADD("Bibliographic Record Added",5),
@@ -479,6 +495,7 @@ public class IdentifyChangedRecords {
 		ITEM_ADD("Item Record Added",3),
 		ITEM_UPDATE("Item Record Change",3),
 		ITEM_DELETE("Item Record Removed",3),
+		ITEM_BATCH("Item Record Batch Proc",6),
 		TITLELINK("Title Link Update",7),
 		
 		AGE_IN_SOLR("Age of Record in Solr",6);
