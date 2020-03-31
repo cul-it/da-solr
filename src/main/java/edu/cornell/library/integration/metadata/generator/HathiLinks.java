@@ -61,17 +61,17 @@ public class HathiLinks implements SolrFieldGenerator {
 			Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
 			Collection<String> denyTitles = new HashSet<>();
 
-	/*		if (oclcids.size() > 0) {
-	 			PreparedStatement pstmt = conn.prepareStatement
-	 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
-	 					+ " WHERE FIND_IN_SET( ? , OCLC_Numbers)");
-	 			for (String oclcid : oclcids) {
-					pstmt.setString(1, oclcid);
-					java.sql.ResultSet rs = pstmt.executeQuery();
-					tabulateResults(rs);
+			if (oclcids.size() > 0) {
+				try ( PreparedStatement pstmt = conn.prepareStatement
+						("SELECT raw_hathi.Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi, volume_to_oclc"
+								+ " WHERE OCLC_Number = ? AND volume_to_oclc.Volume_Identifier = raw_hathi.Volume_Identifier") ) {
+					for (String oclcid : oclcids) {
+						pstmt.setString(1, oclcid);
+						try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+							tabulateResults(rs,availableHathiMaterials,null); }
+					}
 				}
-				pstmt.close();
-			} */
+			} 
 			
 			try (  PreparedStatement pstmt = conn.prepareStatement
 					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
@@ -140,7 +140,7 @@ public class HathiLinks implements SolrFieldGenerator {
 					availableHathiMaterials.put(title, new HashSet<String>() );
 				availableHathiMaterials.get(title).add(vol);
 			} else {
-				denyTitles.add(title);
+				if ( denyTitles != null ) denyTitles.add(title);
 			}
 		}
 	}
