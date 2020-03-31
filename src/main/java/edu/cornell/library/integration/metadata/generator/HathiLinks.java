@@ -30,6 +30,8 @@ public class HathiLinks implements SolrFieldGenerator {
 	private final String hathiLinkTextVolume = "HathiTrust";
 	private final String hathiLinkTextTitle  = "HathiTrust (multiple volumes)";
 	private final String hathiLinkTextDeny   = "HathiTrust – Access limited to full-text search";
+	private final String hathiLinkTextEtas   = "Connect to full text. Access limited to authorized subscribers.";
+	private final String hathiInfoLinkTextEtas = "Temporary Access: Information for Users";
 
 	@Override
 	public String getVersion() { return "1.1"; }
@@ -57,7 +59,7 @@ public class HathiLinks implements SolrFieldGenerator {
 		}
 
 		SolrFields sfs = new SolrFields();
-		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {			
+		try (  Connection conn = config.getDatabaseConnection("Hathi")  )  {
 			Map<String,Collection<String>> availableHathiMaterials = new HashMap<>();
 			Collection<String> denyTitles = new HashSet<>();
 
@@ -80,6 +82,30 @@ public class HathiLinks implements SolrFieldGenerator {
 				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
 					tabulateResults(rs,availableHathiMaterials,denyTitles); }
 			}
+
+			Map<String,Collection<String>> etasMaterials = new HashMap<>();
+			int etasVolumeCount = 0;
+			if ( oclcids.size() > 0 ) {
+				try (  PreparedStatement pstmt = conn.prepareStatement
+						("SELECT volume_to_oclc.Volume_Identifier, UofM_Record_Number"
+						+ " FROM overlap, volume_to_oclc, raw_hathi"
+						+" WHERE bib_id = ?"
+						+ "  AND overlap.access = 'deny'"
+						+ "  AND oclc_id = OCLC_Number"
+						+ "  AND volume_to_oclc.Volume_Identifier = raw_hathi.Volume_Identifier") ) {
+					pstmt.setString(1, rec.id);
+					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+						while (rs.next()) {
+							etasVolumeCount++;
+							String title = rs.getString(2);
+							if ( ! etasMaterials.containsKey(title) )
+								etasMaterials.put(title, new HashSet<>());
+							etasMaterials.get(title).add(rs.getString(1));
+						}
+					}
+				}
+			}
+
 			URL url = new URL();
 			
 			for ( String title : availableHathiMaterials.keySet() ) {
@@ -110,6 +136,24 @@ public class HathiLinks implements SolrFieldGenerator {
 				sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextDeny,
 						"http://catalog.hathitrust.org/Record/"+title, false),null).fields);
 				sfs.add(new SolrField("hathi_title_data",title));
+			}
+			if ( ! etasMaterials.isEmpty() ) {
+				for (String title : etasMaterials.keySet()) {
+					Collection<String> volumes = etasMaterials.get(title);
+					if ( volumes.size() == 1 )
+						sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextEtas,
+								"https://hdl.handle.net/2027/"+volumes.iterator().next()+
+								"?urlappend=%3Bsignon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth", true),null));
+					else
+						sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextEtas,
+								"https://babel.hathitrust.org/Shibboleth.sso/Login?"
+								+ "entityID=https://shibidp.cit.cornell.edu/idp/shibboleth&"
+								+ "target=https%3A%2F%2Fbabel.hathitrust.org%2Fcgi%2Fping%2Fpong%3Ftarget%3D"
+								+ "https%3A%2F%2Fcatalog.hathitrust.org%2FRecord%2F"+title, true),null));
+				}
+				sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiInfoLinkTextEtas,
+						"https://www.hathitrust.org/ETAS-User-Information", true),null));
+				sfs.add(new SolrField("etas_facet",String.valueOf(etasVolumeCount)));
 			}
 		}
 		return sfs;
