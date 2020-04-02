@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
 /**

@@ -66,7 +66,7 @@ public class FieldValuesAuthorTitleSegregationTest {
 	public void testAuthorTitleSegregation() {
 
 		FieldValues generated = FieldValues.getFieldValuesForNameAndOrTitleField(this.inputField,"abcdegkqrst");
-		assertEquals(this.expectedResult.type,generated.type);
+		assertEquals(this.expectedResult.category,generated.category);
 		assertEquals(this.expectedResult.author,generated.author);
 		assertEquals(this.expectedResult.title,generated.title);
 

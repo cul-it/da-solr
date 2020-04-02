@@ -8,9 +8,8 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.utilities.CallNumber;
-import edu.cornell.library.integration.indexer.utilities.Config;
 import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.metadata.support.CallNumber;
 
 public class CallNumberTest {
 

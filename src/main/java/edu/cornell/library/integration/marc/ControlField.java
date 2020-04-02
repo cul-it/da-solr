@@ -15,11 +15,6 @@ public class ControlField implements Comparable<ControlField> {
 		}
 
 		@Override
-		public String toString() {
-			return this.tag+" "+this.value;
-		}
-
-		@Override
 		public int compareTo(final ControlField other) {
 			return Integer.compare(this.id, other.id);
 		}
@@ -36,5 +31,10 @@ public class ControlField implements Comparable<ControlField> {
 			if (! this.getClass().equals( o.getClass() )) return false;
 			ControlField other = (ControlField) o;
 			return Objects.equals(this.id, other.id);
+		}
+
+		@Override
+		public String toString() {
+			return this.tag+" "+this.value;
 		}
 	}
