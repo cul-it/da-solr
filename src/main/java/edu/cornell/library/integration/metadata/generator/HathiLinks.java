@@ -146,10 +146,8 @@ public class HathiLinks implements SolrFieldGenerator {
 								"?urlappend=%3Bsignon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth", true),null));
 					else
 						sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiLinkTextEtas,
-								"https://babel.hathitrust.org/Shibboleth.sso/Login?"
-								+ "entityID=https://shibidp.cit.cornell.edu/idp/shibboleth&"
-								+ "target=https%3A%2F%2Fbabel.hathitrust.org%2Fcgi%2Fping%2Fpong%3Ftarget%3D"
-								+ "https%3A%2F%2Fcatalog.hathitrust.org%2FRecord%2F"+title, true),null));
+								"https://catalog.hathitrust.org/Record/"+title+
+								"?signon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth", true),null));
 				}
 				sfs.addAll(url.generateSolrFields(buildMarcWith856(this.hathiInfoLinkTextEtas,
 						"https://www.hathitrust.org/ETAS-User-Information", true),null));
