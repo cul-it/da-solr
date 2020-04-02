@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.voyager;
 
-import static edu.cornell.library.integration.indexer.utilities.Config.getRequiredArgsForDB;
+import static edu.cornell.library.integration.utilities.Config.getRequiredArgsForDB;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,9 +11,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.indexer.queues.AddToQueue;
-import edu.cornell.library.integration.indexer.utilities.Config;
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.DataChangeUpdateType;
+import edu.cornell.library.integration.utilities.AddToQueue;
+import edu.cornell.library.integration.utilities.Config;
+import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
 
 /**
  * Pull lists of current (unsuppressed) bib, holding, and item records along with
@@ -53,30 +53,30 @@ public class IdentifyCurrentVoyagerRecords {
 		config.setDatabasePoolsize("Voy", 2);
 
 		try (   Connection voyager = config.getDatabaseConnection("Voy");
-	    		Connection current = config.getDatabaseConnection("Current") ) {
+				Connection current = config.getDatabaseConnection("Current") ) {
 
-	    	current.setAutoCommit(false);
-	    	try (   Statement c_stmt = current.createStatement() ) {
-	    		c_stmt.execute("drop table if exists generationQueue");
-	    		c_stmt.execute("CREATE TABLE generationQueue (" 
-	    				+ " id int(12) NOT NULL PRIMARY KEY AUTO_INCREMENT," 
-	    				+ " bib_id int(10) unsigned NOT NULL," 
-	    				+ " priority tinyint(1) unsigned NOT NULL," 
-	    				+ " cause varchar(256) DEFAULT NULL,"
-	    				+ " record_date timestamp NOT NULL ) " 
-	    				+"ENGINE=MyISAM");
-	    	}
+			current.setAutoCommit(false);
+			try (   Statement c_stmt = current.createStatement() ) {
+				c_stmt.execute("drop table if exists generationQueue");
+				c_stmt.execute("CREATE TABLE generationQueue ("
+						+ " id int(12) NOT NULL PRIMARY KEY AUTO_INCREMENT,"
+						+ " bib_id int(10) unsigned NOT NULL,"
+						+ " priority tinyint(1) unsigned NOT NULL,"
+						+ " cause varchar(256) DEFAULT NULL,"
+						+ " record_date timestamp NOT NULL )"
+						+"ENGINE=MyISAM");
+			}
 
-	    	buildBibVoyTable  ( voyager, current );
-	    	buildMfhdVoyTable ( voyager, current );
-	    	buildItemVoyTable ( voyager, current );
+			buildBibVoyTable  ( voyager, current );
+			buildMfhdVoyTable ( voyager, current );
+			buildItemVoyTable ( voyager, current );
 
-	    	try (   Statement c_stmt = current.createStatement() ) {
-	    		c_stmt.execute("alter table generationQueue add key ( bib_id ) ");
-	    		c_stmt.execute("alter table generationQueue add key ( priority, record_date ) ");
-	    	}
-	    	current.commit();
-	    }
+			try (   Statement c_stmt = current.createStatement() ) {
+				c_stmt.execute("alter table generationQueue add key ( bib_id ) ");
+				c_stmt.execute("alter table generationQueue add key ( priority, record_date ) ");
+			}
+			current.commit();
+		}
 	}
 
 	private static void buildBibVoyTable(Connection voyager, Connection current) throws SQLException {
@@ -116,7 +116,7 @@ public class IdentifyCurrentVoyagerRecords {
 					add2BibInventory( invStmt, bib_id, mod_date, active );
 					if (active)
 						AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-								(newBib)?DataChangeUpdateType.BIB_ADD:DataChangeUpdateType.BIB_UPDATE);
+								(newBib)?ChangeType.BIB_ADD:ChangeType.BIB_UPDATE);
 
 					if ((++i % 2048) == 0) {
 						invStmt.executeBatch();
@@ -174,7 +174,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 					add2MfhdInventory( invStmt, bib_id, mfhd_id, mod_date );
 					AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-							(newMfhd)?DataChangeUpdateType.MFHD_ADD:DataChangeUpdateType.MFHD_UPDATE );
+							(newMfhd)?ChangeType.MFHD_ADD:ChangeType.MFHD_UPDATE );
 
 					if ((++i % 2048) == 0) {
 						qStmt.executeBatch();
@@ -232,7 +232,7 @@ public class IdentifyCurrentVoyagerRecords {
 
 					add2ItemInventory( invStmt, mfhd_id, item_id, mod_date );
 					AddToQueue.add2QueueBatch( qStmt, bib_id, mod_date,
-							(newItem)?DataChangeUpdateType.ITEM_ADD:DataChangeUpdateType.ITEM_UPDATE );
+							(newItem)?ChangeType.ITEM_ADD:ChangeType.ITEM_UPDATE );
 
 					if ((++i % 2048) == 0) {
 						qStmt.executeBatch();

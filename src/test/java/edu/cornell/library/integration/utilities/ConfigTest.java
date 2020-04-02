@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.indexer.utilities.Config;
+import edu.cornell.library.integration.utilities.Config;
 
 public class ConfigTest {
 

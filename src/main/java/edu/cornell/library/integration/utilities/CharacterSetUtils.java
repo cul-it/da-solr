@@ -55,7 +55,7 @@ public class CharacterSetUtils {
 		String s = Normalizer.normalize(orig, Normalizer.Form.NFC);
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
-			Character c = s.charAt(i);
+			char c = s.charAt(i);
 			if (gsmChars.contains(c)) {
 				sb.append(c);
 				continue;
@@ -63,22 +63,72 @@ public class CharacterSetUtils {
 			String s_withoutDiacritics = 
 					Normalizer.normalize(String.valueOf(c), Normalizer.Form.NFD).
 					replaceAll("[\\p{InCombiningDiacriticalMarks}]+", "");
+			char c_withoutDiacritics = 0;
+			char c_compatibility = 0;
 			if ( ! s_withoutDiacritics.isEmpty()) {
-				Character c_withoutDiacritics = s_withoutDiacritics.charAt(0);
+				c_withoutDiacritics = s_withoutDiacritics.charAt(0);
 				if (gsmChars.contains(c_withoutDiacritics)) {
 					sb.append(c_withoutDiacritics);
 					continue;
 				}
 				String s_compatibility = Normalizer.normalize(s_withoutDiacritics, Normalizer.Form.NFKD);
 				if ( ! s_compatibility.isEmpty() ) {
-					Character c_compatibility = s_compatibility.charAt(0);
+					c_compatibility = s_compatibility.charAt(0);
 					if (gsmChars.contains(c_compatibility)) {
 						sb.append(c_compatibility);
 						continue;
 					}
 				}
 			}
-			// c is not supported by the GSM character set.
+
+			switch (c) {
+			case 'ʹ': //02b9
+			case 'ʻ': //02bb
+			case 'ʼ': //02bc
+			case '\u0313': // combining single quote
+			case '‘': //2018
+			case '’': //2019
+				sb.append('\''); break;
+
+			case 'ʺ': //02ba
+			case '\u030b': // combining double quote
+				sb.append('"'); break;
+
+			case '·': sb.append('*'); break; //b7
+
+			case '–': sb.append('-'); break; //2013
+
+			case 'а': sb.append('a'); break; //0430
+			case '©': case 'с':
+				sb.append('C'); break; //a9, 0441
+			case 'Đ': sb.append('D'); break; //0110
+			case 'đ': case 'ð': //0111, f0
+				sb.append('d'); break;
+			case 'е': sb.append('e'); break; //0435
+			case 'н': sb.append('H'); break; //043d
+			case 'ı': case 'и': //0131, 0438
+				sb.append('i'); break;
+			case 'Ł': sb.append('L'); break; //0141
+			case 'ł': sb.append('l'); break; //0142
+			case '°': case 'о':
+				sb.append('o'); break; //b0, 043e
+			case 'œ': sb.append("oe");break; //0153
+			case '℗': sb.append('P'); break; //2117
+			case '®': sb.append('R'); break; //ae
+			case 'T': sb.append('T'); break; //0442
+			case 'Þ': sb.append("TH");break; //de
+			case 'þ': sb.append("th");break; //fe
+
+			case '\u0060': case '\u02be': case '\u0301': case '\u0302': case '\u0303': case '\u0304':
+			case '\u0306': case '\u0308': case '\u0310': case '\u031c': case '\u0325': case '\u0332':
+			case '\u0361': case '\ufe20': case '\ufe21':
+				// c is known to not be supported by the base GSM character set. Most of these are combining diacritics.
+				break;
+			default:
+				// c is unrecognized and doesn't appear to be supported.
+				System.out.printf("Character unmapped to GSM chars [%c(%x):%c(%x):%c(%x)]\n",
+						c,(int)c,c_withoutDiacritics,(int)c_withoutDiacritics,c_compatibility,(int)c_compatibility);
+			}
 		}
 		return sb.toString().trim();
 	}

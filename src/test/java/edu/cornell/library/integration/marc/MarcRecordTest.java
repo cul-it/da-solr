@@ -27,7 +27,7 @@ public class MarcRecordTest {
 				"      <subfield code=\"b\">serv,remo</subfield>\n"+
 				"      <subfield code=\"h\">No call number</subfield>\n"+
 				"    </datafield>\n"+
-				"  </record>" );
+				"  </record>", true );
 		assertEquals(
 				"000    00182nx  a22000851  4500\n"+
 				"001    7797875\n"+
@@ -39,11 +39,11 @@ public class MarcRecordTest {
 
 	@Test
 	public void testConstructMarcRecordObjectFromMarc21()
-			throws IOException, URISyntaxException, XMLStreamException {
+			throws IOException, URISyntaxException {
 
 		String record = new String(Files.readAllBytes(Paths.get(
 				getClass().getClassLoader().getResource("auth_sample.mrc").toURI())));
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,record);
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,record.getBytes());
 		assertEquals(
 				"000    00551cz  a2200169n  4500\n"+
 				"001    8700001\n"+
