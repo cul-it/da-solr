@@ -53,8 +53,10 @@ public class HathiLinks implements SolrFieldGenerator {
 			if (f.mainTag.equals("035")) {
 				for (Subfield sf : f.subfields)
 					if (sf.code.equals('a'))
-						if (sf.value.startsWith("(OCoLC"))
-							oclcids.add(sf.value.substring(sf.value.lastIndexOf(')')+1));
+						if (sf.value.startsWith("(OCoLC")) {
+							String oclcid = sf.value.substring(sf.value.lastIndexOf(')')+1);
+							if ( ! oclcid.isEmpty() ) oclcids.add(oclcid);
+						}
 			}
 		}
 
