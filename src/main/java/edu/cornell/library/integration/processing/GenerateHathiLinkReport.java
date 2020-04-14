@@ -71,7 +71,10 @@ public class GenerateHathiLinkReport {
 					if (doc.containsKey("pub_date_display"))
 						date = String.join(", ",(ArrayList<String>)doc.getFieldValue("pub_date_display"));
 					else date = "";
-					String oclcs = String.join(", ",(ArrayList<String>)doc.getFieldValue("oclc_id_display"));
+					String oclcs;
+					if (doc.containsKey("oclc_id_display"))
+						oclcs = String.join(", ",(ArrayList<String>)doc.getFieldValue("oclc_id_display"));
+					else oclcs = "";
 					if ( recordType.equals("Catalog") ) recordType = "";
 					for (HathiLink hl : hathiLinks )
 						System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
