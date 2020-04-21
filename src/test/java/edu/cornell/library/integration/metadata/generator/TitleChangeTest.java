@@ -4,7 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,6 +15,7 @@ import org.junit.Test;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
+import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 public class TitleChangeTest {
 
@@ -157,7 +161,8 @@ public class TitleChangeTest {
 	@Test
 	public void test740RelatedWork() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.dataFields.add(new DataField(1,"740",'0',' ',"‡a Historic structure report. ‡p Architectural data section. ‡n Phase II, ‡p Exterior preservation."));
+		rec.dataFields.add(new DataField(1,"740",'0',' ',
+				"‡a Historic structure report. ‡p Architectural data section. ‡n Phase II, ‡p Exterior preservation."));
 		String expected =
 		"title_addl_t: Historic structure report. Architectural data section. Phase II, Exterior preservation.\n"+
 		"related_work_display: Historic structure report. Architectural data section."
@@ -325,5 +330,49 @@ public class TitleChangeTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
-	}	
+	}
+
+	@Test
+	public void periodsBeforeRelators() throws ClassNotFoundException, SQLException, IOException {
+		Map<DataField,String> fields = new HashMap<>();
+		fields.put(new DataField(1,"700",'1',' ',
+			"‡a Busteed, John. ‡4 sgn"),
+			"Busteed, John, signer");
+		fields.put(new DataField(2,"710",'2',' ',
+			"‡a Cornell University. ‡b College of Veterinary Medicine. ‡b Flower-Sprecher Veterinary Library. ‡4 fmo"),
+			"Cornell University. College of Veterinary Medicine. Flower-Sprecher Veterinary Library, former owner");
+		fields.put(new DataField(3,"700",'1',' ',
+			"‡a Salmon, D. E. ‡4 sgn"),
+			"Salmon, D. E., signer");
+		fields.put(new DataField(4,"700",'1',' ',
+			"‡a Thurston, Robert Henry, ‡d 1839-1903. ‡4 fmo"),
+			"Thurston, Robert Henry, 1839-1903, former owner");
+		fields.put(new DataField(5,"710",'2',' ',
+			"‡a E. & F.N. Spon. ‡4 prt"),
+			"E. & F.N. Spon., printer");
+		fields.put(new DataField(6,"700",'1',' ',
+			"‡a Herndon, James B., ‡c Jr. ‡4 fmo"),
+			"Herndon, James B., Jr., former owner");
+		fields.put(new DataField(7,"700",'1',' ',
+			"‡a Harper, John, ‡c Mrs. ‡4 ins"),
+			"Harper, John, Mrs., inscriber");
+		fields.put(new DataField(8,"710",'2',' ',
+			"‡a Herndon/Vehling Collection. ‡4 fmo"),
+			"Herndon/Vehling Collection, former owner");
+
+		for (Entry<DataField,String> e : fields.entrySet()){
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(e.getKey());
+			for (SolrField f : this.gen.generateSolrFields(rec, config).fields)
+				if ( f.fieldName.equals("author_addl_display") ) assertEquals(e.getValue(),f.fieldValue);
+		}
+	}
+
+	@Test
+	public void contributorWithRelatorAsUri() {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1',' ',
+				"‡a Vasilieva, Olga. ‡4 http://id.loc.gov/vocabulary/relators/edt"));
+	}
+
 }
