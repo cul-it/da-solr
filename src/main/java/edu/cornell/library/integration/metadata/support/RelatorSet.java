@@ -37,8 +37,12 @@ public class RelatorSet {
 			}
 			else if ((isEventField && sf.code.equals('j'))
 					|| ( ! isEventField && sf.code.equals('e'))) {
-				String relator = sf.value.toLowerCase();
-				this.relators.add(removeTrailingPunctuation(relator,".,"));
+				String relator = removeTrailingPunctuation(sf.value.toLowerCase(),".,");
+				try {
+					this.relators.add(Relator.valueOf(relator).toString());
+				} catch (@SuppressWarnings("unused") IllegalArgumentException e) {
+					this.relators.add(relator);
+				}
 			}
 		}
 	}

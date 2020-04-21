@@ -359,6 +359,13 @@ public class TitleChangeTest {
 		fields.put(new DataField(8,"710",'2',' ',
 			"‡a Herndon/Vehling Collection. ‡4 fmo"),
 			"Herndon/Vehling Collection, former owner");
+		fields.put(new DataField(9,"700",'0',' ',
+			"‡a Helgi Haraldsson, ‡d 1938- ‡4 trl"),
+			"Helgi Haraldsson, 1938- translator");
+		fields.put(new DataField(10,"700",'1',' ',
+			"‡a Rosenthal, Manuel, ‡d 1904-2003, ‡e arr. ‡4 prf"),
+			"Rosenthal, Manuel, 1904-2003, arranger, performer");
+
 
 		for (Entry<DataField,String> e : fields.entrySet()){
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
