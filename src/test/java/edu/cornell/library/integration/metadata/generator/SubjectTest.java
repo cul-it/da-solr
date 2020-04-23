@@ -178,14 +178,12 @@ public class SubjectTest {
 	public void test653() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Textiles and Fashion Design"));
-//		System.out.println(Subject.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
 		String expected =
 		"sixfivethree: Textiles and Fashion Design\n"+
 		"subject_t: Textiles and Fashion Design\n"+
 		"subject_gen_facet: Textiles and Fashion Design\n"+
 		"subject_gen_filing: textiles and fashion design\n"+
-		"subject_json: [{\"subject\":\"Textiles and Fashion Design\",\"authorized\":false,\"type\":\"General Heading\"}]\n"+
-		"subject_display: Textiles and Fashion Design\n"+
+		"keyword_display: Textiles and Fashion Design\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
