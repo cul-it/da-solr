@@ -28,7 +28,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class TitleChange implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1a"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() {

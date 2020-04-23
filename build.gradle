@@ -66,6 +66,13 @@ task (IdentifyChangedHathiLinks, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '2048m'
 }
+task (generateHathiLinkReport, dependsOn:'assemble', type: JavaExec){
+ description="Generate tab delimited report of HathiTrust links in the index"
+ main='edu.cornell.library.integration.processing.GenerateHathiLinkReport'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
+
    
 task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
  group="Incremental Update Steps"

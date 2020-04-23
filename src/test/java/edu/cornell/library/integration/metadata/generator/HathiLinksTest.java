@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 
@@ -74,8 +75,34 @@ public class HathiLinksTest {
 		+ "\"url\":\"http://hdl.handle.net/2027/coo1.ark:/13960/t20c5hb54\"}\n"+
 		"online: Online\n"+
 		"hathi_title_data: 100763896\n";
-//		System.out.println(gen.generateSolrFields(rec, config).toString().replaceAll("\"", "\\\\\""));
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void etaLink() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "1000002";
+		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)19326335"));
+		String expected =
+		"notes_t: Connect to full text. Access limited to authorized subscribers.\n" + 
+		"url_access_json: {\"description\":\"Connect to full text. Access limited to authorized subscribers.\","
+		+ "\"url\":\"https://catalog.hathitrust.org/Record/000630225?"
+		+ "signon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth\"}\n" + 
+		"online: Online\n" + 
+		"notes_t: Temporary Access: Information for Users\n" + 
+		"url_access_json: {\"description\":\"Temporary Access: Information for Users\","
+		+ "\"url\":\"https://www.hathitrust.org/ETAS-User-Information\"}\n" + 
+		"online: Online\n" + 
+		"etas_facet: 2\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void emptyOCLC() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "8396569";
+		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)"));
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 }
