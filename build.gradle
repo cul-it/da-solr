@@ -72,6 +72,12 @@ task (generateHathiLinkReport, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
+task (matchHeadingsCSVToAuthority, dependsOn:'assemble', type: JavaExec){
+ description="Generate tab delimited reports of authority records matching headings."
+ main='edu.cornell.library.integration.processing.MatchHeadingsCSVToAuthority'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 
    
 task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
