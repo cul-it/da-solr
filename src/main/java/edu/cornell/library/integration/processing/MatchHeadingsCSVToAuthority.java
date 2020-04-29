@@ -61,14 +61,21 @@ public class MatchHeadingsCSVToAuthority {
 			ASpaceTerm term = new ASpaceTerm();
 			for (String column : line.keySet())
 				switch (column) {
+				case "display name":
 				case "title":  term.title  = (line.get(column).startsWith(">"))
 						?line.get(column).substring(1):line.get(column); break;
+				case "primary name":
 				case "term 1": term.term1  = line.get(column); break;
 				case "term 2": term.term2  = line.get(column); break;
 				case "term 3": term.term3  = line.get(column); break;
 				case "term 4": term.term4  = line.get(column); break;
 				case "source": term.source = line.get(column); break;
 				case "aspace_id": term.id  = line.get(column); break;
+				case "rest of name": term.term2 = line.get(column); break;
+				case "dates":
+					if (term.term2.isEmpty()) term.term2 = line.get(column);
+					else                      term.term3 = line.get(column);
+					break;
 				}
 			if (term.title.equals("???")) continue;
 			if ( term.term2.isEmpty() && (term.title.contains("--") || term.title.contains(">")) ) {
@@ -324,12 +331,12 @@ public class MatchHeadingsCSVToAuthority {
 
 	private static class ASpaceTerm {
 		String title = null;
-		String term1 = null;
-		String term2 = null;
-		String term3 = null;
-		String term4 = null;
-		String source = null;
-		String id = null;
+		String term1 = "";
+		String term2 = "";
+		String term3 = "";
+		String term4 = "";
+		String source = "";
+		String id = "";
 	}
 	private static class Match {
 		String term = null;
