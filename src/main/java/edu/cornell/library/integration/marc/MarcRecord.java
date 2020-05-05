@@ -258,25 +258,25 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			w.writeStartElement("record");
 			w.writeAttribute("xmlns", "http://www.loc.gov/MARC21/slim");
 			w.writeStartElement("leader");
-			w.writeCharacters(this.leader);
+			w.writeCharacters(cleanInvalidXmlChars(this.leader));
 			w.writeEndElement(); // leader
 
 			for( final ControlField f : this.controlFields) {
 				w.writeStartElement("controlfield");
-				w.writeAttribute("tag", f.tag);
-				w.writeCharacters(f.value);
+				w.writeAttribute("tag", cleanInvalidXmlChars(f.tag));
+				w.writeCharacters(cleanInvalidXmlChars(f.value));
 				w.writeEndElement(); //controlfield
 			}
 
 			for( final DataField f : this.dataFields) {
 				w.writeStartElement("datafield");
-				w.writeAttribute("tag", f.tag);
-				w.writeAttribute("ind1", f.ind1.toString());
-				w.writeAttribute("ind2", f.ind2.toString());
+				w.writeAttribute("tag", cleanInvalidXmlChars(f.tag));
+				w.writeAttribute("ind1", cleanInvalidXmlChars(f.ind1.toString()));
+				w.writeAttribute("ind2", cleanInvalidXmlChars(f.ind2.toString()));
 				for (Subfield sf : f.subfields) {
 					w.writeStartElement("subfield");
-					w.writeAttribute("code", sf.code.toString());
-					w.writeCharacters(sf.value);
+					w.writeAttribute("code", cleanInvalidXmlChars(sf.code.toString()));
+					w.writeCharacters(cleanInvalidXmlChars(sf.value));
 					w.writeEndElement(); //subfield
 				}
 				w.writeEndElement(); //datafield
@@ -290,6 +290,9 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	private static String cleanInvalidXmlChars(String text) {
+		return text.replaceAll("[^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF]", " ");
 	}
 
 
@@ -348,7 +351,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	}
 	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
-	private static TreeSet<Subfield> processSubfields( XMLStreamReader r, boolean trimSubfields ) throws XMLStreamException {
+	private static TreeSet<Subfield> processSubfields( XMLStreamReader r, boolean trimSubfields )
+			throws XMLStreamException {
 		TreeSet<Subfield> subfields = new TreeSet<>();
 		int id = 0;
 		while (r.hasNext()) {
