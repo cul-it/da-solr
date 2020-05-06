@@ -163,6 +163,13 @@ public class Config {
 		return null;
 	}
 
+	public String getAnnexFlipsUrl() {
+		if (this.values.containsKey("annexFlipsUrl")) {
+			return this.values.get("annexFlipsUrl");
+		}
+		return null;
+	}
+
 	public void setTestMode(boolean b) {
 		this.values.put("testMode", (b) ? "true" : "false");
 	}
@@ -438,7 +445,7 @@ public class Config {
 	private static String checkUrl(String propName, String value) {
 		if (value == null || value.trim().isEmpty())
 			return "The property field " + propName + " must be set.\n";
-		else if (!value.startsWith("http://"))
+		else if (!value.startsWith("http://")&&!value.startsWith("https://"))
 			return "The field " + propName + " was '" + value + "' but it must be a URL.\n";
 		else
 			return "";
