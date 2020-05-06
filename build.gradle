@@ -78,6 +78,12 @@ task (matchHeadingsCSVToAuthority, dependsOn:'assemble', type: JavaExec){
  classpath = sourceSets.main.runtimeClasspath
  maxHeapSize = '1024m'
 }
+task (identifyNewAnnexAccessions, dependsOn:'assemble', type: JavaExec){
+ description="Load list of barcodes accessioned into the annex yesterday, map them to bibs in Voyager, queue for reindex."
+ main='edu.cornell.library.integration.processing.IdentifyNewAnnexAccessions'
+ classpath = sourceSets.main.runtimeClasspath
+ maxHeapSize = '1024m'
+}
 
    
 task (step02IdentifyChangedRecords, dependsOn:'assemble', type: JavaExec){
