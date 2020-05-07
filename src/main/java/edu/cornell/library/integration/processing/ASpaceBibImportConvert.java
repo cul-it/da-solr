@@ -47,7 +47,7 @@ public class ASpaceBibImportConvert {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\December22";
+		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\May5";
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
@@ -608,8 +608,9 @@ public class ASpaceBibImportConvert {
 	private static boolean isProtectedField(String tag) {
 		return tag.equals("035") || tag.equals("260") || tag.equals("264") || tag.equals("541") || tag.equals("336")
 				|| tag.equals("337") || tag.equals("338") || tag.equals("362") || tag.equals("730") || tag.equals("740")
-				|| Integer.valueOf(tag) >= 856;
+				|| (threeDigitNumber.matcher(tag).matches() && Integer.valueOf(tag) >= 856);
 	}
+	private static Pattern threeDigitNumber = Pattern.compile("\\d{3}");
 	private static void unlinkUnprotected880Fields(MarcRecord newMarc) {
 		for (DataField f : newMarc.dataFields)
 			if (f.tag.equals("880"))
@@ -744,8 +745,6 @@ public class ASpaceBibImportConvert {
 		handleAuthorTitleFields(newMarc);
 		flip245fg_to264_0(newMarc);
 		apply245numberOfNonfilingChars(newMarc, oldMarc);
-		for ( DataField f : newMarc.dataFields ) if (f.tag.equals("856"))
-			for ( Subfield sf : f.subfields ) if ( sf.code.equals('z') ) sf.code = '3'; //TODO remove when aspace exporting 3's.
 		insertVariousVoyagerManagedFields(newMarc, oldMarc);
 		unlinkUnprotected880Fields(newMarc);
 		suppressNoPrimaryCreator(newMarc);
