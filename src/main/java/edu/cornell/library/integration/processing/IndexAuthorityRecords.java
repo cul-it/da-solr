@@ -725,23 +725,28 @@ public class IndexAuthorityRecords {
 				switch (sf.value.charAt(0)) {
 				case 'a':
 					//earlier heading
-					r.relationship = "Later Heading";	break;
+					r.relationship = "Later Heading";
+					r.reciprocalRelationship = "Earlier Heading"; break;
 				case 'b':
 					//later heading
-					r.relationship = "Earlier Heading";	break;
+					r.relationship = "Earlier Heading";
+					r.reciprocalRelationship = "Later Heading"; break;
 				case 'd':
 					//acronym
-					r.relationship = "Full Heading";	break;
+					r.relationship = "Full Heading";
+					r.reciprocalRelationship = "Acronym"; break;
 				case 'f':
 					//musical composition
 					r.relationship = "Musical Composition Based on this Work";
-														break;
+					r.reciprocalRelationship = "Based on"; break;
 				case 'g':
 					//broader term
-					r.relationship = "Narrower Term";	break;
+					r.relationship = "Narrower Term";
+					r.reciprocalRelationship = "Broader Term"; break;
 				case 'h':
 					//narrower term
-					r.relationship = "Broader Term";	break;
+					r.relationship = "Broader Term";
+					r.reciprocalRelationship = "Narrower Term"; break;
 				case 'i':	
 				case 'r':
 					// get relationship name from subfield i 
@@ -786,6 +791,7 @@ public class IndexAuthorityRecords {
 					Character offset2 = sf.value.charAt(2);
 					if (offset2.equals('a')) {
 						r.relationship = "Later Form of Heading";
+						r.reciprocalRelationship = "Earlier Form of Heading";
 					}
 				}
 
@@ -808,22 +814,28 @@ public class IndexAuthorityRecords {
 				String rel = removeTrailingPunctuation(sf.value,": ").trim().toLowerCase();
 				switch (rel) {
 				case "alternate identity":
-					r.relationship = "Real Identity";		break;
+					r.relationship = "Real Identity";
+					r.reciprocalRelationship = "Alternate Identity"; break;
 				case "real identity":
-					r.relationship = "Alternate Identity";	break;
+					r.relationship = "Alternate Identity";
+					r.reciprocalRelationship = "Real Identity"; break;
 				case "family member":
-					r.relationship = "Family";				break;
+					r.relationship = "Family";
+					r.reciprocalRelationship = "Family Member"; break;
 				case "family":
-					r.relationship = "Family Member";		break;
+					r.relationship = "Family Member";
+					r.reciprocalRelationship = "Family"; break;
 				case "progenitor":
-					r.relationship = "Descendants";			break;
+					r.relationship = "Descendants";
+					r.reciprocalRelationship = "Progenitor"; break;
 				case "descendants":
-					r.relationship = "Progenitor";			break;
+					r.relationship = "Progenitor";
+					r.reciprocalRelationship = "Descentants"; break;
 				case "employee": 
-					r.relationship = "Employer";			break;
+					r.relationship = "Employer"; break;
 				case "employer":
 					r.relationship = "Employee";
-					r.reciprocalRelationship = "Employer";	break;
+					r.reciprocalRelationship = "Employer"; break;
 
 				// The reciprocal relationship to descendant family is missing
 				// from the RDA spec (appendix K), so it's unlikely that
@@ -832,9 +844,11 @@ public class IndexAuthorityRecords {
 				// progenitive, progenitorial), progenitive has the highest level
 				// of actual use according to my Google NGrams search
 				case "descendant family": 
-					r.relationship = "Progenitive Family";	break;
+					r.relationship = "Progenitive Family";
+					r.reciprocalRelationship = "Descendant Family"; break;
 				case "progenitive family":
 					r.relationship = "Descendant Family";
+					r.reciprocalRelationship = "Progenitive Family";
 				}
 			}
 		}

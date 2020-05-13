@@ -23,6 +23,28 @@ public class URLTest {
 		online.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
 	}
 
+	@Test
+	public void ebscoTitleLink() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"856",'4','0',
+		"‡i 2471499 "+
+		"‡y Click here to find online versions of this title. "+
+		"‡u https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
+		+ "bQuery=AN%202471499&direct=true&site=pfi-live"));
+		rec.holdings.add(online);
+		String expected =
+		"ebsco_title_facet: 2471499\n" + 
+		"notes_t: Click here to find online versions of this title.\n" + 
+		"url_access_json: {"
+		+ "\"titleid\":\"2471499\","
+		+ "\"description\":\"Click here to find online versions of this title.\","
+		+ "\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
+		+           "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n" + 
+		"online: Online\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+	}
+
+
 	@Test   //8637892 DISCOVERYACCESS-2947
 	public void testMultipleAccessWithDifferentTOU() throws IOException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
