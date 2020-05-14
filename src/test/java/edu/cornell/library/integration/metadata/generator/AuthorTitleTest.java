@@ -151,12 +151,12 @@ public class AuthorTitleTest {
 		"author_pers_filing: speed john 1552 1629\n"+
 		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":\"Speed, John, 1552?-1629,\","
 		+ "\"relator\":\"cartographer\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
-		"authority_author_t: I. S. (John Speed), 1552?-1629\n"+
-		"authority_author_t: J. S. (John Speed), 1552?-1629\n"+
-		"authority_author_t: S., I. (John Speed), 1552?-1629\n"+
-		"authority_author_t: S., J. (John Speed), 1552?-1629\n"+
+		"authority_author_t: I. S., 1552?-1629\n"+
+		"authority_author_t: J. S., 1552?-1629\n"+
+		"authority_author_t: S., I., 1552?-1629\n"+
+		"authority_author_t: S., J., 1552?-1629\n"+
 		"authority_author_t: Spede, Iohn, 1552?-1629\n"+
-		"authority_author_t: Speed, I. (John Speed), 1552?-1629\n"+
+		"authority_author_t: Speed, I., 1552?-1629\n"+
 		"authority_author_t: Speed, Iohn, 1552?-1629\n"+
 		"authority_author_t: Speede, Iohn, 1552?-1629\n"+
 		"authority_author_t: Speede, John, 1552?-1629\n"+
@@ -494,30 +494,30 @@ public class AuthorTitleTest {
 		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
 		+ "\"Guo li gu gong bo wu yuan.\",\"search2\":\"Guo li gu gong bo wu yuan.\","
 		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
-		"authority_author_t: China (Republic : 1949- ). Chinese National Palace Museum\n"+
-		"authority_author_t: China (Republic : 1949- ). Guo li gu gong bo wu yuan\n"+
-		"authority_author_t: China (Republic : 1949- ). National Palace Museum\n"+
-		"authority_author_t: China (Republic : 1949- ). 國立故宮博物院\n"+
-		"authority_author_t_cjk: China (Republic : 1949- ). 國立故宮博物院\n"+
+		"authority_author_t: China. Chinese National Palace Museum\n"+
+		"authority_author_t: China. Guo li gu gong bo wu yuan\n"+
+		"authority_author_t: China. National Palace Museum\n"+
+		"authority_author_t: China. 國立故宮博物院\n"+
+		"authority_author_t_cjk: China. 國立故宮博物院\n"+
 		"authority_author_t: Chinese National Palace Museum\n"+
 		"authority_author_t: Chūka Minkoku Kokuritsu Kokyū Hakubutsuin\n"+
-		"authority_author_t: Gu gong bo wu yuan (Taipei, Taiwan)\n"+
-		"authority_author_t: Gu gong yuan (Taipei, Taiwan)\n"+
+		"authority_author_t: Gu gong bo wu yuan\n"+
+		"authority_author_t: Gu gong yuan\n"+
 		"authority_author_t: Kokuritsu Kokyū Hakubutsuin\n"+
 		"authority_author_t: Kuo li ku kung po wu yüan\n"+
-		"authority_author_t: Musée national du Palais (Taipei, Taiwan)\n"+
-		"authority_author_t: National Palace Museum (Taipei, Taiwan)\n"+
+		"authority_author_t: Musée national du Palais\n"+
+		"authority_author_t: National Palace Museum\n"+
 		"authority_author_t: Taibei gu gong bo wu yuan\n"+
-		"authority_author_t: Taipei (Taiwan). Chinese National Palace Museum\n"+
-		"authority_author_t: Taipei (Taiwan). Guo li gu gong bo wu yuan\n"+
-		"authority_author_t: 台北 (台灣). 國立故宮博物院\n"+
-		"authority_author_t_cjk: 台北 (台灣). 國立故宮博物院\n"+
+		"authority_author_t: Taipei. Chinese National Palace Museum\n"+
+		"authority_author_t: Taipei. Guo li gu gong bo wu yuan\n"+
+		"authority_author_t: 台北. 國立故宮博物院\n"+
+		"authority_author_t_cjk: 台北. 國立故宮博物院\n"+
 		"authority_author_t: 台北故宮博物院\n"+
 		"authority_author_t_cjk: 台北故宮博物院\n"+
 		"authority_author_t: 國立故宮博物院\n"+
 		"authority_author_t_cjk: 國立故宮博物院\n"+
-		"authority_author_t: 故宮博物院 (Taipei, Taiwan)\n"+
-		"authority_author_t_cjk: 故宮博物院 (Taipei, Taiwan)\n"+
+		"authority_author_t: 故宮博物院\n"+
+		"authority_author_t_cjk: 故宮博物院\n"+
 		"author_t_cjk: 蔡玫芬.\n"+
 		"author_facet: 蔡玫芬\n"+
 		"author_pers_filing: 蔡玫芬\n"+
@@ -527,5 +527,4 @@ public class AuthorTitleTest {
 		"author_sort: guo li gu gong bo wu yuan\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
-
 }
