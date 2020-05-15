@@ -31,7 +31,7 @@ public class HathiLinks implements SolrFieldGenerator {
 	private final String hathiLinkTextTitle  = "HathiTrust (multiple volumes)";
 	private final String hathiLinkTextDeny   = "HathiTrust – Access limited to full-text search";
 	private final String hathiLinkTextEtas   = "Connect to full text. Access limited to authorized subscribers.";
-	private final String hathiInfoLinkTextEtas = "Temporary Access: Information for Users";
+	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
 
 	@Override
 	public String getVersion() { return "1.1"; }
