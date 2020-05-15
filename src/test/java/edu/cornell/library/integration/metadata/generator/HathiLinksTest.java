@@ -89,8 +89,8 @@ public class HathiLinksTest {
 		+ "\"url\":\"https://catalog.hathitrust.org/Record/000630225?"
 		+ "signon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth\"}\n" + 
 		"online: Online\n" + 
-		"notes_t: Temporary Access: Information for Users\n" + 
-		"url_access_json: {\"description\":\"Temporary Access: Information for Users\","
+		"notes_t: Information for users about temporary access\n" + 
+		"url_access_json: {\"description\":\"Information for users about temporary access\","
 		+ "\"url\":\"https://www.hathitrust.org/ETAS-User-Information\"}\n" + 
 		"online: Online\n" + 
 		"etas_facet: 2\n";
