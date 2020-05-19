@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -224,7 +224,8 @@ public class Subject implements SolrFieldGenerator {
 						}
 					json.add(subj1);
 
-					values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+					values_browse.add(
+							removeTrailingPunctuation(sb_breadcrumbed.toString(),".").replaceAll("\\s?\\(Core\\)$", ""));
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
@@ -264,7 +265,7 @@ public class Subject implements SolrFieldGenerator {
 				if (h.isFAST)
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
-					if (h.is653) keywordDisplay.add(disp);
+					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
 			for (final String s: valuesMain_breadcrumbed) {
@@ -275,7 +276,7 @@ public class Subject implements SolrFieldGenerator {
 				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
-					if (h.is653) keywordDisplay.add(disp);
+					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
 			for (final String s: values_browse)

@@ -190,6 +190,20 @@ public class SubjectTest {
 	}
 
 
+	@Test
+	public void test653core() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Art and Architecture (Core)"));
+		String expected =
+		"sixfivethree: Art and Architecture (Core)\n" + 
+		"subject_t: Art and Architecture (Core)\n" + 
+		"subject_gen_facet: Art and Architecture\n" + 
+		"subject_gen_filing: art and architecture\n" + 
+		"keyword_display: Art and Architecture\n" + 
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
 	@Test //DISCOVERYACCESS-3760
 	public void dontSearchOnParentheticalDisamiguationsInAlternateForms()
 			throws ClassNotFoundException, SQLException, IOException {
