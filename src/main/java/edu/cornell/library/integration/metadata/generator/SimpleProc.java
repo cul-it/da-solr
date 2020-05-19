@@ -16,7 +16,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class SimpleProc implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -143,7 +143,11 @@ public class SimpleProc implements SolrFieldGenerator {
 				displayField = "restrictions_display";
 				break;
 			case 508:    displaySubfields = "3a";        searchSubfields = "a";        break;
-			case 511:    displaySubfields = "3a";        searchSubfields = "a";        break;
+			case 511:
+				displaySubfields = "3a";
+				searchSubfields = "a";
+				if (f.ind1.equals('1')) displayField = "cast_display";
+				break;
 			case 513:    displaySubfields = "3ab";       searchSubfields = "ab";       break;
 			case 515:    displaySubfields = "a";         searchSubfields = "a";        break;
 			case 518:    displaySubfields = "3adop";     searchSubfields = "adop";     break;

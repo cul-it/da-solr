@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -68,6 +68,7 @@ public class Subject implements SolrFieldGenerator {
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();
 		final Collection<String> subjectDisplay = new LinkedHashSet<>();
 		final Collection<String> subjectJson = new LinkedHashSet<>();
+		final Collection<String> keywordDisplay = new LinkedHashSet<>();
 		final Collection<String> authorityAltForms = new HashSet<>();
 		final Collection<String> authorityAltFormsCJK = new HashSet<>();
 
@@ -151,7 +152,7 @@ public class Subject implements SolrFieldGenerator {
 					ht = HeadingType.GEONAME;
 					break;
 				case "653":
-					// This field list is used for subject_display and sixfivethree.
+					h.is653 = true;
 					main_fields = "a";
 					break;
 				case "654":
@@ -223,10 +224,11 @@ public class Subject implements SolrFieldGenerator {
 						}
 					json.add(subj1);
 
-					values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+					values_browse.add(
+							removeTrailingPunctuation(sb_breadcrumbed.toString(),".").replaceAll("\\s?\\(Core\\)$", ""));
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
-					if (f.mainTag.equals("653")) {
+					if (h.is653) {
 						sfs.add(new SolrField("sixfivethree",primarySubjectTerm));
 					}
 					for (final String dashed_term : dashed_terms) {
@@ -263,7 +265,8 @@ public class Subject implements SolrFieldGenerator {
 				if (h.isFAST)
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
-					subjectDisplay.add(disp);
+					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
+					else         subjectDisplay.add(disp);
 			}
 			for (final String s: valuesMain_breadcrumbed) {
 				String disp = removeTrailingPunctuation(s,".");
@@ -273,7 +276,8 @@ public class Subject implements SolrFieldGenerator {
 				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
 				if ( ! h.isFAST || ! recordHasLCSH)
-					subjectDisplay.add(disp);
+					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
+					else         subjectDisplay.add(disp);
 			}
 			for (final String s: values_browse)
 				if (ht != null) {
@@ -282,7 +286,7 @@ public class Subject implements SolrFieldGenerator {
 					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",getFilingForm(s)));
 				}
 
-			if ( ! h.isFAST || ! recordHasLCSH) {
+			if ( ! h.is653 && ( ! h.isFAST || ! recordHasLCSH ) ) {
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)
@@ -296,6 +300,8 @@ public class Subject implements SolrFieldGenerator {
 			sfs.add(new SolrField("subject_json",json));
 		for (String display : subjectDisplay)
 			sfs.add(new SolrField("subject_display",display));
+		for (String display : keywordDisplay)
+			sfs.add(new SolrField("keyword_display",display));
 		for (String altForm : authorityAltForms)
 			sfs.add(new SolrField("authority_subject_t",altForm));
 		for (String altForm : authorityAltFormsCJK)
@@ -316,6 +322,7 @@ public class Subject implements SolrFieldGenerator {
 		public Heading() { }
 		boolean isFAST = false;
 		boolean isLCGFT = false;
+		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
 

@@ -209,4 +209,25 @@ public class SimpleProcTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
+	@Test
+	public void participantPerformerNotes() throws ClassNotFoundException, SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"511",'1',' ',
+					"‡a Orson Welles, Joseph Cotten, Agnes Moorehead, Everett Sloane."));
+			String expected =
+			"cast_display: Orson Welles, Joseph Cotten, Agnes Moorehead, Everett Sloane.\n" + 
+			"notes_t: Orson Welles, Joseph Cotten, Agnes Moorehead, Everett Sloane.\n";
+			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+		}
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"511",'0',' ',
+					"‡a Fires of London ; the composer conducting."));
+			String expected =
+			"notes: Fires of London ; the composer conducting.\n" + 
+			"notes_t: Fires of London ; the composer conducting.\n";
+			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+		}
+	}
 }
