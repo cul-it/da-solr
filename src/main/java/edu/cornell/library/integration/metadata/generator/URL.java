@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -64,6 +65,9 @@ public class URL implements SolrFieldGenerator {
 							System.out.printf("Unexpected field in b%s 856$i: %s\n",bibRec.id,field);
 					}
 				}
+			} else if (number.matcher(instruction).matches() ) {
+				processedLink.put("titleid",instruction);
+				sfs.add(new SolrField("ebsco_title_facet",instruction));
 			}
 
 			if (urls.size() > 1)
@@ -162,6 +166,7 @@ public class URL implements SolrFieldGenerator {
 
 		return sfs;
 	}
+	private static Pattern number = Pattern.compile("^\\d+$");
 
 	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {
 		for (Map<String,Object> link : allProcessedLinks)
