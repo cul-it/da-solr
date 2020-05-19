@@ -54,7 +54,7 @@ public class AuthorityData {
 					while (rs.next()) {
 						if (this.alternateForms == null)
 							this.alternateForms = new ArrayList<>();
-						this.alternateForms.add(rs.getString(1));
+						this.alternateForms.add(rs.getString(1).replaceAll(" \\(.*\\)", ""));
 					}
 				}
 			}

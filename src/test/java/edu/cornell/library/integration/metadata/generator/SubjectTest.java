@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.metadata.generator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -112,8 +113,8 @@ public class SubjectTest {
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
 		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four.\",\"authorized\":true,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
-		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Jesuits today\n"+
-		"authority_subject_t: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Our mission today\n"+
+		"authority_subject_t: Jesuits. Congregatio Generalis. | Jesuits today\n"+
+		"authority_subject_t: Jesuits. Congregatio Generalis. | Our mission today\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 
@@ -187,4 +188,15 @@ public class SubjectTest {
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
+
+
+	@Test //DISCOVERYACCESS-3760
+	public void dontSearchOnParentheticalDisamiguationsInAlternateForms()
+			throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "10215428";
+		rec.dataFields.add(new DataField(1,"651",'7',' ',"‡a Cambodia ‡z Svay Riĕng. ‡2 fast ‡0 (OCoLC)fst01878040"));
+		assertFalse(this.gen.generateSolrFields(rec, config).toString().contains("Coalition"));
+	}
+
 }

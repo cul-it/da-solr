@@ -101,10 +101,15 @@ public class TitleSeriesTest {
 		rec.dataFields.add(new DataField(1,"811",'2',' ',"‡a United Nations Issues Conference."
 				+ " ‡t Report of the ... United Nations Issues Conference ‡x 0743-9180 ; ‡v 30th."));
 		String expected =
-		"title_series_display: United Nations Issues Conference. | Report of the ... United Nations Issues Conference 30th.\n"+
-		"title_series_cts: United Nations Issues Conference. Report of the ... United Nations Issues Conference 30th.|Report of the ... United Nations Issues Conference|United Nations Issues Conference.\n"+
-		"authortitle_filing: united nations issues conference 0000 report of the united nations issues conference\n"+
-		"authortitle_facet: United Nations Issues Conference. | Report of the ... United Nations Issues Conference\n"+
+		"title_series_display: United Nations Issues Conference. "
+		+ "| Report of the ... United Nations Issues Conference 30th.\n"+
+		"title_series_cts: United Nations Issues Conference. "
+		+ "Report of the ... United Nations Issues Conference 30th."
+		+ "|Report of the ... United Nations Issues Conference|United Nations Issues Conference.\n"+
+		"authortitle_filing: united nations issues conference 0000 "
+		+ "report of the united nations issues conference\n"+
+		"authortitle_facet: United Nations Issues Conference. "
+		+ "| Report of the ... United Nations Issues Conference\n"+
 		"title_series_t: Report of the ... United Nations Issues Conference 30th.\n"+
 		"author_addl_t: United Nations Issues Conference.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
@@ -122,7 +127,8 @@ public class TitleSeriesTest {
 		"title_series_cts: Medieval and early modern sources online|Medieval and early modern sources online\n"+
 		"title_series_t: Medieval and early modern sources online\n"+
 		"title_series_display: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]\n"+
-		"title_series_cts: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]|[Reports of the Royal Commission on Historical Manuscripts ;\n"+
+		"title_series_cts: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]"
+		+ "|[Reports of the Royal Commission on Historical Manuscripts ;\n"+
 		"title_series_t: [Reports of the Royal Commission on Historical Manuscripts ; 11.5]\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
@@ -135,7 +141,8 @@ public class TitleSeriesTest {
 				"‡a [The Winthrop Pickard Bell lectures in Maritime studies] ; ‡v 1982-1983"));
 		String expected =
 		"title_series_display: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983\n"+
-		"title_series_cts: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983|[The Winthrop Pickard Bell lectures in Maritime studies] ;\n"+
+		"title_series_cts: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983"
+		+ "|[The Winthrop Pickard Bell lectures in Maritime studies] ;\n"+
 		"title_series_t: [The Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983\n"+
 		"title_series_t: [Winthrop Pickard Bell lectures in Maritime studies] ; 1982-1983\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
@@ -147,9 +154,10 @@ public class TitleSeriesTest {
 		rec.dataFields.add(new DataField(1,"490",'1',' ',
 				"‡a Pleadings, oral arguments, documents = ‡a Mémoires, plaidoiries et documents"));
 		String expected =
+		"title_series_t: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n"+
 		"title_series_display: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n"+
-		"title_series_cts: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents|Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n"+
-		"title_series_t: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n";
+		"title_series_cts: Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents"
+		+ "|Pleadings, oral arguments, documents = Mémoires, plaidoiries et documents\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
@@ -164,7 +172,50 @@ public class TitleSeriesTest {
 		"title_series_display: Pleadings, oral arguments, documents.\n"+
 		"title_series_cts: Pleadings, oral arguments, documents.|Pleadings, oral arguments, documents.\n"+
 		"title_series_t: Pleadings, oral arguments, documents.\n";
-//		System.out.println( TitleSeries.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\""));
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+	}
+
+	@Test
+	public void fields440_830() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "3884121";
+		rec.dataFields.add(new DataField(1,"440",' ','0',
+				"‡a Elementary natural history series ; ‡v no. 1"));
+		rec.dataFields.add(new DataField(2,"830",' ','0',
+				"‡a New York and Northeast agriculture and natural history preservation project."));
+		String expected =
+		"title_series_display: Elementary natural history series ; no. 1\n" + 
+		"title_series_cts: Elementary natural history series ; no. 1|Elementary natural history series ;\n"+
+		"title_series_t: Elementary natural history series ; no. 1\n"+
+		"title_series_display: New York and Northeast agriculture and natural history preservation project.\n"+
+		"title_series_cts: New York and Northeast agriculture and natural history preservation project."
+		+ "|New York and Northeast agriculture and natural history preservation project.\n"+
+		"title_series_t: New York and Northeast agriculture and natural history preservation project.\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+	}
+
+	@Test
+	public void fields490_800() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "5108847";
+		rec.dataFields.add(new DataField(1,"490",'1',' ',
+				"‡a Beethoven sketchbook series"));
+		rec.dataFields.add(new DataField(2,"800",'1',' ',
+				"‡a Beethoven, Ludwig van, ‡d 1770-1827. ‡t Works. "
+				+ "‡k Selections (Sketches : Beethoven sketchbook series)"));
+		String expected =
+		"title_series_t: Beethoven sketchbook series\n"+
+		"title_series_display: Beethoven, Ludwig van, 1770-1827. | "
+		+ "Works. Selections (Sketches : Beethoven sketchbook series)\n"+
+		"title_series_cts: Beethoven, Ludwig van, 1770-1827. "
+		+ "Works. Selections (Sketches : Beethoven sketchbook series)|"
+		+ "Works. Selections (Sketches : Beethoven sketchbook series)|Beethoven, Ludwig van, 1770-1827.\n"+
+		"authortitle_filing: beethoven ludwig van 1770 1827 0000 "
+		+ "works selections sketches beethoven sketchbook series\n"+
+		"authortitle_facet: Beethoven, Ludwig van, 1770-1827. | "
+		+ "Works. Selections (Sketches : Beethoven sketchbook series)\n"+
+		"title_series_t: Works. Selections (Sketches : Beethoven sketchbook series)\n"+
+		"author_addl_t: Beethoven, Ludwig van, 1770-1827.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 }
