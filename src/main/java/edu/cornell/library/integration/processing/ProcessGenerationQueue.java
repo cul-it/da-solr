@@ -52,11 +52,19 @@ public class ProcessGenerationQueue {
 		try (	Connection current = config.getDatabaseConnection("Current");
 				Statement stmt = current.createStatement();
 				PreparedStatement nextBibStmt = current.prepareStatement
-						("SELECT bib_id, priority FROM generationQueue ORDER BY priority LIMIT 1");
+						("SELECT generationQueue.bib_id, priority" +
+						 "  FROM generationQueue "+
+						 "  LEFT JOIN processLock ON generationQueue.bib_id = processLock.bib_id"+
+						 " WHERE processLock.date IS NULL"+
+						 " ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
 						("SELECT id, cause, record_date FROM generationQueue WHERE bib_id = ?");
-				PreparedStatement deprioritizeStmt = current.prepareStatement
-						("UPDATE generationQueue SET priority = 9 WHERE id = ?");
+				PreparedStatement createLockStmt = current.prepareStatement
+						("INSERT INTO processLock (bib_id) values (?)",Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement unlockStmt = current.prepareStatement
+						("DELETE FROM processLock WHERE id = ?");
+				PreparedStatement oldLocksCleanupStmt = current.prepareStatement
+						("DELETE FROM processLock WHERE date < DATE_SUB( NOW(), INTERVAL 5 MINUTE)");
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
@@ -67,25 +75,27 @@ public class ProcessGenerationQueue {
 						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 100");
+						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 1000");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
-				
 				) {
+
+			oldestSolrFieldsData.setFetchSize(1000);
 
 			do {
 				// Identify Bib to generate data for
 				Integer bib = null;
 				Integer priority = null;
-				stmt.execute("LOCK TABLES generationQueue WRITE, solrFieldsData WRITE");
+				stmt.execute("LOCK TABLES generationQueue WRITE, solrFieldsData WRITE, processLock WRITE");
 				try (ResultSet rs = nextBibStmt.executeQuery()){
 					while (rs.next()) { bib = rs.getInt(1); priority = rs.getInt(2); }
 				}
 
 				if (bib == null || priority == null) {
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
+					oldLocksCleanupStmt.executeUpdate();
 					stmt.execute("UNLOCK TABLES");
 					continue;
 				}
@@ -95,6 +105,7 @@ public class ProcessGenerationQueue {
 				Set<Integer> queueIds = new HashSet<>();
 				Timestamp minChangeDate = null;
 				EnumSet<Generator> forcedGenerators = EnumSet.noneOf(Generator.class);
+				int lockId = 0;
 				try ( ResultSet rs = allForBibStmt.executeQuery() ) {
 					while (rs.next()) {
 						Integer id = rs.getInt("id");
@@ -105,13 +116,15 @@ public class ProcessGenerationQueue {
 								Arrays.stream(Generator.values())
 								.filter(e -> cause.contains(e.name()))
 								.collect(Collectors.toSet()));
-						deprioritizeStmt.setInt(1,id);
-						deprioritizeStmt.addBatch();
 						if (minChangeDate == null || minChangeDate.after(recordDate))
 							minChangeDate = recordDate;
 						queueIds.add(id);
 					}
-					deprioritizeStmt.executeBatch();
+				}
+				createLockStmt.setInt(1,bib);
+				createLockStmt.executeUpdate();
+				try ( ResultSet generatedKeys = createLockStmt.getGeneratedKeys() ) {
+					if (generatedKeys.next()) lockId = generatedKeys.getInt(1);
 				}
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
@@ -151,7 +164,9 @@ public class ProcessGenerationQueue {
 					deqStmt.addBatch();
 				}
 				deqStmt.executeBatch();
-				
+				unlockStmt.setInt(1, lockId);
+				unlockStmt.executeUpdate();
+
 			} while (true);
 		}
 	}
