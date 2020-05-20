@@ -59,8 +59,10 @@ public class ProcessGenerationQueue {
 						 " ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
 						("SELECT id, cause, record_date FROM generationQueue WHERE bib_id = ?");
-				PreparedStatement deprioritizeStmt = current.prepareStatement
-						("UPDATE generationQueue SET priority = 9 WHERE id = ?");
+				PreparedStatement createLockStmt = current.prepareStatement
+						("INSERT INTO processLock (bib_id) values (?)",Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement unlockStmt = current.prepareStatement
+						("DELETE FROM processLock WHERE id = ?");
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
@@ -71,12 +73,14 @@ public class ProcessGenerationQueue {
 						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 10000");
+						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 1000");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				Connection voyager = config.getDatabaseConnection("Voy");
 				) {
+
+			oldestSolrFieldsData.setFetchSize(1000);
 
 			do {
 				// Identify Bib to generate data for
@@ -113,11 +117,11 @@ public class ProcessGenerationQueue {
 							minChangeDate = recordDate;
 						queueIds.add(id);
 					}
-					createLockStmt.setInt(1,bib);
-					createLockStmt.executeUpdate();
-					try ( ResultSet generatedKeys = createLockStmt.getGeneratedKeys() ) {
-						if (generatedKeys.next()) lockId = generatedKeys.getInt(1);
-					}
+				}
+				createLockStmt.setInt(1,bib);
+				createLockStmt.executeUpdate();
+				try ( ResultSet generatedKeys = createLockStmt.getGeneratedKeys() ) {
+					if (generatedKeys.next()) lockId = generatedKeys.getInt(1);
 				}
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
