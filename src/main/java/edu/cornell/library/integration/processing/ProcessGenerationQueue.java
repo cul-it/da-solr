@@ -63,6 +63,8 @@ public class ProcessGenerationQueue {
 						("INSERT INTO processLock (bib_id) values (?)",Statement.RETURN_GENERATED_KEYS);
 				PreparedStatement unlockStmt = current.prepareStatement
 						("DELETE FROM processLock WHERE id = ?");
+				PreparedStatement oldLocksCleanupStmt = current.prepareStatement
+						("DELETE FROM processLock WHERE date < DATE_SUB( NOW(), INTERVAL 5 MINUTE)");
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
@@ -93,6 +95,7 @@ public class ProcessGenerationQueue {
 
 				if (bib == null || priority == null) {
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
+					oldLocksCleanupStmt.executeUpdate();
 					stmt.execute("UNLOCK TABLES");
 					continue;
 				}
