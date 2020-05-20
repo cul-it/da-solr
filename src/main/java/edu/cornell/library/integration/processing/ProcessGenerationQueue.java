@@ -67,7 +67,7 @@ public class ProcessGenerationQueue {
 						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 50");
+						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 100");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
@@ -79,14 +79,14 @@ public class ProcessGenerationQueue {
 				// Identify Bib to generate data for
 				Integer bib = null;
 				Integer priority = null;
-				stmt.execute("LOCK TABLES generationQueue WRITE");
+				stmt.execute("LOCK TABLES generationQueue WRITE, solrFieldsData WRITE");
 				try (ResultSet rs = nextBibStmt.executeQuery()){
 					while (rs.next()) { bib = rs.getInt(1); priority = rs.getInt(2); }
 				}
 
 				if (bib == null || priority == null) {
-					stmt.execute("UNLOCK TABLES");
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
+					stmt.execute("UNLOCK TABLES");
 					continue;
 				}
 
