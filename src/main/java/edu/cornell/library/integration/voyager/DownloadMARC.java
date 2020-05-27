@@ -10,21 +10,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.utilities.Config;
 
-public class DownloadMARC {
+public class DownloadMARC implements Catalog.DownloadMARC {
 	private Config config;
-	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
-	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
+//	private static Pattern uPlusHexPattern =  Pattern.compile(".*[Uu]\\+\\p{XDigit}{4}.*");
+//	private static Pattern copyrightNullPattern = Pattern.compile(".*©Ø.*");
 //	private static Pattern htmlEntityPattern = null;
 
-	public DownloadMARC(Config config) {
-		this.config = config;
-	}
+	@Override public void setConfig( Config config ) { this.config = config; }
 
 	/**
 	 * Retrieve specified MARC record and return MARC21 format as string.
@@ -41,10 +39,12 @@ public class DownloadMARC {
 		return queryVoyager(type,id);
 	}
 
+	@Override
 	public MarcRecord getMarc( RecordType type, Integer id ) throws SQLException, IOException, InterruptedException {
 		return new MarcRecord(type,queryVoyager(type,id));
 	}
 
+	@Override
 	public List<MarcRecord> retrieveRecordsByIdRange (RecordType type, Integer from, Integer to)
 			throws SQLException, IOException {
 		List<MarcRecord> recs = new ArrayList<>();
@@ -69,8 +69,7 @@ public class DownloadMARC {
 		return recs;
 	}
 
-
-
+/*
 	private static void errorChecking(String rec, RecordType type, Integer id) {
 		if ( rec.contains("\uFFFD") )
 			System.out.println(type.toString().toLowerCase()+
@@ -83,7 +82,7 @@ public class DownloadMARC {
 					" MARC contains corrupt Unicode sequence (©Ø): "+id);
 //		if ( htmlEntityPattern.matcher(rec).matches() )
 //			System.out.println(type.toString().toLowerCase()+" MARC contains at least one HTML entity: "+id);
-	}
+	}*/
 
 	private static PreparedStatement prepareStatement(Connection voyager , RecordType type) throws SQLException {
 		if (type.equals(RecordType.BIBLIOGRAPHIC))

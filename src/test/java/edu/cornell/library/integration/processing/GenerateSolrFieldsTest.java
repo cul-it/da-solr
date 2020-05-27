@@ -19,10 +19,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class GenerateSolrFieldsTest {
 
@@ -32,6 +32,7 @@ public class GenerateSolrFieldsTest {
 	@BeforeClass
 	public static void setup() throws SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		requiredArgs.add("catalogClass");
 		config = Config.loadConfig(requiredArgs);
 		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
 		gen.setUpDatabase(config);
@@ -76,8 +77,9 @@ public class GenerateSolrFieldsTest {
 	}
 
 	@Test
-	public void liveRecord() throws SQLException, IOException, InterruptedException, XMLStreamException {
-		DownloadMARC marc = new DownloadMARC(config);
+	public void liveRecord()
+			throws ReflectiveOperationException, SQLException, IOException, InterruptedException, XMLStreamException {
+		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, 9149595);
 		gen.generateSolr(rec, config, "");
 	}

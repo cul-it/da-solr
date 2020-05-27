@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamException;
 
 import com.ctc.wstx.exc.WstxEOFException;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -33,7 +34,6 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.generator.Language;
 import edu.cornell.library.integration.metadata.support.Relator;
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class ASpaceBibImportConvert {
 
@@ -42,8 +42,9 @@ public class ASpaceBibImportConvert {
 
 	//TODO 856 protect only when NOT a finding aid link
 	public static void main(String[] args)
-			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException {
+			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException, ReflectiveOperationException {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
+		requiredArgs.add("catalogClass");
 
 		Config config = Config.loadConfig(requiredArgs);
 
@@ -51,7 +52,7 @@ public class ASpaceBibImportConvert {
 		Pattern bibIdFileName = Pattern.compile("(\\d+).xml");
 		Pattern newBibFileName = Pattern.compile("new(\\d+).xml");
 
-		DownloadMARC downloader = new DownloadMARC(config);
+		Catalog.DownloadMARC downloader = Catalog.getMarcDownloader(config);
 
 		StringBuilder allDiffs = new StringBuilder();
 		int changedBibCount = 0;
@@ -727,7 +728,7 @@ public class ASpaceBibImportConvert {
 				.replace(" xmlns=\"http://www.loc.gov/MARC21/slim\"","")+"\n"); 
 
 	}
-	private static StringBuilder processUpdateBib(MarcRecord newMarc, DownloadMARC downloader, String bibId)
+	private static StringBuilder processUpdateBib(MarcRecord newMarc, Catalog.DownloadMARC downloader, String bibId)
 			throws NumberFormatException, IOException, SQLException, InterruptedException {
 
 		try (BufferedWriter writer = Files.newBufferedWriter(
@@ -738,8 +739,7 @@ public class ASpaceBibImportConvert {
 		addressCarriageReturnsInFields(newMarc);
 		splitAspace035(newMarc);
 		reorderSubfieldsInNames(newMarc);
-		MarcRecord oldMarc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC,
-				downloader.downloadMrc(MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId)));
+		MarcRecord oldMarc = downloader.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId));
 		List<String> oldMarcFields = serializeForComparison(oldMarc);
 		mergeFastSubjectHeadings(newMarc, oldMarc);
 		handleAuthorTitleFields(newMarc);

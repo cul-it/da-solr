@@ -9,20 +9,22 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class UpdateAuthorityRecords {
 
-	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
+	public static void main(String[] args)
+			throws SQLException, IOException, InterruptedException, ReflectiveOperationException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));
+		requiredArgs.add("catalogClass");
 		Config config = Config.loadConfig(requiredArgs);
 		config.setDatabasePoolsize("Voy", 2);
-		DownloadMARC marc = new DownloadMARC(config);
+		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
 		try ( Connection voyager = config.getDatabaseConnection("Voy");
 				Connection headings = config.getDatabaseConnection("Headings");
@@ -101,7 +103,7 @@ public class UpdateAuthorityRecords {
 	}
 
 	private static void processNewAuthorityRecord(
-			Connection voyager, Connection headings, DownloadMARC marc, int authId, Timestamp modDate)
+			Connection voyager, Connection headings, Catalog.DownloadMARC marc, int authId, Timestamp modDate)
 					throws SQLException, IOException, InterruptedException {
 		System.out.printf("a%d new %s\n",authId,modDate);
 		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, authId);
@@ -110,7 +112,7 @@ public class UpdateAuthorityRecords {
 	}
 
 	private static void processChangedAuthorityRecord(
-			Connection voyager, Connection headings, DownloadMARC marc, int authId, Timestamp modDate)
+			Connection voyager, Connection headings, Catalog.DownloadMARC marc, int authId, Timestamp modDate)
 					throws SQLException, IOException, InterruptedException {
 //		System.out.printf("a%d updated %s\n",authId,modDate);
 		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, authId);

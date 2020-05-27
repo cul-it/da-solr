@@ -22,12 +22,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class ProcessGenerationQueue {
 
@@ -37,6 +37,7 @@ public class ProcessGenerationQueue {
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Hathi"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("CallNos"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Headings"));
+		requiredArgs.add("catalogClass");
 		Config config = Config.loadConfig(requiredArgs);
 
 		new ProcessGenerationQueue(config);
@@ -47,7 +48,7 @@ public class ProcessGenerationQueue {
 		config.setDatabasePoolsize("Current", 3);
 		config.setDatabasePoolsize("Voy", 3);
 		GenerateSolrFields gen = new GenerateSolrFields( EnumSet.allOf(Generator.class),"solrFields" );
-		DownloadMARC marc = new DownloadMARC(config);
+		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
 		try (	Connection current = config.getDatabaseConnection("Current");
 				Statement stmt = current.createStatement();
@@ -143,12 +144,9 @@ public class ProcessGenerationQueue {
 				v.mfhds = getMhfdRecordModDates(voyager,bib);
 
 				// Retrieve records
-				MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC,
-						marc.downloadMrc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib));
-				for (Integer mfhdId : v.mfhds.keySet()) {
-					rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS,
-						marc.downloadMrc(MarcRecord.RecordType.HOLDINGS, mfhdId)));
-				}
+				MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib);
+				for (Integer mfhdId : v.mfhds.keySet())
+					rec.holdings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
 
 				BibChangeSummary solrChanges = gen.generateSolr(
 						rec, config, mapper.writeValueAsString(v),forcedGenerators);

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -29,20 +30,20 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.generator.Language;
 import edu.cornell.library.integration.metadata.generator.Language.Code;
 import edu.cornell.library.integration.utilities.Config;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class CompareMARCWithVoyager {
 
 	public static void main(String[] args)
-			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException {
+			throws IOException, XMLStreamException, SQLException, InterruptedException, ReflectiveOperationException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
+		requiredArgs.add("catalogClass");
 
 		Config config = Config.loadConfig(requiredArgs);
 
 		String marcDirectory = "C:\\Users\\fbw4\\Documents\\archivespace\\dec20bibs\\export-marc";
 
-		DownloadMARC downloader = new DownloadMARC( config );
+		Catalog.DownloadMARC downloader = Catalog.getMarcDownloader(config);
 
 		Map<String,List<String>> notePatterns = new HashMap<>();
 		Map<String,Integer> counts = new HashMap<>();
@@ -53,8 +54,7 @@ public class CompareMARCWithVoyager {
 				if (f.mainTag.equals("856"))
 					continue BIB;
 			String bibId = file.replace(".xml", "");
-			MarcRecord oldMarc = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC,
-					downloader.downloadMrc( MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId)));
+			MarcRecord oldMarc = downloader.getMarc( MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId));
 			System.out.println(" *********************** bib: "+bibId+ " ********************");
 			System.out.println("voy: "+oldMarc.toString());
 			System.out.println("as:  "+newMarc.toString());

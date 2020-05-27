@@ -24,6 +24,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -38,7 +39,6 @@ import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.NameUtils;
-import edu.cornell.library.integration.voyager.DownloadMARC;
 
 public class IndexAuthorityRecords {
 
@@ -46,10 +46,11 @@ public class IndexAuthorityRecords {
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
 	public static void main(String[] args)
-			throws FileNotFoundException, IOException, SQLException {
+			throws FileNotFoundException, IOException, SQLException, ReflectiveOperationException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));
+		requiredArgs.add("catalogClass");
 		Config config = Config.loadConfig(requiredArgs);
 
 		int maxId;
@@ -62,7 +63,7 @@ public class IndexAuthorityRecords {
 			//set up database (including populating description maps)
 			setUpDatabase(headings);
 
-			DownloadMARC marc = new DownloadMARC(config);
+			Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 			int cursor = 0;
 			int batchSize = 100;
 			while (cursor <= maxId) {

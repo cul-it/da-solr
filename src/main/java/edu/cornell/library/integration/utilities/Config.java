@@ -58,66 +58,24 @@ public class Config {
 		return list;
 	}
 
+	public String getCatalogClass() {
+		if (this.values.containsKey("catalogClass"))
+			return this.values.get("catalogClass");
+		return null;
+	}
+	public void setCatalogClass(String catalogClass) {
+		this.values.put("catalogClass",catalogClass);
+	}
+
 	public Boolean isProduction() {
 		if (this.values.containsKey("production") && this.values.get("production").equals("true"))
 			return true;
 		return false;
 	}
 
-	public String getLocalBaseFilePath() {
-		if (this.values.containsKey("localBaseFilePath")) {
-			return this.values.get("localBaseFilePath");
-		}
-		return null;
-	}
-
-	public void setLocalBaseFilePath(String path) {
-		this.values.put("localBaseFilePath", path);
-	}
-
-	public String getBatchInfoDir() {
-		if (this.values.containsKey("batchInfoDir")) {
-			return this.values.get("batchInfoDir");
-		}
-		return null;
-	}
-
 	public String getHathiUpdatesFilesDirectory() {
 		if (this.values.containsKey("hathiUpdatesFilesDirectory"))
 			return this.values.get("hathiUpdatesFilesDirectory");
-		return null;
-	}
-
-	public String getAuthorityMarcDirectory() {
-		if (this.values.containsKey("authorityMarcDirectory"))
-			return this.values.get("authorityMarcDirectory");
-		return null;
-	}
-
-	public String[] getMarc2XmlDirs() {
-		if (this.values.containsKey("marc2XmlDirs"))
-			return this.values.get("marc2XmlDirs").split(",");
-		return null;
-	}
-
-	public String getNonVoyUriPrefix() {
-		if (this.values.containsKey("nonVoyUriPrefix")) {
-			return this.values.get("nonVoyUriPrefix");
-		}
-		return null;
-	}
-
-	public String getNonVoyIdPrefix() {
-		if (this.values.containsKey("nonVoyIdPrefix")) {
-			return this.values.get("nonVoyIdPrefix");
-		}
-		return null;
-	}
-
-	public String getReportList() {
-		if (this.values.containsKey("reportList")) {
-			return this.values.get("reportList");
-		}
 		return null;
 	}
 
@@ -170,17 +128,6 @@ public class Config {
 		return null;
 	}
 
-	public void setTestMode(boolean b) {
-		this.values.put("testMode", (b) ? "true" : "false");
-	}
-
-	public boolean getTestMode() {
-		if (this.values.containsKey("testMode")) {
-			return (this.values.get("testMode").equals("true")) ? true : false;
-		}
-		return false;
-	}
-
 	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
 		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
 				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
@@ -203,16 +150,6 @@ public class Config {
 		if (this.values.containsKey("randomGeneratorWavelength"))
 			return Integer.valueOf(this.values.get("randomGeneratorWavelength"));
 		return 400;
-	}
-
-	/**
-	 * @return the tmpDir on local file system
-	 */
-	public String getTmpDir() {
-		if (this.values.containsKey("tmpDir")) {
-			return this.values.get("tmpDir");
-		}
-		return null;
 	}
 
 	/**
@@ -299,10 +236,6 @@ public class Config {
 
 	public void setDatabasePoolsize(String id, int size) {
 		this.values.put("databasePoolsize" + id, String.valueOf(size));
-	}
-
-	public void setDailyReports(String reports) {
-		this.values.put("dailyReports", insertIterationContext(reports));
 	}
 
 	/**
