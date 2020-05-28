@@ -77,8 +77,7 @@ public class GenerateSolrFieldsTest {
 	}
 
 	@Test
-	public void liveRecord()
-			throws ReflectiveOperationException, SQLException, IOException, InterruptedException, XMLStreamException {
+	public void liveRecord() throws SQLException, IOException, InterruptedException, XMLStreamException {
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, 9149595);
 		gen.generateSolr(rec, config, "");

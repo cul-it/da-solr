@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 
@@ -19,7 +20,7 @@ import edu.cornell.library.integration.utilities.IndexingUtilities;
  * Give access to location data by code or number. Will load loaded into memory from the Voyager
  * database on the first instantiation of the class.
  */
-public final class Locations {
+public final class Locations implements Catalog.Locations {
 
 	/**
 	 * Retrieve Location object based on <b>code</b>. The value will already have been loaded
@@ -28,8 +29,8 @@ public final class Locations {
 	 * @param code
 	 * @return Location
 	 */
-	@SuppressWarnings("static-method")
-	public final Location getByCode( final String code ) {
+	@Override
+	public final Catalog.Location getByCode( final String code ) {
 		if (_byCode.containsKey(code))
 			return _byCode.get(code);
 		return null;
@@ -41,10 +42,13 @@ public final class Locations {
 	 * @param number
 	 * @return Location
 	 */
-	@SuppressWarnings("static-method")
-	public final Location getByNumber( final int number ) {
-		if (_byNumber.containsKey(number))
-			return _byNumber.get(number);
+	@Override
+	public final Catalog.Location getById( final Object id ) {
+		int number;
+		if (id.getClass().equals(String.class)) number = Integer.valueOf((String)id);
+		else                                    number = (int)id;
+
+		if (_byNumber.containsKey(number)) return _byNumber.get(number);
 		return null;
 	}
 
@@ -66,7 +70,7 @@ public final class Locations {
 	 *  <dt>compareTo( Location other )</dt><dd>returns this.number.compareTo(other.number)</dd>
 	 * </dl>
 	 */
-	public static class Location implements Comparable<Location>{
+	public static class Location implements Comparable<Location>, Catalog.Location {
 		public final String code;
 		public final Integer number;
 		public final String name;
@@ -85,6 +89,9 @@ public final class Locations {
 			sb.append("; library: ").append(this.library);
 			return sb.toString();
 		}
+		@Override public String getLibrary() { return this.library; }
+		@Override public String getName() { return this.name; }
+		@Override public String getCode() { return this.code; }
 		/**
 		 * @param other
 		 * @return
@@ -124,10 +131,9 @@ public final class Locations {
 	 * to retrieve and index the data. Otherwise, the instance will simply give access to the
 	 * already loaded data.
 	 */
-	public Locations(final Config config) throws SQLException {
-
-		if (_byCode.isEmpty())
-			populateLocationMaps(config);
+	@Override
+	public void loadLocations(final Config config) throws SQLException {
+		if (_byCode.isEmpty()) populateLocationMaps(config);
 	}
 
 // PRIVATE RESOURCES
@@ -180,10 +186,11 @@ public final class Locations {
 
 		// Execution synopsis
 		Collection<String> requiredFields = Config.getRequiredArgsForDB("Voy");
-		Locations locations = new Locations( Config.loadConfig(requiredFields) );
-		Location l = locations.getByCode("fine,res");
+		Locations locations = new Locations();
+		locations.loadLocations( Config.loadConfig(requiredFields) );
+		Location l = (Location) locations.getByCode("fine,res");
 		System.out.println(l.toString());
-		l = locations.getByNumber(33);
+		l = (Location) locations.getById(33);
 		System.out.println(l.toString());
 
 		// Data dump
@@ -195,6 +202,6 @@ public final class Locations {
 		List<Integer> locNumbers = new ArrayList<>(_byNumber.keySet());
 		Collections.sort(locNumbers);
 		for (Integer locNumber : locNumbers)
-			System.out.println(locations.getByNumber(locNumber).toString());
+			System.out.println(locations.getById(locNumber).toString());
 	}
 }

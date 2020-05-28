@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.processing;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,10 +17,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLStreamException;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.catalog.Catalog;
@@ -43,7 +47,8 @@ public class ProcessGenerationQueue {
 		new ProcessGenerationQueue(config);
 	}
 
-	public ProcessGenerationQueue(Config config) throws Exception {
+	public ProcessGenerationQueue(Config config)
+			throws SQLException, JsonProcessingException, IOException, XMLStreamException, InterruptedException {
 
 		config.setDatabasePoolsize("Current", 3);
 		config.setDatabasePoolsize("Voy", 3);

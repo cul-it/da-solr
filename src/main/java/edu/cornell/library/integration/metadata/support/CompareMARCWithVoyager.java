@@ -34,7 +34,7 @@ import edu.cornell.library.integration.utilities.Config;
 public class CompareMARCWithVoyager {
 
 	public static void main(String[] args)
-			throws IOException, XMLStreamException, SQLException, InterruptedException, ReflectiveOperationException {
+			throws IOException, XMLStreamException, SQLException, InterruptedException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
 		requiredArgs.add("catalogClass");

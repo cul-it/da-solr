@@ -28,6 +28,9 @@ import org.apache.commons.io.IOUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.catalog.Catalog;
+import edu.cornell.library.integration.catalog.Catalog.Location;
+import edu.cornell.library.integration.catalog.Catalog.Locations;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -38,8 +41,6 @@ import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
-import edu.cornell.library.integration.voyager.Locations;
-import edu.cornell.library.integration.voyager.Locations.Location;
 
 /**
  * Collecting holdings data needed by the Blacklight availability service into holdings_record_display.
@@ -61,7 +62,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 		Collection<String> descriptions = new HashSet<>();
 		boolean description_with_e = false;
 		String rectypebiblvl = null;
-		Locations locations = new Locations(config);
+		Locations locations = Catalog.getLocations(config);
 		Collection<String> holding_ids = new TreeSet<>();
 		Map<String,Holdings> holdings = new TreeMap<>();
 		Collection<Map<String,Object>> boundWiths = new ArrayList<>();
@@ -223,10 +224,10 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 
 		boolean isAtTheLibrary = false;
 		for (Location lib : workLocations)
-			if (lib.library != null) {
-				sfs.add(new SolrField("location_facet",lib.library));
-				sfs.add(new SolrField("location",lib.library));
-				sfs.add(new SolrField("location",lib.library+" > "+lib.name));
+			if (lib.getLibrary() != null) {
+				sfs.add(new SolrField("location_facet",lib.getLibrary()));
+				sfs.add(new SolrField("location",lib.getLibrary()));
+				sfs.add(new SolrField("location",lib.getLibrary()+" > "+lib.getName()));
 				isAtTheLibrary = true;
 			}
 		if ( isAtTheLibrary )
@@ -243,7 +244,7 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 			SolrFields callNumberSolrFields) {
 
 		for (Location l : workLocations)
-			if (l.code.startsWith("law"))
+			if (l.getCode().startsWith("law"))
 				return true;
 		if (workLocations.contains(locations.getByCode("serv,remo")))
 			for (SolrField f : callNumberSolrFields.fields)
@@ -372,11 +373,11 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 	       				if ((colname.equals("temp_location")
 	       						|| colname.equals("perm_location"))
 	       						&& ! value.equals("0")) {
-	       					Location l = locations.getByNumber(Integer.valueOf(value));
+	       					Location l = locations.getById(Integer.valueOf(value));
 	       					if (l != null) {
 		       					if (colname.equals("perm_location"))
-		       						loc = l.code;
-		       					else if ( l.library != null )
+		       						loc = l.getCode();
+		       					else if ( l.getLibrary() != null )
 		       						tempLibrary = l;
 	       						record.put(colname, l);
 	       					} else record.put(colname, value);

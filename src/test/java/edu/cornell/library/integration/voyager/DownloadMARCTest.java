@@ -20,7 +20,7 @@ public class DownloadMARCTest {
 	static DownloadMARC specificClassDownloader = null;
 
 	@BeforeClass
-	public static void setup() throws ReflectiveOperationException {
+	public static void setup()  {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
 		Config config = Config.loadConfig(requiredArgs);
 		config.setCatalogClass("edu.cornell.library.integration.voyager");

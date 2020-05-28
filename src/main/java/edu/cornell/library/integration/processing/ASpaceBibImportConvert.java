@@ -42,7 +42,7 @@ public class ASpaceBibImportConvert {
 
 	//TODO 856 protect only when NOT a finding aid link
 	public static void main(String[] args)
-			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException, ReflectiveOperationException {
+			throws IOException, XMLStreamException, NumberFormatException, SQLException, InterruptedException {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Voy");
 		requiredArgs.add("catalogClass");
 

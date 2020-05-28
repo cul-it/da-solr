@@ -46,7 +46,7 @@ public class IndexAuthorityRecords {
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
 	public static void main(String[] args)
-			throws FileNotFoundException, IOException, SQLException, ReflectiveOperationException {
+			throws FileNotFoundException, IOException, SQLException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));

@@ -16,8 +16,7 @@ import edu.cornell.library.integration.utilities.Config;
 
 public class UpdateAuthorityRecords {
 
-	public static void main(String[] args)
-			throws SQLException, IOException, InterruptedException, ReflectiveOperationException {
+	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));
