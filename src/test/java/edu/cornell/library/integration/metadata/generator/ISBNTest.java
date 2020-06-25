@@ -135,6 +135,33 @@ public class ISBNTest {
 	}
 
 	@Test
+	public void endingWithX() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "2009547";
+		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 093899462X"));
+		String expected =
+		"isbn_t: 093899462X\n" + 
+		"isbn_t: 9780938994626\n" + 
+		"isbn_display: 093899462X\n";
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
+	}
+
+
+	@Test //no attempt to convert invalid ISBN to other format
+	public void invalid() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "2009547";
+		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 09389462X"));
+		rec.dataFields.add(new DataField( 2, "020", ' ',' ',"‡a 0938x9462X"));
+		String expected =
+		"isbn_t: 09389462X\n" + 
+		"isbn_display: 09389462X\n"+
+		"isbn_t: 0938x9462X\n" + 
+		"isbn_display: 0938x9462X\n";
+		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
+	}
+
+	@Test
 	public void isbn10to13conv() {
 		assertEquals( "9781861972712", ISBN.isbn10to13("1861972717"));
 		assertEquals( "9780000000002", ISBN.isbn10to13("0000000000"));
