@@ -4,6 +4,7 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -20,7 +21,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class ISBN implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1a"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("020"); }
@@ -48,10 +49,12 @@ public class ISBN implements SolrFieldGenerator {
 					int posOfSpace = sf.value.indexOf(' ');
 					if (posOfSpace == -1) searchISBN = sf.value;
 					else searchISBN = sf.value.substring(0, sf.value.indexOf(' '));
-					searchISBN = searchISBN.replaceAll("[^0-9]", "");
+					searchISBN = searchISBN.replaceAll("[^0-9Xx]", "");
 					vals.add(new SolrField( "isbn_t", searchISBN ));
-					if (searchISBN.length() == 10) vals.add(new SolrField( "isbn_t", isbn10to13(searchISBN) ));
-					else if ( searchISBN.length() == 13 && searchISBN.startsWith("978") )
+					boolean valid = validISBN.matcher(searchISBN).matches();
+					if (searchISBN.length() == 10 && valid)
+						vals.add(new SolrField( "isbn_t", isbn10to13(searchISBN) ));
+					else if ( searchISBN.length() == 13 && valid && searchISBN.startsWith("978") )
 						vals.add(new SolrField( "isbn_t", isbn13to10(searchISBN) ));
 					break;
 				case 'c':
@@ -111,4 +114,6 @@ public class ISBN implements SolrFieldGenerator {
 		sb.append( (10-checkdig)%10 );
 		return sb.toString();
 	}
+
+	private static Pattern validISBN = Pattern.compile("[0-9]{9}([0-9]{3})?[0-9xX]");
 }
