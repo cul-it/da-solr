@@ -230,4 +230,23 @@ public class SimpleProcTest {
 			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 		}
 	}
+
+	@Test
+	public void conditional773() throws ClassNotFoundException, SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"773",'0',' ',"‡t EBSCO Publication Finder ‡d EBSCO ‡o 1861142"));
+			assertEquals("",this.gen.generateSolrFields(rec, null).toString());
+		}
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"773",'0',' ',
+					"‡a Morse, Jedidiah, 1761-1826. ‡t American geography. ‡b New ed., rev., cor., and greatly enlarged."
+					+ " ‡d London : Printed for John Stockdale, 1794. ‡g [Map 6], facing p. 284. ‡w (OCoLC)51834027"));
+			String expected =
+			"in_display: Morse, Jedidiah, 1761-1826. American geography. New ed., rev., cor., and greatly enlarged."
+			+ " London : Printed for John Stockdale, 1794. [Map 6], facing p. 284. (OCoLC)51834027\n";
+			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+		}
+	}
 }
