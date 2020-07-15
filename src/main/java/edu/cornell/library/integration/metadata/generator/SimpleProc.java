@@ -214,8 +214,10 @@ public class SimpleProc implements SolrFieldGenerator {
 				searchSubfields = "a";
 				break;
 			case 773:
-				displayField = "in_display";
-				displaySubfields = "abdghikmnopqrstuw";
+				if ( f.subfields.size() > 0 && ! f.subfields.first().value.equals("EBSCO Publication Finder")) {
+					displayField = "in_display";
+					displaySubfields = "abdghikmnopqrstuw";
+				}
 				break;
 			case 856:    displaySubfields = "m";         searchSubfields = "m";        break;
 			case 899:
