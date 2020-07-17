@@ -1,15 +1,13 @@
-# Based on Cornell Library's documented call number prefixes as of Aug 1, 2018:
-# https://confluence.cornell.edu/display/LTSP/Holdings+Locations
+# Based on Cornell Library's documented call number prefixes as of July 12, 2019:
+# https://confluence.cornell.edu/pages/viewpage.action?pageId=327638890#HoldingsLocations(LTSProcedure#150)-C
 # with the following adjustments:
 # Added "Disk"
-# Added "Popular Reading Area"
 # Added "Temp"
-# Added "Grout"
-# Replaced "Bennett Coll." with "Bennett Collection"
 A.D. White
 Adelmann
 Anhinga
 Archives
+Artists' Book Collection
 Asia Rare
 Basom Reading Lounge
 Bennett Collection
@@ -25,6 +23,7 @@ Ellis
 Field Guides
 Flat
 Fuertes Collection
+Govt Docs
 Grout
 Hill
 History of Science
@@ -34,6 +33,7 @@ Human Sexuality
 Huntington
 Icelandic
 Indexes
+Juries Collection
 Lavoisier
 Locked Case
 Maps

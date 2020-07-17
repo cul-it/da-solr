@@ -213,7 +213,6 @@
     <fieldType name="textSpell" class="solr.TextField" positionIncrementGap="100" >
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StandardFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -363,7 +362,6 @@
   </fields>
 
   <uniqueKey>id</uniqueKey>
-  <solrQueryParser defaultOperator="AND"/>
 
   <!-- Copy Fields -->
 
