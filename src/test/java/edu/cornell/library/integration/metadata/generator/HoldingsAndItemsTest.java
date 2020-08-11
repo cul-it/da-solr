@@ -431,7 +431,22 @@ public class HoldingsAndItemsTest {
 		+ "K3476-3560 - Public property.  Public restraint on private property\n"+
 		"collection: Law Library\n"+
 		"multivol_b: false\n";
-//		System.out.println(gen.generateSolrFields(bibRec,config).toString().replaceAll("\"","\\\\\""));
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
 	}
+
+	@Test
+	public void callNumberJustLetters() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		bibRec.leader = "01072cam a22002895i 4500";
+		bibRec.id = "10858685";
+		bibRec.dataFields.add(new DataField(1,"050",' ','4',"‡a PN"));
+		String expected =
+		"lc_callnum_full: PN\n" + 
+		"callnum_sort: PN\n" + 
+		"lc_callnum_facet: P - Language & Literature\n" + 
+		"lc_callnum_facet: P - Language & Literature:PN - Literature (General)\n" + 
+		"multivol_b: false\n";
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, config).toString() );
+	}
+
 }
