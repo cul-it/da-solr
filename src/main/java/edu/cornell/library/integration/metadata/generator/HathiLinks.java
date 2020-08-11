@@ -67,7 +67,8 @@ public class HathiLinks implements SolrFieldGenerator {
 
 			if (oclcids.size() > 0) {
 				try ( PreparedStatement pstmt = conn.prepareStatement
-						("SELECT raw_hathi.Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi, volume_to_oclc"
+						("SELECT raw_hathi.Volume_Identifier, UofM_Record_Number, Access, Rights"
+								+ " FROM raw_hathi, volume_to_oclc"
 								+ " WHERE OCLC_Number = ? AND volume_to_oclc.Volume_Identifier = raw_hathi.Volume_Identifier") ) {
 					for (String oclcid : oclcids) {
 						pstmt.setString(1, oclcid);
@@ -78,7 +79,7 @@ public class HathiLinks implements SolrFieldGenerator {
 			} 
 			
 			try (  PreparedStatement pstmt = conn.prepareStatement
-					("SELECT Volume_Identifier, UofM_Record_Number, Access FROM raw_hathi"
+					("SELECT Volume_Identifier, UofM_Record_Number, Access, Rights FROM raw_hathi"
 					+ " WHERE Source = 'coo' AND Source_Inst_Record_Number = ?")  ) {
 				pstmt.setString(1, rec.id);
 				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
@@ -179,6 +180,8 @@ public class HathiLinks implements SolrFieldGenerator {
 			String vol = rs.getString("Volume_Identifier");
 			String title = rs.getString("UofM_Record_Number");
 			String access = rs.getString("Access");
+			String rights = rs.getString("Rights");
+			if ( rights.equals("nobody") || rights.equals("pd-pvt") ) continue;
 			if (access.equals("allow")) {
 				if ( ! availableHathiMaterials.containsKey(title) )
 					availableHathiMaterials.put(title, new HashSet<String>() );

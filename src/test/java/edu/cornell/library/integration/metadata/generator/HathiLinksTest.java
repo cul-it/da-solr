@@ -66,6 +66,21 @@ public class HathiLinksTest {
 	}
 
 	@Test
+	public void blockEtasLinkWhenNobody() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "101888";
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+
+	@Test
+	public void blockPublicDomainLinkWhenPrivate() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "3776236";
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
 	public void testMicrosoftLSDILink() throws SQLException, IOException, ClassNotFoundException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "1460864";

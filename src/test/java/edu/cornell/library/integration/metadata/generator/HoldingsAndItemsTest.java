@@ -392,7 +392,7 @@ public class HoldingsAndItemsTest {
 		"lc_callnum_facet: K - Law\n"+
 		"lc_callnum_facet: K - Law:KF-KFZ - The United States\n"+
 		"lc_callnum_facet: K - Law:KF-KFZ - The United States:KF - Federal law.  Common and collective state law\n"+
-		"item_display: 10398999|10471410\n"+
+		"item_display: 10398999|10471410|20200727103334\n"+
 		"location_facet: Law Library\n"+
 		"online: At the Library\n"+
 		"collection: Law Library\n"+
