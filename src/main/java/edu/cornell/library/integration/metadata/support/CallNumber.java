@@ -92,7 +92,8 @@ public class CallNumber {
 			this.classes.add(new Classification(
 					callNumber2.substring(0,initialLetterCount).toUpperCase(),
 					callNumber2.substring(initialLetterCount, initialNumberOffset)));
-		}
+		} else
+			this.classes.add(new Classification(callNumber2.substring(0,initialLetterCount).toUpperCase(),""));
 		return;
 	}
 
