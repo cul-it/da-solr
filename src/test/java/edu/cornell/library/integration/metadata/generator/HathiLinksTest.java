@@ -101,14 +101,14 @@ public class HathiLinksTest {
 		String expected =
 		"notes_t: Connect to full text. Access limited to authorized subscribers.\n" + 
 		"url_access_json: {\"description\":\"Connect to full text. Access limited to authorized subscribers.\","
-		+ "\"url\":\"https://catalog.hathitrust.org/Record/000630225?"
+		+ "\"url\":\"https://hdl.handle.net/2027/mdp.39015010400334?urlappend=%3B"
 		+ "signon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth\"}\n" + 
 		"online: Online\n" + 
 		"notes_t: Information for users about temporary access\n" + 
 		"url_access_json: {\"description\":\"Information for users about temporary access\","
 		+ "\"url\":\"https://www.hathitrust.org/ETAS-User-Information\"}\n" + 
 		"online: Online\n" + 
-		"etas_facet: 2\n";
+		"etas_facet: 1\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 

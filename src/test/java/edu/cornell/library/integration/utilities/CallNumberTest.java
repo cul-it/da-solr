@@ -92,6 +92,7 @@ public class CallNumberTest {
 		cn.tabulateCallNumber(new DataField(1,"050",'0',' ',"‡a QA611 ‡b .R123.6"));
 		String expected =
 		"lc_callnum_full: QA611 .R123.6\n"+
+		"lc_bib_display: QA611 .R123.6\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
 		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
@@ -127,6 +128,7 @@ public class CallNumberTest {
 		String expected =
 		"lc_callnum_full: Video 7\n"+
 		"lc_callnum_full: QA611 .R123.6\n"+
+		"lc_bib_display: QA611 .R123.6\n"+
 		"lc_callnum_full: Video 8\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
@@ -143,6 +145,7 @@ public class CallNumberTest {
 		cn.tabulateCallNumber(new DataField(1,"852",'1',' ',"‡h Video 7"));
 		String expected =
 		"lc_callnum_full: QA611 .R123.6\n"+
+		"lc_bib_display: QA611 .R123.6\n"+
 		"lc_callnum_full: Video 7\n"+
 		"callnum_sort: Video 7\n"+
 		"lc_callnum_facet: Q - Science\n"+
