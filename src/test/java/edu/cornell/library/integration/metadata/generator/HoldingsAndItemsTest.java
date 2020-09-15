@@ -147,6 +147,7 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10086111|20170126080455\n"+
 		"lc_callnum_full: ZA4080.4 .C87 2016\n"+
+		"lc_bib_display: ZA4080.4 .C87 2016\n"+
 		"callnum_sort: ZA4080.4 .C87 2016\n"+
 		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources\n"+
 		"lc_callnum_facet: Z - Bibliography, Library Science, Information Resources:ZA - Information Resources\n"+
@@ -183,6 +184,7 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10078053|20170103162310\n"+
 		"lc_callnum_full: M3 .W42 1996\n"+
+		"lc_bib_display: M3 .W42 1996\n"+
 		"callnum_sort: M3 .W42 1996\n"+
 		"lc_callnum_facet: M - Music\n"+
 		"lc_callnum_facet: M - Music:M - Music\n"+
@@ -324,6 +326,7 @@ public class HoldingsAndItemsTest {
 		"holdings_display: 9094799|20141215141205\n"+
 		"lc_callnum_full: HN49.V64 L37 2014\n"+
 		"lc_callnum_full: New & Noteworthy Books HN49.V64 L37 2014\n"+
+		"lc_bib_display: HN49.V64 L37 2014\n"+
 		"callnum_sort: HN49.V64 L37 2014\n"+
 		"lc_callnum_facet: H - Social Sciences\n"+
 		"lc_callnum_facet: H - Social Sciences:HN - Social History & Conditions, Problems & Reform\n"+
@@ -358,6 +361,7 @@ public class HoldingsAndItemsTest {
 		"holdings_display: 10245520|20170610162240\n"+
 		"lc_callnum_full: D547.A8 C68 2016\n"+
 		"lc_callnum_full: New & Noteworthy Books D547.A8 C68 2016\n"+
+		"lc_bib_display: D547.A8 C68 2016\n"+
 		"callnum_sort: D547.A8 C68 2016\n"+
 		"lc_callnum_facet: D - World History\n"+
 		"lc_callnum_facet: D - World History:D - History (General)\n"+
@@ -388,6 +392,7 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10471410|20171128152204\n"+
 		"lc_callnum_full: KF318 .A75 2018\n"+
+		"lc_bib_display: KF318 .A75 2018\n"+
 		"callnum_sort: KF318 .A75 2018\n"+
 		"lc_callnum_facet: K - Law\n"+
 		"lc_callnum_facet: K - Law:KF-KFZ - The United States\n"+
@@ -421,6 +426,7 @@ public class HoldingsAndItemsTest {
 		String expected =
 		"holdings_display: 10426151|20171120151514\n"+
 		"lc_callnum_full: K3538-3544\n"+
+		"lc_bib_display: K3538-3544\n"+
 		"callnum_sort: K3538-3544\n"+
 		"lc_callnum_facet: K - Law\n"+
 		"lc_callnum_facet: K - Law:K - Law in general, Comparative and uniform law, Jurisprudence\n"+
@@ -441,7 +447,8 @@ public class HoldingsAndItemsTest {
 		bibRec.id = "10858685";
 		bibRec.dataFields.add(new DataField(1,"050",' ','4',"‡a PN"));
 		String expected =
-		"lc_callnum_full: PN\n" + 
+		"lc_callnum_full: PN\n"+
+		"lc_bib_display: PN\n"+
 		"callnum_sort: PN\n" + 
 		"lc_callnum_facet: P - Language & Literature\n" + 
 		"lc_callnum_facet: P - Language & Literature:PN - Literature (General)\n" + 
