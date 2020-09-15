@@ -83,7 +83,8 @@ public class CallNumber {
 
 		if ( ! isLC ) return;
 
-		this.sfs.add(new SolrField(biblc,sortVal));
+		if ( ! isHolding )
+			this.sfs.add(new SolrField(biblc,sortVal));
 
 		if (callNumber2.length() > initialLetterCount) {
 			int initialNumberOffset = initialLetterCount;
