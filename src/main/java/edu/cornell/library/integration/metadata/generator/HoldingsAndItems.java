@@ -49,7 +49,7 @@ import edu.cornell.library.integration.voyager.Locations.Location;
 public class HoldingsAndItems implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() {

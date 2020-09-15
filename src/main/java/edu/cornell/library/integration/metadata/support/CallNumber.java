@@ -23,6 +23,7 @@ public class CallNumber {
 	private final static String sort =   "callnum_sort";
 	private final static String search = "lc_callnum_full";
 	private final static String facet =  "lc_callnum_facet";
+	private final static String biblc =  "lc_bib_display";
 
 	private List<Sort> sortCandidates = new ArrayList<>();
 	private Set<Classification> classes = new LinkedHashSet<>();
@@ -81,6 +82,8 @@ public class CallNumber {
 			this.sortCandidates.add( new Sort( sortVal, isLC, isHolding ) );
 
 		if ( ! isLC ) return;
+
+		this.sfs.add(new SolrField(biblc,sortVal));
 
 		if (callNumber2.length() > initialLetterCount) {
 			int initialNumberOffset = initialLetterCount;
