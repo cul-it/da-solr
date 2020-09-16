@@ -16,7 +16,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class SimpleProc implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.5"; }
+	public String getVersion() { return "1.6"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -218,6 +218,7 @@ public class SimpleProc implements SolrFieldGenerator {
 					displayField = "in_display";
 					displaySubfields = "abdghikmnopqrstuw";
 				}
+				searchSubfields = "abcdghiknopqstuwxyz";
 				break;
 			case 856:    displaySubfields = "m";         searchSubfields = "m";        break;
 			case 899:
