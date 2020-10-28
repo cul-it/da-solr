@@ -112,10 +112,13 @@ public class ProcessGenerationQueue {
 						Timestamp recordDate = rs.getTimestamp("record_date");
 						String cause = rs.getString("cause");
 						recordChanges.add(cause+" "+recordDate);
-						forcedGenerators.addAll(
-								Arrays.stream(Generator.values())
-								.filter(e -> cause.contains(e.name()))
-								.collect(Collectors.toSet()));
+						if ( cause.contains("ALL" ))
+							forcedGenerators = EnumSet.allOf(Generator.class);
+						else
+							forcedGenerators.addAll(
+									Arrays.stream(Generator.values())
+									.filter(e -> cause.contains(e.name()))
+									.collect(Collectors.toSet()));
 						if (minChangeDate == null || minChangeDate.after(recordDate))
 							minChangeDate = recordDate;
 						queueIds.add(id);
