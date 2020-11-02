@@ -21,10 +21,13 @@ public class OtherIDs implements SolrFieldGenerator {
 	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
 		SolrFields sfs = new SolrFields();
 		for (DataField f : rec.dataFields) {
-			boolean isDoi = false;
+			String knownVocab = null;
 			for (Subfield sf : f.subfields)
-				if ( sf.code.equals('2') && sf.value.trim().equals("doi") )
-					isDoi = true;
+				if ( sf.code.equals('2') )
+					switch ( sf.value.trim() ) {
+					case "doi": knownVocab = "doi"; break;
+					case "discogs": knownVocab = "discogs"; break;
+					}
 
 			for (Subfield sf : f.subfields) if (sf.code.equals('a')) {
 
@@ -40,8 +43,8 @@ public class OtherIDs implements SolrFieldGenerator {
 				case "035":
 					if (sf.value.startsWith("(OCoLC)"))
 						sfs.add(new SolrField("oclc_id_display",sf.value.substring(7).trim()));
-					else if ( isDoi )
-						sfs.add(new SolrField("doi_display",sf.value));
+					else if ( knownVocab != null )
+						sfs.add(new SolrField(knownVocab+"_display",sf.value));
 					else
 						sfs.add(new SolrField("other_id_display",sf.value));
 					break;
