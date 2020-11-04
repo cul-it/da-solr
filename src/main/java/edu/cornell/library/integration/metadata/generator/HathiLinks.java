@@ -34,7 +34,7 @@ public class HathiLinks implements SolrFieldGenerator {
 	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("035"); }
@@ -77,7 +77,7 @@ public class HathiLinks implements SolrFieldGenerator {
 					}
 				}
 			} 
-			
+
 			try (  PreparedStatement pstmt = conn.prepareStatement
 					("SELECT Volume_Identifier, UofM_Record_Number, Access, Rights FROM raw_hathi"
 					+ " WHERE Source = 'coo' AND Source_Inst_Record_Number = ?")  ) {
@@ -88,23 +88,22 @@ public class HathiLinks implements SolrFieldGenerator {
 
 			Map<String,Collection<String>> etasMaterials = new HashMap<>();
 			int etasVolumeCount = 0;
-			if ( oclcids.size() > 0 ) {
-				try (  PreparedStatement pstmt = conn.prepareStatement
-						("SELECT volume_to_oclc.Volume_Identifier, UofM_Record_Number"
-						+ " FROM overlap, volume_to_oclc, raw_hathi"
-						+" WHERE bib_id = ?"
-						+ "  AND overlap.access = 'deny'"
-						+ "  AND oclc_id = OCLC_Number"
-						+ "  AND volume_to_oclc.Volume_Identifier = raw_hathi.Volume_Identifier") ) {
-					pstmt.setString(1, rec.id);
-					try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
-						while (rs.next()) {
-							etasVolumeCount++;
-							String title = rs.getString(2);
-							if ( ! etasMaterials.containsKey(title) )
-								etasMaterials.put(title, new HashSet<>());
-							etasMaterials.get(title).add(rs.getString(1));
-						}
+			try (  PreparedStatement pstmt = conn.prepareStatement
+					("SELECT b.Volume_Identifier, b.UofM_Record_Number, overlap.rights"
+					+ " FROM overlap, raw_hathi, raw_hathi b"
+					+" WHERE overlap.bib_id = ?"
+					+ "  AND overlap.ht_id = raw_hathi.Volume_Identifier"
+					+ "  AND raw_hathi.UofM_Record_Number = b.UofM_Record_Number"
+					+ "  AND b.access = 'deny'"
+					+ "  AND b.rights NOT IN ('pd-pvt','nobody')" ) ) {
+				pstmt.setString(1, rec.id);
+				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
+					while (rs.next()) {
+						etasVolumeCount++;
+						String title = rs.getString(2);
+						if ( ! etasMaterials.containsKey(title) )
+							etasMaterials.put(title, new HashSet<>());
+						etasMaterials.get(title).add(rs.getString(1));
 					}
 				}
 			}
