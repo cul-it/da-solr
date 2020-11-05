@@ -1,18 +1,29 @@
 package edu.cornell.library.integration.metadata.generator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.utilities.Config;
 
 public class TOCTest {
 
+	static Config config = null;
 	SolrFieldGenerator gen = new TOC();
+
+	@BeforeClass
+	public static void setup() {
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+		config = Config.loadConfig(requiredArgs);
+	}
 
 	@Test
 	public void testSimpleTOC() throws ClassNotFoundException, SQLException, IOException {
@@ -143,8 +154,30 @@ public class TOCTest {
 		"contents_display: v.3\n"+
 		"contents_display: v.4\n"+
 		"toc_t: v.3 -- v.4\n";
-//		System.out.println( TOC.generateSolrFields(rec, null).toString().replaceAll("\"","\\\\\""));
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+	}
+
+	@Test
+	public void syndeticsTocIndex() throws ClassNotFoundException, SQLException, IOException {
+	
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "13091615";
+		rec.dataFields.add(new DataField(1,"020",' ',' ',"‡a 0691202184 ‡q (hardcover)"));
+		String expected_prefix =
+		"title_addl_t: Map: Xinjiang Uyghur Autonomous Region\n" + 
+		"toc_t: Map: Xinjiang Uyghur Autonomous Region\n" + 
+		"title_addl_t: Foreword\n" + 
+		"author_addl_t: Ben Emmerson\n" + 
+		"toc_t: Foreword Ben Emmerson\n" + 
+		"title_addl_t: Preface\n" + 
+		"toc_t: Preface\n" + 
+		"title_addl_t: Introduction\n" + 
+		"toc_t: Introduction\n" + 
+		"title_addl_t: Colonialism, 1759-2001\n" + 
+		"toc_t: Colonialism, 1759-2001\n" + 
+		"title_addl_t: How the Uyghurs became a 'terrorist threat'\n" + 
+		"toc_t: How the Uyghurs became a 'terrorist threat'";
+		assertTrue( this.gen.generateSolrFields(rec, config).toString().startsWith(expected_prefix) );
 	}
 }
 
