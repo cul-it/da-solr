@@ -45,6 +45,8 @@ public class TOC implements SolrFieldGenerator {
 		for (DataField f : rec.dataFields) if ( f.tag.equals("020") )
 			for (Subfield sf : f.subfields) if ( sf.code.equals('a') ) {
 				String isbn = sf.value.trim();
+				if (isbn.contains(" ")) isbn = isbn.substring(0, isbn.indexOf(' '));
+				isbn = isbn.replaceAll("[^0-9]", "");
 				isbns.add(isbn);
 				if ( isbn.length() == 10 )
 					isbns.add(ISBN.isbn10to13(isbn));
