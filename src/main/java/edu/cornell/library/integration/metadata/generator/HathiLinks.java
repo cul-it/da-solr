@@ -89,7 +89,7 @@ public class HathiLinks implements SolrFieldGenerator {
 			Map<String,Collection<String>> etasMaterials = new HashMap<>();
 			int etasVolumeCount = 0;
 			try (  PreparedStatement pstmt = conn.prepareStatement
-					("SELECT b.Volume_Identifier, b.UofM_Record_Number, overlap.rights"
+					("SELECT distinct b.Volume_Identifier, b.UofM_Record_Number, overlap.rights"
 					+ " FROM overlap, raw_hathi, raw_hathi b"
 					+" WHERE overlap.bib_id = ?"
 					+ "  AND overlap.ht_id = raw_hathi.Volume_Identifier"
