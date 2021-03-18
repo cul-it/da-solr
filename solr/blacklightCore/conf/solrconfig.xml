@@ -776,7 +776,7 @@
 
       <str name="f.number.qf">
         id_t             id_tP                   id_t_cjk
-        id
+        id               collection
         eightninenine_t  eightninenine_tP        eightninenine_t_cjk
         barcode_t^10     barcode_tP^10
         barcode_addl_t   barcode_addl_tP
@@ -803,7 +803,7 @@
       </str>
       <str name="f.number_quoted.qf">
         id_unstemC             id_unstemP              id_t_cjk
-        id
+        id                     collection
         eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
         barcode_unstemC^10     barcode_unstemP^10
         barcode_addl_unstemC   barcode_addl_unstemP
