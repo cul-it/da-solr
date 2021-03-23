@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +32,7 @@ public class URL implements SolrFieldGenerator {
 	public String getVersion() { return "1.4"; }
 
 	@Override
-	public List<String> getHandledFields() { return Arrays.asList("856","holdings"); }
+	public List<String> getHandledFields() { return Arrays.asList("856","899","holdings"); }
 
 	@Override
 	public SolrFields generateSolrFields( MarcRecord bibRec, Config unused )
@@ -40,7 +41,13 @@ public class URL implements SolrFieldGenerator {
 
 		boolean isOnline = isOnline(bibRec.holdings);
 
-		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields();
+		Integer userLimit = null;
+		for ( DataField f : bibRec.dataFields ) if ( f.mainTag.equals("899") ) {
+			Matcher m = userLimit899.matcher(f.concatenateSpecificSubfields("a"));
+			if ( m.matches() ) userLimit = Integer.valueOf( m.group(1) );
+		}
+
+		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields("856");
 		for (MarcRecord holdingsRec : bibRec.holdings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
 
@@ -129,6 +136,8 @@ public class URL implements SolrFieldGenerator {
 				relation = "pda";
 			}
 			processedLink.put("relation", relation);
+			if ( userLimit != null )
+				processedLink.put("users", userLimit);
 
 			allProcessedLinks.add(processedLink);
 
@@ -166,6 +175,7 @@ public class URL implements SolrFieldGenerator {
 
 		return sfs;
 	}
+	private static Pattern userLimit899 = Pattern.compile("^.*[A-Za-z](\\d+)u$");
 	private static Pattern number = Pattern.compile("^\\d+$");
 
 	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {

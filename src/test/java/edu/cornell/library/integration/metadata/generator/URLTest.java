@@ -31,6 +31,7 @@ public class URLTest {
 		"‡y Click here to find online versions of this title. "+
 		"‡u https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
 		+ "bQuery=AN%202471499&direct=true&site=pfi-live"));
+		rec.dataFields.add(new DataField(2,"899",' ',' ',"‡a ebraryebks3u"));
 		rec.holdings.add(online);
 		String expected =
 		"ebsco_title_facet: 2471499\n" + 
@@ -39,7 +40,8 @@ public class URLTest {
 		+ "\"titleid\":\"2471499\","
 		+ "\"description\":\"Click here to find online versions of this title.\","
 		+ "\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
-		+           "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n" + 
+		+           "bQuery=AN%202471499&direct=true&site=pfi-live\","
+		+ "\"users\":3}\n" + 
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
