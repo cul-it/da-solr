@@ -31,6 +31,7 @@ public class FormatTest {
 		String expected =
 		"format: Book\n"+
 		"format_main_facet: Book\n"+
+		"bib_format_display: am\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -50,6 +51,7 @@ public class FormatTest {
 		String expected =
 		"format: Journal/Periodical\n"+
 		"format_main_facet: Journal/Periodical\n"+
+		"bib_format_display: as\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -72,6 +74,7 @@ public class FormatTest {
 		"format: Microform\n"+
 		"format: Musical Score\n"+
 		"format_main_facet: Musical Score\n"+
+		"bib_format_display: cm\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -92,6 +95,7 @@ public class FormatTest {
 		String expected =
 		"format: Website\n"+
 		"format_main_facet: Website\n"+
+		"bib_format_display: ai\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -112,6 +116,7 @@ public class FormatTest {
 		String expected =
 		"format: Database\n"+
 		"format_main_facet: Database\n"+
+		"bib_format_display: ai\n"+
 		"database_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -126,6 +131,7 @@ public class FormatTest {
 		String expected =
 		"format: Manuscript/Archive\n"+
 		"format_main_facet: Manuscript/Archive\n"+
+		"bib_format_display: tm\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -145,6 +151,7 @@ public class FormatTest {
 		String expected =
 		"format: Manuscript/Archive\n"+
 		"format_main_facet: Manuscript/Archive\n"+
+		"bib_format_display: pc\n"+
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}

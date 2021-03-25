@@ -36,7 +36,7 @@ public class Format implements SolrFieldGenerator {
 			"was,rare","was,ranx");
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -208,6 +208,7 @@ public class Format implements SolrFieldGenerator {
 		else if (isMicroform)
 			sfs.add(new SolrField("format_main_facet","Microform"));
 
+		sfs.add(new SolrField("bib_format_display", record_type + bibliographic_level));
 		sfs.add(new BooleanSolrField("database_b",isDatabase));
 		return sfs;
 	}
