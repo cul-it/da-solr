@@ -175,7 +175,7 @@ public class URL implements SolrFieldGenerator {
 
 		return sfs;
 	}
-	private static Pattern userLimit899 = Pattern.compile("^.*[A-Za-z](\\d+)u$");
+	private static Pattern userLimit899 = Pattern.compile("^.*[A-Za-z_~](\\d+)u$");
 	private static Pattern number = Pattern.compile("^\\d+$");
 
 	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {
