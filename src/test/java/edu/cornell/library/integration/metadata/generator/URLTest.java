@@ -231,6 +231,33 @@ public class URLTest {
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
+	@Test
+	public void twoAccessLinksOneLooksLikePublishersWebsite() throws IOException, ClassNotFoundException, SQLException {
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		bibRec.id = "10758189";
+		bibRec.dataFields.add(new DataField(1,"856",'4','0',
+		"‡i dbcode=AAVGB; providercode=PRVJHQ "+
+		"‡u http://resolver.library.cornell.edu/misc/10758189 "+
+		"‡x http://proxy.library.cornell.edu/login?url=https://www.plumbsveterinarydrugs.com/auth "+
+		"‡z Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+ " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu"));
+		bibRec.dataFields.add(new DataField(2,"856",'4','0', // this one matches publishers website criteria
+		"‡u http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/ "+
+		"‡z New Plumb's website as of April 2021. Off campus access to be working soon."));
+		bibRec.holdings.add(online);
+		String expected =
+		"notes_t: Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+ " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\n" + 
+		"url_access_json: {\"providercode\":\"PRVJHQ\",\"dbcode\":\"AAVGB\","
+		+ "\"description\":\"Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+     " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\","
+		+ "\"url\":\"http://resolver.library.cornell.edu/misc/10758189\"}\n" + 
+		"notes_t: New Plumb's website as of April 2021. Off campus access to be working soon.\n" + 
+		"url_access_json: {\"description\":\"New Plumb's website as of April 2021. Off campus access to be working soon.\","
+		+ "\"url\":\"http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/\"}\n" + 
+		"online: Online\n";
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+	}
 
 	@Test
 	public void nonTOUUseOf856i() throws IOException, ClassNotFoundException, SQLException {

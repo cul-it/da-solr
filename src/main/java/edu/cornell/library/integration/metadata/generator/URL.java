@@ -94,7 +94,8 @@ public class URL implements SolrFieldGenerator {
 				String lc = ((String)processedLink.get("description")).toLowerCase();
 				if (lc.contains("finding aid"))
 					relation = "findingaid";
-				if (relation.equals("access") && 
+				if (relation.equals("access") &&
+						(! lc.contains("campus access")) &&
 						(lc.contains("table of contents")
 							|| lc.contains("tables of contents")
 							|| lc.endsWith(" toc")
