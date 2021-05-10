@@ -44,6 +44,50 @@ public class URLTest {
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 
+	@Test
+	public void userLimitsIn899() throws ClassNotFoundException, SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.id = "9298323";
+			rec.dataFields.add(new DataField(1,"856",'4','0',
+					"‡u http://proxy.library.cornell.edu/login"
+					+ "?url=http://site.ebrary.com/lib/cornell/docDetail.action?docID=11113926 "+
+					"‡z Connect to full text"));
+			rec.dataFields.add(new DataField(2,"899",' ',' ',"‡a ebraryebks3u"));
+			rec.holdings.add(online);
+			String expected = 
+			"notes_t: Connect to full text\n" + 
+			"url_access_json: {"
+			+ "\"description\":\"Connect to full text\","
+			+ "\"url\":\"http://proxy.library.cornell.edu/login?url="
+			+           "http://site.ebrary.com/lib/cornell/docDetail.action?docID=11113926\","
+			+ "\"users\":3}\n" + 
+			"online: Online\n";
+			assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+		}
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.id = "10821629";
+			rec.dataFields.add(new DataField(1,"856",'4','0',
+					"‡3 Available from Brepols "+
+					"‡i dbcode=~9u; providercode=PRVBRP "+
+					"‡u http://proxy.library.cornell.edu/login?"
+					+     "url=http://www.brepolsonline.net/doi/book/10.1484/M.CURSOR-EB.6.09070802050003050302020604 "+
+					"‡z Connect to full text."));
+			rec.dataFields.add(new DataField(2,"899",'2',' ',"‡a PRVBRP_~9u"));
+			rec.holdings.add(online);
+			String expected =
+			"notes_t: Available from Brepols Connect to full text.\n"+
+			"url_access_json: {"
+			+  "\"providercode\":\"PRVBRP\",\"dbcode\":\"~9u\","
+			+  "\"description\":\"Available from Brepols Connect to full text.\","
+			+  "\"url\":\"http://proxy.library.cornell.edu/login?"
+			+            "url=http://www.brepolsonline.net/doi/book/10.1484/M.CURSOR-EB.6.09070802050003050302020604\","
+			+  "\"users\":9}\n"+
+			"online: Online\n";
+			assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+		}
+	}
 
 	@Test   //8637892 DISCOVERYACCESS-2947
 	public void testMultipleAccessWithDifferentTOU() throws IOException, ClassNotFoundException, SQLException {
@@ -187,6 +231,33 @@ public class URLTest {
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
+	@Test
+	public void twoAccessLinksOneLooksLikePublishersWebsite() throws IOException, ClassNotFoundException, SQLException {
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		bibRec.id = "10758189";
+		bibRec.dataFields.add(new DataField(1,"856",'4','0',
+		"‡i dbcode=AAVGB; providercode=PRVJHQ "+
+		"‡u http://resolver.library.cornell.edu/misc/10758189 "+
+		"‡x http://proxy.library.cornell.edu/login?url=https://www.plumbsveterinarydrugs.com/auth "+
+		"‡z Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+ " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu"));
+		bibRec.dataFields.add(new DataField(2,"856",'4','0', // this one matches publishers website criteria
+		"‡u http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/ "+
+		"‡z New Plumb's website as of April 2021. Off campus access to be working soon."));
+		bibRec.holdings.add(online);
+		String expected =
+		"notes_t: Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+ " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\n" + 
+		"url_access_json: {\"providercode\":\"PRVJHQ\",\"dbcode\":\"AAVGB\","
+		+ "\"description\":\"Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
+		+     " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\","
+		+ "\"url\":\"http://resolver.library.cornell.edu/misc/10758189\"}\n" + 
+		"notes_t: New Plumb's website as of April 2021. Off campus access to be working soon.\n" + 
+		"url_access_json: {\"description\":\"New Plumb's website as of April 2021. Off campus access to be working soon.\","
+		+ "\"url\":\"http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/\"}\n" + 
+		"online: Online\n";
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+	}
 
 	@Test
 	public void nonTOUUseOf856i() throws IOException, ClassNotFoundException, SQLException {

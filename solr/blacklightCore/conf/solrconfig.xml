@@ -270,7 +270,8 @@
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
-    </lst>
+      <str name="fq">type:Catalog</str>
+     </lst>
   </requestHandler>
   <requestHandler name="/database" class="solr.SearchHandler">
     <lst name="defaults">
@@ -286,7 +287,8 @@
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
-    </lst>
+      <str name="fq">type:Catalog</str>
+     </lst>
   </requestHandler>
   <requestHandler name="/termsOfUse" class="solr.SearchHandler">
     <lst name="defaults">
@@ -316,7 +318,8 @@
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
-    </lst>
+      <str name="fq">type:Catalog</str>
+     </lst>
   </requestHandler>
   <requestHandler name="/databaseAlphaBuckets" class="solr.SearchHandler">
     <lst name="defaults">
@@ -335,7 +338,8 @@
     </lst>
     <lst name="appends">
       <str name="fq">database_b:true</str>
-    </lst>
+      <str name="fq">type:Catalog</str>
+     </lst>
   </requestHandler>
   
   <requestHandler name="/culdigreg" class="solr.SearchHandler">
@@ -420,9 +424,9 @@
         authority_subject_t        authority_subject_tP       authority_subject_t_cjk
       </str>
     </lst>
-  	<lst name="appends">
-  	  <str name="fq">eightninenine_t:culdigreg</str>
-  	</lst>
+    <lst name="appends">
+      <str name="fq">eightninenine_t:culdigreg</str>
+    </lst>
   </requestHandler>
 
 
@@ -434,6 +438,7 @@
       <str name="q.alt">*:*</str>
       <str name="mm">1</str>
       <str name="df">title_t</str>
+  <!--    <str name="bq">eightninenine_t:ACPQECebksmu^2</str>  -->
       <str name="boost">log(max(10,sub(pub_date_facet,1987)))</str>
       <str name="qf">
         title_unstemC^25000        title_unstemP^25000
@@ -771,7 +776,7 @@
 
       <str name="f.number.qf">
         id_t             id_tP                   id_t_cjk
-        id
+        id               collection
         eightninenine_t  eightninenine_tP        eightninenine_t_cjk
         barcode_t^10     barcode_tP^10
         barcode_addl_t   barcode_addl_tP
@@ -798,7 +803,7 @@
       </str>
       <str name="f.number_quoted.qf">
         id_unstemC             id_unstemP              id_t_cjk
-        id
+        id                     collection
         eightninenine_unstemC  eightninenine_unstemP   eightninenine_t_cjk
         barcode_unstemC^10     barcode_unstemP^10
         barcode_addl_unstemC   barcode_addl_unstemP
@@ -872,6 +877,9 @@
       <str name="fl">*</str>
       <str name="rows">1</str>
       <str name="q">{!raw f=id v=$id}</str> <!-- use id=666 instead of q=id:666 -->
+    </lst>
+    <lst name="appends">
+      <str name="fq">type:Catalog</str>
     </lst>
   </requestHandler>
   

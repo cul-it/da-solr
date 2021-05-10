@@ -5670,13 +5670,11 @@ Q1-295		General
 Q300-390		Cybernetics
 Q350-390			Information theory
 Subclass QA - Mathematics
-QA1-43		General
-QA47-59		Tables
-QA71-90		Instruments and machines
-QA75-76.95			Calculating machines
-QA75.5-76.95			Electronic computers.  Computer science
+QA1-73		General, History of Mathematics, Tables
+QA74-76		Computer Science
 QA76.75-76.765				Computer software
-QA101-(145)		Elementary mathematics.  Arithmetic
+QA77-99   Popular Works, Mathematical Recreations
+QA101-(145)		Elementary mathematics. Arithmetic
 QA150-272.5		Algebra
 QA273-280		Probabilities.  Mathematical statistics
 QA299.6-433		Analysis

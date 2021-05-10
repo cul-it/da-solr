@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,7 +50,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class HoldingsAndItems implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.3a"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -189,10 +190,6 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 				sfs.add(new SolrField("holdings_display",holding.id+"|"+holding.modified_date));
 			else
 				sfs.add(new SolrField("holdings_display",holding.id));
-			ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-			mapper.writeValue(jsonstream,holding);
-			String json = jsonstream.toString("UTF-8");
-//			sfs.add(new SolrField("holdings_record_display",json));
 			holdings.put(holding.id, holding);
 			holding_ids.add(holding.id);
 
@@ -226,8 +223,6 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 		for (Location lib : workLocations)
 			if (lib.getLibrary() != null) {
 				sfs.add(new SolrField("location_facet",lib.getLibrary()));
-				sfs.add(new SolrField("location",lib.getLibrary()));
-				sfs.add(new SolrField("location",lib.getLibrary()+" > "+lib.getName()));
 				isAtTheLibrary = true;
 			}
 		if ( isAtTheLibrary )
@@ -268,11 +263,11 @@ public class HoldingsAndItems implements SolrFieldGenerator {
 		// lookup item id here!!!
 		int item_id = 0;
 		try (  Connection conn = config.getDatabaseConnection("Voy");
-				Statement stmt = conn.createStatement() ){
-			String query =
+				PreparedStatement stmt = conn.prepareStatement(
 				"SELECT CORNELLDB.ITEM_BARCODE.ITEM_ID "
-				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = '"+barcode+"'";
-			try (  java.sql.ResultSet rs = stmt.executeQuery(query)  ){
+				+ "FROM CORNELLDB.ITEM_BARCODE WHERE CORNELLDB.ITEM_BARCODE.ITEM_BARCODE = ?")){
+			stmt.setString(1, barcode);
+			try (  java.sql.ResultSet rs = stmt.executeQuery()  ){
 				while (rs.next()) {
 					item_id = rs.getInt(1);
 				}

@@ -61,8 +61,33 @@ public class HathiLinksTest {
 		"url_other_display: http://catalog.hathitrust.org/Record/009226070"
 		+ "|HathiTrust – Access limited to full-text search\n"+
 		"notes_t: HathiTrust – Access limited to full-text search\n"+
-		"hathi_title_data: 009226070\n";
+		"hathi_title_data: 009226070\n"+
+		"notes_t: Connect to full text. Access limited to authorized subscribers.\n" + 
+		"url_access_json: {\"description\":\"Connect to full text. Access limited to authorized subscribers.\","
+		+ "\"url\":\"https://hdl.handle.net/2027/coo.31924003850009?urlappend=%3B"
+		+ "signon=swle:https://shibidp.cit.cornell.edu/idp/shibboleth\"}\n" + 
+		"online: Online\n" + 
+		"notes_t: Information for users about temporary access\n" + 
+		"url_access_json: {\"description\":\"Information for users about temporary access\","
+		+ "\"url\":\"https://www.hathitrust.org/ETAS-User-Information\"}\n" + 
+		"online: Online\n" + 
+		"etas_facet: 1\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void blockEtasLinkWhenNobody() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "101888";
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+
+	@Test
+	public void blockPublicDomainLinkWhenPrivate() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "3776236";
+		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
@@ -105,4 +130,10 @@ public class HathiLinksTest {
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
+	@Test
+	public void oddbehavior() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)61353090"));
+		System.out.println(this.gen.generateSolrFields(rec, config).toString());
+	}
 }

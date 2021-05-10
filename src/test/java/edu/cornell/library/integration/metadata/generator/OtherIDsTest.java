@@ -45,4 +45,14 @@ public class OtherIDsTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec,null).toString());
 	}
 
+	@Test
+	public void testDiscogs() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"024",'7',' ',"‡a test id value ‡2 discogs"));
+		String expected =
+		"id_t: test id value\n" + 
+		"discogs_display: test id value\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec,null).toString());
+	}
+
 }
