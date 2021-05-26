@@ -52,7 +52,7 @@ public class HathiLinksTest {
 		"hathi_title_data: 100174680\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
-
+/*
 	@Test
 	public void testRestrictedLink() throws SQLException, IOException, ClassNotFoundException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
@@ -81,7 +81,7 @@ public class HathiLinksTest {
 		rec.id = "101888";
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
-
+*/
 
 	@Test
 	public void blockPublicDomainLinkWhenPrivate() throws SQLException, IOException, ClassNotFoundException {
@@ -102,7 +102,7 @@ public class HathiLinksTest {
 		"hathi_title_data: 100763896\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
-
+/*
 	@Test
 	public void etaLink() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
@@ -121,7 +121,7 @@ public class HathiLinksTest {
 		"etas_facet: 2\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
-
+*/
 	@Test
 	public void emptyOCLC() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
