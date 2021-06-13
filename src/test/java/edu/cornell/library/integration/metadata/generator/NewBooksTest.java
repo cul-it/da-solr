@@ -32,7 +32,7 @@ public class NewBooksTest {
 		holdingRec.controlFields.add(new ControlField(1,"005","30170724130511.0"));
 		holdingRec.dataFields.add(new DataField(2,"852",'0','0',
 				"‡b afr ‡h E169.Z83 ‡i P48 2017 ‡z Temporarily shelved on the New Books Shelf."));
-		bibRec.holdings.add(holdingRec);
+		bibRec.marcHoldings.add(holdingRec);
 		String expected =
 		"new_shelf: Africana Library New Books Shelf\n"+
 		"acquired_dt: 3017-07-20T00:00:00Z\n"+
@@ -51,7 +51,7 @@ public class NewBooksTest {
 		holdingRec.controlFields.add(new ControlField(1,"005","30170427164010.0"));
 		holdingRec.dataFields.add(new DataField(2,"852",'0','0',
 				"‡b olin ‡k New & Noteworthy Books ‡h PS3601.R542 ‡i A6 2017"));
-		bibRec.holdings.add(holdingRec);
+		bibRec.marcHoldings.add(holdingRec);
 		String expected =
 		"new_shelf: Olin Library New & Noteworthy Books\n"+
 		"acquired_dt: 3017-04-26T00:00:00Z\n"+
@@ -70,7 +70,7 @@ public class NewBooksTest {
 		holdingRec.controlFields.add(new ControlField(1,"005","20170509104901.0"));
 		holdingRec.dataFields.add(new DataField(2,"852",'0','0',
 				"‡b mann ‡h QL737.M336 ‡i O83x 2003 ‡x transfer from Mann Ellis 5/9/17"));
-		bibRec.holdings.add(holdingRec);
+		bibRec.marcHoldings.add(holdingRec);
 		assertEquals( "acquired_dt: 2004-07-06T00:00:00Z\nacquired_month: 2004-07\n",
 				this.gen.generateSolrFields(bibRec, null).toString() );
 	}

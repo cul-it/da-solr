@@ -105,7 +105,7 @@ public class UpdateAuthorityRecords {
 			Connection voyager, Connection headings, Catalog.DownloadMARC marc, int authId, Timestamp modDate)
 					throws SQLException, IOException, InterruptedException {
 		System.out.printf("a%d new %s\n",authId,modDate);
-		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, authId);
+		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, String.valueOf(authId));
 		// TODO Auto-generated method stub
 		
 	}
@@ -114,7 +114,7 @@ public class UpdateAuthorityRecords {
 			Connection voyager, Connection headings, Catalog.DownloadMARC marc, int authId, Timestamp modDate)
 					throws SQLException, IOException, InterruptedException {
 //		System.out.printf("a%d updated %s\n",authId,modDate);
-		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, authId);
+		MarcRecord rec = marc.getMarc(RecordType.AUTHORITY, String.valueOf(authId));
 		// TODO Auto-generated method stub
 		
 	}

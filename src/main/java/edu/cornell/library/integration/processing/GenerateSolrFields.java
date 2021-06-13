@@ -87,7 +87,7 @@ class GenerateSolrFields {
 
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,this.activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
-				this.activeGenerators,this.tableNamePrefix,rec.id,config);
+				this.activeGenerators,this.tableNamePrefix,rec.bib_id,config);
 		LocalDateTime now = LocalDateTime.now();
 		if (this.generatorTimestamps == null)
 			this.generatorTimestamps = getGeneratorTimestamps(
@@ -125,7 +125,7 @@ class GenerateSolrFields {
 				((generatedNotChanged.size() > 0)
 						? ("; also generated "+generatedNotChanged.size()+" ("+formatBGDList(generatedNotChanged))+")":""));
 		if (changedOutputs.size() > 0 || generatedNotChanged.size() > 0)
-			pushNewFieldDataToDB(this.activeGenerators,newValues,this.tableNamePrefix,rec.id,recordVersions, config);
+			pushNewFieldDataToDB(this.activeGenerators,newValues,this.tableNamePrefix,rec.bib_id,recordVersions, config);
 		else
 			touchBibVisitDate(this.tableNamePrefix,rec.id, config);
 		if (changedOutputs.size() > 0) {
@@ -416,6 +416,7 @@ class GenerateSolrFields {
 		for (Generator gen : activeGenerators) {
 			recordChunks.put(gen, new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC ));
 			recordChunks.get(gen).id = rec.id;
+			recordChunks.get(gen).bib_id = rec.bib_id;
 			recordChunks.get(gen).modifiedDate = rec.modifiedDate;
 		}
 
@@ -436,8 +437,14 @@ class GenerateSolrFields {
 				System.out.println( "Unrecognized field "+f.mainTag+" in record "+rec.id );
 
 		if (fieldsSupported.containsKey("holdings"))
-			for (Generator supportingClass : fieldsSupported.get("holdings"))
-				recordChunks.get(supportingClass).holdings = rec.holdings;
+			for (Generator supportingClass : fieldsSupported.get("holdings")) {
+				recordChunks.get(supportingClass).marcHoldings = rec.marcHoldings;
+				recordChunks.get(supportingClass).folioHoldings = rec.folioHoldings;
+			}
+
+		if ( fieldsSupported.containsKey("instance"))
+			for (Generator supportingClass : fieldsSupported.get("instance"))
+				recordChunks.get(supportingClass).instance = rec.instance;
 
 		return recordChunks;
 	}

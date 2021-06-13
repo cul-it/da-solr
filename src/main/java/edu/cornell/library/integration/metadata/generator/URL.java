@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.folio.Locations;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -39,7 +39,7 @@ public class URL implements SolrFieldGenerator {
 			throws IOException {
 		SolrFields sfs = new SolrFields();
 
-		boolean isOnline = isOnline(bibRec.holdings);
+		boolean isOnline = isOnline(bibRec);
 
 		Integer userLimit = null;
 		for ( DataField f : bibRec.dataFields ) if ( f.mainTag.equals("899") ) {
@@ -48,8 +48,9 @@ public class URL implements SolrFieldGenerator {
 		}
 
 		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields("856");
-		for (MarcRecord holdingsRec : bibRec.holdings)
+		for (MarcRecord holdingsRec : bibRec.marcHoldings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
+		//TODO Link fields from Folio holdings
 
 		List<Map<String,Object>> allProcessedLinks = new ArrayList<>();
 		for (DataField f : allLinkFields) {
@@ -179,6 +180,8 @@ public class URL implements SolrFieldGenerator {
 	private static Pattern userLimit899 = Pattern.compile("^.*[A-Za-z_~](\\d+)u$");
 	private static Pattern number = Pattern.compile("^\\d+$");
 
+	private static Locations folioLocations = null;
+
 	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {
 		for (Map<String,Object> link : allProcessedLinks)
 			if ( ((String)link.get("relation")).equals("other") )
@@ -193,13 +196,27 @@ public class URL implements SolrFieldGenerator {
 		return count;
 	}
 
-	private static boolean isOnline(TreeSet<MarcRecord> holdings) {
-		for (MarcRecord holdingsRec : holdings)
-			for (DataField f : holdingsRec.dataFields)
-				if (f.tag.equals("852"))
-					for (Subfield sf : f.subfields)
-						if (sf.code.equals('b') && sf.value.equals("serv,remo"))
+	private static boolean isOnline(MarcRecord bib) {
+		if ( bib.marcHoldings != null )
+			for (MarcRecord holdingsRec : bib.marcHoldings)
+				for (DataField f : holdingsRec.dataFields)
+					if (f.tag.equals("852"))
+						for (Subfield sf : f.subfields)
+							if (sf.code.equals('b') && sf.value.equals("serv,remo"))
+								return true;
+		if ( bib.folioHoldings != null )
+			for (Map<String,Object> holding : bib.folioHoldings)
+				if ( holding.containsKey("permanentLocationId") ) {
+					if ( folioLocations == null ) 
+						try { folioLocations = new Locations(null); } catch (IOException e) {
+							System.out.println(e.getMessage());
+							System.out.println("Folio Locations must be instantiated once before this point.");
+							e.printStackTrace();
+							System.exit(1);
+						}
+					if (folioLocations.getByCode("serv,remo").id.equals(holding.get("permanentLocationId")))
 							return true;
+				}
 		return false;
 	}	
 }

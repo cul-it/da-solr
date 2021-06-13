@@ -43,7 +43,7 @@ public class RecordTypeTest {
 		hRec.id = "6161049";
 		hRec.dataFields.add(new DataField(1,"852",'8','1',
 				"‡b olin ‡h See link below ‡x PUBLIC SERVICES SHADOW RECORD"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"type: Shadow\n"+
 		"source: Voyager\n";

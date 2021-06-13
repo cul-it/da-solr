@@ -268,6 +268,7 @@
   <fields>   
     <!-- NOTE: this is not a full list of fields in the index; dynamic fields are also used -->
     <field name="id" type="string" indexed="true" stored="true" required="true" />
+    <field name="instance_id" type="string" indexed="true" stored="true" required="true" />
     <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
 

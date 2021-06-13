@@ -50,7 +50,7 @@ public class GenerateSolrFieldsTest {
 	@Test
 	public void test4087458() throws IOException, XMLStreamException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "4087458.xml" ), true);
-		rec.holdings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" ), true));
+		rec.marcHoldings.add(new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h4650028.xml" ), true));
 		gen.generateSolr(rec, config, null);
 	}
 
@@ -58,10 +58,10 @@ public class GenerateSolrFieldsTest {
 	public void testRecordModification() throws IOException, XMLStreamException, SQLException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661.xml" ), true);
 		MarcRecord holdingRec = new MarcRecord( MarcRecord.RecordType.HOLDINGS, resourceAsString( "h8616583.xml" ), true);
-		rec.holdings.add(holdingRec);
+		rec.marcHoldings.add(holdingRec);
 		gen.generateSolr(rec, config, "");
 		MarcRecord rec2 = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC, resourceAsString( "8226661-mod.xml" ), true);
-		rec2.holdings.add(holdingRec);
+		rec2.marcHoldings.add(holdingRec);
 		gen.generateSolr(rec2, config, null);
 	}
 
@@ -79,7 +79,7 @@ public class GenerateSolrFieldsTest {
 	@Test
 	public void liveRecord() throws SQLException, IOException, InterruptedException, XMLStreamException {
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
-		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, 9149595);
+		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, "9149595");
 		gen.generateSolr(rec, config, "");
 	}
 

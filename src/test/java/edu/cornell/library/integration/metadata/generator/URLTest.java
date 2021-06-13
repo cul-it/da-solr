@@ -31,7 +31,7 @@ public class URLTest {
 		"‡y Click here to find online versions of this title. "+
 		"‡u https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
 		+ "bQuery=AN%202471499&direct=true&site=pfi-live"));
-		rec.holdings.add(online);
+		rec.marcHoldings.add(online);
 		String expected =
 		"ebsco_title_facet: 2471499\n" + 
 		"notes_t: Click here to find online versions of this title.\n" + 
@@ -54,7 +54,7 @@ public class URLTest {
 					+ "?url=http://site.ebrary.com/lib/cornell/docDetail.action?docID=11113926 "+
 					"‡z Connect to full text"));
 			rec.dataFields.add(new DataField(2,"899",' ',' ',"‡a ebraryebks3u"));
-			rec.holdings.add(online);
+			rec.marcHoldings.add(online);
 			String expected = 
 			"notes_t: Connect to full text\n" + 
 			"url_access_json: {"
@@ -75,7 +75,7 @@ public class URLTest {
 					+     "url=http://www.brepolsonline.net/doi/book/10.1484/M.CURSOR-EB.6.09070802050003050302020604 "+
 					"‡z Connect to full text."));
 			rec.dataFields.add(new DataField(2,"899",'2',' ',"‡a PRVBRP_~9u"));
-			rec.holdings.add(online);
+			rec.marcHoldings.add(online);
 			String expected =
 			"notes_t: Available from Brepols Connect to full text.\n"+
 			"url_access_json: {"
@@ -100,7 +100,7 @@ public class URLTest {
 				"‡3 Full text available from Safari Technical Books ‡i ssid=ssj0000907852; dbcode=DRU;"
 				+ " providercode=PRVPQU ‡u http://proxy.library.cornell.edu/login?"
 				+ "url=http://proquest.safaribooksonline.com/9781118529669 ‡z Connect to text."));
-		rec.holdings.add(online);
+		rec.marcHoldings.add(online);
 		String expected =
 		"notes_t: Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
 		"url_access_json: {\"providercode\":\"PRVAHD\",\"dbcode\":\"AAGPP\",\"description\":"
@@ -123,7 +123,7 @@ public class URLTest {
 				"‡3 Full text available from Ebrary The Arts Subscription Collection ‡u"
 				+ " http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?"
 				+ "id=10657875 ‡z Connect to text."));
-		rec.holdings.add(online);
+		rec.marcHoldings.add(online);
 		String expected =
 		"notes_t: Full text available from Ebrary The Arts Subscription Collection Connect to text.\n"+
 		"url_access_json: {\"description\":\"Full text available from Ebrary The Arts Subscription Collection"
@@ -146,7 +146,7 @@ public class URLTest {
 	@Test
 	public void testJustURL() throws IOException, ClassNotFoundException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.holdings.add(online);
+		rec.marcHoldings.add(online);
 		rec.dataFields.add(new DataField(1,"856",'4','0',
 				"‡u http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top?id=10657875"));
 		String expected =
@@ -163,7 +163,7 @@ public class URLTest {
 		holdingRec.id = "9489596";
 		holdingRec.dataFields.add(new DataField(1,"856",'4',' ',
 				"‡u http://plates.library.cornell.edu/donor/DNR00450 ‡z From the Estate of Charles A. Leslie."));
-		bibRec.holdings.add(holdingRec);
+		bibRec.marcHoldings.add(holdingRec);
 		String expected =
 		"donor_t: From the Estate of Charles A. Leslie.\n"+
 		"donor_s: DNR00450\n"+
@@ -180,7 +180,7 @@ public class URLTest {
 		"‡i dbcode=JTX; providercode=PRVAWR "+
 		"‡u http://proxy.library.cornell.edu/login?url=https://www.taylorfrancis.com/books/e/9781466552609 "+
 		"‡z Full text is available via download of individual chapter PDFs; scroll down for full table of contents."));
-		bibRec.holdings.add(online);
+		bibRec.marcHoldings.add(online);
 		String expected =
 		"notes_t: Full text is available via download of individual chapter PDFs;"
 		      + " scroll down for full table of contents.\n" + 
@@ -218,7 +218,7 @@ public class URLTest {
 		"‡3 Available from the U.S. Government Printing Office. "+
 		"‡i dbcode=ACAJP; providercode=PRVLSH "+
 		"‡u http://purl.access.gpo.gov/GPO/LPS77292\n"));
-		bibRec.holdings.add(online);
+		bibRec.marcHoldings.add(online);
 		String expected =
 		"url_other_display: http://www.loc.gov/catdir/enhancements/fy0667/2006046631-t.html|"
 		+ "Available from the U.S. Government Printing Office. Table of contents only\n" + 
@@ -244,7 +244,7 @@ public class URLTest {
 		bibRec.dataFields.add(new DataField(2,"856",'4','0', // this one matches publishers website criteria
 		"‡u http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/ "+
 		"‡z New Plumb's website as of April 2021. Off campus access to be working soon."));
-		bibRec.holdings.add(online);
+		bibRec.marcHoldings.add(online);
 		String expected =
 		"notes_t: Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
 		+ " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\n" + 
@@ -268,7 +268,7 @@ public class URLTest {
 		"‡i Archived issues "+
 		"‡i dbcode=ACAJP; providercode=PRVLSH "+
 		"‡u https://purl.fdlp.gov/GPO/gpo86434"));
-		bibRec.holdings.add(online);
+		bibRec.marcHoldings.add(online);
 		String expected =
 		"notes_t: Available from the U.S. Government Printing Office\n" + 
 		"url_access_json: {\"providercode\":\"PRVLSH\",\"dbcode\":\"ACAJP\","

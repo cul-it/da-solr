@@ -169,7 +169,7 @@ public class HathiLinks implements SolrFieldGenerator {
 		MarcRecord h = new MarcRecord( MarcRecord.RecordType.HOLDINGS );
 		h.id = "1";
 		h.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
-		rec.holdings.add(h);
+		rec.marcHoldings.add(h);
 		return rec;
 	}
 	private static void tabulateResults(java.sql.ResultSet rs,

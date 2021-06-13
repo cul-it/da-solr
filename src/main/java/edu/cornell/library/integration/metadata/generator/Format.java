@@ -1,12 +1,16 @@
 package edu.cornell.library.integration.metadata.generator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import edu.cornell.library.integration.folio.Locations;
+import edu.cornell.library.integration.folio.Locations.Location;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -70,10 +74,24 @@ public class Format implements SolrFieldGenerator {
 			}
 
 		Collection<String> loccodes = new HashSet<>();
-		for (MarcRecord hRec : rec.holdings)
+		for (MarcRecord hRec : rec.marcHoldings)
 			for (DataField f : hRec.dataFields)
 				for (Subfield sf : f.subfields)
 					if (sf.code.equals('b')) loccodes.add(sf.value);
+		if ( rec.folioHoldings != null ) {
+			if ( folioLocations == null ) 
+				try { folioLocations = new Locations(null); } catch (IOException e) {
+					System.out.println(e.getMessage());
+					System.out.println("Folio Locations must be instantiated once before this point.");
+					e.printStackTrace();
+					System.exit(1);
+				}
+			for (Map<String,Object> holding : rec.folioHoldings)
+				if ( holding.containsKey("permanentLocationId") ) {
+					Location l = folioLocations.getByUuid((String)holding.get("permanentLocationId"));
+					if ( l != null ) loccodes.add(l.code);
+				}
+		}
 
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;
@@ -212,5 +230,7 @@ public class Format implements SolrFieldGenerator {
 		sfs.add(new BooleanSolrField("database_b",isDatabase));
 		return sfs;
 	}
+
+	private static Locations folioLocations = null;
 
 }

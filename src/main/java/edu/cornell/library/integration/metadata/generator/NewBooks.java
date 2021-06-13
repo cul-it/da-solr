@@ -1,12 +1,16 @@
 package edu.cornell.library.integration.metadata.generator;
 
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import edu.cornell.library.integration.folio.Locations;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -28,8 +32,9 @@ public class NewBooks implements SolrFieldGenerator {
 	public String getVersion() { return "1.3"; }
 
 	@Override
-	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings"); }
+	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings","instance"); }
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SolrFields generateSolrFields ( MarcRecord bib, Config config ) {
 		Collection<String> loccodes = new HashSet<>();
@@ -37,7 +42,7 @@ public class NewBooks implements SolrFieldGenerator {
 
 		SolrFields vals = new SolrFields();
 
-		for (MarcRecord hold : bib.holdings)
+		for (MarcRecord hold : bib.marcHoldings)
 			for (DataField f : hold.dataFields) if (f.tag.equals("852"))
 				for (Subfield sf : f.subfields)
 					if (sf.code.equals('k')) {
@@ -51,6 +56,32 @@ public class NewBooks implements SolrFieldGenerator {
 							newBooksZNote = true;
 					}
 
+		if ( bib.folioHoldings != null ) {
+			if ( folioLocations == null ) 
+				try { folioLocations = new Locations(null); } catch (IOException e) {
+					System.out.println(e.getMessage());
+					System.out.println("Folio Locations must be instantiated once before this point.");
+					e.printStackTrace();
+					System.exit(1);
+				}
+			for (Map<String,Object> holding : bib.folioHoldings ) {
+				if ( holding.containsKey("permanentLocationId") )
+					loccodes.add(folioLocations.getByUuid((String)holding.get("temporaryLocationId")).code);
+				if ( holding.containsKey("permanentLocationId") )
+					loccodes.add(folioLocations.getByUuid((String)holding.get("temporaryLocationId")).code);
+				if ( holding.containsKey("notes") ) {
+					for (Map<String,String> note : (List<Map<String,String>>) holding.get("notes")) {
+						String val = note.get("note").toLowerCase();
+						if (val.contains("new book") && val.contains("shelf"))
+							newBooksZNote = true;
+					}
+				}
+				if ( holding.containsKey("callNumberPrefix") )
+					if ( ((String)holding.get("callNumberPrefix")).equalsIgnoreCase("new & noteworthy books") )
+						vals.add(new SolrField("new_shelf","Olin Library New & Noteworthy Books"));
+			}
+		}
+
 		if (newBooksZNote)
 			for (String loccode : loccodes)
 				if (loccode.startsWith("afr"))
@@ -60,8 +91,8 @@ public class NewBooks implements SolrFieldGenerator {
 		// Begin New Books Logic
 
 		Timestamp acquisitionDate = null;
-		for (DataField f : bib.dataFields)   if (f.tag.equals("948") && f.ind1.equals('1'))
-			for (Subfield sf : f.subfields)  if (sf.code.equals('a')) {
+		for (DataField f : bib.dataFields) if (f.tag.equals("948") && f.ind1.equals('1'))
+			for (Subfield sf : f.subfields) if (sf.code.equals('a')) {
 				if (! yyyymmdd.matcher(sf.value).matches() ) {
 					System.out.printf("B%s has invalid acquisition date: %s\n", bib.id, sf.value);
 					vals.add(new BooleanSolrField("acquired_date_invalid_b",true));
@@ -76,6 +107,9 @@ public class NewBooks implements SolrFieldGenerator {
 					}
 				}
 			}
+		if ( acquisitionDate == null && bib.instance != null && bib.instance.containsKey("catalogedDate"))
+				acquisitionDate = Timestamp.from(Instant.parse(
+						((String)bib.instance.get("catalogedDate")).replace("+00:00","Z")));
 
 		if ( acquisitionDate == null ) return vals;
 
@@ -90,5 +124,6 @@ public class NewBooks implements SolrFieldGenerator {
 		return vals;
 	}
 	private static Pattern yyyymmdd = Pattern.compile("[0-9]{8}");
+	private static Locations folioLocations = null;
 
 }

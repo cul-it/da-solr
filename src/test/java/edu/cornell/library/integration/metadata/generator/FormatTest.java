@@ -27,7 +27,7 @@ public class FormatTest {
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "10132842";
 		hRec.dataFields.add(new DataField(1,"852",'8',' ',"‡b serv,remo ‡h No call number"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"format: Book\n"+
 		"format_main_facet: Book\n"+
@@ -47,7 +47,7 @@ public class FormatTest {
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "9797953";
 		hRec.dataFields.add(new DataField(1,"852",'8',' ',"‡b serv,remo ‡h No call number"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"format: Journal/Periodical\n"+
 		"format_main_facet: Journal/Periodical\n"+
@@ -68,7 +68,7 @@ public class FormatTest {
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "2842392";
 		hRec.dataFields.add(new DataField(1,"852",'8',' ',"‡b mus ‡h Film 15"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"format: Thesis\n"+
 		"format: Microform\n"+
@@ -91,7 +91,7 @@ public class FormatTest {
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "3232234";
 		hRec.dataFields.add(new DataField(1,"852",'0','0',"‡b serv,remo ‡k ONLINE ‡h HD1753 1992 ‡i .F3"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"format: Website\n"+
 		"format_main_facet: Website\n"+
@@ -147,7 +147,7 @@ public class FormatTest {
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "3232234";
 		hRec.dataFields.add(new DataField(1,"852",'0','0',"‡b rmc ‡k Archives ‡h 16-7-4244"));
-		rec.holdings.add(hRec);
+		rec.marcHoldings.add(hRec);
 		String expected =
 		"format: Manuscript/Archive\n"+
 		"format_main_facet: Manuscript/Archive\n"+

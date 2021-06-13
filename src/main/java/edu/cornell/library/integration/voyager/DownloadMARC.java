@@ -40,8 +40,8 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 	}
 
 	@Override
-	public MarcRecord getMarc( RecordType type, Integer id ) throws SQLException, IOException, InterruptedException {
-		return new MarcRecord(type,queryVoyager(type,id));
+	public MarcRecord getMarc( RecordType type, String id ) throws SQLException, IOException, InterruptedException {
+		return new MarcRecord(type,queryVoyager(type,Integer.valueOf(id)));
 	}
 
 	@Override

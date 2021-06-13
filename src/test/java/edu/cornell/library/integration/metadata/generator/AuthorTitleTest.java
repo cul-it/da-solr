@@ -428,8 +428,7 @@ public class AuthorTitleTest {
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А.\",\"search1\":\"Гребенщикова, Г. А,\","
 		+ "\"name2\":\"Grebenshchikova, G. A., author\",\"search2\":\"Grebenshchikova, G. A.,\","
-		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
-		"authority_author_t: Grebenshchikova, Galina Aleksandrovna\n"+
+		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: grebenshchikova g a\n"+
 		"title_sort: chernomorskii flot v period pravleniia ekateriny ii\n"+
 		"title_t: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+

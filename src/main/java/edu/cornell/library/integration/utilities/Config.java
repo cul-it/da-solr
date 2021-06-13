@@ -24,6 +24,8 @@ import javax.naming.ConfigurationException;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+import edu.cornell.library.integration.folio.OkapiClient;
+
 /**
  * This is a basic structure intended to hold all the configuration information
  * needed for all steps of the Voyager MARC21 extract and convert to Blacklight
@@ -152,6 +154,38 @@ public class Config {
 		return 400;
 	}
 
+	public boolean isOkapiConfigured(String id) {
+		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
+		if ( ! this.values.containsKey("okapiToken"+id) ) return false;
+		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
+		return true;
+	}
+	public OkapiClient getOkapi(String id) {
+		String url = this.values.get("okapiUrl"+id);
+		if ( url == null ) {
+			System.out.println("Value not found for okapiUrl" + id);
+			System.exit(1);
+		}
+		String token = this.values.get("okapiToken"+id);
+		if ( token == null ) {
+			System.out.println("Value not found for okapiToken" + id);
+			System.exit(1);
+		}
+		String tenant = this.values.get("okapiTenant"+id);
+		if ( tenant == null ) {
+			System.out.println("Value not found for okapiTenant" + id);
+			System.exit(1);
+		}
+		return new OkapiClient(url,token,tenant);
+	}
+
+	public boolean isDatabaseConfigured(String id) {
+		if ( ! this.values.containsKey("databaseDriver"+id) ) return false;
+		if ( ! this.values.containsKey("databaseURL"+id) ) return false;
+		if ( ! this.values.containsKey("databaseUser"+id) ) return false;
+		if ( ! this.values.containsKey("databasePass"+id) ) return false;
+		return true;
+	}
 	/**
 	 * @param id : database identifier used in config properties file
 	 * @return java.sql.Connection

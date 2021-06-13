@@ -24,6 +24,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /*
  *  MarcRecord Handler Class
  */
@@ -38,12 +42,14 @@ public class MarcRecord implements Comparable<MarcRecord>{
 	public RecordType type;
 	public String id;
 	public String bib_id;
-	public TreeSet<MarcRecord> holdings;
+	public TreeSet<MarcRecord> marcHoldings = null;
+	public List<Map<String,Object>> folioHoldings = null;
+	public Map<String,Object> instance = null;
 
 	public MarcRecord( RecordType type ) {
 		this.type = type;
 		if (type != null && type.equals(RecordType.BIBLIOGRAPHIC))
-			this.holdings = new TreeSet<>();
+			this.marcHoldings = new TreeSet<>();
 	}
 
 	@Deprecated
@@ -163,9 +169,21 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			sb.append("\n");
 		}
 
-		if (this.type.equals(RecordType.BIBLIOGRAPHIC))
-			for (MarcRecord h : this.holdings)
+		if (this.type.equals(RecordType.BIBLIOGRAPHIC)) {
+			for (MarcRecord h : this.marcHoldings)
 				sb.append('\n').append(h.toString());
+			try {
+				if (this.folioHoldings != null)
+					for (Map<String,Object> h : this.folioHoldings)
+						sb.append('\n').append(mapper.writeValueAsString(h));
+				if ( this.instance != null )
+					sb.append('\n').append(mapper.writeValueAsString(this.instance));
+			} catch (JsonProcessingException e) {
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
 
 		return sb.toString();
 	}
@@ -314,9 +332,10 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						if (r.getAttributeLocalName(i).equals("tag"))
 							tag = r.getAttributeValue(i);
 					ControlField f = new ControlField(++fid,tag,r.getElementText());
-					if (f.tag.equals("001"))
+					if (f.tag.equals("001")) {
 						this.id = f.value;
-					else if (f.tag.equals("005"))
+						this.bib_id = f.value;
+					} else if (f.tag.equals("005"))
 						this.modifiedDate = f.value;
 					this.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
@@ -374,6 +393,11 @@ public class MarcRecord implements Comparable<MarcRecord>{
 				}
 		}
 		return subfields; // We should never reach this line.
+	}
+
+	private static ObjectMapper mapper = new ObjectMapper();
+	static {
+		mapper.setSerializationInclusion(Include.NON_EMPTY);
 	}
 
 	public static enum RecordType {

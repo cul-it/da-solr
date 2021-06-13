@@ -36,10 +36,10 @@ public final class Locations implements Catalog.Locations {
 		return null;
 	}
 	/**
-	 * Retrieve Location object based on <b>number</b>. The value will already have been loaded
+	 * Retrieve Location object based on <b>id</b>. The value will already have been loaded
 	 * into memory. The method cannot be called statically to ensure that the instantiation has
 	 * been able to load the data.
-	 * @param number
+	 * @param id
 	 * @return Location
 	 */
 	@Override

@@ -12,7 +12,8 @@ public class Catalog {
 
 	public static DownloadMARC getMarcDownloader( Config config ) {
 		try {
-			Class c = Class.forName(config.getCatalogClass()+".DownloadMARC");
+			Class<?> c = Class.forName(config.getCatalogClass()+".DownloadMARC");
+			System.out.println(c.getName());
 			DownloadMARC downloader = (DownloadMARC) c.newInstance();
 			downloader.setConfig(config);
 			return downloader;
@@ -26,7 +27,7 @@ public class Catalog {
 
 	public static Locations getLocations( Config config ) throws SQLException {
 		try {
-			Class c = Class.forName(config.getCatalogClass()+".Locations");
+			Class<?> c = Class.forName(config.getCatalogClass()+".Locations");
 			Locations locations = (Locations) c.newInstance();
 			locations.loadLocations(config);
 			return locations;
@@ -39,7 +40,7 @@ public class Catalog {
 	}
 
 	public interface DownloadMARC {
-		public MarcRecord getMarc( RecordType type, Integer id ) throws SQLException, IOException, InterruptedException;
+		public MarcRecord getMarc( RecordType type, String id ) throws SQLException, IOException, InterruptedException;
 		public void setConfig( Config config );
 		public List<MarcRecord> retrieveRecordsByIdRange (RecordType type, Integer from, Integer to)
 				throws SQLException, IOException;

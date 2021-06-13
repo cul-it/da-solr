@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -27,6 +28,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.catalog.Catalog;
+import edu.cornell.library.integration.folio.Locations;
+import edu.cornell.library.integration.folio.Locations.Location;
+import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
 import edu.cornell.library.integration.utilities.AddToQueue;
@@ -37,7 +41,6 @@ public class ProcessGenerationQueue {
 
 	public static void main(String[] args) throws Exception {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(Config.getRequiredArgsForDB("Voy"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Hathi"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("CallNos"));
 		requiredArgs.addAll(Config.getRequiredArgsForDB("Headings"));
@@ -85,8 +88,24 @@ public class ProcessGenerationQueue {
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
-				Connection voyager = config.getDatabaseConnection("Voy");
 				) {
+
+			Connection voyager = null;
+			OkapiClient folio = null;
+			if ( config.isOkapiConfigured("Folio")) {
+				folio = config.getOkapi("Folio");
+				Locations locations = new Locations(folio);
+				Location online = locations.getByCode("serv,remo");
+				if (online == null ) {
+					System.out.println("Something has changed with the onlne location.");
+					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
+					System.exit(1);
+				}
+			} else if ( config.isDatabaseConfigured("Voy"))
+				voyager = config.getDatabaseConnection("Voy");
+			else {
+				System.out.println("Either Voyager or Folio connection must be configured.");
+			}
 
 			oldestSolrFieldsData.setFetchSize(1000);
 
@@ -138,9 +157,46 @@ public class ProcessGenerationQueue {
 				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
 
-				Versions v = new Versions( getBibRecordModDate( voyager, bib) );
-				if (v.bib == null) {
-					System.out.println("Record appears to be deleted. Dequeuing.");
+				Versions v = null;
+				MarcRecord rec = null;
+				Map<String,Object> instance = null;
+
+				try {
+
+					if ( voyager != null ) {
+						v = new Versions( getBibRecordModDate( voyager, bib) );
+						if (v.bib == null) {
+							throw new IOException("Record appears to be deleted. Dequeuing. "+bib);
+						}
+						v.mfhds = getMhfdRecordModDates(voyager,bib);
+	
+						// Retrieve records
+						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, String.valueOf(bib));
+						for (String mfhdId : v.mfhds.keySet())
+							rec.marcHoldings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
+
+					} else if ( folio != null ) {
+						List<Map<String,Object>> instances = folio.queryAsList("/instance-storage/instances", "hrid=="+bib);
+						if ( instances.isEmpty() ) throw new IOException("Instance hrid absent from Folio: "+bib);
+						instance = instances.get(0);
+						v = new Versions(getModificationTimestamp( instance ));
+						String instanceId = (String) instance.get("id");
+						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
+						rec.instance = instance;
+						rec.folioHoldings =
+								folio.queryAsList("/holdings-storage/holdings", "instanceId=="+instanceId);
+						Map<String,Timestamp> holdingTimestamps = new HashMap<>();
+						for ( Map<String,Object> holding : rec.folioHoldings ) {
+							Timestamp t = getModificationTimestamp( holding );
+							String holdingHrid = (String)holding.get("id");
+							holdingTimestamps.put(holdingHrid, t);
+						}
+						v.mfhds = holdingTimestamps;
+
+					}
+				} catch (IOException e) {
+					System.out.println(e.getMessage());
+					e.printStackTrace();
 					deqByBibStmt.setInt(1, bib);
 					deqByBibStmt.executeUpdate();
 					bibRecsVoyUpdateStmt.setInt(1, bib);
@@ -149,12 +205,6 @@ public class ProcessGenerationQueue {
 					queueDeleteStmt.executeUpdate();
 					continue;
 				}
-				v.mfhds = getMhfdRecordModDates(voyager,bib);
-
-				// Retrieve records
-				MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib);
-				for (Integer mfhdId : v.mfhds.keySet())
-					rec.holdings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
 
 				BibChangeSummary solrChanges = gen.generateSolr(
 						rec, config, mapper.writeValueAsString(v),forcedGenerators);
@@ -177,7 +227,23 @@ public class ProcessGenerationQueue {
 		}
 	}
 
-	private static Map<Integer,Timestamp> getMhfdRecordModDates( Connection voyager, Integer bibId ) throws SQLException {
+	private static Timestamp getModificationTimestamp(Map<String, Object> folioObject) {
+		if (! folioObject.containsKey("metadata")) return null;
+		Instant modDate = null;
+		@SuppressWarnings("unchecked")
+		Map<String,String> metadata = (Map<String, String>) folioObject.get("metadata");
+
+		if ( metadata.containsKey("UpdatedDate") && metadata.get("UpdatedDate") != null )
+			modDate = Instant.parse(metadata.get("UpdatedDate"));
+		else if ( metadata.containsKey("CreatedDate") && metadata.get("CreatedDate") != null )
+			modDate = Instant.parse(metadata.get("CreatedDate"));
+
+		if (modDate == null)
+			return null;
+		return Timestamp.from(modDate);
+	}
+
+	private static Map<String,Timestamp> getMhfdRecordModDates( Connection voyager, Integer bibId ) throws SQLException {
 		try ( PreparedStatement pstmt = voyager.prepareStatement
 				("SELECT mfhd_master.mfhd_id, create_date, update_date"
 				+ " FROM mfhd_master, bib_mfhd "
@@ -186,12 +252,12 @@ public class ProcessGenerationQueue {
 				+ "  AND suppress_in_opac = 'N'")) {
 			pstmt.setInt(1, bibId);
 			try ( ResultSet rs = pstmt.executeQuery()) {
-				Map<Integer,Timestamp> mfhds = new HashMap<>();
+				Map<String,Timestamp> mfhds = new HashMap<>();
 				while (rs.next()) {
 					Timestamp mod_date = rs.getTimestamp(3);
 					if (mod_date == null)
 						mod_date = rs.getTimestamp(2);
-					mfhds.put(rs.getInt(1), mod_date);
+					mfhds.put(String.valueOf(rs.getInt(1)), mod_date);
 				}
 				return mfhds;
 			}
@@ -222,7 +288,7 @@ public class ProcessGenerationQueue {
 	@JsonAutoDetect(fieldVisibility = Visibility.ANY)
 	private class Versions {
 		@JsonProperty("bib")      Timestamp bib;
-		@JsonProperty("holdings") Map<Integer,Timestamp> mfhds;
+		@JsonProperty("holdings") Map<String,Timestamp> mfhds;
 		public Versions ( Timestamp bibTime ) {
 			this.bib = bibTime;
 		}

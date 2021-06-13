@@ -35,7 +35,7 @@ public class RecordType implements SolrFieldGenerator {
 					if ( sf.code.equals('h') && sf.value.equalsIgnoreCase("public services shadow record") )
 						isShadow = true;
 
-		for ( MarcRecord hRec : rec.holdings ) 
+		for ( MarcRecord hRec : rec.marcHoldings ) 
 			for ( DataField f : hRec.dataFields )
 				if ( f.tag.equals("852") )
 					for ( Subfield sf : f.subfields )
@@ -44,7 +44,7 @@ public class RecordType implements SolrFieldGenerator {
 
 		SolrFields sfs = new SolrFields();
 		sfs.add(new SolrField("type",isShadow?"Shadow":"Catalog"));
-		sfs.add(new SolrField("source","Voyager"));
+		sfs.add(new SolrField("source","Folio"));
 		return sfs;
 	}
 

@@ -54,7 +54,7 @@ public class CompareMARCWithVoyager {
 				if (f.mainTag.equals("856"))
 					continue BIB;
 			String bibId = file.replace(".xml", "");
-			MarcRecord oldMarc = downloader.getMarc( MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId));
+			MarcRecord oldMarc = downloader.getMarc( MarcRecord.RecordType.BIBLIOGRAPHIC, bibId);
 			System.out.println(" *********************** bib: "+bibId+ " ********************");
 			System.out.println("voy: "+oldMarc.toString());
 			System.out.println("as:  "+newMarc.toString());

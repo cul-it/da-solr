@@ -739,7 +739,7 @@ public class ASpaceBibImportConvert {
 		addressCarriageReturnsInFields(newMarc);
 		splitAspace035(newMarc);
 		reorderSubfieldsInNames(newMarc);
-		MarcRecord oldMarc = downloader.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, Integer.valueOf(bibId));
+		MarcRecord oldMarc = downloader.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, bibId);
 		List<String> oldMarcFields = serializeForComparison(oldMarc);
 		mergeFastSubjectHeadings(newMarc, oldMarc);
 		handleAuthorTitleFields(newMarc);
