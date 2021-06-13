@@ -30,11 +30,11 @@ public class HathiLinks implements SolrFieldGenerator {
 	private final String hathiLinkTextVolume = "HathiTrust";
 	private final String hathiLinkTextTitle  = "HathiTrust (multiple volumes)";
 	private final String hathiLinkTextDeny   = "HathiTrust – Access limited to full-text search";
-	private final String hathiLinkTextEtas   = "Connect to full text. Access limited to authorized subscribers.";
-	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
+//	private final String hathiLinkTextEtas   = "Connect to full text. Access limited to authorized subscribers.";
+//	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("035"); }
@@ -85,7 +85,7 @@ public class HathiLinks implements SolrFieldGenerator {
 				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
 					tabulateResults(rs,availableHathiMaterials,denyTitles); }
 			}
-
+/* Emergency Access
 			Map<String,Collection<String>> etasMaterials = new HashMap<>();
 			int etasVolumeCount = 0;
 			try (  PreparedStatement pstmt = conn.prepareStatement
@@ -107,7 +107,7 @@ public class HathiLinks implements SolrFieldGenerator {
 					}
 				}
 			}
-
+*/
 			URL url = new URL();
 			
 			for ( String title : availableHathiMaterials.keySet() ) {
@@ -139,6 +139,7 @@ public class HathiLinks implements SolrFieldGenerator {
 						"http://catalog.hathitrust.org/Record/"+title, false),null).fields);
 				sfs.add(new SolrField("hathi_title_data",title));
 			}
+/*
 			if ( ! etasMaterials.isEmpty() ) {
 				for (String title : etasMaterials.keySet()) {
 					Collection<String> volumes = etasMaterials.get(title);
@@ -155,6 +156,7 @@ public class HathiLinks implements SolrFieldGenerator {
 						"https://www.hathitrust.org/ETAS-User-Information", true),null));
 				sfs.add(new SolrField("etas_facet",String.valueOf(etasVolumeCount)));
 			}
+*/
 		}
 		return sfs;
 	}
