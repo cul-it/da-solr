@@ -61,13 +61,13 @@ public class ProcessGenerationQueue {
 		try (	Connection current = config.getDatabaseConnection("Current");
 				Statement stmt = current.createStatement();
 				PreparedStatement nextBibStmt = current.prepareStatement
-						("SELECT generationQueue.bib_id, priority" +
+						("SELECT generationQueue.hrid, priority" +
 						 "  FROM generationQueue "+
-						 "  LEFT JOIN processLock ON generationQueue.bib_id = processLock.bib_id"+
+						 "  LEFT JOIN processLock ON generationQueue.hrid = processLock.bib_id"+
 						 " WHERE processLock.date IS NULL"+
 						 " ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
-						("SELECT id, cause, record_date FROM generationQueue WHERE bib_id = ?");
+						("SELECT id, cause, record_date FROM generationQueue WHERE hrid = ?");
 				PreparedStatement createLockStmt = current.prepareStatement
 						("INSERT INTO processLock (bib_id) values (?)",Statement.RETURN_GENERATED_KEYS);
 				PreparedStatement unlockStmt = current.prepareStatement
@@ -77,11 +77,11 @@ public class ProcessGenerationQueue {
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
-						("DELETE FROM generationQueue WHERE bib_id = ?");
+						("DELETE FROM generationQueue WHERE hrid = ?");
 				PreparedStatement bibRecsVoyUpdateStmt = current.prepareStatement
 						("UPDATE bibRecsVoyager SET active = 0 WHERE bib_id = ?");
 				PreparedStatement queueDeleteStmt = current.prepareStatement
-						("INSERT INTO deleteQueue (priority, cause, bib_id, record_date)"
+						("INSERT INTO deleteQueue (priority, cause, hrid, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
 						("SELECT bib_id, visit_date FROM solrFieldsData ORDER BY visit_date LIMIT 1000");

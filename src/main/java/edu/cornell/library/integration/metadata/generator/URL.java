@@ -39,7 +39,35 @@ public class URL implements SolrFieldGenerator {
 			throws IOException {
 		SolrFields sfs = new SolrFields();
 
-		boolean isOnline = isOnline(bibRec);
+		boolean isOnline = false;
+		boolean isPrint = false;
+
+		if ( bibRec.marcHoldings != null )
+			for (MarcRecord holdingsRec : bibRec.marcHoldings)
+				for (DataField f : holdingsRec.dataFields)
+					if (f.tag.equals("852"))
+						for (Subfield sf : f.subfields)
+							if (sf.code.equals('b'))
+								if (sf.value.equals("serv,remo"))
+									isOnline = true;
+								else
+									isPrint = true;
+		if ( bibRec.folioHoldings != null )
+			for (Map<String,Object> holding : bibRec.folioHoldings)
+				if ( holding.containsKey("permanentLocationId") ) {
+					if ( folioLocations == null ) 
+						try { folioLocations = new Locations(null); } catch (IOException e) {
+							System.out.println(e.getMessage());
+							System.out.println("Folio Locations must be instantiated once before this point.");
+							e.printStackTrace();
+							System.exit(1);
+						}
+					if (folioLocations.getByCode("serv,remo").id.equals(holding.get("permanentLocationId")))
+						isOnline = true;
+					else
+						isPrint = true;
+				}
+
 
 		Integer userLimit = null;
 		for ( DataField f : bibRec.dataFields ) if ( f.mainTag.equals("899") ) {
@@ -48,7 +76,7 @@ public class URL implements SolrFieldGenerator {
 		}
 
 		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields("856");
-		for (MarcRecord holdingsRec : bibRec.marcHoldings)
+		if ( bibRec.marcHoldings != null) for (MarcRecord holdingsRec : bibRec.marcHoldings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
 		//TODO Link fields from Folio holdings
 
@@ -174,6 +202,8 @@ public class URL implements SolrFieldGenerator {
 		}
 		if (isOnline)
 			sfs.add(new SolrField("online","Online"));
+		if (isPrint)
+			sfs.add(new SolrField("online","At the Library"));
 
 		return sfs;
 	}
@@ -195,28 +225,4 @@ public class URL implements SolrFieldGenerator {
 					count++;
 		return count;
 	}
-
-	private static boolean isOnline(MarcRecord bib) {
-		if ( bib.marcHoldings != null )
-			for (MarcRecord holdingsRec : bib.marcHoldings)
-				for (DataField f : holdingsRec.dataFields)
-					if (f.tag.equals("852"))
-						for (Subfield sf : f.subfields)
-							if (sf.code.equals('b') && sf.value.equals("serv,remo"))
-								return true;
-		if ( bib.folioHoldings != null )
-			for (Map<String,Object> holding : bib.folioHoldings)
-				if ( holding.containsKey("permanentLocationId") ) {
-					if ( folioLocations == null ) 
-						try { folioLocations = new Locations(null); } catch (IOException e) {
-							System.out.println(e.getMessage());
-							System.out.println("Folio Locations must be instantiated once before this point.");
-							e.printStackTrace();
-							System.exit(1);
-						}
-					if (folioLocations.getByCode("serv,remo").id.equals(holding.get("permanentLocationId")))
-							return true;
-				}
-		return false;
-	}	
 }

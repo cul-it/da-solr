@@ -11,22 +11,22 @@ public class AddToQueue {
 
 	public static PreparedStatement generationQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
-				"INSERT INTO generationQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
+				"INSERT INTO generationQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
 	public static PreparedStatement availabilityQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
-				"INSERT INTO availabilityQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
+				"INSERT INTO availabilityQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
 	public static PreparedStatement headingsQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
-				"INSERT INTO headingsQueue ( bib_id, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
+				"INSERT INTO headingsQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
 	public static PreparedStatement deleteQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
-				"INSERT INTO deleteQueue ( bib_id, cause, priority, record_date ) "+
+				"INSERT INTO deleteQueue ( hrid, cause, priority, record_date ) "+
 				"VALUES (?, 'Record Deleted or Suppressed', 0, NOW())");
 	}
 

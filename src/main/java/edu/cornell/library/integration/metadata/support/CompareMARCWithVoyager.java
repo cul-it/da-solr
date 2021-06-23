@@ -287,9 +287,8 @@ public class CompareMARCWithVoyager {
 			return;
 		}
 		if ( voyFields == null ) {
-			if ( asFields != null )
-				for ( String asField : asFields )
-					System.out.println("as:  "+asField);
+			for ( String asField : asFields )
+				System.out.println("as:  "+asField);
 			return;
 		}
 		Iterator<String> voyIter = voyFields.iterator();

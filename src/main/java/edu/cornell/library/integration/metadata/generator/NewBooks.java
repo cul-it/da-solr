@@ -66,8 +66,8 @@ public class NewBooks implements SolrFieldGenerator {
 				}
 			for (Map<String,Object> holding : bib.folioHoldings ) {
 				if ( holding.containsKey("permanentLocationId") )
-					loccodes.add(folioLocations.getByUuid((String)holding.get("temporaryLocationId")).code);
-				if ( holding.containsKey("permanentLocationId") )
+					loccodes.add(folioLocations.getByUuid((String)holding.get("permanentLocationId")).code);
+				if ( holding.containsKey("temporaryLocationId") )
 					loccodes.add(folioLocations.getByUuid((String)holding.get("temporaryLocationId")).code);
 				if ( holding.containsKey("notes") ) {
 					for (Map<String,String> note : (List<Map<String,String>>) holding.get("notes")) {

@@ -1,0 +1,116 @@
+Hierarchical Location Facet Mapping; v.1.1				
+Voyager Display Name	Suppress	Call# (852$khim)	Holding Note (852$z)	Facet Display Name
+Adelson Library (Lab of Ornithology)				Adelson Library > Main Collection
+Adelson Library Reference (Lab of Ornithology)				Adelson Library > Reference
+Museum of Vertebrates (Lab of Ornithology) (non-circulating)				Adelson Library > Museum of Vertebrates
+Macaulay Library (Lab of Ornithology) (Non-circulating)				Adelson Library > Macaulay Library
+Ornithology Circulation				Adelson Library > Circulation
+Africana Library (Africana Center)			new book	Africana Library > New Books Shelf
+Africana Library (Africana Center)				Africana Library > Main Collection
+Africana Library Reference ( Non-Circulating)				Africana Library > Reference
+Africana Library Reserve 				Africana Library > Reserve
+Bailey Hortorium (ask at Mann Library Circulation)				Bailey Hortorium > Main Collection
+Bailey Hortorium Reference (Non-Circulating)				Bailey Hortorium > Reference
+CISER Data Archive				CISER Data Archive
+Fine Arts Circulation 				Fine Arts Library > Circulation
+Fine Arts Library (Rand Hall)				Fine Arts Library > Main Collection
+Fine Arts Library Reference (Non-Circulating)		Artist		Fine Arts Library > Artists' Books
+Fine Arts Library Reference (Non-Circulating)				Fine Arts Library > Reference
+Fine Arts Library Permanent Reserve				Fine Arts Library > Reserve
+Fine Arts Course Reserve (Ask at Circulation)				Fine Arts Library > Reserve
+Fine Arts Library Reserve				Fine Arts Library > Reserve
+ILR Library (Ives Hall)				ILR Library > Main Collection
+ILR Library Reference (Non-Circulating)		Labor Law		ILR Library > Labor Law Reference
+ILR Library Reference (Non-Circulating)				ILR Library > Reference
+ILR Library Reserve 				ILR Library > Reserve
+ILR Multi-Copy Storage				ILR Library > Main Collection
+ILR Library Kheel Center				ILR Library Kheel Center > Main Collection
+ILR Library Kheel Center (Non-Circulating)				ILR Library Kheel Center > Main Collection
+ILR Library Kheel Center (Request in advance)				ILR Library Kheel Center > Main Collection
+ILR Library Kheel Center Reference 				ILR Library Kheel Center > Reference
+ILR Library Kheel Center Reference (Non-Circulating)				ILR Library Kheel Center > Reference
+"Asia Reserve, Severinghouse Reading Rm., Kroch Library"				Kroch Library Asia > Reserve
+Kroch Library Asia				Kroch Library Asia > Main Collection
+Kroch Library Asia Reference (Non-Circulating)				Kroch Library Asia > Reference
+RMC Technical Services	X			Kroch Library Rare & Manuscripts > Technical Services
+Kroch Library Rare & Manuscripts (Non-Circulating)				Kroch Library Rare & Manuscripts > Main Collection
+Kroch Library Rare & Manuscripts (Request in advance)				Kroch Library Rare & Manuscripts > Request in Advance
+Kroch Library Rare & Manuscripts Reference (Non-Circulating)				Kroch Library Rare & Manuscripts > Reference
+Law Library (Myron Taylor Hall)				Law Library > Main Collection
+Law Library (Myron Taylor Hall) Rare Books				Law Library > Rare Books
+Law Library Rare--Request in advance at Law Circulation Desk				Law Library > Request in Advance
+Law Library Reference (Non-Circulating)				Law Library > Reference
+Law Library Reserve				Law Library > Reserve
+Law Library Technical Services 				Law Library > Technical Services
+Legal Aid Clinic				Law Library > Legal Aid Clinic
+Library Annex				Library Annex
+Mann Circulation				Mann Library > Circulation
+Mann Library		Ellis		Mann Library > Ellis Collection
+Mann Library		Curriculum Material		Mann Library > Curriculum Materials Collection
+Mann Library				Mann Library > Main Collection
+Mann Library Collection Development (Non-Circulating)				Mann Library > Collection Development
+Mann Library New Book Shelf				Mann Library > New Book Shelf
+Mann Library Reference (Non-Circulating)				Mann Library > Reference
+Mann Library Reserve				Mann Library > Reserve
+Mann Library Special Collections (Non-Circulating)				Mann Library > Special Collections
+Mann Special Collections (Request in advance)				Mann Library > Special Collections
+Mann Serials				Mann Library > Serials
+Mathematics Library (Circulation Desk)				Mathematics Library > Circulation Desk
+Mathematics Library (Malott Hall)				Mathematics Library > Main Collection
+Mathematics Library Locked Press				Mathematics Library > Locked Press
+Mathematics Library Reference (Non-Circulating)				Mathematics Library > Reference
+Mathematics Library Reserve				Mathematics Library > Reserve
+Music Library (Lincoln Hall)				Music Library > Main Collection
+Cox Library of Music (Lincoln Hall)				Music Library > Main Collection
+Music Circulation				Music Library > Circulation
+Music Library A/V (Non-Circulating)				Music Library > A/V
+Music Library Locked Press (Reference Desk)				Music Library > Reference
+Music Library Reference (Non-Circulating) 				Music Library > Reference
+Music Library Reserve 				Music Library > Reserve
+Nestle Library Reserve 				Nestle Library > Reserve
+Olin Library		New & Noteworthy		Olin Library > New & Noteworthy Books Shelf
+Olin Library				Olin Library > Main Collection
+DCAPS (106G Olin)				Olin Library > DCAPS (106G Olin)
+"Map Storage (Request in Advance at Map Room, Olin Library)"				Olin Library > Map Storage
+Olin Library Maps (Non-Circulating)				Olin Library > Maps
+"Olin Library Graduate Study Room 501, Request at Circulation"				Olin Library > Graduate Study Room 501
+Olin Library Reference (Non-Circulating)				Olin Library > Reference
+Olin Library Reserve				Olin Library > Reserve
+Olin Library Room 301 (Non-Circulating)				Olin Library > Room 301
+Olin Library Room 305 (Non-Circulating)				Olin Library > Room 305
+Olin Library Room 401 (Non-Circulating)				Olin Library > Room 401
+Olin Library Room 404 (Non-Circulating)				Olin Library > Room 404
+Olin Library Room 405 (Non-Circulating)				Olin Library > Room 405
+Olin Library Room 602 (Non-Circulating)				Olin Library > Room 602
+Olin Library Room 604-605 (Non-Circulating)				Olin Library > Room 604-605
+OKU Processing	X			Olin Library > OKU Processing
+Library Tech Services	X			Olin Library > Technical Services
+Library Technical Services Review Shelves	X			Olin Library > Technical Services Review Shelves
+LTS E-Resources and Serials Management	X			Olin Library > Technical Services
+Preservation Department (B32 Olin)				Olin Library > Preservation Department
+Request at Olin Circulation Desk				Olin Library > Circulation Desk
+Sage Hall Management Library Reference (Non-Circulating)				Sage Hall Management Library > Reference
+Sage Hall Management Library Reserve				Sage Hall Management Library > Reserve
+Spacecraft Planetary Imaging Facility (Non-Circulating)				Space Sciences Building
+Uris Library				Uris Library > Main Collection
+Uris Circulation				Uris Library > Circulation
+Uris Library Asia A/V		(SEA)		Uris Library > Asia A/V > Southeast Asia
+Uris Library Asia A/V		(SA)		Uris Library > Asia A/V > South Asia
+Uris Library Asia A/V		(KOR)		Uris Library > Asia A/V > Korea
+Uris Library Asia A/V		(Jpn)		Uris Library > Asia A/V > Japan
+Uris Library Asia A/V		(Chi)		Uris Library > Asia A/V > China
+Uris Library Asia A/V				Uris Library > Asia A/V
+Uris Library Reference (Non-Circulating)				Uris Library > Reference
+Uris Library Reserve				Uris Library > Reserve
+Uris Library Reserve Willis Room 				Uris Library > Reserve Willis Room 
+Veterinary Library (Schurman Hall)				Veterinary Library > Main Collection
+Veterinary Library Core Resource (5 hour loan)				Veterinary Library > Core Textbooks
+Veterinary Library Rare Books (Non-Circulating)				Veterinary Library > Rare Books
+Veterinary Library Reference (Non-Circulating)				Veterinary Library > Reference
+Veterinary Library Reserve 				Veterinary Library > Reserve 
+Anatomic Pathology Collection (Departmental use only)	X			Veterinary Library > Anatomic Pathology Collection
+Equine Farm Animal Collection (Departmental use only)	X			Veterinary Library > Equine Farm Animal Collection
+Center for Animal Resources and Education (Dept. use only)	X			XXX
+Companion Animal Hospital Collection (Departmental use only)	X			XXX
+Clinical Ophthalmology Collection (Departmental use only)	X			XXX
+Networked Resource	X			XXX

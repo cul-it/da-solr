@@ -96,8 +96,8 @@ public class DataFieldSet implements Comparable<DataFieldSet> {
 			this.fields.add(field);
 			return this;
 		}
-		Builder addToFields(List<DataField> fields) {
-			this.fields.addAll(fields);
+		Builder addToFields(List<DataField> addedFields) {
+			this.fields.addAll(addedFields);
 			return this;
 		}
 		DataFieldSet build() throws IllegalArgumentException {

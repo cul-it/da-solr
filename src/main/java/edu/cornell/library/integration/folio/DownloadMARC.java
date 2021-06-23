@@ -2,6 +2,7 @@ package edu.cornell.library.integration.folio;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -41,13 +42,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		}
 		System.out.println(instanceId);
 		String results = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE");
-		System.out.println(results);
 		Map<String,Object> parsedResults = mapper.readValue(results, Map.class);
-		System.out.println (mapper.writeValueAsString(parsedResults));
-		for (String key : parsedResults.keySet()) { System.out.println(key); }
 		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
 		System.out.println (mapper.writeValueAsString(parsedRecord));
-		for (String key : parsedRecord.keySet()) { System.out.println(key); }
 		return jsonToMarcRec((Map<String,Object>)parsedRecord.get("content"));
 	}
 
@@ -67,8 +64,11 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 			for ( Entry<String,Object> field : f.entrySet() ) {
 				Object fieldValue = field.getValue();
 				if ( fieldValue.getClass().equals(String.class) ) {
-					rec.controlFields.add(new ControlField(fieldId++,field.getKey(),(String) fieldValue));
-					if (field.getKey().equals("001")) rec.bib_id = (String) fieldValue;
+					rec.controlFields.add(new ControlField(fieldId++,field.getKey(),
+							Normalizer.normalize((String) fieldValue,Normalizer.Form.NFC)));
+					if (field.getKey().equals("001")) {
+						rec.bib_id = (String) fieldValue; rec.id = rec.bib_id;
+					}
 				} else {
 					Map<String,Object> fieldContent = (Map<String, Object>) fieldValue;
 					int subfieldId = 1;
@@ -76,7 +76,8 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 					TreeSet<Subfield> processedSubfields = new TreeSet<>();
 					for (Map<String,Object> subfield : subfields) {
 						String code = subfield.keySet().iterator().next();
-						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0), (String) subfield.get(code) ));
+						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
+								Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
 					}
 					rec.dataFields.add(new DataField(fieldId++,field.getKey(),
 							((String)fieldContent.get("ind1")).charAt(0),
