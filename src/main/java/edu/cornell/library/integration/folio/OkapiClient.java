@@ -169,6 +169,7 @@ public class OkapiClient {
 			while ((line = br.readLine()) != null) {
 				response.append(line + "\n");
 			}
+			System.out.println(response.toString());
 			return response.toString();
 		}
 	}
