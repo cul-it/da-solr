@@ -2,7 +2,6 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -108,7 +107,7 @@ public class NewBooks implements SolrFieldGenerator {
 				}
 			}
 		if ( acquisitionDate == null && bib.instance != null && bib.instance.containsKey("catalogedDate"))
-				acquisitionDate = Timestamp.valueOf(((String)bib.instance.get("catalogedDate")));
+				acquisitionDate = Timestamp.valueOf(((String)bib.instance.get("catalogedDate")+" 00:00:00"));
 
 		if ( acquisitionDate == null ) return vals;
 
