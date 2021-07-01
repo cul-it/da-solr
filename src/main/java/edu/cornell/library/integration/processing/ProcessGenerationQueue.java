@@ -184,8 +184,14 @@ public class ProcessGenerationQueue {
 							continue BIB;
 						}
 						instance = instances.get(0);
-						v = new Versions(getModificationTimestamp( instance ));
 						String instanceId = (String) instance.get("id");
+						if ( ! instance.containsKey("source")
+								|| ! ((String)instance.get("source")).equals("MARC") ) {
+							System.out.printf("Ignoring non-MARC instances [%s/%s]\n", bib,instanceId);
+							IndexingUtilities.queueBibDelete(current, String.valueOf(bib));
+							continue BIB;
+						}
+						v = new Versions(getModificationTimestamp( instance ));
 						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
 						rec.instance = instance;
 						rec.folioHoldings =
