@@ -54,24 +54,23 @@ public class IndexingUtilities {
 	 * @param bib_id
 	 * @throws SQLException
 	 */
-	public static void queueBibDelete(Connection current, int bib_id) throws SQLException {
-		boolean inBIB_VOY = false;
-		try (PreparedStatement bibVoyQStmt = current.prepareStatement(
-				"SELECT record_date FROM bibRecsVoyager WHERE bib_id = ?")) {
-			bibVoyQStmt.setInt(1, bib_id);
-			try ( ResultSet rs = bibVoyQStmt.executeQuery() ) {
-				while (rs.next())
-					inBIB_VOY = true;
+	public static void queueBibDelete(Connection current, String hrid) throws SQLException {
+		boolean inInstanceFolio = false;
+		try (PreparedStatement instanceFolioQStmt = current.prepareStatement(
+				"SELECT id FROM instanceFolio WHERE hrid = ?")) {
+			instanceFolioQStmt.setString(1, hrid);
+			try ( ResultSet rs = instanceFolioQStmt.executeQuery() ) {
+				while (rs.next()) inInstanceFolio = true;
 			}
 		}
-		if ( ! inBIB_VOY )
+		if ( ! inInstanceFolio )
 			return;
-		try (PreparedStatement bibVoyDStmt = current.prepareStatement(
-				"DELETE FROM bibRecsVoyager WHERE bib_id = ?");
+		try (PreparedStatement instanceFolioDStmt = current.prepareStatement(
+				"DELETE FROM instanceFolio WHERE hrid = ?");
 				PreparedStatement queueDeleteStmt = AddToQueue.deleteQueueStmt(current)) {
-			bibVoyDStmt.setInt(1, bib_id);
-			bibVoyDStmt.executeUpdate();
-			queueDeleteStmt.setInt(1,bib_id);
+			instanceFolioDStmt.setString(1, hrid);
+			instanceFolioDStmt.executeUpdate();
+			queueDeleteStmt.setString(1,hrid);
 			queueDeleteStmt.executeUpdate();
 		}
 	}

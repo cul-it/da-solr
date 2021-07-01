@@ -36,6 +36,7 @@ import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSu
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
+import edu.cornell.library.integration.utilities.IndexingUtilities;
 
 public class ProcessGenerationQueue {
 
@@ -109,7 +110,7 @@ public class ProcessGenerationQueue {
 
 			oldestSolrFieldsData.setFetchSize(1000);
 
-			do {
+			BIB: do {
 				// Identify Bib to generate data for
 				Integer bib = null;
 				Integer priority = null;
@@ -177,7 +178,11 @@ public class ProcessGenerationQueue {
 
 					} else if ( folio != null ) {
 						List<Map<String,Object>> instances = folio.queryAsList("/instance-storage/instances", "hrid=="+bib);
-						if ( instances.isEmpty() ) throw new IOException("Instance hrid absent from Folio: "+bib);
+						if ( instances.isEmpty() ) {
+							System.out.println("Instance hrid absent from Folio: "+bib);
+							IndexingUtilities.queueBibDelete(current, String.valueOf(bib));
+							continue BIB;
+						}
 						instance = instances.get(0);
 						v = new Versions(getModificationTimestamp( instance ));
 						String instanceId = (String) instance.get("id");

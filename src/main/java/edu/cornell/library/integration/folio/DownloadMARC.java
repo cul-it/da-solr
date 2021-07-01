@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -86,8 +87,19 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 							));
 				}
 			}
+		F: for ( DataField f : rec.dataFields )
+			for ( Subfield sf : f.subfields )
+				if ( sf.code.equals('6') )
+					if (subfield6Pattern.matcher(sf.value).matches()) {
+						if (f.tag.equals("880"))
+							f.mainTag = sf.value.substring(0,3);
+						f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
+						continue F;
+					}
+
 		return rec;
 	}
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
 }

@@ -113,7 +113,7 @@ public class Headings2Solr {
 		try (   Connection connectionFindWorks = this.config.getDatabaseConnection("Headings");
 				Statement stmt = connectionFindWorks.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
 						java.sql.ResultSet.CONCUR_READ_ONLY) ) {
-			stmt.setFetchSize(Integer.MIN_VALUE);
+			stmt.setFetchSize(30_000);
 			stmt.execute(query);
 			try ( ResultSet rs = stmt.getResultSet() ) {
 				while (rs.next()) {
