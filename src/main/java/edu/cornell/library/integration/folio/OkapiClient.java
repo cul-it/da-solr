@@ -121,8 +121,13 @@ public class OkapiClient {
 		if (responseCode != 200)
 			throw new NoSuchObjectException(c.getResponseMessage());
 
-		try (InputStream is = c.getInputStream()) {
-			return convertStreamToString(is);
+		try ( BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "utf-8")) ) {
+			String line = null;
+			StringBuilder response = new StringBuilder();
+			while ((line = br.readLine()) != null) {
+				response.append(line + "\n");
+			}
+			return response.toString();
 		}
 	}
 
@@ -158,8 +163,13 @@ public class OkapiClient {
 		if (responseCode != 200)
 			throw new IOException(c.getResponseMessage());
 
-		try (InputStream is = c.getInputStream()) {
-			return convertStreamToString(is);
+		try ( BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "utf-8")) ) {
+			String line = null;
+			StringBuilder response = new StringBuilder();
+			while ((line = br.readLine()) != null) {
+				response.append(line + "\n");
+			}
+			return response.toString();
 		}
 	}
 
@@ -172,8 +182,13 @@ public class OkapiClient {
 		if (responseCode != 200)
 			throw new IOException(c.getResponseMessage());
 
-		try (InputStream is = c.getInputStream()) {
-			return convertStreamToString(is);
+		try ( BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "utf-8")) ) {
+			String line = null;
+			StringBuilder response = new StringBuilder();
+			while ((line = br.readLine()) != null) {
+				response.append(line + "\n");
+			}
+			return response.toString();
 		}
 	}
 
@@ -247,13 +262,6 @@ public class OkapiClient {
 			}
 		}
 		return sb;
-	}
-
-	private static String convertStreamToString(java.io.InputStream is) {
-		try (java.util.Scanner s = new java.util.Scanner(is)) {
-			s.useDelimiter("\\A");
-			return s.hasNext() ? s.next() : "";
-		}
 	}
 
 	private static ObjectMapper mapper = new ObjectMapper();
