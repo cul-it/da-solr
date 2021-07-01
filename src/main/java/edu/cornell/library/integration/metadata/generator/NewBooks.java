@@ -108,8 +108,7 @@ public class NewBooks implements SolrFieldGenerator {
 				}
 			}
 		if ( acquisitionDate == null && bib.instance != null && bib.instance.containsKey("catalogedDate"))
-				acquisitionDate = Timestamp.from(Instant.parse(
-						((String)bib.instance.get("catalogedDate")).replace("+00:00","Z")));
+				acquisitionDate = Timestamp.valueOf(((String)bib.instance.get("catalogedDate")));
 
 		if ( acquisitionDate == null ) return vals;
 
