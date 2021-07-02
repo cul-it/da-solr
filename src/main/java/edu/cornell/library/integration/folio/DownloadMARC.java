@@ -41,11 +41,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 				throw new IOException("Multiple instances ("+instances.size()+") found for hrid "+id);
 			instanceId = (String) instances.get(0).get("id");
 		}
-		System.out.println(instanceId);
 		String results = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE");
 		Map<String,Object> parsedResults = mapper.readValue(results, Map.class);
 		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
-		System.out.println (mapper.writeValueAsString(parsedRecord));
 		return jsonToMarcRec((Map<String,Object>)parsedRecord.get("content"));
 	}
 
@@ -100,6 +98,7 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		return rec;
 	}
 	private static ObjectMapper mapper = new ObjectMapper();
+
 	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 
 }
