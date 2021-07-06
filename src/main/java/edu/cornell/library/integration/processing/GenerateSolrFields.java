@@ -24,6 +24,7 @@ import javax.xml.stream.XMLStreamException;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
 
@@ -85,6 +86,7 @@ class GenerateSolrFields {
 	BibChangeSummary generateSolr( MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
 			throws SQLException, IOException, XMLStreamException {
 
+		sanitizeCarriageReturnsInMarc( rec );
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(rec,this.activeGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
 				this.activeGenerators,this.tableNamePrefix,rec.bib_id,config);
@@ -136,6 +138,15 @@ class GenerateSolrFields {
 			return new BibChangeSummary(changeSummary);
 		}
 		return new BibChangeSummary(null);
+	}
+
+	private static void sanitizeCarriageReturnsInMarc(MarcRecord rec) {
+		for (ControlField f : rec.controlFields)
+			if (f.value.indexOf('\n')>-1 || f.value.indexOf('\r')>-1)
+				f.value = f.value.replaceAll("[\n\r]+", " ").trim();
+		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
+			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1)
+				sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
 	}
 
 	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData) throws IOException, XMLStreamException {
