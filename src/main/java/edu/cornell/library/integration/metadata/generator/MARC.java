@@ -19,7 +19,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class MARC implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
 	public SolrFields generateSolrFields(MarcRecord rec, Config config)
@@ -32,7 +32,7 @@ public class MARC implements SolrFieldGenerator {
 
 		SolrFields sfs = new SolrFields();
 		sfs.add(new SolrField("marc_display", rec.toString("xml")));
-		sfs.add(new SolrField("id", rec.id));
+		sfs.add(new SolrField("id", (rec.id != null)?rec.id:rec.bib_id));
 		if (rec.modifiedDate != null)
 			sfs.add(new SolrField("bibid_display", rec.id+"|"+rec.modifiedDate.substring(0, 14)));
 		else
