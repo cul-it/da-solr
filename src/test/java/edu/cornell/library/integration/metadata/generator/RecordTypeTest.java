@@ -21,7 +21,7 @@ public class RecordTypeTest {
 				"‡a 20141130 ‡b m ‡d batch ‡e lts ‡x addfast"));
 		String expected =
 		"type: Catalog\n"+
-		"source: Voyager\n";
+		"source: Folio\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
@@ -32,7 +32,7 @@ public class RecordTypeTest {
 				"‡a 20050809 ‡b o ‡d str1 ‡e lts ‡h PUBLIC SERVICES SHADOW RECORD"));
 		String expected =
 		"type: Shadow\n"+
-		"source: Voyager\n";
+		"source: Folio\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
@@ -46,7 +46,7 @@ public class RecordTypeTest {
 		rec.marcHoldings.add(hRec);
 		String expected =
 		"type: Shadow\n"+
-		"source: Voyager\n";
+		"source: Folio\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }
