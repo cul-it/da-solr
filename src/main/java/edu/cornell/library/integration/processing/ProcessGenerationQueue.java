@@ -194,6 +194,7 @@ public class ProcessGenerationQueue {
 						v = new Versions(getModificationTimestamp( instance ));
 						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
 						rec.instance = instance;
+						rec.bib_id = (String)instance.get("hrid");
 						rec.folioHoldings =
 								folio.queryAsList("/holdings-storage/holdings", "instanceId=="+instanceId);
 						Map<String,Timestamp> holdingTimestamps = new HashMap<>();
