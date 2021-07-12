@@ -74,6 +74,7 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fieldContent.get("subfields");
 					TreeSet<Subfield> processedSubfields = new TreeSet<>();
 					for (Map<String,Object> subfield : subfields) {
+						if ( subfield.isEmpty() ) continue;
 						String code = subfield.keySet().iterator().next();
 						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
 								Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
