@@ -1,14 +1,18 @@
 package edu.cornell.library.integration.metadata.support;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
@@ -28,10 +32,84 @@ public class CallNumber {
 	private List<Sort> sortCandidates = new ArrayList<>();
 	private Set<Classification> classes = new LinkedHashSet<>();
 	private SolrFields sfs = new SolrFields();
+	private static ReferenceData callNumberTypes = null;
 
 	public CallNumber () {
 		
 	}
+	public CallNumber (OkapiClient okapi) throws IOException {
+		if ( callNumberTypes == null )
+			callNumberTypes = new ReferenceData(okapi,"/call-number-types","name");
+	}
+
+	public void tabulateCallNumber( Map<String,Object> holding ) {
+
+		String callNumberPrefix = null, callNumber = null, callNumberSuffix = null, sortVal = null;
+		if ( holding.containsKey("callNumberPrefix") )
+			callNumberPrefix = (String)holding.get("callNumberPrefix");
+		if ( holding.containsKey("callNumber") )
+			callNumber = (String)holding.get("callNumber");
+		if ( holding.containsKey("callNumberSuffix") )
+			callNumberSuffix = (String)holding.get("callNumberSuffix");
+		if ( callNumberPrefix == null &&
+				( callNumber == null || callNumber.equalsIgnoreCase("No Call Number")))
+			return;
+		if ( callNumberSuffix != null && ! callNumberSuffix.isEmpty() ) {
+			if ( callNumber != null )
+				callNumber = callNumber + " " + callNumberSuffix;
+			this.sfs.add(new SolrField(search,callNumberSuffix));
+		}
+		String cn2 = callNumber;
+		if ( callNumber != null && ! callNumber.isEmpty() ) {
+			sortVal = callNumber;
+			this.sfs.add(new SolrField(search,callNumber));
+			if ( callNumberPrefix != null && ! callNumberPrefix.isEmpty() )
+				this.sfs.add(new SolrField(search,callNumberPrefix+" "+callNumber));
+			if (callNumber.toLowerCase().startsWith("thesis ")) {
+				cn2 = callNumber.substring(7);
+				sortVal = cn2;
+				this.sfs.add(new SolrField(search,cn2));
+			}
+		}
+		boolean isLC = true;
+		if ( holding.containsKey("callNumberTypeId") ) {
+			String callNumberType = callNumberTypes.getName((String)holding.get("callNumberTypeId"));
+			if ( callNumberType != null && ! callNumberType.equals("Library of Congress classification"))
+				isLC = false;
+		}
+
+		int initialLetterCount = 0;
+		while ( cn2.length() > initialLetterCount) {
+			if ( Character.isLetter(cn2.charAt(initialLetterCount)) )
+				initialLetterCount++;
+			else
+				break;
+		}
+
+		if (initialLetterCount > 3) {
+			isLC = false;
+		}
+
+		if (sortVal != null)
+			this.sortCandidates.add( new Sort( sortVal, isLC, true ) );
+
+		if ( ! isLC ) return;
+
+		if (cn2.length() > initialLetterCount) {
+			int initialNumberOffset = initialLetterCount;
+			for ( ; initialNumberOffset < cn2.length() ; initialNumberOffset++) {
+				Character c = cn2.charAt(initialNumberOffset);
+				if (! Character.isDigit(c) && ! c.equals('.'))
+					break;
+			}
+			this.classes.add(new Classification(
+					cn2.substring(0,initialLetterCount).toUpperCase(),
+					cn2.substring(initialLetterCount, initialNumberOffset)));
+		} else
+			this.classes.add(new Classification(cn2.substring(0,initialLetterCount).toUpperCase(),""));
+		return;
+	}
+
 
 	public void tabulateCallNumber( DataField f ) {
 
