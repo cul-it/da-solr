@@ -46,13 +46,13 @@ public class ProcessHeadingsQueue {
 						("DELETE FROM headingsQueue WHERE id = ?");
 						) {
 			SolrHeadingBlock.SUBJECT.setBlockQuery( current.prepareStatement(
-					"SELECT subject_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
+					"SELECT subject_solr_fields FROM processedMarcData WHERE bib_id = ?"));
 			SolrHeadingBlock.AUTHORTITLE.setBlockQuery( current.prepareStatement(
-					"SELECT authortitle_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
+					"SELECT authortitle_solr_fields FROM processedMarcData WHERE bib_id = ?"));
 			SolrHeadingBlock.SERIES.setBlockQuery( current.prepareStatement(
-					"SELECT series_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
+					"SELECT series_solr_fields FROM processedMarcData WHERE bib_id = ?"));
 			SolrHeadingBlock.TITLECHANGE.setBlockQuery( current.prepareStatement(
-					"SELECT titlechange_solr_fields FROM solrFieldsData WHERE bib_id = ?"));
+					"SELECT titlechange_solr_fields FROM processedMarcData WHERE bib_id = ?"));
 
 			while(true) {
 				// Identify Bib and Generator blocks to update headings for
