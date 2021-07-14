@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -260,13 +261,18 @@ class GenerateSolrFields {
 			pstmt.setString(parameterIndex++, recordVersions);
 			for (Generator gen : activeGenerators) {
 				BibGeneratorData data = newValuesMap.get(gen);
-				pstmt.setString(parameterIndex++, data.marcSegment);
+				pstmt.setString(parameterIndex++, data.inputHash);
 				pstmt.setString(parameterIndex++, data.solrSegment);
 				pstmt.setTimestamp(parameterIndex++, data.solrGenDate);
 			}
 			pstmt.executeUpdate();
 		}
 		
+	}
+	private static String crc32(String marcSegment) {
+		CRC32 crc32 = new CRC32();
+		crc32.update(marcSegment.getBytes());
+		return String.format("[CRC32:%d]", crc32.getValue());
 	}
 	private static String sql = null;
 
@@ -294,7 +300,8 @@ class GenerateSolrFields {
 					for ( Generator gen : activeGenerators) {
 						String genName = gen.name().toLowerCase();
 						BibGeneratorData d = new BibGeneratorData(
-								rs.getString(genName+"_marc_segment"),
+								null,
+								rs.getString(genName+"_marc_segment"),//TODO rename field to input_hash
 								rs.getString(genName+"_solr_fields"),
 								rs.getTimestamp(genName+"_solr_fields_gen_date"));
 						allData.put(gen,d);
@@ -305,7 +312,7 @@ class GenerateSolrFields {
 		}
 
 		// No pre-existing data exists
-		BibGeneratorData d = new BibGeneratorData( null, null, null );
+		BibGeneratorData d = new BibGeneratorData( null, null, null, null );
 		for ( Generator gen : activeGenerators )
 			allData.put(gen,d);
 		return allData;
@@ -331,10 +338,11 @@ class GenerateSolrFields {
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
 		String marcSegment = recChunk.toString();
+		String inputHash = crc32( marcSegment );
 		Status marcStatus;
-		if  (origData.marcSegment == null)
+		if  (origData.inputHash == null)
 			marcStatus = Status.NEW;
-		else if (marcSegment.equals(origData.marcSegment))
+		else if (inputHash.equals(origData.inputHash))
 			marcStatus = Status.UNCHANGED;
 		else
 			marcStatus = Status.CHANGED;
@@ -365,7 +373,8 @@ class GenerateSolrFields {
 			e.printStackTrace();
 			return null;
 		}
-		BibGeneratorData newData = new BibGeneratorData( marcSegment, solrFields, Timestamp.valueOf(now) );
+		BibGeneratorData newData = new BibGeneratorData(
+				marcSegment, inputHash, solrFields, Timestamp.valueOf(now) );
 		newData.oldData = origData;
 		newData.marcStatus = marcStatus;
 		newData.solrStatus = (origData.solrSegment == null) ? Status.NEW :
@@ -474,6 +483,7 @@ class GenerateSolrFields {
 	}
 	private static class BibGeneratorData {
 		final String marcSegment;
+		final String inputHash;
 		final String solrSegment;
 		final Timestamp solrGenDate;
 		Status marcStatus = null;
@@ -481,8 +491,9 @@ class GenerateSolrFields {
 		Generator gen = null;
 		BibGeneratorData oldData = null;
 		boolean triggerHeadingsUpdate = false;
-		public BibGeneratorData( String marcSegment, String solrSegment, Timestamp solrGenDate) {
+		public BibGeneratorData( String marcSegment, String inputHash, String solrSegment, Timestamp solrGenDate) {
 			this.marcSegment = marcSegment;
+			this.inputHash = inputHash;
 			this.solrSegment = solrSegment;
 			this.solrGenDate = solrGenDate;
 		}
