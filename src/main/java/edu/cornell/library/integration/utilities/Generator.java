@@ -29,7 +29,7 @@ public enum Generator { // NO_UCD
 	RECORDTYPE(  RecordType.class ),
 	RECORDBOOST( RecordBoost.class ),
 	OTHERIDS(    OtherIDs.class ),
-	HOLDINGS(    CallNumber.class);
+	CALLNUMBER(  CallNumber.class);
 
 	public SolrFieldGenerator getInstance() { return this.generator; }
 
