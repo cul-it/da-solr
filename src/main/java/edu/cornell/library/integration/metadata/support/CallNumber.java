@@ -59,18 +59,20 @@ public class CallNumber {
 				callNumber = callNumber + " " + callNumberSuffix;
 			this.sfs.add(new SolrField(search,callNumberSuffix));
 		}
+
+		if ( callNumber == null || callNumber.isEmpty() ) return;
+
 		String cn2 = callNumber;
-		if ( callNumber != null && ! callNumber.isEmpty() ) {
-			sortVal = callNumber;
-			this.sfs.add(new SolrField(search,callNumber));
-			if ( callNumberPrefix != null && ! callNumberPrefix.isEmpty() )
-				this.sfs.add(new SolrField(search,callNumberPrefix+" "+callNumber));
-			if (callNumber.toLowerCase().startsWith("thesis ")) {
-				cn2 = callNumber.substring(7);
-				sortVal = cn2;
-				this.sfs.add(new SolrField(search,cn2));
-			}
+		sortVal = callNumber;
+		this.sfs.add(new SolrField(search,callNumber));
+		if ( callNumberPrefix != null && ! callNumberPrefix.isEmpty() )
+			this.sfs.add(new SolrField(search,callNumberPrefix+" "+callNumber));
+		if (callNumber.toLowerCase().startsWith("thesis ")) {
+			cn2 = callNumber.substring(7);
+			sortVal = cn2;
+			this.sfs.add(new SolrField(search,cn2));
 		}
+
 		boolean isLC = true;
 		if ( holding.containsKey("callNumberTypeId") ) {
 			String callNumberType = callNumberTypes.getName((String)holding.get("callNumberTypeId"));
