@@ -86,6 +86,10 @@ public class ProcessGenerationQueue {
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
 						("SELECT bib_id, visit_date FROM processedMarcData ORDER BY visit_date LIMIT 1000");
+				PreparedStatement instanceByHrid = current.prepareStatement
+						("SELECT * FROM instanceFolio WHERE hrid = ?");
+				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
+						"SELECT * FROM holdingFolio WHERE instanceHrid = ?");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
@@ -177,14 +181,20 @@ public class ProcessGenerationQueue {
 							rec.marcHoldings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
 
 					} else if ( folio != null ) {
-						List<Map<String,Object>> instances = folio.queryAsList("/instance-storage/instances", "hrid=="+bib);
-						if ( instances.isEmpty() ) {
+						String instanceId = null;
+						instanceByHrid.setString(1, String.valueOf(bib));
+						try ( ResultSet rs1 = instanceByHrid.executeQuery() ) {
+							while (rs1.next()) {
+								instanceId = rs1.getString("id");
+								instance = mapper.readValue( rs1.getString("content"), Map.class);
+							}
+						}
+
+						if ( instance == null ) {
 							System.out.println("Instance hrid absent from Folio: "+bib);
 							IndexingUtilities.queueBibDelete(current, String.valueOf(bib));
 							continue BIB;
 						}
-						instance = instances.get(0);
-						String instanceId = (String) instance.get("id");
 						if ( ! instance.containsKey("source")
 								|| ! ((String)instance.get("source")).equals("MARC") ) {
 							System.out.printf("Ignoring non-MARC instances [%s/%s]\n", bib,instanceId);
@@ -195,8 +205,12 @@ public class ProcessGenerationQueue {
 						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
 						rec.instance = instance;
 						rec.bib_id = (String)instance.get("hrid");
-						rec.folioHoldings =
-								folio.queryAsList("/holdings-storage/holdings", "instanceId=="+instanceId);
+						holdingsByInstanceHrid.setString(1, String.valueOf(bib));
+						rec.folioHoldings = new ArrayList<>();
+						try (ResultSet rs = holdingsByInstanceHrid.executeQuery() ) {
+							while (rs.next())
+								rec.folioHoldings.add(mapper.readValue(rs.getString("content"),Map.class));
+						}
 						Map<String,Timestamp> holdingTimestamps = new HashMap<>();
 						for ( Map<String,Object> holding : rec.folioHoldings ) {
 							Timestamp t = getModificationTimestamp( holding );
