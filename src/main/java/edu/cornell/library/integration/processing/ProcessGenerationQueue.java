@@ -130,7 +130,7 @@ public class ProcessGenerationQueue {
 					continue;
 				}
 
-				allForBibStmt.setInt(1,bib);
+				allForBibStmt.setString(1,String.valueOf(bib));
 				List<String> recordChanges = new ArrayList<>();
 				Set<Integer> queueIds = new HashSet<>();
 				Timestamp minChangeDate = null;
