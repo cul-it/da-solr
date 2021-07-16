@@ -183,10 +183,10 @@ public class ProcessGenerationQueue {
 					} else if ( folio != null ) {
 						String instanceId = null;
 						instanceByHrid.setString(1, String.valueOf(bib));
-						try ( ResultSet rs1 = instanceByHrid.executeQuery() ) {
-							while (rs1.next()) {
-								instanceId = rs1.getString("id");
-								instance = mapper.readValue( rs1.getString("content"), Map.class);
+						try ( ResultSet rs = instanceByHrid.executeQuery() ) {
+							while (rs.next()) {
+								instanceId = rs.getString("id");
+								instance = mapper.readValue( rs.getString("content"), Map.class);
 							}
 						}
 
@@ -198,7 +198,6 @@ public class ProcessGenerationQueue {
 						if ( ! instance.containsKey("source")
 								|| ! ((String)instance.get("source")).equals("MARC") ) {
 							System.out.printf("Ignoring non-MARC instances [%s/%s]\n", bib,instanceId);
-							IndexingUtilities.queueBibDelete(current, String.valueOf(bib));
 							continue BIB;
 						}
 						v = new Versions(getModificationTimestamp( instance ));
