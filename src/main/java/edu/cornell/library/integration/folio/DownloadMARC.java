@@ -1,12 +1,18 @@
 package edu.cornell.library.integration.folio;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.Normalizer;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,28 +30,72 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 
 	@Override public void setConfig(Config config) { this.config = config; }
 
+	@SuppressWarnings("resource")
 	@Override
 	public MarcRecord getMarc(RecordType type, String id) throws SQLException, IOException, InterruptedException {
 		if (! type.equals(RecordType.BIBLIOGRAPHIC) )
 			throw new IllegalArgumentException(
 					String.format("Folio only contains Bibliographic MARC. Request for (%s, %s) invalid\n",type,id));
-		OkapiClient okapi = this.config.getOkapi("Folio");
-		// /source-storage/records/a8e22ecf-ee59-4ef8-95a0-40155a4ac100/formatted?idType=INSTANCE
-		String instanceId;
-		if ( id.length() > 30 ) 
+		Connection inventory = this.config.getDatabaseConnection("Current");
+		String instanceId = null;
+		String instanceHrid = null;
+		if ( id.length() > 30 ) {
 			instanceId = id;
-		else {
-			List<Map<String,Object>> instances = okapi.queryAsList("/instance-storage/instances", "hrid=="+id);
-			if ( instances.isEmpty() ) throw new IOException ("Instance not found (hrid:"+id+").");
-			if ( instances.size() > 1 )
-				throw new IOException("Multiple instances ("+instances.size()+") found for hrid "+id);
-			instanceId = (String) instances.get(0).get("id");
+			if ( instanceHridById == null )
+				instanceHridById = inventory.prepareStatement(
+						"SELECT hrid FROM instanceFolio WHERE id = ?");
+			instanceHridById.setString(1,instanceId);
+			try ( ResultSet rs = instanceHridById.executeQuery() ) {
+				while (rs.next()) instanceHrid = rs.getString(1);
+			}
+			if (instanceHrid == null) {
+				System.out.printf("instance %s not in instanceFolio\n", instanceId); return null;
+			}
+		} else {
+			instanceHrid = id;
 		}
-		String results = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE");
-		Map<String,Object> parsedResults = mapper.readValue(results, Map.class);
-		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
-		return jsonToMarcRec((Map<String,Object>)parsedRecord.get("content"));
+		if ( bibByInstanceHrid == null )
+				bibByInstanceHrid = inventory.prepareStatement(
+						"SELECT * FROM bibFolio WHERE instanceHrid = ?");
+		bibByInstanceHrid.setString(1, instanceHrid);
+		String marc = null;
+		try ( ResultSet rs = bibByInstanceHrid.executeQuery() ) {
+			while (rs.next()) marc = rs.getString("content").replaceAll("\\s*\\n\\s*", " ");
+		}
+		if ( marc != null ) return jsonToMarcRec( marc );
+
+		if ( instanceId == null ) {
+			if ( instanceIdByHrid == null )
+				instanceIdByHrid = inventory.prepareStatement(
+						"SELECT id FROM instanceFolio WHERE hrid = ?");
+			instanceIdByHrid.setString(1,instanceHrid);
+			try ( ResultSet rs = instanceIdByHrid.executeQuery() ) {
+				while (rs.next()) instanceId = rs.getString(1);
+			}
+			if (instanceId == null) {
+				System.out.printf("instance %s not in instanceFolio\n", instanceHrid); return null;
+			}
+		}
+
+		OkapiClient okapi = this.config.getOkapi("Folio");
+		marc = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE");
+		Matcher m = modDateP.matcher(marc.replaceAll("\\s*\\n\\s*", " "));
+		Timestamp marcTimestamp = (m.matches())
+				? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
+		if ( replaceBib == null )
+			replaceBib = inventory.prepareStatement(
+					"REPLACE INTO bibFolio ( instanceHrid, moddate, content ) VALUES (?,?,?)");
+		replaceBib.setString(1, instanceHrid);
+		replaceBib.setTimestamp(2, marcTimestamp);
+		replaceBib.setString(3, marc);
+		replaceBib.executeUpdate();
+		return jsonToMarcRec( marc );
 	}
+	private static PreparedStatement instanceHridById = null;
+	private static PreparedStatement bibByInstanceHrid = null;
+	private static PreparedStatement instanceIdByHrid = null;
+	private static PreparedStatement replaceBib = null;
+	static Pattern modDateP = Pattern.compile("^.*\"updatedDate\" *: *\"([^\"]+)\".*$");
 
 	@Override
 	public List<MarcRecord> retrieveRecordsByIdRange(RecordType type, Integer from, Integer to)
@@ -54,7 +104,10 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		return null;
 	}
 
-	public MarcRecord jsonToMarcRec( Map<String,Object> jsonStructure ) {
+	public MarcRecord jsonToMarcRec( String marcResponse ) throws IOException {
+		Map<String,Object> parsedResults = mapper.readValue(marcResponse, Map.class);
+		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
+		Map<String,Object> jsonStructure = (Map<String,Object>)parsedRecord.get("content");
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.leader = (String) jsonStructure.get("leader");
 		List<Map<String,Object>> fields = (List<Map<String, Object>>) jsonStructure.get("fields");
