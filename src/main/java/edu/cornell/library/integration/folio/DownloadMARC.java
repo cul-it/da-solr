@@ -78,8 +78,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		}
 
 		OkapiClient okapi = this.config.getOkapi("Folio");
-		marc = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE");
-		Matcher m = modDateP.matcher(marc.replaceAll("\\s*\\n\\s*", " "));
+		marc = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE")
+				.replaceAll("\\s*\\n\\s*", " ");
+		Matcher m = modDateP.matcher(marc);
 		Timestamp marcTimestamp = (m.matches())
 				? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
 		if ( replaceBib == null )
