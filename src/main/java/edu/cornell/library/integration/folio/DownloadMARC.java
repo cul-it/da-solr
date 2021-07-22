@@ -30,23 +30,22 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 
 	@Override public void setConfig(Config config) { this.config = config; }
 
-	@SuppressWarnings("resource")
 	@Override
 	public MarcRecord getMarc(RecordType type, String id) throws SQLException, IOException, InterruptedException {
 		if (! type.equals(RecordType.BIBLIOGRAPHIC) )
 			throw new IllegalArgumentException(
 					String.format("Folio only contains Bibliographic MARC. Request for (%s, %s) invalid\n",type,id));
-		Connection inventory = this.config.getDatabaseConnection("Current");
+		try ( Connection inventory = this.config.getDatabaseConnection("Current") ) {
 		String instanceId = null;
 		String instanceHrid = null;
 		if ( id.length() > 30 ) {
 			instanceId = id;
-			if ( instanceHridById == null )
-				instanceHridById = inventory.prepareStatement(
-						"SELECT hrid FROM instanceFolio WHERE id = ?");
-			instanceHridById.setString(1,instanceId);
-			try ( ResultSet rs = instanceHridById.executeQuery() ) {
-				while (rs.next()) instanceHrid = rs.getString(1);
+			try ( PreparedStatement instanceHridById = inventory.prepareStatement(
+						"SELECT hrid FROM instanceFolio WHERE id = ?") ) {
+				instanceHridById.setString(1,instanceId);
+				try ( ResultSet rs = instanceHridById.executeQuery() ) {
+					while (rs.next()) instanceHrid = rs.getString(1);
+				}
 			}
 			if (instanceHrid == null) {
 				System.out.printf("instance %s not in instanceFolio\n", instanceId); return null;
@@ -54,23 +53,23 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		} else {
 			instanceHrid = id;
 		}
-		if ( bibByInstanceHrid == null )
-				bibByInstanceHrid = inventory.prepareStatement(
-						"SELECT * FROM bibFolio WHERE instanceHrid = ?");
-		bibByInstanceHrid.setString(1, instanceHrid);
 		String marc = null;
-		try ( ResultSet rs = bibByInstanceHrid.executeQuery() ) {
-			while (rs.next()) marc = rs.getString("content").replaceAll("\\s*\\n\\s*", " ");
+		try ( PreparedStatement bibByInstanceHrid = inventory.prepareStatement(
+						"SELECT * FROM bibFolio WHERE instanceHrid = ?") ) {
+			bibByInstanceHrid.setString(1, instanceHrid);
+			try ( ResultSet rs = bibByInstanceHrid.executeQuery() ) {
+				while (rs.next()) marc = rs.getString("content").replaceAll("\\s*\\n\\s*", " ");
+			}
 		}
 		if ( marc != null ) return jsonToMarcRec( marc );
 
 		if ( instanceId == null ) {
-			if ( instanceIdByHrid == null )
-				instanceIdByHrid = inventory.prepareStatement(
-						"SELECT id FROM instanceFolio WHERE hrid = ?");
-			instanceIdByHrid.setString(1,instanceHrid);
-			try ( ResultSet rs = instanceIdByHrid.executeQuery() ) {
-				while (rs.next()) instanceId = rs.getString(1);
+			try ( PreparedStatement instanceIdByHrid = inventory.prepareStatement(
+						"SELECT id FROM instanceFolio WHERE hrid = ?") ) {
+				instanceIdByHrid.setString(1,instanceHrid);
+				try ( ResultSet rs = instanceIdByHrid.executeQuery() ) {
+					while (rs.next()) instanceId = rs.getString(1);
+				}
 			}
 			if (instanceId == null) {
 				System.out.printf("instance %s not in instanceFolio\n", instanceHrid); return null;
@@ -83,19 +82,16 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		Matcher m = modDateP.matcher(marc);
 		Timestamp marcTimestamp = (m.matches())
 				? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
-		if ( replaceBib == null )
-			replaceBib = inventory.prepareStatement(
-					"REPLACE INTO bibFolio ( instanceHrid, moddate, content ) VALUES (?,?,?)");
-		replaceBib.setString(1, instanceHrid);
-		replaceBib.setTimestamp(2, marcTimestamp);
-		replaceBib.setString(3, marc);
-		replaceBib.executeUpdate();
+		try ( PreparedStatement replaceBib = inventory.prepareStatement(
+					"REPLACE INTO bibFolio ( instanceHrid, moddate, content ) VALUES (?,?,?)") ){
+			replaceBib.setString(1, instanceHrid);
+			replaceBib.setTimestamp(2, marcTimestamp);
+			replaceBib.setString(3, marc);
+			replaceBib.executeUpdate();
+		}
 		return jsonToMarcRec( marc );
+		}
 	}
-	private static PreparedStatement instanceHridById = null;
-	private static PreparedStatement bibByInstanceHrid = null;
-	private static PreparedStatement instanceIdByHrid = null;
-	private static PreparedStatement replaceBib = null;
 	static Pattern modDateP = Pattern.compile("^.*\"updatedDate\" *: *\"([^\"]+)\".*$");
 
 	@Override
