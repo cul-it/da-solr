@@ -140,4 +140,19 @@ public class LanguageTest {
 		"language_articles_t: das dem den der des die ein eine einem einen einer eines\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
+
+	@Test
+	public void emptyLanguageNote()
+			throws ClassNotFoundException, SQLException, IOException {
+		// This language note isn't empty, precisely, but due to the wrong subfield code
+		// being used, it has no note data to display.
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "11093160";
+		rec.dataFields.add(new DataField(1,"041",'0',' ',"‡c e ‡b eng"));
+		rec.dataFields.add(new DataField(2,"546",' ',' ',"‡n Icelandic, abstracts in English."));
+		String expected =
+		"language_display: English.\n" + 
+		"language_articles_t: the a an\n";
+		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
+	}
 }

@@ -100,6 +100,7 @@ public class Language implements SolrFieldGenerator {
 			// language note
 			else if (f.mainTag.equals("546")) {
 				String value = f.concatenateSpecificSubfields("3ab");
+				if ( value.isEmpty() ) continue;
 				if (value.charAt(value.length()-1) != '.')
 					value += '.';
 				notes.add(value);
