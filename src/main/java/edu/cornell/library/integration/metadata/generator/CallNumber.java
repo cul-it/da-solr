@@ -16,14 +16,14 @@ import edu.cornell.library.integration.utilities.SolrFields;
 public class CallNumber implements SolrFieldGenerator {
 
 @Override
-public String getVersion() { return "1.0"; }
+public String getVersion() { return "1.1"; }
 
 @Override
 public List<String> getHandledFields() { return Arrays.asList("050","950","holdings"); }
 
 @Override
 public SolrFields generateSolrFields(MarcRecord rec, Config config)
-		throws ClassNotFoundException, SQLException, IOException {
+		throws SQLException, IOException {
 	edu.cornell.library.integration.metadata.support.CallNumber cn =
 			(config.isOkapiConfigured("Folio"))?
 			new edu.cornell.library.integration.metadata.support.CallNumber(config.getOkapi("Folio")):

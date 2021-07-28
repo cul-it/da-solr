@@ -46,11 +46,11 @@ public class CallNumber {
 
 		String callNumberPrefix = null, callNumber = null, callNumberSuffix = null, sortVal = null;
 		if ( holding.containsKey("callNumberPrefix") )
-			callNumberPrefix = (String)holding.get("callNumberPrefix");
+			callNumberPrefix = ((String)holding.get("callNumberPrefix")).replaceAll("\\s", " ").trim();
 		if ( holding.containsKey("callNumber") )
-			callNumber = (String)holding.get("callNumber");
+			callNumber = ((String)holding.get("callNumber")).replaceAll("\\s", " ").trim();
 		if ( holding.containsKey("callNumberSuffix") )
-			callNumberSuffix = (String)holding.get("callNumberSuffix");
+			callNumberSuffix = ((String)holding.get("callNumberSuffix")).replaceAll("\\s", " ").trim();
 		if ( callNumberPrefix == null &&
 				( callNumber == null || callNumber.equalsIgnoreCase("No Call Number")))
 			return;
