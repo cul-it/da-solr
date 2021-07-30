@@ -19,10 +19,10 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.0"; }
+	public String getVersion() { return "1.1"; }
 
 	@Override
-	public List<String> getHandledFields() { return Arrays.asList("948","holdings"); }
+	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
 
 	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) {
@@ -43,7 +43,14 @@ public class RecordType implements SolrFieldGenerator {
 							isShadow = true;
 
 		SolrFields sfs = new SolrFields();
-		sfs.add(new SolrField("type",isShadow?"Shadow":"Catalog"));
+		if (isShadow)
+			sfs.add(new SolrField("type","Shadow"));
+		else if ( rec.instance != null &&
+				(( rec.instance.containsKey("discoverySuppress") && (boolean) rec.instance.get("discoverySuppress") )
+				|| ( rec.instance.containsKey("staffSuppress") && (boolean) rec.instance.get("staffSuppress") )) )
+			sfs.add(new SolrField("type","Suppressed Bib"));
+		else
+			sfs.add(new SolrField("type","Catalog"));
 		sfs.add(new SolrField("source","Folio"));
 		return sfs;
 	}
