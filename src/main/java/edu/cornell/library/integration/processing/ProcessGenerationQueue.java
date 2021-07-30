@@ -142,7 +142,7 @@ public class ProcessGenerationQueue {
 						Timestamp recordDate = rs.getTimestamp("record_date");
 						String cause = rs.getString("cause");
 						recordChanges.add(cause+" "+recordDate);
-						if ( cause.contains("ALL" ))
+						if ( cause.startsWith("ALL" ))
 							forcedGenerators = EnumSet.allOf(Generator.class);
 						else
 							forcedGenerators.addAll(
