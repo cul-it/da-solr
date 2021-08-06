@@ -199,6 +199,13 @@ public class ProcessGenerationQueue {
 						if ( ! instance.containsKey("source")
 								|| ! ((String)instance.get("source")).equals("MARC") ) {
 							System.out.printf("Ignoring non-MARC instances [%s/%s]\n", bib,instanceId);
+							for ( int id : queueIds) {
+								deqStmt.setInt(1, id);
+								deqStmt.addBatch();
+							}
+							unlockStmt.setInt(1, lockId);
+							deqStmt.executeBatch();
+							unlockStmt.execute();							
 							continue BIB;
 						}
 						v = new Versions(getModificationTimestamp( instance ));
