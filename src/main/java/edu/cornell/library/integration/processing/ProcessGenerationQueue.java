@@ -118,7 +118,7 @@ public class ProcessGenerationQueue {
 				// Identify Bib to generate data for
 				Integer bib = null;
 				Integer priority = null;
-				stmt.execute("LOCK TABLES generationQueue WRITE, processedMarcData WRITE, processLock WRITE");
+				stmt.execute("LOCK TABLES processLock WRITE");
 				try (ResultSet rs = nextBibStmt.executeQuery()){
 					while (rs.next()) { bib = rs.getInt(1); priority = rs.getInt(2); }
 				}
