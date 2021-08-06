@@ -60,21 +60,20 @@ public class ProcessGenerationQueue {
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
 		try (	Connection current = config.getDatabaseConnection("Current");
-				Statement stmt = current.createStatement();
 				PreparedStatement nextBibStmt = current.prepareStatement
 						("SELECT generationQueue.hrid, priority" +
 						 "  FROM generationQueue "+
-						 "  LEFT JOIN processLock ON generationQueue.hrid = processLock.bib_id"+
-						 " WHERE processLock.date IS NULL"+
+						 "  LEFT JOIN bibLock ON generationQueue.hrid = bibLock.hrid"+
+						 " WHERE bibLock.date IS NULL"+
 						 " ORDER BY priority LIMIT 1");
 				PreparedStatement allForBibStmt = current.prepareStatement
 						("SELECT id, cause, record_date FROM generationQueue WHERE hrid = ?");
 				PreparedStatement createLockStmt = current.prepareStatement
-						("INSERT INTO processLock (bib_id) values (?)",Statement.RETURN_GENERATED_KEYS);
+						("INSERT INTO bibLock (hrid) values (?)",Statement.RETURN_GENERATED_KEYS);
 				PreparedStatement unlockStmt = current.prepareStatement
-						("DELETE FROM processLock WHERE id = ?");
+						("DELETE FROM bibLock WHERE id = ?");
 				PreparedStatement oldLocksCleanupStmt = current.prepareStatement
-						("DELETE FROM processLock WHERE date < DATE_SUB( NOW(), INTERVAL 5 MINUTE)");
+						("DELETE FROM bibLock WHERE date < DATE_SUB( NOW(), INTERVAL 5 MINUTE)");
 				PreparedStatement deqStmt = current.prepareStatement
 						("DELETE FROM generationQueue WHERE id = ?");
 				PreparedStatement deqByBibStmt = current.prepareStatement
@@ -116,21 +115,19 @@ public class ProcessGenerationQueue {
 
 			BIB: do {
 				// Identify Bib to generate data for
-				Integer bib = null;
+				String bib = null;
 				Integer priority = null;
-				stmt.execute("LOCK TABLES processLock WRITE");
 				try (ResultSet rs = nextBibStmt.executeQuery()){
-					while (rs.next()) { bib = rs.getInt(1); priority = rs.getInt(2); }
+					while (rs.next()) { bib = rs.getString(1); priority = rs.getInt(2); }
 				}
 
 				if (bib == null || priority == null) {
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
 					oldLocksCleanupStmt.executeUpdate();
-					stmt.execute("UNLOCK TABLES");
 					continue;
 				}
 
-				allForBibStmt.setString(1,String.valueOf(bib));
+				allForBibStmt.setString(1,bib);
 				List<String> recordChanges = new ArrayList<>();
 				Set<Integer> queueIds = new HashSet<>();
 				Timestamp minChangeDate = null;
@@ -154,12 +151,16 @@ public class ProcessGenerationQueue {
 						queueIds.add(id);
 					}
 				}
-				createLockStmt.setInt(1,bib);
-				createLockStmt.executeUpdate();
+				createLockStmt.setString(1,bib);
+				try {
+					createLockStmt.executeUpdate();
+				} catch (SQLException e) {
+					System.out.println("Tried to lock instance "+bib);
+					continue BIB;
+				}
 				try ( ResultSet generatedKeys = createLockStmt.getGeneratedKeys() ) {
 					if (generatedKeys.next()) lockId = generatedKeys.getInt(1);
 				}
-				stmt.execute("UNLOCK TABLES");
 				System.out.println("** "+bib+": "+recordChanges.toString());
 
 				Versions v = null;
@@ -169,20 +170,20 @@ public class ProcessGenerationQueue {
 				try {
 
 					if ( voyager != null ) {
-						v = new Versions( getBibRecordModDate( voyager, bib) );
+						v = new Versions( getBibRecordModDate( voyager, Integer.valueOf(bib) ) );
 						if (v.bib == null) {
 							throw new IOException("Record appears to be deleted. Dequeuing. "+bib);
 						}
-						v.mfhds = getMhfdRecordModDates(voyager,bib);
+						v.mfhds = getMhfdRecordModDates(voyager,Integer.valueOf(bib));
 	
 						// Retrieve records
-						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, String.valueOf(bib));
+						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib);
 						for (String mfhdId : v.mfhds.keySet())
 							rec.marcHoldings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
 
 					} else if ( folio != null ) {
 						String instanceId = null;
-						instanceByHrid.setString(1, String.valueOf(bib));
+						instanceByHrid.setString(1, bib);
 						try ( ResultSet rs = instanceByHrid.executeQuery() ) {
 							while (rs.next()) {
 								instanceId = rs.getString("id");
@@ -192,7 +193,7 @@ public class ProcessGenerationQueue {
 
 						if ( instance == null ) {
 							System.out.println("Instance hrid absent from Folio: "+bib);
-							IndexingUtilities.queueBibDelete(current, String.valueOf(bib));
+							IndexingUtilities.queueBibDelete(current, bib);
 							continue BIB;
 						}
 						if ( ! instance.containsKey("source")
@@ -204,7 +205,7 @@ public class ProcessGenerationQueue {
 						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
 						rec.instance = instance;
 						rec.bib_id = (String)instance.get("hrid");
-						holdingsByInstanceHrid.setString(1, String.valueOf(bib));
+						holdingsByInstanceHrid.setString(1, bib);
 						rec.folioHoldings = new ArrayList<>();
 						try (ResultSet rs = holdingsByInstanceHrid.executeQuery() ) {
 							while (rs.next())
@@ -222,11 +223,11 @@ public class ProcessGenerationQueue {
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
 					e.printStackTrace();
-					deqByBibStmt.setInt(1, bib);
+					deqByBibStmt.setString(1, bib);
 					deqByBibStmt.executeUpdate();
-					bibRecsVoyUpdateStmt.setInt(1, bib);
+					bibRecsVoyUpdateStmt.setInt(1, Integer.valueOf(bib));
 					bibRecsVoyUpdateStmt.executeUpdate();
-					queueDeleteStmt.setInt(1, bib);
+					queueDeleteStmt.setString(1, bib);
 					queueDeleteStmt.executeUpdate();
 					continue;
 				}
@@ -304,8 +305,8 @@ public class ProcessGenerationQueue {
 			PreparedStatement generationQueueStmt) throws SQLException {
 
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
-			while(rs.next())
-				AddToQueue.add2Queue(generationQueueStmt, rs.getInt(1), 8, rs.getTimestamp(2), "Age of Record");
+			while(rs.next()) AddToQueue.add2Queue(
+					generationQueueStmt,rs.getString(1),8,rs.getTimestamp(2),"Age of Record");
 		}
 		
 	}

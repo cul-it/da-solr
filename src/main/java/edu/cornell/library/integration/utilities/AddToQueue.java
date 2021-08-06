@@ -39,8 +39,8 @@ public class AddToQueue {
 		stmt.addBatch();
 	}
 
-	public static void add2Queue(PreparedStatement stmt, int bib_id, int priority, Timestamp mod_date, String cause) throws SQLException {
-		stmt.setInt(1, bib_id);
+	public static void add2Queue(PreparedStatement stmt, String instanceHrid, int priority, Timestamp mod_date, String cause) throws SQLException {
+		stmt.setString(1, instanceHrid);
 		stmt.setString(2, cause);
 		stmt.setInt(3, priority);
 		stmt.setTimestamp(4, mod_date);

@@ -57,8 +57,8 @@ public class IdentifyNewAnnexAccessions {
 				System.out.println(query);
 				try ( ResultSet rs = stmt.executeQuery(query) ) {
 					while ( rs.next() ) {
-						System.out.println("Queueing "+rs.getInt(1));
-						AddToQueue.add2Queue(availQ, rs.getInt(1), 8, new Timestamp(date.getTimeInMillis()),"AnnexFlips");
+						System.out.println("Queueing "+rs.getString(1));
+						AddToQueue.add2Queue(availQ, rs.getString(1), 8, new Timestamp(date.getTimeInMillis()),"AnnexFlips");
 						bibCount++;
 					}
 				}

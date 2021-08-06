@@ -49,7 +49,7 @@ public class IdentifyChangedHathiLinks {
 				String sourceId = fields[6];
 				if ( ! source.equals("COO") ) continue;
 				for ( String bibId : sourceId.split(",") ) {
-					AddToQueue.add2Queue(addToGenQ, Integer.valueOf(bibId), 6,
+					AddToQueue.add2Queue(addToGenQ, bibId, 6,
 							new Timestamp(date.getTimeInMillis()), "HATHILINKS updated");
 					System.out.printf( "Queued b%s: %s\n",bibId,fields[11]);
 				}
