@@ -40,7 +40,12 @@ public class RecordBoost implements SolrFieldGenerator {
 		return sfs;
 	}
 
+	// TODO This feature wasn't working because Solr no longer supports the boost method
+	// It will need to be fixed at some point.
 	private static Map<String,Integer> importBoostedIds() {
+		return new HashMap<>();
+	}
+/*	private static Map<String,Integer> importBoostedIds() {
 		URL url = ClassLoader.getSystemResource("boosted_records.txt");
 		Map<String,Integer> boostedIds = new HashMap<>();
 		try {
@@ -66,6 +71,6 @@ public class RecordBoost implements SolrFieldGenerator {
 			return boostedIds;
 		}
 		return boostedIds;
-	}
+	}*/
 
 }
