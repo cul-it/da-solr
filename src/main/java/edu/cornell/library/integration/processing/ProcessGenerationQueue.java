@@ -54,8 +54,7 @@ public class ProcessGenerationQueue {
 	public ProcessGenerationQueue(Config config)
 			throws SQLException, JsonProcessingException, IOException, XMLStreamException, InterruptedException {
 
-		config.setDatabasePoolsize("Current", 3);
-		config.setDatabasePoolsize("Voy", 3);
+		config.setDatabasePoolsize("Current", 5);
 		GenerateSolrFields gen = new GenerateSolrFields( EnumSet.allOf(Generator.class),"processedMarc" );
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
