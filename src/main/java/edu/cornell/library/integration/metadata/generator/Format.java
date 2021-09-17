@@ -15,6 +15,7 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
@@ -40,15 +41,15 @@ public class Format implements SolrFieldGenerator {
 			"was,rare","was,ranx");
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "2"; }
 
 	@Override
 	public List<String> getHandledFields() {
-		return Arrays.asList("leader","007","008","245","502","653","948","holdings");
+		return Arrays.asList("leader","007","008","245","502","653","948","holdings","instance");
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config ) {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws IOException {
 
 		String record_type =          rec.leader.substring(6,7);
 		String bibliographic_level =  rec.leader.substring(7,8);
@@ -63,14 +64,16 @@ public class Format implements SolrFieldGenerator {
 
 		List<String> sf653as = new ArrayList<>();
 		List<String> sf245hs = new ArrayList<>();
-		List<String> sf948fs = new ArrayList<>();
+		List<String> statCodes = new ArrayList<>();
 		Boolean isThesis = false;
 		for (DataField f : rec.dataFields)
 			switch (f.tag) {
-			case "245":	for (Subfield sf : f.subfields)	if (sf.code.equals('h')) sf245hs.add(sf.value);	break;
+			case "245":	for (Subfield sf : f.subfields)
+				if (sf.code.equals('h')) sf245hs.add(sf.value);	break;
 			case "502":	isThesis = true; break;
-			case "653":	for (Subfield sf : f.subfields)	if (sf.code.equals('a')) sf653as.add(sf.value); break;
-			case "948":	for (Subfield sf : f.subfields) if (sf.code.equals('f')) sf948fs.add(sf.value);
+			case "653":	for (Subfield sf : f.subfields)
+				if (sf.code.equals('a')) sf653as.add(sf.value); break;
+			case "948":	for (Subfield sf : f.subfields) if (sf.code.equals('f')) statCodes.add(sf.value);
 			}
 
 		Collection<String> loccodes = new HashSet<>();
@@ -93,6 +96,9 @@ public class Format implements SolrFieldGenerator {
 				}
 		}
 
+		if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") )
+			statCodes.addAll(StatisticalCodes.dereferenceStatCodes(config, (List<String>)rec.instance.get("statisticalCodeIds")));
+
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;
 		String format = null;
@@ -103,14 +109,14 @@ public class Format implements SolrFieldGenerator {
 		Iterator<String> i = sf245hs.iterator();
 		while (i.hasNext())
 			if (i.next().toLowerCase().contains("[electronic resource]")) {
-				Iterator<String> j = sf948fs.iterator();
+				Iterator<String> j = statCodes.iterator();
 				while (j.hasNext())
 					if (j.next().toLowerCase().equals("j"))
 						format = "Journal/Periodical";
 			}
 
 
-		i = sf948fs.iterator();
+		i = statCodes.iterator();
 		while (i.hasNext()) {
 			String val = i.next();
 			if ((val.equals("fd")) || (val.equals("webfeatdb"))) {
@@ -171,13 +177,13 @@ public class Format implements SolrFieldGenerator {
 			} else if (record_type.equals("k")) {
 				format = "Image";
 			} else if (record_type.equals("m")) {
-				if (sf948fs.contains("evideo"))
+				if (statCodes.contains("evideo"))
 					format = "Video";
-				else if (sf948fs.contains("eaudio"))
+				else if (statCodes.contains("eaudio"))
 					format = "Musical Recording";
-				else if (sf948fs.contains("escore"))
+				else if (statCodes.contains("escore"))
 					format = "Musical Score";
-				else if (sf948fs.contains("emap"))
+				else if (statCodes.contains("emap"))
 					format = "Map";
 				else
 					format = "Computer File";
@@ -198,7 +204,8 @@ public class Format implements SolrFieldGenerator {
 		}
 		if (format == null) {
 			if (record_type.equals("t"))
-				format = "Manuscript/Archive"; // This includes all bibliographic_levels but 'a' captured above. MANUSCRIPT
+				 // This includes all bibliographic_levels but 'a' captured above. MANUSCRIPT
+				format = "Manuscript/Archive";
 			else if (category.equals("q"))
 				format = "Musical Score";
 			else if (category.equals("v"))
