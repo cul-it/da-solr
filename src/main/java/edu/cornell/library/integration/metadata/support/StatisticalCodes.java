@@ -4,18 +4,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.folio.ReferenceData;
-import edu.cornell.library.integration.utilities.Config;
 
 public class StatisticalCodes {
 	
 	private static ReferenceData codes = null;
 
-	public static List<String> dereferenceStatCodes ( Config config, List<String> codeUuids ) throws IOException {
+	public static void initializeCodes(OkapiClient folio ) throws IOException {
+		if ( codes == null ) codes = new ReferenceData(folio, "/statistical-codes", "code") ;
+	}
+
+	public static List<String> dereferenceStatCodes ( List<String> codeUuids ) {
 		if ( codes == null ) {
-			if ( config.isOkapiConfigured("Folio") )
-				codes = new ReferenceData(config.getOkapi("Folio"), "/statistical-codes", "code") ;
-			else return null;
+			System.out.println("Statistical Codes uninitiated.");
+			System.exit(1);
 		}
 		List<String> dereferencedCodes = new ArrayList<>();
 		for (String uuid : codeUuids) {

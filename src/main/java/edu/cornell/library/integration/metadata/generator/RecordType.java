@@ -6,6 +6,7 @@ import java.util.List;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
@@ -19,7 +20,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.1"; }
+	public String getVersion() { return "1.2"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -49,6 +50,9 @@ public class RecordType implements SolrFieldGenerator {
 				(( rec.instance.containsKey("discoverySuppress") && (boolean) rec.instance.get("discoverySuppress") )
 				|| ( rec.instance.containsKey("staffSuppress") && (boolean) rec.instance.get("staffSuppress") )) )
 			sfs.add(new SolrField("type","Suppressed Bib"));
+		else if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") 
+			&& StatisticalCodes.dereferenceStatCodes((List<String>)rec.instance.get("statisticalCodeIds")).contains("Delete") )
+			sfs.add(new SolrField("type","Delete"));
 		else
 			sfs.add(new SolrField("type","Catalog"));
 		sfs.add(new SolrField("source","Folio"));

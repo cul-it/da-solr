@@ -32,6 +32,7 @@ import edu.cornell.library.integration.folio.Locations;
 import edu.cornell.library.integration.folio.Locations.Location;
 import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
@@ -104,6 +105,7 @@ public class ProcessGenerationQueue {
 					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
 					System.exit(1);
 				}
+				StatisticalCodes.initializeCodes(folio);
 			} else if ( config.isDatabaseConfigured("Voy"))
 				voyager = config.getDatabaseConnection("Voy");
 			else {

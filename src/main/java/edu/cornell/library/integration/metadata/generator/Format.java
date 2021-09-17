@@ -49,7 +49,7 @@ public class Format implements SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) throws IOException {
 
 		String record_type =          rec.leader.substring(6,7);
 		String bibliographic_level =  rec.leader.substring(7,8);
@@ -97,7 +97,7 @@ public class Format implements SolrFieldGenerator {
 		}
 
 		if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") )
-			statCodes.addAll(StatisticalCodes.dereferenceStatCodes(config, (List<String>)rec.instance.get("statisticalCodeIds")));
+			statCodes.addAll(StatisticalCodes.dereferenceStatCodes((List<String>)rec.instance.get("statisticalCodeIds")));
 
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;
