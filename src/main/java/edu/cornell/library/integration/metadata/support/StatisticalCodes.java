@@ -18,8 +18,10 @@ public class StatisticalCodes {
 			else return null;
 		}
 		List<String> dereferencedCodes = new ArrayList<>();
-		for (String uuid : codeUuids)
-			dereferencedCodes.add( codes.getName(uuid) );
+		for (String uuid : codeUuids) {
+			String code = codes.getName(uuid);
+			if ( code != null ) dereferencedCodes.add( code );
+		}
 		return dereferencedCodes;
 	}
 }
