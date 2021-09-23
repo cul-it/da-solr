@@ -154,7 +154,7 @@ public class CallNumber {
 				break;
 		}
 
-		if (initialLetterCount > 3) {
+		if (initialLetterCount > 3 || initialLetterCount == 0) {
 			isLC = false;
 		}
 
