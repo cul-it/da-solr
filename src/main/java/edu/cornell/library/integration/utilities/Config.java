@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.utilities;
 
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,7 +52,6 @@ public class Config {
 			return null;
 		if (db.isEmpty())
 			return null;
-		list.add("databaseDriver" + db);
 		list.add("databaseURL" + db);
 		list.add("databaseUser" + db);
 		list.add("databasePass" + db);
@@ -180,7 +178,6 @@ public class Config {
 	}
 
 	public boolean isDatabaseConfigured(String id) {
-		if ( ! this.values.containsKey("databaseDriver"+id) ) return false;
 		if ( ! this.values.containsKey("databaseURL"+id) ) return false;
 		if ( ! this.values.containsKey("databaseUser"+id) ) return false;
 		if ( ! this.values.containsKey("databasePass"+id) ) return false;
@@ -192,13 +189,6 @@ public class Config {
 	 * @throws SQLException
 	 */
 	public Connection getDatabaseConnection(String id) throws SQLException {
-		String driver = this.values.get("databaseDriver" + id);
-		if (driver == null) {
-			System.out.println("Value not found for databaseDriver" + id);
-			for (String key : this.values.keySet())
-				System.out.println(key + ": " + this.values.get(key));
-			System.exit(1);
-		}
 		String url = this.values.get("databaseURL" + id);
 		if (url == null) {
 			System.out.println("Value not found for databaseURL" + id);
@@ -228,11 +218,6 @@ public class Config {
 		if (pooling) {
 			if (!this.databases.containsKey(id)) {
 				ComboPooledDataSource cpds = new ComboPooledDataSource();
-				try {
-					cpds.setDriverClass(driver);
-				} catch (PropertyVetoException e) {
-					e.printStackTrace();
-				}
 				cpds.setJdbcUrl(url);
 //		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
 				cpds.setUser(user);
@@ -251,7 +236,7 @@ public class Config {
 				this.databases.put(id, cpds);
 			}
 			Connection c = this.databases.get(id).getConnection();
-			if (driver != null && driver.contains("mysql")) {
+			if (url != null && url.contains("mysql")) {
 				try (Statement stmt = c.createStatement()) {
 					stmt.executeUpdate("SET NAMES utf8");
 				}
@@ -260,7 +245,7 @@ public class Config {
 		}
 
 		Connection c = DriverManager.getConnection(url, user, pass);
-		if (driver != null && driver.contains("mysql")) {
+		if (url != null && url.contains("mysql")) {
 			try (Statement stmt = c.createStatement()) {
 				stmt.executeUpdate("SET NAMES utf8");
 			}
