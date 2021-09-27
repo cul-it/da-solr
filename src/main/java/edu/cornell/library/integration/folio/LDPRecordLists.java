@@ -54,12 +54,12 @@ public class LDPRecordLists {
 		try ( 
 				PreparedStatement toEmpty = current.prepareStatement("DELETE FROM bibLDP");
 				PreparedStatement to = current.prepareStatement(
-						"INSERT INTO bibLDP ( instanceHrid, moddate ) VALUES (?,?)");
+						"REPLACE INTO bibLDP ( instanceHrid, moddate ) VALUES (?,?)");
 				PreparedStatement from = ldp.prepareStatement(
 						"SELECT instance_hrid, updated_date"
 						+" FROM srs_records "
 						+"WHERE instance_hrid > ? AND state = 'ACTUAL' "
-						+"ORDER BY instance_hrid LIMIT 10000")){
+						+"ORDER BY instance_hrid, updated_date LIMIT 10000")){
 
 			toEmpty.executeUpdate();
 			syphonData( from, to, true );
