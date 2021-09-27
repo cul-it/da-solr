@@ -159,6 +159,14 @@ public class LDPRecordLists {
 				int i = 0;
 				while ( fromRS.next() ) {
 					cursor = fromRS.getString(1);
+					{
+						Matcher m = numberP.matcher(cursor);
+						if ( m.matches() ) {
+							done = true;
+							System.out.println("hrid "+cursor+" is invalid.");
+							break;
+						}
+					}
 					to.setString(1, cursor);
 					String date = fromRS.getString(2);
 					if ( srs ) {
@@ -183,4 +191,5 @@ public class LDPRecordLists {
 	private static DateTimeFormatter srsRecDT =
 			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssx");
 	private static Pattern srsRecDTP = Pattern.compile("(.*)\\.\\d*\\+00");
+	private static Pattern numberP = Pattern.compile("\\d+");
 }
