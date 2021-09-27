@@ -59,7 +59,7 @@ public class LDPRecordLists {
 						"SELECT instance_hrid, updated_date"
 						+" FROM srs_records "
 						+"WHERE instance_hrid > ? AND state = 'ACTUAL' "
-						+"ORDER BY instance_hrid LIMIT 10")){
+						+"ORDER BY instance_hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
 			syphonData( from, to, true );
