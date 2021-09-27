@@ -42,7 +42,7 @@ public class LDPRecordLists {
 						+" FROM inventory_instances WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
@@ -60,7 +60,7 @@ public class LDPRecordLists {
 						+"  AND hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, srsRecDT );
 		}
 	}
 
@@ -76,7 +76,7 @@ public class LDPRecordLists {
 						+" FROM inventory_holdings WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
@@ -92,7 +92,7 @@ public class LDPRecordLists {
 						+" FROM inventory_items WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
@@ -108,7 +108,7 @@ public class LDPRecordLists {
 						+" FROM circulation_loans WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
@@ -124,7 +124,7 @@ public class LDPRecordLists {
 						+" FROM po_purchase_orders WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
@@ -140,11 +140,13 @@ public class LDPRecordLists {
 						+" FROM po_lines WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to );
+			syphonData( from, to, isoDT );
 		}
 	}
 
-	private static void syphonData(PreparedStatement from, PreparedStatement to) throws SQLException {
+	private static void syphonData(
+			PreparedStatement from, PreparedStatement to, DateTimeFormatter format)
+					throws SQLException {
 		from.setFetchSize(1_000);
 		String cursor = "0";
 		boolean done = false;
@@ -156,7 +158,7 @@ public class LDPRecordLists {
 				while ( fromRS.next() ) {
 					cursor = fromRS.getString(1);
 					to.setString(1, cursor);
-					to.setTimestamp(2,Timestamp.from(isoDT.parse(fromRS.getString(2),Instant::from)));
+					to.setTimestamp(2,Timestamp.from(format.parse(fromRS.getString(2),Instant::from)));
 					to.addBatch();
 					if (++i % 1000 == 0) {
 						to.executeBatch();
@@ -170,4 +172,6 @@ public class LDPRecordLists {
 	}
 
 	private static DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME;
+	private static DateTimeFormatter srsRecDT =
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSx");
 }
