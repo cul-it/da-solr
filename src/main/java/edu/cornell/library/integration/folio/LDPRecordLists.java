@@ -56,10 +56,10 @@ public class LDPRecordLists {
 				PreparedStatement to = current.prepareStatement(
 						"INSERT INTO bibLDP ( instanceHrid, moddate ) VALUES (?,?)");
 				PreparedStatement from = ldp.prepareStatement(
-						"SELECT i.hrid, s.updated_date"
-						+" FROM inventory_instances i, srs_records s "
-						+"WHERE i.id = s.instance_id"
-						+"  AND hrid > ? ORDER BY hrid LIMIT 10000")){
+						"SELECT instance_hrid, updated_date"
+						+" FROM srs_records "
+						+"WHERE instance_hrid > ? AND state = 'ACTUAL' "
+						+"ORDER BY instance_hrid LIMIT 10")){
 
 			toEmpty.executeUpdate();
 			syphonData( from, to, true );
