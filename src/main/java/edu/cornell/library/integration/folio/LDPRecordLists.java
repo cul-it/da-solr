@@ -51,7 +51,7 @@ public class LDPRecordLists {
 						+" FROM inventory_instances WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, true );
 		}
 	}
 
@@ -69,7 +69,7 @@ public class LDPRecordLists {
 						+"ORDER BY instance_hrid, updated_date LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, true );
+			syphonData( from, to, true, true );
 		}
 	}
 
@@ -85,7 +85,7 @@ public class LDPRecordLists {
 						+" FROM inventory_holdings WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, true );
 		}
 	}
 
@@ -101,7 +101,7 @@ public class LDPRecordLists {
 						+" FROM inventory_items WHERE hrid > ? ORDER BY hrid LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, true );
 		}
 	}
 
@@ -117,7 +117,7 @@ public class LDPRecordLists {
 						+" FROM circulation_loans WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, false );
 		}
 	}
 
@@ -133,7 +133,7 @@ public class LDPRecordLists {
 						+" FROM po_purchase_orders WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, false );
 		}
 	}
 
@@ -149,12 +149,12 @@ public class LDPRecordLists {
 						+" FROM po_lines WHERE id > ? ORDER BY id LIMIT 10000")){
 
 			toEmpty.executeUpdate();
-			syphonData( from, to, false );
+			syphonData( from, to, false, false );
 		}
 	}
 
 	private static void syphonData(
-			PreparedStatement from, PreparedStatement to, Boolean srs)
+			PreparedStatement from, PreparedStatement to, Boolean srs, Boolean numericId)
 					throws SQLException {
 		from.setFetchSize(1_000);
 		String cursor = "0";
@@ -166,7 +166,7 @@ public class LDPRecordLists {
 				int i = 0;
 				while ( fromRS.next() ) {
 					cursor = fromRS.getString(1);
-					{
+					if ( numericId ){
 						Matcher m = numberP.matcher(cursor);
 						if ( ! m.matches() ) {
 							done = true;
