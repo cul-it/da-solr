@@ -22,12 +22,19 @@ public class LDPRecordLists {
 		try (Connection ldp = config.getDatabaseConnection("LDP");
 			  Connection current = config.getDatabaseConnection("Current")) {
 
+			System.out.println("process bibs");
 			populateBibLDPList(current,ldp);
+			System.out.println("process instances");
 			populateInstanceLDPList(current,ldp);
+			System.out.println("process holdings");
 			populateHoldingLDPList(current,ldp);
+			System.out.println("process loans");
 			populateLoanLDPList(current,ldp);
+			System.out.println("process order");
 			populateOrderLDPList(current,ldp);
+			System.out.println("process order lines");
 			populateOrderLineLDPList(current,ldp);
+			System.out.println("process items");
 			populateItemLDPList(current,ldp);
 		}
 	}
@@ -161,7 +168,7 @@ public class LDPRecordLists {
 					cursor = fromRS.getString(1);
 					{
 						Matcher m = numberP.matcher(cursor);
-						if ( m.matches() ) {
+						if ( ! m.matches() ) {
 							done = true;
 							System.out.println("hrid "+cursor+" is invalid.");
 							break;
