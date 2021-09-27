@@ -181,6 +181,6 @@ public class LDPRecordLists {
 
 	private static DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME;
 	private static DateTimeFormatter srsRecDT =
-			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSx");
-	private static Pattern srsRecDTP = Pattern.compile("(.*\\.\\d{3})\\d*\\+00");
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssx");
+	private static Pattern srsRecDTP = Pattern.compile("(.*)\\.\\d*\\+00");
 }
