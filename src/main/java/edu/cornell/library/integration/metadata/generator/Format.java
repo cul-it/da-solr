@@ -97,7 +97,8 @@ public class Format implements SolrFieldGenerator {
 		}
 
 		if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") )
-			statCodes.addAll(StatisticalCodes.dereferenceStatCodes((List<String>)rec.instance.get("statisticalCodeIds")));
+			statCodes.addAll(StatisticalCodes.dereferenceStatCodes(
+					(List<String>)rec.instance.get("statisticalCodeIds")));
 
 		Boolean isDatabase = false;
 		Boolean isMicroform = false;

@@ -33,6 +33,7 @@ import edu.cornell.library.integration.folio.Locations.Location;
 import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
 import edu.cornell.library.integration.utilities.AddToQueue;
 import edu.cornell.library.integration.utilities.Config;
@@ -56,7 +57,11 @@ public class ProcessGenerationQueue {
 			throws SQLException, JsonProcessingException, IOException, XMLStreamException, InterruptedException {
 
 		config.setDatabasePoolsize("Current", 5);
-		GenerateSolrFields gen = new GenerateSolrFields( EnumSet.allOf(Generator.class),"processedMarc" );
+		GenerateSolrFields gen = new GenerateSolrFields(
+				EnumSet.allOf(Generator.class),
+				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
+						Generator.LANGUAGE, Generator.MARC, Generator.URL), "processedMarc" );
+
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
 		try (	Connection current = config.getDatabaseConnection("Current");
@@ -101,11 +106,12 @@ public class ProcessGenerationQueue {
 				Locations locations = new Locations(folio);
 				Location online = locations.getByCode("serv,remo");
 				if (online == null ) {
-					System.out.println("Something has changed with the onlne location.");
+					System.out.println("Something has changed with the online location.");
 					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
 					System.exit(1);
 				}
 				StatisticalCodes.initializeCodes(folio);
+				SupportReferenceData.initialize(folio);
 			} else if ( config.isDatabaseConfigured("Voy"))
 				voyager = config.getDatabaseConnection("Voy");
 			else {
@@ -197,35 +203,29 @@ public class ProcessGenerationQueue {
 							IndexingUtilities.queueBibDelete(current, bib);
 							continue BIB;
 						}
-						if ( ! instance.containsKey("source")
-								|| ! ((String)instance.get("source")).equals("MARC") ) {
-							System.out.printf("Ignoring non-MARC instances [%s/%s]\n", bib,instanceId);
-							for ( int id : queueIds) {
-								deqStmt.setInt(1, id);
-								deqStmt.addBatch();
-							}
-							unlockStmt.setInt(1, lockId);
-							deqStmt.executeBatch();
-							unlockStmt.execute();							
-							continue BIB;
-						}
+
 						v = new Versions(getModificationTimestamp( instance ));
 						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
-						rec.instance = instance;
-						rec.bib_id = (String)instance.get("hrid");
+						List<Map<String,Object>> folioHoldings = new ArrayList<>();
 						holdingsByInstanceHrid.setString(1, bib);
-						rec.folioHoldings = new ArrayList<>();
 						try (ResultSet rs = holdingsByInstanceHrid.executeQuery() ) {
 							while (rs.next())
-								rec.folioHoldings.add(mapper.readValue(rs.getString("content"),Map.class));
+								folioHoldings.add(mapper.readValue(rs.getString("content"),Map.class));
 						}
 						Map<String,Timestamp> holdingTimestamps = new HashMap<>();
-						for ( Map<String,Object> holding : rec.folioHoldings ) {
+						for ( Map<String,Object> holding : folioHoldings ) {
 							Timestamp t = getModificationTimestamp( holding );
 							String holdingHrid = (String)holding.get("id");
 							holdingTimestamps.put(holdingHrid, t);
 						}
 						v.mfhds = holdingTimestamps;
+						if ( rec != null ) {
+							rec.instance = instance;
+							rec.bib_id = (String)instance.get("hrid");
+							rec.folioHoldings = folioHoldings;
+						} else {
+							instance.put("holdings", folioHoldings);
+						}
 
 					}
 				} catch (IOException e) {
@@ -240,6 +240,7 @@ public class ProcessGenerationQueue {
 					continue;
 				}
 
+				forcedGenerators.add(Generator.URL);
 				BibChangeSummary solrChanges = gen.generateSolr(
 						rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges.changedSegments != null) {

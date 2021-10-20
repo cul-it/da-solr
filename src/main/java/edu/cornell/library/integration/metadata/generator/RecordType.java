@@ -2,6 +2,7 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -59,4 +60,11 @@ public class RecordType implements SolrFieldGenerator {
 		return sfs;
 	}
 
+	@Override
+	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+		SolrFields sfs = new SolrFields();
+		sfs.add(new SolrField("type","Non-MARC Instance"));
+		sfs.add(new SolrField("source","Folio"));
+		return sfs;
+	}
 }

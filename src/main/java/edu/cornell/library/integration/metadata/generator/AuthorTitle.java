@@ -15,12 +15,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataFieldSet;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.HeadingType;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
@@ -49,7 +56,7 @@ public class AuthorTitle implements SolrFieldGenerator {
 	public boolean providesHeadingBrowseData() { return true; }
 
 	@Override
-	// This field generator uses currently untracked authority data, so should be regenerated more often.
+	// This field generator uses currently untracked authority data, so should be run more often.
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
@@ -79,7 +86,7 @@ public class AuthorTitle implements SolrFieldGenerator {
 				List<DataField> fields = fs.getFields();
 				if ( fields.size() == 2
 						&& fields.get(0).mainTag.equals(fields.get(1).mainTag)) {
-					sfs.addAll( NameUtils.combinedRomanNonRomanAuthorEntry( config, fs, ctsValsList, true ) );
+					sfs.addAll( NameUtils.combinedRomanNonRomanAuthorEntry(config,fs,ctsValsList,true) );
 					author_vern = ctsValsList.get(0).author;
 					author = ctsValsList.get(1).author;
 					authorDisplayCount++;
@@ -313,6 +320,101 @@ public class AuthorTitle implements SolrFieldGenerator {
 		return solrFields;
 	}
 
+	@Override
+	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+		SolrFields sfs = new SolrFields();
+		String primaryAuthorDisplay = null;
+		String primaryAuthorName = null;
+		if (instance.containsKey("contributors")) {
+			List<Map<String,Object>> contributors =
+					(List<Map<String,Object>>) instance.get("contributors");
+			boolean primaryFound = false;
+			for ( Map<String,Object> contributor : contributors ) {
+				if ( contributor == null || ! contributor.containsKey("name") )
+					continue;
+				String name = (String)contributor.get("name");
+				sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm(name) ));
+				String type = ( contributor.containsKey("contributorTypeText") )
+					? (String)contributor.get("contributorTypeText") : null;
+				String displayName = (type == null)?name:name+", "+type;
+
+				Map<String,Object> authorJson = new LinkedHashMap<>();
+				authorJson.put("name1", displayName);
+				authorJson.put("search1", name);
+				HeadingType nameType = ( contributor.containsKey("contributorNameTypeId") )
+						? HeadingType.byOrdering(SupportReferenceData.contributorNameTypes.getName(
+								(String)contributor.get("contributorNameTypeId"))) : null;
+				if ( nameType != null ) {
+					authorJson.put("type", nameType.toString());
+					switch ( nameType ) {
+					case PERSNAME:
+						sfs.add(new SolrField("author_pers_filing",getFilingForm( name ))); break;
+					case CORPNAME:
+						sfs.add(new SolrField("author_corp_filing",getFilingForm( name ))); break;
+					case EVENT:
+						sfs.add(new SolrField("author_event_filing",getFilingForm( name ))); break;
+					}
+				}
+				if ( type != null ) authorJson.put("relator", type);
+
+				try {
+					if ( contributor.containsKey("primary")
+							&& ((Boolean)contributor.get("primary")).equals(true)) {
+						if ( ! primaryFound ) {
+							primaryAuthorDisplay = displayName;
+							sfs.add(new SolrField("author_display",primaryAuthorDisplay));
+							sfs.add(new SolrField("author_t",primaryAuthorDisplay));
+							sfs.add(new SolrField("author_json",mapper.writeValueAsString(authorJson)));
+							primaryAuthorName = name;
+							sfs.add(new SolrField("author_sort",getFilingForm(primaryAuthorName)));
+							primaryFound = true;
+						} else {
+							sfs.add(new SolrField("author_addl_display",displayName));
+							sfs.add(new SolrField("author_addl_json",mapper.writeValueAsString(authorJson)));
+							sfs.add(new SolrField("author_addl_t",displayName));
+						}
+					} else {
+						sfs.add(new SolrField("author_addl_display",displayName));
+						sfs.add(new SolrField("author_addl_json",mapper.writeValueAsString(authorJson)));
+						sfs.add(new SolrField("author_addl_t",displayName));
+					}
+				} catch (JsonProcessingException e) {
+					e.printStackTrace(); // There's about no reason for this to happen.
+				}
+			}
+		}
+		String title = (instance.containsKey("title"))?(String)instance.get("title"):null;
+		String sortTitle = (instance.containsKey("indexTitle"))?(String)instance.get("indexTitle"):title;
+		if ( title != null ) {
+			sfs.add(new SolrField("fulltitle_display",title));
+			sfs.add(new SolrField("title_display",title));
+			sfs.add(new SolrField("title_t",title));
+			sfs.add(new SolrField("title_exact",standardizeApostrophes(title)));
+			sfs.add(new SolrField("title_sms_compat_display",limitStringToGSMChars(title)));
+		}
+		if ( sortTitle != null ) {
+			sfs.add(new SolrField("title_sort",getFilingForm(sortTitle)));
+			if ( ! sortTitle.equals(title) ) {
+				sfs.add(new SolrField("title_t",sortTitle));
+				sfs.add(new SolrField("title_exact",standardizeApostrophes(sortTitle)));
+			}
+			// title alpha buckets
+			String alpha1Title = sortTitle.replaceAll("\\W", "").replaceAll("[^a-z]", "1");
+			switch (Math.min(2,alpha1Title.length())) {
+			case 2:
+				sfs.add(new SolrField("title_2letter_s",alpha1Title.substring(0,2))); //NO break intended
+			case 1:
+				sfs.add(new SolrField("title_1letter_s",alpha1Title.substring(0,1))); break;
+			}
+		}
+		if ( primaryAuthorName != null && sortTitle != null ) {
+			String authorTitle = primaryAuthorName + " | " + sortTitle;
+			sfs.add(new SolrField("authortitle_facet",authorTitle));
+			sfs.add(new SolrField("authortitle_filing",getFilingForm(authorTitle)));
+		}
+		return sfs;
+	}
+
 	private static List<SolrField> mergeAuthorDisplayValues(List<SolrField> sfs) {
 		List<SolrField> newSfs = new ArrayList<>();
 		String authorDisplayValue = null;
@@ -327,17 +429,19 @@ public class AuthorTitle implements SolrFieldGenerator {
 
 	private static String removeDuplicateTitleData( String vernTitle, String mainTitle) {
 
+		String vernMod = vernTitle;
+
 		Boolean isRTL = false; //Right to left script
 		// If this is a RTL value, the RTL open and close markers will interfere with comparison.
-		if (vernTitle.startsWith(RLE_openRTL)) {
-			vernTitle = vernTitle.substring(RLE_openRTL.length(), vernTitle.length() - PDF_closeRTL.length());
+		if (vernMod.startsWith(RLE_openRTL)) {
+			vernMod = vernMod.substring(RLE_openRTL.length(),vernMod.length()-PDF_closeRTL.length());
 			isRTL = true;
 		}
 		String[] mainTitleParts = mainTitle.split(" *= *");
-		String[] vernTitleParts = vernTitle.split(" *= *");
+		String[] vernTitleParts = vernMod.split(" *= *");
 		Collection<String> newVernTitleParts = new HashSet<>();
 		if ( (mainTitleParts.length == 1) && (vernTitleParts.length == 1))
-			return (mainTitleParts[0].equals(vernTitleParts[0])) ? null : vernTitle;
+			return (mainTitleParts[0].equals(vernTitleParts[0])) ? null : vernMod;
 
 		VERN: for (String vernPart : vernTitleParts) {
 			for (String mainPart: mainTitleParts)
@@ -354,7 +458,8 @@ public class AuthorTitle implements SolrFieldGenerator {
 			}
 			return newVernTitle;
 		}
-		return vernTitle;
+		return vernMod;
 	}
+	static ObjectMapper mapper = new ObjectMapper();
 
 }

@@ -15,6 +15,7 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
@@ -127,6 +128,71 @@ public class Language implements SolrFieldGenerator {
 		for (String articlesForLang : articles)
 			vals.add(new SolrField("language_articles_t",articlesForLang));
 
+		return vals;
+	}
+
+	@Override
+	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+
+		List<String> display = new ArrayList<>();
+		List<String> facet = new ArrayList<>();
+		List<String> notes = new ArrayList<>();
+		Set<String> articles = new LinkedHashSet<>();
+
+		if ( instance.containsKey("languages") ) {
+			List<String> langs = (List<String>) instance.get("languages");
+			for ( String lang : langs ) {
+				if ( lang == null ) continue;
+				String langCode = lang.trim();
+				if ( langCode.isEmpty() || langCode.equals("|||") ) continue;
+				if ( ! codes.containsKey(langCode) ) continue;
+				Code c = codes.get(langCode);
+				if (c.equals(Code.UND) || c.equals(Code.ZXX)) continue;
+				display.add(c.getLanguageName());
+				facet.add(c.getLanguageName());
+				if ( c.getArticles() != null ) articles.add(c.getArticles());
+			}
+		}
+
+		if ( instance.containsKey("notes") ) {
+			List<Map<String,Object>> noteHashes = (List<Map<String, Object>>) instance.get("notes");
+			String languageNoteTypeId = SupportReferenceData.instanceNoteTypes.getUuid("Language note");
+			if (languageNoteTypeId == null) {
+				System.out.println("ERROR No instance note type in Folio matches 'Language note'.");
+				System.exit(1);
+			}
+			for ( Map<String,Object> note : noteHashes ) {
+				if ( note.containsKey("instanceNoteTypeId") && 
+						! languageNoteTypeId.equals((String)note.get("instanceNoteTypeId"))) continue;
+				if ( note.containsKey("staffOnly") && (boolean)note.get("staffOnly")) continue;
+				if ( note.containsKey("note") ) {
+					String value = (String) note.get("note");
+					if ( value.isEmpty() ) continue;
+					if (value.charAt(value.length()-1) != '.')
+						value += '.';
+					notes.add(value);
+					Collection<String> matches = new HashSet<>();
+					for (String language : display) {
+						if (value.contains(language))
+							matches.add(language);
+					}
+					display.removeAll(matches);
+				}
+			}
+		}
+		SolrFields vals = new SolrFields();
+		Iterator<String> i = facet.iterator();
+		while (i.hasNext()) vals.add(new SolrField("language_facet",i.next()));
+		if ( ! display.isEmpty()) {
+			List<String> tmp = new ArrayList<>();
+			tmp.add(String.join(", ",display)+'.');
+			display = tmp;
+		}
+		display.addAll(notes);
+		if (! display.isEmpty())
+			vals.add(new SolrField("language_display",String.join(" ", display)));
+		for (String articlesForLang : articles)
+			vals.add(new SolrField("language_articles_t",articlesForLang));
 		return vals;
 	}
 

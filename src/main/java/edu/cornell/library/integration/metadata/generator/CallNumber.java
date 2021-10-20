@@ -39,4 +39,20 @@ public SolrFields generateSolrFields(MarcRecord rec, Config config)
 		cn.tabulateCallNumber(h);
 	return cn.getCallNumberFields(config);
 }
+
+@Override
+public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config){
+	// generateSolrFields correctly handles folioHoldings, so we'll defer to that method
+	MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC);
+	if ( instance.containsKey("holdings") ) {
+		rec.folioHoldings = (List<Map<String, Object>>) instance.get("holdings");
+		try {
+			return generateSolrFields( rec, config );
+		} catch (SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	return null;
+}
 }

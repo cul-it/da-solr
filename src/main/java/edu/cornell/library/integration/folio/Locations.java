@@ -3,15 +3,11 @@ package edu.cornell.library.integration.folio;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -65,22 +61,6 @@ public final class Locations {
 			return _byUuid.get(uuid);
 		return null;
 	}
-
-	public static Set<String> facetValues( final Location l, String call, String holdingNote ) {
-		String lcCall = (call == null)        ? null : call.toLowerCase();
-		String lcNote = (holdingNote == null) ? null : holdingNote.toLowerCase();
-		if ( _facetsByLocation.containsKey(l) )
-			for (FacetMapRule rule : _facetsByLocation.get(l))
-				if (( rule.call == null        || (lcCall != null && lcCall.contains( rule.call )) ) &&
-						( rule.holdingNote == null || (lcNote != null && lcNote.contains( rule.holdingNote )) ) ) {
-					if ( ! rule.suppress )
-						return rule.facetValues;
-					return new LinkedHashSet<>();
-				}
-		System.out.println("Failed to map facet location for: "+l);
-		return new LinkedHashSet<>();
-	}
-
 
 	/**
 	 * Structure containing values relating to holdings location. <b>Name</b> and <b>library</b>
@@ -171,11 +151,9 @@ public final class Locations {
 
 	private static final Map<String, Location> _byCode = new HashMap<>();
 	private static final Map<String, Location> _byUuid = new HashMap<>();
-	private static final Map<Location, List<FacetMapRule>> _facetsByLocation = new HashMap<>();
 
 	private static void populateLocationMaps(final OkapiClient okapi) throws IOException {
 		Map<String,Map<String,String>> libraryPatterns = loadPatternMap("library_names.txt");
-		List<FacetMapRule> facetPatterns = loadFacetPatternMap("LocationFacetMapping.txt");
 
 		ReferenceData libraries = new ReferenceData( okapi, "/location-units/libraries", "name");
 		List<Map<String,Object>> okapiLocs = okapi.queryAsList("/locations", null, 500);
@@ -191,11 +169,6 @@ public final class Locations {
 			Location l = new Location((String)okapiLoc.get("code"), name, libraryName, hoursCode,id,primaryServicePoint);
 			_byCode.put(l.code, l);
 			_byUuid.put((String)okapiLoc.get("id"), l);
-			List<FacetMapRule> locationFacetRules = new ArrayList<>();
-			for (FacetMapRule rule : facetPatterns)
-				if (rule.displayName.equals(l.name))
-					locationFacetRules.add(rule);
-			_facetsByLocation.put(l, locationFacetRules);
 		}
 	}
 
@@ -233,59 +206,5 @@ public final class Locations {
 		}
 		return patternMap;
 	}
-
-	private static List<FacetMapRule> loadFacetPatternMap(String filename) {
-
-		List<FacetMapRule> patternMap = new ArrayList<>();
-		try (BufferedReader in = new BufferedReader(new InputStreamReader( 
-				Thread.currentThread().getContextClassLoader().getResourceAsStream(filename)))) {
-			String site;
-			while ((site = in.readLine()) != null) {
-				String[] parts = site.split("\\t", 5);
-				if (parts.length < 5)
-					continue;
-				FacetMapRule rule = new FacetMapRule(
-						parts[0],parts[1].contains("X"),parts[2].toLowerCase(),parts[3].toLowerCase(),parts[4]);
-				patternMap.add(rule);
-
-			}
-		} catch (IOException e) {
-			System.out.println("Couldn't read config file for site identifications.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return patternMap;
-	}
-
-	private static class FacetMapRule {
-
-		final String displayName;
-		final Boolean suppress;
-		final String call;
-		final String holdingNote;
-		final Set<String> facetValues;
-
-		@Override
-		public String toString() {
-			return String.format("%s (%s:%s) => %s", this.displayName, ((this.call == null)? "" : this.call),
-					((this.holdingNote == null)? "" : this.holdingNote),   String.join(" ** ", this.facetValues) );
-		}
-		public FacetMapRule( String displayName, Boolean suppress, String call, String holdingNote, String facetValue) {
-
-			this.displayName = displayName.trim().replaceAll("\"", "");
-			this.suppress    = suppress;
-			this.call  = (call.isEmpty()) ? null : call;
-			this.holdingNote = (holdingNote.isEmpty()) ? null : holdingNote;
-
-			List<String> parts = Arrays.asList(facetValue.replaceAll("\"","").split(" > "));
-			this.facetValues = new LinkedHashSet<>();
-			List<String> partsToJoin = new ArrayList<>();
-			for (int i = 0; i < parts.size(); i++) {
-				partsToJoin.add(parts.get(i));
-				this.facetValues.add( String.join(" > ",partsToJoin));
-			}
-		}
-	}
-
 
 }

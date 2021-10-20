@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import edu.cornell.library.integration.marc.ControlField;
@@ -111,5 +112,13 @@ public class MARC implements SolrFieldGenerator {
 				"961","962","963","964","965","966","967","968","969","970","971","972","973","974","975",
 				"976","977","978","979","980","981","982","983","984","985","986","987","988","989","990",
 				"991","992","993","994","995","996","997","998","999");
+	}
+
+	@Override
+	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+		SolrFields sfs = new SolrFields();
+		sfs.add(new SolrField("id", (String)instance.get("hrid")));
+		sfs.add(new SolrField("bibid_display", (String)instance.get("hrid")));
+		return sfs;
 	}
 }

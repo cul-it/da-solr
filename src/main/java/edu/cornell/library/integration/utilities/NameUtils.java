@@ -170,7 +170,8 @@ public class NameUtils {
 	}
 
 	public static List<SolrField> singleAuthorEntry(
-			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor) throws SQLException, IOException {
+			Config config, DataField f, FieldValues ctsVals, Boolean isMainAuthor)
+					throws SQLException, IOException {
 		boolean isCJK = f.getScript().equals(Script.CJK);
 
 		List<SolrField> sfs = new ArrayList<>();
@@ -193,8 +194,8 @@ public class NameUtils {
 			}
 			FieldValues itemViewDisplay =
 					FieldValues.getFieldValuesForNameAndOrTitleField(f,"abcdefghijklmnopqrstuvwxyz");
-			sfs.add(new SolrField(relation,
-					itemViewDisplay.author+" "+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
+			sfs.add(new SolrField(relation,itemViewDisplay.author+" "
+					+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
 			sfs.add(new SolrField((isCJK)?"title_uniform_t_cjk":"title_uniform_t",ctsVals.title));
 
 		} else {
@@ -235,7 +236,8 @@ public class NameUtils {
 			json.put("authorizedForm", authData.authorized);
 			final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 			mapper.writeValue(jsonstream, json);
-			sfs.add(new SolrField((isMainAuthor)?"author_json":"author_addl_json",jsonstream.toString("UTF-8")));
+			sfs.add(new SolrField((isMainAuthor)
+					?"author_json":"author_addl_json",jsonstream.toString("UTF-8")));
 
 			if (authData.authorized && authData.alternateForms != null)
 				for (final String altForm : authData.alternateForms) {

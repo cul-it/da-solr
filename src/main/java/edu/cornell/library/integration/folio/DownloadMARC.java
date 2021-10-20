@@ -61,38 +61,12 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 				while (rs.next()) marc = rs.getString("content").replaceAll("\\s*\\n\\s*", " ");
 			}
 		}
+
 		if ( marc != null ) return jsonToMarcRec( marc );
+		return null;
 
-		if ( instanceId == null ) {
-			try ( PreparedStatement instanceIdByHrid = inventory.prepareStatement(
-						"SELECT id FROM instanceFolio WHERE hrid = ?") ) {
-				instanceIdByHrid.setString(1,instanceHrid);
-				try ( ResultSet rs = instanceIdByHrid.executeQuery() ) {
-					while (rs.next()) instanceId = rs.getString(1);
-				}
-			}
-			if (instanceId == null) {
-				System.out.printf("instance %s not in instanceFolio\n", instanceHrid); return null;
-			}
-		}
-
-		OkapiClient okapi = this.config.getOkapi("Folio");
-		marc = okapi.query("/source-storage/records/"+instanceId+"/formatted?idType=INSTANCE")
-				.replaceAll("\\s*\\n\\s*", " ");
-		Matcher m = modDateP.matcher(marc);
-		Timestamp marcTimestamp = (m.matches())
-				? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
-		try ( PreparedStatement replaceBib = inventory.prepareStatement(
-					"REPLACE INTO bibFolio ( instanceHrid, moddate, content ) VALUES (?,?,?)") ){
-			replaceBib.setString(1, instanceHrid);
-			replaceBib.setTimestamp(2, marcTimestamp);
-			replaceBib.setString(3, marc);
-			replaceBib.executeUpdate();
-		}
-		return jsonToMarcRec( marc );
 		}
 	}
-	static Pattern modDateP = Pattern.compile("^.*\"updatedDate\" *: *\"([^\"]+)\".*$");
 
 	@Override
 	public List<MarcRecord> retrieveRecordsByIdRange(RecordType type, Integer from, Integer to)

@@ -34,7 +34,10 @@ public class GenerateSolrFieldsTest {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.add("catalogClass");
 		config = Config.loadConfig(requiredArgs);
-		gen = new GenerateSolrFields(	EnumSet.allOf(Generator.class), "solrGenTest" );
+		gen = new GenerateSolrFields(
+				EnumSet.allOf(Generator.class),
+				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
+						Generator.LANGUAGE, Generator.MARC, Generator.URL), "solrGenTest" );
 		gen.setUpDatabase(config);
 	}
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
@@ -53,4 +54,13 @@ public interface SolrFieldGenerator {
 	 */
 	public SolrFields generateSolrFields( MarcRecord rec, Config config )
 			throws ClassNotFoundException, SQLException, IOException;
+
+	/**
+	 * Process an instance to generate Solr fields similar to those generated through generateSolrFields.
+	 * @param instance
+	 * @return SolrFields or null for unimplemented or inapplicable generators
+	 */
+	public default SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config ) {
+		return null;
+	}
 }
