@@ -106,7 +106,8 @@ class GenerateSolrFields {
 				.map(gen -> processInstanceWithGenerator(
 						gen, instance, originalValues.get(gen), now, config))
 				.collect(Collectors.toList());
-		return summarizeAndLogChanges(newValues,(String)instance.get("hrid"),recordVersions,config);
+		return summarizeAndLogChanges(newValues,(String)instance.get("hrid"),
+				recordVersions,config, false);
 	}
 
 	BibChangeSummary generateSolr(
@@ -131,12 +132,13 @@ class GenerateSolrFields {
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
 
-		return summarizeAndLogChanges(newValues,rec.bib_id,recordVersions,config);
+		return summarizeAndLogChanges(newValues,rec.bib_id,recordVersions,config, true);
 
 	}
 
 	private BibChangeSummary summarizeAndLogChanges(
-			List<BibGeneratorData> newValues,String id,String recordVersions,Config config)
+			List<BibGeneratorData> newValues,String id,String recordVersions,
+			Config config, boolean isMarc)
 					throws IOException, SQLException, XMLStreamException {
 		List<BibGeneratorData> changedOutputs = new ArrayList<>();
 		List<BibGeneratorData> generatedNotChanged = new ArrayList<>();
@@ -164,8 +166,8 @@ class GenerateSolrFields {
 						? ("; also generated "+generatedNotChanged.size()
 						+" ("+formatBGDList(generatedNotChanged))+")":""));
 		if (changedOutputs.size() > 0 || generatedNotChanged.size() > 0)
-			pushNewFieldDataToDB(this.activeMarcGenerators,newValues,
-					this.tableNamePrefix,id,recordVersions, config);
+			pushNewFieldDataToDB(isMarc,newValues,
+					id,recordVersions,config);
 		else
 			touchBibVisitDate(this.tableNamePrefix,id, config);
 		if (changedOutputs.size() > 0) {
@@ -271,30 +273,23 @@ class GenerateSolrFields {
 		return sb.toString();
 	}
 
-	private static void pushNewFieldDataToDB(
-			EnumSet<Generator> activeGenerators,
+	private void pushNewFieldDataToDB(
+			boolean isMarc,
 			List<BibGeneratorData> newValues,
-			String tableNamePrefix,
 			String bibId,
 			String recordVersions,
 			Config config) throws SQLException {
 
-		if (sql == null) {
-			StringBuilder sbSql = new StringBuilder();
-			sbSql.append("REPLACE INTO ").append(tableNamePrefix).append("Data (");
-			sbSql.append("bib_id, record_dates, \n");
-			for (Generator gen : activeGenerators) {
-				String genName = gen.name().toLowerCase();
-				sbSql.append(genName).append("_marc_segment,\n");
-				sbSql.append(genName).append("_solr_fields,\n");
-				sbSql.append(genName).append("_solr_fields_gen_date,\n");		
-			}
-			sbSql.setCharAt(sbSql.length()-2, ')');
-			sbSql.append("VALUES ( ");
-			int questionMarksNeeded = activeGenerators.size()*3+2;
-			for (int i = 1 ; i <= questionMarksNeeded; i++) sbSql.append("?,");
-			sbSql.setCharAt(sbSql.length()-1, ')');
-			sql = sbSql.toString();
+		String sql;
+		EnumSet<Generator> generators;
+		if (isMarc) {
+			generators = this.activeMarcGenerators;
+			if (sqlMarc == null) sqlMarc = generateInsertQuery(generators);
+			sql = sqlMarc;
+		} else {
+			generators = this.activeNonMarcGenerators;
+			if (sqlNonMarc == null) sqlNonMarc = generateInsertQuery(generators);
+			sql = sqlNonMarc;
 		}
 
 		Map<Generator,BibGeneratorData> newValuesMap = new HashMap<>();
@@ -304,7 +299,7 @@ class GenerateSolrFields {
 			int parameterIndex = 1;
 			pstmt.setString(parameterIndex++, bibId);
 			pstmt.setString(parameterIndex++, recordVersions);
-			for (Generator gen : activeGenerators) {
+			for (Generator gen : generators) {
 				BibGeneratorData data = newValuesMap.get(gen);
 				pstmt.setString(parameterIndex++, data.inputHash);
 				pstmt.setString(parameterIndex++, data.solrSegment);
@@ -314,12 +309,32 @@ class GenerateSolrFields {
 		}
 		
 	}
+	private String generateInsertQuery(EnumSet<Generator> generators) {
+
+		StringBuilder sbSql = new StringBuilder();
+		sbSql.append("REPLACE INTO ").append(this.tableNamePrefix).append("Data (");
+		sbSql.append("bib_id, record_dates, \n");
+		for (Generator gen : generators) {
+			String genName = gen.name().toLowerCase();
+			sbSql.append(genName).append("_marc_segment,\n");
+			sbSql.append(genName).append("_solr_fields,\n");
+			sbSql.append(genName).append("_solr_fields_gen_date,\n");		
+		}
+		sbSql.setCharAt(sbSql.length()-2, ')');
+		sbSql.append("VALUES ( ");
+		int questionMarksNeeded = generators.size()*3+2;
+		for (int i = 1 ; i <= questionMarksNeeded; i++) sbSql.append("?,");
+		sbSql.setCharAt(sbSql.length()-1, ')');
+		return sbSql.toString();
+	}
+
 	private static String crc32(String marcSegment) {
 		CRC32 crc32 = new CRC32();
 		crc32.update(marcSegment.getBytes());
 		return String.format("[CRC32:%d]", crc32.getValue());
 	}
-	private static String sql = null;
+	private static String sqlMarc = null;
+	private static String sqlNonMarc = null;
 
 
 	private static void touchBibVisitDate(String tableNamePrefix, String bibId, Config config)
