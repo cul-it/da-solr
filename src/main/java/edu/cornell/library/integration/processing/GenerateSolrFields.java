@@ -131,7 +131,7 @@ class GenerateSolrFields {
 					originalValues.get(entry.getKey()), now, config))
 			.collect(Collectors.toList());
 
-		return summarizeAndLogChanges(newValues,rec.id,recordVersions,config);
+		return summarizeAndLogChanges(newValues,rec.bib_id,recordVersions,config);
 
 	}
 
