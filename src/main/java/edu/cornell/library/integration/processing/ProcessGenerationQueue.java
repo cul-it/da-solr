@@ -240,8 +240,13 @@ public class ProcessGenerationQueue {
 					continue;
 				}
 
-				BibChangeSummary solrChanges = gen.generateSolr(
-						rec, config, mapper.writeValueAsString(v),forcedGenerators);
+				BibChangeSummary solrChanges;
+				if ( rec == null ) 
+					solrChanges = gen.generateNonMarcSolr(
+							instance, config, mapper.writeValueAsString(v));
+				else
+					solrChanges = gen.generateSolr(
+							rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges.changedSegments != null) {
 					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges.changedSegments);
 					if (solrChanges.changedHeadingsSegments != null)
