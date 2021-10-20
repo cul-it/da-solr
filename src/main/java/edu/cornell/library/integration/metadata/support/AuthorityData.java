@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +18,24 @@ public class AuthorityData {
 	public List<String> alternateForms = null;
 	public int headingId = 0;
 	public List<String> authorityId = new ArrayList<>();
+	public String replacementForm = null;
 
 	public AuthorityData( Config config, String heading, HeadingType ht) throws SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
+
+			String filingForm = getFilingForm(heading);
+
+			try ( PreparedStatement isReplacedStmt = conn.prepareStatement(
+					"SELECT preferred_display FROM replacement_headings WHERE orig_sort = ?")) {
+				int i = filingForm.indexOf(" 0000 ");
+				String filingPrefix = (i == -1) ? filingForm : filingForm.substring(0,i);
+				isReplacedStmt.setString(1, filingPrefix);
+				try ( ResultSet rs = isReplacedStmt.executeQuery()) {
+					while ( rs.next() ) this.replacementForm = rs.getString(1);
+				}
+			}
+
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
 						"SELECT main_entry, heading.id, authority.id"+
 						"  FROM heading, authority2heading, authority"+
@@ -28,7 +43,7 @@ public class AuthorityData {
 						"   AND heading.id = authority2heading.heading_id"+
 						"   AND authority2heading.authority_id = authority.id")  ){
 				isAuthorizedStmt.setInt(1, ht.ordinal());
-				isAuthorizedStmt.setString(2, getFilingForm(heading));
+				isAuthorizedStmt.setString(2, filingForm);
 				try ( ResultSet rs = isAuthorizedStmt.executeQuery() ){
 					while (rs.next()) {
 						this.authorized = this.authorized || rs.getBoolean(1);

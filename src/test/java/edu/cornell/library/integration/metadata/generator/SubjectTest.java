@@ -213,4 +213,118 @@ public class SubjectTest {
 		assertFalse(this.gen.generateSolrFields(rec, config).toString().contains("Coalition"));
 	}
 
+	@Test
+	public void swappedOffensiveSubjectTerms() throws ClassNotFoundException, SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "10329599";
+		rec.dataFields.add(new DataField(1,"650",'0',' ',"‡a Illegal aliens ‡z United States."));
+		rec.dataFields.add(new DataField(2,"650",'0',' ',"‡a Illegal aliens ‡x Government policy ‡z United States."));
+		rec.dataFields.add(new DataField(3,"650",'0',' ',"‡a Illegal alien children ‡z United States."));
+		rec.dataFields.add(new DataField(4,"650",'0',' ',"‡a Illegal alien children ‡x Government policy ‡z United States."));
+		rec.dataFields.add(new DataField(5,"650",'0',' ',"‡a United States ‡x Emigration and immigration ‡x Government policy."));
+		rec.dataFields.add(new DataField(6,"650",'0',' ',"‡a Emigration and immigration law ‡z United States."));
+		rec.dataFields.add(new DataField(7,"650",'7',' ',"‡a POLITICAL SCIENCE ‡x American Government. ‡2 bisacsh"));
+		rec.dataFields.add(new DataField(8,"650",'7',' ',"‡a Illegal aliens ‡z United States. ‡2 sears"));
+		rec.dataFields.add(new DataField(9,"650",'4',' ',"‡a Immigration law ‡z United States."));
+		rec.dataFields.add(new DataField(10,"650",'7',' ',"‡a Illegal aliens. ‡2 fast ‡0 (OCoLC)fst00967153"));
+		String expected =
+		"subject_t: Undocumented immigrants > United States\n" + 
+		"subject_topic_facet: Undocumented immigrants\n" + 
+		"subject_topic_filing: undocumented immigrants\n" + 
+		"subject_topic_facet: Undocumented immigrants > United States\n" + 
+		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
+		"subject_t: Undocumented immigrants > Government policy > United States\n" + 
+		"subject_topic_facet: Undocumented immigrants\n" + 
+		"subject_topic_filing: undocumented immigrants\n" + 
+		"subject_topic_facet: Undocumented immigrants > Government policy\n" + 
+		"subject_topic_filing: undocumented immigrants 0000 government policy\n" + 
+		"subject_topic_facet: Undocumented immigrants > Government policy > United States\n" + 
+		"subject_topic_filing: undocumented immigrants 0000 government policy 0000 united states\n" + 
+		"subject_t: Undocumented immigrant children > United States\n" + 
+		"subject_topic_facet: Undocumented immigrant children > United States\n" + 
+		"subject_topic_filing: undocumented immigrant children 0000 united states\n" + 
+		"subject_topic_facet: Undocumented immigrant children\n" + 
+		"subject_topic_filing: undocumented immigrant children\n" + 
+		"subject_t: Undocumented immigrant children > Government policy > United States\n" + 
+		"subject_topic_facet: Undocumented immigrant children > Government policy\n" + 
+		"subject_topic_filing: undocumented immigrant children 0000 government policy\n" + 
+		"subject_topic_facet: Undocumented immigrant children\n" + 
+		"subject_topic_filing: undocumented immigrant children\n" + 
+		"subject_topic_facet: Undocumented immigrant children > Government policy > United States\n" + 
+		"subject_topic_filing: undocumented immigrant children 0000 government policy 0000 united states\n" + 
+		"subject_t: United States > Emigration and immigration > Government policy\n" + 
+		"subject_topic_facet: United States\n" + 
+		"subject_topic_filing: united states\n" + 
+		"subject_topic_facet: United States > Emigration and immigration\n" + 
+		"subject_topic_filing: united states 0000 emigration and immigration\n" + 
+		"subject_topic_facet: United States > Emigration and immigration > Government policy\n" + 
+		"subject_topic_filing: united states 0000 emigration and immigration 0000 government policy\n" + 
+		"subject_t: Emigration and immigration law > United States\n" + 
+		"subject_topic_facet: Emigration and immigration law > United States\n" + 
+		"subject_topic_filing: emigration and immigration law 0000 united states\n" + 
+		"subject_topic_facet: Emigration and immigration law\n" + 
+		"subject_topic_filing: emigration and immigration law\n" + 
+		"subject_t: POLITICAL SCIENCE > American Government\n" + 
+		"subject_topic_facet: POLITICAL SCIENCE > American Government\n" + 
+		"subject_topic_filing: political science 0000 american government\n" + 
+		"subject_topic_facet: POLITICAL SCIENCE\n" + 
+		"subject_topic_filing: political science\n" + 
+		"subject_t: Undocumented immigrants > United States\n" + 
+		"subject_topic_facet: Undocumented immigrants\n" + 
+		"subject_topic_filing: undocumented immigrants\n" + 
+		"subject_topic_facet: Undocumented immigrants > United States\n" + 
+		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
+		"subject_t: Immigration law > United States\n" + 
+		"subject_topic_facet: Immigration law\n" + 
+		"subject_topic_filing: immigration law\n" + 
+		"subject_topic_facet: Immigration law > United States\n" + 
+		"subject_topic_filing: immigration law 0000 united states\n" + 
+		"subject_t: Undocumented immigrants\n" + 
+		"subject_topic_facet: Undocumented immigrants\n" + 
+		"subject_topic_filing: undocumented immigrants\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"United States\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Emigration and immigration\",\"authorized\":false},{\"subject\":\"Government policy.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Emigration and immigration law\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":true}]\n" + 
+		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Immigration law\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":true,\"type\":\"Topical Term\"}]\n" + 
+		"subject_display: Undocumented immigrants > United States\n" + 
+		"subject_display: Undocumented immigrants > Government policy > United States\n" + 
+		"subject_display: Undocumented immigrant children > United States\n" + 
+		"subject_display: Undocumented immigrant children > Government policy > United States\n" + 
+		"subject_display: United States > Emigration and immigration > Government policy\n" + 
+		"subject_display: Emigration and immigration law > United States\n" + 
+		"subject_display: POLITICAL SCIENCE > American Government\n" + 
+		"subject_display: Immigration law > United States\n" + 
+		"subject_display: Undocumented immigrants\n" + 
+		"authority_subject_t: Law, Immigration\n" + 
+		"authority_subject_t: Administration\n" + 
+		"authority_subject_t: Political theory\n" + 
+		"authority_subject_t: Emigration and immigration > Law and legislation\n" + 
+		"authority_subject_t: Illegal aliens.\n" + 
+		"authority_subject_t: United States > Emigration and immigration law\n" + 
+		"authority_subject_t: Government\n" + 
+		"authority_subject_t: Illegal aliens > Legal status, laws, etc.\n" + 
+		"authority_subject_t: Immigration law\n" + 
+		"authority_subject_t: Immigrants > Legal status, laws, etc.\n" + 
+		"authority_subject_t: Law, Emigration\n" + 
+		"authority_subject_t: Illegal immigration\n" + 
+		"authority_subject_t: Illegal aliens\n" + 
+		"authority_subject_t: Illegal immigrants\n" + 
+		"authority_subject_t: Aliens, Illegal\n" + 
+		"authority_subject_t: Civil government\n" + 
+		"authority_subject_t: Science, Political\n" + 
+		"authority_subject_t: Undocumented children\n" + 
+		"authority_subject_t: Commonwealth, The\n" + 
+		"authority_subject_t: Political thought\n" + 
+		"authority_subject_t: Aliens > Legal status, laws, etc.\n" + 
+		"authority_subject_t: Politics\n" + 
+		"authority_subject_t: Undocumented aliens\n" + 
+		"authority_subject_t: Illegal alien children\n" + 
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
 }

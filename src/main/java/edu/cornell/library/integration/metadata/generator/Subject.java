@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -208,15 +208,20 @@ public class Subject implements SolrFieldGenerator {
 					primarySubjectTerm = f.concatenateSpecificSubfields(main_fields);
 				}
 				if (primarySubjectTerm != null) {
+					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
+					if ( authData.replacementForm != null ) {
+						if ( authData.alternateForms == null ) authData.alternateForms = new ArrayList<>();
+						authData.alternateForms.add(primarySubjectTerm);
+						primarySubjectTerm = authData.replacementForm;
+					}
 					final StringBuilder sb_breadcrumbed = new StringBuilder();
 					sb_breadcrumbed.append(primarySubjectTerm);
 					final List<Object> json = new ArrayList<>();
 					final Map<String,Object> subj1 = new HashMap<>();
 					subj1.put("subject", primarySubjectTerm);
 					subj1.put("type", ht.toString());
-					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
 					subj1.put("authorized", authData.authorized);
-					if (authData.authorized && authData.alternateForms != null)
+					if (authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
 							authorityAltForms.add(altForm);
 							if (hasCJK(altForm))
