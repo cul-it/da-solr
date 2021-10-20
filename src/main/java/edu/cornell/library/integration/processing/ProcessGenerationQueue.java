@@ -240,7 +240,6 @@ public class ProcessGenerationQueue {
 					continue;
 				}
 
-				forcedGenerators.add(Generator.URL);
 				BibChangeSummary solrChanges = gen.generateSolr(
 						rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges.changedSegments != null) {
