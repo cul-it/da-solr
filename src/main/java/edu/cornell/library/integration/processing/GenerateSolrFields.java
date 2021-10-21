@@ -189,7 +189,8 @@ class GenerateSolrFields {
 				f.value = f.value.replaceAll("[\n\r]+", " ");
 		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
 			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1)
-				sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
+				if (f.tag.equals("010")) sf.value = sf.value.replaceAll("[\n\r]+", " ");
+				else                     sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
