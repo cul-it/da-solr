@@ -186,7 +186,7 @@ class GenerateSolrFields {
 	private static void sanitizeCarriageReturnsInMarc(MarcRecord rec) {
 		for (ControlField f : rec.controlFields)
 			if (f.value.indexOf('\n')>-1 || f.value.indexOf('\r')>-1)
-				f.value = f.value.replaceAll("[\n\r]+", " ").trim();
+				f.value = f.value.replaceAll("[\n\r]+", " ");
 		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
 			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1)
 				sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
