@@ -205,7 +205,7 @@ class GenerateSolrFields {
 				List<Object> list = (ArrayList)e.getValue();
 				for ( int i = 0; i < list.size(); i++ ) {
 					Object item = list.get(i);
-					if ( item.getClass().getSimpleName().equals("String"))
+					if ( item != null && item.getClass().getSimpleName().equals("String"))
 						list.set(i, ((String)item).replaceAll("\\s+"," ").trim());
 				}
 				break;
