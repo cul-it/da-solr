@@ -39,7 +39,7 @@ public class LDPRecordLists {
 		}
 	}
 
-	private static void populateInstanceLDPList( Connection current, Connection ldp )
+	public static void populateInstanceLDPList( Connection current, Connection ldp )
 			throws SQLException {
 
 		try ( 

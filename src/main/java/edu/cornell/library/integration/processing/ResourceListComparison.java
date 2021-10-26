@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import edu.cornell.library.integration.utilities.ComparisonLists;
 import edu.cornell.library.integration.utilities.Config;
 
 public class ResourceListComparison {
@@ -30,13 +31,11 @@ public class ResourceListComparison {
 		}
 	}
 
-	private static void compareLists(
+	public static ComparisonLists compareLists(
 			Connection current, String folioCacheTable, String ldpListTable, String idField)
 					throws SQLException {
 
-		List<String> newerInLDP = new ArrayList<>();
-		List<String> onlyInLDP = new ArrayList<>();
-		List<String> onlyInFC = new ArrayList<>();
+		ComparisonLists c = new ComparisonLists();
 
 		try ( Statement s1 = current.createStatement();
 				Statement s2 = current.createStatement();
@@ -74,11 +73,11 @@ public class ResourceListComparison {
 						// This is probably pre-load migration data. Flag as changed if lMod recent enuf
 						if ( lMod.after(recentEnuf) ) {
 							System.out.println( fId+" M => "+lMod);
-							newerInLDP.add(fId);
+							c.newerInLDP.add(fId);
 						}
 					} else if ( lMod.after(fMod) ) {
 						System.out.println( fId+" M "+fMod+" => "+lMod);
-						newerInLDP.add(fId);
+						c.newerInLDP.add(fId);
 					} // else unchanged
 					lRs.next();
 					fRs.next();
@@ -86,16 +85,15 @@ public class ResourceListComparison {
 				} else if ( compare > 0 ) { // fId > lId (lId not in folio cache - new? missed?)
 
 					System.out.println(lId+" N");
-					onlyInLDP.add(lId);
+					c.onlyInLDP.add(lId);
 					lRs.next();
 
 				} else { // fId < lId (fId not in ldp - deleted?)
 
 					if ( fMod == null || fMod.before(midnightThisMorningUTC) ) {
 						System.out.println(fId+" D");
-						onlyInFC.add(fId);
-					} else
-						System.out.println(fId+" Looks deleted but ignoring due to recency.");
+						c.onlyInFC.add(fId);
+					}
 					fRs.next();					
 
 				}
@@ -103,28 +101,27 @@ public class ResourceListComparison {
 
 			while ( ! lRs.isAfterLast() ) {
 				System.out.println(lId+" N");
-				onlyInLDP.add(lId);
+				c.onlyInLDP.add(lId);
 				lRs.next();
 			}
 
 			while ( ! fRs.isAfterLast() ) {
 				if ( fMod != null && fMod.before(midnightThisMorningUTC) ) {
 					System.out.println(fId+" D");
-					onlyInFC.add(fId);
-				} else
-					System.out.println(fId+" Looks deleted but ignoring due to recency.");
+					c.onlyInFC.add(fId);
+				}
 				fRs.next();
 			}
 
 		}
 		System.out.printf("%s/%s\n",folioCacheTable,ldpListTable);
-		System.out.printf("newerInLDP: %d bibs (%s,%s,%s)\n", newerInLDP.size(),
-				random(newerInLDP),random(newerInLDP),random(newerInLDP));
-		System.out.printf("onlyInLDP: %d bibs (%s,%s,%s)\n", onlyInLDP.size(),
-				random(onlyInLDP),random(onlyInLDP),random(onlyInLDP));
-		System.out.printf("onlyInFC: %d bibs (%s,%s,%s)\n", onlyInFC.size(),
-				random(onlyInFC),random(onlyInFC),random(onlyInFC));
-
+		System.out.printf("newerInLDP: %d records (%s,%s,%s)\n", c.newerInLDP.size(),
+				random(c.newerInLDP),random(c.newerInLDP),random(c.newerInLDP));
+		System.out.printf("onlyInLDP: %d records (%s,%s,%s)\n", c.onlyInLDP.size(),
+				random(c.onlyInLDP),random(c.onlyInLDP),random(c.onlyInLDP));
+		System.out.printf("onlyInFC: %d records (%s,%s,%s)\n", c.onlyInFC.size(),
+				random(c.onlyInFC),random(c.onlyInFC),random(c.onlyInFC));
+		return c;
 
 	}
 
