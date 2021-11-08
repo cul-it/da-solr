@@ -55,7 +55,7 @@ public class LDPRecordLists {
 		}
 	}
 
-	private static void populateBibLDPList( Connection current, Connection ldp )
+	public static void populateBibLDPList( Connection current, Connection ldp )
 			throws SQLException {
 
 		try ( 
@@ -73,7 +73,7 @@ public class LDPRecordLists {
 		}
 	}
 
-	private static void populateHoldingLDPList( Connection current, Connection ldp )
+	public static void populateHoldingLDPList( Connection current, Connection ldp )
 			throws SQLException {
 
 		try ( 
@@ -89,7 +89,7 @@ public class LDPRecordLists {
 		}
 	}
 
-	private static void populateItemLDPList( Connection current, Connection ldp )
+	public static void populateItemLDPList( Connection current, Connection ldp )
 			throws SQLException {
 
 		try ( 
