@@ -53,12 +53,14 @@ public class LDPChangeDetection {
 			}
 
 			{ // HOLDINGS
+				LDPRecordLists.populateHoldingLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"holdingFolio", "holdingLDP", "hrid" );
 				processHoldingDiffs(inventory, folio, c);
 			}
 
 			{ // ITEMS
+				LDPRecordLists.populateItemLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"itemFolio", "itemLDP", "hrid" );
 				processItemDiffs(inventory, folio, c);
