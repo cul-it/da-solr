@@ -38,29 +38,31 @@ public class LDPChangeDetection {
 
 			OkapiClient folio = config.getOkapi("Folio");
 
+			LDPRecordLists.populateInstanceLDPList(inventory, ldp);
+			LDPRecordLists.populateBibLDPList(inventory, ldp);
+			LDPRecordLists.populateHoldingLDPList(inventory, ldp);
+			LDPRecordLists.populateItemLDPList(inventory, ldp);
+
+
 			{ // INSTANCES
-				LDPRecordLists.populateInstanceLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"instanceFolio", "instanceLDP", "hrid" );
 				processInstanceDiffs(inventory, folio, c, queueGen, queueDelete);
 			}
 
 			{ // BIBS
-				LDPRecordLists.populateBibLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"bibFolio", "bibLDP", "instanceHrid" );
 				processBibDiffs(inventory, folio, c, queueGen);
 			}
 
 			{ // HOLDINGS
-				LDPRecordLists.populateHoldingLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"holdingFolio", "holdingLDP", "hrid" );
 				processHoldingDiffs(inventory, folio, c);
 			}
 
 			{ // ITEMS
-				LDPRecordLists.populateItemLDPList(inventory, ldp);
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"itemFolio", "itemLDP", "hrid" );
 				processItemDiffs(inventory, folio, c);
