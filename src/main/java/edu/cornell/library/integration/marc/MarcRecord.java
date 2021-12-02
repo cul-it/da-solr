@@ -302,9 +302,8 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			w.writeEndElement(); // record
 			w.writeEndDocument();
 			String xml = xmlstream.toString("UTF-8");
-			System.out.println(xml);
 			if ( xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") )
-				System.out.println( "<?xml version='1.0' encoding='UTF-8'?>" + xml.substring(38) );
+				return "<?xml version='1.0' encoding='UTF-8'?>" + xml.substring(38);
 			return xml;
 		} catch (final XMLStreamException e) {
 			e.printStackTrace();
