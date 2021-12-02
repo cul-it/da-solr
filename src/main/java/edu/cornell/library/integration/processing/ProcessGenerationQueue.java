@@ -319,7 +319,7 @@ public class ProcessGenerationQueue {
 
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
 			while(rs.next()) AddToQueue.add2Queue(
-					generationQueueStmt,rs.getString(1),8,rs.getTimestamp(2),"Age of Record");
+					generationQueueStmt,rs.getString(1),9,rs.getTimestamp(2),"Age of Record");
 		}
 		
 	}
