@@ -302,7 +302,10 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			w.writeEndElement(); // record
 			w.writeEndDocument();
 			String xml = xmlstream.toString("UTF-8");
-			if ( xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") )
+			System.out.println(xml);
+			boolean doubleQuotes = xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			System.out.println(doubleQuotes);
+			if ( doubleQuotes )
 				return xml.replaceFirst("<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
 						"<?xml version='1.0' encoding='UTF-8'?>");
 			return xml;
