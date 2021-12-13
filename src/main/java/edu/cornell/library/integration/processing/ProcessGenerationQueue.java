@@ -120,7 +120,7 @@ public class ProcessGenerationQueue {
 
 			oldestSolrFieldsData.setFetchSize(1000);
 
-			BIB: for ( int i = 0 ; i < 2_000_000; i++ ) {
+			BIB: for ( int i = 0 ; i < 10_000_000; i++ ) {
 				// Identify Bib to generate data for
 				String bib = null;
 				Integer priority = null;
