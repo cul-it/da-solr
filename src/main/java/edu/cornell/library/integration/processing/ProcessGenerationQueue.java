@@ -89,7 +89,7 @@ public class ProcessGenerationQueue {
 						("INSERT INTO deleteQueue (priority, cause, hrid, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id, visit_date FROM processedMarcData ORDER BY visit_date LIMIT 1000");
+						("SELECT hrid, visit_date FROM processedMarcData ORDER BY visit_date LIMIT 1000");
 				PreparedStatement instanceByHrid = current.prepareStatement
 						("SELECT * FROM instanceFolio WHERE hrid = ?");
 				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
