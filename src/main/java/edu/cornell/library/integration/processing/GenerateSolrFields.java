@@ -371,7 +371,7 @@ class GenerateSolrFields {
 			throws SQLException {
 		try ( Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement
-						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE bib_id = ?")) {
+						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE hrid = ?")) {
 			pstmt.setString(1, bibId);
 			pstmt.executeUpdate();
 		}		
