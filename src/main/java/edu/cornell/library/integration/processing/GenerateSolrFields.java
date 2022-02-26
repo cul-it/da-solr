@@ -268,7 +268,7 @@ class GenerateSolrFields {
 
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
-		sbMainTableCreate.append("bib_id  INT(10) UNSIGNED NOT NULL PRIMARY KEY,\n");
+		sbMainTableCreate.append("hrid  VARCHAR(15) NOT NULL PRIMARY KEY,\n");
 		sbMainTableCreate.append("record_dates text,\n");
 		sbMainTableCreate.append("visit_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n");
 		for ( Generator gen : this.activeMarcGenerators ) {
@@ -343,7 +343,7 @@ class GenerateSolrFields {
 
 		StringBuilder sbSql = new StringBuilder();
 		sbSql.append("REPLACE INTO ").append(this.tableNamePrefix).append("Data (");
-		sbSql.append("bib_id, record_dates, \n");
+		sbSql.append("hrid, record_dates, \n");
 		for (Generator gen : generators) {
 			String genName = gen.name().toLowerCase();
 			sbSql.append(genName).append("_marc_segment,\n");
@@ -384,8 +384,8 @@ class GenerateSolrFields {
 
 		Map<Generator,BibGeneratorData> allData = new HashMap<>();
 		try ( Connection conn = config.getDatabaseConnection("Current");
-				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+tableNamePrefix+"Data WHERE bib_id = ?") ){
-			pstmt.setInt(1, Integer.valueOf(bibId));
+				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+tableNamePrefix+"Data WHERE hrid = ?") ){
+			pstmt.setString(1, bibId);
 			try ( ResultSet rs = pstmt.executeQuery() ) {
 				while (rs.next()) {
 					for ( Generator gen : activeGenerators) {
