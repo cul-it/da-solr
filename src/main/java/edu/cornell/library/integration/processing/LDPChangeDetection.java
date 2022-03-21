@@ -348,14 +348,16 @@ public class LDPChangeDetection {
 
 						cacheReplaceStmt.setString(1, id);
 						cacheReplaceStmt.setString(2, hrid);
-						cacheReplaceStmt.setString(3, instanceHrid);
+						cacheReplaceStmt.setString(3, (instanceHrid==null)?"":instanceHrid);
 						cacheReplaceStmt.setBoolean(4, active);
 						cacheReplaceStmt.setTimestamp(5, moddate);
 						cacheReplaceStmt.setString(6,mapper.writeValueAsString(holding));
 						cacheReplaceStmt.executeUpdate();
-						queueGen.setString(1, instanceHrid);
-						queueGen.setTimestamp(2, moddate);
-						queueGen.executeUpdate();
+						if ( instanceHrid != null ) {
+							queueGen.setString(1, instanceHrid);
+							queueGen.setTimestamp(2, moddate);
+							queueGen.executeUpdate();
+						}
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
