@@ -31,7 +31,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class NewBooks implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings","instance"); }
