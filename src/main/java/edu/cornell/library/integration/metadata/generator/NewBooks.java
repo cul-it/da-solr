@@ -110,19 +110,17 @@ public class NewBooks implements SolrFieldGenerator {
 				}
 			}
 		if ( acquisitionDate == null && bib.instance != null ) {
-			if ( bib.instance.containsKey("catalogedDate") ) {
+			if ( bib.instance.containsKey("catalogedDate") )
 				acquisitionDate = Timestamp.valueOf(((String)bib.instance.get("catalogedDate")+" 00:00:00"));
-				System.out.println("acq date from cataloged date: "+acquisitionDate);
-			} else if ( loccodes.contains("serv,remo")
+			else if ( loccodes.contains("serv,remo")
 					&& bib.instance.containsKey("statusId")
 					&& SupportReferenceData.instanceStatuses.getName(
-							(String)bib.instance.get("statusId")).equals("batch") ) {
+							(String)bib.instance.get("statusId")).equals("batch") )
 				if ( bib.instance.containsKey("metadata") ) {
 					Map<String,String> meta = Map.class.cast(bib.instance.get("metadata"));
 					Timestamp createDate = Timestamp.from(isoDT.parse(meta.get("createdDate"),Instant::from));
 					if ( createDate.after(folioGoLive) ) acquisitionDate = createDate;
 				}
-			}
 		}
 
 		if ( acquisitionDate == null ) return vals;
