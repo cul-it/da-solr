@@ -317,8 +317,8 @@ public class LDPChangeDetection {
 			PreparedStatement holdingIdByHridStmt = inventory.prepareStatement(
 					"SELECT id, instanceHrid FROM holdingFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
-					"REPLACE INTO holdingFolio (id,hrid,instanceHrid,active,moddate,content,podCurrent) "+
-					" VALUES (?,?,?,?,?,?,0)");
+					"REPLACE INTO holdingFolio (id,hrid,instanceId,instanceHrid,active,moddate,content,podCurrent) "+
+					" VALUES (?,?,?,?,?,?,?,0)");
 			PreparedStatement queueGen = inventory.prepareStatement
 					("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")){
 				for (String hrid : c.newerInLDP ) {
@@ -345,13 +345,15 @@ public class LDPChangeDetection {
 						Map<String,String> metadata = (Map<String,String>) holding.get("metadata");
 						Timestamp moddate = Timestamp.from(Instant.parse(
 								metadata.get("updatedDate").replace("+00:00","Z")));
+						String instanceId = (String)holding.get("instanceId");
 
 						cacheReplaceStmt.setString(1, id);
 						cacheReplaceStmt.setString(2, hrid);
-						cacheReplaceStmt.setString(3, (instanceHrid==null)?"":instanceHrid);
-						cacheReplaceStmt.setBoolean(4, active);
-						cacheReplaceStmt.setTimestamp(5, moddate);
-						cacheReplaceStmt.setString(6,mapper.writeValueAsString(holding));
+						cacheReplaceStmt.setString(3, instanceId);
+						cacheReplaceStmt.setString(4, (instanceHrid==null)?"":instanceHrid);
+						cacheReplaceStmt.setBoolean(5, active);
+						cacheReplaceStmt.setTimestamp(6, moddate);
+						cacheReplaceStmt.setString(7,mapper.writeValueAsString(holding));
 						cacheReplaceStmt.executeUpdate();
 						if ( instanceHrid != null ) {
 							queueGen.setString(1, instanceHrid);
@@ -434,8 +436,8 @@ public class LDPChangeDetection {
 			PreparedStatement instanceHridByHoldingHrid = inventory.prepareStatement(
 					"SELECT instanceHrid FROM holdingFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
-					"REPLACE INTO itemFolio (id, hrid, holdingHrid, moddate, barcode, content) "+
-					" VALUES (?,?,?,?,?,?)");
+					"REPLACE INTO itemFolio (id, hrid, holdingId, holdingHrid, moddate, barcode, content) "+
+					" VALUES (?,?,?,?,?,?,?)");
 			PreparedStatement availGen = inventory.prepareStatement
 					("INSERT INTO availabilityQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")){
 				ITEM: for (String hrid : c.newerInLDP ) {
@@ -464,13 +466,15 @@ public class LDPChangeDetection {
 							System.out.println("Barcode too long. Omitting ["+hrid+"/"+barcode+"]");
 							barcode = null;
 						}
+						String holdingId = (String)item.get("holdingsRecordId");
 
 						cacheReplaceStmt.setString(1, id);
 						cacheReplaceStmt.setString(2, hrid);
-						cacheReplaceStmt.setString(3, holdingHrid);
-						cacheReplaceStmt.setTimestamp(4, moddate);
-						cacheReplaceStmt.setString(5, barcode);
-						cacheReplaceStmt.setString(6,mapper.writeValueAsString(item));
+						cacheReplaceStmt.setString(3, holdingId);
+						cacheReplaceStmt.setString(4, holdingHrid);
+						cacheReplaceStmt.setTimestamp(5, moddate);
+						cacheReplaceStmt.setString(6, barcode);
+						cacheReplaceStmt.setString(7,mapper.writeValueAsString(item));
 						cacheReplaceStmt.executeUpdate();
 
 						instanceHridByHoldingHrid.setString(1, holdingHrid);
