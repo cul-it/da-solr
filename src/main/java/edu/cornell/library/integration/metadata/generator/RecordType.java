@@ -21,7 +21,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -34,7 +34,7 @@ public class RecordType implements SolrFieldGenerator {
 		for ( DataField f : rec.dataFields )
 			if ( f.tag.equals("948") )
 				for ( Subfield sf : f.subfields )
-					if ( sf.code.equals('h') && sf.value.equalsIgnoreCase("public services shadow record") )
+					if ( sf.code.equals('h') && sf.value.equalsIgnoreCase("public services shadow record"))
 						isShadow = true;
 
 		for ( MarcRecord hRec : rec.marcHoldings ) 
@@ -45,26 +45,48 @@ public class RecordType implements SolrFieldGenerator {
 							isShadow = true;
 
 		SolrFields sfs = new SolrFields();
+		List<String> statCodes = null;
+		if ( rec.instance != null ) {
+			statCodes = StatisticalCodes.dereferenceStatCodes(
+				(List<String>)rec.instance.get("statisticalCodeIds"));
+			for ( String s : statCodes ) System.out.println("["+s+"]");
+		}
+			
 		if (isShadow)
 			sfs.add(new SolrField("type","Shadow"));
-		else if ( rec.instance != null &&
-				(( rec.instance.containsKey("discoverySuppress") && (boolean) rec.instance.get("discoverySuppress") )
-				|| ( rec.instance.containsKey("staffSuppress") && (boolean) rec.instance.get("staffSuppress") )) )
-			sfs.add(new SolrField("type","Suppressed Bib"));
-		else if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") 
-			&& StatisticalCodes.dereferenceStatCodes((List<String>)rec.instance.get("statisticalCodeIds")).contains("Delete") )
-			sfs.add(new SolrField("type","Delete"));
 		else
-			sfs.add(new SolrField("type","Catalog"));
+			sfs.add(getTypeField(rec.instance,statCodes));
 		sfs.add(new SolrField("source","Folio"));
+		if ( statCodes != null )
+			for (String code : statCodes )
+				sfs.add(new SolrField("statcode_t","instance_"+code));
 		return sfs;
+	}
+
+	private static SolrField getTypeField( Map<String, Object> instance, List<String> statCodes ) {
+
+		if ( instance != null &&
+				(( instance.containsKey("discoverySuppress") && (boolean) instance.get("discoverySuppress") )
+				|| ( instance.containsKey("staffSuppress") && (boolean) instance.get("staffSuppress") )) )
+			return new SolrField("type","Suppressed Bib");
+		else if ( statCodes != null && statCodes.contains("Delete") )
+			return new SolrField("type","Delete");
+		else
+			return new SolrField("type","Catalog");
 	}
 
 	@Override
 	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+
+		List<String> statCodes = StatisticalCodes.dereferenceStatCodes(
+				(List<String>)instance.get("statisticalCodeIds"));
+
 		SolrFields sfs = new SolrFields();
-		sfs.add(new SolrField("type","Non-MARC Instance"));
+		sfs.add(getTypeField(instance,statCodes));
 		sfs.add(new SolrField("source","Folio"));
+		for (String code : statCodes )
+			sfs.add(new SolrField("statcode_t","instance_"+code));
 		return sfs;
 	}
+
 }

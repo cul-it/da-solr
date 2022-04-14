@@ -4,11 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
+import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 
 public class RecordTypeTest {
 
@@ -47,6 +52,22 @@ public class RecordTypeTest {
 		String expected =
 		"type: Shadow\n"+
 		"source: Folio\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void statisticalCodes() throws ClassNotFoundException, SQLException, IOException {
+		StatisticalCodes.codes = new ReferenceData("code");
+		StatisticalCodes.codes.addTestValue("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d", "test-code");
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("statisticalCodeIds", Arrays.asList("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d"));
+		String expected =
+		"type: Catalog\n" + 
+		"source: Folio\n" + 
+		"statcode_t: instance_test-code\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.instance = instance;
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }
