@@ -46,11 +46,9 @@ public class RecordType implements SolrFieldGenerator {
 
 		SolrFields sfs = new SolrFields();
 		List<String> statCodes = null;
-		if ( rec.instance != null ) {
+		if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") )
 			statCodes = StatisticalCodes.dereferenceStatCodes(
 				(List<String>)rec.instance.get("statisticalCodeIds"));
-			for ( String s : statCodes ) System.out.println("["+s+"]");
-		}
 			
 		if (isShadow)
 			sfs.add(new SolrField("type","Shadow"));
