@@ -76,13 +76,15 @@ public class RecordType implements SolrFieldGenerator {
 	@Override
 	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
 
-		List<String> statCodes = StatisticalCodes.dereferenceStatCodes(
-				(List<String>)instance.get("statisticalCodeIds"));
+		List<String> statCodes = null;
+		if (instance.containsKey("statisticalCodeIds"))
+			statCodes = StatisticalCodes.dereferenceStatCodes(
+					(List<String>)instance.get("statisticalCodeIds"));
 
 		SolrFields sfs = new SolrFields();
 		sfs.add(getTypeField(instance,statCodes));
 		sfs.add(new SolrField("source","Folio"));
-		for (String code : statCodes )
+		if (statCodes != null ) for (String code : statCodes )
 			sfs.add(new SolrField("statcode_t","instance_"+code));
 		return sfs;
 	}
