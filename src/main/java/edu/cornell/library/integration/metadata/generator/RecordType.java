@@ -21,7 +21,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.3a"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -57,7 +57,7 @@ public class RecordType implements SolrFieldGenerator {
 		sfs.add(new SolrField("source","Folio"));
 		if ( statCodes != null )
 			for (String code : statCodes )
-				sfs.add(new SolrField("statcode_t","instance_"+code));
+				sfs.add(new SolrField("statcode_facet","instance_"+code));
 		return sfs;
 	}
 
@@ -85,7 +85,7 @@ public class RecordType implements SolrFieldGenerator {
 		sfs.add(getTypeField(instance,statCodes));
 		sfs.add(new SolrField("source","Folio"));
 		if (statCodes != null ) for (String code : statCodes )
-			sfs.add(new SolrField("statcode_t","instance_"+code));
+			sfs.add(new SolrField("statcode_facet","instance_"+code));
 		return sfs;
 	}
 
