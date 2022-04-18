@@ -69,8 +69,11 @@ public class RecordType implements SolrFieldGenerator {
 			return new SolrField("type","Suppressed Bib");
 		else if ( statCodes != null && statCodes.contains("Delete") )
 			return new SolrField("type","Delete");
-		else
+		else if ( instance != null && instance.containsKey("source")
+				&& ((String)instance.get("source")).equals("MARC"))
 			return new SolrField("type","Catalog");
+		else
+			return new SolrField("type","Non-MARC Instance");
 	}
 
 	@Override
