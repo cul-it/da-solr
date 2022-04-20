@@ -83,7 +83,6 @@ public class Subject implements SolrFieldGenerator {
 			switch (f.ind2) {
 			case '0':
 				h.vocab = HeadingVocab.LC;
-				System.out.println("Identified LC");
 				recordHasLCSH = true;
 				break;
 			case '1':
@@ -114,7 +113,6 @@ public class Subject implements SolrFieldGenerator {
 			taggedFields.add(h);
 		}
 		for( final Heading h : taggedFields) {
-			System.out.println(h.fs.getFields().get(0).concatenateSubfieldsOtherThan6()+"  **  "+h.vocab);
 			final Set<String> values880_breadcrumbed = new HashSet<>();
 			final Set<String> valuesMain_breadcrumbed = new HashSet<>();
 			final List<BrowseValue> values_browse = new ArrayList<>();
