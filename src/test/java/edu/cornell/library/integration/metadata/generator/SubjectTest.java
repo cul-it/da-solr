@@ -177,7 +177,7 @@ public class SubjectTest {
 		String expected =
 		"subject_t: Electronic books\n"+
 		"subject_topic_filing: electronic books\n"+
-		"subject_topic_lc_filing: electronic books\n"+
+		"subject_topic_unk_filing: electronic books\n"+
 		"subject_json: [{\"subject\":\"Electronic books.\",\"authorized\":true,\"type\":\"Topical Term\"}]\n"+
 		"subject_display: Electronic books\n"+
 		"authority_subject_t: Books in machine-readable form\n"+
@@ -198,7 +198,7 @@ public class SubjectTest {
 		"subject_t: Textiles and Fashion Design\n"+
 		"subject_gen_facet: Textiles and Fashion Design\n"+
 		"subject_gen_filing: textiles and fashion design\n"+
-		"subject_gen_lc_filing: textiles and fashion design\n"+
+		"subject_gen_unk_filing: textiles and fashion design\n"+
 		"keyword_display: Textiles and Fashion Design\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
@@ -214,7 +214,7 @@ public class SubjectTest {
 		"subject_t: Art and Architecture (Core)\n" + 
 		"subject_gen_facet: Art and Architecture\n" + 
 		"subject_gen_filing: art and architecture\n" + 
-		"subject_gen_lc_filing: art and architecture\n" +
+		"subject_gen_unk_filing: art and architecture\n" +
 		"keyword_display: Art and Architecture\n" + 
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
@@ -320,10 +320,10 @@ public class SubjectTest {
 		"subject_t: Immigration law > United States\n" + 
 		"subject_topic_facet: Immigration law\n" + 
 		"subject_topic_filing: immigration law\n" + 
-		"subject_topic_lc_filing: immigration law\n" + 
+		"subject_topic_unk_filing: immigration law\n" + 
 		"subject_topic_facet: Immigration law > United States\n" + 
 		"subject_topic_filing: immigration law 0000 united states\n" + 
-		"subject_topic_lc_filing: immigration law 0000 united states\n" + 
+		"subject_topic_unk_filing: immigration law 0000 united states\n" + 
 
 		"subject_t: Undocumented immigrants\n" + 
 		"fast_topic_facet: Undocumented immigrants\n" + 

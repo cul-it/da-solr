@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2"; }
+	public String getVersion() { return "2.1"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -306,11 +306,8 @@ public class Subject implements SolrFieldGenerator {
 					String filing = getFilingForm(value.display);
 					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
-					if ( h.vocab.equals(HeadingVocab.UNK) )
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_lc_filing",canonFiling));
-					else
-						sfs.add(new SolrField("subject_"+ht.abbrev()
-							+"_"+h.vocab.name().toLowerCase()+"_filing",canonFiling));
+					sfs.add(new SolrField("subject_"+ht.abbrev()
+					+"_"+h.vocab.name().toLowerCase()+"_filing",canonFiling));
 				}
 
 			if ( ! h.is653 && ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
