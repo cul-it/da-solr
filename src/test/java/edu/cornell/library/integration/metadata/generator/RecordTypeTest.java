@@ -68,6 +68,10 @@ public class RecordTypeTest {
 		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.instance = instance;
+		expected =
+		"type: Catalog\n" + 
+		"source: Folio\n" + 
+		"statcode_facet: instance_test-code\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 }
