@@ -53,7 +53,7 @@ public class RecordType implements SolrFieldGenerator {
 		if (isShadow)
 			sfs.add(new SolrField("type","Shadow"));
 		else
-			sfs.add(getTypeField(rec.instance,statCodes));
+			sfs.add(getTypeField(rec.instance,statCodes,true));
 		sfs.add(new SolrField("source","Folio"));
 		if ( statCodes != null )
 			for (String code : statCodes )
@@ -61,7 +61,8 @@ public class RecordType implements SolrFieldGenerator {
 		return sfs;
 	}
 
-	private static SolrField getTypeField( Map<String, Object> instance, List<String> statCodes ) {
+	private static SolrField getTypeField(
+			Map<String, Object> instance, List<String> statCodes, boolean hasMarc ) {
 
 		if ( instance != null &&
 				(( instance.containsKey("discoverySuppress") && (boolean) instance.get("discoverySuppress") )
@@ -69,8 +70,7 @@ public class RecordType implements SolrFieldGenerator {
 			return new SolrField("type","Suppressed Bib");
 		else if ( statCodes != null && statCodes.contains("Delete") )
 			return new SolrField("type","Delete");
-		else if ( instance != null && instance.containsKey("source")
-				&& ((String)instance.get("source")).equals("MARC"))
+		else if (hasMarc)
 			return new SolrField("type","Catalog");
 		else
 			return new SolrField("type","Non-MARC Instance");
@@ -85,7 +85,7 @@ public class RecordType implements SolrFieldGenerator {
 					(List<String>)instance.get("statisticalCodeIds"));
 
 		SolrFields sfs = new SolrFields();
-		sfs.add(getTypeField(instance,statCodes));
+		sfs.add(getTypeField(instance,statCodes,false));
 		sfs.add(new SolrField("source","Folio"));
 		if (statCodes != null ) for (String code : statCodes )
 			sfs.add(new SolrField("statcode_facet","instance_"+code));

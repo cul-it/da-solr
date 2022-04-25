@@ -37,7 +37,7 @@ public class LDPChangeDetection {
 				("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")) {
 
 			OkapiClient folio = config.getOkapi("Folio");
-
+/*
 			LDPRecordLists.populateInstanceLDPList(inventory, ldp);
 			LDPRecordLists.populateBibLDPList(inventory, ldp);
 			LDPRecordLists.populateHoldingLDPList(inventory, ldp);
@@ -49,7 +49,7 @@ public class LDPChangeDetection {
 						inventory,"instanceFolio", "instanceLDP", "hrid" );
 				processInstanceDiffs(inventory, folio, c, queueGen, queueDelete);
 			}
-
+*/
 			{ // BIBS
 				ComparisonLists c = ResourceListComparison.compareLists(
 						inventory,"bibFolio", "bibLDP", "instanceHrid" );

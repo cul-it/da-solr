@@ -62,7 +62,7 @@ public class RecordTypeTest {
 		Map<String,Object> instance = new HashMap<>();
 		instance.put("statisticalCodeIds", Arrays.asList("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d"));
 		String expected =
-		"type: Catalog\n" + 
+		"type: Non-MARC Instance\n" + 
 		"source: Folio\n" + 
 		"statcode_facet: instance_test-code\n";
 		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
