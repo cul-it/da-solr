@@ -165,7 +165,7 @@ public class LDPChangeDetection {
 					"SELECT id FROM instanceFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
 					"REPLACE INTO bibFolio (instanceHrid,moddate,content,podCurrent) VALUES (?,?,?,0)")){
-				for (String hrid : c.newerInLDP ) {
+				for (String hrid : c.onlyInLDP ) {
 					System.out.println(hrid);
 					instanceIdByHridStmt.setString(1, hrid);
 					String id = null;
