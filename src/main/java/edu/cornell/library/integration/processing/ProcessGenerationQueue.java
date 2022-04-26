@@ -285,9 +285,12 @@ public class ProcessGenerationQueue {
 			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue WHERE priority = 9")){
 			while ( r.next() ) {
 				int queued = r.getInt(1);
-				if (queued < 10_000)
+				if (queued < 10_000) {
+					System.out.println("Process "+(11_000-queued)+" more nines.");
 					return 11_000 - queued;
-				return -500;
+				}
+				System.out.println("Don't process nines for 400 ticks.");
+				return -400;
 			}
 		}
 		return 0 ; // really not possible unless db error
