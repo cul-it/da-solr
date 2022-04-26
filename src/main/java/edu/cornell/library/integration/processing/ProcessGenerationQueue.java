@@ -282,15 +282,15 @@ public class ProcessGenerationQueue {
 	private int determineNinesToProcess(Connection current) throws SQLException {
 		try (
 			Statement s = current.createStatement();
-			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue WHERE priority = 9")){
+			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue")){
 			while ( r.next() ) {
 				int queued = r.getInt(1);
-				if (queued < 10_000) {
-					System.out.println("Process "+(11_000-queued)+" more nines.");
-					return 11_000 - queued;
+				if (queued < 8_000) {
+					System.out.println("Process "+(9_000-queued)+" more nines.");
+					return 9_000 - queued;
 				}
-				System.out.println("Don't process nines for 400 ticks.");
-				return -400;
+				System.out.println("Don't process nines for 200 ticks.");
+				return -200;
 			}
 		}
 		return 0 ; // really not possible unless db error
