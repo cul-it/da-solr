@@ -119,6 +119,7 @@ public class ProcessGenerationQueue {
 			}
 
 			oldestSolrFieldsData.setFetchSize(1000);
+			int ninesToProcess = 0;
 
 			BIB: for ( int i = 0 ; i < 10_000_000; i++ ) {
 				// Identify Bib to generate data for
@@ -132,6 +133,18 @@ public class ProcessGenerationQueue {
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
 					oldLocksCleanupStmt.executeUpdate();
 					continue;
+				}
+
+				if ( priority.equals(9) ) {
+					if (ninesToProcess == 0)
+						ninesToProcess = determineNinesToProcess( current );
+					if ( ninesToProcess > 0 ) {
+						ninesToProcess--;
+					} else {
+						ninesToProcess++;
+						Thread.sleep(1000);
+						continue;
+					}
 				}
 
 				allForBibStmt.setString(1,bib);
@@ -264,6 +277,20 @@ public class ProcessGenerationQueue {
 
 			}
 		}
+	}
+
+	private int determineNinesToProcess(Connection current) throws SQLException {
+		try (
+			Statement s = current.createStatement();
+			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue WHERE priority = 9")){
+			while ( r.next() ) {
+				int queued = r.getInt(1);
+				if (queued < 10_000)
+					return 11_000 - queued;
+				return -500;
+			}
+		}
+		return 0 ; // really not possible unless db error
 	}
 
 	private static Timestamp getModificationTimestamp(Map<String, Object> folioObject) {
