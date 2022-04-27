@@ -37,6 +37,7 @@ public class SubjectTest {
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
 		"subject_topic_lc_filing: submerged lands 0000 united states\n"+
+		"subject_sub_lc_filing: united states\n"+
 		"subject_json: [{\"subject\":\"Submerged lands\",\"authorized\":true,\"type\":\"Topical Term\"},"
 		+ "{\"subject\":\"United States.\",\"authorized\":false}]\n"+
 		"subject_display: Submerged lands > United States\n"+
@@ -61,6 +62,7 @@ public class SubjectTest {
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
 		"subject_topic_lc_filing: submerged lands 0000 united states\n"+
+		"subject_sub_lc_filing: united states\n"+
 		"subject_t: Submerged lands\n"+
 		"fast_topic_facet: Submerged lands\n"+
 		"subject_topic_facet: Submerged lands\n"+
@@ -160,6 +162,7 @@ public class SubjectTest {
 		"subject_corp_facet: Asahi Shinbun > Indexes\n"+
 		"subject_corp_filing: asahi shinbun 0000 indexes\n"+
 		"subject_corp_lc_filing: asahi shinbun 0000 indexes\n"+
+		"subject_sub_lc_filing: indexes\n"+
 		"subject_json: [{\"subject\":\"朝日新聞\",\"authorized\":false,\"type\":\"Corporate Name\"},"
 		+ "{\"subject\":\"Indexes.\",\"authorized\":false}]\n"+
 		"subject_json: [{\"subject\":\"Asahi Shinbun\",\"authorized\":false,\"type\":\"Corporate Name\"},"
@@ -251,6 +254,7 @@ public class SubjectTest {
 		"subject_topic_facet: Undocumented immigrants > United States\n" +
 		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
 		"subject_topic_lc_filing: illegal aliens 0000 united states\n" + 
+		"subject_sub_lc_filing: united states\n"+
 
 		"subject_t: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
@@ -262,6 +266,9 @@ public class SubjectTest {
 		"subject_topic_facet: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_filing: undocumented immigrants 0000 government policy 0000 united states\n" + 
 		"subject_topic_lc_filing: illegal aliens 0000 government policy 0000 united states\n" + 
+		"subject_sub_lc_filing: government policy\n"+
+		"subject_sub_lc_filing: government policy 0000 united states\n"+
+		"subject_sub_lc_filing: united states\n"+
 
 		"subject_t: Undocumented immigrant children > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
@@ -270,6 +277,7 @@ public class SubjectTest {
 		"subject_topic_facet: Undocumented immigrant children > United States\n" + 
 		"subject_topic_filing: undocumented immigrant children 0000 united states\n" + 
 		"subject_topic_lc_filing: illegal alien children 0000 united states\n" + 
+		"subject_sub_lc_filing: united states\n"+
 
 		"subject_t: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
@@ -281,6 +289,9 @@ public class SubjectTest {
 		"subject_topic_facet: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_filing: undocumented immigrant children 0000 government policy 0000 united states\n" + 
 		"subject_topic_lc_filing: illegal alien children 0000 government policy 0000 united states\n" + 
+		"subject_sub_lc_filing: government policy\n"+
+		"subject_sub_lc_filing: government policy 0000 united states\n"+
+		"subject_sub_lc_filing: united states\n"+
 
 		"subject_t: United States > Emigration and immigration > Government policy\n" + 
 		"subject_topic_facet: United States\n" + 
@@ -292,6 +303,10 @@ public class SubjectTest {
 		"subject_topic_facet: United States > Emigration and immigration > Government policy\n" + 
 		"subject_topic_filing: united states 0000 emigration and immigration 0000 government policy\n" + 
 		"subject_topic_lc_filing: united states 0000 emigration and immigration 0000 government policy\n" + 
+		"subject_sub_lc_filing: emigration and immigration 0000 government policy\n"+
+		"subject_sub_lc_filing: government policy\n"+
+		"subject_sub_lc_filing: emigration and immigration\n"+
+
 
 		"subject_t: Emigration and immigration law > United States\n" + 
 		"subject_topic_facet: Emigration and immigration law\n" + 
@@ -300,6 +315,7 @@ public class SubjectTest {
 		"subject_topic_facet: Emigration and immigration law > United States\n" + 
 		"subject_topic_filing: emigration and immigration law 0000 united states\n" + 
 		"subject_topic_lc_filing: emigration and immigration law 0000 united states\n" + 
+		"subject_sub_lc_filing: united states\n"+
 
 		"subject_t: POLITICAL SCIENCE > American Government\n" + 
 		"subject_topic_facet: POLITICAL SCIENCE\n" + 
@@ -308,6 +324,7 @@ public class SubjectTest {
 		"subject_topic_facet: POLITICAL SCIENCE > American Government\n" + 
 		"subject_topic_filing: political science 0000 american government\n" + 
 		"subject_topic_other_filing: political science 0000 american government\n" + 
+		"subject_sub_other_filing: american government\n"+
 
 		"subject_t: Undocumented immigrants > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
@@ -316,6 +333,7 @@ public class SubjectTest {
 		"subject_topic_facet: Undocumented immigrants > United States\n" + 
 		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
 		"subject_topic_other_filing: illegal aliens 0000 united states\n" + 
+		"subject_sub_other_filing: united states\n"+
 
 		"subject_t: Immigration law > United States\n" + 
 		"subject_topic_facet: Immigration law\n" + 
@@ -324,6 +342,7 @@ public class SubjectTest {
 		"subject_topic_facet: Immigration law > United States\n" + 
 		"subject_topic_filing: immigration law 0000 united states\n" + 
 		"subject_topic_unk_filing: immigration law 0000 united states\n" + 
+		"subject_sub_unk_filing: united states\n"+
 
 		"subject_t: Undocumented immigrants\n" + 
 		"fast_topic_facet: Undocumented immigrants\n" + 

@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.1"; }
+	public String getVersion() { return "2.2"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -118,6 +118,7 @@ public class Subject implements SolrFieldGenerator {
 			final List<BrowseValue> values_browse = new ArrayList<>();
 			final Set<String> valuesMain_json = new HashSet<>();
 			final Set<String> values880_json = new HashSet<>();
+			final Set<String> values_dashed = new HashSet<>();
 			HeadingType ht = HeadingType.GENHEAD; //default
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
@@ -274,6 +275,16 @@ public class Subject implements SolrFieldGenerator {
 						valuesMain_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
 						valuesMain_json.add(jsonstream.toString("UTF-8"));
 					}
+
+					// tabulate subdivision sequences
+					for ( int i = 0 ; i < dashed_terms.size(); i++ ) {
+						String s = dashed_terms.get(i);
+						values_dashed.add(getFilingForm(s));
+						for ( int j = i + 1 ; j < dashed_terms.size(); j++) {
+							s += " > "+dashed_terms.get(j);
+							values_dashed.add(getFilingForm(s));
+						}
+					}
 				}
 			}
 
@@ -309,6 +320,8 @@ public class Subject implements SolrFieldGenerator {
 					sfs.add(new SolrField("subject_"+ht.abbrev()
 					+"_"+h.vocab.name().toLowerCase()+"_filing",canonFiling));
 				}
+			for (final String s: values_dashed)
+				sfs.add(new SolrField("subject_sub_"+h.vocab.name().toLowerCase()+"_filing",s));
 
 			if ( ! h.is653 && ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
 				for (final String s: values880_json)
