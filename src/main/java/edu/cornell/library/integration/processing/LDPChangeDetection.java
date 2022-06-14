@@ -87,7 +87,7 @@ public class LDPChangeDetection {
 			PreparedStatement instanceIdByHridStmt = inventory.prepareStatement(
 					"SELECT id FROM instanceFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
-					"REPLACE INTO bibFolio (instanceHrid,moddate,content,podCurrent) VALUES (?,?,?,0)")){
+					"REPLACE INTO bibFolio (instanceHrid,moddate,content) VALUES (?,?,?)")){
 				for (String hrid : c.newerInLDP ) {
 					System.out.println(hrid);
 					instanceIdByHridStmt.setString(1, hrid);
@@ -164,7 +164,7 @@ public class LDPChangeDetection {
 			PreparedStatement instanceIdByHridStmt = inventory.prepareStatement(
 					"SELECT id FROM instanceFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
-					"REPLACE INTO bibFolio (instanceHrid,moddate,content,podCurrent) VALUES (?,?,?,0)")){
+					"REPLACE INTO bibFolio (instanceHrid,moddate,content) VALUES (?,?,?)")){
 				for (String hrid : c.onlyInLDP ) {
 					System.out.println(hrid);
 					instanceIdByHridStmt.setString(1, hrid);
@@ -317,8 +317,8 @@ public class LDPChangeDetection {
 			PreparedStatement holdingIdByHridStmt = inventory.prepareStatement(
 					"SELECT id, instanceHrid FROM holdingFolio WHERE hrid = ?");
 			PreparedStatement cacheReplaceStmt = inventory.prepareStatement(
-					"REPLACE INTO holdingFolio (id,hrid,instanceId,instanceHrid,active,moddate,content,podCurrent) "+
-					" VALUES (?,?,?,?,?,?,?,0)");
+					"REPLACE INTO holdingFolio (id,hrid,instanceId,instanceHrid,active,moddate,content) "+
+					" VALUES (?,?,?,?,?,?,?)");
 			PreparedStatement queueGen = inventory.prepareStatement
 					("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")){
 				for (String hrid : c.newerInLDP ) {
