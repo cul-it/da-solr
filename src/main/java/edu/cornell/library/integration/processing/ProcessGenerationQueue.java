@@ -119,7 +119,7 @@ public class ProcessGenerationQueue {
 			}
 
 			oldestSolrFieldsData.setFetchSize(1000);
-			int ninesToProcess = 0;
+			int eightsToProcess = 0;
 
 			BIB: for ( int i = 0 ; i < 10_000_000; i++ ) {
 				// Identify Bib to generate data for
@@ -136,12 +136,12 @@ public class ProcessGenerationQueue {
 				}
 
 				if ( priority.equals(9) ) {
-					if (ninesToProcess == 0)
-						ninesToProcess = determineNinesToProcess( current );
-					if ( ninesToProcess > 0 ) {
-						ninesToProcess--;
+					if (eightsToProcess == 0)
+						eightsToProcess = determineEightsToProcess( current );
+					if ( eightsToProcess > 0 ) {
+						eightsToProcess--;
 					} else {
-						ninesToProcess++;
+						eightsToProcess++;
 						Thread.sleep(1000);
 						continue;
 					}
@@ -279,17 +279,17 @@ public class ProcessGenerationQueue {
 		}
 	}
 
-	private int determineNinesToProcess(Connection current) throws SQLException {
+	private static int determineEightsToProcess(Connection current) throws SQLException {
 		try (
 			Statement s = current.createStatement();
 			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue")){
 			while ( r.next() ) {
 				int queued = r.getInt(1);
 				if (queued < 8_000) {
-					System.out.println("Process "+(9_000-queued)+" more nines.");
+					System.out.println("Process "+(9_000-queued)+" more eights.");
 					return 9_000 - queued;
 				}
-				System.out.println("Don't process nines for 200 ticks.");
+				System.out.println("Don't process eights for 200 ticks.");
 				return -200;
 			}
 		}
@@ -349,7 +349,7 @@ public class ProcessGenerationQueue {
 
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
 			while(rs.next()) AddToQueue.add2Queue(
-					generationQueueStmt,rs.getString(1),9,rs.getTimestamp(2),"Age of Record");
+					generationQueueStmt,rs.getString(1),8,rs.getTimestamp(2),"Age of Record");
 		}
 		
 	}
