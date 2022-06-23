@@ -117,7 +117,7 @@ class GenerateSolrFields {
 			MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
 			throws SQLException, IOException, XMLStreamException {
 
-		sanitizeCarriageReturnsInMarc( rec );
+		sanitizeCarriageReturnsEtAlInMarc( rec );
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(
 				rec,this.activeMarcGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -183,14 +183,14 @@ class GenerateSolrFields {
 		return new BibChangeSummary(null);
 	}
 
-	private static void sanitizeCarriageReturnsInMarc(MarcRecord rec) {
+	private static void sanitizeCarriageReturnsEtAlInMarc(MarcRecord rec) {
 		for (ControlField f : rec.controlFields)
 			if (f.value.indexOf('\n')>-1 || f.value.indexOf('\r')>-1)
 				f.value = f.value.replaceAll("[\n\r]+", " ");
 		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
-			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1)
-				if (f.tag.equals("010")) sf.value = sf.value.replaceAll("[\n\r]+", " ");
-				else                     sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
+			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1 || sf.value.indexOf('\u0001')>-1)
+				if (f.tag.equals("010")) sf.value = sf.value.replaceAll("[\n\r\u0001]+", " ");
+				else                     sf.value = sf.value.replaceAll("[\n\r\u0001]+", " ").trim();
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
