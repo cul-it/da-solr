@@ -188,9 +188,12 @@ class GenerateSolrFields {
 			if (f.value.indexOf('\n')>-1 || f.value.indexOf('\r')>-1)
 				f.value = f.value.replaceAll("[\n\r]+", " ");
 		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
-			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1 || sf.value.indexOf('\u0001')>-1)
-				if (f.tag.equals("010")) sf.value = sf.value.replaceAll("[\n\r\u0001]+", " ");
-				else                     sf.value = sf.value.replaceAll("[\n\r\u0001]+", " ").trim();
+			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1
+					|| sf.value.indexOf('\u0001')>-1 || sf.value.indexOf('\u001B')>-1)
+				if (f.tag.equals("010"))
+					sf.value = sf.value.replaceAll("[\n\r\u0001\u001B]+", " ");
+				else
+					sf.value = sf.value.replaceAll("[\n\r\u0001\u001B]+", " ").trim();
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
