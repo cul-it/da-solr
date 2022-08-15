@@ -430,7 +430,7 @@ class GenerateSolrFields {
 			Generator gen,Timestamp genModDate, MarcRecord recChunk, boolean forced,
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
-		String inputHash = crc32( recChunk.toXML() );
+		String inputHash = crc32( recChunk.toXML(true) );
 		Status marcStatus;
 		if  (origData.inputHash == null)
 			marcStatus = Status.NEW;
