@@ -366,6 +366,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			case "ArrayList":
 				String singular = field.replaceAll("s$", "");
 				for (Object value : (ArrayList<Object>)o) {
+					if ( value == null ) continue;
 					w.writeStartElement(singular);
 					switch (value.getClass().getSimpleName()) {
 					case "String": w.writeCharacters((String)value); break;
