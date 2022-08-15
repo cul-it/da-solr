@@ -379,6 +379,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					w.writeEndElement();
 				}
 				break;
+			case "Integer": w.writeCharacters(String.valueOf(o)); break;
 			default:
 				System.out.println("Unrecognized object class in map serialization: "
 						+field+"/"+o.getClass().getSimpleName());
