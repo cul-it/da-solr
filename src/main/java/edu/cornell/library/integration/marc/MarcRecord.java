@@ -369,7 +369,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 					if ( value == null ) continue;
 					w.writeStartElement(singular);
 					switch (value.getClass().getSimpleName()) {
-					case "String": w.writeCharacters((String)value); break;
+					case "String": w.writeCharacters(cleanInvalidXmlChars((String)value)); break;
 					case "LinkedHashMap": writeArbitraryMapData(w,(Map<String,Object>)value); break;
 					default:
 						System.out.printf(
