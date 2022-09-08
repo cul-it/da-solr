@@ -135,7 +135,7 @@ public class ProcessGenerationQueue {
 					continue;
 				}
 
-				if ( priority.equals(9) ) {
+				if ( priority.equals(8) ) {
 					if (eightsToProcess == 0)
 						eightsToProcess = determineEightsToProcess( current );
 					if ( eightsToProcess > 0 ) {

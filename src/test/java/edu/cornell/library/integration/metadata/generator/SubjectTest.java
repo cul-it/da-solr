@@ -152,10 +152,8 @@ public class SubjectTest {
 		"subject_t: Asahi Shinbun > Indexes\n"+
 		"subject_corp_facet: 朝日新聞\n"+
 		"subject_corp_filing: 朝日新聞\n"+
-		"subject_corp_lc_filing: 朝日新聞\n"+
 		"subject_corp_facet: 朝日新聞 > Indexes\n"+
 		"subject_corp_filing: 朝日新聞 0000 indexes\n"+
-		"subject_corp_lc_filing: 朝日新聞 0000 indexes\n"+
 		"subject_corp_facet: Asahi Shinbun\n"+
 		"subject_corp_filing: asahi shinbun\n"+
 		"subject_corp_lc_filing: asahi shinbun\n"+
