@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.2"; }
+	public String getVersion() { return "2.3"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -124,6 +124,8 @@ public class Subject implements SolrFieldGenerator {
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
 			for (final DataField f: h.fs.getFields()) {
+
+				boolean is880 = f.tag.equals("880");
 
 				switch (f.mainTag) {
 				case "600":
@@ -245,7 +247,7 @@ public class Subject implements SolrFieldGenerator {
 						}
 					json.add(subj1);
 
-					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$"));
+					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$",is880));
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
@@ -255,7 +257,7 @@ public class Subject implements SolrFieldGenerator {
 						final Map<String,Object> subj = new HashMap<>();
 						breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);
-						values_browse.add(new BrowseValue(breadcrumbed));
+						values_browse.add(new BrowseValue(breadcrumbed,is880));
 						authData = new AuthorityData(config,breadcrumbed.toString(),ht);
 						subj.put("authorized", authData.authorized);
 						if (authData.authorized && authData.alternateForms != null)
@@ -268,7 +270,7 @@ public class Subject implements SolrFieldGenerator {
 					}
 					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
-					if (f.tag.equals("880")) {
+					if (is880) {
 						values880_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
 						values880_json.add(jsonstream.toString("UTF-8"));
 					} else {
@@ -317,8 +319,9 @@ public class Subject implements SolrFieldGenerator {
 					String filing = getFilingForm(value.display);
 					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
-					sfs.add(new SolrField("subject_"+ht.abbrev()
-					+"_"+h.vocab.name().toLowerCase()+"_filing",canonFiling));
+					if ( ! value.is880 )
+						sfs.add(new SolrField("subject_"+ht.abbrev()
+						+"_"+h.vocab.name().toLowerCase()+"_filing",canonFiling));
 				}
 			for (final String s: values_dashed)
 				sfs.add(new SolrField("subject_sub_"+h.vocab.name().toLowerCase()+"_filing",s));
@@ -380,15 +383,18 @@ public class Subject implements SolrFieldGenerator {
 	private static class BrowseValue {
 		final String display;
 		final String canon;
-		public BrowseValue( Breadcrumbs bc, String remove ) {
+		final boolean is880;
+		public BrowseValue( Breadcrumbs bc, String remove, boolean is880 ) {
 			this.display = removeTrailingPunctuation(bc.toString(),".").replaceAll(remove, "");
+			this.is880 = is880;
 			if ( bc.canonDiffers )
 				this.canon = removeTrailingPunctuation(bc.canon.toString(),".").replaceAll(remove, "");
 			else
 				this.canon = this.display;
 		}
-		public BrowseValue( Breadcrumbs bc ) {
+		public BrowseValue( Breadcrumbs bc, boolean is880 ) {
 			this.display = removeTrailingPunctuation(bc.toString(),".");
+			this.is880 = is880;
 			if ( bc.canonDiffers )
 				this.canon = removeTrailingPunctuation(bc.canon.toString(),".");
 			else
