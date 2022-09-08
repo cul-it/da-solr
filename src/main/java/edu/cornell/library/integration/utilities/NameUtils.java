@@ -117,26 +117,33 @@ public class NameUtils {
 		String facet2 = NameUtils.facetValue( fs.getFields().get(1) );
 		HeadingType ht;
 		String filingField;
+		String romanFilingField;
 		if ( fs.getMainTag().endsWith("00")) {
 			ht = HeadingType.PERSNAME;
 			filingField = "author_pers_filing";
+			romanFilingField = "author_pers_roman_filing";
 		} else if ( fs.getMainTag().endsWith("10") ) {
 			ht = HeadingType.CORPNAME;
 			filingField = "author_corp_filing";
+			romanFilingField = "author_corp_roman_filing";
 		} else if ( fs.getMainTag().endsWith("11") ) {
 			ht = HeadingType.EVENT;
 			filingField = "author_event_filing";
+			romanFilingField = "author_event_roman_filing";
 		} else {
-			ht = null; filingField = null;
+			ht = null; filingField = null; romanFilingField = null;
 		}
 
 		List<SolrField> sfs = new ArrayList<>();
-		sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display1 +" / "+display2 ));
+		sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display",
+				display1 +" / "+display2 ));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet1 )));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet2 )));
 		if (filingField != null) {
-		sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
-		sfs.add(new SolrField( filingField, getFilingForm( facet2 )));
+			sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
+			String romanFiling = getFilingForm( facet2 );
+			sfs.add(new SolrField( filingField, romanFiling ));
+			sfs.add(new SolrField( romanFilingField, romanFiling ));
 		}
 		if (fs.getFields().get(0).getScript().equals(Script.CJK))
 			sfs.add(new SolrField( (isMainAuthor)?"author_t_cjk":"author_addl_t_cjk", search1 ));
@@ -205,17 +212,21 @@ public class NameUtils {
 			String facet = NameUtils.facetValue( f );
 			HeadingType ht;
 			String filingField;
+			String romanFilingField;
 			if (f.mainTag.endsWith("00")) {
 				ht = HeadingType.PERSNAME;
 				filingField = "author_pers_filing";
+				romanFilingField = "author_pers_roman_filing";
 			} else if ( f.mainTag.endsWith("10")) {
 				ht = HeadingType.CORPNAME;
 				filingField = "author_corp_filing";
+				romanFilingField = "author_corp_roman_filing";
 			} else if ( f.mainTag.endsWith("11")) {
 				ht = HeadingType.EVENT;
 				filingField = "author_event_filing";
+				romanFilingField = "author_event_roman_filing";
 			} else {
-				ht = null; filingField = null;
+				ht = null; filingField = null; romanFilingField = null;
 			}
 
 			sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display ));
@@ -223,8 +234,12 @@ public class NameUtils {
 					(isMainAuthor)?"author_t_cjk":"author_addl_t_cjk":
 						(isMainAuthor)?"author_t":"author_addl_t", display ));
 			sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet )));
-			if (filingField != null)
-				sfs.add(new SolrField( filingField, getFilingForm( facet ) ));
+			if (filingField != null) {
+				String filing = getFilingForm( facet );
+				sfs.add(new SolrField( filingField, filing ));
+				if ( ! f.tag.equals("880") )
+					sfs.add(new SolrField( romanFilingField, filing ));
+			}
 
 			final Map<String,Object> json = new LinkedHashMap<>();
 			json.put("name1", display);

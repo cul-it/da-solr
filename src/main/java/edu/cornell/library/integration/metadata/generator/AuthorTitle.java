@@ -45,7 +45,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class AuthorTitle implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.2"; }
+	public String getVersion() { return "1.3"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -346,13 +346,20 @@ public class AuthorTitle implements SolrFieldGenerator {
 								(String)contributor.get("contributorNameTypeId"))) : null;
 				if ( nameType != null ) {
 					authorJson.put("type", nameType.toString());
+					String filing = getFilingForm( name );
 					switch ( nameType ) {
 					case PERSNAME:
-						sfs.add(new SolrField("author_pers_filing",getFilingForm( name ))); break;
+						sfs.add(new SolrField("author_pers_filing",filing));
+						sfs.add(new SolrField("author_pers_roman_filing",filing));
+						break;
 					case CORPNAME:
-						sfs.add(new SolrField("author_corp_filing",getFilingForm( name ))); break;
+						sfs.add(new SolrField("author_corp_filing",filing));
+						sfs.add(new SolrField("author_corp_roman_filing",filing));
+						break;
 					case EVENT:
-						sfs.add(new SolrField("author_event_filing",getFilingForm( name ))); break;
+						sfs.add(new SolrField("author_event_filing",filing));
+						sfs.add(new SolrField("author_event_roman_filing",filing));
+						break;
 					}
 				}
 				if ( type != null ) authorJson.put("relator", type);
