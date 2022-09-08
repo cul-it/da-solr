@@ -77,7 +77,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 
 	public MarcRecord jsonToMarcRec( String marcResponse ) throws IOException {
 		Map<String,Object> parsedResults = mapper.readValue(marcResponse, Map.class);
+		if ( ! parsedResults.containsKey("parsedRecord") ) return null;
 		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
+		if ( ! parsedRecord.containsKey("content") ) return null;
 		Map<String,Object> jsonStructure = (Map<String,Object>)parsedRecord.get("content");
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.leader = (String) jsonStructure.get("leader");

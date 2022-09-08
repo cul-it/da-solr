@@ -65,7 +65,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		while (r.hasNext())
 			if (r.next() == XMLStreamConstants.START_ELEMENT)
 				if (r.getLocalName().equals("record")) {
-					processRecord(r, trimSubfields);
+					processRecord(r, trimSubfields, this);
 					break; // We only want one record - ignore additional
 				}
 		}
@@ -126,6 +126,23 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			}
 	}
 
+	public static List<MarcRecord> readMarcFile (
+			RecordType type , String marcXml, boolean trimSubfields ) throws IOException, XMLStreamException {
+		List<MarcRecord> recs = new ArrayList<>();
+//		this( type );
+		try (InputStream is = new ByteArrayInputStream(marcXml.getBytes(StandardCharsets.UTF_8))) {
+		XMLInputFactory input_factory = XMLInputFactory.newInstance();
+		XMLStreamReader r  = input_factory.createXMLStreamReader(is);
+		while (r.hasNext())
+			if (r.next() == XMLStreamConstants.START_ELEMENT)
+				if (r.getLocalName().equals("record")) {
+					recs.add(processRecord(r, trimSubfields, new MarcRecord( type )));
+				}
+		}
+		return recs;
+	}
+
+
 	@Override
 	public int compareTo(final MarcRecord other) {
 		if ( this.type == null ) {
@@ -158,7 +175,7 @@ public class MarcRecord implements Comparable<MarcRecord>{
 
 		final StringBuilder sb = new StringBuilder();
 		if ((this.leader != null ) && ! this.leader.equals(""))
-			sb.append("000    "+this.leader+"\n");
+			sb.append(this.leader+"\n");
 
 		for( final ControlField f: this.controlFields) {
 			sb.append(f.tag + "    " + f.value+"\n");
@@ -259,13 +276,13 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		case "text":
 			return this.toString();
 		case "xml":
-			return this.toXML();
+			return this.toXML(false);
 		default:
 			return null;
 		}
 	}
 
-	public String toXML() {
+	public String toXML(boolean includeHoldingsAndInstances) {
 		try {
 
 			// build XML string
@@ -299,6 +316,25 @@ public class MarcRecord implements Comparable<MarcRecord>{
 				}
 				w.writeEndElement(); //datafield
 			}
+			if (this.type.equals(RecordType.BIBLIOGRAPHIC) && includeHoldingsAndInstances) {
+				for (MarcRecord h : this.marcHoldings) {
+					w.writeStartElement("marcHolding");
+					w.writeCharacters(h.toString());
+					w.writeEndElement();
+				}
+				if (this.folioHoldings != null)
+					for (Map<String,Object> h : this.folioHoldings) {
+						w.writeStartElement("folioHolding");
+						writeArbitraryMapData(w,h);
+						w.writeEndElement();
+					}
+				if ( this.instance != null ) {
+					w.writeStartElement("instance");
+					writeArbitraryMapData(w,this.instance);
+					w.writeEndElement();
+				}
+			}
+
 			w.writeEndElement(); // record
 			w.writeEndDocument();
 			String xml = xmlstream.toString("UTF-8");
@@ -312,23 +348,66 @@ public class MarcRecord implements Comparable<MarcRecord>{
 		}
 		return null;
 	}
+
+	private static void writeArbitraryMapData(XMLStreamWriter w, Map<String, Object> map)
+			throws XMLStreamException {
+		for (String field : map.keySet()) {
+			Object o = map.get(field);
+			if ( o == null ) continue;
+			w.writeStartElement(field);
+			switch (o.getClass().getSimpleName()) {
+			case "String": w.writeCharacters((String)o); break;
+			case "LinkedHashMap": writeArbitraryMapData(w,(Map<String,Object>)o); break;
+			case "Boolean":
+				Boolean b = (Boolean) o;
+				if (b == null) break;
+				w.writeCharacters((b.equals(true))?"true":"false");
+				break;
+			case "ArrayList":
+				String singular = field.replaceAll("s$", "");
+				for (Object value : (ArrayList<Object>)o) {
+					if ( value == null ) continue;
+					w.writeStartElement(singular);
+					switch (value.getClass().getSimpleName()) {
+					case "String": w.writeCharacters(cleanInvalidXmlChars((String)value)); break;
+					case "LinkedHashMap": writeArbitraryMapData(w,(Map<String,Object>)value); break;
+					default:
+						System.out.printf(
+								"Unrecognized object class in map serialization: %s/ArrayList<%s>\n",
+								field,value.getClass().getSimpleName());
+						System.exit(1);
+					}
+					w.writeEndElement();
+				}
+				break;
+			case "Integer": w.writeCharacters(String.valueOf(o)); break;
+			default:
+				System.out.println("Unrecognized object class in map serialization: "
+						+field+"/"+o.getClass().getSimpleName());
+				System.exit(1);
+			}
+			w.writeEndElement();
+		}
+	}
+
 	private static String cleanInvalidXmlChars(String text) {
 		return text.replaceAll("[^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF]", " ");
 	}
 
 
-	private void processRecord( XMLStreamReader r, boolean trimSubfields ) throws XMLStreamException {
+	private static MarcRecord processRecord(
+			XMLStreamReader r, boolean trimSubfields, MarcRecord rec ) throws XMLStreamException {
 
 		int fid = 0;
 		while (r.hasNext()) {
 			int event = r.next();
 			if (event == XMLStreamConstants.END_ELEMENT) {
 				if (r.getLocalName().equals("record")) 
-					return;
+					return rec;
 			}
 			if (event == XMLStreamConstants.START_ELEMENT) {
 				if (r.getLocalName().equals("leader")) {
-					this.leader = r.getElementText();
+					rec.leader = r.getElementText();
 				} else if (r.getLocalName().equals("controlfield")) {
 					String tag = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
@@ -336,11 +415,11 @@ public class MarcRecord implements Comparable<MarcRecord>{
 							tag = r.getAttributeValue(i);
 					ControlField f = new ControlField(++fid,tag,r.getElementText());
 					if (f.tag.equals("001")) {
-						this.id = f.value;
-						this.bib_id = f.value;
+						rec.id = f.value;
+						rec.bib_id = f.value;
 					} else if (f.tag.equals("005"))
-						this.modifiedDate = f.value;
-					this.controlFields.add(f);
+						rec.modifiedDate = f.value;
+					rec.controlFields.add(f);
 				} else if (r.getLocalName().equals("datafield")) {
 					DataField f = new DataField();
 					f.id = fid += 100;
@@ -364,12 +443,12 @@ public class MarcRecord implements Comparable<MarcRecord>{
 						}
 					if (f.mainTag == null)
 						f.mainTag = f.tag;
-					this.dataFields.add(f);
+					rec.dataFields.add(f);
 				}
 		
 			}
 		}
-		return;
+		return rec;
 	}
 	private static Pattern subfield6Pattern = Pattern.compile("[0-9]{3}-[0-9]{2}.*");
 

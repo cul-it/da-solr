@@ -60,7 +60,8 @@ public interface SolrFieldGenerator {
 	 * @param instance
 	 * @return SolrFields or null for unimplemented or inapplicable generators
 	 */
-	public default SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config ) {
+	public default SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config )
+			throws IOException {
 		return null;
 	}
 }

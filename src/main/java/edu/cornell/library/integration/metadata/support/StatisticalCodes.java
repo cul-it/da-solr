@@ -9,7 +9,7 @@ import edu.cornell.library.integration.folio.ReferenceData;
 
 public class StatisticalCodes {
 	
-	private static ReferenceData codes = null;
+	public static ReferenceData codes = null;
 
 	public static void initializeCodes(OkapiClient folio ) throws IOException {
 		if ( codes == null ) codes = new ReferenceData(folio, "/statistical-codes", "code") ;

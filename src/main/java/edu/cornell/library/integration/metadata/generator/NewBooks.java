@@ -2,6 +2,8 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
@@ -28,7 +31,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class NewBooks implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("007","948","holdings","instance"); }
@@ -106,8 +109,19 @@ public class NewBooks implements SolrFieldGenerator {
 					}
 				}
 			}
-		if ( acquisitionDate == null && bib.instance != null && bib.instance.containsKey("catalogedDate"))
+		if ( acquisitionDate == null && bib.instance != null ) {
+			if ( bib.instance.containsKey("catalogedDate") )
 				acquisitionDate = Timestamp.valueOf(((String)bib.instance.get("catalogedDate")+" 00:00:00"));
+			else if ( loccodes.contains("serv,remo")
+					&& bib.instance.containsKey("statusId")
+					&& SupportReferenceData.instanceStatuses.getName(
+							(String)bib.instance.get("statusId")).equals("batch") )
+				if ( bib.instance.containsKey("metadata") ) {
+					Map<String,String> meta = Map.class.cast(bib.instance.get("metadata"));
+					Timestamp createDate = Timestamp.from(isoDT.parse(meta.get("createdDate"),Instant::from));
+					if ( createDate.after(folioGoLive) ) acquisitionDate = createDate;
+				}
+		}
 
 		if ( acquisitionDate == null ) return vals;
 
@@ -123,5 +137,7 @@ public class NewBooks implements SolrFieldGenerator {
 	}
 	private static Pattern yyyymmdd = Pattern.compile("[0-9]{8}");
 	private static Locations folioLocations = null;
+	private static DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME;
+	private static Timestamp folioGoLive = Timestamp.valueOf("2021-07-01 00:00:00");
 
 }

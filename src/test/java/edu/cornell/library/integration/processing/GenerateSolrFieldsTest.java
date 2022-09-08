@@ -79,12 +79,6 @@ public class GenerateSolrFieldsTest {
 		assertEquals( EnumSet.of(Generator.HATHILINKS), forcedGenerators );
 	}
 
-	@Test
-	public void liveRecord() throws SQLException, IOException, InterruptedException, XMLStreamException {
-		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
-		MarcRecord rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, "9149595");
-		gen.generateSolr(rec, config, "");
-	}
 
 	private static String resourceAsString( String filename ) throws IOException {
 		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);

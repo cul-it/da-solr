@@ -724,7 +724,7 @@ public class ASpaceBibImportConvert {
 			newBibsFileWriter.write(
 					"<?xml version='1.0' encoding='UTF-8'?><collection xmlns=\"http://www.loc.gov/MARC21/slim\">\n");
 		}
-		newBibsFileWriter.write(newMarc.toXML().replace("<?xml version='1.0' encoding='UTF-8'?>", "")
+		newBibsFileWriter.write(newMarc.toXML(false).replace("<?xml version='1.0' encoding='UTF-8'?>", "")
 				.replace(" xmlns=\"http://www.loc.gov/MARC21/slim\"","")+"\n"); 
 
 	}
@@ -766,7 +766,7 @@ public class ASpaceBibImportConvert {
 			updatedBibsFileWriter.write(
 					"<?xml version='1.0' encoding='UTF-8'?><collection xmlns=\"http://www.loc.gov/MARC21/slim\">\n");
 		}
-		updatedBibsFileWriter.write(newMarc.toXML().replace("<?xml version='1.0' encoding='UTF-8'?>", "")
+		updatedBibsFileWriter.write(newMarc.toXML(false).replace("<?xml version='1.0' encoding='UTF-8'?>", "")
 				.replace(" xmlns=\"http://www.loc.gov/MARC21/slim\"","")+"\n");
 		try (BufferedWriter writer = Files.newBufferedWriter(
 				Paths.get("C:\\\\Users\\\\fbw4\\\\Documents\\\\archivespace\\\\Output\\\\temp\\\\" + bibId + "-2.txt"))) {

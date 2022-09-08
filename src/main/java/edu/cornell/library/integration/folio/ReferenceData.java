@@ -56,6 +56,24 @@ public class ReferenceData {
 		}
 	}
 
+	/* 
+	 * Instantiate empty ReferenceData for testing
+	 */
+	public ReferenceData(String keyField) {
+		this.defaultKey = keyField;
+		this.entriesByUuid = new HashMap<>();
+		this.dataByUuid = new HashMap<>();
+		this.dataByName = new HashMap<>();
+	}
+	public void addTestValue( String uuid, String value ) {
+		this.dataByName.put(value, uuid);
+		this.dataByUuid.put(uuid, value);
+		Map<String,String> entry = new HashMap<>();
+		entry.put("id",uuid);
+		entry.put(this.defaultKey, value);
+		this.entriesByUuid.put(uuid, entry);
+	}
+	
 	/*
 	 * Get the UUID for the given key value. If the key value isn't populated,
 	 * return default or null.
