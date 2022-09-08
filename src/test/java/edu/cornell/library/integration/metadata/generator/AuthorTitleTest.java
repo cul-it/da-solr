@@ -54,6 +54,7 @@ public class AuthorTitleTest {
 		"author_t: León Cupe, Mariano, 1932-\n"+
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
+		"author_pers_roman_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
 									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Cupe, Mariano León, 1932-\n"+
@@ -85,6 +86,7 @@ public class AuthorTitleTest {
 		"author_t: Fewer, T. N.\n"+
 		"author_facet: Fewer, T. N.\n"+
 		"author_pers_filing: fewer t n\n"+
+		"author_pers_roman_filing: fewer t n\n"+
 		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
 										"\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Fewer, Tom\n"+
@@ -118,6 +120,7 @@ public class AuthorTitleTest {
 		"author_t: Kalavrezos, Nicholas, speaker\n"+
 		"author_facet: Kalavrezos, Nicholas\n"+
 		"author_pers_filing: kalavrezos nicholas\n"+
+		"author_pers_roman_filing: kalavrezos nicholas\n"+
 		"author_json: {\"name1\":\"Kalavrezos, Nicholas, speaker\",\"search1\":\"Kalavrezos, Nicholas,\","
 		+ "\"relator\":\"speaker\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: kalavrezos nicholas\n"+
@@ -149,6 +152,7 @@ public class AuthorTitleTest {
 		"author_t: Speed, John, 1552?-1629, cartographer\n"+
 		"author_facet: Speed, John, 1552?-1629\n"+
 		"author_pers_filing: speed john 1552 1629\n"+
+		"author_pers_roman_filing: speed john 1552 1629\n"+
 		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":\"Speed, John, 1552?-1629,\","
 		+ "\"relator\":\"cartographer\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: I. S., 1552?-1629\n"+
@@ -195,6 +199,7 @@ public class AuthorTitleTest {
 		"author_t: Papadēmētropoulos, Loukas P., author\n"+
 		"author_facet: Papadēmētropoulos, Loukas P.\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
+		"author_pers_roman_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":\"Papadēmētropoulos, Loukas P.,\""
 		+ ",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"author_sort: papademetropoulos loukas p\n"+
@@ -269,6 +274,7 @@ public class AuthorTitleTest {
 		"author_facet: Taga, Futoshi, 1968-\n"+
 		"author_pers_filing: 多賀太 1968\n"+
 		"author_pers_filing: taga futoshi 1968\n"+
+		"author_pers_roman_filing: taga futoshi 1968\n"+
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
@@ -319,6 +325,7 @@ public class AuthorTitleTest {
 		"author_t: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar\n"+
 		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
+		"author_corp_roman_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"search1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
@@ -364,6 +371,7 @@ public class AuthorTitleTest {
 		"author_t: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
 		"author_pers_filing: foucher a alfred 1865 1952\n"+
+		"author_pers_roman_filing: foucher a alfred 1865 1952\n"+
 		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
 		+ "1865-1952.\",\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Foucher, Alfred Charles Auguste, 1865-1952\n"+
@@ -424,6 +432,7 @@ public class AuthorTitleTest {
 		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
 		"author_pers_filing: grebenshchikova g a\n"+
+		"author_pers_roman_filing: grebenshchikova g a\n"+
 		"author_t: Гребенщикова, Г. А, author\n"+
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А.\",\"search1\":\"Гребенщикова, Г. А,\","
@@ -462,6 +471,7 @@ public class AuthorTitleTest {
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
+		"author_corp_roman_filing: korea south president 1993 1998 kim\n"+
 		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South)."
 		+ " President (1993-1998 : Kim)\",\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
@@ -488,6 +498,7 @@ public class AuthorTitleTest {
 		"author_facet: Guo li gu gong bo wu yuan\n"+
 		"author_corp_filing: 國立故宮博物院\n"+
 		"author_corp_filing: guo li gu gong bo wu yuan\n"+
+		"author_corp_roman_filing: guo li gu gong bo wu yuan\n"+
 		"author_t_cjk: 國立故宮博物院.\n"+
 		"author_t: Guo li gu gong bo wu yuan.\n"+
 		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
