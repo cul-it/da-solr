@@ -192,10 +192,20 @@ public class NameUtils {
 				sfs.add(new SolrField((isCJK)?"author_addl_t_cjk":"author_addl_t",ctsVals.author));
 				String authorFacet = NameUtils.facetValue( f );
 				sfs.add(new SolrField("author_facet",NameUtils.getFacetForm(authorFacet)));
-				sfs.add(new SolrField(
-						(f.mainTag.equals("700"))?"author_pers_filing":
-							(f.mainTag.equals("710"))?"author_corp_filing":"author_event_filing",
-						getFilingForm(authorFacet)));
+				String filingAuthorName = getFilingForm(authorFacet);
+				if ( f.mainTag.equals("700") ) {
+					sfs.add(new SolrField("author_pers_filing",filingAuthorName));
+					if ( ! f.tag.equals("880") )
+						sfs.add(new SolrField("author_pers_roman_filing",filingAuthorName));
+				} else if ( f.mainTag.equals("710") ) {
+					sfs.add(new SolrField("author_corp_filing",filingAuthorName));
+					if ( ! f.tag.equals("880") )
+						sfs.add(new SolrField("author_corp_roman_filing",filingAuthorName));
+				} else {
+					sfs.add(new SolrField("author_event_filing",filingAuthorName));
+					if ( ! f.tag.equals("880") )
+						sfs.add(new SolrField("author_event_roman_filing",filingAuthorName));
+				}
 			} else {
 				relation = "related_work_display";
 			}
