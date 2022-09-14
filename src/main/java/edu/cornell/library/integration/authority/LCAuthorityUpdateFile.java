@@ -12,7 +12,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,7 +41,14 @@ public class LCAuthorityUpdateFile {
 		while ( bytes != null ) {
 
 			// Extract the first record, convert to utf8
-			byte[] recordArray = getTopRecordFromArray( bytes );
+			byte[] recordArray;
+			try {
+				recordArray = getTopRecordFromArray( bytes );
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				System.out.printf("Error parsing %s. Skipping the rest.\n", inputPath);
+				continue;
+			}
 			bytes = removeTopRecordFromArray( bytes, recordArray.length );
 			byte[] recordArrayUTF8 = convertMarc8RecordToUtf8( recordArray );
 			MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,recordArrayUTF8);
