@@ -9,7 +9,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,20 @@ public class GenerateSolrFieldsTest {
 				.filter(e -> reindexCause.contains(e.name()))
 				.collect(Collectors.toSet()));
 		assertEquals( EnumSet.of(Generator.HATHILINKS), forcedGenerators );
+	}
+
+	@Test
+	public void sanitizeInstance() {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("We hope to see consecutive spaces cleaned up", "a     a");
+		instance.put("As well as literal carriage returns", "a \na");
+		instance.put("And symbolic ones", "a \\na");
+		GenerateSolrFields.sanitizeCarriageReturnsInInstance(instance);
+
+		assertEquals("a a",instance.get("We hope to see consecutive spaces cleaned up"));
+		assertEquals("a a",instance.get("As well as literal carriage returns"));
+		assertEquals("a a",instance.get("And symbolic ones"));
+		
 	}
 
 

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -196,26 +197,28 @@ class GenerateSolrFields {
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
-	private static void sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
+	static void sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
 		for (Entry<String, Object> e : instance.entrySet()) {
 			String className = e.getValue().getClass().getSimpleName();
 			switch (className) {
 			case "String":
-				instance.put(e.getKey(),((String)e.getValue()).replaceAll("\\s+"," ").trim() );
+				instance.put(e.getKey(),((String)e.getValue())
+						.replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim() );
 				break;
 			case "ArrayList":
 				List<Object> list = (ArrayList)e.getValue();
 				for ( int i = 0; i < list.size(); i++ ) {
 					Object item = list.get(i);
 					if ( item != null && item.getClass().getSimpleName().equals("String"))
-						list.set(i, ((String)item).replaceAll("\\s+"," ").trim());
+						list.set(i, ((String)item).replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
 				}
 				break;
 			case "LinkedHashMap":
 				Map<String,Object> map = ((Map<String,Object>)e.getValue());
 				for (Entry<String,Object> e2 : map.entrySet()) {
 					if ( e2.getValue().getClass().getSimpleName().equals("String") )
-						map.put(e2.getKey(), ((String)e2.getValue()).replaceAll("\\s+"," ").trim() );
+						map.put(e2.getKey(),((String)e2.getValue())
+								.replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim() );
 				}
 			}
 		}
