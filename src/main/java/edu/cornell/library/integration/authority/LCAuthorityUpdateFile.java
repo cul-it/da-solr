@@ -47,7 +47,7 @@ public class LCAuthorityUpdateFile {
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 				System.out.printf("Error parsing %s. Skipping the rest.\n", inputPath);
-				continue;
+				return records;
 			}
 			bytes = removeTopRecordFromArray( bytes, recordArray.length );
 			byte[] recordArrayUTF8 = convertMarc8RecordToUtf8( recordArray );
