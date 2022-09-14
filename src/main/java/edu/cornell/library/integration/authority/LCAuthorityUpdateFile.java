@@ -88,7 +88,7 @@ public class LCAuthorityUpdateFile {
 				insertStmt.setInt(4, positionInFile);
 				insertStmt.setInt(5, changeType.ordinal());
 				insertStmt.setString(6, (heading == null)?null:heading.getKey());
-				insertStmt.setInt(7, (heading == null)?null:heading.getValue().ordinal());
+				insertStmt.setInt(7, (heading == null)?-1:heading.getValue().ordinal());
 				insertStmt.setString(8, linkedSubdivision);
 				insertStmt.setBoolean(9, undifferentiated);
 				insertStmt.setString(10, records.get(r));
