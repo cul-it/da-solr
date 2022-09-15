@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.marc4j.MarcException;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
 import org.marc4j.MarcStreamWriter;
@@ -51,10 +52,13 @@ public class LCAuthorityUpdateFile {
 			}
 			bytes = removeTopRecordFromArray( bytes, recordArray.length );
 			byte[] recordArrayUTF8 = convertMarc8RecordToUtf8( recordArray );
-			MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,recordArrayUTF8);
-
-			records.put(r,new String( recordArrayUTF8, StandardCharsets.UTF_8));
-
+			if ( recordArrayUTF8 == null ) {
+				System.out.println("Failed to convert record:");
+				System.out.println(new String(recordArray,StandardCharsets.UTF_8));
+			} else {
+				MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,recordArrayUTF8);
+				records.put(r,new String( recordArrayUTF8, StandardCharsets.UTF_8));
+			}
 		}
 		return records;
 	}
@@ -191,8 +195,13 @@ public class LCAuthorityUpdateFile {
 		AnselToUnicode converter = new AnselToUnicode();
 		writer.setConverter(converter);
 		while (reader.hasNext()) {
-			Record record = reader.next();
-			writer.write(record);
+			try {
+				Record record = reader.next();
+				writer.write(record);
+			} catch (MarcException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 		writer.close();
 		return output.toString().getBytes();
