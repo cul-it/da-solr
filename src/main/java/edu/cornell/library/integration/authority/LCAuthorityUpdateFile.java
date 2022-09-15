@@ -67,8 +67,8 @@ public class LCAuthorityUpdateFile {
 				"INSERT INTO authorityUpdate"+
 				"       (id,vocabulary,updateFile,positionInFile,changeType,"+
 				"        heading,headingType,linkedSubdivision,undifferentiated,"+
-				"        marc21,marcxml,human,moddate) "+
-				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+				"        marc21,human,moddate) "+
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
 			insertStmt.setString(3, inputFile);
 			for (MarcRecord r : records.keySet()) {
 
@@ -92,9 +92,8 @@ public class LCAuthorityUpdateFile {
 				insertStmt.setString(8, linkedSubdivision);
 				insertStmt.setBoolean(9, undifferentiated);
 				insertStmt.setString(10, records.get(r));
-				insertStmt.setString(11, r.toXML(false));
-				insertStmt.setString(12, r.toString());
-				insertStmt.setDate(13, moddate);
+				insertStmt.setString(11, r.toString());
+				insertStmt.setDate(12, moddate);
 				insertStmt.addBatch();
 
 				if ( 0 == count % 100 ) insertStmt.executeBatch();
