@@ -1,15 +1,19 @@
 package edu.cornell.library.integration.processing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,7 +25,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Generator;
@@ -87,11 +90,47 @@ public class GenerateSolrFieldsTest {
 		instance.put("We hope to see consecutive spaces cleaned up", "a     a");
 		instance.put("As well as literal carriage returns", "a \na");
 		instance.put("And symbolic ones", "a \\na");
+		Map<String,Object> testContributor = new LinkedHashMap<>();
+		testContributor.put("name","Sprague, Ted\n");
+		testContributor.put("contributorTypeId","6e09d47d-95e2-4d8a-831b-f777b8ef6d81");
+		testContributor.put("contributorNameTypeId","2b94c631-fca9-4892-a730-03ee529ffe2a");
+		testContributor.put("primary",true);
+		
+		testContributor.put("name-xtra1","Sprague, Ted\\n");
+		testContributor.put("name-xtra2","Sprague, Ted\\\n");
+		testContributor.put("name-xtra3","Sprague, Ted\\\\n");
+		testContributor.put("name-xtra4","Sprague, Ted\\\\\n");
+		testContributor.put("name-xtra5","Sprague, Ted\\\\\\n");
+		testContributor.put("name-xtra6","Sprague, Ted\\\\\\\n");
+		instance.put("testContributor", testContributor);
+
+		List<Map<String,Object>> contributorList = new ArrayList<>();
+		contributorList.add(testContributor);
+		instance.put("contributors", contributorList);
+
 		GenerateSolrFields.sanitizeCarriageReturnsInInstance(instance);
 
 		assertEquals("a a",instance.get("We hope to see consecutive spaces cleaned up"));
 		assertEquals("a a",instance.get("As well as literal carriage returns"));
 		assertEquals("a a",instance.get("And symbolic ones"));
+
+		Object testContributorOut = instance.get("testContributor");
+		assertTrue(Map.class.isInstance(testContributorOut));
+		Map<String,Object> contributorOut = Map.class.cast(testContributorOut);
+		assertEquals(10,contributorOut.size());
+		for (Object key :contributorOut.keySet())
+			if (String.class.isInstance(contributorOut.get(key)))
+				assertFalse(String.class.cast(contributorOut.get(key)).contains("\n"));
+
+		Object testContributorListOut = instance.get("contributors");
+		assertTrue(ArrayList.class.isInstance(testContributorListOut));
+		List<Map<String,Object>> contributorsOut = ArrayList.class.cast(testContributorListOut);
+		assertEquals(1,contributorsOut.size());
+		Map<String,Object> contributorOut2 = contributorsOut.get(0);
+		assertEquals(10,contributorOut2.size());
+		for (Object key : contributorOut2.keySet())
+			if (String.class.isInstance(contributorOut2.get(key)))
+				assertFalse(String.class.cast(contributorOut2.get(key)).contains("\n"));
 		
 	}
 
