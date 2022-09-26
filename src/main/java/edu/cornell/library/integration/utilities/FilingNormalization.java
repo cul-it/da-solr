@@ -47,6 +47,7 @@ public class FilingNormalization {
 				}
 				lastHyphenPosition = i;
 			case ' ':
+			case '\n':
 				// prevent sequential spaces, initial spaces
 				if (sb.length() > 0 && sb.charAt(sb.length()-1) != ' ') sb.append(' '); 
 				break;

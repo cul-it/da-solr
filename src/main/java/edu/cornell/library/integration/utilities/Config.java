@@ -79,6 +79,13 @@ public class Config {
 		return null;
 	}
 
+	public String getAuthorityChangeFileDirectory() {
+		if (this.values.containsKey("authorityChangeFileDirectory"))
+			return this.values.get("authorityChangeFileDirectory");
+		return null;
+	}
+
+
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {
 			return this.values.get("solrUrl");
