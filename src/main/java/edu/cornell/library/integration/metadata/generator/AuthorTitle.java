@@ -332,8 +332,8 @@ public class AuthorTitle implements SolrFieldGenerator {
 			for ( Map<String,Object> contributor : contributors ) {
 				if ( contributor == null || ! contributor.containsKey("name") )
 					continue;
-				String name = (String)contributor.get("name");
-				sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm(name) ));
+				String name = ((String)contributor.get("name")).replaceAll("\\n","");
+				sfs.add(new SolrField("author_facet",NameUtils.getFacetForm(name)));
 				String type = ( contributor.containsKey("contributorTypeText") )
 					? (String)contributor.get("contributorTypeText") : null;
 				String displayName = (type == null)?name:name+", "+type;
