@@ -29,7 +29,7 @@ public class MarcRecordTest {
 				"    </datafield>\n"+
 				"  </record>", true );
 		assertEquals(
-				"000    00182nx  a22000851  4500\n"+
+				"00182nx  a22000851  4500\n"+
 				"001    7797875\n"+
 				"004    7367575\n"+
 				"005    20110815105618.0\n"+
@@ -45,7 +45,7 @@ public class MarcRecordTest {
 				getClass().getClassLoader().getResource("auth_sample.mrc").toURI())));
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,record.getBytes());
 		assertEquals(
-				"000    00551cz  a2200169n  4500\n"+
+				"00551cz  a2200169n  4500\n"+
 				"001    8700001\n"+
 				"005    20121106141524.0\n"+
 				"008    110330n| acannaabn           a aaa     c\n"+
