@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -196,29 +197,36 @@ class GenerateSolrFields {
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
-	private static void sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
+	static Map<String,Object> sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
 		for (Entry<String, Object> e : instance.entrySet()) {
-			String className = e.getValue().getClass().getSimpleName();
-			switch (className) {
-			case "String":
-				instance.put(e.getKey(),((String)e.getValue()).replaceAll("\\s+"," ").trim() );
-				break;
-			case "ArrayList":
-				List<Object> list = (ArrayList)e.getValue();
+			Object value = e.getValue();
+			if ( value == null )
+				continue;
+			else if (String.class.isInstance(value))
+				instance.put(e.getKey(),String.class.cast(value)
+						.replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim() );
+			else if (ArrayList.class.isInstance(value)) {
+				List<Object> list = ArrayList.class.cast(value);
 				for ( int i = 0; i < list.size(); i++ ) {
 					Object item = list.get(i);
-					if ( item != null && item.getClass().getSimpleName().equals("String"))
-						list.set(i, ((String)item).replaceAll("\\s+"," ").trim());
+					if ( String.class.isInstance(item) )
+						list.set(i, String.class.cast(item).replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
+					else if (LinkedHashMap.class.isInstance(item)) {
+						sanitizeCarriageReturnsInInstance(Map.class.cast(item));
+					}
 				}
-				break;
-			case "LinkedHashMap":
-				Map<String,Object> map = ((Map<String,Object>)e.getValue());
-				for (Entry<String,Object> e2 : map.entrySet()) {
-					if ( e2.getValue().getClass().getSimpleName().equals("String") )
-						map.put(e2.getKey(), ((String)e2.getValue()).replaceAll("\\s+"," ").trim() );
-				}
+			} else if (LinkedHashMap.class.isInstance(value)) {
+				sanitizeCarriageReturnsInInstance( Map.class.cast(value) );
+			} else if ( Integer.class.isInstance(value)
+					|| Boolean.class.isInstance(value)) {
+				// nothing needs doing
+			} else {
+				System.out.printf("Unexpected key type in instance hash: %s (%s)\n",
+						value.getClass().getName(),e.getKey());
+				Thread.dumpStack();
 			}
 		}
+		return instance;
 	}
 
 	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData)

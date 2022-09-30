@@ -73,6 +73,7 @@ public class TitleChangeTest {
 		"author_addl_t: Sallinen, Aulis.\n"+
 		"author_facet: Sallinen, Aulis\n"+
 		"author_pers_filing: sallinen aulis\n"+
+		"author_pers_roman_filing: sallinen aulis\n"+
 		"included_work_display: Sallinen, Aulis. Vintern war hård; arranged.|Vintern war hård; arranged.|"
 		+ "Sallinen, Aulis.\n"+
 		"title_uniform_t: Vintern war hård; arranged.\n"+
@@ -81,6 +82,7 @@ public class TitleChangeTest {
 		"author_addl_t: Riley, Terry, 1935-\n"+
 		"author_facet: Riley, Terry, 1935-\n"+
 		"author_pers_filing: riley terry 1935\n"+
+		"author_pers_roman_filing: riley terry 1935\n"+
 		"included_work_display: Riley, Terry, 1935- Salome dances for peace. Half-wolf dances mad in moonlight.|"
 		+ "Salome dances for peace. Half-wolf dances mad in moonlight.|Riley, Terry, 1935-\n"+
 		"title_uniform_t: Salome dances for peace. Half-wolf dances mad in moonlight.\n"+
@@ -90,6 +92,7 @@ public class TitleChangeTest {
 		"author_addl_t: Barber, Samuel, 1910-1981.\n"+
 		"author_facet: Barber, Samuel, 1910-1981\n"+
 		"author_pers_filing: barber samuel 1910 1981\n"+
+		"author_pers_roman_filing: barber samuel 1910 1981\n"+
 		"included_work_display: Barber, Samuel, 1910-1981. Quartets, violins (2), viola, cello, no. 1, op. 11,"
 		+ " B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|"
 		+ "Barber, Samuel, 1910-1981.\n"+
@@ -282,6 +285,7 @@ public class TitleChangeTest {
 		"author_addl_t: Vatican Council (2nd : 1962-1965).\n"+
 		"author_facet: Vatican Council\n"+
 		"author_event_filing: vatican council\n"+
+		"author_event_roman_filing: vatican council\n"+
 		"included_work_display: Vatican Council (2nd : 1962-1965). Constitutio pastoralis de ecclesia in"
 		+ " mundo huius temporis Nn. 19-21. English.|Constitutio pastoralis de ecclesia in mundo huius"
 		+ " temporis Nn. 19-21. English.|Vatican Council (2nd : 1962-1965).\n"+
