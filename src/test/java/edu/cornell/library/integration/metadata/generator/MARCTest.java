@@ -19,6 +19,7 @@ public class MARCTest {
 	public void testSmallRecord() throws ClassNotFoundException, SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "12345";
+		rec.bib_id = "12345";
 		rec.controlFields.add(new ControlField( 1, "005", "19940223151047.0"));
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Jones, Davy ‡d 1945-2012."));
 		String expected =

@@ -29,7 +29,7 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","899","holdings"); }
@@ -75,12 +75,15 @@ public class URL implements SolrFieldGenerator {
 			if ( m.matches() ) userLimit = Integer.valueOf( m.group(1) );
 		}
 
+		List<Map<String,Object>> allProcessedLinks = new ArrayList<>();
+
 		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields("856");
 		if ( bibRec.marcHoldings != null) for (MarcRecord holdingsRec : bibRec.marcHoldings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
-		//TODO Link fields from Folio holdings
+		if (bibRec.folioHoldings != null)
+			for (Map<String,Object> holding: bibRec.folioHoldings)
+				allProcessedLinks.addAll(extractLinks(holding,isOnline));
 
-		List<Map<String,Object>> allProcessedLinks = new ArrayList<>();
 		for (DataField f : allLinkFields) {
 			Map<String,Object> processedLink = new HashMap<>();
 
@@ -159,19 +162,15 @@ public class URL implements SolrFieldGenerator {
 			String url_lc = ((String)processedLink.get("url")).toLowerCase();
 			if (url_lc.contains("://plates.library.cornell.edu")) {
 				relation = "bookplate";
-				if (processedLink.containsKey("description"))
-					sfs.add( new SolrField ("donor_t", ((String)processedLink.get("description")) ));
-				sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
 			} else if (url.toLowerCase().contains("://pda.library.cornell.edu")) {
 				relation = "pda";
 			}
 			processedLink.put("relation", relation);
 			if ( userLimit != null )
 				processedLink.put("users", userLimit);
-
 			allProcessedLinks.add(processedLink);
-
 		}
+
 		if (isOnline) {
 			int accessLinkCount = countLinksByType( allProcessedLinks, "access" );
 			if ( accessLinkCount == 0 ) {
@@ -183,23 +182,8 @@ public class URL implements SolrFieldGenerator {
 			
 		}
 
-		for (Map<String,Object> link : allProcessedLinks) {
-			String relation = (String)link.get("relation");
-			String url = (String)link.get("url");
-			if (relation.equals("access")) {
-				link.remove("relation");
-				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-				mapper.writeValue(jsonstream, link);
-				if ( link.containsKey("description") )
-					sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
-				sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
-			} else if ( ! link.containsKey("description")) {
-				sfs.add( new SolrField ("url_"+relation+"_display",url));						
-			} else {
-				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + link.get("description")));
-				sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
-			}
-		}
+		sfs.addAll(processedLinksToSolrFields(allProcessedLinks));
+
 		if (isOnline)
 			sfs.add(new SolrField("online","Online"));
 		if (isPrint)
@@ -261,20 +245,26 @@ public class URL implements SolrFieldGenerator {
 	private static SolrFields processedLinksToSolrFields( List<Map<String,Object>> links ) throws IOException {
 		SolrFields sfs = new SolrFields();
 		for (Map<String,Object> link : links) {
-			String relation = (String)link.get("relation");
-			String url = (String)link.get("url");
+			String relation = String.class.cast(link.get("relation"));
+			String url = String.class.cast(link.get("url"));
+			String description = String.class.cast(link.get("description"));
+			if (relation.equals("bookplate")) {
+				if (link.containsKey("description"))
+					sfs.add( new SolrField ("donor_t", description ));
+				sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
+			}
 			if (relation.equals("access")) {
 				link.remove("relation");
 				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 				mapper.writeValue(jsonstream, link);
 				if ( link.containsKey("description") )
-					sfs.add( new SolrField ("notes_t",(String)link.get("description")));
+					sfs.add( new SolrField ("notes_t",description));
 				sfs.add( new SolrField("url_access_json",jsonstream.toString("UTF-8")) );
 			} else if ( ! link.containsKey("description")) {
 				sfs.add( new SolrField ("url_"+relation+"_display",url));						
 			} else {
-				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + link.get("description")));
-				sfs.add( new SolrField ("notes_t",((String)link.get("description"))));
+				sfs.add( new SolrField ("url_"+relation+"_display",url + "|" + description));
+				sfs.add( new SolrField ("notes_t",description));
 			}
 		}
 		return sfs;
@@ -297,11 +287,14 @@ public class URL implements SolrFieldGenerator {
 					linkText.add(String.class.cast(rawLink.get(field)));
 			if (linkText.size() >= 1)
 				processedLink.put("description", String.join(" ", linkText));
+			String url = String.class.cast(processedLink.get("url"));
 			if (processedLink.containsKey("description")
 					&& String.class.cast(processedLink.get("description")).contains("findingaid"))
 				processedLink.put("relation", "finding aid");
-			else if (String.class.cast(processedLink.get("url")).contains("://pda.library.cornell.edu"))
+			else if (url.contains("://pda.library.cornell.edu"))
 				processedLink.put("relation", "pda");
+			else if (url.contains("://plates.library.cornell.edu"))
+				processedLink.put("relation", "bookplate");
 			else if (isOnline)
 				processedLink.put("relation", "access");
 			else

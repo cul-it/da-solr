@@ -181,18 +181,33 @@ public class URLTest {
 
 	@Test
 	public void testBookplateURL() throws IOException, ClassNotFoundException, SQLException {
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-		holdingRec.id = "9489596";
-		holdingRec.dataFields.add(new DataField(1,"856",'4',' ',
-				"‡u http://plates.library.cornell.edu/donor/DNR00450 ‡z From the Estate of Charles A. Leslie."));
-		bibRec.marcHoldings.add(holdingRec);
+
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		{
+			Map<String,String> link = new LinkedHashMap<>();
+			link.put("uri","http://plates.library.cornell.edu/donor/DNR00450");
+			link.put("publicNote", "From the Estate of Charles A. Leslie.");
+			link.put("relationshipId", "5bfe1b7b-f151-4501-8cfa-23b321d5cd1e");
+			List<Map<String,String>> links = new ArrayList<>();
+			links.add(link);
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holdings.add(holding);
+		}
+
 		String expected =
 		"donor_t: From the Estate of Charles A. Leslie.\n"+
 		"donor_s: DNR00450\n"+
 		"url_bookplate_display: http://plates.library.cornell.edu/donor/DNR00450|From the Estate of Charles A. Leslie.\n"+
 		"notes_t: From the Estate of Charles A. Leslie.\n";
-		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+
+		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		marc.folioHoldings = holdings;
+		assertEquals( expected, this.gen.generateSolrFields(marc, null).toString() );
+
+		Map<String,Object> instance = new LinkedHashMap<>();
+		instance.put("holdings", holdings);
+		assertEquals( expected, this.gen.generateNonMarcSolrFields(instance, null).toString() );
 	}
 
 	@Test
