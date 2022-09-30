@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ReferenceData {
@@ -23,37 +24,36 @@ public class ReferenceData {
 	 * use cases arise, this can be expanded.
 	 */
 	public ReferenceData(OkapiClient okapi, String endPoint, String nameField) throws IOException {
-		String json = okapi.query(endPoint , null, 4000);
-		Map<String, Object> rawData = mapper.readValue(json, Map.class);
-		Map<String, String> processedByName = new HashMap<>();
-		Map<String, String> processedByUuid = new HashMap<>();
-		for (String mainKey : rawData.keySet()) {
+		this(okapi.query(endPoint , null, 4000), nameField);
+	}
+	
+	public ReferenceData(String json, String nameField) throws IOException {
+	    JsonNode rawData = mapper.readTree(json);
+	    Map<String, String> processedByName = new HashMap<>();
+        Map<String, String> processedByUuid = new HashMap<>();
 
-			if (mainKey.equals("totalRecords"))
-				continue;
-			Object mainValue = rawData.get(mainKey);
-			if (!mainValue.getClass().equals(ArrayList.class))
-				continue;
-
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> entries = (ArrayList<Map<String, Object>>) mainValue;
-			for (Map<String, Object> entry : entries) {
-				String name = (String) entry.get(nameField);
-				String id = (String) entry.get("id");
-				processedByName.put( (name).toLowerCase(), id);
-				processedByUuid.put(id, name);
-			}
-		}
-
-		this.dataByName = processedByName;
-		this.dataByUuid = processedByUuid;
-		this.entriesByUuid = new HashMap<>();
-		for ( Entry<String,String> e : this.dataByUuid.entrySet() ) {
-			Map<String,String> entry = new HashMap<>();
-			entry.put("id", e.getKey());
-			entry.put(nameField, e.getValue());
-			this.entriesByUuid.put(e.getKey(), entry);
-		}
+        // check for any required fields?
+        rawData.fieldNames().forEachRemaining(mainKey -> {
+            JsonNode mainValue = rawData.get(mainKey);
+            if (!mainKey.equals("totalRecords") && mainValue.isArray()) {
+                mainValue.iterator().forEachRemaining(item -> {
+                    String name = item.get(nameField).asText();
+                    String id = item.get("id").asText();
+                    processedByName.put( (name).toLowerCase(), id);
+                    processedByUuid.put(id, name);
+                });
+            }
+        });
+        
+        this.dataByName = processedByName;
+        this.dataByUuid = processedByUuid;
+        this.entriesByUuid = new HashMap<>();
+        for ( Entry<String,String> e : this.dataByUuid.entrySet() ) {
+            Map<String,String> entry = new HashMap<>();
+            entry.put("id", e.getKey());
+            entry.put(nameField, e.getValue());
+            this.entriesByUuid.put(e.getKey(), entry);
+        }
 	}
 
 	/* 
