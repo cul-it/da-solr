@@ -4,9 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+
+import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -14,6 +19,16 @@ import edu.cornell.library.integration.marc.MarcRecord;
 public class FormatTest {
 
 	SolrFieldGenerator gen = new Format();
+
+
+	@BeforeClass
+	public static void instantiateTestInstanceResourceTypes() {
+		Format.resourceTypes = new ReferenceData("name");
+		Format.resourceTypes.addTestValue("c7f7446f-4642-4d97-88c9-55bae2ad6c7f", "spoken word");
+		Format.resourceTypes.addTestValue("2afc8005-8654-4401-8321-d991f8cb95e9", "borrow direct");
+		Format.resourceTypes.addTestValue("6312d172-f0cf-40f6-b27d-9fa8feaf332f", "text");
+		Format.resourceTypes.addTestValue("497b5090-3da2-486c-b57f-de5bb3c2e26d", "notated music");
+	}
 
 	@Test
 	public void testBook() throws ClassNotFoundException, SQLException, IOException {
@@ -155,4 +170,38 @@ public class FormatTest {
 		"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
+
+	@Test
+	public void testInstanceResourceTypes() throws IOException {
+		Map<String,Object> instance = new LinkedHashMap<>();
+
+		instance.put("instanceTypeId", "c7f7446f-4642-4d97-88c9-55bae2ad6c7f");
+		assertEquals(
+		"format: Non-musical Recording\n" + 
+		"format_main_facet: Non-musical Recording\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		instance.put("instanceTypeId", "2afc8005-8654-4401-8321-d991f8cb95e9");
+		assertEquals(
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		instance.put("instanceTypeId", "6312d172-f0cf-40f6-b27d-9fa8feaf332f");
+		assertEquals(
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		instance.put("instanceTypeId", "497b5090-3da2-486c-b57f-de5bb3c2e26d");
+		assertEquals(
+		"format: Musical Score\n" + 
+		"format_main_facet: Musical Score\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
 }
