@@ -27,13 +27,14 @@ public class URLTest {
 	static Map<String,Object> onlineFolioHolding ;
 	static List<Map<String,Object>> onlineFolioHoldingList ;
 	static Config config;
+	static Locations locations;
 
 	@BeforeClass
 	public static void createServRemoHolding() throws IOException {
 		config = Config.loadConfig(new ArrayList<String>());
 		if ( config.isOkapiConfigured("Folio") ) {
 			OkapiClient folio = config.getOkapi("Folio");
-			Locations locations = new Locations(folio);
+			locations = new Locations(folio);
 			Location onlineLoc = locations.getByCode("serv,remo");
 			onlineFolioHolding = new HashMap<>();
 			onlineFolioHolding.put("permanentLocationId", onlineLoc.id);
@@ -208,6 +209,25 @@ public class URLTest {
 		Map<String,Object> instance = new LinkedHashMap<>();
 		instance.put("holdings", holdings);
 		assertEquals( expected, this.gen.generateNonMarcSolrFields(instance, null).toString() );
+	}
+
+	@Test
+	public void guardAgainstNullLinkHash() throws IOException, ClassNotFoundException, SQLException {
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		{
+			Map<String,String> link = null;
+			List<Map<String,String>> links = new ArrayList<>();
+			links.add(link);
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holding.put("permanentLocationId", locations.getByCode("serv,remo").id);
+			holdings.add(holding);
+		}
+
+		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		marc.folioHoldings = holdings;
+		assertEquals( "", this.gen.generateSolrFields(marc, null).toString() );
+
 	}
 
 	@Test

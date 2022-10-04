@@ -14,6 +14,14 @@ public class SolrFields {
 	public void setRecordBoost(Integer recordBoost) {
 		this.recordBoost = recordBoost;
 	}
+	public void add( String field, String value ) {
+		if (field == null || field.isEmpty() || value == null || value.isEmpty()) return;
+		this.fields.add(new SolrField(field,value));
+	}
+	public void add( String field, Boolean value ) {
+		if (field == null || field.isEmpty() || value == null ) return;
+		this.boolFields.add(new BooleanSolrField(field,value));
+	}
 	public void add( SolrField sf ) {
 		if (sf == null) return;
 		this.fields.add(sf);
