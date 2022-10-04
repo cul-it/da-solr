@@ -277,7 +277,9 @@ public class URL implements SolrFieldGenerator {
 		if ( ! ArrayList.class.isInstance(record.get("electronicAccess"))) return links;
 		List<Map<String,String>> rawLinks = ArrayList.class.cast(record.get("electronicAccess"));
 		for (Map<String,String> rawLink : rawLinks) {
-			if ( !rawLink.containsKey("uri") || String.class.cast(rawLink.get("uri")).isEmpty())
+			if ( rawLink == null
+					|| !rawLink.containsKey("uri")
+					|| String.class.cast(rawLink.get("uri")).isEmpty())
 				continue;
 			Map<String,Object> processedLink = new HashMap<>();
 			processedLink.put("url", String.class.cast(rawLink.get("uri")));
