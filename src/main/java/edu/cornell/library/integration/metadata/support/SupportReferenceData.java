@@ -10,9 +10,11 @@ public class SupportReferenceData {
 	public static ReferenceData contributorTypes;
 	public static ReferenceData contributorNameTypes;
 	public static ReferenceData instanceNoteTypes;
+	public static ReferenceData instanceStatuses;
 	public static void initialize( OkapiClient folio) throws IOException {
 		contributorTypes = new ReferenceData( folio, "/contributor-types","name");
 		contributorNameTypes = new ReferenceData( folio, "/contributor-name-types","ordering");
 		instanceNoteTypes = new ReferenceData( folio, "/instance-note-types","name");
+		instanceStatuses = new ReferenceData( folio, "/instance-statuses","code");
 	}
 }

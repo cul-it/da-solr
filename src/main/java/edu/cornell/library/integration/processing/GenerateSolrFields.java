@@ -117,7 +117,7 @@ class GenerateSolrFields {
 			MarcRecord rec, Config config, String recordVersions, EnumSet<Generator> forcedGenerators )
 			throws SQLException, IOException, XMLStreamException {
 
-		sanitizeCarriageReturnsInMarc( rec );
+		sanitizeCarriageReturnsEtAlInMarc( rec );
 		Map<Generator,MarcRecord> recordChunks = createMARCChunks(
 				rec,this.activeMarcGenerators,this.fieldsSupported);
 		Map<Generator,BibGeneratorData> originalValues = pullPreviousFieldDataFromDB(
@@ -183,40 +183,50 @@ class GenerateSolrFields {
 		return new BibChangeSummary(null);
 	}
 
-	private static void sanitizeCarriageReturnsInMarc(MarcRecord rec) {
+	private static void sanitizeCarriageReturnsEtAlInMarc(MarcRecord rec) {
 		for (ControlField f : rec.controlFields)
 			if (f.value.indexOf('\n')>-1 || f.value.indexOf('\r')>-1)
 				f.value = f.value.replaceAll("[\n\r]+", " ");
 		for (DataField f : rec.dataFields) for (Subfield sf : f.subfields)
-			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1)
-				if (f.tag.equals("010")) sf.value = sf.value.replaceAll("[\n\r]+", " ");
-				else                     sf.value = sf.value.replaceAll("[\n\r]+", " ").trim();
+			if (sf.value.indexOf('\n')>-1 || sf.value.indexOf('\r')>-1
+					|| sf.value.indexOf('\u0001')>-1 || sf.value.indexOf('\u001B')>-1)
+				if (f.tag.equals("010"))
+					sf.value = sf.value.replaceAll("[\n\r\u0001\u001B]+", " ");
+				else
+					sf.value = sf.value.replaceAll("[\n\r\u0001\u001B]+", " ").trim();
 	}
 
 	// this is not recursive, which may need to change if we have carriage returns deeper.
-	private static void sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
+	static Map<String,Object> sanitizeCarriageReturnsInInstance(Map<String,Object> instance) {
 		for (Entry<String, Object> e : instance.entrySet()) {
-			String className = e.getValue().getClass().getSimpleName();
-			switch (className) {
-			case "String":
-				instance.put(e.getKey(),((String)e.getValue()).replaceAll("\\s+"," ").trim() );
-				break;
-			case "ArrayList":
-				List<Object> list = (ArrayList)e.getValue();
+			Object value = e.getValue();
+			if ( value == null )
+				continue;
+			else if (String.class.isInstance(value))
+				instance.put(e.getKey(),String.class.cast(value)
+						.replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim() );
+			else if (ArrayList.class.isInstance(value)) {
+				List<Object> list = ArrayList.class.cast(value);
 				for ( int i = 0; i < list.size(); i++ ) {
 					Object item = list.get(i);
-					if ( item != null && item.getClass().getSimpleName().equals("String"))
-						list.set(i, ((String)item).replaceAll("\\s+"," ").trim());
+					if ( String.class.isInstance(item) )
+						list.set(i, String.class.cast(item).replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
+					else if (LinkedHashMap.class.isInstance(item)) {
+						sanitizeCarriageReturnsInInstance(Map.class.cast(item));
+					}
 				}
-				break;
-			case "LinkedHashMap":
-				Map<String,Object> map = ((Map<String,Object>)e.getValue());
-				for (Entry<String,Object> e2 : map.entrySet()) {
-					if ( e2.getValue().getClass().getSimpleName().equals("String") )
-						map.put(e2.getKey(), ((String)e2.getValue()).replaceAll("\\s+"," ").trim() );
-				}
+			} else if (LinkedHashMap.class.isInstance(value)) {
+				sanitizeCarriageReturnsInInstance( Map.class.cast(value) );
+			} else if ( Integer.class.isInstance(value)
+					|| Boolean.class.isInstance(value)) {
+				// nothing needs doing
+			} else {
+				System.out.printf("Unexpected key type in instance hash: %s (%s)\n",
+						value.getClass().getName(),e.getKey());
+				Thread.dumpStack();
 			}
 		}
+		return instance;
 	}
 
 	private static void writeInformationAboutChangesToLog(BibGeneratorData newGeneratorData)
@@ -268,7 +278,7 @@ class GenerateSolrFields {
 
 		StringBuilder sbMainTableCreate = new StringBuilder();
 		sbMainTableCreate.append("CREATE TABLE IF NOT EXISTS ").append(this.tableNamePrefix).append("Data (\n");
-		sbMainTableCreate.append("bib_id  INT(10) UNSIGNED NOT NULL PRIMARY KEY,\n");
+		sbMainTableCreate.append("hrid  VARCHAR(15) NOT NULL PRIMARY KEY,\n");
 		sbMainTableCreate.append("record_dates text,\n");
 		sbMainTableCreate.append("visit_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n");
 		for ( Generator gen : this.activeMarcGenerators ) {
@@ -343,7 +353,7 @@ class GenerateSolrFields {
 
 		StringBuilder sbSql = new StringBuilder();
 		sbSql.append("REPLACE INTO ").append(this.tableNamePrefix).append("Data (");
-		sbSql.append("bib_id, record_dates, \n");
+		sbSql.append("hrid, record_dates, \n");
 		for (Generator gen : generators) {
 			String genName = gen.name().toLowerCase();
 			sbSql.append(genName).append("_marc_segment,\n");
@@ -371,7 +381,7 @@ class GenerateSolrFields {
 			throws SQLException {
 		try ( Connection conn = config.getDatabaseConnection("Current");
 				PreparedStatement pstmt = conn.prepareStatement
-						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE bib_id = ?")) {
+						("UPDATE "+tableNamePrefix+"Data SET visit_date = NOW() WHERE hrid = ?")) {
 			pstmt.setString(1, bibId);
 			pstmt.executeUpdate();
 		}		
@@ -384,14 +394,13 @@ class GenerateSolrFields {
 
 		Map<Generator,BibGeneratorData> allData = new HashMap<>();
 		try ( Connection conn = config.getDatabaseConnection("Current");
-				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+tableNamePrefix+"Data WHERE bib_id = ?") ){
-			pstmt.setInt(1, Integer.valueOf(bibId));
+				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+tableNamePrefix+"Data WHERE hrid = ?") ){
+			pstmt.setString(1, bibId);
 			try ( ResultSet rs = pstmt.executeQuery() ) {
 				while (rs.next()) {
 					for ( Generator gen : activeGenerators) {
 						String genName = gen.name().toLowerCase();
 						BibGeneratorData d = new BibGeneratorData(
-								null,
 								rs.getString(genName+"_marc_segment"),//TODO rename field to input_hash
 								rs.getString(genName+"_solr_fields"),
 								rs.getTimestamp(genName+"_solr_fields_gen_date"));
@@ -403,7 +412,7 @@ class GenerateSolrFields {
 		}
 
 		// No pre-existing data exists
-		BibGeneratorData d = new BibGeneratorData( null, null, null, null );
+		BibGeneratorData d = new BibGeneratorData( null, null, null );
 		for ( Generator gen : activeGenerators )
 			allData.put(gen,d);
 		return allData;
@@ -429,8 +438,7 @@ class GenerateSolrFields {
 			Generator gen,Timestamp genModDate, MarcRecord recChunk, boolean forced,
 			BibGeneratorData origData, LocalDateTime now, Config config){
 
-		String marcSegment = recChunk.toString();
-		String inputHash = crc32( marcSegment );
+		String inputHash = crc32( recChunk.toXML(true) );
 		Status marcStatus;
 		if  (origData.inputHash == null)
 			marcStatus = Status.NEW;
@@ -465,8 +473,7 @@ class GenerateSolrFields {
 			e.printStackTrace();
 			return null;
 		}
-		BibGeneratorData newData = new BibGeneratorData(
-				marcSegment, inputHash, solrFields, Timestamp.valueOf(now) );
+		BibGeneratorData newData = new BibGeneratorData(inputHash, solrFields, Timestamp.valueOf(now) );
 		newData.oldData = origData;
 		newData.marcStatus = marcStatus;
 		newData.solrStatus = (origData.solrSegment == null) ? Status.NEW :
@@ -493,10 +500,15 @@ class GenerateSolrFields {
 			instanceStatus = Status.CHANGED;
 
 		String solrFields;
-		SolrFields s = gen.getInstance().generateNonMarcSolrFields(instance, config);
+		SolrFields s = null;
+		try {
+			s = gen.getInstance().generateNonMarcSolrFields(instance, config);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 		solrFields = ( s == null ) ? null : s.toString();
-		BibGeneratorData newData = new BibGeneratorData(
-				instanceJson, inputHash, solrFields, Timestamp.valueOf(now));
+		BibGeneratorData newData = new BibGeneratorData(inputHash, solrFields, Timestamp.valueOf(now));
 		newData.oldData = origData;
 		newData.marcStatus = instanceStatus;
 		if ( origData.solrSegment == null )
@@ -608,7 +620,6 @@ class GenerateSolrFields {
 		}
 	}
 	private static class BibGeneratorData {
-		final String marcSegment;
 		final String inputHash;
 		final String solrSegment;
 		final Timestamp solrGenDate;
@@ -617,8 +628,7 @@ class GenerateSolrFields {
 		Generator gen = null;
 		BibGeneratorData oldData = null;
 		boolean triggerHeadingsUpdate = false;
-		public BibGeneratorData( String marcSegment, String inputHash, String solrSegment, Timestamp solrGenDate) {
-			this.marcSegment = marcSegment;
+		public BibGeneratorData( String inputHash, String solrSegment, Timestamp solrGenDate) {
 			this.inputHash = inputHash;
 			this.solrSegment = solrSegment;
 			this.solrGenDate = solrGenDate;

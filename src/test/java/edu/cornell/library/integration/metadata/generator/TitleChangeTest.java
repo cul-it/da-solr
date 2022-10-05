@@ -36,6 +36,7 @@ public class TitleChangeTest {
 		"author_addl_t: Smith, John, 1900-1999\n"+
 		"author_facet: Smith, John, 1900-1999\n"+
 		"author_pers_filing: smith john 1900 1999\n"+
+		"author_pers_roman_filing: smith john 1900 1999\n"+
 		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
 		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
@@ -49,6 +50,7 @@ public class TitleChangeTest {
 		"author_addl_t: Ko, Dorothy, 1957- author\n"+
 		"author_facet: Ko, Dorothy, 1957-\n"+
 		"author_pers_filing: ko dorothy 1957\n"+
+		"author_pers_roman_filing: ko dorothy 1957\n"+
 		"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","
 		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Gao, Yanyi, 1957-\n"+
@@ -71,6 +73,7 @@ public class TitleChangeTest {
 		"author_addl_t: Sallinen, Aulis.\n"+
 		"author_facet: Sallinen, Aulis\n"+
 		"author_pers_filing: sallinen aulis\n"+
+		"author_pers_roman_filing: sallinen aulis\n"+
 		"included_work_display: Sallinen, Aulis. Vintern war hård; arranged.|Vintern war hård; arranged.|"
 		+ "Sallinen, Aulis.\n"+
 		"title_uniform_t: Vintern war hård; arranged.\n"+
@@ -79,6 +82,7 @@ public class TitleChangeTest {
 		"author_addl_t: Riley, Terry, 1935-\n"+
 		"author_facet: Riley, Terry, 1935-\n"+
 		"author_pers_filing: riley terry 1935\n"+
+		"author_pers_roman_filing: riley terry 1935\n"+
 		"included_work_display: Riley, Terry, 1935- Salome dances for peace. Half-wolf dances mad in moonlight.|"
 		+ "Salome dances for peace. Half-wolf dances mad in moonlight.|Riley, Terry, 1935-\n"+
 		"title_uniform_t: Salome dances for peace. Half-wolf dances mad in moonlight.\n"+
@@ -88,6 +92,7 @@ public class TitleChangeTest {
 		"author_addl_t: Barber, Samuel, 1910-1981.\n"+
 		"author_facet: Barber, Samuel, 1910-1981\n"+
 		"author_pers_filing: barber samuel 1910 1981\n"+
+		"author_pers_roman_filing: barber samuel 1910 1981\n"+
 		"included_work_display: Barber, Samuel, 1910-1981. Quartets, violins (2), viola, cello, no. 1, op. 11,"
 		+ " B minor. Adagio.|Quartets, violins (2), viola, cello, no. 1, op. 11, B minor. Adagio.|"
 		+ "Barber, Samuel, 1910-1981.\n"+
@@ -108,6 +113,7 @@ public class TitleChangeTest {
 		"author_facet: Xiang, Shurong\n"+
 		"author_pers_filing: 向淑容\n"+
 		"author_pers_filing: xiang shurong\n"+
+		"author_pers_roman_filing: xiang shurong\n"+
 		"author_addl_t_cjk: 向淑容, translator\n"+
 		"author_addl_t: Xiang, Shurong, translator\n"+
 		"author_addl_json: {\"name1\":\"向淑容\",\"search1\":\"向淑容,\",\"name2\":\"Xiang, Shurong, translator\","
@@ -118,6 +124,7 @@ public class TitleChangeTest {
 		"author_facet: Yao, Jianing\n"+
 		"author_pers_filing: 堯嘉寧\n"+
 		"author_pers_filing: yao jianing\n"+
+		"author_pers_roman_filing: yao jianing\n"+
 		"author_addl_t_cjk: 堯嘉寧, translator\n"+
 		"author_addl_t: Yao, Jianing, translator\n"+
 		"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":\"Yao, Jianing, translator\","
@@ -137,6 +144,7 @@ public class TitleChangeTest {
 		"author_facet: Fa lü chu ban she. Fa gui chu ban fen she\n"+
 		"author_corp_filing: 法律出版社 法规出版分社\n"+
 		"author_corp_filing: fa lu chu ban she fa gui chu ban fen she\n"+
+		"author_corp_roman_filing: fa lu chu ban she fa gui chu ban fen she\n"+
 		"author_addl_t_cjk: 法律出版社. 法规出版分社, editor\n"+
 		"author_addl_t: Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
 		"author_addl_json: {\"name1\":\"法律出版社. 法规出版分社\",\"search1\":\"法律出版社. 法规出版分社,\","
@@ -277,6 +285,7 @@ public class TitleChangeTest {
 		"author_addl_t: Vatican Council (2nd : 1962-1965).\n"+
 		"author_facet: Vatican Council\n"+
 		"author_event_filing: vatican council\n"+
+		"author_event_roman_filing: vatican council\n"+
 		"included_work_display: Vatican Council (2nd : 1962-1965). Constitutio pastoralis de ecclesia in"
 		+ " mundo huius temporis Nn. 19-21. English.|Constitutio pastoralis de ecclesia in mundo huius"
 		+ " temporis Nn. 19-21. English.|Vatican Council (2nd : 1962-1965).\n"+
@@ -295,6 +304,7 @@ public class TitleChangeTest {
 		"author_addl_t: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
 		"author_facet: Institute on Religious Freedom\n"+
 		"author_event_filing: institute on religious freedom\n"+
+		"author_event_roman_filing: institute on religious freedom\n"+
 		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
 		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"relator\":\"\","
 		+ "\"type\":\"Event\",\"authorizedForm\":false}\n";

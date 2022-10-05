@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "1.5"; }
+	public String getVersion() { return "2.4"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -80,35 +80,52 @@ public class Subject implements SolrFieldGenerator {
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
 			final DataField f = fs.getFields().get(0);
-			if (f.ind2.equals('7')) {
+			switch (f.ind2) {
+			case '0':
+				h.vocab = HeadingVocab.LC;
+				recordHasLCSH = true;
+				break;
+			case '1':
+				h.vocab = HeadingVocab.LCJSH;
+				break;
+			case '2':
+			case '3':
+			case '6':
+				h.vocab = HeadingVocab.OTHER;
+				break;
+			case '7':
 				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
 						if (sf.value.equalsIgnoreCase("fast")
 								|| sf.value.equalsIgnoreCase("fast/NIC")
 								|| sf.value.equalsIgnoreCase("fast/NIC/NAC")) {
 							recordHasFAST = true;
-							h.isFAST = true;
+							h.vocab = HeadingVocab.FAST;
 						} else if (sf.value.equalsIgnoreCase("lcgft")) {
-							h.isLCGFT = true;
+							h.vocab = HeadingVocab.LCGFT;
+						} else {
+							h.vocab = HeadingVocab.OTHER;
 						}
 					}
-			} else if (f.ind2.equals('0')) {
-				recordHasLCSH = true;
+				break;
 			}
 			h.fs = fs;
 			taggedFields.add(h);
 		}
 		for( final Heading h : taggedFields) {
-			final Set<String> values880_breadcrumbed = new HashSet<>();
-			final Set<String> valuesMain_breadcrumbed = new HashSet<>();
-			final Set<String> values_browse = new HashSet<>();
-			final Set<String> valuesMain_json = new HashSet<>();
-			final Set<String> values880_json = new HashSet<>();
+			final Set<String> values880_breadcrumbed = new LinkedHashSet<>();
+			final Set<String> valuesMain_breadcrumbed = new LinkedHashSet<>();
+			final List<BrowseValue> values_browse = new ArrayList<>();
+			final Set<String> valuesMain_json = new LinkedHashSet<>();
+			final Set<String> values880_json = new LinkedHashSet<>();
+			final Set<String> values_dashed = new LinkedHashSet<>();
 			HeadingType ht = HeadingType.GENHEAD; //default
 
 			String main_fields = null, dashed_fields = "", facet_type = "topic";
 			FieldValues vals = null;
 			for (final DataField f: h.fs.getFields()) {
+
+				boolean is880 = f.tag.equals("880");
 
 				switch (f.mainTag) {
 				case "600":
@@ -198,6 +215,7 @@ public class Subject implements SolrFieldGenerator {
 					break;
 				}
 				String primarySubjectTerm = null;
+				String origPrimaryTerm = null;
 				if (vals != null) {
 					final StringBuilder sb = new StringBuilder();
 					sb.append(vals.author);
@@ -212,10 +230,10 @@ public class Subject implements SolrFieldGenerator {
 					if ( authData.replacementForm != null ) {
 						if ( authData.alternateForms == null ) authData.alternateForms = new ArrayList<>();
 						authData.alternateForms.add(primarySubjectTerm);
+						origPrimaryTerm = primarySubjectTerm;
 						primarySubjectTerm = authData.replacementForm;
 					}
-					final StringBuilder sb_breadcrumbed = new StringBuilder();
-					sb_breadcrumbed.append(primarySubjectTerm);
+					final Breadcrumbs breadcrumbed = new Breadcrumbs( primarySubjectTerm, origPrimaryTerm );
 					final List<Object> json = new ArrayList<>();
 					final Map<String,Object> subj1 = new HashMap<>();
 					subj1.put("subject", primarySubjectTerm);
@@ -229,8 +247,7 @@ public class Subject implements SolrFieldGenerator {
 						}
 					json.add(subj1);
 
-					values_browse.add(
-							removeTrailingPunctuation(sb_breadcrumbed.toString(),".").replaceAll("\\s?\\(Core\\)$", ""));
+					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$",is880));
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
@@ -238,10 +255,10 @@ public class Subject implements SolrFieldGenerator {
 					}
 					for (final String dashed_term : dashed_terms) {
 						final Map<String,Object> subj = new HashMap<>();
-						sb_breadcrumbed.append(" > "+dashed_term);
+						breadcrumbed.append(" > "+dashed_term);
 						subj.put("subject", dashed_term);
-						values_browse.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
-						authData = new AuthorityData(config,sb_breadcrumbed.toString(),ht);
+						values_browse.add(new BrowseValue(breadcrumbed,is880));
+						authData = new AuthorityData(config,breadcrumbed.toString(),ht);
 						subj.put("authorized", authData.authorized);
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
@@ -253,12 +270,23 @@ public class Subject implements SolrFieldGenerator {
 					}
 					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 					mapper.writeValue(jsonstream, json);
-					if (f.tag.equals("880")) {
-						values880_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+					if (is880) {
+						values880_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
 						values880_json.add(jsonstream.toString("UTF-8"));
 					} else {
-						valuesMain_breadcrumbed.add(removeTrailingPunctuation(sb_breadcrumbed.toString(),"."));
+						valuesMain_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
 						valuesMain_json.add(jsonstream.toString("UTF-8"));
+					}
+
+					// tabulate subdivision sequences
+					if ( ! is880 )
+						for ( int i = 0 ; i < dashed_terms.size(); i++ ) {
+							String s = dashed_terms.get(i);
+							values_dashed.add(s);
+							for ( int j = i + 1 ; j < dashed_terms.size(); j++) {
+								s += " > "+dashed_terms.get(j);
+								values_dashed.add(s);
+							}
 					}
 				}
 			}
@@ -267,9 +295,9 @@ public class Subject implements SolrFieldGenerator {
 			for (final String s: values880_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
 				sfs.add(new SolrField("subject_t",s));
-				if (h.isFAST)
+				if (h.vocab.equals(HeadingVocab.FAST))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
-				if ( ! h.isFAST || ! recordHasLCSH)
+				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
@@ -278,20 +306,33 @@ public class Subject implements SolrFieldGenerator {
 				if (facet_type.equals("era"))
 					disp = normalizeDateRangeSpacing( disp );
 				sfs.add(new SolrField("subject_t",s));
-				if (h.isFAST || (h.isLCGFT && facet_type.equals("genre")))
+				if (h.vocab.equals(HeadingVocab.FAST)
+						|| (h.vocab.equals(HeadingVocab.LCGFT) && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
-				if ( ! h.isFAST || ! recordHasLCSH)
+				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
-			for (final String s: values_browse)
+			for (final BrowseValue value: values_browse)
 				if (ht != null) {
-					if ( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(s) )
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",removeTrailingPunctuation(s,".")));
-					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",getFilingForm(s)));
+					if ( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",value.display));
+					String filing = getFilingForm(value.display);
+					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
+					String canonFiling = getFilingForm(value.canon);
+					if ( ! value.is880 ) {
+						String vocab = h.vocab.name().toLowerCase();
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon));
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling));
+					}
 				}
+			for (final String s: values_dashed) {
+				String vocab = h.vocab.name().toLowerCase();
+				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
+				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));
+			}
 
-			if ( ! h.is653 && ( ! h.isFAST || ! recordHasLCSH ) ) {
+			if ( ! h.is653 && ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)
@@ -323,12 +364,54 @@ public class Subject implements SolrFieldGenerator {
 	}
 	private static Pattern dateRangePattern = Pattern.compile("(\\d+)-(\\d+)");
 
+	private static class Breadcrumbs {
+		final StringBuilder display;
+		final StringBuilder canon;
+		final boolean canonDiffers;
+
+		@Override public String toString() { return this.display.toString(); }
+
+		public void append (String s) {
+			this.display.append(s);
+			if ( this.canonDiffers ) this.canon.append(s);
+		}
+		public Breadcrumbs(String display, String canon) {
+			this.display = new StringBuilder(display);
+			if ( canon == null ) {
+				this.canon = this.display;
+				this.canonDiffers = false;
+			} else {
+				this.canon = new StringBuilder( canon );
+				this.canonDiffers = true;
+			}
+		}
+	}
+	private static class BrowseValue {
+		final String display;
+		final String canon;
+		final boolean is880;
+		public BrowseValue( Breadcrumbs bc, String remove, boolean is880 ) {
+			this.display = removeTrailingPunctuation(bc.toString(),".").replaceAll(remove, "");
+			this.is880 = is880;
+			if ( bc.canonDiffers )
+				this.canon = removeTrailingPunctuation(bc.canon.toString(),".").replaceAll(remove, "");
+			else
+				this.canon = this.display;
+		}
+		public BrowseValue( Breadcrumbs bc, boolean is880 ) {
+			this.display = removeTrailingPunctuation(bc.toString(),".");
+			this.is880 = is880;
+			if ( bc.canonDiffers )
+				this.canon = removeTrailingPunctuation(bc.canon.toString(),".");
+			else
+				this.canon = this.display;
+		}
+	}
 	private static class Heading {
 		public Heading() { }
-		boolean isFAST = false;
-		boolean isLCGFT = false;
+		HeadingVocab vocab = HeadingVocab.UNK;
 		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
-
+	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, OTHER, UNK; }
 }

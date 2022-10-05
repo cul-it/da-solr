@@ -4,20 +4,44 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.folio.Locations;
+import edu.cornell.library.integration.folio.Locations.Location;
+import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.utilities.Config;
 
 public class URLTest {
 
 	SolrFieldGenerator gen = new URL();
 	static MarcRecord online ;
+	static Map<String,Object> onlineFolioHolding ;
+	static List<Map<String,Object>> onlineFolioHoldingList ;
+	static Config config;
+	static Locations locations;
 
 	@BeforeClass
-	public static void createServRemoHolding() {
+	public static void createServRemoHolding() throws IOException {
+		config = Config.loadConfig(new ArrayList<String>());
+		if ( config.isOkapiConfigured("Folio") ) {
+			OkapiClient folio = config.getOkapi("Folio");
+			locations = new Locations(folio);
+			Location onlineLoc = locations.getByCode("serv,remo");
+			onlineFolioHolding = new HashMap<>();
+			onlineFolioHolding.put("permanentLocationId", onlineLoc.id);
+			onlineFolioHoldingList = new ArrayList<>();
+			onlineFolioHoldingList.add(onlineFolioHolding);
+		}
+
 		online = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		online.id = "1";
 		online.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
@@ -158,18 +182,52 @@ public class URLTest {
 
 	@Test
 	public void testBookplateURL() throws IOException, ClassNotFoundException, SQLException {
-		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		MarcRecord holdingRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-		holdingRec.id = "9489596";
-		holdingRec.dataFields.add(new DataField(1,"856",'4',' ',
-				"‡u http://plates.library.cornell.edu/donor/DNR00450 ‡z From the Estate of Charles A. Leslie."));
-		bibRec.marcHoldings.add(holdingRec);
+
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		{
+			Map<String,String> link = new LinkedHashMap<>();
+			link.put("uri","http://plates.library.cornell.edu/donor/DNR00450");
+			link.put("publicNote", "From the Estate of Charles A. Leslie.");
+			link.put("relationshipId", "5bfe1b7b-f151-4501-8cfa-23b321d5cd1e");
+			List<Map<String,String>> links = new ArrayList<>();
+			links.add(link);
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holdings.add(holding);
+		}
+
 		String expected =
 		"donor_t: From the Estate of Charles A. Leslie.\n"+
 		"donor_s: DNR00450\n"+
 		"url_bookplate_display: http://plates.library.cornell.edu/donor/DNR00450|From the Estate of Charles A. Leslie.\n"+
 		"notes_t: From the Estate of Charles A. Leslie.\n";
-		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+
+		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		marc.folioHoldings = holdings;
+		assertEquals( expected, this.gen.generateSolrFields(marc, null).toString() );
+
+		Map<String,Object> instance = new LinkedHashMap<>();
+		instance.put("holdings", holdings);
+		assertEquals( expected, this.gen.generateNonMarcSolrFields(instance, null).toString() );
+	}
+
+	@Test
+	public void guardAgainstNullLinkHash() throws IOException, ClassNotFoundException, SQLException {
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		{
+			Map<String,String> link = null;
+			List<Map<String,String>> links = new ArrayList<>();
+			links.add(link);
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holding.put("permanentLocationId", locations.getByCode("serv,remo").id);
+			holdings.add(holding);
+		}
+
+		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		marc.folioHoldings = holdings;
+		assertEquals( "", this.gen.generateSolrFields(marc, null).toString() );
+
 	}
 
 	@Test
@@ -276,6 +334,38 @@ public class URLTest {
 		+ "\"url\":\"https://purl.fdlp.gov/GPO/gpo86434\"}\n" + 
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+	}
+
+	@Test
+	public void instanceURL() throws IOException {
+
+		List<Map<String,String>> links = new ArrayList<>();
+		{
+		Map<String,String> link = new LinkedHashMap<>();
+		link.put("uri","http://proxy.library.cornell.edu/login?url=https://www.berghahnjournals.com/view/journals/turba/turba-overview.xml?rskey=scYRra&result=44 ");
+		link.put("materialsSpecification", "2022 - Present");
+		link.put("relationshipId", "f5d0068e-6272-458e-8a81-b85e7b9a14aa");
+		links.add(link);
+		}
+		{
+		Map<String,String> link = new LinkedHashMap<>();
+		link.put("uri","http://pda.library.cornell.edu/coutts/pod.cgi?CouttsID=cou37972731");
+		link.put("linkText", "");
+		link.put("materialsSpecification", "");
+		link.put("relationshipId", "f50c90c9-bae0-4add-9cd0-db9092dbc9dd");
+		link.put("publicNote", "Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)");
+		links.add(link);
+		}
+		Map<String,Object> instance = new LinkedHashMap<>();
+		instance.put("electronicAccess", links);
+		instance.put("holdings", onlineFolioHoldingList);
+		String expected =
+		"notes_t: 2022 - Present\n"+
+		"url_access_json: {\"description\":\"2022 - Present\",\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.berghahnjournals.com/view/journals/turba/turba-overview.xml?rskey=scYRra&result=44 \"}\n"+
+		"url_pda_display: http://pda.library.cornell.edu/coutts/pod.cgi?CouttsID=cou37972731|Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n" + 
+		"notes_t: Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n"+
+		"online: Online\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 }

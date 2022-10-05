@@ -63,10 +63,12 @@ public class LDPRecordLists {
 				PreparedStatement to = current.prepareStatement(
 						"REPLACE INTO bibLDP ( instanceHrid, moddate ) VALUES (?,?)");
 				PreparedStatement from = ldp.prepareStatement(
-						"SELECT instance_hrid, updated_date"
+						"SELECT external_hrid, updated_date"
 						+" FROM srs_records "
-						+"WHERE instance_hrid > ? AND state = 'ACTUAL' "
-						+"ORDER BY instance_hrid, updated_date LIMIT 10000")){
+						+"WHERE external_hrid > ?"
+						+"  AND state = 'ACTUAL'"
+						+"  AND record_type = 'MARC_BIB' "
+						+"ORDER BY external_hrid, updated_date LIMIT 10000")){
 
 			toEmpty.executeUpdate();
 			syphonData( from, to, true, true );
@@ -161,8 +163,7 @@ public class LDPRecordLists {
 		boolean done = false;
 		while ( ! done ) {
 			from.setString(1, cursor);
-			try (ResultSet fromRS = from.executeQuery(
-					) ) {
+			try (ResultSet fromRS = from.executeQuery( ) ) {
 				int i = 0;
 				while ( fromRS.next() ) {
 					cursor = fromRS.getString(1);
@@ -171,17 +172,16 @@ public class LDPRecordLists {
 						if ( ! m.matches() ) {
 							done = true;
 							System.out.println("hrid "+cursor+" is invalid.");
-							break;
+							continue;
 						}
 					}
 					to.setString(1, cursor);
-					String date = fromRS.getString(2);
 					if ( srs ) {
-						Matcher m = srsRecDTP.matcher(date);
-						if ( m.matches() ) date = m.group(1)+"+00";
-						to.setTimestamp(2,Timestamp.from(srsRecDT.parse(date,Instant::from)));
-					} else
-						to.setTimestamp(2,Timestamp.from(isoDT.parse(date,Instant::from)));
+						to.setTimestamp(2, fromRS.getTimestamp(2));
+					} else {
+						String date = fromRS.getString(2);
+						to.setTimestamp(2, Timestamp.from(isoDT.parse(date,Instant::from)));
+					}
 					to.addBatch();
 					if (++i % 1000 == 0) {
 						to.executeBatch();
@@ -195,8 +195,5 @@ public class LDPRecordLists {
 	}
 
 	private static DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME;
-	private static DateTimeFormatter srsRecDT =
-			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssx");
-	private static Pattern srsRecDTP = Pattern.compile("(.*)\\.\\d*\\+00");
 	private static Pattern numberP = Pattern.compile("\\d+");
 }

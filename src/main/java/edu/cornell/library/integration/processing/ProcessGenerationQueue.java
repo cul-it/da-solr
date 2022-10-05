@@ -60,7 +60,7 @@ public class ProcessGenerationQueue {
 		GenerateSolrFields gen = new GenerateSolrFields(
 				EnumSet.allOf(Generator.class),
 				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
-						Generator.LANGUAGE, Generator.MARC, Generator.URL), "processedMarc" );
+						Generator.LANGUAGE, Generator.MARC, Generator.URL, Generator.FORMAT), "processedMarc" );
 
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 
@@ -89,7 +89,7 @@ public class ProcessGenerationQueue {
 						("INSERT INTO deleteQueue (priority, cause, hrid, record_date)"
 								+ " VALUES ( 5, 'Discovered gone by generation proc', ?, now())");
 				PreparedStatement oldestSolrFieldsData = current.prepareStatement
-						("SELECT bib_id, visit_date FROM processedMarcData ORDER BY visit_date LIMIT 1000");
+						("SELECT hrid, visit_date FROM processedMarcData ORDER BY visit_date LIMIT 1000");
 				PreparedStatement instanceByHrid = current.prepareStatement
 						("SELECT * FROM instanceFolio WHERE hrid = ?");
 				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
@@ -119,8 +119,9 @@ public class ProcessGenerationQueue {
 			}
 
 			oldestSolrFieldsData.setFetchSize(1000);
+			int eightsToProcess = 0;
 
-			BIB: do {
+			BIB: for ( int i = 0 ; i < 10_000_000; i++ ) {
 				// Identify Bib to generate data for
 				String bib = null;
 				Integer priority = null;
@@ -132,6 +133,18 @@ public class ProcessGenerationQueue {
 					queueRecordsNotRecentlyVisited( oldestSolrFieldsData, generationQueueStmt );
 					oldLocksCleanupStmt.executeUpdate();
 					continue;
+				}
+
+				if ( priority.equals(8) ) {
+					if (eightsToProcess == 0)
+						eightsToProcess = determineEightsToProcess( current );
+					if ( eightsToProcess > 0 ) {
+						eightsToProcess--;
+					} else {
+						eightsToProcess++;
+						Thread.sleep(1000);
+						continue;
+					}
 				}
 
 				allForBibStmt.setString(1,bib);
@@ -262,8 +275,25 @@ public class ProcessGenerationQueue {
 				unlockStmt.setInt(1, lockId);
 				unlockStmt.executeUpdate();
 
-			} while (true);
+			}
 		}
+	}
+
+	private static int determineEightsToProcess(Connection current) throws SQLException {
+		try (
+			Statement s = current.createStatement();
+			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue")){
+			while ( r.next() ) {
+				int queued = r.getInt(1);
+				if (queued < 8_000) {
+					System.out.println("Process "+(9_000-queued)+" more eights.");
+					return 9_000 - queued;
+				}
+				System.out.println("Don't process eights for 200 ticks.");
+				return -200;
+			}
+		}
+		return 0 ; // really not possible unless db error
 	}
 
 	private static Timestamp getModificationTimestamp(Map<String, Object> folioObject) {
@@ -319,7 +349,7 @@ public class ProcessGenerationQueue {
 
 		try (ResultSet rs = oldestSolrFieldsData.executeQuery()) {
 			while(rs.next()) AddToQueue.add2Queue(
-					generationQueueStmt,rs.getString(1),9,rs.getTimestamp(2),"Age of Record");
+					generationQueueStmt,rs.getString(1),8,rs.getTimestamp(2),"Age of Record");
 		}
 		
 	}
