@@ -2,6 +2,8 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -282,14 +284,25 @@ public class URL implements SolrFieldGenerator {
 					|| String.class.cast(rawLink.get("uri")).isEmpty())
 				continue;
 			Map<String,Object> processedLink = new HashMap<>();
-			processedLink.put("url", String.class.cast(rawLink.get("uri")));
+			String url = String.class.cast(
+					rawLink.get("uri").replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
+
+			try { // Use Java URI validation to confirm link
+				@SuppressWarnings("unused")
+				URI uri = new URI(url);
+			} catch (URISyntaxException e) {
+				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
+				continue;
+			}
+
+			processedLink.put("url",url);
 			List<String> linkText = new ArrayList<>();
 			for (String field : Arrays.asList("materialsSpecification"/*3*/,"linkText"/*y*/,"publicNote"/*z*/))
 				if (rawLink.containsKey(field) && ! String.class.cast(rawLink.get(field)).isEmpty())
-					linkText.add(String.class.cast(rawLink.get(field)));
+					linkText.add(String.class.cast(rawLink.get(field))
+							.replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
 			if (linkText.size() >= 1)
 				processedLink.put("description", String.join(" ", linkText));
-			String url = String.class.cast(processedLink.get("url"));
 			if (processedLink.containsKey("description")
 					&& String.class.cast(processedLink.get("description")).contains("findingaid"))
 				processedLink.put("relation", "finding aid");
