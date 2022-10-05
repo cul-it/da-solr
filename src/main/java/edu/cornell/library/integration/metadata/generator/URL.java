@@ -288,8 +288,7 @@ public class URL implements SolrFieldGenerator {
 					rawLink.get("uri").replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
 
 			try { // Use Java URI validation to confirm link
-				@SuppressWarnings("unused")
-				URI uri = new URI(url);
+				new URI(url);
 			} catch (URISyntaxException e) {
 				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
 				continue;
