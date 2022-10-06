@@ -361,11 +361,39 @@ public class URLTest {
 		instance.put("holdings", onlineFolioHoldingList);
 		String expected =
 		"notes_t: 2022 - Present\n"+
-		"url_access_json: {\"description\":\"2022 - Present\",\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.berghahnjournals.com/view/journals/turba/turba-overview.xml?rskey=scYRra&result=44 \"}\n"+
+		"url_access_json: {\"description\":\"2022 - Present\",\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.berghahnjournals.com/view/journals/turba/turba-overview.xml?rskey=scYRra&result=44\"}\n"+
 		"url_pda_display: http://pda.library.cornell.edu/coutts/pod.cgi?CouttsID=cou37972731|Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n" + 
 		"notes_t: Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n"+
 		"online: Online\n";
 		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
+	public void invalidSyntaxInFolioURI() throws IOException {
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		{
+			List<Map<String,String>> links = new ArrayList<>();
+			{
+				Map<String,String> link = new LinkedHashMap<>(); // holding 15279606
+				link.put("uri",";;c\\nhttp://plates.library.cornell.edu/donor/DNR00393/");
+				link.put("publicNote", "A Gift of Il Hwan Cho and Soon Ja Cho in support of Korean Studies");
+				link.put("relationshipId", "5bfe1b7b-f151-4501-8cfa-23b321d5cd1e");
+				links.add(link);
+			}
+			{
+				Map<String,String> link = new LinkedHashMap<>(); // holding 15288623
+				link.put("uri","\\nhttp://plates.library.cornell.edu/donor/DNR00401/\\n\\nhttp://plates.library.cornell.edu/donor/DNR00401/\\n\\nhttp://plates.library.cornell.edu/donor/DNR00401/\\nhttp://plates.library.cornell.edu/donor/DNR00401/");
+				link.put("publicNote", "The Jarett F. and Younghee Kim Wait Fund for Korean Literature");
+				link.put("relationshipId", "5bfe1b7b-f151-4501-8cfa-23b321d5cd1e");
+				links.add(link);
+			}
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holdings.add(holding);
+		}
+		Map<String,Object> instance = new LinkedHashMap<>();
+		instance.put("holdings", holdings);
+		assertEquals("",this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 }
