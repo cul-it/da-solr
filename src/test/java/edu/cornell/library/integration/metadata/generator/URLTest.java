@@ -396,4 +396,14 @@ public class URLTest {
 		assertEquals("",this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
+	@Test
+	public void invalidSyntaxInMarcURI() throws IOException, ClassNotFoundException, SQLException {
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		bibRec.id = "123456";
+		bibRec.dataFields.add(new DataField(1,"856",'7',' ',
+		"‡3 Connect to full text. "+
+		"‡u NOT A  LINK"));
+		bibRec.folioHoldings = onlineFolioHoldingList;
+		assertEquals( "", this.gen.generateSolrFields(bibRec, null).toString() );
+	}
 }
