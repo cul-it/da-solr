@@ -2,8 +2,10 @@ package edu.cornell.library.integration.metadata.generator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -119,7 +122,8 @@ public class URL implements SolrFieldGenerator {
 			}
 			String url = urls.iterator().next();
 			try { // Use Java URI validation to confirm link
-				new URI(url);
+				URI uri = new URI(selectivelyUrlEncode(url));
+				if ( uri.getHost() == null ) throw new URISyntaxException(url,"No Host in URL");
 			} catch (URISyntaxException e) {
 				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
 				continue;
@@ -200,6 +204,28 @@ public class URL implements SolrFieldGenerator {
 
 		return sfs;
 	}
+
+	static String selectivelyUrlEncode(String url) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < url.length(); i++) {
+			char c = url.charAt(i);
+			if (replacements.containsKey(c))
+				sb.append(replacements.get(c));
+			else
+				sb.append(c);
+		}
+		return sb.toString();
+	}
+	private static String urlEncodedChar(Character c) {
+		try {
+			return URLEncoder.encode(String.valueOf(c),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return String.valueOf(c);
+		}
+	}
+	static Map<Character,String> replacements = Arrays.asList(' ','"','{','}')
+				.stream().collect(Collectors.toMap(c -> c, c -> urlEncodedChar(c) ));
 
 	@Override
 	public SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config ) throws IOException {
@@ -291,11 +317,11 @@ public class URL implements SolrFieldGenerator {
 					|| String.class.cast(rawLink.get("uri")).isEmpty())
 				continue;
 			Map<String,Object> processedLink = new HashMap<>();
-			String url = String.class.cast(
-					rawLink.get("uri").replaceAll("\\\\n"," ").replaceAll("\\s+"," ").trim());
+			String url = String.class.cast(rawLink.get("uri").trim());
 
 			try { // Use Java URI validation to confirm link
-				new URI(url);
+				URI uri = new URI(selectivelyUrlEncode(url));
+				if ( uri.getHost() == null ) throw new URISyntaxException(url,"No Host in URL");
 			} catch (URISyntaxException e) {
 				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
 				continue;
