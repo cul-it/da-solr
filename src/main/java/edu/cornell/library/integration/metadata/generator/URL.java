@@ -77,14 +77,14 @@ public class URL implements SolrFieldGenerator {
 			if ( m.matches() ) userLimit = Integer.valueOf( m.group(1) );
 		}
 
-		List<Map<String,Object>> allProcessedLinks = new ArrayList<>();
+		List<Map<String,Object>> links = new ArrayList<>();
 
 		List<DataField> allLinkFields = bibRec.matchSortAndFlattenDataFields("856");
 		if ( bibRec.marcHoldings != null) for (MarcRecord holdingsRec : bibRec.marcHoldings)
 			allLinkFields.addAll(holdingsRec.matchSortAndFlattenDataFields("856"));
 		if (bibRec.folioHoldings != null)
 			for (Map<String,Object> holding: bibRec.folioHoldings)
-				allProcessedLinks.addAll(extractLinks(holding,isOnline));
+				links.addAll(extractLinks(holding,isOnline));
 
 		for (DataField f : allLinkFields) {
 			Map<String,Object> processedLink = new HashMap<>();
@@ -118,6 +118,13 @@ public class URL implements SolrFieldGenerator {
 				continue;
 			}
 			String url = urls.iterator().next();
+			try { // Use Java URI validation to confirm link
+				new URI(url);
+			} catch (URISyntaxException e) {
+				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
+				continue;
+			}
+
 			processedLink.put("url", url);
 
 			if ( ! linkLabel.isEmpty())
@@ -170,21 +177,21 @@ public class URL implements SolrFieldGenerator {
 			processedLink.put("relation", relation);
 			if ( userLimit != null )
 				processedLink.put("users", userLimit);
-			allProcessedLinks.add(processedLink);
+			links.add(processedLink);
 		}
 
 		if (isOnline) {
-			int accessLinkCount = countLinksByType( allProcessedLinks, "access" );
+			int accessLinkCount = countLinksByType( links, "access" );
 			if ( accessLinkCount == 0 ) {
-				if ( countLinksByType( allProcessedLinks, "other" ) >= 1 )
-					reassignOtherLinksToAccess(allProcessedLinks);
+				if ( countLinksByType( links, "other" ) >= 1 )
+					reassignOtherLinksToAccess(links);
 				else
 					isOnline = false;
 			}
 			
 		}
 
-		sfs.addAll(processedLinksToSolrFields(allProcessedLinks));
+		sfs.addAll(processedLinksToSolrFields(links));
 
 		if (isOnline)
 			sfs.add(new SolrField("online","Online"));
