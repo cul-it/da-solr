@@ -122,7 +122,7 @@ public class URL implements SolrFieldGenerator {
 			}
 			String url = urls.iterator().next();
 			try { // Use Java URI validation to confirm link
-				URI uri = new URI(selectivelyUrlEncode(url)); //TODO
+				URI uri = new URI(selectivelyUrlEncode(url));
 				if ( uri.getHost() == null ) throw new URISyntaxException(url,"No Host in URL");
 			} catch (URISyntaxException e) {
 				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
@@ -320,7 +320,7 @@ public class URL implements SolrFieldGenerator {
 			String url = String.class.cast(rawLink.get("uri").trim());
 
 			try { // Use Java URI validation to confirm link
-				URI uri = new URI(selectivelyUrlEncode(url)); //TODO
+				URI uri = new URI(selectivelyUrlEncode(url));
 				if ( uri.getHost() == null ) throw new URISyntaxException(url,"No Host in URL");
 			} catch (URISyntaxException e) {
 				System.out.printf("URISyntaxException %s; Skipping\n",e.getMessage());
