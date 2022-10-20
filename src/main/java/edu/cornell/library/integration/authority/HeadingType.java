@@ -1,7 +1,8 @@
 package edu.cornell.library.integration.authority;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 enum HeadingType {
 	PERS      ("100"),//0
@@ -26,12 +27,9 @@ enum HeadingType {
 		this.authorityField = authorityField;
 	}
 
-	private static Map<String,HeadingType> _byAuthField = null;
-	static {
-		_byAuthField = new HashMap<>();
-		for (HeadingType ht : HeadingType.values())
-			_byAuthField.put(ht.authorityField, ht);
-	}
+	private static Map<String,HeadingType> _byAuthField =
+			Stream.of(HeadingType.values()).collect(Collectors.toMap(ht -> ht.authorityField,ht -> ht));
+
 	public static HeadingType byAuthField (String authFieldTag) {
 		return _byAuthField.get(authFieldTag);
 	}

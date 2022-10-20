@@ -86,6 +86,13 @@ public class Config {
 	}
 
 
+	public String getBlacklightUrl() {
+		if (this.values.containsKey("blacklightUrl")) {
+			return this.values.get("blacklightUrl");
+		}
+		return null;
+	}
+
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {
 			return this.values.get("solrUrl");
