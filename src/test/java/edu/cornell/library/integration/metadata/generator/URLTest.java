@@ -396,4 +396,39 @@ public class URLTest {
 		assertEquals("",this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
+	@Test
+	public void syntaxValidationInMarcURI() throws IOException, ClassNotFoundException, SQLException {
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		bibRec.id = "123456";
+		bibRec.dataFields.add(new DataField(1,"856",'7',' ',
+		"‡3 Connect to full text. "+
+		"‡u NOT A  LINK"));
+		bibRec.dataFields.add(new DataField(2,"856",'4','2',//15459111
+		"‡a Rose Goldsen Archive of New Media Art "+
+		"‡u http:// goldsen.library.cornell.edu"));
+		bibRec.dataFields.add(new DataField(3,"856",'4',' ',//15157320
+		"‡3 Image "+ // This one should be okay with selective URL encoding of the brackets {}
+		"‡u https://img1.od-cdn.com/ImageType-100/3082-1/{04999A8F-6BC6-4370-B438-EE0C49D8C921}Img100.jpg"));
+		bibRec.dataFields.add(new DataField(4,"856",'7',' ',
+		"‡3 Connect to full text. "+
+		"‡u http://1.2.3.4/ipaddress-accepted-as-host.html"));
+		bibRec.folioHoldings = onlineFolioHoldingList;
+		assertEquals( 
+				"notes_t: Image\n" + 
+				"url_access_json: {\"description\":\"Image\","
+				+ "\"url\":\"https://img1.od-cdn.com/ImageType-100/3082-1/{04999A8F-6BC6-4370-B438-EE0C49D8C921}Img100.jpg\"}\n" + 
+				"notes_t: Connect to full text.\n" + 
+				"url_access_json: {\"description\":\"Connect to full text.\","
+				+ "\"url\":\"http://1.2.3.4/ipaddress-accepted-as-host.html\"}\n"+
+				"online: Online\n",
+				this.gen.generateSolrFields(bibRec, null).toString() );
+	}
+
+	@Test
+	public void encodeURLs() {
+		assertEquals(
+				"http://sunsite2.berkeley.edu:8000/%22target=%22_blank",
+				URL.selectivelyUrlEncode("http://sunsite2.berkeley.edu:8000/\"target=\"_blank"));
+		
+	}
 }
