@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.AuthorityData;
 import edu.cornell.library.integration.utilities.Config;
 
 public class ProcessAuthorityChangeFile {
@@ -93,8 +94,13 @@ public class ProcessAuthorityChangeFile {
 
 					System.out.println(id+": "+mainEntry);
 
-					if ( records.getBoolean("undifferentiated") )
+					if ( records.getBoolean("undifferentiated") ) {
 						json.put("undifferentiated", true);
+						if ( changeType.equals(ChangeType.UPDATE) ) {
+							System.out.println("Skipping undifferentiated record update. "+id);
+							continue;
+						}
+					}
 
 					MarcRecord oldR = null;
 					if ( lookForOldRecordVersion ) {
@@ -140,18 +146,32 @@ public class ProcessAuthorityChangeFile {
 					List<Map<String,Object>> relevantChanges = new ArrayList<>();
 					for (String field : actionableHeadings.keySet() ) {
 						EnumSet<DiffType> flags = actionableHeadings.get(field);
-						String fieldType = field.substring(1, 3);
+						HeadingType ht = HeadingType.byAuthField("1"+field.substring(1, 3));
 						String heading = field.substring(4);
 						if ( checkedHeadings.contains(heading) ) continue;
 						checkedHeadings.add(heading);
-						if ( mainEntrySort.equals(getFilingForm(heading)))
+						String headingSort = getFilingForm(heading);
+						if ( mainEntrySort.equals(headingSort))
 							flags.add(DiffType.DIACR);
 
-						List<String> searchFields = identifySearchFields(fieldType,vocab);
+						boolean isSeparatelyAuthorized = false;
+						edu.cornell.library.integration.metadata.support.HeadingType oldHt =
+								ht.getOldHeadingType();
+						if ( oldHt != null ) {
+							AuthorityData auth = new AuthorityData(config,heading,oldHt);
+							if (auth.authorized) for (String authId : auth.authorityId)
+								if (! authId.trim().equals(id)
+										&& isStillAuthorized(authority,headingSort,authId)) {
+									isSeparatelyAuthorized = true;
+									System.out.printf("Separately authorized: %s %s\n", authId,heading);
+								}
+						}
+
+						List<String> searchFields = identifySearchFields(ht,vocab);
 						if ( searchFields == null ) continue;
 
 						for (String searchField : searchFields) {
-							if ( flags.contains(DiffType.NEWMAIN)
+							if ( ( flags.contains(DiffType.NEWMAIN) || isSeparatelyAuthorized)
 									&& changeType.equals(ChangeType.UPDATE)
 									&& ! ( searchField.contains("_unk_") ) ) continue;
 							SolrQuery q = new SolrQuery(searchField+":\""+heading.replaceAll("\"","'")+'"');
@@ -185,8 +205,6 @@ public class ProcessAuthorityChangeFile {
 					}
 					if ( ! relevantChanges.isEmpty() ) {
 						json.put("relevantChanges", relevantChanges);
-						ObjectMapper mapper = new ObjectMapper();
-						mapper.enable(SerializationFeature.INDENT_OUTPUT);
 						if ( writtenJson )
 							jsonWriter.append(",\n");
 						else
@@ -206,7 +224,36 @@ public class ProcessAuthorityChangeFile {
 			}
 		}
 	}
-//	static Pattern dateMatcher = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2}).*");
+
+	private static boolean isStillAuthorized(
+			Connection authority, String headingSort, String authId) throws SQLException {
+		try (PreparedStatement stmt = authority.prepareStatement(
+				"SELECT heading, changeType"+
+				"  FROM authorityUpdate"+
+				" WHERE id = ?"+
+				" ORDER BY moddate DESC"+
+				" LIMIT 1")) {
+			stmt.setString(1, authId);
+			try (ResultSet rs = stmt.executeQuery()) {
+				while (rs.next()) {
+					if (rs.getInt(2) == ChangeType.DELETE.ordinal()) {
+						System.out.printf("Authority deleted: %s\n", authId);
+						return false;
+					}
+					if ( ! headingSort.equals(getFilingForm(rs.getString(1)))) {
+						System.out.printf("Authority heading no longer matches: %s\n%s\n%s\n",
+								authId,headingSort,getFilingForm(rs.getString(1)));
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	//	static Pattern dateMatcher = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2}).*");
+	static ObjectMapper mapper = new ObjectMapper();
+	static { mapper.enable(SerializationFeature.INDENT_OUTPUT); }
 
 	private static String serializeActionable(Map<String, EnumSet<DiffType>> actionableHeadings) {
 		StringBuilder sb = new StringBuilder();
@@ -371,69 +418,70 @@ public class ProcessAuthorityChangeFile {
 		return displayForms;
 	}
 
-	private static List<String> identifySearchFields(String fieldType, AuthoritySource vocab) {
+	private static List<String> identifySearchFields(HeadingType fieldType, AuthoritySource vocab) {
 		List<String> searchFields = new ArrayList<>();
 		switch (fieldType) {
-		case "00":
+		case PERS:
 			searchFields.add("author_pers_roman_browse");
 			searchFields.add("subject_pers_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_pers_lcjsh_browse");
 			else searchFields.add("subject_pers_lc_browse");
 			break;
-		case "10":
+		case CORP:
 			searchFields.add("author_corp_roman_browse");
 			searchFields.add("subject_corp_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_corp_lcjsh_browse");
 			else searchFields.add("subject_corp_lc_browse");
 			break;
-		case "11":
+		case MEETING:
+		case EVENT:
 			searchFields.add("author_event_roman_browse");
 			searchFields.add("subject_event_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_event_lcjsh_browse");
 			else searchFields.add("subject_event_lc_browse");
 			break;
-		case "30":
+		case WORK:
 			searchFields.add("title_exact");
 			searchFields.add("subject_work_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_work_lcjsh_browse");
 			else searchFields.add("subject_work_lc_browse");
 			break;
-		case "48":
+		case ERA:
 			searchFields.add("subject_era_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_era_lcjsh_browse");
 			else searchFields.add("subject_era_lc_browse");
 			break;
-		case "50":
+		case TOPIC:
 			searchFields.add("subject_topic_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_topic_lcjsh_browse");
 			else searchFields.add("subject_topic_lc_browse");
 			break;
-		case "51":
+		case PLACE:
 			searchFields.add("subject_geo_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_geo_lcjsh_browse");
 			else searchFields.add("subject_geo_lc_browse");
 			break;
-		case "55":
+		case GENRE:
 			searchFields.add("subject_genr_lcgft_browse");
 			searchFields.add("subject_genr_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_genr_lcjsh_browse");
 			else searchFields.add("subject_genr_lc_browse");
 			break;
-		case "62":
+		case INSTRUMENT:
 			searchFields = Arrays.asList("notes_t");
 			break;
-		case "80":
-		case "81":
-		case "82":
-		case "85":
+		case SUB_GEN:
+		case SUB_GEO:
+		case SUB_ERA:
+		case SUB_GNR:
 			searchFields.add("subject_sub_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_sub_lcjsh_browse");
@@ -494,6 +542,7 @@ public class ProcessAuthorityChangeFile {
 			rc.put("variantHeadingType", "No $q");
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
+
 		return rc;
 	}
 

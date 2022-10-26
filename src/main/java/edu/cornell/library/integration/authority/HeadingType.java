@@ -34,4 +34,29 @@ enum HeadingType {
 		return _byAuthField.get(authFieldTag);
 	}
 
+	public edu.cornell.library.integration.metadata.support.HeadingType getOldHeadingType() {
+		switch (this) {
+		case PERS:
+			return edu.cornell.library.integration.metadata.support.HeadingType.PERSNAME;
+		case CORP:
+			return edu.cornell.library.integration.metadata.support.HeadingType.CORPNAME;
+		case EVENT:
+		case MEETING:
+			return edu.cornell.library.integration.metadata.support.HeadingType.EVENT;
+		case WORK:
+			return edu.cornell.library.integration.metadata.support.HeadingType.WORK;
+		case ERA:
+			return edu.cornell.library.integration.metadata.support.HeadingType.CHRONTERM;
+		case TOPIC:
+			return edu.cornell.library.integration.metadata.support.HeadingType.TOPIC;
+		case PLACE:
+			return edu.cornell.library.integration.metadata.support.HeadingType.GEONAME;
+		case GENRE:
+			return edu.cornell.library.integration.metadata.support.HeadingType.GENRE;
+		case INSTRUMENT:
+			return edu.cornell.library.integration.metadata.support.HeadingType.MEDIUM;
+
+		default: return null;
+		}
+	}
 }
