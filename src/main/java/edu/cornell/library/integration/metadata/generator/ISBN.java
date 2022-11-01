@@ -53,13 +53,12 @@ public class ISBN implements SolrFieldGenerator {
 						vals.add(new SolrField( "isbn_t", isbn13to10(cleanedISBN) ));
 					
 					if (sbDisplay.length() > 0)
-                        sbDisplay.append(' ');
+						sbDisplay.append(' ');
 					if (posOfSpace == -1)
-					    sbDisplay.append(cleanedISBN);
+						sbDisplay.append(cleanedISBN);
 					else
-					    sbDisplay.append(cleanedISBN).append(sf.value.substring(posOfSpace));
-
-                    break;
+						sbDisplay.append(cleanedISBN).append(sf.value.substring(posOfSpace));
+					break;
 				case 'c':
 					// Not currently displayed
 					break;
