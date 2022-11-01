@@ -38,24 +38,26 @@ public class ISBN implements SolrFieldGenerator {
 				if ( sf.value.isEmpty() ) continue;
 				switch (sf.code) {
 				case 'a':
-					// Display values
 					aFound = true;
+
+					String cleanedISBN ;
+					int posOfSpace = sf.value.indexOf(' ');
+					if (posOfSpace == -1) cleanedISBN = sf.value;
+					else cleanedISBN = sf.value.substring(0, sf.value.indexOf(' '));
+					cleanedISBN = cleanedISBN.replaceAll("[^0-9Xx]", "");
+					vals.add(new SolrField( "isbn_t", cleanedISBN ));
+					boolean valid = validISBN.matcher(cleanedISBN).matches();
+					if (cleanedISBN.length() == 10 && valid)
+						vals.add(new SolrField( "isbn_t", isbn10to13(cleanedISBN) ));
+					else if ( cleanedISBN.length() == 13 && valid && cleanedISBN.startsWith("978") )
+						vals.add(new SolrField( "isbn_t", isbn13to10(cleanedISBN) ));
+					
 					if (sbDisplay.length() > 0)
 						sbDisplay.append(' ');
-					sbDisplay.append(sf.value);
-
-					// Search values
-					String searchISBN ;
-					int posOfSpace = sf.value.indexOf(' ');
-					if (posOfSpace == -1) searchISBN = sf.value;
-					else searchISBN = sf.value.substring(0, sf.value.indexOf(' '));
-					searchISBN = searchISBN.replaceAll("[^0-9Xx]", "");
-					vals.add(new SolrField( "isbn_t", searchISBN ));
-					boolean valid = validISBN.matcher(searchISBN).matches();
-					if (searchISBN.length() == 10 && valid)
-						vals.add(new SolrField( "isbn_t", isbn10to13(searchISBN) ));
-					else if ( searchISBN.length() == 13 && valid && searchISBN.startsWith("978") )
-						vals.add(new SolrField( "isbn_t", isbn13to10(searchISBN) ));
+					if (posOfSpace == -1)
+						sbDisplay.append(cleanedISBN);
+					else
+						sbDisplay.append(cleanedISBN).append(sf.value.substring(posOfSpace));
 					break;
 				case 'c':
 					// Not currently displayed
