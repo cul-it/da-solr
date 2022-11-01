@@ -183,4 +183,14 @@ public class ISBNTest {
 		assertEquals( "0345391802", ISBN.isbn13to10("9780345391803"));
 	}
 
+	@Test // prune invalid pound sign, may not be valid isbn
+    public void invalidPound() throws ClassNotFoundException, SQLException, IOException {
+        MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+        rec.id = "2009547";
+        rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 0852980450£12.00"));
+        String expected =
+        "isbn_t: 08529804501200\n" + 
+        "isbn_display: 08529804501200\n";
+        assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
+    }
 }
