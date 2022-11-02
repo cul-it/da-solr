@@ -3,21 +3,21 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.folio.Locations;
-import edu.cornell.library.integration.folio.Locations.Location;
-import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 
 public class URLTest {
@@ -27,20 +27,24 @@ public class URLTest {
 	static Map<String,Object> onlineFolioHolding ;
 	static List<Map<String,Object>> onlineFolioHoldingList ;
 	static Config config;
-	static Locations locations;
+	private static String resourceDataJson = null;
+	
+	public static String loadResourceFile(String filename) throws IOException {
+		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
+				Scanner s = new Scanner(is,"UTF-8")) {
+			return s.useDelimiter("\\A").next();
+		}
+	}
 
 	@BeforeClass
 	public static void createServRemoHolding() throws IOException {
-		config = Config.loadConfig(new ArrayList<String>());
-		if ( config.isOkapiConfigured("Folio") ) {
-			OkapiClient folio = config.getOkapi("Folio");
-			locations = new Locations(folio);
-			Location onlineLoc = locations.getByCode("serv,remo");
-			onlineFolioHolding = new HashMap<>();
-			onlineFolioHolding.put("permanentLocationId", onlineLoc.id);
-			onlineFolioHoldingList = new ArrayList<>();
-			onlineFolioHoldingList.add(onlineFolioHolding);
-		}
+		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
+		SupportReferenceData.initializeLocations(resourceDataJson);
+		String onlineLocId = SupportReferenceData.locations.getUuid("serv,remo");
+		onlineFolioHolding = new HashMap<>();
+		onlineFolioHolding.put("permanentLocationId", onlineLocId);
+		onlineFolioHoldingList = new ArrayList<>();
+		onlineFolioHoldingList.add(onlineFolioHolding);
 
 		online = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		online.id = "1";
@@ -220,7 +224,7 @@ public class URLTest {
 			links.add(link);
 			Map<String,Object> holding = new HashMap<>();
 			holding.put("electronicAccess", links);
-			holding.put("permanentLocationId", locations.getByCode("serv,remo").id);
+			holding.put("permanentLocationId", SupportReferenceData.locations.getUuid("serv,remo"));
 			holdings.add(holding);
 		}
 
