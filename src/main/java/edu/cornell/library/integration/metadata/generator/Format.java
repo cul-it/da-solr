@@ -9,14 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.folio.Locations;
-import edu.cornell.library.integration.folio.Locations.Location;
+import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 
@@ -48,7 +48,7 @@ public class Format implements SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config unused ) throws IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws IOException {
 
 		String record_type =          rec.leader.substring(6,7);
 		String bibliographic_level =  rec.leader.substring(7,8);
@@ -82,16 +82,15 @@ public class Format implements SolrFieldGenerator {
 					if (sf.code.equals('b')) loccodes.add(sf.value);
 		if ( rec.folioHoldings != null ) {
 			if ( folioLocations == null ) 
-				try { folioLocations = new Locations(null); } catch (IOException e) {
-					System.out.println(e.getMessage());
-					System.out.println("Folio Locations must be instantiated once before this point.");
-					e.printStackTrace();
-					System.exit(1);
+				folioLocations = SupportReferenceData.locations;
+				if (folioLocations == null) {
+					OkapiClient folio = config.getOkapi("Folio");
+					folioLocations = new ReferenceData( folio,"/locations","code");
 				}
 			for (Map<String,Object> holding : rec.folioHoldings)
 				if ( holding.containsKey("permanentLocationId") ) {
-					Location l = folioLocations.getByUuid((String)holding.get("permanentLocationId"));
-					if ( l != null ) loccodes.add(l.code);
+					String locationCode = folioLocations.getName(holding.get("permanentLocationId").toString());
+					if ( locationCode != null ) loccodes.add(locationCode);
 				}
 		}
 
@@ -335,7 +334,7 @@ public class Format implements SolrFieldGenerator {
 
 	}
 
-	private static Locations folioLocations = null;
+	private static ReferenceData folioLocations = null;
 
 	static ReferenceData resourceTypes = null;
 

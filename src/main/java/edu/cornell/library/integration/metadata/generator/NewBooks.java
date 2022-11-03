@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.folio.Locations;
+import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -38,7 +39,7 @@ public class NewBooks implements SolrFieldGenerator {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SolrFields generateSolrFields ( MarcRecord bib, Config config ) {
+	public SolrFields generateSolrFields ( MarcRecord bib, Config config ) throws IOException {
 		Collection<String> loccodes = new HashSet<>();
 		Boolean newBooksZNote = false;
 
@@ -59,18 +60,18 @@ public class NewBooks implements SolrFieldGenerator {
 					}
 
 		if ( bib.folioHoldings != null ) {
-			if ( folioLocations == null ) 
-				try { folioLocations = new Locations(null); } catch (IOException e) {
-					System.out.println(e.getMessage());
-					System.out.println("Folio Locations must be instantiated once before this point.");
-					e.printStackTrace();
-					System.exit(1);
+			if ( folioLocations == null ) {
+				folioLocations = SupportReferenceData.locations;
+				if (folioLocations == null) {
+					OkapiClient folio = config.getOkapi("Folio");
+					folioLocations = new ReferenceData( folio,"/locations","code");
 				}
+			}
 			for (Map<String,Object> holding : bib.folioHoldings ) {
 				if ( holding.containsKey("permanentLocationId") )
-					loccodes.add(folioLocations.getByUuid((String)holding.get("permanentLocationId")).code);
+					loccodes.add(folioLocations.getName(holding.get("permanentLocationId").toString()));
 				if ( holding.containsKey("temporaryLocationId") )
-					loccodes.add(folioLocations.getByUuid((String)holding.get("temporaryLocationId")).code);
+					loccodes.add(folioLocations.getName(holding.get("temporaryLocationId").toString()));
 				if ( holding.containsKey("notes") ) {
 					for (Map<String,String> note : (List<Map<String,String>>) holding.get("notes")) {
 						String val = note.get("note").toLowerCase();
@@ -115,12 +116,13 @@ public class NewBooks implements SolrFieldGenerator {
 			else if ( loccodes.contains("serv,remo")
 					&& bib.instance.containsKey("statusId")
 					&& SupportReferenceData.instanceStatuses.getName(
-							(String)bib.instance.get("statusId")).equals("batch") )
+							(String)bib.instance.get("statusId")).equals("batch") ) {
 				if ( bib.instance.containsKey("metadata") ) {
 					Map<String,String> meta = Map.class.cast(bib.instance.get("metadata"));
 					Timestamp createDate = Timestamp.from(isoDT.parse(meta.get("createdDate"),Instant::from));
 					if ( createDate.after(folioGoLive) ) acquisitionDate = createDate;
 				}
+			}
 		}
 
 		if ( acquisitionDate == null ) return vals;
@@ -136,7 +138,7 @@ public class NewBooks implements SolrFieldGenerator {
 		return vals;
 	}
 	private static Pattern yyyymmdd = Pattern.compile("[0-9]{8}");
-	private static Locations folioLocations = null;
+	private static ReferenceData folioLocations = null;
 	private static DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME;
 	private static Timestamp folioGoLive = Timestamp.valueOf("2021-07-01 00:00:00");
 

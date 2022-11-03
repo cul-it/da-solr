@@ -3,26 +3,37 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class FormatTest {
 
 	SolrFieldGenerator gen = new Format();
-
+	
+	public String loadResourceFile(String filename) throws IOException {
+        try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
+                Scanner s = new Scanner(is,"UTF-8")) {
+            return s.useDelimiter("\\A").next();
+        }
+    }
 
 	@BeforeClass
-	public static void instantiateTestInstanceResourceTypes() {
+	public static void instantiateTestInstanceResourceTypes() throws IOException {
 		Format.resourceTypes = new ReferenceData("name");
 		Format.resourceTypes.addTestValue("c7f7446f-4642-4d97-88c9-55bae2ad6c7f", "spoken word");
 		Format.resourceTypes.addTestValue("2afc8005-8654-4401-8321-d991f8cb95e9", "borrow direct");
@@ -204,4 +215,64 @@ public class FormatTest {
 		this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
+	@Test
+	public void testLocations() throws ClassNotFoundException, SQLException, IOException {
+		String resourceDataJson = null;
+		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
+		SupportReferenceData.initializeLocations((resourceDataJson));
+
+		// online, o
+		MarcRecord rec = generateTestMarcRecord("01548cocaa2200265 a 4500", "serv,remo");
+		String expected =
+				"format: Kit\n"+
+				"format_main_facet: Kit\n"+
+				"bib_format_display: oc\n"+
+				"database_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+
+		// rare anex, o
+		rec = generateTestMarcRecord("01548cocaa2200265 a 4500", "asia,ranx");
+		expected =
+				"format: Kit\n"+
+				"format_main_facet: Kit\n"+
+				"bib_format_display: oc\n"+
+				"database_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+
+		// online, p
+		rec = generateTestMarcRecord("01548cpcaa2200265 a 4500", "serv,remo");
+		expected =
+				"format: Miscellaneous\n"+
+				"format_main_facet: Miscellaneous\n"+
+				"bib_format_display: pc\n"+
+				"database_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+
+		// rare anex, p
+		rec = generateTestMarcRecord("01548cpcaa2200265 a 4500", "asia,ranx");
+		expected =
+				"format: Manuscript/Archive\n"+
+				"format_main_facet: Manuscript/Archive\n"+
+				"bib_format_display: pc\n"+
+				"database_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+	
+	public MarcRecord generateTestMarcRecord(String leader, String locationId) {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "9709512";
+		rec.leader = leader;
+		rec.controlFields.add(new ControlField(1,"008","161122s2016    nyu                 eng d"));
+		rec.dataFields.add(new DataField(3,"245",'0','0',
+				"‡a Cornell University School of Chemical Engineering records, ‡f 2016."));
+
+		String locId = SupportReferenceData.locations.getUuid(locationId);
+		Map<String,Object> folioHolding = new HashMap<>();
+		folioHolding.put("permanentLocationId", locId);
+		List<Map<String,Object>> folioHoldingList = new ArrayList<>();
+		folioHoldingList.add(folioHolding);
+		rec.folioHoldings = folioHoldingList;
+		
+		return rec;
+	}
 }

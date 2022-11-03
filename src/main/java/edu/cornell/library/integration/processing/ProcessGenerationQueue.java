@@ -28,8 +28,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.catalog.Catalog;
-import edu.cornell.library.integration.folio.Locations;
-import edu.cornell.library.integration.folio.Locations.Location;
 import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
@@ -103,15 +101,13 @@ public class ProcessGenerationQueue {
 			OkapiClient folio = null;
 			if ( config.isOkapiConfigured("Folio")) {
 				folio = config.getOkapi("Folio");
-				Locations locations = new Locations(folio);
-				Location online = locations.getByCode("serv,remo");
-				if (online == null ) {
+				StatisticalCodes.initializeCodes(folio);
+				SupportReferenceData.initialize(folio);
+				if (SupportReferenceData.locations.getUuid("serv,remo") == null ) {
 					System.out.println("Something has changed with the online location.");
 					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
 					System.exit(1);
 				}
-				StatisticalCodes.initializeCodes(folio);
-				SupportReferenceData.initialize(folio);
 			} else if ( config.isDatabaseConfigured("Voy"))
 				voyager = config.getDatabaseConnection("Voy");
 			else {
