@@ -103,7 +103,7 @@ public class LDPChangeDetection {
 							.replaceAll("\\s*\\n\\s*", " ");
 					Matcher m = modDateP.matcher(marc);
 					Timestamp marcTimestamp = (m.matches())
-							? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
+							? Timestamp.from(Instant.parse(m.group(1).replace("+00:00","Z"))): null;
 					cacheReplaceStmt.setString(1, hrid);
 					cacheReplaceStmt.setTimestamp(2, marcTimestamp);
 					cacheReplaceStmt.setString(3, marc);
