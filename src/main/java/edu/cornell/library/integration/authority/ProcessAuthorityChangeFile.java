@@ -423,57 +423,73 @@ public class ProcessAuthorityChangeFile {
 		switch (fieldType) {
 		case PERS:
 			searchFields.add("author_pers_roman_browse");
-			searchFields.add("subject_pers_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_pers_lcjsh_browse");
-			else searchFields.add("subject_pers_lc_browse");
+			else {
+				searchFields.add("subject_pers_lc_browse");
+				searchFields.add("subject_pers_unk_browse");
+			}
 			break;
 		case CORP:
 			searchFields.add("author_corp_roman_browse");
-			searchFields.add("subject_corp_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_corp_lcjsh_browse");
-			else searchFields.add("subject_corp_lc_browse");
+			else {
+				searchFields.add("subject_corp_lc_browse");
+				searchFields.add("subject_corp_unk_browse");
+			}
 			break;
 		case MEETING:
 		case EVENT:
 			searchFields.add("author_event_roman_browse");
-			searchFields.add("subject_event_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_event_lcjsh_browse");
-			else searchFields.add("subject_event_lc_browse");
+			else {
+				searchFields.add("subject_event_lc_browse");
+				searchFields.add("subject_event_unk_browse");
+			}
 			break;
 		case WORK:
 			searchFields.add("title_exact");
-			searchFields.add("subject_work_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_work_lcjsh_browse");
-			else searchFields.add("subject_work_lc_browse");
+			else {
+				searchFields.add("subject_work_lc_browse");
+				searchFields.add("subject_work_unk_browse");
+			}
 			break;
 		case ERA:
-			searchFields.add("subject_era_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_era_lcjsh_browse");
-			else searchFields.add("subject_era_lc_browse");
+			else {
+				searchFields.add("subject_era_lc_browse");
+				searchFields.add("subject_era_unk_browse");
+			}
 			break;
 		case TOPIC:
-			searchFields.add("subject_topic_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_topic_lcjsh_browse");
-			else searchFields.add("subject_topic_lc_browse");
+			else {
+				searchFields.add("subject_topic_lc_browse");
+				searchFields.add("subject_topic_unk_browse");
+			}
 			break;
 		case PLACE:
-			searchFields.add("subject_geo_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_geo_lcjsh_browse");
-			else searchFields.add("subject_geo_lc_browse");
+			else {
+				searchFields.add("subject_geo_lc_browse");
+				searchFields.add("subject_geo_unk_browse");
+			}
 			break;
 		case GENRE:
 			searchFields.add("subject_genr_lcgft_browse");
-			searchFields.add("subject_genr_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_genr_lcjsh_browse");
-			else searchFields.add("subject_genr_lc_browse");
+			else {
+				searchFields.add("subject_genr_lc_browse");
+				searchFields.add("subject_genr_unk_browse");
+			}
 			break;
 		case INSTRUMENT:
 			searchFields = Arrays.asList("notes_t");
@@ -482,10 +498,12 @@ public class ProcessAuthorityChangeFile {
 		case SUB_GEO:
 		case SUB_ERA:
 		case SUB_GNR:
-			searchFields.add("subject_sub_unk_browse");
 			if ( vocab.equals(AuthoritySource.LCJSH) )
 				searchFields.add("subject_sub_lcjsh_browse");
-			else searchFields.add("subject_sub_lc_browse");
+			else {
+				searchFields.add("subject_sub_lc_browse");
+				searchFields.add("subject_sub_unk_browse");
+			}
 			break;
 		default:
 			System.out.println("Unexpected field type "+fieldType);
