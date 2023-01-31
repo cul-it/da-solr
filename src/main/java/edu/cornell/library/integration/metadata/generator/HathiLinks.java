@@ -41,7 +41,7 @@ public class HathiLinks implements SolrFieldGenerator {
 
 	@Override
 	// This field generator uses currently untracked HathiTrust content data, so should be regenerated more often.
-	public Duration resultsShelfLife() { return Duration.ofDays(730); } //TODO Revert to 14 days when Hathi DB fixed 
+	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
 	public SolrFields generateSolrFields( MarcRecord rec, Config config )
