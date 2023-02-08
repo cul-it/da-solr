@@ -8,18 +8,21 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class HathiLinksTest {
-
+public class HathiLinksTest extends DbBaseTest {
 	SolrFieldGenerator gen = new HathiLinks();
-	static Config config = null;
+
+//	@BeforeClass
+//	public static void setup() {
+//		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+//	}
 
 	@BeforeClass
-	public static void setup() {
-		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+	public static void setup() throws IOException {
+		setup("Hathi");
 	}
 
 	@Test
