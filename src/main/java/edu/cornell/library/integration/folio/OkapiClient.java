@@ -25,35 +25,55 @@ public class OkapiClient {
 	private final String token;
 	private final String tenant;
 
-	public OkapiClient(String okapiUrl, String accessToken, String tenant) {
-		this.url = okapiUrl;
-		this.token = accessToken;
+	public OkapiClient(String url, String tenant, String token, String user, String pass)
+			throws IOException {
+		System.out.printf("url: %s\ntenant: %s\ntoken: %s\nuser: %s\npass: %s\n", 
+				url,tenant,token,user,pass);
+		this.url = url;
 		this.tenant = tenant;
+		if ( token != null)
+			this.token = token;
+		else {
+			this.token = post("/authn/login",
+					String.format("{\"username\":\"%s\",\"password\":\"%s\"}",user,pass));
+			System.out.println(this.token);
+		}
 	}
 
-	public String post(String endPoint, String json) throws IOException {
-
-		// TODO Improve error detection and handling
+	public String post(final String endPoint, final String json) throws IOException {
 
 		System.out.println("About to post " + endPoint + " " + json);
-		HttpURLConnection c = commonConnectionSetup(endPoint);
+
+		final URL fullPath = new URL(this.url + endPoint);
+		final HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
+		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
+
 		c.setRequestMethod("POST");
 		c.setDoOutput(true);
 		c.setDoInput(true);
-		OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
+		final OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
 		writer.write(json);
 		writer.flush();
-//      int responseCode = httpConnection.getResponseCode();
-//      if (responseCode != 200)
-//          throw new IOException(httpConnection.getResponseMessage());
-		StringBuilder sb = new StringBuilder();
+		//      int responseCode = httpConnection.getResponseCode();
+		//      if (responseCode != 200)
+		//          throw new IOException(httpConnection.getResponseMessage());
+
+		String token = c.getHeaderField("x-okapi-token");
+
+		final StringBuilder sb = new StringBuilder();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "utf-8"))) {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				sb.append(line + "\n");
 			}
 		}
-		return sb.toString();
+		String response = sb.toString();
+		if ( token != null ) {
+			System.out.println(response);
+			return token;
+		}
+		return response;
 	}
 
 	public String put(String endPoint, Map<String, Object> object) throws IOException {
