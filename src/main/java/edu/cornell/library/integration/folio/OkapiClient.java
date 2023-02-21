@@ -27,8 +27,6 @@ public class OkapiClient {
 
 	public OkapiClient(String url, String tenant, String token, String user, String pass)
 			throws IOException {
-		System.out.printf("url: %s\ntenant: %s\ntoken: %s\nuser: %s\npass: %s\n", 
-				url,tenant,token,user,pass);
 		this.url = url;
 		this.tenant = tenant;
 		if ( token != null)
@@ -36,13 +34,14 @@ public class OkapiClient {
 		else {
 			this.token = post("/authn/login",
 					String.format("{\"username\":\"%s\",\"password\":\"%s\"}",user,pass));
-			System.out.println(this.token);
 		}
 	}
 
+	public String getToken() { return this.token; }
+
 	public String post(final String endPoint, final String json) throws IOException {
 
-		System.out.println("About to post " + endPoint + " " + json);
+		System.out.println("About to post " + endPoint);
 
 		final URL fullPath = new URL(this.url + endPoint);
 		final HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
@@ -69,10 +68,8 @@ public class OkapiClient {
 			}
 		}
 		String response = sb.toString();
-		if ( token != null ) {
-			System.out.println(response);
+		if ( token != null )
 			return token;
-		}
 		return response;
 	}
 

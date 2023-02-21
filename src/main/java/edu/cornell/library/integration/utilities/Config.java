@@ -168,12 +168,17 @@ public class Config {
 		return true;
 	}
 	public OkapiClient getOkapi(String id) throws IOException {
-		return new OkapiClient(
+		OkapiClient okapi = new OkapiClient(
 				this.values.get("okapiUrl"+id),
 				this.values.get("okapiTenant"+id),
 				this.values.get("okapiToken"+id),
 				this.values.get("okapiUser"+id),
 				this.values.get("okapiPass"+id));
+		if ( ! this.values.containsKey("okapiToken"+id) ) {
+			this.values.put("okapiToken"+id, okapi.getToken());
+			System.out.println("Recording token to config: "+okapi.getToken());
+		}
+		return okapi;
 	}
 
 	public boolean isDatabaseConfigured(String id) {
