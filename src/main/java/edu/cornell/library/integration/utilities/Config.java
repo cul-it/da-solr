@@ -161,27 +161,24 @@ public class Config {
 
 	public boolean isOkapiConfigured(String id) {
 		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
-		if ( ! this.values.containsKey("okapiToken"+id) ) return false;
 		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
+		if ( ! (this.values.containsKey("okapiUser"+id) && this.values.containsKey("okapiPass"+id) )
+				&& ! this.values.containsKey("okapiToken"+id) ) return false;
+
 		return true;
 	}
-	public OkapiClient getOkapi(String id) {
-		String url = this.values.get("okapiUrl"+id);
-		if ( url == null ) {
-			System.out.println("Value not found for okapiUrl" + id);
-			System.exit(1);
+	public OkapiClient getOkapi(String id) throws IOException {
+		OkapiClient okapi = new OkapiClient(
+				this.values.get("okapiUrl"+id),
+				this.values.get("okapiTenant"+id),
+				this.values.get("okapiToken"+id),
+				this.values.get("okapiUser"+id),
+				this.values.get("okapiPass"+id));
+		if ( ! this.values.containsKey("okapiToken"+id) ) {
+			this.values.put("okapiToken"+id, okapi.getToken());
+			System.out.println("Recording token to config: "+okapi.getToken());
 		}
-		String token = this.values.get("okapiToken"+id);
-		if ( token == null ) {
-			System.out.println("Value not found for okapiToken" + id);
-			System.exit(1);
-		}
-		String tenant = this.values.get("okapiTenant"+id);
-		if ( tenant == null ) {
-			System.out.println("Value not found for okapiTenant" + id);
-			System.exit(1);
-		}
-		return new OkapiClient(url,token,tenant);
+		return okapi;
 	}
 
 	public boolean isDatabaseConfigured(String id) {

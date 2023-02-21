@@ -108,10 +108,11 @@ public class ProcessGenerationQueue {
 					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
 					System.exit(1);
 				}
-			} else if ( config.isDatabaseConfigured("Voy"))
-				voyager = config.getDatabaseConnection("Voy");
-			else {
-				System.out.println("Either Voyager or Folio connection must be configured.");
+			} else {
+				System.out.printf("Folio configuration requires config fields okapiUrl%s, okapiTenant%s, "
+						+ "and either okapiToken%s or both okapiUser%s and okapiPass%s\n",
+						"Folio","Folio","Folio","Folio","Folio");
+				System.exit(1);
 			}
 
 			oldestSolrFieldsData.setFetchSize(1000);
