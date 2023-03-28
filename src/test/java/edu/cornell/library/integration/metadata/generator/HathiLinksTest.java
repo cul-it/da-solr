@@ -139,4 +139,20 @@ public class HathiLinksTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)61353090"));
 		System.out.println(this.gen.generateSolrFields(rec, config).toString());
 	}
+	
+	@Test
+	public void testMultipleSourceInstRecNum() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "10519";
+		String expected =
+		"notes_t: HathiTrust\n"+
+		"url_access_json: {\"description\":\"HathiTrust\","
+		+ "\"url\":\"http://hdl.handle.net/2027/coo.31924000030001\"}\n"+
+		"online: Online\n"+
+		"hathi_title_data: 102756782\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+		
+		rec.id = "939641";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
 }

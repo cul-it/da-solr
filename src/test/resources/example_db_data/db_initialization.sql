@@ -695,12 +695,25 @@ CREATE TABLE `volume_to_oclc` (
   KEY `OCLC_Number` (`OCLC_Number`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `volume_to_source_inst_rec_num` (
+  `Volume_Identifier` varchar(128) DEFAULT NULL,
+  `Source_Inst_Record_Number` varchar(256) DEFAULT NULL,
+  KEY `Volume_Identifier` (`Volume_Identifier`),
+  KEY `Source_Inst_Record_Number` (`Source_Inst_Record_Number`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 -- HathiLinksTest data
 INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Enum_Chrono,Source,Source_Inst_Record_Number,OCLC_Numbers,ISBNs,ISSNs,LCCNs,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("coo.31924090258827","allow","pd","008595162","","COO","318","2534902","","","51008544","Birds in the bush, by Bradford Torrey.","Houghton, Mifflin and Company, 1885.","bib","2010-12-13 20:30:49","0","1885","mau","eng","BK","COO","cornell","cornell","google","./hathifiles/hathi_full_20221101.txt","10815922");
 INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Enum_Chrono,Source,Source_Inst_Record_Number,OCLC_Numbers,ISBNs,ISSNs,LCCNs,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("nyp.33433011014200","allow","pd","008595162","","NYP","b13556394x","2534902","","","51008544","Birds in the bush, by Bradford Torrey.","Houghton, Mifflin and Company, 1885.","bib","2010-09-27 19:31:05","0","1885","mau","eng","BK","NYP","nypl","nypl","google","./hathifiles/hathi_full_20221101.txt","10815923");
 INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Enum_Chrono,Source,Source_Inst_Record_Number,OCLC_Numbers,ISBNs,ISSNs,LCCNs,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("coo.31924005214295","allow","pd","100174680","no.25-30","COO","178","2124566","","","17013088","Opinions of the attorneys general and judgments of the Supreme court and Court of claims of the United States relating to the controversy over neutral rights between the United States and France, 1797-1800.","The Endowment, 1917.","bib","2014-07-07 03:25:28","0","1917","dcu","eng","BK","COO","cornell","cornell","google","./hathifiles/hathi_full_20221101.txt","14673503");
 INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Enum_Chrono,Source,Source_Inst_Record_Number,OCLC_Numbers,ISBNs,ISSNs,LCCNs,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("coo1.ark:/13960/t20c5hb54","allow","pd","100763896","","COO","1460864","63972144","","","","Agricultural co-operation.","Democrat print. co., 1912.","bib","2015-07-20 12:26:18","0","1912","wiu","eng","BK","COO","cornell","cornell","cornell-ms","./hathifiles/hathi_full_20221101.txt","15517707");
-
+INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Source,Source_Inst_Record_Number,OCLC_Numbers,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("coo.31924000030001","allow","pd","102756782","COO","10519,939641","31301237","The practical pigeon keeper.","Cassell,Petter,Galpin & Co. [1882?]","bib","2021-01-20 17:19:59","0","1882","enk","eng","BK","COO","cornell","cornell","cornell","./hathifiles/hathi_full_20221101.txt","17573781");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924090258827", "318");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("nyp.33433011014200", "b13556394x");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924005214295", "178");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo1.ark:/13960/t20c5hb54", "1460864");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924000030001", "10519");
+INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924000030001", "939641");
 
 CREATE TABLE `classification` (
   `low_letters` char(3) NOT NULL,
