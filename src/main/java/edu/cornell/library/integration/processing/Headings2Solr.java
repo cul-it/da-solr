@@ -266,8 +266,16 @@ public class Headings2Solr {
 		note_pstmt.execute();
 		Collection<String> notes = new ArrayList<>();
 		try ( ResultSet rs = note_pstmt.getResultSet() ){
-			while (rs.next())
-				notes.add( rs.getString("note") );
+			while (rs.next()) {
+				String note = rs.getString("note");
+				if (note.startsWith("[") && note.endsWith("]"))
+					notes.add( note );
+				else {
+					try {
+						notes.add(mapper.writeValueAsString(Arrays.asList(note)));
+					} catch (JsonProcessingException e) { e.printStackTrace(); }
+				}
+			}
 		}
 		return notes;
 	}
