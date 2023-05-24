@@ -5,24 +5,26 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class TOCTest {
-
-	static Config config = null;
+public class TOCTest extends DbBaseTest {
 	SolrFieldGenerator gen = new TOC();
 
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
+//		config = Config.loadConfig(requiredArgs);
+//	}
+
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException {
+		setup("Current");
 	}
 
 	@Test

@@ -1,27 +1,29 @@
 package edu.cornell.library.integration.metadata.generator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class AuthorTitleTest {
-
-	static Config config = null;
+public class AuthorTitleTest extends DbBaseTest {
 	SolrFieldGenerator gen = new AuthorTitle();
 
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+//		config = Config.loadConfig(requiredArgs);
+//	}
+
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException {
+		setup("Headings");
 	}
 
 	@Test
