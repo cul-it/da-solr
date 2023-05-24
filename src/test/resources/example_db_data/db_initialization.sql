@@ -67,6 +67,20 @@ CREATE TABLE `authority2reference` (
   KEY `authority_id` (`authority_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `note` (
+  `heading_id` int(10) unsigned NOT NULL,
+  `authority_id` int(10) unsigned NOT NULL,
+  `note` text NOT NULL,
+  KEY `heading_id` (`heading_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Heading2SolrTest data
+
+INSERT INTO note (heading_id, authority_id, note) VALUES (296895, 1440605, "Search under: subdivision Freemasonry under names of persons");
+INSERT INTO note (heading_id, authority_id, note) VALUES (1537075, 742440, "Search under: headings beginning with the words Mine and Mining");
+INSERT INTO note (heading_id, authority_id, note) VALUES (1537075, 742440, "Search under: subdivision Effect of mining on under individual animals and groups of animals, e.g. Fishes--Effect of mining on");
+INSERT INTO note (heading_id, authority_id, note) VALUES (4496, 2327, '["For works of this author entered under other names, search also under",{"header":"Grandower, Elissa"},{"header":"Taylor, H. Baldwin"}]');
+
 -- AuthorTitleTest data
 INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (10422460, 0, "n 2017073745", "León Cupe, Mariano, 1932-", 10721247, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (18642914, 0, "León Cupe, Mariano, 1932-", "leon cupe mariano 1932", 0, 0, 0, 0);

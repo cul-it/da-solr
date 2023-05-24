@@ -136,7 +136,7 @@ public class Headings2Solr {
 					AuthorityStatus as = getIsAuthorized(id);
 					doc.addField("authority", ! as.equals(AuthorityStatus.NONE) );
 					doc.addField("mainEntry", as.equals(AuthorityStatus.MAIN) );
-					doc.addField("notes", getNotes(id));
+					doc.addField("notes", getNotes(this.connection, id));
 					String rda = getRda(id);
 					if (rda != null) doc.addField("rda_json", rda);
 					doc.addField("count",rs.getInt(hc.dbField()));
@@ -259,9 +259,9 @@ public class Headings2Solr {
 	}
 	
 	private static PreparedStatement note_pstmt = null;
-	private Collection<String> getNotes( int id ) throws SQLException {
+	public static Collection<String> getNotes( Connection headings, int id ) throws SQLException {
 		if (note_pstmt == null)
-			note_pstmt = this.connection.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
+			note_pstmt = headings.prepareStatement("SELECT note FROM note WHERE heading_id = ?");
 		note_pstmt.setInt(1, id);
 		note_pstmt.execute();
 		Collection<String> notes = new ArrayList<>();
