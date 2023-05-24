@@ -2,23 +2,20 @@ package edu.cornell.library.integration.utilities;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.metadata.support.CallNumber;
 
-public class CallNumberTest {
-
-	static Config config = null;
-
+public class CallNumberTest extends DbBaseTest {
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("CallNos");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException {
+		setup("CallNos");
 	}
 
 	@Test

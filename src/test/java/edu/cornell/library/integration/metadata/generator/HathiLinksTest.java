@@ -8,18 +8,21 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class HathiLinksTest {
-
+public class HathiLinksTest extends DbBaseTest {
 	SolrFieldGenerator gen = new HathiLinks();
-	static Config config = null;
+
+//	@BeforeClass
+//	public static void setup() {
+//		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+//	}
 
 	@BeforeClass
-	public static void setup() {
-		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+	public static void setup() throws IOException {
+		setup("Hathi");
 	}
 
 	@Test
@@ -135,5 +138,21 @@ public class HathiLinksTest {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)61353090"));
 		System.out.println(this.gen.generateSolrFields(rec, config).toString());
+	}
+	
+	@Test
+	public void testMultipleSourceInstRecNum() throws SQLException, IOException, ClassNotFoundException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "10519";
+		String expected =
+		"notes_t: HathiTrust\n"+
+		"url_access_json: {\"description\":\"HathiTrust\","
+		+ "\"url\":\"http://hdl.handle.net/2027/coo.31924000030001\"}\n"+
+		"online: Online\n"+
+		"hathi_title_data: 102756782\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+		
+		rec.id = "939641";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 }

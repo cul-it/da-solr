@@ -5,27 +5,29 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
-public class TitleChangeTest {
-
+public class TitleChangeTest extends DbBaseTest {
 	SolrFieldGenerator gen = new TitleChange();
-	static Config config = null;
+
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+//		config = Config.loadConfig(requiredArgs);
+//	}
 
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException {
+		setup("Headings");
 	}
 
 	@Test
