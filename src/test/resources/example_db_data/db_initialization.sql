@@ -1,9 +1,3 @@
-CREATE TABLE `replacement_headings` (
-  `orig_sort` mediumtext NOT NULL,
-  `preferred_display` text NOT NULL,
-  KEY `orig_sort` (`orig_sort`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal aliens", "Undocumented immigrants");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("children of illegal aliens", "Children of undocumented immigrants");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal alien children", "Undocumented immigrant children");
@@ -13,66 +7,6 @@ INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("alien d
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("aliens", "Noncitizens");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal immigration", "Undocumented immigratio");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal immigration in literature", "Undocumented immigration in literature");
-
-
-CREATE TABLE `heading` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `heading` text,
-  `sort` mediumtext NOT NULL,
-  `heading_type` tinyint(3) unsigned NOT NULL,
-  `works_by` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `works_about` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `works` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `parent_id` (`parent_id`),
-  KEY `uk` (`heading_type`,`sort`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `authority2heading` (
-  `heading_id` int(10) unsigned NOT NULL,
-  `authority_id` int(10) unsigned NOT NULL,
-  `main_entry` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`heading_id`,`authority_id`),
-  KEY `authority_id` (`authority_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `authority` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `source` int(1) unsigned NOT NULL,
-  `nativeId` varchar(80) NOT NULL,
-  `nativeHeading` text NOT NULL,
-  `voyagerId` varchar(10) NOT NULL,
-  `undifferentiated` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`source`,`nativeId`),
-  KEY `id` (`id`),
-  KEY `voyagerId` (`voyagerId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `reference` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `from_heading` int(10) unsigned NOT NULL,
-  `to_heading` int(10) unsigned NOT NULL,
-  `ref_type` tinyint(3) unsigned NOT NULL,
-  `ref_desc` varchar(256) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `from_heading` (`from_heading`,`to_heading`,`ref_type`,`ref_desc`),
-  KEY `to_heading` (`to_heading`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-CREATE TABLE `authority2reference` (
-  `reference_id` int(10) unsigned NOT NULL,
-  `authority_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`reference_id`,`authority_id`),
-  KEY `authority_id` (`authority_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `note` (
-  `heading_id` int(10) unsigned NOT NULL,
-  `authority_id` int(10) unsigned NOT NULL,
-  `note` text NOT NULL,
-  KEY `heading_id` (`heading_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Heading2SolrTest data
 
@@ -656,65 +590,7 @@ INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES 
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (4378168, 4111039);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (4378169, 4111039);
 
-CREATE TABLE `syndeticsData` (
-  `isbn` varchar(14) NOT NULL,
-  `marc` mediumtext NOT NULL,
-  KEY `isbn` (`isbn`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 INSERT INTO syndeticsData (isbn, marc) VALUES ("9780691202181", "<USMARC><Leader/><VarFlds><VarCFlds><Fld001>72158254</Fld001><Fld005>20200919000000.0</Fld005><Fld008/></VarCFlds><VarDFlds><NumbCode><Fld020 I1='BLANK' I2='BLANK'><a>9780691202181</a></Fld020></NumbCode><MainEnty><Fld100 I1='BLANK' I2='BLANK'><a>Roberts, Sean R.</a></Fld100></MainEnty><Titles><Fld245 I1='BLANK' I2='BLANK'><a>The\War on the Uyghurs: China's Internal Campaign Against a Muslim Minority</a></Fld245></Titles><SSIFlds><Fld970 I1='0' I2='1'><t>Map: Xinjiang Uyghur Autonomous Region</t><p>p. viii</p></Fld970><Fld970 I1='0' I2='1'><t>Foreword</t><p>p. ix</p><c>Ben Emmerson</c></Fld970><Fld970 I1='0' I2='1'><t>Preface</t><p>p. xii</p></Fld970><Fld970 I1='0' I2='1'><t>Introduction</t><p>p. 1</p></Fld970><Fld970 I1='1' I2='1'><l>1</l><t>Colonialism, 1759-2001</t><p>p. 21</p></Fld970><Fld970 I1='1' I2='1'><l>2</l><t>How the Uyghurs became a 'terrorist threat'</t><p>p. 63</p></Fld970><Fld970 I1='1' I2='1'><l>3</l><t>Myths and realities of the alleged 'terrorist threat' associated with Uyghurs</t><p>p. 97</p></Fld970><Fld970 I1='1' I2='1'><l>4</l><t>Colonialism meets counterterrorism, 2002-2012</t><p>p. 131</p></Fld970><Fld970 I1='1' I2='1'><l>5</l><t>The self-fulfilling prophecy and the 'People's War on Terror,' 2013-2016</t><p>p. 161</p></Fld970><Fld970 I1='1' I2='1'><l>6</l><t>Cultural genocide, 2017-2020</t><p>p. 199</p></Fld970><Fld970 I1='0' I2='1'><t>Conclusion</t><p>p. 236</p></Fld970><Fld970 I1='0' I2='1'><t>A note on methodology</t><p>p. 252</p></Fld970><Fld970 I1='0' I2='1'><t>Transliteration and place names</t><p>p. 257</p></Fld970><Fld970 I1='0' I2='1'><t>List of figures</t><p>p. 259</p></Fld970><Fld970 I1='0' I2='1'><t>List of abbreviations</t><p>p. 260</p></Fld970><Fld970 I1='0' I2='1'><t>Acknowledgments</t><p>p. 262</p></Fld970><Fld970 I1='0' I2='1'><t>Notes</t><p>p. 266</p></Fld970><Fld970 I1='0' I2='1'><t>Index</t><p>p. 301</p></Fld970><Fld997 I1='BLANK' I2='BLANK'></Fld997></SSIFlds></VarDFlds></VarFlds></USMARC>");
-
-
-CREATE TABLE `raw_hathi` (
-  `Volume_Identifier` varchar(128) NOT NULL DEFAULT '',
-  `Access` text,
-  `Rights` text,
-  `UofM_Record_Number` varchar(128) DEFAULT NULL,
-  `Enum_Chrono` text,
-  `Source` varchar(12) DEFAULT NULL,
-  `Source_Inst_Record_Number` varchar(1000) DEFAULT NULL,
-  `OCLC_Numbers` text,
-  `ISBNs` text,
-  `ISSNs` text,
-  `LCCNs` text,
-  `Title` text,
-  `Imprint` text,
-  `Rights_determine_reason_code` varchar(8) DEFAULT NULL,
-  `Date_Last_Update` varchar(24) DEFAULT NULL,
-  `Gov_Doc` int(1) DEFAULT NULL,
-  `Pub_Date` varchar(16) DEFAULT NULL,
-  `Pub_Place` varchar(128) DEFAULT NULL,
-  `Language` varchar(128) DEFAULT NULL,
-  `Bib_Format` varchar(16) DEFAULT NULL,
-  `Digitization_Agent_code` varchar(128) DEFAULT NULL,
-  `Content_provider_code` varchar(128) DEFAULT NULL,
-  `Responsible_Entity_code` varchar(128) DEFAULT NULL,
-  `Collection_code` varchar(128) DEFAULT NULL,
-  `Access_profile` varchar(512) DEFAULT NULL,
-  `Author` varchar(512) DEFAULT NULL,
-  `update_file_name` varchar(128) DEFAULT NULL,
-  `record_counter` int(12) DEFAULT NULL,
-  PRIMARY KEY (`Volume_Identifier`),
-  KEY `UofM_Record_Number` (`UofM_Record_Number`),
-  KEY `Author` (`Author`(333)),
-  KEY `Access_profile` (`Access_profile`(333)),
-  KEY `Local_Identifiers` (`Source`,`Source_Inst_Record_Number`(12)),
-  KEY `Source_Inst_Record_Number_idx` (`Source_Inst_Record_Number`(333))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `volume_to_oclc` (
-  `Volume_Identifier` varchar(128) DEFAULT NULL,
-  `OCLC_Number` varchar(250) DEFAULT NULL,
-  KEY `Volume_Identifier` (`Volume_Identifier`),
-  KEY `OCLC_Number` (`OCLC_Number`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `volume_to_source_inst_rec_num` (
-  `Volume_Identifier` varchar(128) DEFAULT NULL,
-  `Source_Inst_Record_Number` varchar(256) DEFAULT NULL,
-  KEY `Volume_Identifier` (`Volume_Identifier`),
-  KEY `Source_Inst_Record_Number` (`Source_Inst_Record_Number`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- HathiLinksTest data
 INSERT INTO raw_hathi (Volume_Identifier,Access,Rights,UofM_Record_Number,Enum_Chrono,Source,Source_Inst_Record_Number,OCLC_Numbers,ISBNs,ISSNs,LCCNs,Title,Imprint,Rights_determine_reason_code,Date_Last_Update,Gov_Doc,Pub_Date,Pub_Place,Language,Bib_Format,Digitization_Agent_code,Content_provider_code,Responsible_Entity_code,Collection_code,update_file_name,record_counter) VALUES ("coo.31924090258827","allow","pd","008595162","","COO","318","2534902","","","51008544","Birds in the bush, by Bradford Torrey.","Houghton, Mifflin and Company, 1885.","bib","2010-12-13 20:30:49","0","1885","mau","eng","BK","COO","cornell","cornell","google","./hathifiles/hathi_full_20221101.txt","10815922");
@@ -729,14 +605,6 @@ INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record
 INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924000030001", "10519");
 INSERT INTO volume_to_source_inst_rec_num (Volume_Identifier, Source_Inst_Record_Number) VALUES ("coo.31924000030001", "939641");
 
-CREATE TABLE `classification` (
-  `low_letters` char(3) NOT NULL,
-  `high_letters` char(3) NOT NULL,
-  `low_numbers` float(10,4) NOT NULL,
-  `high_numbers` float(10,4) NOT NULL,
-  `label` varchar(256) CHARACTER SET utf8 NOT NULL,
-  KEY `low_letters` (`low_letters`,`high_letters`,`low_numbers`,`high_numbers`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- utilities CallNumberTest data
 INSERT INTO classification (low_letters, high_letters, low_numbers, high_numbers, label) VALUES ("Q", "QZZ", 0.0000, 100000.0000, "Q - Science");
