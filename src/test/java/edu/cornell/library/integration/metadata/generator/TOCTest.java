@@ -23,7 +23,7 @@ public class TOCTest extends DbBaseTest {
 //	}
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, SQLException {
 		setup("Current");
 	}
 
