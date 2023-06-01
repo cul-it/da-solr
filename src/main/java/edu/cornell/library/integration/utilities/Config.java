@@ -282,7 +282,6 @@ public class Config {
 	 *                       environment variable. Should be argv from main().
 	 */
 	public static Config loadConfig(Collection<String> requiredFields) {
-
 		String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
 
 		if (v2bl_config == null)
@@ -297,6 +296,27 @@ public class Config {
 			throw new RuntimeException("There were problems loading the configuration.\n ", ex);
 		}
 
+		return _loadConfig(requiredFields, config);
+	}
+
+	/*
+	 * A utility method to load properties from config file path.
+	 */
+	public static Config loadConfig(Collection<String> requiredFields, String configPath) throws IOException {
+		Config config = null;
+
+		List<InputStream> inputStreams = new ArrayList<>();
+		try {
+			inputStreams.add(getFile(configPath));
+			config = loadFromPropertiesFile(inputStreams);
+		} catch (Exception ex) {
+			throw new RuntimeException("There were problems loading the configuration.\n ", ex);
+		}
+
+		return _loadConfig(requiredFields, config);
+	}
+
+	private static Config _loadConfig(Collection<String> requiredFields, Config config) {
 		String errs = checkConfiguration(requiredFields, config);
 		if (errs == null || !errs.trim().isEmpty()) {
 			throw new RuntimeException("There were problems with the configuration.\n " + errs);
