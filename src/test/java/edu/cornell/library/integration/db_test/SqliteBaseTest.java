@@ -1,17 +1,24 @@
 package edu.cornell.library.integration.db_test;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 public class SqliteBaseTest {
@@ -19,10 +26,11 @@ public class SqliteBaseTest {
 	protected static final String DBNAME = "test";
 	protected static final String DBUID = "test_user";
 	protected static final String DBPWD = "test_pwd";
-	protected static final String INIT_DB_PATH = "src/test/resources/example_db_data/test";
-	protected static final String TEST_DB_PATH = "src/test/resources/example_db_data/test.db";
+	protected static final String INIT_DB_PATH = Path.of("src", "test", "resources", "example_db_data", "base.db").toString();
+	protected static final String TEST_DB_PATH = Path.of("src", "test", "resources", "example_db_data", "copy.db").toString();
 	protected static Properties PROPS = null;
 	protected static File sourceInitDb = null;
+	protected static File testPropertiesFile = null;
 
 	public static Properties setProperties() throws FileNotFoundException, IOException {
 		File sqliteDb = createSqliteData();
@@ -43,34 +51,30 @@ public class SqliteBaseTest {
 		}
 		PROPS.setProperty("catalogClass", "edu.cornell.library.integration.folio");
 
+		testPropertiesFile = new File(DbBaseTest.TEST_PROPERTIES_PATH);
 		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(DbBaseTest.TEST_PROPERTIES_PATH))) {
 			PROPS.store(os, null);
 		}
+		testPropertiesFile.deleteOnExit();
 
 		return PROPS;
 	}
 
-	/*
-	 * Run "sqlite3 DBNAME < INIT_DB_PATH" to generate sqlite3 db file named DBNAME at the project root directory.
-	 * Move the generated sqlite3 db file to INIT_DB_PATH.
-	 * The generated db file will be deleted after all the DB tests are run.
-	 */
-	public static void init(File sqliteSource) {
-		try {
-			ProcessBuilder builder = new ProcessBuilder("sqlite3", DBNAME);
-			builder.redirectInput(sqliteSource);
-			Process p = builder.start();
-			// should we set maximum wait time?
-			try {
-				p.waitFor();
-			} catch (InterruptedException e) {}
-			File src = new File(DBNAME);
+	public static void init(File sqliteSource) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+		if (sourceInitDb == null) {
 			sourceInitDb = new File(INIT_DB_PATH);
 			sourceInitDb.deleteOnExit();
-			Files.move(Paths.get(src.getAbsolutePath()), Paths.get(sourceInitDb.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException ioe) {
-			System.out.println("Failed to initialize Sqlite DB: " + ioe.toString());
-			System.exit(1);
+			Connection conn = DriverManager.getConnection("jdbc:sqlite:"+sourceInitDb.getAbsolutePath());
+			try (Statement stmt = conn.createStatement();
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sqliteSource),"UTF-8"))) {
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (StringUtils.isBlank(line)) {
+						continue;
+					}
+					stmt.executeUpdate(line);
+				}
+			}
 		}
 	}
 

@@ -1,14 +1,23 @@
 package edu.cornell.library.integration.db_test;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.containers.MySQLContainer;
 
 public class AbstractContainerBaseTest {
@@ -20,15 +29,33 @@ public class AbstractContainerBaseTest {
 	@SuppressWarnings("rawtypes")
 	protected final static MySQLContainer mysqlContainer;
 	protected static File testPropertiesFile = null;
-	protected final static String INIT_SCRIPT_PATH = "example_db_data/initialization.sql";
+	protected static boolean initialized = false;
 
 	static {
 		mysqlContainer = new MySQLContainer<>("mysql:latest")
 				.withDatabaseName(DBNAME)
 				.withUsername(DBUID)
 				.withPassword(DBPWD)
-				.withInitScript(INIT_SCRIPT_PATH);
+				.withDatabaseName(DBNAME);
 		mysqlContainer.start();
+	}
+
+	public static void init(File mysqlSource) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+		if (!initialized) {
+			String jdbc_str = mysqlContainer.getJdbcUrl() + "?user=" + DBUID + "&password=" + DBPWD;
+			try (Connection conn = DriverManager.getConnection(jdbc_str);
+				Statement stmt = conn.createStatement();
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mysqlSource),"UTF-8"))) {
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (StringUtils.isBlank(line)) {
+						continue;
+					}
+					stmt.executeUpdate(line);
+				}
+			}
+			initialized = true;
+		}
 	}
 
 	public static Properties setProperties() throws FileNotFoundException, IOException {
@@ -51,7 +78,8 @@ public class AbstractContainerBaseTest {
 		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(testPropertiesFile))) {
 			PROPS.store(os, null);
 		}
-		
+		testPropertiesFile.deleteOnExit();
+
 		return PROPS;
 	}
 }

@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class DbBaseTest {
 	protected static final String USE_SQLITE = "UseSqlite";
 	protected static String useTestContainers = null;
 	protected static String useSqlite = null;
-	protected static final String TEST_RESOURCE_PATH = "src/test/resources/example_db_data";
+	protected static final String TEST_RESOURCE_PATH = Path.of("src", "test", "resources", "example_db_data").toString();
 	public static final String TEST_PROPERTIES_PATH = new File(TEST_RESOURCE_PATH, "test.properties").getAbsolutePath();
 	protected static final String MYSQL_CREATE_STATEMENTS_PATH = new File(TEST_RESOURCE_PATH, "mysql_create_statements.sql").getAbsolutePath();
 	protected static final String SQLITE_CREATE_STATEMENTS_PATH = new File(TEST_RESOURCE_PATH, "sqlite_create_statements.sql").getAbsolutePath();
@@ -46,12 +48,12 @@ public class DbBaseTest {
 	protected static File mysqlInitFile = null;
 	protected static File sqliteInitFile = null;
 
-	public static void setup(String dbName) throws IOException {
+	public static void setup(String dbName) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB(dbName);
 		setup(dbName, requiredArgs);
 	}
 
-	public static void setup(String dbName, List<String> requiredArgs) throws IOException {
+	public static void setup(String dbName, List<String> requiredArgs) throws IOException, SQLException {
 		useTestContainers = System.getenv(USE_TEST_CONTAINERS);
 		useSqlite = System.getenv(USE_SQLITE);
 
@@ -59,6 +61,7 @@ public class DbBaseTest {
 			if (mysqlInitFile == null) {
 				mysqlInitFile = getlInitSql(MYSQL_CREATE_STATEMENTS_PATH);
 			}
+			AbstractContainerBaseTest.init(mysqlInitFile);
 			AbstractContainerBaseTest.setProperties();
 			mysqlInitFile.deleteOnExit();
 			config = Config.loadConfig(requiredArgs, TEST_PROPERTIES_PATH);
