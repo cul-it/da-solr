@@ -25,7 +25,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.db_test.AbstractContainerBaseTest;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
@@ -34,27 +33,11 @@ import edu.cornell.library.integration.utilities.Generator;
 public class GenerateSolrFieldsTest extends DbBaseTest {
 	static GenerateSolrFields gen;
 
-//	@BeforeClass
-//	public static void setup() throws SQLException {
-//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-//		requiredArgs.add("catalogClass");
-//		config = Config.loadConfig(requiredArgs);
-//		gen = new GenerateSolrFields(
-//				EnumSet.allOf(Generator.class),
-//				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
-//						Generator.LANGUAGE, Generator.MARC, Generator.URL), "solrGenTest" );
-//		gen.setUpDatabase(config);
-//	}
-
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
-		useTestContainers = System.getenv(USE_TEST_CONTAINERS);
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		requiredArgs.add("catalogClass");
-		if (useTestContainers != null) {
-			AbstractContainerBaseTest.setProperties();
-		}
-		config = Config.loadConfig(requiredArgs);
+		List<String> additionalRequiredArgs = Config.getRequiredArgsForDB("Headings");
+		additionalRequiredArgs.add("catalogClass");
+		setup("Headings", additionalRequiredArgs);
 		gen = new GenerateSolrFields(
 				EnumSet.allOf(Generator.class),
 				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
@@ -64,7 +47,7 @@ public class GenerateSolrFieldsTest extends DbBaseTest {
 
 	@AfterClass
 	public static void cleanup() throws SQLException {
-		if (useTestContainers == null) {
+		if (useTestContainers == null && useSqlite == null) {
 			try (	Connection inventory = config.getDatabaseConnection("Current");
 					Statement stmt = inventory.createStatement()) {
 				stmt.executeUpdate("DROP TABLE solrGenTestData");
