@@ -81,7 +81,7 @@ public class HathiLinks implements SolrFieldGenerator {
 			try (  PreparedStatement pstmt = conn.prepareStatement
 					("SELECT raw_hathi.Volume_Identifier, UofM_Record_Number, Access, Rights"
 					+ " FROM raw_hathi, volume_to_source_inst_rec_num AS v2s"
-					+ " WHERE Source = 'coo' AND raw_hathi.Volume_Identifier = v2s.Volume_Identifier"
+					+ " WHERE Source = 'COO' AND raw_hathi.Volume_Identifier = v2s.Volume_Identifier"
 					+ " AND v2s.Source_Inst_Record_Number = ?")  ) {
 				pstmt.setString(1, rec.id);
 				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
