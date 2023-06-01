@@ -20,13 +20,14 @@ public class AbstractContainerBaseTest {
 	@SuppressWarnings("rawtypes")
 	protected final static MySQLContainer mysqlContainer;
 	protected static File testPropertiesFile = null;
+	protected final static String INIT_SCRIPT_PATH = "example_db_data/initialization.sql";
 
 	static {
 		mysqlContainer = new MySQLContainer<>("mysql:latest")
 				.withDatabaseName(DBNAME)
 				.withUsername(DBUID)
-				.withPassword(DBPWD);
-		mysqlContainer.withInitScript("example_db_data/db_initialization.sql");
+				.withPassword(DBPWD)
+				.withInitScript(INIT_SCRIPT_PATH);
 		mysqlContainer.start();
 	}
 
@@ -45,18 +46,12 @@ public class AbstractContainerBaseTest {
 			PROPS.setProperty("databasePooling" + id, "false");
 		}
 		PROPS.setProperty("catalogClass", "edu.cornell.library.integration.folio");
-		
-		testPropertiesFile = new File("src/test/resources/example_db_data/folio-unit-test.properties");
+
+		testPropertiesFile = new File(DbBaseTest.TEST_PROPERTIES_PATH);
 		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(testPropertiesFile))) {
 			PROPS.store(os, null);
 		}
 		
 		return PROPS;
 	}
-
-//	public void clearTestPropertiesFile() throws IOException {
-//		try (FileWriter fw = new FileWriter(new File(testPropertiesFile.getAbsolutePath()), false)) {
-//			fw.flush();
-//		}
-//	}
 }
