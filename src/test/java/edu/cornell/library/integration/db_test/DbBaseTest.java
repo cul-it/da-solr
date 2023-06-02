@@ -35,7 +35,6 @@ public class DbBaseTest {
 	protected static final String MYSQL_CREATE_STATEMENTS_PATH = new File(TEST_RESOURCE_PATH, "mysql_create_statements.sql").getAbsolutePath();
 	protected static final String SQLITE_CREATE_STATEMENTS_PATH = new File(TEST_RESOURCE_PATH, "sqlite_create_statements.sql").getAbsolutePath();
 	protected static final String DB_INIT_PATH = new File(TEST_RESOURCE_PATH, "db_initialization.sql").getAbsolutePath();
-	protected static final String DEST_SQL_PATH = new File(TEST_RESOURCE_PATH, "initialization.sql").getAbsolutePath();
 
 	public static void setup(String dbName) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB(dbName);
