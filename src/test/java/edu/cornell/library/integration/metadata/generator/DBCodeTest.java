@@ -15,7 +15,7 @@ public class DBCodeTest {
 	SolrFieldGenerator gen = new DBCode();
 
 	@Test
-	public void testReferences() throws ClassNotFoundException, SQLException, IOException {
+	public void testReferences() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"899",'2',' ',"‡a PRVLSH_ACAJP"));
 		rec.dataFields.add(new DataField(2,"899",' ',' ',"‡a Marcive"));

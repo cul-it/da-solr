@@ -15,7 +15,7 @@ public class CitationReferenceNoteTest {
 	SolrFieldGenerator gen = new CitationReferenceNote();
 
 	@Test
-	public void testReferences() throws ClassNotFoundException, SQLException, IOException {
+	public void testReferences() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"510",'3',' ',"‡a Described in DOCUMENTATION NEWSLETTER, Fall 1988."));
 		String expected =
@@ -25,7 +25,7 @@ public class CitationReferenceNoteTest {
 	}
 
 	@Test
-	public void testIndexedBy() throws ClassNotFoundException, SQLException, IOException {
+	public void testIndexedBy() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"510",'0',' ',"‡a Indexed by note."));
 		String expected =
@@ -35,7 +35,7 @@ public class CitationReferenceNoteTest {
 	}
 
 	@Test
-	public void testIndexedSelectively880() throws ClassNotFoundException, SQLException, IOException {
+	public void testIndexedSelectively880() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3, 1,"510",'2',' ',"‡6 880-01 ‡a Indexed Selectively by XXXXX",false));
 		rec.dataFields.add(new DataField(17,1,"510",'2',' ',"‡6 510-01 ‡a Non-Roman Indexed Selectively by XXXXX",true));

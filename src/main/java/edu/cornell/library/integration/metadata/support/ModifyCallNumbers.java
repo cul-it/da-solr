@@ -19,7 +19,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class ModifyCallNumbers {
 
 	public static String modify(MarcRecord bib , String orig)
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 
 		if (orig.trim().startsWith("New & Noteworthy Books")) {
 			boolean fiction = isFiction(bib);
@@ -31,7 +31,7 @@ public class ModifyCallNumbers {
 		return orig;
 	}
 
-	private static boolean isFiction (MarcRecord bib) throws ClassNotFoundException, SQLException, IOException {
+	private static boolean isFiction (MarcRecord bib) throws SQLException, IOException {
 		SolrFieldGenerator factOrFictionGenerator = new FactOrFiction();
 		SolrFields factOrFictionFields = factOrFictionGenerator.generateSolrFields(bib, null);
 		for (SolrField f : factOrFictionFields.fields)

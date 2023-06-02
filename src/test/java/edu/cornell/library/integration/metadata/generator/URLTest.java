@@ -52,7 +52,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void ebscoTitleLink() throws ClassNotFoundException, SQLException, IOException {
+	public void ebscoTitleLink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"856",'4','0',
 		"‡i 2471499 "+
@@ -73,7 +73,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void userLimitsIn899() throws ClassNotFoundException, SQLException, IOException {
+	public void userLimitsIn899() throws SQLException, IOException {
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.id = "9298323";
@@ -118,7 +118,7 @@ public class URLTest {
 	}
 
 	@Test   //8637892 DISCOVERYACCESS-2947
-	public void testMultipleAccessWithDifferentTOU() throws IOException, ClassNotFoundException, SQLException {
+	public void testMultipleAccessWithDifferentTOU() throws IOException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"856",'4','0',
 				"‡3 Full text available from Ebrary The Arts Subscription Collection ‡i ssid=ssj0000907852;"
@@ -145,7 +145,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void testNoTOU() throws IOException, ClassNotFoundException, SQLException {
+	public void testNoTOU() throws IOException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"856",'4','0',
 				"‡3 Full text available from Ebrary The Arts Subscription Collection ‡u"
@@ -162,7 +162,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void testFindingAidURL() throws ClassNotFoundException, SQLException, IOException {
+	public void testFindingAidURL() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"856",'4','2',"‡3 Finding aid ‡u http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107"));
 		String expected =
@@ -172,7 +172,7 @@ public class URLTest {
 	}
 	
 	@Test
-	public void testJustURL() throws IOException, ClassNotFoundException, SQLException {
+	public void testJustURL() throws IOException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.marcHoldings.add(online);
 		rec.dataFields.add(new DataField(1,"856",'4','0',
@@ -185,7 +185,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void testBookplateURL() throws IOException, ClassNotFoundException, SQLException {
+	public void testBookplateURL() throws IOException, SQLException {
 
 		List<Map<String,Object>> holdings = new ArrayList<>();
 		{
@@ -216,7 +216,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void guardAgainstNullLinkHash() throws IOException, ClassNotFoundException, SQLException {
+	public void guardAgainstNullLinkHash() throws IOException, SQLException {
 		List<Map<String,Object>> holdings = new ArrayList<>();
 		{
 			Map<String,String> link = null;
@@ -235,7 +235,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void testAccessLinkThatMatchesOtherLinkPattern() throws IOException, ClassNotFoundException, SQLException {
+	public void testAccessLinkThatMatchesOtherLinkPattern() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "10205060";
 		bibRec.dataFields.add(new DataField(1,"856",'4',' ',
@@ -255,7 +255,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void otherContentLinkPrintBook() throws IOException, ClassNotFoundException, SQLException {
+	public void otherContentLinkPrintBook() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "9142371";
 		bibRec.dataFields.add(new DataField(1,"856",'7',' ',
@@ -269,7 +269,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void otherContentLinkOnlineBook() throws IOException, ClassNotFoundException, SQLException {
+	public void otherContentLinkOnlineBook() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "5962354";
 		bibRec.dataFields.add(new DataField(1,"856",'4','1',
@@ -294,7 +294,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void twoAccessLinksOneLooksLikePublishersWebsite() throws IOException, ClassNotFoundException, SQLException {
+	public void twoAccessLinksOneLooksLikePublishersWebsite() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "10758189";
 		bibRec.dataFields.add(new DataField(1,"856",'4','0',
@@ -322,7 +322,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void nonTOUUseOf856i() throws IOException, ClassNotFoundException, SQLException {
+	public void nonTOUUseOf856i() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "10204686";
 		bibRec.dataFields.add(new DataField(1,"856",'7',' ',
@@ -401,7 +401,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void syntaxValidationInMarcURI() throws IOException, ClassNotFoundException, SQLException {
+	public void syntaxValidationInMarcURI() throws IOException, SQLException {
 		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		bibRec.id = "123456";
 		bibRec.dataFields.add(new DataField(1,"856",'7',' ',

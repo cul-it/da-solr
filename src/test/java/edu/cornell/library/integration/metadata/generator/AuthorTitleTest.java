@@ -27,7 +27,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testMainTitleNoAuthor() throws ClassNotFoundException, SQLException, IOException {
+	public void testMainTitleNoAuthor() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"245",'1','4',"‡a The national law journal"));
 		String expected =
@@ -46,7 +46,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testSimpleAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimpleAuthorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a León Cupe, Mariano, ‡d 1932-"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Cabana, historia, cultura y tradición / ‡c Mariano"
@@ -78,7 +78,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorizedAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedAuthorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Fewer, T. N."));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Waterford people : ‡b a biographical dictionary / "
@@ -111,7 +111,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorRelatorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorRelatorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Kalavrezos, Nicholas, ‡u (University"
 				+ " College London Hospital, UK) ‡4 spk"));
@@ -143,7 +143,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorTitleUniformTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleUniformTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Speed, John, ‡d 1552?-1629, ‡e cartographer."));
 		rec.dataFields.add(new DataField(2,"240",'1',' ',"‡a Theatre of the empire of Great Britaine"));
@@ -189,7 +189,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorTitleWInitialArticle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleWInitialArticle() throws SQLException, IOException {
 		// As described in DISCOVERYACCESS-2972, the second indicator on the title field counts diacritics
 		// as characters when describing the length of initial non-sort article.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -226,7 +226,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRomanTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRomanTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"245",'1','0',"‡6 880-01 ‡a Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta"
 				+ " Alekseevna : ‡b perepiska iz trekh uglov 1804-1826 / ‡c podgotovka pisem E. Dmitrievoĭ i F."
@@ -260,7 +260,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testCJKEverything() throws ClassNotFoundException, SQLException, IOException {
+	public void testCJKEverything() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',"‡6 880-01 ‡a Taga, Futoshi, ‡d 1968- ‡e author.",false));
 		rec.dataFields.add(new DataField(2,2,"240",'1','0',"‡6 880-02 ‡a Danshi mondai no jidai. ‡l Korean",false));
@@ -316,7 +316,7 @@ public class AuthorTitleTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testCorpAuthorWithN() throws ClassNotFoundException, SQLException, IOException {
+	public void testCorpAuthorWithN() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"110",'2',' ',"‡a Gerakan Pemuda Islam Indonesia. ‡b Mu'tamar ‡n (9th :"
 				+ " ‡d 1959 : ‡c Jakarta, Indonesia)"));
@@ -355,7 +355,7 @@ public class AuthorTitleTest extends DbBaseTest {
 
 	@Test
 	public void testAuthorMislinkedToNonRomanTitle6507903()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',
 				"‡6 880-01 ‡a Foucher, A. ‡q (Alfred), ‡d 1865-1952.",false));
@@ -419,7 +419,7 @@ public class AuthorTitleTest extends DbBaseTest {
 
 	@Test
 	public void testGoodLinksExceptRomanizedFieldsDontPointBackTo880Fields7940870()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a poorly encoded example, which we will treat as "good enough" and produce no errors.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Grebenshchikova, G. A., ‡e author."));
@@ -463,7 +463,7 @@ public class AuthorTitleTest extends DbBaseTest {
 
 	@Test
 	public void testTwoDifferentAuthorFieldsWithDifferentTags6279795()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "6279795";
@@ -488,7 +488,7 @@ public class AuthorTitleTest extends DbBaseTest {
 
 	@Test
 	public void testExtraneousMainAuthorVernacularEntry6197642()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "6197642";

@@ -28,7 +28,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testSimpleTOC() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimpleTOC() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0',' ',"‡a 12344567 (pbk.)"));
 		String expected =
@@ -38,7 +38,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testPartTOC() throws ClassNotFoundException, SQLException, IOException {
+	public void testPartTOC() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'2',' ',
 				"‡g v. 2/2 (Sept. 1890), pp. 188-210. ‡t \"Great Krishna Mulvaney\" ‡r Rudyard Kipling."));
@@ -51,7 +51,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testEnhancedAuthors() throws ClassNotFoundException, SQLException, IOException {
+	public void testEnhancedAuthors() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0',' ',
 				"‡g Vol. 2 / ‡r A cura di Gino Ruozzi. -- ‡g v. 3 / ‡r A cura di Carminella Biondi,"
@@ -66,7 +66,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testEnhancedTitles() throws ClassNotFoundException, SQLException, IOException {
+	public void testEnhancedTitles() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"505",'0','0',"‡g v. 1. ‡t Systematic handbook -- ‡g v. 2. ‡t Prayer."));
 		String expected =
@@ -79,7 +79,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRoman1() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman1() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,5,"505",'0','0',"‡6 880-05 ‡g \"A mozhet, i︠a︡ lishʹ pochva dli︠a︡ romana?\""
 				+ " : ob avtore ėtikh vospominaniĭ / ‡r Irina Emelʹi︠a︡nova -- ‡t V plenu vremeni / ‡r Olʹga Ivinskai︠a︡ "
@@ -113,7 +113,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRomanCJK() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRomanCJK() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡g v. 1. ‡t Zhang quan : Nanjin zheng fu --"
 				+ " ‡g v. 2. Fen qi : kang zhan ji zhan hou -- ‡g v. 3. Yi han : kang zhan ji zhan hou (xu).", false));
@@ -137,7 +137,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRomanMultiplePairs() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRomanMultiplePairs() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,7,"505",'0','0',"‡6 880-07 ‡a v.1 -- v.2", false));
 		rec.dataFields.add(new DataField(2,8,"505",'0','0',"‡6 880-08 ‡a v.3 -- v.4", false));
@@ -160,7 +160,7 @@ public class TOCTest extends DbBaseTest {
 	}
 
 	@Test
-	public void syndeticsTocIndex() throws ClassNotFoundException, SQLException, IOException {
+	public void syndeticsTocIndex() throws SQLException, IOException {
 	
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "13091615";

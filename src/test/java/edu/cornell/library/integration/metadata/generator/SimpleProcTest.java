@@ -15,13 +15,13 @@ public class SimpleProcTest {
 	SolrFieldGenerator gen = new SimpleProc();
 
 	@Test
-	public void testNoNotes() throws ClassNotFoundException, SQLException, IOException {
+	public void testNoNotes() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		assertEquals("",this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
-	public void test520() throws ClassNotFoundException, SQLException, IOException {
+	public void test520() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"520",' ',' ',"‡a Here's a 520 note."));
 		String expected =
@@ -31,7 +31,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void test581() throws ClassNotFoundException, SQLException, IOException {
+	public void test581() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC); //b9691888
 		rec.dataFields.add(new DataField(1,"581",' ',' ',
 				"‡a Murmurs of Earth : the Voyager interstellar record /"
@@ -52,21 +52,21 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void test541() throws ClassNotFoundException, SQLException, IOException {
+	public void test541() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"541",'1',' ',"‡a Here's a 541 note."));
 		String expected = "donor_display: Here's a 541 note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 	@Test
-	public void testRestricted541() throws ClassNotFoundException, SQLException, IOException {
+	public void testRestricted541() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"541",'0',' ',"‡a Here's a restricted 541 note."));
 		assertEquals("",this.gen.generateSolrFields(rec, null).toString());
 	}
 
 	@Test
-	public void test300() throws ClassNotFoundException, SQLException, IOException {
+	public void test300() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"300",' ',' ',"‡a Here's a 300 note."));
 		String expected =
@@ -83,7 +83,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testLccn() throws ClassNotFoundException, SQLException, IOException {
+	public void testLccn() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"010",' ',' ',"‡a 2015231566"));
 		String expected =
@@ -93,7 +93,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testEdition() throws ClassNotFoundException, SQLException, IOException {
+	public void testEdition() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"250",' ',' ',"‡a First edition."));
 		String expected = 
@@ -103,7 +103,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testVariousOtherTitles() throws ClassNotFoundException, SQLException, IOException { //117081
+	public void testVariousOtherTitles() throws SQLException, IOException { //117081
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"210",'0',' ',"‡a J.S. Afr. Vet. Assoc."));
 		rec.dataFields.add(new DataField(2,"210",'1','0',"‡a J S Afr Vet Assoc ‡2 dnlm"));
@@ -123,7 +123,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void test222LeadingArticle() throws ClassNotFoundException, SQLException, IOException { //117081
+	public void test222LeadingArticle() throws SQLException, IOException { //117081
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"222",'0','3',"‡a La Rassegna della letteratura italiana"));
 		String expected =
@@ -134,7 +134,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testTwoNotes() throws ClassNotFoundException, SQLException, IOException {
+	public void testTwoNotes() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"500",' ',' ',"‡a Here's the first note."));
 		rec.dataFields.add(new DataField(2,"500",' ',' ',"‡a Here's the second note."));
@@ -147,7 +147,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testNonRomanNote() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRomanNote() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"500",' ',' ',"‡6 880-01 ‡a Here's the main note.", false));
 		rec.dataFields.add(new DataField(2,1,"500",' ',' ',
@@ -161,7 +161,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testComplex() throws ClassNotFoundException, SQLException, IOException {
+	public void testComplex() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"500",' ',' ',"‡a Here's the first note."));
 		rec.dataFields.add(new DataField(2,1,"500",' ',' ',
@@ -182,7 +182,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void twoDonor902Field() throws ClassNotFoundException, SQLException, IOException {
+	public void twoDonor902Field() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"902",' ',' ',"‡a pfnd ‡b Goodkind ‡b Midland Friends"));
 		rec.id = "7461";
@@ -193,7 +193,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void testAward() throws ClassNotFoundException, SQLException, IOException {
+	public void testAward() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"300",' ',' ',"‡a 66 pages ; ‡c 20 cm"));
 		rec.dataFields.add(new DataField(2,"520",' ',' ',"‡a \"The story of Jackself is ..."));
@@ -210,7 +210,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void participantPerformerNotes() throws ClassNotFoundException, SQLException, IOException {
+	public void participantPerformerNotes() throws SQLException, IOException {
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"511",'1',' ',
@@ -232,7 +232,7 @@ public class SimpleProcTest {
 	}
 
 	@Test
-	public void conditional773() throws ClassNotFoundException, SQLException, IOException {
+	public void conditional773() throws SQLException, IOException {
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"773",'0',' ',"‡t EBSCO Publication Finder ‡d EBSCO ‡o 1861142"));

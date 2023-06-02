@@ -28,7 +28,7 @@ public class CallNumberTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testCarriageReturnCallNumber() throws IOException, SQLException, ClassNotFoundException{
+	public void testCarriageReturnCallNumber() throws IOException, SQLException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		String holdingJson =
 		"{\"id\":\"6f77216e-7ef3-4d61-8de2-6b0cad6b11ff\","

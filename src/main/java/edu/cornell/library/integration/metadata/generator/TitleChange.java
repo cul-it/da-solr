@@ -37,8 +37,7 @@ public class TitleChange implements SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
 		SolrFields sfs = new SolrFields();

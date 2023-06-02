@@ -23,7 +23,6 @@ import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 public class SqliteBaseTest {
-	protected static final String DBDRIVER = "com.sqlite.jdbc.Driver";
 	protected static final String DBNAME = "test";
 	protected static final String DBUID = "test_user";
 	protected static final String DBPWD = "test_pwd";
@@ -43,11 +42,9 @@ public class SqliteBaseTest {
 		PROPS = new Properties();
 		String jdbcPath = "jdbc:sqlite:" + sqliteDb.getAbsolutePath();
 		for (String id : Arrays.asList("CallNos", "Current", "Hathi", "Headings")) {
-			PROPS.setProperty("databaseDriver" + id, DBDRIVER);
 			PROPS.setProperty("databaseURL" + id, jdbcPath);
 			PROPS.setProperty("databaseUser" + id, DBUID);
 			PROPS.setProperty("databasePass" + id, DBPWD);
-			PROPS.setProperty("databasePoolsize" + id, "2");
 			PROPS.setProperty("databasePooling" + id, "false");
 		}
 		PROPS.setProperty("catalogClass", "edu.cornell.library.integration.folio");

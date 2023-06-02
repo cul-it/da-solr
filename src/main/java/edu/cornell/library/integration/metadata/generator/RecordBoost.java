@@ -30,8 +30,7 @@ public class RecordBoost implements SolrFieldGenerator {
 	public List<String> getHandledFields() { return Arrays.asList(); }
 
 	@Override
-	public SolrFields generateSolrFields(MarcRecord rec, Config config)
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields(MarcRecord rec, Config config) throws SQLException, IOException {
 		if (boostedIds == null)
 			boostedIds = importBoostedIds();
 		SolrFields sfs = new SolrFields();
