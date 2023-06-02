@@ -468,7 +468,7 @@ class GenerateSolrFields {
 		String solrFields;
 		try {
 			solrFields = gen.getInstance().generateSolrFields(recChunk,config).toString();
-		} catch (ClassNotFoundException | SQLException | IOException e) {
+		} catch (SQLException | IOException e) {
 			System.out.println("Generator "+gen+" failed on bib"+recChunk.id+"\n");
 			e.printStackTrace();
 			return null;

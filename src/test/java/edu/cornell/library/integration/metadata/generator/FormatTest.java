@@ -42,7 +42,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testBook() throws ClassNotFoundException, SQLException, IOException {
+	public void testBook() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "9811567";
 		rec.leader = "02339cam a2200541 i 4500";
@@ -63,7 +63,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testSerial() throws ClassNotFoundException, SQLException, IOException {
+	public void testSerial() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "9467170";
 		rec.leader = "01326cas a22003132u 4500";
@@ -83,7 +83,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testMicroformThesisMusicalScore() throws ClassNotFoundException, SQLException, IOException {
+	public void testMicroformThesisMusicalScore() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2370518";
 		rec.leader = "00929ccm a22003011 4500";
@@ -106,7 +106,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testWebsite() throws ClassNotFoundException, SQLException, IOException {
+	public void testWebsite() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2719878";
 		rec.leader = "02266cai a2200505 a 4500";
@@ -127,7 +127,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testDatabase() throws ClassNotFoundException, SQLException, IOException {
+	public void testDatabase() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2138527";
 		rec.leader = "03110cai a2200697 a 4500";
@@ -148,7 +148,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testManuscript() throws ClassNotFoundException, SQLException, IOException {
+	public void testManuscript() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "9707628";
 		rec.leader = "03054atm a2200481 i 4500";
@@ -163,7 +163,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testArchive() throws ClassNotFoundException, SQLException, IOException {
+	public void testArchive() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "9709512";
 		rec.leader = "01548cpcaa2200265 a 4500";
@@ -216,7 +216,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testLocations() throws ClassNotFoundException, SQLException, IOException {
+	public void testLocations() throws SQLException, IOException {
 		String resourceDataJson = null;
 		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
 		SupportReferenceData.initializeLocations((resourceDataJson));

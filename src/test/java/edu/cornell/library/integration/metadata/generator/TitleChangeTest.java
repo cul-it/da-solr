@@ -31,7 +31,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testSimple700() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimple700() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Smith, John, ‡d 1900-1999"));
 		String expected = "author_addl_display: Smith, John, 1900-1999\n"+
@@ -45,7 +45,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorized700WithRelator() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorized700WithRelator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ko, Dorothy, ‡d 1957- ‡e author."));
 		String expected = "author_addl_display: Ko, Dorothy, 1957- author\n"+
@@ -62,7 +62,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorTitle700() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitle700() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-1878
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a Sallinen, Aulis. ‡t Vintern war hård; ‡o arranged."));
@@ -103,7 +103,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRoman700() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman700() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,5,"700",'1',' ',"‡6 880-05 ‡a Xiang, Shurong, ‡e translator.",false));
 		rec.dataFields.add(new DataField(2,6,"700",'1',' ',"‡6 880-06 ‡a Yao, Jianing, ‡e translator.",false));
@@ -136,7 +136,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRoman710WithRelator() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman710WithRelator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,6,"710",'2',' ',"‡6 880-06 ‡a Fa lü chu ban she. ‡b Fa gui chu ban"
 				+ " fen she, ‡e editor.",false));
@@ -159,7 +159,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test730WithSubfieldI() throws ClassNotFoundException, SQLException, IOException {
+	public void test730WithSubfieldI() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-3496
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"730",'0','2',"‡i Container of (work): ‡a All the way (Television program)"));
@@ -169,7 +169,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test740RelatedWork() throws ClassNotFoundException, SQLException, IOException {
+	public void test740RelatedWork() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"740",'0',' ',
 				"‡a Historic structure report. ‡p Architectural data section. ‡n Phase II, ‡p Exterior preservation."));
@@ -182,7 +182,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorTitleSegregationOf776() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleSegregationOf776() throws SQLException, IOException {
 		{ // Example from DISCOVERYACCESS-3445 b10047079
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'0','8',
@@ -234,7 +234,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonBib776Fields() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonBib776Fields() throws SQLException, IOException {
 		{ // b 9926193
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Original: ‡w (Voyager)3605552"));
@@ -274,7 +274,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test711AuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void test711AuthorTitle() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','2',"‡a Vatican Council ‡n (2nd : ‡d 1962-1965). ‡t"
@@ -296,7 +296,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test711Author() throws ClassNotFoundException, SQLException, IOException {
+	public void test711Author() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','0',"‡a Institute on Religious Freedom ‡d (1966 : ‡c"
@@ -314,7 +314,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test720() throws ClassNotFoundException, SQLException, IOException {
+	public void test720() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"720",' ',' ',"‡a al-Salimi, Abdulrahman"));
 		String expected =
@@ -327,7 +327,7 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test2684613() throws ClassNotFoundException, SQLException, IOException {
+	public void test2684613() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"776",'1',' ',
 				"‡a In vitro cellular & developmental biology. ‡p Animal (Online)"));
@@ -338,14 +338,14 @@ public class TitleChangeTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test2812927() throws ClassNotFoundException, SQLException, IOException {
+	public void test2812927() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
-	public void periodsBeforeRelators() throws ClassNotFoundException, SQLException, IOException {
+	public void periodsBeforeRelators() throws SQLException, IOException {
 		Map<DataField,String> fields = new HashMap<>();
 		fields.put(new DataField(1,"700",'1',' ',
 			"‡a Busteed, John. ‡4 sgn"),

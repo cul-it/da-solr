@@ -17,7 +17,7 @@ public class PubInfoTest {
 	SolrFieldGenerator gen = new PubInfo();
 
 	@Test
-	public void test9586284() throws ClassNotFoundException, SQLException, IOException {
+	public void test9586284() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","160630s2014    oruab   ob   f000 0 eng c"));
 		rec.dataFields.add(new DataField(3,"264",' ','1',"‡a Eugene, Ore. : ‡b University of Oregon, ‡c 2014."));
@@ -42,7 +42,7 @@ public class PubInfoTest {
 	}
 
 	@Test
-	public void test8631644() throws ClassNotFoundException, SQLException, IOException {
+	public void test8631644() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","140902p20142013njuuunn           n zxx d"));
 		rec.dataFields.add(new DataField(3,"264",' ','1',
@@ -67,7 +67,7 @@ public class PubInfoTest {
 	}
 
 	@Test
-	public void test5073103Without008OrMain260() throws ClassNotFoundException, SQLException, IOException {
+	public void test5073103Without008OrMain260() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,3,"260",' ',' ',"‡6 260-03/$1 ‡a 東京 : ‡b 吉川弘文館, ‡c 2004.",true));
 //		System.out.println(gen.generateSolrFields(rec,null).toString().replaceAll("\"", "\\\\\""));
@@ -85,7 +85,7 @@ public class PubInfoTest {
 	}
 
 	@Test
-	public void testRPDates_missingSecondDate() throws ClassNotFoundException, SQLException, IOException {
+	public void testRPDates_missingSecondDate() throws SQLException, IOException {
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.id = "10310563";
@@ -111,7 +111,7 @@ public class PubInfoTest {
 	}
 
 	@Test
-	public void testCompletelyMissing008dates() throws ClassNotFoundException, SQLException, IOException {
+	public void testCompletelyMissing008dates() throws SQLException, IOException {
 		{
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.controlFields.add(new ControlField(1,"008","130613s||||||||enk     o     ||1 0|eng|d"));
@@ -127,7 +127,7 @@ public class PubInfoTest {
 	}
 
 	@Test
-	public void complexDateDedupe() throws ClassNotFoundException, SQLException, IOException {
+	public void complexDateDedupe() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "7982587";
 		rec.controlFields.add(new ControlField(1,"008","120820s2012    th a     b    000 0 thaod"));

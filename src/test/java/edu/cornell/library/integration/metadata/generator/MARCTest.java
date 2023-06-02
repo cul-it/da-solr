@@ -16,7 +16,7 @@ public class MARCTest {
 	SolrFieldGenerator gen = new MARC();
 
 	@Test
-	public void testSmallRecord() throws ClassNotFoundException, SQLException, IOException {
+	public void testSmallRecord() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "12345";
 		rec.bib_id = "12345";

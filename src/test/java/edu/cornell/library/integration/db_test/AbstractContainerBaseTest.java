@@ -22,7 +22,6 @@ import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.containers.MySQLContainer;
 
 public class AbstractContainerBaseTest {
-	protected static final String DBDRIVER = "com.mysql.jdbc.Driver";
 	protected static final String DBNAME = "test";
 	protected static final String DBUID = "test_user";
 	protected static final String DBPWD = "test_pwd";
@@ -69,11 +68,9 @@ public class AbstractContainerBaseTest {
 
 		PROPS = new Properties();
 		for (String id : Arrays.asList("CallNos", "Current", "Hathi", "Headings")) {
-			PROPS.setProperty("databaseDriver" + id, DBDRIVER);
 			PROPS.setProperty("databaseURL" + id, mysqlContainer.getJdbcUrl());
 			PROPS.setProperty("databaseUser" + id, DBUID);
 			PROPS.setProperty("databasePass" + id, DBPWD);
-			PROPS.setProperty("databasePoolsize" + id, "2");
 			PROPS.setProperty("databasePooling" + id, "false");
 		}
 		PROPS.setProperty("catalogClass", "edu.cornell.library.integration.folio");

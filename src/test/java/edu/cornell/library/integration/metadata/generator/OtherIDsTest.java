@@ -16,7 +16,7 @@ public class OtherIDsTest {
 
 
 	@Test
-	public void test035() throws ClassNotFoundException, SQLException, IOException {
+	public void test035() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)924835975"));
 		String expected =
@@ -27,7 +27,7 @@ public class OtherIDsTest {
 
 
 	@Test
-	public void testDoi() throws ClassNotFoundException, SQLException, IOException {
+	public void testDoi() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"024",'7',' ',"‡a 10.1007/978-3-662-46444-1 ‡2 doi"));
 		rec.dataFields.add(new DataField(2,"035",' ',' ',"‡a (WaSeSS)OCM1ssj0001465585"));
@@ -46,7 +46,7 @@ public class OtherIDsTest {
 	}
 
 	@Test
-	public void testDiscogs() throws ClassNotFoundException, SQLException, IOException {
+	public void testDiscogs() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"024",'7',' ',"‡a test id value ‡2 discogs"));
 		String expected =

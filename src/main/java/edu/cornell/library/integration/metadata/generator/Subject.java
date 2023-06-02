@@ -61,8 +61,7 @@ public class Subject implements SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();

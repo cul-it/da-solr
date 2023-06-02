@@ -28,7 +28,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorizedNoFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedNoFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		String expected =
@@ -55,7 +55,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testAuthorizedWithFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedWithFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		rec.dataFields.add(new DataField(9,"650",' ','7',"‡a Submerged lands ‡2 fast ‡0 (OCoLC)fst01136664"));
@@ -89,7 +89,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testChronFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 2000-2099 ‡2 fast"));
 		String expected =
@@ -106,7 +106,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testChronFASTWithUnwantedSpaces() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFASTWithUnwantedSpaces() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
 		String expected =
@@ -123,7 +123,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testComplex610() throws ClassNotFoundException, SQLException, IOException {
+	public void testComplex610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Jesuits. ‡b Congregatio Generalis ‡n (32nd :"
 				+ " ‡d 1974-1975 : ‡c Rome, Italy). ‡t Decree Four."));
@@ -156,7 +156,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testNonRoman610() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,4,"610",'2','0',"‡6 880-04 ‡a Asahi Shinbun ‡v Indexes.",false));
 		rec.dataFields.add(new DataField(2,4,"610",'2','0',"‡6 610-04/$1 ‡a 朝日新聞 ‡x Indexes.",true));
@@ -188,7 +188,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testUnwantedFacetValue() throws ClassNotFoundException, SQLException, IOException {
+	public void testUnwantedFacetValue() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','4',"‡a Electronic books."));
 		String expected =
@@ -208,7 +208,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void test653() throws ClassNotFoundException, SQLException, IOException {
+	public void test653() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Textiles and Fashion Design"));
 		String expected =
@@ -225,7 +225,7 @@ public class SubjectTest extends DbBaseTest {
 
 
 	@Test
-	public void test653core() throws ClassNotFoundException, SQLException, IOException {
+	public void test653core() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Art and Architecture (Core)"));
 		String expected =
@@ -242,7 +242,7 @@ public class SubjectTest extends DbBaseTest {
 
 	@Test //DISCOVERYACCESS-3760
 	public void dontSearchOnParentheticalDisamiguationsInAlternateForms()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10215428";
 		rec.dataFields.add(new DataField(1,"651",' ','7',"‡a Cambodia ‡z Svay Riĕng. ‡2 fast ‡0 (OCoLC)fst01878040"));
@@ -250,7 +250,7 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void swappedOffensiveSubjectTerms() throws ClassNotFoundException, SQLException, IOException {
+	public void swappedOffensiveSubjectTerms() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10329599";
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Illegal aliens ‡z United States."));

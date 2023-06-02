@@ -15,7 +15,7 @@ public class TitleSeriesTest {
 	SolrFieldGenerator gen = new TitleSeries();
 
 	@Test
-	public void testField830() throws ClassNotFoundException, SQLException, IOException {
+	public void testField830() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"830",' ','0',"‡a International conciliation (Monthly) ; ‡v no. 164"));
 		String expected =
@@ -26,7 +26,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField830WithArticle() throws ClassNotFoundException, SQLException, IOException {
+	public void testField830WithArticle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"830",' ','3',"‡a La Mémoire du siècle ; ‡v 29"));
 		String expected =
@@ -38,7 +38,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField800() throws ClassNotFoundException, SQLException, IOException {
+	public void testField800() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"800",'0',' ',
 				"‡a Josquin, ‡c des Prez, ‡d -1521. ‡t Works. ‡f 1987. ‡k Critical commentary ; ‡v v. 20."));
@@ -55,7 +55,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField800_Error_NoTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testField800_Error_NoTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"800",'1',' ',
 				"‡a Jazāʾirī, Abū Bakr Jābir. ‡b Min rasāʾil al-daʻwah."));
@@ -67,7 +67,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField810_CJK() throws ClassNotFoundException, SQLException, IOException {
+	public void testField810_CJK() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,6,"810",'2',' ',"‡6 880-06 ‡a Beijing da xue. ‡b Yan jiu suo."
 				+ " ‡b Guo xue men. ‡t Guo li Beijing da xue yan jiu suo guo xue men cong shu.",false));
@@ -96,7 +96,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField811_with_OCLC_ID() throws ClassNotFoundException, SQLException, IOException {
+	public void testField811_with_OCLC_ID() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"811",'2',' ',"‡a United Nations Issues Conference."
 				+ " ‡t Report of the ... United Nations Issues Conference ‡x 0743-9180 ; ‡v 30th."));
@@ -116,7 +116,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField440() throws ClassNotFoundException, SQLException, IOException {
+	public void testField440() throws SQLException, IOException {
 		// Field 440 is obsolete, but exists more than 660k Cornell catalog records
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"440",' ','0',"‡a Medieval and early modern sources online"));
@@ -134,7 +134,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField440_Article() throws ClassNotFoundException, SQLException, IOException {
+	public void testField440_Article() throws SQLException, IOException {
 		// Field 440 is obsolete, but exists more than 660k Cornell catalog records
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"440",' ','5',
@@ -149,7 +149,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField490() throws ClassNotFoundException, SQLException, IOException {
+	public void testField490() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"490",'1',' ',
 				"‡a Pleadings, oral arguments, documents = ‡a Mémoires, plaidoiries et documents"));
@@ -162,7 +162,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void testField490_830() throws ClassNotFoundException, SQLException, IOException {
+	public void testField490_830() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"490",'1',' ',
 				"‡a Pleadings, oral arguments, documents = ‡a Mémoires, plaidoiries et documents"));
@@ -176,7 +176,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void fields440_830() throws ClassNotFoundException, SQLException, IOException {
+	public void fields440_830() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "3884121";
 		rec.dataFields.add(new DataField(1,"440",' ','0',
@@ -195,7 +195,7 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void fields490_800() throws ClassNotFoundException, SQLException, IOException {
+	public void fields490_800() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "5108847";
 		rec.dataFields.add(new DataField(1,"490",'1',' ',
