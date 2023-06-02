@@ -16,7 +16,7 @@ import edu.cornell.library.integration.db_test.DbBaseTest;
 public class Headings2SolrTest extends DbBaseTest {
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, SQLException {
 		setup("Headings");
 	}
 

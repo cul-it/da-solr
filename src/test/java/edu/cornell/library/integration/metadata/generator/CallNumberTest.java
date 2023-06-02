@@ -12,18 +12,19 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class CallNumberTest {
+public class CallNumberTest extends DbBaseTest {
 
-	static Config config = null;
+//	static Config config = null;
 	SolrFieldGenerator gen = new CallNumber();
 	static ObjectMapper mapper = new ObjectMapper();
 
 	@BeforeClass
-	public static void setup() {
-		config = Config.loadConfig(new ArrayList<>());
+	public static void setup() throws IOException, SQLException {
+//		config = Config.loadConfig(new ArrayList<>());
+		setup("Headings");
 	}
 
 	@Test

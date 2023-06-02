@@ -21,7 +21,7 @@ public class HathiLinksTest extends DbBaseTest {
 //	}
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, SQLException {
 		setup("Hathi");
 	}
 

@@ -26,7 +26,7 @@ public class TitleChangeTest extends DbBaseTest {
 //	}
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, SQLException {
 		setup("Headings");
 	}
 

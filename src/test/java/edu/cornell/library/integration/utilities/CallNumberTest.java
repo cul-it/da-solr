@@ -14,7 +14,7 @@ import edu.cornell.library.integration.metadata.support.CallNumber;
 
 public class CallNumberTest extends DbBaseTest {
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, SQLException {
 		setup("CallNos");
 	}
 
