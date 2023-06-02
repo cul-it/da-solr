@@ -1,20 +1,11 @@
 package edu.cornell.library.integration.db_test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.io.IOUtils;
 
 import edu.cornell.library.integration.utilities.Config;
 
@@ -45,8 +36,6 @@ public class DbBaseTest {
 	protected static final String SQLITE_CREATE_STATEMENTS_PATH = new File(TEST_RESOURCE_PATH, "sqlite_create_statements.sql").getAbsolutePath();
 	protected static final String DB_INIT_PATH = new File(TEST_RESOURCE_PATH, "db_initialization.sql").getAbsolutePath();
 	protected static final String DEST_SQL_PATH = new File(TEST_RESOURCE_PATH, "initialization.sql").getAbsolutePath();
-	protected static File mysqlInitFile = null;
-	protected static File sqliteInitFile = null;
 
 	public static void setup(String dbName) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB(dbName);
@@ -58,62 +47,22 @@ public class DbBaseTest {
 		useSqlite = System.getenv(USE_SQLITE);
 
 		if (useTestContainers != null) {
-			if (mysqlInitFile == null) {
-				mysqlInitFile = getlInitSql(MYSQL_CREATE_STATEMENTS_PATH);
-			}
-			AbstractContainerBaseTest.init(mysqlInitFile);
+			AbstractContainerBaseTest.init(getInitSqls(MYSQL_CREATE_STATEMENTS_PATH));
 			AbstractContainerBaseTest.setProperties();
-			mysqlInitFile.deleteOnExit();
 			config = Config.loadConfig(requiredArgs, TEST_PROPERTIES_PATH);
 		} else if (useSqlite != null) {
-			if (sqliteInitFile == null) {
-				sqliteInitFile = getlInitSql(SQLITE_CREATE_STATEMENTS_PATH);
-			}
-			SqliteBaseTest.init(sqliteInitFile);
+			SqliteBaseTest.init(getInitSqls(SQLITE_CREATE_STATEMENTS_PATH));
 			SqliteBaseTest.setProperties();
-			sqliteInitFile.deleteOnExit();
 			config = Config.loadConfig(requiredArgs, TEST_PROPERTIES_PATH);
 		} else {
 			config = Config.loadConfig(requiredArgs);
 		}
 	}
 
-	// https://stackoverflow.com/questions/14673063/merging-multiple-files-in-java
-	protected static void joinFiles(File destination, List<File> sources) throws IOException {
-		OutputStream output = null;
-		try {
-			output = createAppendableStream(destination);
-			for (File source : sources) {
-				appendFile(output, source);
-			}
-		} finally {
-			IOUtils.closeQuietly(output);
-		}
-	}
-
-	protected static BufferedOutputStream createAppendableStream(File destination) throws FileNotFoundException {
-		return new BufferedOutputStream(new FileOutputStream(destination, true));
-	}
-
-	protected static void appendFile(OutputStream output, File source)
-			throws IOException {
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(source));
-			IOUtils.copy(input, output);
-		} finally {
-			IOUtils.closeQuietly(input);
-		}
-	}
-
-	public static File getlInitSql(String createPath) throws IOException {
-		File initSql = new File(DEST_SQL_PATH);
-		initSql.deleteOnExit();
-		List<File> sources = new ArrayList<File>();
-		sources.add(new File(createPath));
-		sources.add(new File(DB_INIT_PATH));
-		joinFiles(initSql, sources);
-
-		return initSql;
+	protected static List<String> getInitSqls(String createPath) {
+		List<String> sqls = new ArrayList<>();
+		sqls.add(createPath);
+		sqls.add(DB_INIT_PATH);
+		return sqls;
 	}
 }

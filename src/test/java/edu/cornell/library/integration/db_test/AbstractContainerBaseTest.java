@@ -15,6 +15,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.platform.commons.util.StringUtils;
@@ -40,20 +41,23 @@ public class AbstractContainerBaseTest {
 		mysqlContainer.start();
 	}
 
-	public static void init(File mysqlSource) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+	public static void init(List<String> sqls) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
 		if (!initialized) {
 			String jdbc_str = mysqlContainer.getJdbcUrl() + "?user=" + DBUID + "&password=" + DBPWD;
-			try (Connection conn = DriverManager.getConnection(jdbc_str);
-				Statement stmt = conn.createStatement();
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mysqlSource),"UTF-8"))) {
-				String line;
-				while ((line = br.readLine()) != null) {
-					if (StringUtils.isBlank(line)) {
-						continue;
+			Connection conn = DriverManager.getConnection(jdbc_str);
+			for (String sql : sqls) {
+				try (Statement stmt = conn.createStatement();
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
+					String line;
+					while ((line = br.readLine()) != null) {
+						if (StringUtils.isBlank(line)) {
+							continue;
+						}
+						stmt.executeUpdate(line);
 					}
-					stmt.executeUpdate(line);
 				}
 			}
+			conn.close();
 			initialized = true;
 		}
 	}

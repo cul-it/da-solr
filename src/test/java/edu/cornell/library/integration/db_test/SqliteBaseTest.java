@@ -16,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.platform.commons.util.StringUtils;
@@ -60,21 +61,24 @@ public class SqliteBaseTest {
 		return PROPS;
 	}
 
-	public static void init(File sqliteSource) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+	public static void init(List<String> sqls) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
 		if (sourceInitDb == null) {
 			sourceInitDb = new File(INIT_DB_PATH);
 			sourceInitDb.deleteOnExit();
 			Connection conn = DriverManager.getConnection("jdbc:sqlite:"+sourceInitDb.getAbsolutePath());
-			try (Statement stmt = conn.createStatement();
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sqliteSource),"UTF-8"))) {
-				String line;
-				while ((line = br.readLine()) != null) {
-					if (StringUtils.isBlank(line)) {
-						continue;
+			for (String sql : sqls) {
+				try (Statement stmt = conn.createStatement();
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
+					String line;
+					while ((line = br.readLine()) != null) {
+						if (StringUtils.isBlank(line)) {
+							continue;
+						}
+						stmt.executeUpdate(line);
 					}
-					stmt.executeUpdate(line);
 				}
 			}
+			conn.close();
 		}
 	}
 
