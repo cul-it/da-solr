@@ -449,4 +449,22 @@ public class SubjectTest extends DbBaseTest {
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
+
+	@Test // Should not populate vocabulary-specific fields intended for authority control
+	public void cjkIn6xx() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡a 子部 ‡x 小說家類. ‡2 sk"));
+		String expected =
+		"subject_t: 子部 > 小說家類\n"+
+		"subject_topic_facet: 子部\n"+
+		"subject_topic_filing: 子部\n"+
+		"subject_topic_facet: 子部 > 小說家類\n"+
+		"subject_topic_filing: 子部 0000 小說家類\n"+
+		"subject_json: [{\"subject\":\"子部\",\"authorized\":false,\"type\":\"Topical Term\"},"
+		+ "{\"subject\":\"小說家類.\",\"authorized\":false}]\n"+
+		"subject_display: 子部 > 小說家類\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+
+	}
 }

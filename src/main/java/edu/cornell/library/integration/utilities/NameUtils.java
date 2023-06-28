@@ -143,7 +143,8 @@ public class NameUtils {
 			sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
 			String romanFiling = getFilingForm( facet2 );
 			sfs.add(new SolrField( filingField, romanFiling ));
-			sfs.add(new SolrField( romanFilingField, romanFiling ));
+			if ( ! isCJK(facet2) )
+				sfs.add(new SolrField( romanFilingField, romanFiling ));
 		}
 		if (fs.getFields().get(0).getScript().equals(Script.CJK))
 			sfs.add(new SolrField( (isMainAuthor)?"author_t_cjk":"author_addl_t_cjk", search1 ));
@@ -185,6 +186,8 @@ public class NameUtils {
 		if ( ! isMainAuthor && ctsVals.category.equals(HeadingCategory.AUTHORTITLE)) {
 			String browseDisplay = ctsVals.author+" | "+ctsVals.title;
 			String relation;
+
+			// ONE FIELD; INCLUDED WORK 7XX
 			if (f.ind2.equals('2')) {
 				relation = "included_work_display";
 				sfs.add(new SolrField("authortitle_facet",NameUtils.getFacetForm(browseDisplay)));
@@ -195,15 +198,15 @@ public class NameUtils {
 				String filingAuthorName = getFilingForm(authorFacet);
 				if ( f.mainTag.equals("700") ) {
 					sfs.add(new SolrField("author_pers_filing",filingAuthorName));
-					if ( ! f.tag.equals("880") )
+					if ( ! f.tag.equals("880") && ! isCJK( authorFacet ) )
 						sfs.add(new SolrField("author_pers_roman_filing",filingAuthorName));
 				} else if ( f.mainTag.equals("710") ) {
 					sfs.add(new SolrField("author_corp_filing",filingAuthorName));
-					if ( ! f.tag.equals("880") )
+					if ( ! f.tag.equals("880") && ! isCJK( authorFacet ) )
 						sfs.add(new SolrField("author_corp_roman_filing",filingAuthorName));
 				} else {
 					sfs.add(new SolrField("author_event_filing",filingAuthorName));
-					if ( ! f.tag.equals("880") )
+					if ( ! f.tag.equals("880") && ! isCJK( authorFacet ) )
 						sfs.add(new SolrField("author_event_roman_filing",filingAuthorName));
 				}
 			} else {
@@ -215,6 +218,7 @@ public class NameUtils {
 					+itemViewDisplay.title+"|"+ctsVals.title+"|"+ctsVals.author));
 			sfs.add(new SolrField((isCJK)?"title_uniform_t_cjk":"title_uniform_t",ctsVals.title));
 
+		// ONE FIELD; JUST AUTHOR
 		} else {
 			String display = NameUtils.displayValue( f, true );
 			if (display == null)
@@ -247,7 +251,7 @@ public class NameUtils {
 			if (filingField != null) {
 				String filing = getFilingForm( facet );
 				sfs.add(new SolrField( filingField, filing ));
-				if ( ! f.tag.equals("880") )
+				if ( ! f.tag.equals("880") && ! isCJK(facet) )
 					sfs.add(new SolrField( romanFilingField, filing ));
 			}
 

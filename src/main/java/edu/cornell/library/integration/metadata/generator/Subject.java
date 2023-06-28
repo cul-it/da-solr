@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.metadata.generator;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.4"; }
+	public String getVersion() { return "2.5"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -241,7 +241,7 @@ public class Subject implements SolrFieldGenerator {
 					if (authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
 							authorityAltForms.add(altForm);
-							if (hasCJK(altForm))
+							if (isCJK(altForm))
 								authorityAltFormsCJK.add(altForm);
 						}
 					json.add(subj1);
@@ -262,7 +262,7 @@ public class Subject implements SolrFieldGenerator {
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
 								authorityAltForms.add(altForm);
-								if (hasCJK(altForm))
+								if (isCJK(altForm))
 									authorityAltFormsCJK.add(altForm);
 							}
 						json.add(subj);
@@ -319,13 +319,14 @@ public class Subject implements SolrFieldGenerator {
 					String filing = getFilingForm(value.display);
 					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
-					if ( ! value.is880 ) {
+					if ( ! value.is880 && ! isCJK(value.canon)) {
 						String vocab = h.vocab.name().toLowerCase();
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon));
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling));
 					}
 				}
 			for (final String s: values_dashed) {
+				if ( isCJK(s) ) continue;
 				String vocab = h.vocab.name().toLowerCase();
 				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
 				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));

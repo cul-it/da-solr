@@ -539,4 +539,23 @@ public class AuthorTitleTest extends DbBaseTest {
 		"author_sort: guo li gu gong bo wu yuan\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
+
+	@Test
+	public void cjk100() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "15331345";
+		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a 林玲子"));
+		String expected =
+		"author_display: 林玲子\n"+
+		"author_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"author_json: {\"name1\":\"林玲子\",\"search1\":\"林玲子\","
+		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_sort: 林玲子\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+
 }
+
