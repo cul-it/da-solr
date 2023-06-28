@@ -19,12 +19,6 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class TitleChangeTest extends DbBaseTest {
 	SolrFieldGenerator gen = new TitleChange();
 
-//	@BeforeClass
-//	public static void setup() {
-//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-//		config = Config.loadConfig(requiredArgs);
-//	}
-
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
 		setup("Headings");
@@ -394,4 +388,28 @@ public class TitleChangeTest extends DbBaseTest {
 				"‡a Vasilieva, Olga. ‡4 http://id.loc.gov/vocabulary/relators/edt"));
 	}
 
+	@Test
+	public void cjk700() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a 林玲子"));
+		String expected =
+		"author_addl_display: 林玲子\n"+
+		"author_addl_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"author_addl_json: {\"name1\":\"林玲子\",\"search1\":\"林玲子\","
+		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a 林玲子 ‡t Some title"));
+		expected =
+		"authortitle_facet: 林玲子 | Some title\n"+
+		"authortitle_filing: 林玲子 0000 some title\n"+
+		"author_addl_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"included_work_display: 林玲子 Some title|Some title|林玲子\n"+
+		"title_uniform_t: Some title\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
 }
