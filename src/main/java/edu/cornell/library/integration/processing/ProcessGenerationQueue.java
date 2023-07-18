@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -97,21 +96,19 @@ public class ProcessGenerationQueue {
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				) {
 
-			Connection voyager = null;
 			OkapiClient folio = null;
-			if ( config.isOkapiConfigured("Folio")) {
-				folio = config.getOkapi("Folio");
-				StatisticalCodes.initializeCodes(folio);
-				SupportReferenceData.initialize(folio);
-				if (SupportReferenceData.locations.getUuid("serv,remo") == null ) {
-					System.out.println("Something has changed with the online location.");
-					System.out.println("An adjustment will be necessary to correctly identify online holdings.");
-					System.exit(1);
-				}
-			} else {
+			if ( ! config.isOkapiConfigured("Folio")) {
 				System.out.printf("Folio configuration requires config fields okapiUrl%s, okapiTenant%s, "
 						+ "and either okapiToken%s or both okapiUser%s and okapiPass%s\n",
 						"Folio","Folio","Folio","Folio","Folio");
+				System.exit(1);
+			}
+			folio = config.getOkapi("Folio");
+			StatisticalCodes.initializeCodes(folio);
+			SupportReferenceData.initialize(folio);
+			if (SupportReferenceData.locations.getUuid("serv,remo") == null ) {
+				System.out.println("Something has changed with the online location.");
+				System.out.println("An adjustment will be necessary to correctly identify online holdings.");
 				System.exit(1);
 			}
 
@@ -186,58 +183,45 @@ public class ProcessGenerationQueue {
 
 				try {
 
-					if ( voyager != null ) {
-						v = new Versions( getBibRecordModDate( voyager, Integer.valueOf(bib) ) );
-						if (v.bib == null) {
-							throw new IOException("Record appears to be deleted. Dequeuing. "+bib);
+					String instanceId = null;
+					instanceByHrid.setString(1, bib);
+					try ( ResultSet rs = instanceByHrid.executeQuery() ) {
+						while (rs.next()) {
+							instanceId = rs.getString("id");
+							instance = mapper.readValue( rs.getString("content"), Map.class);
 						}
-						v.mfhds = getMhfdRecordModDates(voyager,Integer.valueOf(bib));
-	
-						// Retrieve records
-						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, bib);
-						for (String mfhdId : v.mfhds.keySet())
-							rec.marcHoldings.add(marc.getMarc(MarcRecord.RecordType.HOLDINGS, mfhdId));
-
-					} else if ( folio != null ) {
-						String instanceId = null;
-						instanceByHrid.setString(1, bib);
-						try ( ResultSet rs = instanceByHrid.executeQuery() ) {
-							while (rs.next()) {
-								instanceId = rs.getString("id");
-								instance = mapper.readValue( rs.getString("content"), Map.class);
-							}
-						}
-
-						if ( instance == null ) {
-							System.out.println("Instance hrid absent from Folio: "+bib);
-							IndexingUtilities.queueBibDelete(current, bib);
-							continue BIB;
-						}
-
-						v = new Versions(getModificationTimestamp( instance ));
-						rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
-						List<Map<String,Object>> folioHoldings = new ArrayList<>();
-						holdingsByInstanceHrid.setString(1, bib);
-						try (ResultSet rs = holdingsByInstanceHrid.executeQuery() ) {
-							while (rs.next())
-								folioHoldings.add(mapper.readValue(rs.getString("content"),Map.class));
-						}
-						Map<String,Timestamp> holdingTimestamps = new HashMap<>();
-						for ( Map<String,Object> holding : folioHoldings ) {
-							Timestamp t = getModificationTimestamp( holding );
-							String holdingHrid = (String)holding.get("id");
-							holdingTimestamps.put(holdingHrid, t);
-						}
-						v.mfhds = holdingTimestamps;
-						if ( rec != null ) {
-							rec.instance = instance;
-							rec.bib_id = (String)instance.get("hrid");
-							rec.folioHoldings = folioHoldings;
-						} else {
-							instance.put("holdings", folioHoldings);
-						}
-
 					}
+
+					if ( instance == null ) {
+						System.out.println("Instance hrid absent from Folio: "+bib);
+						IndexingUtilities.queueBibDelete(current, bib);
+						continue BIB;
+					}
+
+					v = new Versions(getModificationTimestamp( instance ));
+
+					rec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,instanceId);
+					List<Map<String,Object>> folioHoldings = new ArrayList<>();
+					holdingsByInstanceHrid.setString(1, bib);
+					try (ResultSet rs = holdingsByInstanceHrid.executeQuery() ) {
+						while (rs.next())
+							folioHoldings.add(mapper.readValue(rs.getString("content"),Map.class));
+					}
+					Map<String,String> holdingTimestamps = new HashMap<>();
+					for ( Map<String,Object> holding : folioHoldings ) {
+						String t = getModificationTimestamp( holding );
+						String holdingHrid = (String)holding.get("hrid");
+						holdingTimestamps.put(holdingHrid, t);
+					}
+					v.mfhds = holdingTimestamps;
+					if ( rec != null ) {
+						rec.instance = instance;
+						rec.bib_id = (String)instance.get("hrid");
+						rec.folioHoldings = folioHoldings;
+					} else {
+						instance.put("holdings", folioHoldings);
+					}
+
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
 					e.printStackTrace();
@@ -293,52 +277,17 @@ public class ProcessGenerationQueue {
 		return 0 ; // really not possible unless db error
 	}
 
-	private static Timestamp getModificationTimestamp(Map<String, Object> folioObject) {
+	private static String getModificationTimestamp(Map<String, Object> folioObject) {
 		if (! folioObject.containsKey("metadata")) return null;
-		Instant modDate = null;
 		@SuppressWarnings("unchecked")
 		Map<String,String> metadata = (Map<String, String>) folioObject.get("metadata");
 
-		if ( metadata.containsKey("UpdatedDate") && metadata.get("UpdatedDate") != null )
-			modDate = Instant.parse(metadata.get("UpdatedDate"));
-		else if ( metadata.containsKey("CreatedDate") && metadata.get("CreatedDate") != null )
-			modDate = Instant.parse(metadata.get("CreatedDate"));
+		if ( metadata.containsKey("updatedDate") && metadata.get("updatedDate") != null )
+			return metadata.get("updatedDate");
+		else if ( metadata.containsKey("createdDate") && metadata.get("createdDate") != null )
+			return metadata.get("createdDate");
 
-		if (modDate == null)
-			return null;
-		return Timestamp.from(modDate);
-	}
-
-	private static Map<String,Timestamp> getMhfdRecordModDates( Connection voyager, Integer bibId ) throws SQLException {
-		try ( PreparedStatement pstmt = voyager.prepareStatement
-				("SELECT mfhd_master.mfhd_id, create_date, update_date"
-				+ " FROM mfhd_master, bib_mfhd "
-				+ "WHERE BIB_MFHD.MFHD_ID = mfhd_master.mfhd_id"
-				+ "  AND bib_id = ?"
-				+ "  AND suppress_in_opac = 'N'")) {
-			pstmt.setInt(1, bibId);
-			try ( ResultSet rs = pstmt.executeQuery()) {
-				Map<String,Timestamp> mfhds = new HashMap<>();
-				while (rs.next()) {
-					Timestamp mod_date = rs.getTimestamp(3);
-					if (mod_date == null)
-						mod_date = rs.getTimestamp(2);
-					mfhds.put(String.valueOf(rs.getInt(1)), mod_date);
-				}
-				return mfhds;
-			}
-		}
-	}
-
-	private static Timestamp getBibRecordModDate( Connection voyager, Integer bibId ) throws SQLException {
-		try ( PreparedStatement pstmt = voyager.prepareStatement
-				("SELECT COALESCE(update_date,create_date) FROM bib_master WHERE bib_id = ?")) {
-			pstmt.setInt(1, bibId);
-			try ( ResultSet rs = pstmt.executeQuery()) {
-				if ( ! rs.next()) return null; // deleted
-				return rs.getTimestamp(1);
-			}
-		}
+		return null;
 	}
 
 	private static void queueRecordsNotRecentlyVisited(PreparedStatement oldestSolrFieldsData,
@@ -353,9 +302,9 @@ public class ProcessGenerationQueue {
 
 	@JsonAutoDetect(fieldVisibility = Visibility.ANY)
 	private class Versions {
-		@JsonProperty("bib")      Timestamp bib;
-		@JsonProperty("holdings") Map<String,Timestamp> mfhds;
-		public Versions ( Timestamp bibTime ) {
+		@JsonProperty("bib")      String bib;
+		@JsonProperty("holdings") Map<String,String> mfhds;
+		public Versions ( String bibTime ) {
 			this.bib = bibTime;
 		}
 	}
