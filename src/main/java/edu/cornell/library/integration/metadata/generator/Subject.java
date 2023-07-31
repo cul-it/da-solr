@@ -79,7 +79,6 @@ public class Subject implements SolrFieldGenerator {
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
 			final DataField f = fs.getFields().get(fs.getFields().size()-1);
-//			final DataField f = fs.getFields().get(0);
 			switch (f.ind2) {
 			case '0':
 				h.vocab = HeadingVocab.LC;
