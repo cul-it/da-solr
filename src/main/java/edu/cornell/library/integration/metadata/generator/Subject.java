@@ -76,7 +76,7 @@ public class Subject implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 		for( DataFieldSet fs: sets ) {
 
-			// First DataField in each FieldSet should be representative, so we'll examine that.
+			// For the purposes of id'ing vocabulary, the Roman (last) field is most reliable, so we'll examine that.
 			final Heading h = new Heading();
 			final DataField f = fs.getFields().get(fs.getFields().size()-1);
 			switch (f.ind2) {
