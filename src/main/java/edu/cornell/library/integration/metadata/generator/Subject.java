@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.5"; }
+	public String getVersion() { return "2.6"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -78,7 +78,8 @@ public class Subject implements SolrFieldGenerator {
 
 			// First DataField in each FieldSet should be representative, so we'll examine that.
 			final Heading h = new Heading();
-			final DataField f = fs.getFields().get(0);
+			final DataField f = fs.getFields().get(fs.getFields().size()-1);
+//			final DataField f = fs.getFields().get(0);
 			switch (f.ind2) {
 			case '0':
 				h.vocab = HeadingVocab.LC;
