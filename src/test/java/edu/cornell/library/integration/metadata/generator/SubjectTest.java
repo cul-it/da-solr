@@ -465,6 +465,43 @@ public class SubjectTest extends DbBaseTest {
 		"subject_display: 子部 > 小說家類\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
-
 	}
+
+	@Test
+	public void matching880withwrong2ndIndicator() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "5071114";
+		rec.dataFields.add(new DataField(1,4,"600",'1','0',"‡6 880-06 ‡a Zhang, Lei, ‡d 1054-1114 ‡v Chronology.",false));
+		rec.dataFields.add(new DataField(2,4,"600",'1','4',"‡6 600-06/$1 ‡a 張耒, ‡d 1054-1114 ‡v Chronology.",true));
+		/* This name actually does have an authority record, but we have other tests to capture that, so
+		 * I saw no need to import that into the test suite just to get 9 alternate forms of the name adding
+		 * to the expected Solr results.
+		 */
+		String expected =
+		"subject_t: 張耒, 1054-1114 > Chronology\n"+
+		"subject_t: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_facet: 張耒, 1054-1114\n"+
+		"subject_pers_filing: 張耒 1054 1114\n"+
+		"subject_pers_facet: 張耒, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: 張耒 1054 1114 0000 chronology\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_filing: zhang lei 1054 1114\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_sub_lc_facet: Chronology\n"+
+		"subject_sub_lc_filing: chronology\n"+
+		"subject_json: [{\"subject\":\"張耒, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_json: [{\"subject\":\"Zhang, Lei, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_display: 張耒, 1054-1114 > Chronology\n"+
+		"subject_display: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
 }
