@@ -13,6 +13,7 @@ import edu.cornell.library.integration.marc.Subfield;
 public class RelatorSet {
 
 	Set<String> relators = new LinkedHashSet<>();
+	final ProvStatus isProvenance;
 
 	private final String RelatorCodeURIPrefix = "http://id.loc.gov/vocabulary/relators/";
 	public RelatorSet(DataField f) {
@@ -45,6 +46,12 @@ public class RelatorSet {
 				}
 			}
 		}
+
+		// Name is considered provenance if it is a former owner. If it has other relators, it may also be a creator.
+		if ( this.relators.isEmpty() || ! this.relators.contains("former owner") ) {
+			this.isProvenance = ProvStatus.NONE; return;
+		}
+		this.isProvenance = ( this.relators.size() == 1 ) ? ProvStatus.PROV_ONLY : ProvStatus.PROV_CREATOR;
 	}
 	public boolean isEmpty() {
 		return this.relators.isEmpty();
@@ -72,7 +79,14 @@ public class RelatorSet {
 			return s;
 		return s+",";
 	}
+
+	public ProvStatus isProvenance() { return this.isProvenance; }
+
 	private static Pattern neededTerminalPeriod
 		= Pattern.compile("(.*)(etc|Mrs|Inc|Sr|Jr|Spon|Co|Inc|Ltd|[A-Z])\\.([\\-,]?)$");
+
+	public enum ProvStatus {
+		PROV_ONLY, PROV_CREATOR, NONE;
+	}
 
 }
