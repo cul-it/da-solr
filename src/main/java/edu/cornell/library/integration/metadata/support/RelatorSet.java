@@ -56,6 +56,9 @@ public class RelatorSet {
 	public boolean isEmpty() {
 		return this.relators.isEmpty();
 	}
+	public void remove(String relator) {
+		relators.remove(relator);
+	}
 	@Override
 	public String toString() {
 		return String.join(", ",this.relators);

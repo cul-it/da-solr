@@ -423,8 +423,8 @@ public class TitleChangeTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ammons, A. R., ‡d 1926-2001 ‡e former owner. ‡5 NIC"));
 		String expected =
 		"author_pers_roman_filing: ammons a r 1926 2001\n"+
-		"former_owner_display: Ammons, A. R., 1926-2001, former owner\n"+
-		"former_owner_t: Ammons, A. R., 1926-2001, former owner\n";
+		"former_owner_display: Ammons, A. R., 1926-2001\n"+
+		"former_owner_t: Ammons, A. R., 1926-2001\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
@@ -434,8 +434,8 @@ public class TitleChangeTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,"710",'1',' ',"‡a Some corporate entity ‡e former owner, ‡e author."));
 		String expected =
 		"author_corp_roman_filing: some corporate entity\n"+
-		"former_owner_display: Some corporate entity, former owner, author\n"+
-		"former_owner_t: Some corporate entity, former owner, author\n"+
+		"former_owner_display: Some corporate entity, author\n"+
+		"former_owner_t: Some corporate entity, author\n"+
 		"author_addl_display: Some corporate entity, former owner, author\n"+
 		"author_addl_t: Some corporate entity, former owner, author\n"+
 		"author_facet: Some corporate entity\n"+
@@ -453,9 +453,9 @@ public class TitleChangeTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(3,5,"700",'1',' ',"‡6 700-05/$1 ‡a 向淑容, ‡4 fmo",true));
 		String expected =
 		"author_pers_roman_filing: xiang shurong\n"+
-		"former_owner_display: 向淑容 / Xiang, Shurong, former owner\n"+
+		"former_owner_display: 向淑容 / Xiang, Shurong\n"+
 		"former_owner_t: 向淑容\n"+
-		"former_owner_t: Xiang, Shurong, former owner\n";
+		"former_owner_t: Xiang, Shurong\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
