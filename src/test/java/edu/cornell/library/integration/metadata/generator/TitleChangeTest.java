@@ -434,7 +434,6 @@ public class TitleChangeTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,"710",'1',' ',"‡a Some corporate entity ‡e former owner, ‡e author."));
 		String expected =
 		"author_corp_roman_filing: some corporate entity\n"+
-		"former_owner_display: Some corporate entity, author\n"+
 		"former_owner_t: Some corporate entity, author\n"+
 		"author_addl_display: Some corporate entity, former owner, author\n"+
 		"author_addl_t: Some corporate entity, former owner, author\n"+

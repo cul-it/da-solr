@@ -144,11 +144,13 @@ public class NameUtils {
 
 		boolean includeInAuthor = ! rs.isProvenance().equals(ProvStatus.PROV_ONLY);
 		boolean includeInProvenance = ! rs.isProvenance().equals(ProvStatus.NONE);
+		boolean displayAsFMO = rs.isProvenance().equals(ProvStatus.PROV_ONLY);
 
 		if (includeInProvenance) {
 			rs.remove("former owner");
 			String d = NameUtils.displayValue( fs.getFields().get(1), rs, true );
-			sfs.add(new SolrField( "former_owner_display" , display1 +" / "+d));
+			if (displayAsFMO)
+				sfs.add(new SolrField( "former_owner_display" , display1 +" / "+d));
 			sfs.add(new SolrField( "former_owner_t", display1 ));
 			sfs.add(new SolrField( "former_owner_t", d ));
 		}
@@ -270,11 +272,14 @@ public class NameUtils {
 
 			boolean includeInAuthor = ! rs.isProvenance().equals(ProvStatus.PROV_ONLY);
 			boolean includeInProvenance = ! rs.isProvenance().equals(ProvStatus.NONE);
+			boolean displayAsFMO = rs.isProvenance().equals(ProvStatus.PROV_ONLY);
+
 
 			if (includeInProvenance) {
 				rs.remove("former owner");
 				String d = NameUtils.displayValue( f, rs, true );
-				sfs.add(new SolrField( "former_owner_display" , d));
+				if (displayAsFMO)
+					sfs.add(new SolrField( "former_owner_display" , d));
 				sfs.add(new SolrField( "former_owner_t", d));
 			}
 
