@@ -22,6 +22,7 @@ import edu.cornell.library.integration.metadata.support.AuthorityData;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.metadata.support.RelatorSet;
+import edu.cornell.library.integration.metadata.support.RelatorSet.ProvStatus;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 public class NameUtils {
@@ -43,7 +44,7 @@ public class NameUtils {
 		return f.concatenateSpecificSubfields(facetSubfields);
 	}
 
-	public static String displayValue(DataField f, Boolean includeSuffixes) {
+	public static String displayValue(DataField f, RelatorSet rs, Boolean includeSuffixes) {
 
 		String displaySubfields;
 		if ( f.mainTag.endsWith("00") || f.mainTag.endsWith("20") )
@@ -61,7 +62,6 @@ public class NameUtils {
 		String suffixes = (f.mainTag.endsWith("00")) ? f.concatenateSpecificSubfields("d") : "";
 		if ( ! suffixes.isEmpty() )
 			suffixes = " "+suffixes;
-		final RelatorSet rs = new RelatorSet(f);
 		if ( ! rs.isEmpty() ) {
 			if (suffixes.isEmpty())
 				mainValue = RelatorSet.validateForConcatWRelators(mainValue);
@@ -110,9 +110,11 @@ public class NameUtils {
 			Config config, DataFieldSet fs, List<FieldValues> ctsValsList, Boolean isMainAuthor )
 					throws SQLException, IOException {
 
-		String display1 = NameUtils.displayValue( fs.getFields().get(0), false );
-		String display2 = NameUtils.displayValue( fs.getFields().get(1), true );
-		String search1 = NameUtils.displayValue( fs.getFields().get(0), true );
+		RelatorSet rs = new RelatorSet(fs.getFields().get(1));
+
+		String display1 = NameUtils.displayValue( fs.getFields().get(0), null, false );
+		String display2 = NameUtils.displayValue( fs.getFields().get(1), rs,   true );
+		String search1 = NameUtils.displayValue(  fs.getFields().get(0), rs,   true );
 		String facet1 = NameUtils.facetValue( fs.getFields().get(0) );
 		String facet2 = NameUtils.facetValue( fs.getFields().get(1) );
 		HeadingType ht;
@@ -135,16 +137,33 @@ public class NameUtils {
 		}
 
 		List<SolrField> sfs = new ArrayList<>();
-		sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display",
-				display1 +" / "+display2 ));
+		// romanFilingField is a staff-facing search endpoint for authority control maintenance.
+		String romanFiling = getFilingForm( facet2 );
+		if ( romanFilingField != null && ! isCJK(facet2) )
+			sfs.add(new SolrField( romanFilingField, romanFiling ));
+
+		boolean includeInAuthor = ! rs.isProvenance().equals(ProvStatus.PROV_ONLY);
+		boolean includeInProvenance = ! rs.isProvenance().equals(ProvStatus.NONE);
+		boolean displayAsFMO = rs.isProvenance().equals(ProvStatus.PROV_ONLY);
+
+		if (includeInProvenance) {
+			rs.remove("former owner");
+			String d = NameUtils.displayValue( fs.getFields().get(1), rs, true );
+			if (displayAsFMO)
+				sfs.add(new SolrField( "former_owner_display" , display1 +" / "+d));
+			sfs.add(new SolrField( "former_owner_t", display1 ));
+			sfs.add(new SolrField( "former_owner_t", d ));
+		}
+
+
+		if ( ! includeInAuthor) return sfs;
+
+		sfs.add(new SolrField( (isMainAuthor)? "author_display":"author_addl_display", display1 +" / "+display2));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet1 )));
 		sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet2 )));
 		if (filingField != null) {
 			sfs.add(new SolrField( filingField, getFilingForm( facet1 )));
-			String romanFiling = getFilingForm( facet2 );
 			sfs.add(new SolrField( filingField, romanFiling ));
-			if ( ! isCJK(facet2) )
-				sfs.add(new SolrField( romanFilingField, romanFiling ));
 		}
 		if (fs.getFields().get(0).getScript().equals(Script.CJK))
 			sfs.add(new SolrField( (isMainAuthor)?"author_t_cjk":"author_addl_t_cjk", search1 ));
@@ -220,10 +239,14 @@ public class NameUtils {
 
 		// ONE FIELD; JUST AUTHOR
 		} else {
-			String display = NameUtils.displayValue( f, true );
+			RelatorSet rs = new RelatorSet(f);
+
+			String display = NameUtils.displayValue( f, rs, true );
 			if (display == null)
 				return sfs;
 			String facet = NameUtils.facetValue( f );
+			String filing = getFilingForm( facet );
+
 			HeadingType ht;
 			String filingField;
 			String romanFilingField;
@@ -243,17 +266,32 @@ public class NameUtils {
 				ht = null; filingField = null; romanFilingField = null;
 			}
 
+			// romanFilingField is a staff-facing search endpoint for authority control maintenance.
+			if ( romanFilingField != null && ! f.tag.equals("880") && ! isCJK(facet) )
+				sfs.add(new SolrField( romanFilingField, filing ));
+
+			boolean includeInAuthor = ! rs.isProvenance().equals(ProvStatus.PROV_ONLY);
+			boolean includeInProvenance = ! rs.isProvenance().equals(ProvStatus.NONE);
+			boolean displayAsFMO = rs.isProvenance().equals(ProvStatus.PROV_ONLY);
+
+
+			if (includeInProvenance) {
+				rs.remove("former owner");
+				String d = NameUtils.displayValue( f, rs, true );
+				if (displayAsFMO)
+					sfs.add(new SolrField( "former_owner_display" , d));
+				sfs.add(new SolrField( "former_owner_t", d));
+			}
+
+			if ( ! includeInAuthor) return sfs;
+
 			sfs.add(new SolrField( (isMainAuthor)?"author_display":"author_addl_display", display ));
 			sfs.add(new SolrField( (isCJK)?
 					(isMainAuthor)?"author_t_cjk":"author_addl_t_cjk":
 						(isMainAuthor)?"author_t":"author_addl_t", display ));
 			sfs.add(new SolrField( "author_facet", NameUtils.getFacetForm( facet )));
-			if (filingField != null) {
-				String filing = getFilingForm( facet );
+			if (filingField != null)
 				sfs.add(new SolrField( filingField, filing ));
-				if ( ! f.tag.equals("880") && ! isCJK(facet) )
-					sfs.add(new SolrField( romanFilingField, filing ));
-			}
 
 			final Map<String,Object> json = new LinkedHashMap<>();
 			json.put("name1", display);

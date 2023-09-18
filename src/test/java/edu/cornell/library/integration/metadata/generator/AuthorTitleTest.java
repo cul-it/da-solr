@@ -52,11 +52,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Cabana, historia, cultura y tradición / ‡c Mariano"
 				+ " León Cupe, Jorge León Quispe."));
 		String expected =
+		"author_pers_roman_filing: leon cupe mariano 1932\n"+
 		"author_display: León Cupe, Mariano, 1932-\n"+
 		"author_t: León Cupe, Mariano, 1932-\n"+
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
-		"author_pers_roman_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
 									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Cupe, Mariano León, 1932-\n"+
@@ -84,11 +84,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Waterford people : ‡b a biographical dictionary / "
 				+ "‡c T. N. Fewer."));
 		String expected =
+		"author_pers_roman_filing: fewer t n\n"+
 		"author_display: Fewer, T. N.\n"+
 		"author_t: Fewer, T. N.\n"+
 		"author_facet: Fewer, T. N.\n"+
 		"author_pers_filing: fewer t n\n"+
-		"author_pers_roman_filing: fewer t n\n"+
 		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
 										"\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Fewer, Tom\n"+
@@ -118,11 +118,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Lumps and bumps in the mouth and lips"
 				+ " ‡h [electronic resource] / ‡c Nicholas Kalavrezos."));
 		String expected =
+		"author_pers_roman_filing: kalavrezos nicholas\n"+
 		"author_display: Kalavrezos, Nicholas, speaker\n"+
 		"author_t: Kalavrezos, Nicholas, speaker\n"+
 		"author_facet: Kalavrezos, Nicholas\n"+
 		"author_pers_filing: kalavrezos nicholas\n"+
-		"author_pers_roman_filing: kalavrezos nicholas\n"+
 		"author_json: {\"name1\":\"Kalavrezos, Nicholas, speaker\",\"search1\":\"Kalavrezos, Nicholas,\","
 		+ "\"relator\":\"speaker\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: kalavrezos nicholas\n"+
@@ -150,11 +150,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Britain's Tudor maps : ‡b county by county /"
 				+ " ‡c John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard."));
 		String expected =
+		"author_pers_roman_filing: speed john 1552 1629\n"+
 		"author_display: Speed, John, 1552?-1629, cartographer\n"+
 		"author_t: Speed, John, 1552?-1629, cartographer\n"+
 		"author_facet: Speed, John, 1552?-1629\n"+
 		"author_pers_filing: speed john 1552 1629\n"+
-		"author_pers_roman_filing: speed john 1552 1629\n"+
 		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":\"Speed, John, 1552?-1629,\","
 		+ "\"relator\":\"cartographer\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: I. S., 1552?-1629\n"+
@@ -197,11 +197,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,"245",'1','4',"‡a Hē ennoia tou oikou ston Euripidē : ‡b Alkēstē, Mēdeia,"
 				+ " Hippolytos / ‡c Loukas Papadēmētropoulos."));
 		String expected =
+		"author_pers_roman_filing: papademetropoulos loukas p\n"+
 		"author_display: Papadēmētropoulos, Loukas P., author\n"+
 		"author_t: Papadēmētropoulos, Loukas P., author\n"+
 		"author_facet: Papadēmētropoulos, Loukas P.\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
-		"author_pers_roman_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":\"Papadēmētropoulos, Loukas P.,\""
 		+ ",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"author_sort: papademetropoulos loukas p\n"+
@@ -271,12 +271,12 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(6,3,"245",'1','0',"‡6 245-03/$1 ‡a 남자 문제 의 시대 = ‡b 男子問題の時代?"
 				+ " : 젠더 와 교육 의 정치학 / ‡c 다가 후토시 지음 ; 책사소 옮김.",true));
 		String expected =
+		"author_pers_roman_filing: taga futoshi 1968\n"+
 		"author_display: 多賀太 / Taga, Futoshi, 1968- author\n"+
 		"author_facet: 多賀太, 1968-\n"+
 		"author_facet: Taga, Futoshi, 1968-\n"+
 		"author_pers_filing: 多賀太 1968\n"+
 		"author_pers_filing: taga futoshi 1968\n"+
-		"author_pers_roman_filing: taga futoshi 1968\n"+
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
@@ -323,11 +323,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Tjita dan daja pemuda Islam :"
 				+ " ‡b menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta."));
 		String expected =
+		"author_corp_roman_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_display: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_t: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar\n"+
 		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
-		"author_corp_roman_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"search1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
@@ -369,11 +369,11 @@ public class AuthorTitleTest extends DbBaseTest {
 				"‡6 245-01/$1 ‡a 佛教艺术的早期阶段 = ‡b The beginnings of Buddhist art and other essays in Indian and"
 				+ " Central-Asian archaeology / ‡c c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.",true));
 		String expected =
+		"author_pers_roman_filing: foucher a alfred 1865 1952\n"+
 		"author_display: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_t: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
 		"author_pers_filing: foucher a alfred 1865 1952\n"+
-		"author_pers_roman_filing: foucher a alfred 1865 1952\n"+
 		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
 		+ "1865-1952.\",\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Foucher, Alfred Charles Auguste, 1865-1952\n"+
@@ -429,12 +429,12 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(4,2,"245",'0','0',
 				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
 		String expected =
+		"author_pers_roman_filing: grebenshchikova g a\n"+
 		"author_display: Гребенщикова, Г. А. / Grebenshchikova, G. A., author\n"+
 		"author_facet: Гребенщикова, Г. А.\n"+
 		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
 		"author_pers_filing: grebenshchikova g a\n"+
-		"author_pers_roman_filing: grebenshchikova g a\n"+
 		"author_t: Гребенщикова, Г. А, author\n"+
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А.\",\"search1\":\"Гребенщикова, Г. А,\","
@@ -470,10 +470,10 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,0,"110",'1',' ',"‡a Korea (South). ‡b President (1993-1998 : Kim)",false));
 		rec.dataFields.add(new DataField(2,0,"100",'1',' ',"‡6 100-00/$1 ‡a 金泳三, ‡d 1927-",true));
 		String expected =
+		"author_corp_roman_filing: korea south president 1993 1998 kim\n"+
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
-		"author_corp_roman_filing: korea south president 1993 1998 kim\n"+
 		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South)."
 		+ " President (1993-1998 : Kim)\",\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
@@ -496,11 +496,11 @@ public class AuthorTitleTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,0,"100",'1','0',"‡6 100-00/$1 ‡a 蔡玫芬.",true));
 		rec.dataFields.add(new DataField(3,1,"110",'2','0',"‡6 110-01/$1 ‡a 國立故宮博物院.",true));
 		String expected =
+		"author_corp_roman_filing: guo li gu gong bo wu yuan\n"+
 		"author_facet: 國立故宮博物院\n"+
 		"author_facet: Guo li gu gong bo wu yuan\n"+
 		"author_corp_filing: 國立故宮博物院\n"+
 		"author_corp_filing: guo li gu gong bo wu yuan\n"+
-		"author_corp_roman_filing: guo li gu gong bo wu yuan\n"+
 		"author_t_cjk: 國立故宮博物院.\n"+
 		"author_t: Guo li gu gong bo wu yuan.\n"+
 		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
