@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.metadata.generator;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.4"; }
+	public String getVersion() { return "2.6"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -61,8 +61,7 @@ public class Subject implements SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();
@@ -77,9 +76,9 @@ public class Subject implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 		for( DataFieldSet fs: sets ) {
 
-			// First DataField in each FieldSet should be representative, so we'll examine that.
+			// For the purposes of id'ing vocabulary, the Roman (last) field is most reliable, so we'll examine that.
 			final Heading h = new Heading();
-			final DataField f = fs.getFields().get(0);
+			final DataField f = fs.getFields().get(fs.getFields().size()-1);
 			switch (f.ind2) {
 			case '0':
 				h.vocab = HeadingVocab.LC;
@@ -242,7 +241,7 @@ public class Subject implements SolrFieldGenerator {
 					if (authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
 							authorityAltForms.add(altForm);
-							if (hasCJK(altForm))
+							if (isCJK(altForm))
 								authorityAltFormsCJK.add(altForm);
 						}
 					json.add(subj1);
@@ -263,7 +262,7 @@ public class Subject implements SolrFieldGenerator {
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
 								authorityAltForms.add(altForm);
-								if (hasCJK(altForm))
+								if (isCJK(altForm))
 									authorityAltFormsCJK.add(altForm);
 							}
 						json.add(subj);
@@ -320,13 +319,14 @@ public class Subject implements SolrFieldGenerator {
 					String filing = getFilingForm(value.display);
 					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
-					if ( ! value.is880 ) {
+					if ( ! value.is880 && ! isCJK(value.canon)) {
 						String vocab = h.vocab.name().toLowerCase();
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon));
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling));
 					}
 				}
 			for (final String s: values_dashed) {
+				if ( isCJK(s) ) continue;
 				String vocab = h.vocab.name().toLowerCase();
 				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
 				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));

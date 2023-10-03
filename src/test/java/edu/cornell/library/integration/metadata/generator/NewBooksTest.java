@@ -30,7 +30,7 @@ public class NewBooksTest {
 	SolrFieldGenerator gen = new NewBooks();
 
 	@Test
-	public void testAfricanaNew() throws ClassNotFoundException, SQLException, IOException {
+	public void testAfricanaNew() throws SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"948",'1',' ',"‡a 30170720 ‡b f ‡d fw11 ‡e lts"));
 		bibRec.id = "9953401";
@@ -48,7 +48,7 @@ public class NewBooksTest {
 	}
 
 	@Test
-	public void testOlinNewNoteworthy() throws ClassNotFoundException, SQLException, IOException {
+	public void testOlinNewNoteworthy() throws SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"948",'1',' ',
 				"‡a 30170426 ‡b f ‡d sir28 ‡e lts"));
@@ -67,7 +67,7 @@ public class NewBooksTest {
 	}
 
 	@Test
-	public void testTransferToAnnex() throws ClassNotFoundException, SQLException, IOException {
+	public void testTransferToAnnex() throws SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"948",'1',' ',
 				"‡a 20040706 ‡b f ‡d mann11 ‡e mann ‡f ? ‡h ?"));
@@ -83,7 +83,7 @@ public class NewBooksTest {
 	}
 
 	@Test
-	public void testInvalidAcquisitionDate() throws ClassNotFoundException, SQLException, IOException {
+	public void testInvalidAcquisitionDate() throws SQLException, IOException {
 		MarcRecord bibRec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		bibRec.dataFields.add(new DataField(1,"948",'1',' ',"‡a 20022904 ‡b l ‡d pem2 ‡e lts ‡f ? ‡h ?"));
 		bibRec.id = "520808";
@@ -92,7 +92,7 @@ public class NewBooksTest {
 	}
 
 	@Test
-	public void testFolioHoldings() throws ClassNotFoundException, SQLException, IOException {
+	public void testFolioHoldings() throws SQLException, IOException {
 		String resourceDataJson = loadResourceFile("example_reference_data/locations.json");
 		SupportReferenceData.initializeLocations(resourceDataJson);
 		String instanceStatusesJson = loadResourceFile("example_reference_data/instance_statuses.json");

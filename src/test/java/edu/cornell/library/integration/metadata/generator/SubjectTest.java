@@ -5,28 +5,30 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class SubjectTest {
-
-	static Config config = null;
+public class SubjectTest extends DbBaseTest {
 	SolrFieldGenerator gen = new Subject();
 
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+//		config = Config.loadConfig(requiredArgs);
+//	}
+
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException, SQLException {
+		setup("Headings");
 	}
 
 	@Test
-	public void testAuthorizedNoFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedNoFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		String expected =
@@ -53,7 +55,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testAuthorizedWithFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedWithFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		rec.dataFields.add(new DataField(9,"650",' ','7',"‡a Submerged lands ‡2 fast ‡0 (OCoLC)fst01136664"));
@@ -87,7 +89,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testChronFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 2000-2099 ‡2 fast"));
 		String expected =
@@ -104,7 +106,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testChronFASTWithUnwantedSpaces() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFASTWithUnwantedSpaces() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
 		String expected =
@@ -121,7 +123,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testComplex610() throws ClassNotFoundException, SQLException, IOException {
+	public void testComplex610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Jesuits. ‡b Congregatio Generalis ‡n (32nd :"
 				+ " ‡d 1974-1975 : ‡c Rome, Italy). ‡t Decree Four."));
@@ -154,7 +156,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testNonRoman610() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,4,"610",'2','0',"‡6 880-04 ‡a Asahi Shinbun ‡v Indexes.",false));
 		rec.dataFields.add(new DataField(2,4,"610",'2','0',"‡6 610-04/$1 ‡a 朝日新聞 ‡x Indexes.",true));
@@ -186,7 +188,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testUnwantedFacetValue() throws ClassNotFoundException, SQLException, IOException {
+	public void testUnwantedFacetValue() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','4',"‡a Electronic books."));
 		String expected =
@@ -206,7 +208,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void test653() throws ClassNotFoundException, SQLException, IOException {
+	public void test653() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Textiles and Fashion Design"));
 		String expected =
@@ -223,7 +225,7 @@ public class SubjectTest {
 
 
 	@Test
-	public void test653core() throws ClassNotFoundException, SQLException, IOException {
+	public void test653core() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Art and Architecture (Core)"));
 		String expected =
@@ -240,7 +242,7 @@ public class SubjectTest {
 
 	@Test //DISCOVERYACCESS-3760
 	public void dontSearchOnParentheticalDisamiguationsInAlternateForms()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10215428";
 		rec.dataFields.add(new DataField(1,"651",' ','7',"‡a Cambodia ‡z Svay Riĕng. ‡2 fast ‡0 (OCoLC)fst01878040"));
@@ -248,7 +250,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void swappedOffensiveSubjectTerms() throws ClassNotFoundException, SQLException, IOException {
+	public void swappedOffensiveSubjectTerms() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10329599";
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Illegal aliens ‡z United States."));
@@ -447,4 +449,59 @@ public class SubjectTest {
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
+
+	@Test // Should not populate vocabulary-specific fields intended for authority control
+	public void cjkIn6xx() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡a 子部 ‡x 小說家類. ‡2 sk"));
+		String expected =
+		"subject_t: 子部 > 小說家類\n"+
+		"subject_topic_facet: 子部\n"+
+		"subject_topic_filing: 子部\n"+
+		"subject_topic_facet: 子部 > 小說家類\n"+
+		"subject_topic_filing: 子部 0000 小說家類\n"+
+		"subject_json: [{\"subject\":\"子部\",\"authorized\":false,\"type\":\"Topical Term\"},"
+		+ "{\"subject\":\"小說家類.\",\"authorized\":false}]\n"+
+		"subject_display: 子部 > 小說家類\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void matching880withwrong2ndIndicator() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "5071114";
+		rec.dataFields.add(new DataField(1,4,"600",'1','0',"‡6 880-06 ‡a Zhang, Lei, ‡d 1054-1114 ‡v Chronology.",false));
+		rec.dataFields.add(new DataField(2,4,"600",'1','4',"‡6 600-06/$1 ‡a 張耒, ‡d 1054-1114 ‡v Chronology.",true));
+		/* This name actually does have an authority record, but we have other tests to capture that, so
+		 * I saw no need to import that into the test suite just to get 9 alternate forms of the name adding
+		 * to the expected Solr results.
+		 */
+		String expected =
+		"subject_t: 張耒, 1054-1114 > Chronology\n"+
+		"subject_t: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_facet: 張耒, 1054-1114\n"+
+		"subject_pers_filing: 張耒 1054 1114\n"+
+		"subject_pers_facet: 張耒, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: 張耒 1054 1114 0000 chronology\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_filing: zhang lei 1054 1114\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_sub_lc_facet: Chronology\n"+
+		"subject_sub_lc_filing: chronology\n"+
+		"subject_json: [{\"subject\":\"張耒, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_json: [{\"subject\":\"Zhang, Lei, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_display: 張耒, 1054-1114 > Chronology\n"+
+		"subject_display: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
 }

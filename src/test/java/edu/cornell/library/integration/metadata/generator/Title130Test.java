@@ -15,7 +15,7 @@ public class Title130Test {
 	SolrFieldGenerator gen = new Title130();
 
 	@Test
-	public void testSimple() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimple() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"130",'0',' ',"‡a Journal of hip hop studies (Online)"));
 		String expected =
@@ -26,7 +26,7 @@ public class Title130Test {
 	}
 
 	@Test
-	public void testArticle() throws ClassNotFoundException, SQLException, IOException {
+	public void testArticle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"130",'3',' ',"‡a El Fénix (Valencia) ‡p Indexes."));
 		String expected =

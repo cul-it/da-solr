@@ -15,7 +15,7 @@ public class InstrumentationTest {
 	SolrFieldGenerator gen = new Instrumentation();
 
 	@Test
-	public void test8894788() throws ClassNotFoundException, SQLException, IOException {
+	public void test8894788() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',
 				"‡a soprano voice ‡n 1 ‡a violin ‡n 2 ‡a viola ‡n 1 ‡a cello ‡n 1 ‡s 5 ‡2 lcmpt"));
@@ -26,7 +26,7 @@ public class InstrumentationTest {
 	}
 
 	@Test
-	public void test8856631() throws ClassNotFoundException, SQLException, IOException {
+	public void test8856631() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',
 				"‡a soprano voice ‡n 1 ‡a clarinet ‡n 1 ‡a violin ‡n 1 ‡a cello ‡n 1 ‡a double bass ‡n 1 "
@@ -38,7 +38,7 @@ public class InstrumentationTest {
 	}
 
 	@Test
-	public void test9264398() throws ClassNotFoundException, SQLException, IOException {
+	public void test9264398() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',"‡a mixed chorus ‡e 1 ‡v SATB ‡a orchestra ‡e 1 ‡2 lcmpt"));
 		String expected =
@@ -48,7 +48,7 @@ public class InstrumentationTest {
 	}	
 
 	@Test
-	public void test8745671() throws ClassNotFoundException, SQLException, IOException {
+	public void test8745671() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',"‡a flute ‡d piccolo ‡n 1 ‡a oboe ‡n 1 ‡a clarinet ‡v doubles"
 				+ " on E♭ clarinet ‡n 1 ‡a bassoon ‡n 1 ‡a horn ‡n 1 ‡a piano ‡n 1 ‡a violin ‡n 2 ‡a viola ‡n 1 ‡a"
@@ -62,7 +62,7 @@ public class InstrumentationTest {
 	}
 
 	@Test
-	public void test9394028() throws ClassNotFoundException, SQLException, IOException {
+	public void test9394028() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',
 				"‡a mixed chorus ‡e 1 ‡a organ ‡n 1 ‡p piano ‡n 1 ‡a bowed string ensemble ‡e 1 ‡2 lcmpt"));
@@ -73,7 +73,7 @@ public class InstrumentationTest {
 	}
 
 	@Test
-	public void test9301693() throws ClassNotFoundException, SQLException, IOException {
+	public void test9301693() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"382",'0','1',"‡v First work ‡a percussion ensemble ‡s 4 ‡2 lcmpt"));
 		rec.dataFields.add(new DataField(2,"382",'0','1',

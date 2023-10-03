@@ -17,7 +17,7 @@ public class LanguageTest {
 	SolrFieldGenerator gen = new Language();
 
 	@Test
-	public void test008() throws ClassNotFoundException, SQLException, IOException {
+	public void test008() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","830222c19771975cau      b    001 0 eng d"));
 		String expected =
@@ -28,7 +28,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void test008Chinese() throws ClassNotFoundException, SQLException, IOException {
+	public void test008Chinese() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","170202s2017    ch a          000 0 chi  "));
 		String expected =
@@ -38,7 +38,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void testLanguageNote() throws ClassNotFoundException, SQLException, IOException {
+	public void testLanguageNote() throws SQLException, IOException {
 		DataField f = new DataField(3,"546");
 		f.subfields.add(new Subfield(1, 'a', "Free text language note"));
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -48,7 +48,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void test008WithNote() throws ClassNotFoundException, SQLException, IOException {
+	public void test008WithNote() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","830222c19771975cau      b    001 0 eng d"));
 		DataField f = new DataField(3,"546");
@@ -62,7 +62,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void test041a() throws ClassNotFoundException, SQLException, IOException {
+	public void test041a() throws SQLException, IOException {
 		DataField f = new DataField(3,"041");
 		f.subfields.add(new Subfield(1, 'a', "spa"));
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -75,7 +75,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void test008With041a() throws ClassNotFoundException, SQLException, IOException {
+	public void test008With041a() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","070529s2017    vm a   e      000 0 vie d"));
 		DataField f = new DataField(3,"041");
@@ -88,7 +88,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void testAllThree() throws ClassNotFoundException, SQLException, IOException {
+	public void testAllThree() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.controlFields.add(new ControlField(1,"008","161212s2016    ii 158            vlhin d"));
 		DataField f = new DataField(3,"041");
@@ -108,7 +108,7 @@ public class LanguageTest {
 	}
 
 	@Test
-	public void testSubfieldFiltering() throws ClassNotFoundException, SQLException, IOException {
+	public void testSubfieldFiltering() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		DataField f = new DataField(3,"041");
 		f.subfields.add(new Subfield(1, 'a', "hin")); // display & facet
@@ -125,7 +125,7 @@ public class LanguageTest {
 
 	@Test
 	public void concatenatedLanguageCodesInSingleField()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "115969";
 		rec.controlFields.add(new ControlField(1,"008","741119c19669999hu fr p       0   a0mul u"));
@@ -143,7 +143,7 @@ public class LanguageTest {
 
 	@Test
 	public void emptyLanguageNote()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This language note isn't empty, precisely, but due to the wrong subfield code
 		// being used, it has no note data to display.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);

@@ -45,7 +45,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class AuthorTitle implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -60,8 +60,7 @@ public class AuthorTitle implements SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 
 		List<SolrField> sfs = new ArrayList<>();
 		DataField title = null, title_vern = null, uniform_title = null, uniform_title_vern = null;

@@ -15,7 +15,7 @@ public class ISBNTest {
 	SolrFieldGenerator gen = new ISBN();
 
 	@Test
-	public void testOldStyle() throws ClassNotFoundException, SQLException, IOException {
+	public void testOldStyle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 12344567 (pbk.)"));
 		String expected =
@@ -25,7 +25,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testOldStyleC() throws ClassNotFoundException, SQLException, IOException {
+	public void testOldStyleC() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 9782709656825 (pbk.) : ‡c 19,00 EUR"));
 		String expected =
@@ -36,7 +36,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testOldStyleColonSeparatedSubfieldQs() throws ClassNotFoundException, SQLException, IOException {
+	public void testOldStyleColonSeparatedSubfieldQs() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 9789712726187 ‡q (book 3 : ‡q np)"));
 		String expected =
@@ -47,7 +47,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testOldStyle880() throws ClassNotFoundException, SQLException, IOException {
+	public void testOldStyle880() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, 1, "020", ' ',' ',"‡6 880-01 ‡a 4892032867 (v. 2)", false));
 		rec.dataFields.add(new DataField( 2, 1, "020", ' ',' ',"‡6 020-01/$1 ‡a 4892032867 (中卷)", true));
@@ -62,7 +62,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testNewerStyle() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewerStyle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 12344567 ‡q (pbk.)"));
 		String expected =
@@ -71,14 +71,14 @@ public class ISBNTest {
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString());
 	}
 	@Test
-	public void testNewerStyleZ() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewerStyleZ() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡z 12344567 ‡q (pbk.)"));
 		assertEquals( "", this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
 	@Test
-	public void testNewerStyle2q() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewerStyle2q() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 12344567 ‡q (pbk.; ‡q ebook)"));
 		String expected =
@@ -88,7 +88,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testNewerStyle880() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewerStyle880() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, 1, "020", ' ',' ',"‡6 880-01 ‡a 9789860433265", false));
 		rec.dataFields.add(new DataField( 2, 1, "020", ' ',' ',"‡6 020-01/$1 ‡a 9789860433265 ‡q (平裝)", true));
@@ -103,7 +103,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testNewestStyle() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewestStyle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 12344567 ‡q pbk."));
 		String expected =
@@ -113,7 +113,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testNewestStyle2q() throws ClassNotFoundException, SQLException, IOException {
+	public void testNewestStyle2q() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 12344567 ‡q pbk. ‡q ebook"));
 		String expected =
@@ -123,7 +123,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void testEmptySubfieldQ() throws ClassNotFoundException, SQLException, IOException {
+	public void testEmptySubfieldQ() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 1907427139 ‡q ‡q (pt. 2 ; ‡q hardback)"));
 		String expected =
@@ -135,7 +135,7 @@ public class ISBNTest {
 	}
 
 	@Test
-	public void endingWithX() throws ClassNotFoundException, SQLException, IOException {
+	public void endingWithX() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2009547";
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 093899462X"));
@@ -148,7 +148,7 @@ public class ISBNTest {
 
 
 	@Test //no attempt to convert invalid ISBN to other format
-	public void invalid() throws ClassNotFoundException, SQLException, IOException {
+	public void invalid() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2009547";
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 09389462X"));
@@ -184,7 +184,7 @@ public class ISBNTest {
 	}
 
 	@Test // prune invalid pound sign, may not be valid isbn
-	public void invalidPound() throws ClassNotFoundException, SQLException, IOException {
+	public void invalidPound() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "2009547";
 		rec.dataFields.add(new DataField( 1, "020", ' ',' ',"‡a 0852980450£12.00"));
