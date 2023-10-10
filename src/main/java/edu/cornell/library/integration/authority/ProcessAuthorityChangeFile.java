@@ -51,9 +51,13 @@ public class ProcessAuthorityChangeFile {
 		requiredArgs.add("blacklightSolrUrl");
 		Config config = Config.loadConfig(requiredArgs);
 
+		Map<String, String> env = System.getenv();
+		env.forEach((key, value) -> System.out.println(key + " : " + value));
+
 		String firstFile = "unname21.08";
 		String lastFile =  "unname21.08";
 
+		System.exit(0);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				PreparedStatement getOldRecordStmt = authority.prepareStatement(
 						"SELECT marc21 FROM voyagerAuthority WHERE id = ?");
