@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.authority;
 
+import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -52,12 +53,33 @@ public class ProcessAuthorityChangeFile {
 		Config config = Config.loadConfig(requiredArgs);
 
 		Map<String, String> env = System.getenv();
-		env.forEach((key, value) -> System.out.println(key + " : " + value));
+		String fileId = env.get("box_file_id");
+		String fileName = env.get("box_file_name");
+		String requesterName = env.get("box_user_name");
+		String requesterEmail = env.get("box_user_login");
+		System.out.printf("file: %s ; %s\nrequester %s <%s>\n", fileId, fileName, requesterName, requesterEmail);
 
-		String firstFile = "unname21.08";
-		String lastFile =  "unname21.08";
+		String firstFile = null;
+		String lastFile = null;
+		String outputFile = null;
 
-		System.exit(0);
+		String fileContent = getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024);
+
+		String[] lines = fileContent.split("\\r?\\n");
+		for (String line : lines ) {
+			System.out.printf("[%s]\n",line);
+		}
+		if ( lines.length > 1 ) {
+			firstFile = lines[0];
+			lastFile = lines[1];
+			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+".json";
+		} else {
+			firstFile = lines[0];
+			lastFile = firstFile;
+			outputFile = firstFile+".json";
+		}
+		System.out.printf("Generating file %s\n", outputFile);
+
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				PreparedStatement getOldRecordStmt = authority.prepareStatement(
 						"SELECT marc21 FROM voyagerAuthority WHERE id = ?");
@@ -67,11 +89,8 @@ public class ProcessAuthorityChangeFile {
 						"  FROM authorityUpdate"+
 						" WHERE updateFile BETWEEN ? AND ?"+
 						" ORDER BY updateFile, positionInFile");
-				BufferedWriter jsonWriter = Files.newBufferedWriter(Paths.get(firstFile+".json"))) {
-//			BufferedWriter jsonWriter = Files.newBufferedWriter(
-//					Paths.get(firstFile+"-"+lastFile.substring(lastFile.length()-2)+".json"))) {
+				BufferedWriter jsonWriter = Files.newBufferedWriter(Paths.get(outputFile))) {
 
-			
 			jsonWriter.append("[\n");
 			boolean writtenJson = false;
 

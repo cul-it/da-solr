@@ -69,6 +69,11 @@
       <version>0.9.5.4</version>
     </dependency>
     <dependency>
+      <groupId>com.box</groupId>
+      <artifactId>box-java-sdk</artifactId>
+      <version>4.6.0</version>
+    </dependency>
+    <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
         <version>5.8.1</version>
