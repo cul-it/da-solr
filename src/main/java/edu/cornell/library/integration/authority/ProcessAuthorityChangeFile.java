@@ -246,7 +246,7 @@ public class ProcessAuthorityChangeFile {
 				jsonWriter.flush();
 				jsonWriter.close();
 
-				uploadFileToBox(env.get("boxKeyFile"),"test json",outputFile);
+				uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
 				registerReportCompletion(config,firstFile,lastFile, requesterName, requesterEmail,outputFile);
 				System.out.println(count);
 				System.out.println("Entailed bibs:");
