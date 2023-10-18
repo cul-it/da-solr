@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.Normalizer;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -58,6 +59,9 @@ public class ProcessAuthorityChangeFile {
 		String requesterName = env.get("box_user_name");
 		String requesterEmail = env.get("box_user_login");
 		System.out.printf("file: %s ; %s\nrequester %s <%s>\n", fileId, fileName, requesterName, requesterEmail);
+
+		checkForNewAuthorityFiles( config );
+
 
 		String firstFile = null;
 		String lastFile = null;
@@ -245,6 +249,21 @@ public class ProcessAuthorityChangeFile {
 				for (String entailedBib : entailedBibs)
 					System.out.println(entailedBib);
 			}
+		}
+	}
+
+	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
+
+		try (Connection authdb = config.getDatabaseConnection("Authority");
+				Statement stmt = authdb.createStatement();
+				){
+			int updateCount = stmt.executeUpdate(
+					"UPDATE updateCursor SET current_to_date = NOW()"+
+					" WHERE cursor_name = 'checkedLCAuthFTP'"+
+					"   AND current_to_date < DATE_SUB(NOW(), INTERVAL '1' HOUR)");
+			if ( updateCount == 0 )
+				return; // Not checking server - already checked within the last hour
+			RetrieveAuthorityUpdateFiles.checkLCAuthoritiesFTP(config);
 		}
 	}
 

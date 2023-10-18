@@ -79,6 +79,12 @@ public class Config {
 		return null;
 	}
 
+	public String getAuthorityDataDirectory() {
+		if (this.values.containsKey("authorityDataDirectory"))
+			return this.values.get("authorityDataDirectory");
+		return null;
+	}
+
 	public String getAuthorityChangeFileDirectory() {
 		if (this.values.containsKey("authorityChangeFileDirectory"))
 			return this.values.get("authorityChangeFileDirectory");
@@ -140,6 +146,14 @@ public class Config {
 			return this.values.get("annexFlipsUrl");
 		}
 		return null;
+	}
+
+	public Map<String,String> getServerConfig(String serverPrefix) {
+		Map<String,String> args = new HashMap<>();
+		for (String key : this.values.keySet())
+			if (key.startsWith(serverPrefix))
+				args.put(key.replaceFirst(serverPrefix, ""), values.get(key));
+		return args;
 	}
 
 	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
