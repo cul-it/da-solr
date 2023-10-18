@@ -50,11 +50,13 @@ public class RetrieveAuthorityUpdateFiles {
 			if ( ! ftp.login(ftpConfig.get("User"), ftpConfig.get("Password")) ) {
 				System.out.println("FTP login to LC Authorities failed.");
 				ftp.disconnect(); 
-			} 
+			}
+			System.out.println("Connected and logged into FTP.");
 			ftp.setFileType(FTP.BINARY_FILE_TYPE); 
 			ftp.enterLocalPassiveMode(); 
 
 			String authDir = config.getAuthorityDataDirectory();
+			System.out.printf("local auth directory: %s\n",authDir);
 			importNewChanges( ftp, authdb, authDir, ftpConfig.get("NamesDir"), stmt);
 			importNewChanges( ftp, authdb, authDir, ftpConfig.get("SubjectsDir"), stmt);
 			ftp.disconnect();
@@ -72,10 +74,12 @@ public class RetrieveAuthorityUpdateFiles {
 	private static void importNewChanges(
 			FTPClient ftp, Connection authority, String authDir, String ftpDir, PreparedStatement stmt)
 			throws IOException, SQLException {
+		System.out.printf("Changing to remote folder: %s\n",ftpDir);
 		ftp.changeWorkingDirectory(ftpDir);
 		FTPFile[] ftpFiles = ftp.listFiles();
 		for (FTPFile file : ftpFiles) {
 			if ( ! file.isFile() ) continue;
+			System.out.println(file);
 			String name = file.getName();
 			Matcher m = yy.matcher(name);
 			if ( ! m.find() ) continue;
@@ -83,13 +87,14 @@ public class RetrieveAuthorityUpdateFiles {
 			stmt.setTimestamp(2, new Timestamp(file.getTimestamp().getTimeInMillis() ));
 			String year = ( m.group(1).startsWith("9") ) ? "19"+m.group(1) : "20"+m.group(1);
 			String path = String.join(File.separator, authDir, year, name );
+			System.out.printf("Checking for existance of %s.\n",path);
 			File f = new File(path);
 			if ( f.exists() ) {
 //				stmt.setObject(3, null);
 //				stmt.executeUpdate();
 				continue;
 			}
-			System.out.println(path);
+			System.out.println("Not present. Downloading.");
 
 			Files.createFile(f.toPath());
 			try (OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
@@ -102,6 +107,7 @@ public class RetrieveAuthorityUpdateFiles {
 					throw new IOException(String.format("Error retrieving file '%s' from FTP.", name));
 				out.flush();
 			}
+			System.out.println("Parsing MARC file.");
 			Map<MarcRecord,String> records =
 					LCAuthorityUpdateFile.readFile(f.toPath());
 			System.out.printf("%d records retrieved from file %s.\n",records.size(),name);
