@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.utilities;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -10,6 +11,8 @@ import java.text.StringCharacterIterator;
 import com.box.sdk.BoxConfig;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
+import com.box.sdk.BoxFolder;
+import com.box.sdk.BoxItem;
 import com.box.sdk.IAccessTokenCache;
 import com.box.sdk.InMemoryLRUAccessTokenCache;
 
@@ -35,6 +38,29 @@ public class BoxInteractions {
 		ByteArrayOutputStream content = new ByteArrayOutputStream();
 		file.download(content);
 		return content.toString();
+	}
+
+	public static void uploadFileToBox( String keyFile, String boxFolder, String filename ) throws IOException {
+		Reader reader = new FileReader(keyFile);
+		BoxConfig boxConfig = BoxConfig.readFrom(reader);
+		IAccessTokenCache tokenCache = new InMemoryLRUAccessTokenCache(100);
+		BoxDeveloperEditionAPIConnection api = BoxDeveloperEditionAPIConnection.
+				getAppEnterpriseConnection(boxConfig, tokenCache);
+
+		BoxFolder rootFolder = BoxFolder.getRootFolder(api);
+		BoxFolder outputFolder = null;
+		for (BoxItem.Info itemInfo : rootFolder) {
+			System.out.format("[%s] %s\n", itemInfo.getID(), itemInfo.getName());
+			if (itemInfo.getName().equals(boxFolder))
+				outputFolder = new BoxFolder(api,itemInfo.getID());
+		}
+		if (outputFolder == null)
+			throw new IOException(String.format("Target folder on box, '%s' not found.\n", boxFolder));
+
+		FileInputStream instream = new FileInputStream(filename);
+		outputFolder.uploadFile(instream, filename);
+		instream.close();
+		System.out.println("File uploaded.");
 	}
 
 	/**

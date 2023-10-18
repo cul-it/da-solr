@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
+import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -244,6 +245,8 @@ public class ProcessAuthorityChangeFile {
 				jsonWriter.append("]");
 				jsonWriter.flush();
 				jsonWriter.close();
+
+				uploadFileToBox(env.get("boxKeyFile"),"test json",outputFile);
 				System.out.println(count);
 				System.out.println("Entailed bibs:");
 				for (String entailedBib : entailedBibs)
@@ -259,10 +262,12 @@ public class ProcessAuthorityChangeFile {
 				){
 			int updateCount = stmt.executeUpdate(
 					"UPDATE updateCursor SET current_to_date = NOW()"+
-					" WHERE cursor_name = 'checkedLCAuthFTP'"+
+					" WHERE cursor_name = 'lcAuthUpda'"+
 					"   AND current_to_date < DATE_SUB(NOW(), INTERVAL '1' HOUR)");
-			if ( updateCount == 0 )
-				return; // Not checking server - already checked within the last hour
+			if ( updateCount == 0 ) {
+				System.out.println("Not checking FTP server for new LC auth updates twice in an hour.");
+				return;
+			}
 			RetrieveAuthorityUpdateFiles.checkLCAuthoritiesFTP(config);
 		}
 	}
