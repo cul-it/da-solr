@@ -16,10 +16,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -250,9 +253,7 @@ public class ProcessAuthorityChangeFile {
 				registerReportCompletion(authority,config.getServerConfig("authReportEmail"),
 						firstFile,lastFile, requesterName, requesterEmail,outputFile);
 				System.out.println(count);
-				System.out.println("Entailed bibs:");
-				for (String entailedBib : entailedBibs)
-					System.out.println(entailedBib);
+				System.out.println("Entailed bibs: "+entailedBibs.size());
 			}
 		}
 	}
@@ -270,14 +271,26 @@ public class ProcessAuthorityChangeFile {
 		System.out.printf("From: %s\n",authReportEmailConfig.get("From"));
 		System.out.printf("To: %s <%s>\n",toName, toEmail);
 		System.out.println();
+		String horizRow = "+-------------+-------------+-------------+";
 		try (PreparedStatement s = db.prepareStatement(
 				"select * from lcAuthorityFile where reportedDate is null order by updateFile");
 				ResultSet rs = s.executeQuery()) {
-			System.out.printf("| %10s | %8s | %8s |\n","FILE","POSTED DATE", "IMPORT DATE");
-			while (rs.next())
-				System.out.printf("| %10s | %11s | %11s |\n", rs.getString(1),rs.getTimestamp(2),rs.getTimestamp(3));
+			System.out.println(horizRow);
+			System.out.printf("| %11s | %11s | %11s |\n","FILE","POSTED DATE", "IMPORT DATE");
+			System.out.println(horizRow);
+			while (rs.next()) {
+				String posted = (rs.getTimestamp(2) == null) ? "" : humanDate(rs.getTimestamp(2));
+				String imported = (rs.getTimestamp(3) == null) ? "" : humanDate(rs.getTimestamp(3));
+				System.out.printf("| %11s | %11s | %11s |\n", rs.getString(1), posted, imported);
+			}
+			System.out.println(horizRow);
 		}
 	}
+
+	private static String humanDate( Timestamp ts ) {
+		return dateFormat.format( new Date(ts.getTime()) );
+	}
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma");
 
 	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
 
