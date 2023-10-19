@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.List;
 
 import com.box.sdk.BoxConfig;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
+import com.box.sdk.BoxFolder.Info;
 import com.box.sdk.BoxItem;
 import com.box.sdk.IAccessTokenCache;
 import com.box.sdk.InMemoryLRUAccessTokenCache;
@@ -58,8 +60,10 @@ public class BoxInteractions {
 			throw new IOException(String.format("Target folder on box, '%s' not found.\n", boxFolder));
 
 		FileInputStream instream = new FileInputStream(filename);
-		outputFolder.uploadFile(instream, filename);
+		BoxFile.Info boxFile = outputFolder.uploadFile(instream, filename);
 		instream.close();
+		List<Info> path = boxFile.getPathCollection();
+		for (Info i : path) System.out.println(i.getName()+" : "+i.getID());
 		System.out.println("File uploaded.");
 	}
 

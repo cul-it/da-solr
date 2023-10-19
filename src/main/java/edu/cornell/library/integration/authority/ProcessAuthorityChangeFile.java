@@ -80,11 +80,11 @@ public class ProcessAuthorityChangeFile {
 		if ( lines.length > 1 ) {
 			firstFile = lines[0];
 			lastFile = lines[1];
-			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+".json";
+			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+now()+".json";
 		} else {
 			firstFile = lines[0];
 			lastFile = firstFile;
-			outputFile = firstFile+".json";
+			outputFile = firstFile+now()+".json";
 		}
 		System.out.printf("Generating file %s\n", outputFile);
 
@@ -287,9 +287,13 @@ public class ProcessAuthorityChangeFile {
 		}
 	}
 
+	private static String now(  ) {
+		return nowFormat.format( new Date() );
+	}
 	private static String humanDate( Timestamp ts ) {
 		return dateFormat.format( new Date(ts.getTime()) );
 	}
+	private static SimpleDateFormat nowFormat = new SimpleDateFormat("_yyyy-mm-dd_kk-mm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma z");
 
 	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
