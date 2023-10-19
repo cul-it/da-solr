@@ -271,17 +271,17 @@ public class ProcessAuthorityChangeFile {
 		System.out.printf("From: %s\n",authReportEmailConfig.get("From"));
 		System.out.printf("To: %s <%s>\n",toName, toEmail);
 		System.out.println();
-		String horizRow = "+-------------+-------------+-------------+";
+		String horizRow = "+-"+"-".repeat(11)+"-+-"+"-".repeat(20)+"-+-"+"-".repeat(20)+"-+";
 		try (PreparedStatement s = db.prepareStatement(
 				"select * from lcAuthorityFile where reportedDate is null order by updateFile");
 				ResultSet rs = s.executeQuery()) {
 			System.out.println(horizRow);
-			System.out.printf("| %11s | %11s | %11s |\n","FILE","POSTED DATE", "IMPORT DATE");
+			System.out.printf("| %11s | %20s | %20s |\n","FILE","POSTED DATE", "IMPORT DATE");
 			System.out.println(horizRow);
 			while (rs.next()) {
 				String posted = (rs.getTimestamp(2) == null) ? "" : humanDate(rs.getTimestamp(2));
 				String imported = (rs.getTimestamp(3) == null) ? "" : humanDate(rs.getTimestamp(3));
-				System.out.printf("| %11s | %11s | %11s |\n", rs.getString(1), posted, imported);
+				System.out.printf("| %11s | %20s | %20s |\n", rs.getString(1), posted, imported);
 			}
 			System.out.println(horizRow);
 		}
@@ -290,7 +290,7 @@ public class ProcessAuthorityChangeFile {
 	private static String humanDate( Timestamp ts ) {
 		return dateFormat.format( new Date(ts.getTime()) );
 	}
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma z");
 
 	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
 
