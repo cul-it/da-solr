@@ -29,22 +29,20 @@ public class BuildLocalHathiFilesDB {
 		Date today = new Date();
 		Calendar rightNow = Calendar.getInstance();
 		String fullFile = fullHathiFilenameFormat.format(today);
-		System.out.println(fullFile);
 		filesToLoad.add(fullFile);
 		int dayOfMonth = rightNow.get(Calendar.DAY_OF_MONTH);
 		if ( dayOfMonth > 2 ) {
 			String updateFilePattern = updateHathiFilenameFormat.format(today);
-
 			for (int day = 2; day < dayOfMonth; day++ ) {
 				String updateFile = String.format(updateFilePattern, day);
-				System.out.println(updateFile);
 				filesToLoad.add(updateFile);
 			}
 		}
+		System.out.printf("%d files to load: [%s]\n", filesToLoad.size(), String.join(", ", filesToLoad));
 
 		try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
 			for (String fileToLoad : filesToLoad)
-				getFile(hathidb,hathifilesUrl,fileToLoad);
+				loadFile(hathidb,hathifilesUrl,fileToLoad);
 		}
 
 	}
@@ -52,7 +50,7 @@ public class BuildLocalHathiFilesDB {
 	private static SimpleDateFormat fullHathiFilenameFormat = new SimpleDateFormat("'hathi_full_'yyyyMM'01.txt.gz'");
 	private static SimpleDateFormat updateHathiFilenameFormat = new SimpleDateFormat("'hathi_upd_'yyyyMM'%02d.txt.gz'");
 
-	public static void getFile(Connection hathidb, String url, String filename) throws IOException, SQLException {
+	public static void loadFile(Connection hathidb, String url, String filename) throws IOException, SQLException {
 		URL website = new URL(url+filename);
 		System.out.printf("Loading file %s\n", filename);
 		try (InputStream is = website.openStream();
