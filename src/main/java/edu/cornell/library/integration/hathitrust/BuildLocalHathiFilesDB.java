@@ -12,7 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import edu.cornell.library.integration.utilities.Config;
@@ -76,7 +78,7 @@ public class BuildLocalHathiFilesDB {
 			while ((line = in.readLine()) != null) {
 				String[] columns = line.split("\\t");
 				String Volume_Identifier = columns[0];
-				String Source_Inst_Record_Number = columns[6];
+				String Source_Inst_Record_Number = dedupeList(columns[6]);
 				String OCLC_Numbers = columns[7];
 				String Author = (columns.length > 25)?columns[25]:null;
 
@@ -121,7 +123,7 @@ public class BuildLocalHathiFilesDB {
 
 				deleteSourceNo.setString(1, Volume_Identifier);
 				deleteSourceNo.executeUpdate();
-				String[] sourcenos = Source_Inst_Record_Number.split(", *");
+				String[] sourcenos = Source_Inst_Record_Number.split(",");
 				for (String sourceno : sourcenos) {
 					if ( sourceno.isBlank() ) continue;
 					insertSourceNo.setString(1, Volume_Identifier);
@@ -131,5 +133,11 @@ public class BuildLocalHathiFilesDB {
 			}
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
 		}
+	}
+
+	private static String dedupeList(String list) {
+		Set<String> after = new LinkedHashSet<>();
+		for (String s : list.split(", *")) after.add(s);
+		return String.join(",",after);
 	}
 }
