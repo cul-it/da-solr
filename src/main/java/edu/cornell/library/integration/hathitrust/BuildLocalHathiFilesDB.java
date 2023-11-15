@@ -7,14 +7,19 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import edu.cornell.library.integration.utilities.Config;
@@ -26,8 +31,31 @@ public class BuildLocalHathiFilesDB {
 		requiredArgs.add("hathifilesUrl");
 		Config config = Config.loadConfig(requiredArgs);
 		String hathifilesUrl = config.getHathifilesUrl();
-		List<String> filesToLoad = new ArrayList<>();
 
+		// INCREMENTAL DATABASE UPDATE
+		Map<String, String> env = System.getenv();
+		String dayParam = env.get("day");
+		if ( dayParam != null ) {
+			String filename = null;
+			if (dayParam.equals("yesterday")) {
+				Date yesterday = new Date(System.currentTimeMillis()-(24*60*60*1000));//now minus 1 day in milliseconds
+				filename = yesterdayHathiFilenameFormat.format(yesterday);
+			} else {
+				Matcher m = dateMatcher.matcher(dayParam);
+				if ( ! m.matches() ) {
+					System.out.printf("Day paramter '%s' does not match expected format.\n",dayParam);
+					System.exit(1);
+				}
+				filename = String.format(incrementalHathiFilenameFormat, dayParam);
+			}
+			try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
+				loadFile(hathidb,hathifilesUrl,filename);
+			}
+			System.exit(0);
+		}
+
+		// FULL DATABASE BUILD
+		List<String> filesToLoad = new ArrayList<>();
 		Date today = new Date();
 		Calendar rightNow = Calendar.getInstance();
 		String fullFile = fullHathiFilenameFormat.format(today);
@@ -43,14 +71,29 @@ public class BuildLocalHathiFilesDB {
 		System.out.printf("%d files to load: [%s]\n", filesToLoad.size(), String.join(", ", filesToLoad));
 
 		try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
+			confirmDbPresentAndEmpty(hathidb);
 			for (String fileToLoad : filesToLoad)
 				loadFile(hathidb,hathifilesUrl,fileToLoad);
 		}
 
 	}
 
+	private static void confirmDbPresentAndEmpty(Connection hathidb) throws SQLException {
+		try (Statement stmt = hathidb.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM raw_hathi");) {
+			while ( rs.next() )
+				if (rs.getInt(1) > 0 ) {
+					System.out.println("Can't do full database reload on populated database. Point config at a new db space.");
+					System.exit(2);
+				}
+		}
+	}
+
 	private static SimpleDateFormat fullHathiFilenameFormat = new SimpleDateFormat("'hathi_full_'yyyyMM'01.txt.gz'");
 	private static SimpleDateFormat updateHathiFilenameFormat = new SimpleDateFormat("'hathi_upd_'yyyyMM'%02d.txt.gz'");
+	private static SimpleDateFormat yesterdayHathiFilenameFormat = new SimpleDateFormat("'hathi_upd_'yyyyMMdd'.txt.gz'");
+	private static String incrementalHathiFilenameFormat = "hathi_upd_%s.txt.gz";
+	static Pattern dateMatcher = Pattern.compile("\\d{8}");
 
 	public static void loadFile(Connection hathidb, String url, String filename) throws IOException, SQLException {
 		URL website = new URL(url+filename);
@@ -130,6 +173,7 @@ public class BuildLocalHathiFilesDB {
 					insertSourceNo.setString(2, sourceno.trim());
 					insertSourceNo.executeUpdate();
 				}
+				count++;
 			}
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
 		}
