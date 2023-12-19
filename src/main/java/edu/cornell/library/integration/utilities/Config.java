@@ -91,6 +91,13 @@ public class Config {
 		return null;
 	}
 
+	public String getHathifilesUrl() {
+		if (this.values.containsKey("hathifilesUrl")) {
+			return this.values.get("hathifilesUrl");
+		}
+		return null;
+	}
+
 
 	public String getBlacklightUrl() {
 		if (this.values.containsKey("blacklightUrl")) {
