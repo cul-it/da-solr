@@ -293,7 +293,7 @@ public class ProcessAuthorityChangeFile {
 	private static String humanDate( Timestamp ts ) {
 		return dateFormat.format( new Date(ts.getTime()) );
 	}
-	private static SimpleDateFormat nowFormat = new SimpleDateFormat("_yyyy-mm-dd_kk-mm");
+	private static SimpleDateFormat nowFormat = new SimpleDateFormat("_yyMMdd-kkmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma z");
 
 	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
