@@ -56,6 +56,7 @@ public class ProcessAuthorityChangeFile {
 		requiredArgs.add("blacklightUrl");
 		requiredArgs.add("blacklightSolrUrl");
 		Config config = Config.loadConfig(requiredArgs);
+		config.setDatabasePoolsize("Authority", 2);
 
 		Map<String, String> env = System.getenv();
 		String fileId = env.get("box_file_id");
