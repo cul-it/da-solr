@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.6"; }
+	public String getVersion() { return "2.7"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -88,22 +88,31 @@ public class Subject implements SolrFieldGenerator {
 				h.vocab = HeadingVocab.LCJSH;
 				break;
 			case '2':
+				h.vocab = HeadingVocab.MESH;
+				break;
 			case '3':
+				h.vocab = HeadingVocab.AGROVOC;
+				break;
 			case '6':
 				h.vocab = HeadingVocab.OTHER;
 				break;
 			case '7':
 				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
-						if (sf.value.equalsIgnoreCase("fast")
-								|| sf.value.equalsIgnoreCase("fast/NIC")
-								|| sf.value.equalsIgnoreCase("fast/NIC/NAC")) {
+						switch (sf.value.toLowerCase()) {
+						case "fast":
+						case "fast/nic":
+						case "fast/nic/nac":
 							recordHasFAST = true;
 							h.vocab = HeadingVocab.FAST;
-						} else if (sf.value.equalsIgnoreCase("lcgft")) {
-							h.vocab = HeadingVocab.LCGFT;
-						} else {
-							h.vocab = HeadingVocab.OTHER;
+							break;
+						case "lcgft":   h.vocab = HeadingVocab.LCGFT;   break;
+						case "lcsh":    h.vocab = HeadingVocab.LC;      break;
+						case "aat":     h.vocab = HeadingVocab.AAT;     break;
+						case "agrovoc": h.vocab = HeadingVocab.AGROVOC; break;
+						case "homoit":  h.vocab = HeadingVocab.HOMOIT;  break;
+						case "local":   h.vocab = HeadingVocab.LOCAL;   break;
+						default: h.vocab = HeadingVocab.OTHER;
 						}
 					}
 				break;
@@ -308,16 +317,19 @@ public class Subject implements SolrFieldGenerator {
 				if (h.vocab.equals(HeadingVocab.FAST)
 						|| (h.vocab.equals(HeadingVocab.LCGFT) && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
-				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
+				if ( ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
+					&& ! h.vocab.equals(HeadingVocab.OTHER))
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
 			for (final BrowseValue value: values_browse)
 				if (ht != null) {
-					if ( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
+					if (( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
+							&& ! h.vocab.equals(HeadingVocab.OTHER) )
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",value.display));
 					String filing = getFilingForm(value.display);
-					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
+					if (! h.vocab.equals(HeadingVocab.OTHER))
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
 					if ( ! value.is880 && ! isCJK(value.canon)) {
 						String vocab = h.vocab.name().toLowerCase();
@@ -332,7 +344,9 @@ public class Subject implements SolrFieldGenerator {
 				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));
 			}
 
-			if ( ! h.is653 && ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
+			if ( ! h.is653 &&
+					! h.vocab.equals(HeadingVocab.OTHER) &&
+					( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)
@@ -413,5 +427,5 @@ public class Subject implements SolrFieldGenerator {
 		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
-	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, OTHER, UNK; }
+	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, LOCAL, OTHER, UNK; }
 }
