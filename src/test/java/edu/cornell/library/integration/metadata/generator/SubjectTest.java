@@ -361,25 +361,19 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		// related to "bisacsh" vocab term
 		"subject_t: POLITICAL SCIENCE > American Government\n"+ 
-		"subject_topic_facet: POLITICAL SCIENCE\n" +
-		"subject_topic_filing: political science\n" +
 		"subject_topic_other_facet: POLITICAL SCIENCE\n" +
 		"subject_topic_other_filing: political science\n"+ 
-		"subject_topic_facet: POLITICAL SCIENCE > American Government\n"+ 
-		"subject_topic_filing: political science 0000 american government\n"+ 
 		"subject_topic_other_facet: POLITICAL SCIENCE > American Government\n"+ 
 		"subject_topic_other_filing: political science 0000 american government\n"+ 
 		"subject_sub_other_facet: American Government\n"+
 		"subject_sub_other_filing: american government\n"+
 
+		// related to "sears" vocab term
 		"subject_t: Undocumented immigrants > United States\n" +
-		"subject_topic_facet: Undocumented immigrants\n" +
-		"subject_topic_filing: undocumented immigrants\n" + 
 		"subject_topic_other_facet: Illegal aliens\n" + 
 		"subject_topic_other_filing: illegal aliens\n" + 
-		"subject_topic_facet: Undocumented immigrants > United States\n" + 
-		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
 		"subject_topic_other_facet: Illegal aliens > United States\n" + 
 		"subject_topic_other_filing: illegal aliens 0000 united states\n" + 
 		"subject_sub_other_facet: United States\n"+
@@ -410,7 +404,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"United States\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Emigration and immigration\",\"authorized\":false},{\"subject\":\"Government policy.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"Emigration and immigration law\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":true}]\n" + 
-		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
+//		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"Immigration law\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
 
 		"subject_display: Undocumented immigrants > United States\n" + 
@@ -419,7 +413,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_display: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_display: United States > Emigration and immigration > Government policy\n" + 
 		"subject_display: Emigration and immigration law > United States\n" + 
-		"subject_display: POLITICAL SCIENCE > American Government\n" + 
+//		"subject_display: POLITICAL SCIENCE > American Government\n" + 
 		"subject_display: Immigration law > United States\n" + 
 
 		"authority_subject_t: Law, Immigration\n" + 
@@ -451,18 +445,12 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test // Should not populate vocabulary-specific fields intended for authority control
+	// And, now, also should not populate display and public facet fields due to untracked vocab
 	public void cjkIn6xx() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','7',"‡a 子部 ‡x 小說家類. ‡2 sk"));
 		String expected =
 		"subject_t: 子部 > 小說家類\n"+
-		"subject_topic_facet: 子部\n"+
-		"subject_topic_filing: 子部\n"+
-		"subject_topic_facet: 子部 > 小說家類\n"+
-		"subject_topic_filing: 子部 0000 小說家類\n"+
-		"subject_json: [{\"subject\":\"子部\",\"authorized\":false,\"type\":\"Topical Term\"},"
-		+ "{\"subject\":\"小說家類.\",\"authorized\":false}]\n"+
-		"subject_display: 子部 > 小說家類\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -500,6 +488,46 @@ public class SubjectTest extends DbBaseTest {
 		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
 		"subject_display: 張耒, 1054-1114 > Chronology\n"+
 		"subject_display: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test //Only the term with an unrecognized but specified vocab should be suppressed from display.
+	public void undisplayedVocabularies() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡2 unrec ‡a Unrecognized Vocab Term"));
+		rec.dataFields.add(new DataField(2,"650",' ','7',"‡2 aat ‡a Recognized Vocab Term"));
+		rec.dataFields.add(new DataField(3,"650",' ','4',"‡a Unspecified Vocab Term"));
+		rec.dataFields.add(new DataField(4,"650",' ','7',"‡a Unspecified Vocab Term B"));
+		String expected =
+		"subject_t: Unrecognized Vocab Term\n" +
+		"subject_topic_other_facet: Unrecognized Vocab Term\n" +
+		"subject_topic_other_filing: unrecognized vocab term\n" +
+
+		"subject_t: Recognized Vocab Term\n" +
+		"subject_topic_facet: Recognized Vocab Term\n" +
+		"subject_topic_filing: recognized vocab term\n" +
+		"subject_topic_aat_facet: Recognized Vocab Term\n" +
+		"subject_topic_aat_filing: recognized vocab term\n" +
+
+		"subject_t: Unspecified Vocab Term\n" +
+		"subject_topic_facet: Unspecified Vocab Term\n" +
+		"subject_topic_filing: unspecified vocab term\n" +
+		"subject_topic_unk_facet: Unspecified Vocab Term\n" +
+		"subject_topic_unk_filing: unspecified vocab term\n" +
+
+		"subject_t: Unspecified Vocab Term B.\n" +
+		"subject_topic_facet: Unspecified Vocab Term B.\n" +
+		"subject_topic_filing: unspecified vocab term b\n" +
+		"subject_topic_unk_facet: Unspecified Vocab Term B.\n" +
+		"subject_topic_unk_filing: unspecified vocab term b\n" +
+
+		"subject_json: [{\"subject\":\"Recognized Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Unspecified Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Unspecified Vocab Term B\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_display: Recognized Vocab Term\n" +
+		"subject_display: Unspecified Vocab Term\n" +
+		"subject_display: Unspecified Vocab Term B.\n" +
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
