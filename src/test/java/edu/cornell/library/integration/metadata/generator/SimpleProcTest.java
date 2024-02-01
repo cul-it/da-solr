@@ -188,7 +188,8 @@ public class SimpleProcTest {
 		rec.id = "7461";
 		assertEquals(
 				"donor_display: Goodkind\n" + 
-				"donor_display: Midland Friends\n",
+				"donor_display: Midland Friends\n" +
+				"donor_t: pfnd Goodkind Midland Friends\n",
 				this.gen.generateSolrFields(rec, null).toString());
 	}
 
