@@ -75,7 +75,10 @@ public class RetrieveAuthorityUpdateFiles {
 			FTPClient ftp, Connection authority, String authDir, String ftpDir, PreparedStatement stmt)
 			throws IOException, SQLException {
 		System.out.printf("Changing to remote folder: %s\n",ftpDir);
-		ftp.changeWorkingDirectory(ftpDir);
+		if ( ! ftp.isConnected() )
+			reconnectFtp(ftp,ftpDir);
+		else
+			ftp.changeWorkingDirectory(ftpDir);
 		FTPFile[] ftpFiles = ftp.listFiles();
 		for (FTPFile file : ftpFiles) {
 			if ( ! file.isFile() ) continue;
@@ -87,7 +90,6 @@ public class RetrieveAuthorityUpdateFiles {
 			stmt.setTimestamp(2, new Timestamp(file.getTimestamp().getTimeInMillis() ));
 			String year = ( m.group(1).startsWith("9") ) ? "19"+m.group(1) : "20"+m.group(1);
 			String path = String.join(File.separator, authDir, year, name );
-			System.out.printf("Checking for existance of %s.\n",path);
 			File f = new File(path);
 			if ( f.exists() ) {
 //				stmt.setObject(3, null);
@@ -95,14 +97,13 @@ public class RetrieveAuthorityUpdateFiles {
 				continue;
 			}
 			System.out.println("Not present. Downloading.");
+			File dir = new File(authDir+File.separator+year);
+			if (! dir.exists()) dir.mkdir();
 
 			Files.createFile(f.toPath());
 			try (OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-				if ( ! ftp.isConnected() ) {
-					ftp.connect(ftpConfig.get("Server"), 21); 
-					ftp.login(ftpConfig.get("User"), ftpConfig.get("Password"));
-					ftp.changeWorkingDirectory(ftpDir);
-				}
+				if ( ! ftp.isConnected() )
+					reconnectFtp(ftp,ftpDir);
 				if ( ! ftp.retrieveFile(name, out) )
 					throw new IOException(String.format("Error retrieving file '%s' from FTP.", name));
 				out.flush();
@@ -120,6 +121,11 @@ public class RetrieveAuthorityUpdateFiles {
 	}
 	private static Pattern yy = Pattern.compile(".*(\\d\\d).\\d\\d$");
 
+	private static void reconnectFtp(FTPClient ftp, String ftpDir) throws IOException {
+		ftp.connect(ftpConfig.get("Server"), 21); 
+		ftp.login(ftpConfig.get("User"), ftpConfig.get("Password"));
+		ftp.changeWorkingDirectory(ftpDir);
+	}
 	public static void main(String[] args) throws SQLException {
 		Config config = Config.loadConfig(Config.getRequiredArgsForDB("Authority"));
 		checkLCAuthoritiesFTP(config);
