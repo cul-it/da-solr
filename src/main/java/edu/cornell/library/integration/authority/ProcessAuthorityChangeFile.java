@@ -91,10 +91,10 @@ public class ProcessAuthorityChangeFile {
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				PreparedStatement getOldRecordStmt = authority.prepareStatement(
-						"SELECT marc21 FROM voyagerAuthority WHERE id = ?");
+						"SELECT marc21 FROM authorityUpdate WHERE id = ? AND moddate < ?");
 				HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
 				PreparedStatement getAuthStmt = authority.prepareStatement(
-						"SELECT marc21, changeType, updateFile, id, heading, undifferentiated, vocabulary"+
+						"SELECT *"+
 						"  FROM authorityUpdate"+
 						" WHERE updateFile BETWEEN ? AND ?"+
 						" ORDER BY updateFile, positionInFile");
@@ -137,25 +137,31 @@ public class ProcessAuthorityChangeFile {
 					MarcRecord oldR = null;
 					if ( lookForOldRecordVersion ) {
 						getOldRecordStmt.setString(1, id);
+						getOldRecordStmt.setDate(2, records.getDate("moddate"));
 						try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
 							while (rs.next()) {
 								byte[] marc = rs.getBytes(1);
-								oldR = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
-								String oldMainEntry = null;
-								for ( DataField f : oldR.dataFields ) if ( f.tag.startsWith("1") ) {
-									if ( f.tag.startsWith("18") )
-										oldMainEntry = f.concatenateSpecificSubfields(" > ", "vxyz");
-									else {
-										oldMainEntry = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
-										String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
-										if ( ! oldMainEntry.isEmpty() && ! dashed_terms.isEmpty() )
-											oldMainEntry += " > "+dashed_terms;
+								try {
+									oldR = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+									String oldMainEntry = null;
+									for ( DataField f : oldR.dataFields ) if ( f.tag.startsWith("1") ) {
+										if ( f.tag.startsWith("18") )
+											oldMainEntry = f.concatenateSpecificSubfields(" > ", "vxyz");
+										else {
+											oldMainEntry = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+											String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
+											if ( ! oldMainEntry.isEmpty() && ! dashed_terms.isEmpty() )
+												oldMainEntry += " > "+dashed_terms;
+										}
 									}
+									if ( ! mainEntry.equals(oldMainEntry) ) {
+										System.out.println(oldMainEntry);
+										json.put("oldHeading", oldMainEntry);
+									}
+								} catch(IllegalArgumentException e) {
+									e.printStackTrace();
 								}
-								json.put("oldHeading", oldMainEntry);
 							}
-						} catch ( IllegalArgumentException e) {
-							continue;
 						}
 					}
 
@@ -701,7 +707,7 @@ public class ProcessAuthorityChangeFile {
 				else 
 					diff.put(a+" ~~~", true);
 		if (diff.isEmpty())
-			return null;
+			return new StringBuilder();
 		StringBuilder sb = new StringBuilder();
 		for (Entry<String, Boolean> e : diff.entrySet())
 			sb.append((e.getValue()) ? "+ " : "- ").append(e.getKey()).append('\n');
