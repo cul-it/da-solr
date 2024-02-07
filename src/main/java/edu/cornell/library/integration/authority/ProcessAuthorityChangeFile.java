@@ -228,8 +228,7 @@ public class ProcessAuthorityChangeFile {
 								Map<String,Long> displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField);
 								for ( String displayForm : displayForms.keySet() ) {
-									if (displayForm.equals(mainEntry)
-											&& ! searchField.contains("_unk_")) continue;
+									if (displayForm.equals(mainEntry)) continue;
 									System.out.printf("%s relevant w/ %d instances (%s).\n",
 											displayForm,displayForms.get(displayForm),searchField);
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
