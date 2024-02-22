@@ -36,7 +36,7 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.5"; }
+	public String getVersion() { return "1.6"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","899","holdings"); }
@@ -274,11 +274,12 @@ public class URL implements SolrFieldGenerator {
 			String url = String.class.cast(link.get("url"));
 			String description = String.class.cast(link.get("description"));
 			if (relation.equals("bookplate")) {
-				if (link.containsKey("description"))
+				if (link.containsKey("description")) {
 					sfs.add( new SolrField ("donor_t", description ));
+					sfs.add( new SolrField ("donor_display", description ));
+				}
 				sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
-			}
-			if (relation.equals("access")) {
+			} else if (relation.equals("access")) {
 				link.remove("relation");
 				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 				mapper.writeValue(jsonstream, link);
