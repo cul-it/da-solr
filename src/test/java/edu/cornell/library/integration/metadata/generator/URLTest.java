@@ -202,9 +202,8 @@ public class URLTest {
 
 		String expected =
 		"donor_t: From the Estate of Charles A. Leslie.\n"+
-		"donor_s: DNR00450\n"+
-		"url_bookplate_display: http://plates.library.cornell.edu/donor/DNR00450|From the Estate of Charles A. Leslie.\n"+
-		"notes_t: From the Estate of Charles A. Leslie.\n";
+		"donor_display: From the Estate of Charles A. Leslie.\n"+
+		"donor_s: DNR00450\n";
 
 		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		marc.folioHoldings = holdings;
