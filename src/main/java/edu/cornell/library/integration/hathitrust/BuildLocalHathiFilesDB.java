@@ -75,7 +75,7 @@ public class BuildLocalHathiFilesDB {
 		System.out.printf("%d files to load: [%s]\n", filesToLoad.size(), String.join(", ", filesToLoad));
 
 		try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
-			confirmDbPresentAndEmpty(hathidb);
+			confirmDbPresentAndEmpty(hathidb, dbPrefixes);
 			for (String fileToLoad : filesToLoad)
 				loadFile(hathidb,hathifilesUrl,fileToLoad,dbPrefixes);
 		}
@@ -175,9 +175,10 @@ public class BuildLocalHathiFilesDB {
 		return prefixes;
 	}
 
-	private static void confirmDbPresentAndEmpty(Connection hathidb) throws SQLException {
+	private static void confirmDbPresentAndEmpty(Connection hathidb, List<String> prefixes) throws SQLException {
+		for (String prefix : prefixes)
 		try (Statement stmt = hathidb.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM raw_hathi");) {
+				ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM "+prefix+"raw_hathi");) {
 			while ( rs.next() )
 				if (rs.getInt(1) > 0 ) {
 					System.out.println("Can't do full database reload on populated database. Point config at a new db space.");
