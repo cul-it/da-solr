@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.processing;
+package edu.cornell.library.integration.hathitrust;
 
 import java.io.IOException;
 import java.util.ArrayList;

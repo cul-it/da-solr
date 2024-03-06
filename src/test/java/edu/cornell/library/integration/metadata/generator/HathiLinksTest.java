@@ -8,28 +8,31 @@ import java.sql.SQLException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class HathiLinksTest {
-
+public class HathiLinksTest extends DbBaseTest {
 	SolrFieldGenerator gen = new HathiLinks();
-	static Config config = null;
+
+//	@BeforeClass
+//	public static void setup() {
+//		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+//	}
 
 	@BeforeClass
-	public static void setup() {
-		config = Config.loadConfig(Config.getRequiredArgsForDB("Hathi"));
+	public static void setup() throws IOException, SQLException {
+		setup("Hathi");
 	}
 
 	@Test
-	public void testNoHathiLink() throws SQLException, IOException, ClassNotFoundException {
+	public void testNoHathiLink() throws SQLException, IOException {
 		assertEquals("",this.gen.generateSolrFields(
 				new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC),config).toString());
 	}
 
 	@Test
-	public void testTitleLink() throws SQLException, IOException, ClassNotFoundException {
+	public void testTitleLink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "318";
 		String expected =
@@ -42,7 +45,7 @@ public class HathiLinksTest {
 	}
 
 	@Test
-	public void testVolumeLink() throws SQLException, IOException, ClassNotFoundException {
+	public void testVolumeLink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "178";
 		String expected =
@@ -54,7 +57,7 @@ public class HathiLinksTest {
 	}
 /*
 	@Test
-	public void testRestrictedLink() throws SQLException, IOException, ClassNotFoundException {
+	public void testRestrictedLink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "4";
 		String expected =
@@ -76,7 +79,7 @@ public class HathiLinksTest {
 	}
 
 	@Test
-	public void blockEtasLinkWhenNobody() throws SQLException, IOException, ClassNotFoundException {
+	public void blockEtasLinkWhenNobody() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "101888";
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
@@ -84,14 +87,14 @@ public class HathiLinksTest {
 */
 
 	@Test
-	public void blockPublicDomainLinkWhenPrivate() throws SQLException, IOException, ClassNotFoundException {
+	public void blockPublicDomainLinkWhenPrivate() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "3776236";
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
-	public void testMicrosoftLSDILink() throws SQLException, IOException, ClassNotFoundException {
+	public void testMicrosoftLSDILink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "1460864";
 		String expected =
@@ -104,7 +107,7 @@ public class HathiLinksTest {
 	}
 /*
 	@Test
-	public void etaLink() throws ClassNotFoundException, SQLException, IOException {
+	public void etaLink() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "1000002";
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)19326335"));
@@ -123,7 +126,7 @@ public class HathiLinksTest {
 	}
 */
 	@Test
-	public void emptyOCLC() throws ClassNotFoundException, SQLException, IOException {
+	public void emptyOCLC() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.id = "8396569";
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)"));
@@ -131,9 +134,25 @@ public class HathiLinksTest {
 	}
 
 	@Test
-	public void oddbehavior() throws SQLException, IOException, ClassNotFoundException {
+	public void oddbehavior() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
 		rec.dataFields.add(new DataField(1,"035",' ',' ',"‡a (OCoLC)61353090"));
 		System.out.println(this.gen.generateSolrFields(rec, config).toString());
+	}
+	
+	@Test
+	public void testMultipleSourceInstRecNum() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord( MarcRecord.RecordType.BIBLIOGRAPHIC );
+		rec.id = "10519";
+		String expected =
+		"notes_t: HathiTrust\n"+
+		"url_access_json: {\"description\":\"HathiTrust\","
+		+ "\"url\":\"http://hdl.handle.net/2027/coo.31924000030001\"}\n"+
+		"online: Online\n"+
+		"hathi_title_data: 102756782\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+		
+		rec.id = "939641";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 }

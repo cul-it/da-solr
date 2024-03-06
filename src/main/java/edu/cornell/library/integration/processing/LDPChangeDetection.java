@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.LDPRecordLists;
 import edu.cornell.library.integration.folio.OkapiClient;
 import edu.cornell.library.integration.utilities.ComparisonLists;
 import edu.cornell.library.integration.utilities.Config;
@@ -25,10 +24,8 @@ public class LDPChangeDetection {
 	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
 
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
-		requiredArgs.addAll(Config.getRequiredArgsForDB("LDP"));
 		Config config = Config.loadConfig(requiredArgs);
-		try (Connection ldp = config.getDatabaseConnection("LDP");
-			  Connection inventory = config.getDatabaseConnection("Current");
+		try (Connection inventory = config.getDatabaseConnection("Current");
 			  PreparedStatement queueDelete = inventory.prepareStatement
 				("INSERT INTO deleteQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',NOW())");
 			  PreparedStatement queueAvail = inventory.prepareStatement
@@ -37,12 +34,6 @@ public class LDPChangeDetection {
 				("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")) {
 
 			OkapiClient folio = config.getOkapi("Folio");
-
-			LDPRecordLists.populateInstanceLDPList(inventory, ldp);
-			LDPRecordLists.populateBibLDPList(inventory, ldp);
-			LDPRecordLists.populateHoldingLDPList(inventory, ldp);
-			LDPRecordLists.populateItemLDPList(inventory, ldp);
-
 
 			{ // INSTANCES
 				ComparisonLists c = ResourceListComparison.compareLists(
@@ -103,7 +94,7 @@ public class LDPChangeDetection {
 							.replaceAll("\\s*\\n\\s*", " ");
 					Matcher m = modDateP.matcher(marc);
 					Timestamp marcTimestamp = (m.matches())
-							? Timestamp.from(Instant.parse(m.group(1).replace("+0000","Z"))): null;
+							? Timestamp.from(Instant.parse(m.group(1).replace("+00:00","Z"))): null;
 					cacheReplaceStmt.setString(1, hrid);
 					cacheReplaceStmt.setTimestamp(2, marcTimestamp);
 					cacheReplaceStmt.setString(3, marc);

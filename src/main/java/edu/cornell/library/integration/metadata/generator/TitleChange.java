@@ -28,7 +28,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class TitleChange implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.6"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -37,8 +37,7 @@ public class TitleChange implements SolrFieldGenerator {
 	}
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
 		SolrFields sfs = new SolrFields();

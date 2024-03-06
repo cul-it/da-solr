@@ -1,31 +1,33 @@
 package edu.cornell.library.integration.metadata.generator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class AuthorTitleTest {
-
-	static Config config = null;
+public class AuthorTitleTest extends DbBaseTest {
 	SolrFieldGenerator gen = new AuthorTitle();
 
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+//		config = Config.loadConfig(requiredArgs);
+//	}
+
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException, SQLException {
+		setup("Headings");
 	}
 
 	@Test
-	public void testMainTitleNoAuthor() throws ClassNotFoundException, SQLException, IOException {
+	public void testMainTitleNoAuthor() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"245",'1','4',"‡a The national law journal"));
 		String expected =
@@ -44,17 +46,17 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testSimpleAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimpleAuthorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a León Cupe, Mariano, ‡d 1932-"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Cabana, historia, cultura y tradición / ‡c Mariano"
 				+ " León Cupe, Jorge León Quispe."));
 		String expected =
+		"author_pers_roman_filing: leon cupe mariano 1932\n"+
 		"author_display: León Cupe, Mariano, 1932-\n"+
 		"author_t: León Cupe, Mariano, 1932-\n"+
 		"author_facet: León Cupe, Mariano, 1932-\n"+
 		"author_pers_filing: leon cupe mariano 1932\n"+
-		"author_pers_roman_filing: leon cupe mariano 1932\n"+
 		"author_json: {\"name1\":\"León Cupe, Mariano, 1932-\",\"search1\":\"León Cupe, Mariano, 1932-\","+
 									"\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Cupe, Mariano León, 1932-\n"+
@@ -76,17 +78,17 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testAuthorizedAuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedAuthorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Fewer, T. N."));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Waterford people : ‡b a biographical dictionary / "
 				+ "‡c T. N. Fewer."));
 		String expected =
+		"author_pers_roman_filing: fewer t n\n"+
 		"author_display: Fewer, T. N.\n"+
 		"author_t: Fewer, T. N.\n"+
 		"author_facet: Fewer, T. N.\n"+
 		"author_pers_filing: fewer t n\n"+
-		"author_pers_roman_filing: fewer t n\n"+
 		"author_json: {\"name1\":\"Fewer, T. N.\",\"search1\":\"Fewer, T. N.\",\"relator\":\"\",\"type\":"+
 										"\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Fewer, Tom\n"+
@@ -109,18 +111,18 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testAuthorRelatorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorRelatorTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Kalavrezos, Nicholas, ‡u (University"
 				+ " College London Hospital, UK) ‡4 spk"));
 		rec.dataFields.add(new DataField(2,"245",'1','0',"‡a Lumps and bumps in the mouth and lips"
 				+ " ‡h [electronic resource] / ‡c Nicholas Kalavrezos."));
 		String expected =
+		"author_pers_roman_filing: kalavrezos nicholas\n"+
 		"author_display: Kalavrezos, Nicholas, speaker\n"+
 		"author_t: Kalavrezos, Nicholas, speaker\n"+
 		"author_facet: Kalavrezos, Nicholas\n"+
 		"author_pers_filing: kalavrezos nicholas\n"+
-		"author_pers_roman_filing: kalavrezos nicholas\n"+
 		"author_json: {\"name1\":\"Kalavrezos, Nicholas, speaker\",\"search1\":\"Kalavrezos, Nicholas,\","
 		+ "\"relator\":\"speaker\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
 		"author_sort: kalavrezos nicholas\n"+
@@ -141,18 +143,18 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testAuthorTitleUniformTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleUniformTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Speed, John, ‡d 1552?-1629, ‡e cartographer."));
 		rec.dataFields.add(new DataField(2,"240",'1',' ',"‡a Theatre of the empire of Great Britaine"));
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Britain's Tudor maps : ‡b county by county /"
 				+ " ‡c John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard."));
 		String expected =
+		"author_pers_roman_filing: speed john 1552 1629\n"+
 		"author_display: Speed, John, 1552?-1629, cartographer\n"+
 		"author_t: Speed, John, 1552?-1629, cartographer\n"+
 		"author_facet: Speed, John, 1552?-1629\n"+
 		"author_pers_filing: speed john 1552 1629\n"+
-		"author_pers_roman_filing: speed john 1552 1629\n"+
 		"author_json: {\"name1\":\"Speed, John, 1552?-1629, cartographer\",\"search1\":\"Speed, John, 1552?-1629,\","
 		+ "\"relator\":\"cartographer\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: I. S., 1552?-1629\n"+
@@ -187,7 +189,7 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testAuthorTitleWInitialArticle() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleWInitialArticle() throws SQLException, IOException {
 		// As described in DISCOVERYACCESS-2972, the second indicator on the title field counts diacritics
 		// as characters when describing the length of initial non-sort article.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -195,11 +197,11 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(2,"245",'1','4',"‡a Hē ennoia tou oikou ston Euripidē : ‡b Alkēstē, Mēdeia,"
 				+ " Hippolytos / ‡c Loukas Papadēmētropoulos."));
 		String expected =
+		"author_pers_roman_filing: papademetropoulos loukas p\n"+
 		"author_display: Papadēmētropoulos, Loukas P., author\n"+
 		"author_t: Papadēmētropoulos, Loukas P., author\n"+
 		"author_facet: Papadēmētropoulos, Loukas P.\n"+
 		"author_pers_filing: papademetropoulos loukas p\n"+
-		"author_pers_roman_filing: papademetropoulos loukas p\n"+
 		"author_json: {\"name1\":\"Papadēmētropoulos, Loukas P., author\",\"search1\":\"Papadēmētropoulos, Loukas P.,\""
 		+ ",\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"author_sort: papademetropoulos loukas p\n"+
@@ -224,7 +226,7 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testNonRomanTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRomanTitle() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"245",'1','0',"‡6 880-01 ‡a Aleksandr I, Marii︠a︡ Pavlovna, Elizaveta"
 				+ " Alekseevna : ‡b perepiska iz trekh uglov 1804-1826 / ‡c podgotovka pisem E. Dmitrievoĭ i F."
@@ -258,7 +260,7 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testCJKEverything() throws ClassNotFoundException, SQLException, IOException {
+	public void testCJKEverything() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',"‡6 880-01 ‡a Taga, Futoshi, ‡d 1968- ‡e author.",false));
 		rec.dataFields.add(new DataField(2,2,"240",'1','0',"‡6 880-02 ‡a Danshi mondai no jidai. ‡l Korean",false));
@@ -269,12 +271,12 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(6,3,"245",'1','0',"‡6 245-03/$1 ‡a 남자 문제 의 시대 = ‡b 男子問題の時代?"
 				+ " : 젠더 와 교육 의 정치학 / ‡c 다가 후토시 지음 ; 책사소 옮김.",true));
 		String expected =
+		"author_pers_roman_filing: taga futoshi 1968\n"+
 		"author_display: 多賀太 / Taga, Futoshi, 1968- author\n"+
 		"author_facet: 多賀太, 1968-\n"+
 		"author_facet: Taga, Futoshi, 1968-\n"+
 		"author_pers_filing: 多賀太 1968\n"+
 		"author_pers_filing: taga futoshi 1968\n"+
-		"author_pers_roman_filing: taga futoshi 1968\n"+
 		"author_t_cjk: 多賀太, 1968- author\n"+
 		"author_t: Taga, Futoshi, 1968- author\n"+
 		"author_json: {\"name1\":\"多賀太\",\"search1\":\"多賀太, 1968-\",\"name2\":\"Taga, Futoshi, 1968- author\","
@@ -314,18 +316,18 @@ public class AuthorTitleTest {
 	}
 
 	@Test
-	public void testCorpAuthorWithN() throws ClassNotFoundException, SQLException, IOException {
+	public void testCorpAuthorWithN() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"110",'2',' ',"‡a Gerakan Pemuda Islam Indonesia. ‡b Mu'tamar ‡n (9th :"
 				+ " ‡d 1959 : ‡c Jakarta, Indonesia)"));
 		rec.dataFields.add(new DataField(3,"245",'1','0',"‡a Tjita dan daja pemuda Islam :"
 				+ " ‡b menjongsong Mu'tamar & P.O.R. G.P.I.I. ke IX 25 s/d 31 Oktober 1959 di Djakarta."));
 		String expected =
+		"author_corp_roman_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_display: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_t: Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\n"+
 		"author_facet: Gerakan Pemuda Islam Indonesia. Mu'tamar\n"+
 		"author_corp_filing: gerakan pemuda islam indonesia mutamar\n"+
-		"author_corp_roman_filing: gerakan pemuda islam indonesia mutamar\n"+
 		"author_json: {\"name1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"search1\":\"Gerakan Pemuda Islam Indonesia. Mu'tamar (9th : 1959 : Jakarta, Indonesia)\","
 		+ "\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":false}\n"+
@@ -353,7 +355,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testAuthorMislinkedToNonRomanTitle6507903()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,1,"100",'1',' ',
 				"‡6 880-01 ‡a Foucher, A. ‡q (Alfred), ‡d 1865-1952.",false));
@@ -367,11 +369,11 @@ public class AuthorTitleTest {
 				"‡6 245-01/$1 ‡a 佛教艺术的早期阶段 = ‡b The beginnings of Buddhist art and other essays in Indian and"
 				+ " Central-Asian archaeology / ‡c c阿・福歇 (A. Foucher) 著 ; 王平先, 魏文捷译 ; 王冀青审校.",true));
 		String expected =
+		"author_pers_roman_filing: foucher a alfred 1865 1952\n"+
 		"author_display: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_t: Foucher, A. (Alfred), 1865-1952.\n"+
 		"author_facet: Foucher, A. (Alfred), 1865-1952\n"+
 		"author_pers_filing: foucher a alfred 1865 1952\n"+
-		"author_pers_roman_filing: foucher a alfred 1865 1952\n"+
 		"author_json: {\"name1\":\"Foucher, A. (Alfred), 1865-1952.\",\"search1\":\"Foucher, A. (Alfred), "
 		+ "1865-1952.\",\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Foucher, Alfred Charles Auguste, 1865-1952\n"+
@@ -417,7 +419,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testGoodLinksExceptRomanizedFieldsDontPointBackTo880Fields7940870()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a poorly encoded example, which we will treat as "good enough" and produce no errors.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a Grebenshchikova, G. A., ‡e author."));
@@ -427,12 +429,12 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(4,2,"245",'0','0',
 				"‡6 245-02 ‡a Черноморский флот в период правления Екатерины II",true));
 		String expected =
+		"author_pers_roman_filing: grebenshchikova g a\n"+
 		"author_display: Гребенщикова, Г. А. / Grebenshchikova, G. A., author\n"+
 		"author_facet: Гребенщикова, Г. А.\n"+
 		"author_facet: Grebenshchikova, G. A.\n"+
 		"author_pers_filing: гребенщикова г а\n"+
 		"author_pers_filing: grebenshchikova g a\n"+
-		"author_pers_roman_filing: grebenshchikova g a\n"+
 		"author_t: Гребенщикова, Г. А, author\n"+
 		"author_t: Grebenshchikova, G. A., author\n"+
 		"author_json: {\"name1\":\"Гребенщикова, Г. А.\",\"search1\":\"Гребенщикова, Г. А,\","
@@ -461,17 +463,17 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testTwoDifferentAuthorFieldsWithDifferentTags6279795()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "6279795";
 		rec.dataFields.add(new DataField(1,0,"110",'1',' ',"‡a Korea (South). ‡b President (1993-1998 : Kim)",false));
 		rec.dataFields.add(new DataField(2,0,"100",'1',' ',"‡6 100-00/$1 ‡a 金泳三, ‡d 1927-",true));
 		String expected =
+		"author_corp_roman_filing: korea south president 1993 1998 kim\n"+
 		"author_t: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_facet: Korea (South). President (1993-1998 : Kim)\n"+
 		"author_corp_filing: korea south president 1993 1998 kim\n"+
-		"author_corp_roman_filing: korea south president 1993 1998 kim\n"+
 		"author_json: {\"name1\":\"Korea (South). President (1993-1998 : Kim)\",\"search1\":\"Korea (South)."
 		+ " President (1993-1998 : Kim)\",\"relator\":\"\",\"type\":\"Corporate Name\",\"authorizedForm\":true}\n"+
 		"author_t_cjk: 金泳三, 1927-\n"+
@@ -486,7 +488,7 @@ public class AuthorTitleTest {
 
 	@Test
 	public void testExtraneousMainAuthorVernacularEntry6197642()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		// This is a badly encoded example, and we expect a squawk from AuthorTitle.java about it.
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "6197642";
@@ -494,11 +496,11 @@ public class AuthorTitleTest {
 		rec.dataFields.add(new DataField(2,0,"100",'1','0',"‡6 100-00/$1 ‡a 蔡玫芬.",true));
 		rec.dataFields.add(new DataField(3,1,"110",'2','0',"‡6 110-01/$1 ‡a 國立故宮博物院.",true));
 		String expected =
+		"author_corp_roman_filing: guo li gu gong bo wu yuan\n"+
 		"author_facet: 國立故宮博物院\n"+
 		"author_facet: Guo li gu gong bo wu yuan\n"+
 		"author_corp_filing: 國立故宮博物院\n"+
 		"author_corp_filing: guo li gu gong bo wu yuan\n"+
-		"author_corp_roman_filing: guo li gu gong bo wu yuan\n"+
 		"author_t_cjk: 國立故宮博物院.\n"+
 		"author_t: Guo li gu gong bo wu yuan.\n"+
 		"author_json: {\"name1\":\"國立故宮博物院\",\"search1\":\"國立故宮博物院.\",\"name2\":"
@@ -537,4 +539,23 @@ public class AuthorTitleTest {
 		"author_sort: guo li gu gong bo wu yuan\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
+
+	@Test
+	public void cjk100() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "15331345";
+		rec.dataFields.add(new DataField(1,"100",'1',' ',"‡a 林玲子"));
+		String expected =
+		"author_display: 林玲子\n"+
+		"author_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"author_json: {\"name1\":\"林玲子\",\"search1\":\"林玲子\","
+		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_sort: 林玲子\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+
 }
+

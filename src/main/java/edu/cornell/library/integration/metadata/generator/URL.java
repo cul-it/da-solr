@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.Locations;
+import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
@@ -34,13 +36,13 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.5"; }
+	public String getVersion() { return "1.6"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","899","holdings"); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord bibRec, Config unused )
+	public SolrFields generateSolrFields( MarcRecord bibRec, Config config )
 			throws IOException {
 		SolrFields sfs = new SolrFields();
 
@@ -60,14 +62,8 @@ public class URL implements SolrFieldGenerator {
 		if ( bibRec.folioHoldings != null )
 			for (Map<String,Object> holding : bibRec.folioHoldings)
 				if ( holding.containsKey("permanentLocationId") ) {
-					if ( folioLocations == null ) 
-						try { folioLocations = new Locations(null); } catch (IOException e) {
-							System.out.println(e.getMessage());
-							System.out.println("Folio Locations must be instantiated once before this point.");
-							e.printStackTrace();
-							System.exit(1);
-						}
-					if (folioLocations.getByCode("serv,remo").id.equals(holding.get("permanentLocationId")))
+					initLocationsIfNull(config);
+					if (folioLocations.getUuid("serv,remo").equals(holding.get("permanentLocationId").toString()))
 						isOnline = true;
 					else
 						isPrint = true;
@@ -236,14 +232,8 @@ public class URL implements SolrFieldGenerator {
 			holdings = List.class.cast(instance.get("holdings"));
 			for (Map<String,Object> holding : holdings) {
 				if ( holding.containsKey("permanentLocationId") ) {
-					if ( folioLocations == null ) 
-						try { folioLocations = new Locations(null); } catch (IOException e) {
-							System.out.println(e.getMessage());
-							System.out.println("Folio Locations must be instantiated once before this point.");
-							e.printStackTrace();
-							System.exit(1);
-						}
-					if (folioLocations.getByCode("serv,remo").id.equals(holding.get("permanentLocationId")))
+					initLocationsIfNull(config);
+					if (folioLocations.getUuid("serv,remo").equals(holding.get("permanentLocationId").toString()))
 						isOnline = true;
 					else
 						isPrint = true;
@@ -284,11 +274,12 @@ public class URL implements SolrFieldGenerator {
 			String url = String.class.cast(link.get("url"));
 			String description = String.class.cast(link.get("description"));
 			if (relation.equals("bookplate")) {
-				if (link.containsKey("description"))
+				if (link.containsKey("description")) {
 					sfs.add( new SolrField ("donor_t", description ));
+					sfs.add( new SolrField ("donor_display", description ));
+				}
 				sfs.add( new SolrField ("donor_s", url.substring(url.lastIndexOf('/')+1)) );
-			}
-			if (relation.equals("access")) {
+			} else if (relation.equals("access")) {
 				link.remove("relation");
 				ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
 				mapper.writeValue(jsonstream, link);
@@ -356,7 +347,7 @@ public class URL implements SolrFieldGenerator {
 	private static Pattern userLimit899 = Pattern.compile("^.*[A-Za-z_~](\\d+)u$");
 	private static Pattern number = Pattern.compile("^\\d+$");
 
-	private static Locations folioLocations = null;
+	private static ReferenceData folioLocations = null;
 
 	private static void reassignOtherLinksToAccess(List<Map<String, Object>> allProcessedLinks) {
 		for (Map<String,Object> link : allProcessedLinks)
@@ -368,5 +359,15 @@ public class URL implements SolrFieldGenerator {
 		int count = 0;
 		for (Map<String,Object> link : allProcessedLinks) if (((String)link.get("relation")).equals(linkType)) count++;
 		return count;
+	}
+
+	private void initLocationsIfNull(Config config) throws IOException {
+		if ( folioLocations == null ) {
+			folioLocations = SupportReferenceData.locations;
+			if (folioLocations == null) {
+				OkapiClient folio = config.getOkapi("Folio");
+				folioLocations = new ReferenceData( folio,"/locations","code");
+			}
+		}
 	}
 }

@@ -23,8 +23,7 @@ public class MARC implements SolrFieldGenerator {
 	public String getVersion() { return "1.1"; }
 
 	@Override
-	public SolrFields generateSolrFields(MarcRecord rec, Config config)
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields(MarcRecord rec, Config config) throws SQLException, IOException {
 
 		TreeSet<ControlField> newControlFields = new TreeSet<>();
 		for (ControlField f : rec.controlFields)

@@ -15,7 +15,7 @@ public class FindingAidsTest {
 	SolrFieldGenerator gen = new FindingAids();
 
 	@Test
-	public void testIndexes() throws ClassNotFoundException, SQLException, IOException {
+	public void testIndexes() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"555",' ',' ',"‡a Vols. 1-21, 1976-88. 1 v."));
 		String expected =
@@ -25,7 +25,7 @@ public class FindingAidsTest {
 	}
 
 	@Test
-	public void testFindingAids() throws ClassNotFoundException, SQLException, IOException {
+	public void testFindingAids() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"555",'0',' ',"‡a Box list."));
 		String expected =
@@ -35,7 +35,7 @@ public class FindingAidsTest {
 	}
 
 	@Test
-	public void testNotes() throws ClassNotFoundException, SQLException, IOException {
+	public void testNotes() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"555",'8',' ',"‡a Includes indexes."));
 		String expected =
@@ -45,7 +45,7 @@ public class FindingAidsTest {
 	}
 
 	@Test
-	public void testTwoFields() throws ClassNotFoundException, SQLException, IOException {
+	public void testTwoFields() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"555",' ',' ',
 				"‡a INDEXES: v.1-5 (1966-1970); INDEXES: v.6-10 (1971-1973);"));
@@ -60,7 +60,7 @@ public class FindingAidsTest {
 	}
 
 	@Test
-	public void test880() throws ClassNotFoundException, SQLException, IOException {
+	public void test880() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3, 4,"555",' ',' ',
 				"‡6 880-04 ‡a Dai 1-shū dai 1-gō (Nov. 1914)-dai 2-shū dai 5-gō (June 1916)",false));

@@ -48,12 +48,11 @@ public interface SolrFieldGenerator {
 	 * @param rec A subset of a bibliographic MARC (possibly with holdings), contents determined by getHandledFields().
 	 * @param config Config gives implementations access to databases as needed. 
 	 * @return Generated set of Solr fields. If no fields were produced, value should be empty rather than null.
-	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 * @throws IOException
 	 */
 	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException;
+			throws SQLException, IOException;
 
 	/**
 	 * Process an instance to generate Solr fields similar to those generated through generateSolrFields.

@@ -1,0 +1,3109 @@
+{
+  "locations" : [ {
+    "id" : "e316bdb5-a69c-4268-8751-b7dbef32ccd0",
+    "name" : "CU Museum of Vertebrates",
+    "code" : "orni,cumv",
+    "discoveryDisplayName" : "Museum of Vertebrates (Lab of Ornithology) (non-circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "465936ad-b5a0-4302-834c-9073fddb3060",
+    "details" : { },
+    "primaryServicePoint" : "debc685c-e905-48d3-9571-bff4742e7249",
+    "servicePointIds" : [ "debc685c-e905-48d3-9571-bff4742e7249" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:22:47.467+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:22:47.467+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a954c916-4414-4795-8d57-21891c9796c5",
+    "name" : "Macaulay Library",
+    "code" : "orni,mac",
+    "discoveryDisplayName" : "Macaulay Library (Lab of Ornithology) (Non-circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "465936ad-b5a0-4302-834c-9073fddb3060",
+    "details" : { },
+    "primaryServicePoint" : "debc685c-e905-48d3-9571-bff4742e7249",
+    "servicePointIds" : [ "debc685c-e905-48d3-9571-bff4742e7249" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:23:20.274+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:23:20.274+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "9a5b71c6-9c31-4285-8797-7075ca14db48",
+    "name" : "Ornithology",
+    "code" : "orni",
+    "discoveryDisplayName" : "Adelson Library (Lab of Ornithology)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "465936ad-b5a0-4302-834c-9073fddb3060",
+    "details" : { },
+    "primaryServicePoint" : "debc685c-e905-48d3-9571-bff4742e7249",
+    "servicePointIds" : [ "debc685c-e905-48d3-9571-bff4742e7249" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:24:38.690+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:24:38.690+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ae0d3478-0ddc-4354-ae06-2b43bfc2d3c7",
+    "name" : "Ornithology Reference",
+    "code" : "orni,ref",
+    "discoveryDisplayName" : "Adelson Library Reference (Lab of Ornithology)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "465936ad-b5a0-4302-834c-9073fddb3060",
+    "details" : { },
+    "primaryServicePoint" : "debc685c-e905-48d3-9571-bff4742e7249",
+    "servicePointIds" : [ "debc685c-e905-48d3-9571-bff4742e7249" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:25:11.719+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:25:11.719+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "491229ad-9131-4aa4-8938-720fcae60762",
+    "name" : "Africana",
+    "code" : "afr",
+    "discoveryDisplayName" : "Africana Library (Africana Center)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e299862b-3796-44d6-bca2-4de111198667",
+    "details" : { },
+    "primaryServicePoint" : "7c5abc9f-f3d7-4856-b8d7-6712462ca007",
+    "servicePointIds" : [ "7c5abc9f-f3d7-4856-b8d7-6712462ca007" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:26:21.675+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:26:21.675+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ed3a7632-6716-4613-b317-493aa0d2cccb",
+    "name" : "Africana Reference",
+    "code" : "afr,ref",
+    "discoveryDisplayName" : "Africana Library Reference ( Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e299862b-3796-44d6-bca2-4de111198667",
+    "details" : { },
+    "primaryServicePoint" : "7c5abc9f-f3d7-4856-b8d7-6712462ca007",
+    "servicePointIds" : [ "7c5abc9f-f3d7-4856-b8d7-6712462ca007" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:26:50.322+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:26:50.322+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "23353960-739b-41af-914a-84aa52b69e71",
+    "name" : "Africana Reserve",
+    "code" : "afr,res",
+    "discoveryDisplayName" : "Africana Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e299862b-3796-44d6-bca2-4de111198667",
+    "details" : { },
+    "primaryServicePoint" : "7c5abc9f-f3d7-4856-b8d7-6712462ca007",
+    "servicePointIds" : [ "7c5abc9f-f3d7-4856-b8d7-6712462ca007" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:27:22.690+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:27:22.690+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "909a4980-940d-4416-b200-13a8d8e5d35c",
+    "name" : "Mann Hortorium",
+    "code" : "mann,hort",
+    "discoveryDisplayName" : "Bailey Hortorium (ask at Mann Library Circulation)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "5e989a5f-996d-48b9-9f67-a9d3ea0df0f4",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:28:14.529+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:28:14.529+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a82d2c6b-fe17-4fd5-a762-6b1a3ef1f491",
+    "name" : "Mann Hortorium Reference",
+    "code" : "mann,href",
+    "discoveryDisplayName" : "Bailey Hortorium Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "5e989a5f-996d-48b9-9f67-a9d3ea0df0f4",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:28:51.727+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:28:51.727+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "15e4c3f9-75b1-485a-9604-a94720c13440",
+    "name" : "CISER",
+    "code" : "cise",
+    "discoveryDisplayName" : "CISER Data Archive",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0b640d09-0998-46bc-9a96-0b6e4ef427f4",
+    "details" : { },
+    "primaryServicePoint" : "7c4567de-a492-47aa-b444-0d86045743ee",
+    "servicePointIds" : [ "7c4567de-a492-47aa-b444-0d86045743ee" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:29:34.919+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:29:34.919+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "895b1176-331d-4ecb-a8d7-117311f0c709",
+    "name" : "Fine Arts",
+    "code" : "fine",
+    "discoveryDisplayName" : "Fine Arts Library (Rand Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "11b36bfa-754f-48d0-8027-a58ad4bccd58",
+    "details" : {
+      "OPAC facet" : "Main Collection"
+    },
+    "primaryServicePoint" : "86932cca-3b71-4d29-b0e9-0680b1fffabf",
+    "servicePointIds" : [ "86932cca-3b71-4d29-b0e9-0680b1fffabf" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:30:16.175+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:30:52.847+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ec8ec71f-49c4-4740-886b-b8c7fae3cf44",
+    "name" : "Fine Arts Course Reserve",
+    "code" : "fine,lock",
+    "discoveryDisplayName" : "Fine Arts Course Reserve (Ask at Circulation)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "11b36bfa-754f-48d0-8027-a58ad4bccd58",
+    "details" : { },
+    "primaryServicePoint" : "86932cca-3b71-4d29-b0e9-0680b1fffabf",
+    "servicePointIds" : [ "86932cca-3b71-4d29-b0e9-0680b1fffabf" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:31:32.195+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:31:32.195+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "cb6ba6fd-6097-41e3-aba3-85d9ba98f973",
+    "name" : "Fine Arts Perm. Reserve",
+    "code" : "fine,res",
+    "discoveryDisplayName" : "Fine Arts Library Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "11b36bfa-754f-48d0-8027-a58ad4bccd58",
+    "details" : {
+      "OPAC facet" : "Reserve"
+    },
+    "primaryServicePoint" : "86932cca-3b71-4d29-b0e9-0680b1fffabf",
+    "servicePointIds" : [ "86932cca-3b71-4d29-b0e9-0680b1fffabf" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:32:30.459+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:32:30.459+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "4bbfdc6c-175c-4b64-a8de-c948f13fba78",
+    "name" : "Fine Arts Reference",
+    "code" : "fine,ref",
+    "discoveryDisplayName" : "Fine Arts Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "11b36bfa-754f-48d0-8027-a58ad4bccd58",
+    "details" : {
+      "OPAC facet" : "Reserve { call:Artist => Artists' Books }"
+    },
+    "primaryServicePoint" : "86932cca-3b71-4d29-b0e9-0680b1fffabf",
+    "servicePointIds" : [ "86932cca-3b71-4d29-b0e9-0680b1fffabf" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:33:10.924+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:33:10.924+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5e11c162-6ea6-44b1-a810-1d9b479be87f",
+    "name" : "Hotel",
+    "code" : "hote",
+    "discoveryDisplayName" : "ILR Library (Ives Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:35:12.724+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:35:12.724+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "209a0742-6982-4a69-bf30-6619e753afa8",
+    "name" : "Hotel Reference",
+    "code" : "hote,ref",
+    "discoveryDisplayName" : "ILR Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:35:44.891+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:35:44.891+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "09815433-2339-4a23-af2e-9272ac793e27",
+    "name" : "ILR",
+    "code" : "ilr",
+    "discoveryDisplayName" : "ILR Library (Ives Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:36:42.347+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:36:42.347+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "4f1e34d2-daed-431c-aec1-053b58b07c79",
+    "name" : "ILR Multi-Copy Storage",
+    "code" : "ilr,mcs",
+    "discoveryDisplayName" : "ILR Multi-Copy Storage",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:37:10.260+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:37:10.260+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a48716c6-42ec-47c9-a760-e4156d11b32e",
+    "name" : "ILR Reference",
+    "code" : "ilr,ref",
+    "discoveryDisplayName" : "ILR Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:37:40.086+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:37:40.086+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "73b4aa6b-fa74-49ae-be07-2df10afa33b8",
+    "name" : "ILR Reserve",
+    "code" : "ilr,res",
+    "discoveryDisplayName" : "ILR Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:38:38.911+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:38:38.911+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "f24cceec-77b1-4712-a8fb-50d2d5827aeb",
+    "name" : "JGSM",
+    "code" : "jgsm",
+    "discoveryDisplayName" : "ILR Library (Ives Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:39:22.727+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:39:22.727+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5212274b-9620-4bf5-af6e-69846de41ae1",
+    "name" : "RMC History of Science",
+    "code" : "rmc,hsci",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:02:15.768+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:02:15.768+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "623a1464-8025-4a0a-9e17-ced63ed965cb",
+    "name" : "RMC Reference",
+    "code" : "rmc,ref",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:04:02.348+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:04:02.348+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "e3ba0bc0-45a4-4db3-a44d-2febd0d1a55b",
+    "name" : "Africana - Annex",
+    "code" : "afr,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:13:10.864+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:29:26.038+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "8dfd8c86-d561-4e23-8316-e8358d16808b",
+    "name" : "JGSM Reference",
+    "code" : "jgsm,ref",
+    "discoveryDisplayName" : "ILR Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:39:54.740+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:39:54.740+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "88075f68-36cb-4a6f-9f32-9aba3140115e",
+    "name" : "ILR Kheel Center",
+    "code" : "ilr,lmdc",
+    "discoveryDisplayName" : "ILR Library Kheel Center (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "07a99e6f-e443-4a65-9a37-91593388555a",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:40:38.275+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:40:38.275+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "c931fa7e-1177-4678-9fe6-816af021bb7d",
+    "name" : "Echols Reference",
+    "code" : "ech,ref",
+    "discoveryDisplayName" : "Kroch Library Asia Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:43:51.404+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:43:51.404+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a4387864-4879-4eab-819e-20f36f8d24f3",
+    "name" : "South Asia Reference",
+    "code" : "sasa,ref",
+    "discoveryDisplayName" : "Kroch Library Asia Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:47:52.492+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:47:52.492+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "c15ce2f8-d825-4a6e-b228-45004296280d",
+    "name" : "Echols Rare",
+    "code" : "ech,rare",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:00:27.929+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:00:27.929+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "7a889a88-b743-4449-a818-5c5cfa86ec17",
+    "name" : "Law",
+    "code" : "law",
+    "discoveryDisplayName" : "Law Library (Myron Taylor Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:06:27.788+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:06:27.788+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "13f4f6b7-7782-4712-8546-2de6a5fd8bb0",
+    "name" : "Law Reserve",
+    "code" : "law,res",
+    "discoveryDisplayName" : "Law Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:07:55.912+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-24T13:26:04.690+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "55f98191-a9e6-43d3-b97d-8cc70edc713d",
+    "name" : "ILR Kheel Center Ref.",
+    "code" : "ilr,lmdr",
+    "discoveryDisplayName" : "ILR Library Kheel Center Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "07a99e6f-e443-4a65-9a37-91593388555a",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:41:11.352+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:41:11.352+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "c75d56ff-242b-4760-8937-5051e2272238",
+    "name" : "Wason",
+    "code" : "was",
+    "discoveryDisplayName" : "Kroch Library Asia",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:48:34.760+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:48:34.760+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "79da8df2-7bd4-422c-b23c-b17daeb49b26",
+    "name" : "RMC",
+    "code" : "rmc",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:01:42.735+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:01:42.735+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a278b33a-d8c7-4c47-b762-de77a4274faf",
+    "name" : "Africana A/V",
+    "code" : "afr,av",
+    "discoveryDisplayName" : "Africana A/V",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e299862b-3796-44d6-bca2-4de111198667",
+    "details" : { },
+    "primaryServicePoint" : "7c5abc9f-f3d7-4856-b8d7-6712462ca007",
+    "servicePointIds" : [ "7c5abc9f-f3d7-4856-b8d7-6712462ca007" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-09-28T14:45:34.808+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-09-28T14:45:34.808+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "39697232-be19-4e93-a639-f2eeaeb38cc7",
+    "name" : "ILR Rare",
+    "code" : "ilr,rare",
+    "discoveryDisplayName" : "ILR Library Kheel Center",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "07a99e6f-e443-4a65-9a37-91593388555a",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:41:39.589+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:41:39.589+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a8c5ee33-467a-4db2-b522-bc0f8aed3a69",
+    "name" : "Asia - General",
+    "code" : "asia",
+    "discoveryDisplayName" : "Kroch Library Asia",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:42:17.610+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:38:07.280+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "ec52e8b7-8815-4b02-bb07-f2e5bf7018f2",
+    "name" : "Asia Rare",
+    "code" : "asia,rare",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:55:42.629+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:55:42.629+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "68ef95e7-2858-43ab-99c2-1d39ea3b0d20",
+    "name" : "Asia Reference",
+    "code" : "asia,ref",
+    "discoveryDisplayName" : "Kroch Library Asia Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:42:47.642+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:42:47.642+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "10d18222-971f-461e-a9a2-fbd8d93399a9",
+    "name" : "South Asia",
+    "code" : "sasa",
+    "discoveryDisplayName" : "Kroch Library Asia",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:44:22.285+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:44:22.285+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "d0e4c0b3-6782-4aae-acea-f7563ba2d17a",
+    "name" : "Wason Reference",
+    "code" : "was,ref",
+    "discoveryDisplayName" : "Kroch Library Asia Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:49:23.043+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T19:49:23.043+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "48ad5667-8672-491c-826b-e849338019a3",
+    "name" : "Wason Rare",
+    "code" : "was,rare",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:05:31.353+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:05:31.353+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a1e01bd8-0840-46a2-a206-83b90742e4ef",
+    "name" : "Echols",
+    "code" : "ech",
+    "discoveryDisplayName" : "Kroch Library Asia",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "ecaaf910-8606-4587-9584-061b922197eb",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T19:43:14.333+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:48:30.011+00:00",
+      "updatedByUserId" : "0c15ffaf-02c8-4ed7-baa3-95b0a930c896"
+    }
+  }, {
+    "id" : "76eee247-5c24-4079-aa25-2803287a1bac",
+    "name" : "Hotel Rare",
+    "code" : "hote,rare",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:00:58.979+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:00:58.979+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "59da9624-47cc-4735-91cd-7fb98b3e2b74",
+    "name" : "RMC Icelandic Rare",
+    "code" : "rmc,icer",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:03:30.061+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:03:30.061+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "860f6c6a-4bbe-48e6-946f-69390f3f9d91",
+    "name" : "South Asia Rare",
+    "code" : "sasa,rare",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:04:58.738+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:04:58.738+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5ac7a45f-fc74-43b7-927c-71437bf85246",
+    "name" : "RMC Technical Services",
+    "code" : "rmc,ts",
+    "discoveryDisplayName" : "RMC Technical Services",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "b40188df-aab4-46b6-9afe-4b5001a47b93",
+    "details" : { },
+    "primaryServicePoint" : "6e734d77-7cc6-4f24-9191-ce4a81968042",
+    "servicePointIds" : [ "6e734d77-7cc6-4f24-9191-ce4a81968042" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:04:32.629+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:04:32.629+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "62b9ad8a-80a9-46c7-91d3-630d72c54820",
+    "name" : "Law Rare",
+    "code" : "lawr",
+    "discoveryDisplayName" : "Law Library (Myron Taylor Hall) Rare Books",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:06:56.504+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:06:56.504+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "8a7a29dc-a3c4-4490-805b-ea1251414001",
+    "name" : "Law Technical Services",
+    "code" : "law,ts",
+    "discoveryDisplayName" : "Law Library Technical Services",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:08:28.993+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:08:28.993+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "f7e0aae4-b731-49e8-a7f0-4efd245266f9",
+    "name" : "Legal Aid Clinic",
+    "code" : "law,lega",
+    "discoveryDisplayName" : "Legal Aid Clinic",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:09:01.647+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:09:01.647+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "1ffab651-c562-4e17-bcbd-e208cacb2d72",
+    "name" : "Asia Rare Annex",
+    "code" : "asia,ranx",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:14:59.644+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:14:59.644+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "94aeedda-5eed-4458-a7a4-d304496e5731",
+    "name" : "Asia - Annex",
+    "code" : "asia,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:14:32.584+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:29:55.578+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "b3353dcf-d618-4b18-bf5d-805292bc3eaf",
+    "name" : "Law Reference",
+    "code" : "law,ref",
+    "discoveryDisplayName" : "Law Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:07:27.020+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-24T13:25:53.553+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "d2f81dbd-9a39-42c9-b1dd-3cd332bc0e4e",
+    "name" : "Biochem Reading Room",
+    "code" : "bioc",
+    "discoveryDisplayName" : "Biochem Reading Room (Biotech Building) (Dept. use only)",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:17:15.806+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:17:15.806+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "c3007fb4-69a9-4de7-85ee-45dcb42019d9",
+    "name" : "Echols Rare Annex",
+    "code" : "ech,ranx",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:18:35.160+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:18:35.160+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "39c5c218-16a4-45da-b505-0cbb1a526017",
+    "name" : "Echols - Annex",
+    "code" : "ech,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:18:02.934+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:30:14.183+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "9157997c-7e01-4298-a7ff-d8ce61286266",
+    "name" : "Engineering Reference",
+    "code" : "engr,ref",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:20:01.617+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:21:54.914+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "f6a9a28a-a6eb-4eb5-9eaf-35fbefb4021d",
+    "name" : "Law Rare Annex",
+    "code" : "lawr,anx",
+    "discoveryDisplayName" : "Law Library Rare--Request in advance at Law Circulation Desk",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:27:22.086+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:27:22.086+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "1dc8f54b-06bd-43b7-959b-ca6128a85fd6",
+    "name" : "JGSM - Annex",
+    "code" : "jgsm,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:24:18.266+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:32:45.285+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "de71213f-a162-4f7a-b498-0d69a28114e1",
+    "name" : "Math - Annex",
+    "code" : "math,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:30:31.122+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:34:53.217+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "36acf05a-3f9c-42a7-a561-64227cfd2498",
+    "name" : "Phys Sci - Annex",
+    "code" : "phys,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:33:01.176+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:36:02.341+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "bf9d95db-9b35-4b51-80de-99e698504a06",
+    "name" : "Engineering",
+    "code" : "engr",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:19:05.085+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:19:05.085+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "7b3015e8-aba6-4299-b443-2d426d24f7f6",
+    "name" : "Engineering - Annex",
+    "code" : "engr,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:19:36.465+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:30:39.455+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "a8ce2842-0def-4260-a5ae-3f9a8feeb1eb",
+    "name" : "Mann Special Collections",
+    "code" : "mnsc",
+    "discoveryDisplayName" : "Mann Library Special Collections (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:43:32.914+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:43:32.914+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "25df9d8d-3a7f-4fa5-8d9f-44668b3e4ba9",
+    "name" : "Vet - Annex",
+    "code" : "vet,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:35:38.893+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:36:56.710+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "30bf7f0b-62a0-4c1e-9550-9f345642e508",
+    "name" : "Fine Arts - Annex",
+    "code" : "fine,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:20:59.956+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:31:18.848+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "f2037fbf-bca5-4427-9375-019ed1990a4c",
+    "name" : "Geneva",
+    "code" : "gnva",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:21:30.448+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:21:30.448+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5e31a277-d3b2-4e23-ad46-9a5d23089ece",
+    "name" : "Hotel - Annex",
+    "code" : "hote,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:22:56.049+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:31:53.384+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "533a86fb-0451-46c6-ab6c-6e421d48de9c",
+    "name" : "ILR - Annex",
+    "code" : "ilr,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:23:25.775+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:32:13.083+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "aaa9af9a-192a-4fc9-a50d-0c25e7b0ad7f",
+    "name" : "ILR Kheel Center - Annex",
+    "code" : "ilr,kanx",
+    "discoveryDisplayName" : "ILR Library Kheel Center (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:23:52.333+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:32:28.978+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "f4173200-8615-4faf-878b-27ac83b4a938",
+    "name" : "Law - Annex",
+    "code" : "law,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:24:41.332+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:33:44.584+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "cc33ec20-5f8d-4f4e-a9b8-37eacd78d3a9",
+    "name" : "Mann - Annex temp",
+    "code" : "mann,anxt",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:27:46.484+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:34:02.628+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "c4c67d78-b128-4822-bac9-313f4374e5d1",
+    "name" : "Math Desk",
+    "code" : "math,desk",
+    "discoveryDisplayName" : "Mathematics Library (Circulation Desk)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "35e2af9a-6f60-4a1d-b906-104cf266887b",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:45:15.386+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:45:15.386+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "abd8a623-0deb-466b-84c4-b82f48f526ab",
+    "name" : "Mann - Annex",
+    "code" : "mann,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:28:13.037+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:34:18.649+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "fc9a612b-ff20-44ef-9933-de909fa7da09",
+    "name" : "Wason - Annex",
+    "code" : "was,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:36:02.612+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:37:15.608+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "66074f1b-078b-4e46-9677-ac9aa5a9fae8",
+    "name" : "Mann Special Coll. Annex",
+    "code" : "mnsc,anx",
+    "discoveryDisplayName" : "Mann Special Collections (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:28:39.675+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:28:39.675+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "2e2c0454-d49c-4ee4-bd9c-7097a34212e4",
+    "name" : "Mann Reserve",
+    "code" : "mann,res",
+    "discoveryDisplayName" : "Mann Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:43:00.831+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:43:00.831+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "99fc90d3-b612-4272-aee4-c0262a65a27c",
+    "name" : "Map Storage - Annex",
+    "code" : "maps,anx",
+    "discoveryDisplayName" : "Map Storage (Request in Advance at Map Room, Olin Library)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:29:03.363+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:34:37.061+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "a8f90946-aea4-4491-9de9-14d2162e96a6",
+    "name" : "Olin A/V",
+    "code" : "olin,av",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:31:40.825+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:31:40.825+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "fe9a0f99-84bd-495a-bbcd-167fc869122b",
+    "name" : "RMC Annex",
+    "code" : "rmc,anx",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:33:46.296+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:33:46.296+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ef5e337d-41d2-4a5e-aea9-f35cbf3b9a36",
+    "name" : "South Asia Rare Annex",
+    "code" : "sasa,ranx",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:34:51.827+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:34:51.827+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "509e4237-bae6-4cfe-aab9-ce3bbe8b8440",
+    "name" : "Olin - Annex",
+    "code" : "olin,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:31:14.018+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:20:59.369+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "44560f41-c90c-4576-baae-1b6b5e722668",
+    "name" : "Agricultural Engineering",
+    "code" : "agen",
+    "discoveryDisplayName" : "Ag Engineering Library (Riley Robb Hall) (Dept. use only)",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:38:20.336+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:39:42.820+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "4ff986d8-9157-472e-b445-caaa4a2f9a9e",
+    "name" : "Mann Technical Services",
+    "code" : "mann,ts",
+    "discoveryDisplayName" : "Mann Library Technical Services (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:44:00.437+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:44:00.437+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "db64ac54-40a9-4d92-b28f-63de53344d5c",
+    "name" : "Music - Annex",
+    "code" : "mus,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:30:52.857+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:35:08.535+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "33f531d1-284e-4ca3-9cc4-0abccfbcfaf8",
+    "name" : "Math",
+    "code" : "math",
+    "discoveryDisplayName" : "Mathematics Library (Malott Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "35e2af9a-6f60-4a1d-b906-104cf266887b",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:44:33.731+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:44:33.731+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "67c7081f-ab43-47c7-8ea8-1718cac7d242",
+    "name" : "Ornithology - Annex",
+    "code" : "orni,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:32:33.154+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:35:42.205+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "3b6487cd-174e-4dc8-933e-4711d75ff1fe",
+    "name" : "South Asia - Annex",
+    "code" : "sasa,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:34:11.008+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:36:19.603+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "5c5f7a45-e685-4d3b-b0e4-b002d7613aab",
+    "name" : "Uris - Annex",
+    "code" : "uris,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:35:16.146+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:36:36.822+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "3386d425-44b9-436c-a4bf-75b08ca42fdb",
+    "name" : "Wason Rare Annex",
+    "code" : "was,ranx",
+    "discoveryDisplayName" : "Kroch Library Rare & Manuscripts (Request in advance)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:36:27.119+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:36:27.119+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ecb45c19-df4f-4f32-907b-523febd29546",
+    "name" : "Entomology",
+    "code" : "ent",
+    "discoveryDisplayName" : "Mann Library New Book Shelf",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:39:02.953+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:39:02.953+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "025a9b7a-afba-47ca-82dd-11f91c56e4be",
+    "name" : "Mann",
+    "code" : "mann",
+    "discoveryDisplayName" : "Mann Library",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:40:11.677+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:40:11.677+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "0ab39d69-a4ba-4577-b772-27ea57ff0dc8",
+    "name" : "Mann Reference",
+    "code" : "mann,ref",
+    "discoveryDisplayName" : "Mann Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:41:08.692+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:41:08.692+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "691618f1-73e5-4117-ae2d-e1cbba0f2929",
+    "name" : "Mann Coll. Development",
+    "code" : "mann,cd",
+    "discoveryDisplayName" : "Mann Library Collection Development (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:40:41.595+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:40:41.595+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "9f6a29c6-0ba7-40f2-b246-ddc77148b7e0",
+    "name" : "Math Reserve",
+    "code" : "math,res",
+    "discoveryDisplayName" : "Mathematics Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "35e2af9a-6f60-4a1d-b906-104cf266887b",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:46:06.625+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:46:06.625+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "3b5652de-37be-4fa7-b08f-c5c7b74a81ae",
+    "name" : "Music",
+    "code" : "mus",
+    "discoveryDisplayName" : "Music Library (Lincoln Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:46:45.765+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:46:45.765+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "9d5c6dc8-a2fe-4a6d-adb5-109308a11c42",
+    "name" : "Music A/V",
+    "code" : "mus,av",
+    "discoveryDisplayName" : "Music Library A/V (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:47:12.853+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:47:12.853+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5dc69351-796a-446c-a168-3b08dd4d123a",
+    "name" : "Music Locked Press",
+    "code" : "mus,lock",
+    "discoveryDisplayName" : "Music Library Locked Press (Reference Desk)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:47:35.814+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:47:35.814+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "93c0f7bb-a2e6-431b-998b-f48b4d7eb39c",
+    "name" : "Music Reference",
+    "code" : "mus,ref",
+    "discoveryDisplayName" : "Music Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:48:00.506+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:48:00.506+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5b40fa49-0dab-4045-96e3-f4df61e41676",
+    "name" : "Music Reserve",
+    "code" : "mus,res",
+    "discoveryDisplayName" : "Music Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:48:26.989+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:48:26.989+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ead9b71a-b3ed-4a30-ac6d-bc37dd50ecc4",
+    "name" : "Math Reference",
+    "code" : "math,ref",
+    "discoveryDisplayName" : "Mathematics Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "35e2af9a-6f60-4a1d-b906-104cf266887b",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:45:40.827+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2022-09-19T17:52:50.655+00:00",
+      "updatedByUserId" : "0c15ffaf-02c8-4ed7-baa3-95b0a930c896"
+    }
+  }, {
+    "id" : "2071d2a8-dfc3-4c4c-a428-41c1c2b422e5",
+    "name" : "Nestle Library Reserve",
+    "code" : "hote,res",
+    "discoveryDisplayName" : "Nestle Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e50aa68e-d4b3-4951-83d8-ca0554a4c2d8",
+    "details" : { },
+    "primaryServicePoint" : "8e4f5d73-2f77-4906-8d6a-329fc79c5994",
+    "servicePointIds" : [ "8e4f5d73-2f77-4906-8d6a-329fc79c5994" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:49:12.792+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:49:12.792+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "083f18bf-d165-4ace-9bc9-86d95433b2d1",
+    "name" : "OCLC/Olin Microforms",
+    "code" : "oclc,olim",
+    "discoveryDisplayName" : "Olin Library",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:00:42.910+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:14:05.878+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "545ccdcf-e83f-4970-bc02-4fc2780b9e41",
+    "name" : "Wason A/V",
+    "code" : "was,av",
+    "discoveryDisplayName" : "Uris Library Asia A/V",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:12:19.057+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:07:04.784+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "60feff36-e179-49d2-8b43-8a32f26ad833",
+    "name" : "Vet Ophthalmology",
+    "code" : "vet,oph",
+    "discoveryDisplayName" : "Clinical Ophthalmology Collection (Departmental use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:17:08.852+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:17:08.852+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "8ae40e62-1321-4fa1-939b-e8be67757787",
+    "name" : "Asia A/V",
+    "code" : "asia,av",
+    "discoveryDisplayName" : "Uris Library Asia A/V",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:09:54.871+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:04:46.460+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "3e0c7d15-423a-45f7-ba2b-7970382337b7",
+    "name" : "Bindery Circulation",
+    "code" : "bind,circ",
+    "discoveryDisplayName" : "Bindery Circulation Area",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:50:00.603+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:50:00.603+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "126bda5d-25c2-4f07-915a-13c2e7251e66",
+    "name" : "cons,opt",
+    "code" : "cons,opt",
+    "discoveryDisplayName" : "cons,opt",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:50:27.739+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:50:27.739+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ec62408b-fa1b-475a-99fb-852c0faae8d0",
+    "name" : "Engr,wpe",
+    "code" : "Engr,wpe",
+    "discoveryDisplayName" : "Engr,wpe",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:50:52.595+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:50:52.595+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "8f510185-0aee-4ab5-957a-3d417052e529",
+    "name" : "Iron Mountain",
+    "code" : "nus",
+    "discoveryDisplayName" : "Iron Mountain",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:51:49.688+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:51:49.688+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "b1a96403-4a1c-4f1b-9942-ab210600baa7",
+    "name" : "Vet Feline Health Center",
+    "code" : "vet,feli",
+    "discoveryDisplayName" : "Cornell Feline Health Center (Department use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:16:48.296+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:16:48.296+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5aa0412e-0589-4979-bcde-111e3704c425",
+    "name" : "Maps",
+    "code" : "maps",
+    "discoveryDisplayName" : "Olin Library Maps (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:58:04.142+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:12:16.389+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "0cc0c778-c324-439b-a123-4376319f3e8c",
+    "name" : "z-test location",
+    "code" : "z-test location",
+    "discoveryDisplayName" : "z- test location",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:05:19.193+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:15:56.032+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "00536065-6621-4c4f-afa9-b925435bddc1",
+    "name" : "Borrow Direct",
+    "code" : "bd",
+    "discoveryDisplayName" : "Borrow Direct",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "aadd4e4e-73fd-47f3-b8b5-7c8e06f73226",
+    "servicePointIds" : [ "aadd4e4e-73fd-47f3-b8b5-7c8e06f73226" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:56:06.153+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:58:51.800+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "9dc2e0d0-a30f-439b-a5f8-6a21a706bfed",
+    "name" : "Food Science",
+    "code" : "food",
+    "discoveryDisplayName" : "Food Science Library (Stocking Hall) (Dept. use only)",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:51:18.217+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:51:18.217+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "d967cea1-3127-4f9e-9e0a-e4e726211a2c",
+    "name" : "Olin Room 604",
+    "code" : "olin,604",
+    "discoveryDisplayName" : "Olin Library Room 604-605 (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:03:57.940+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:01:09.154+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "8941303a-0281-4863-89b4-11c44a16f3b6",
+    "name" : "South Asia A/V",
+    "code" : "sasa,av",
+    "discoveryDisplayName" : "Uris Library Asia A/V",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:10:45.069+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:05:48.228+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "08c298c6-3327-4253-87b6-f9c1517d412a",
+    "name" : "LTS Review Shelves",
+    "code" : "cts,rev",
+    "discoveryDisplayName" : "Library Technical Services Review Shelves",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:52:15.930+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:52:15.930+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "6a72cdde-7f43-4b18-919f-b7ef634477e1",
+    "name" : "Mann Gateway",
+    "code" : "mann,gate",
+    "discoveryDisplayName" : "Networked Resource",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:52:55.879+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:52:55.879+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "e1e1ad8f-9a00-41f6-9c07-7bd66a7451bd",
+    "name" : "JGSM Reference 2",
+    "code" : "jgsm,ref2",
+    "discoveryDisplayName" : "Sage Hall Management Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "c5a5495c-c066-40b8-8537-549685e9d52c",
+    "details" : { },
+    "primaryServicePoint" : "f4b8e9e3-831b-44eb-aafe-20f583c555a1",
+    "servicePointIds" : [ "f4b8e9e3-831b-44eb-aafe-20f583c555a1" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:06:42.452+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:06:42.452+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "90b6e27e-1142-45e0-9789-973ad77761bd",
+    "name" : "Vet Core Resource",
+    "code" : "vet,core",
+    "discoveryDisplayName" : "Veterinary Library Core Resource (5 hour loan)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:15:39.352+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:15:39.352+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "4a00af56-c671-4b0a-a7fb-a793b58398b1",
+    "name" : "RMC Icelandic",
+    "code" : "rmc,ice",
+    "discoveryDisplayName" : "Olin Library",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:04:57.618+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:00:33.634+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "27994dd1-3e22-4e11-b0b7-707edce2d84d",
+    "name" : "Olin Room 501",
+    "code" : "olin,501",
+    "discoveryDisplayName" : "Olin Library Graduate Study Room 501, Request at Circulation Area",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:02:53.737+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:07:47.886+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "8b43cfbf-4a66-42e1-818a-fa7fb9653943",
+    "name" : "Uris Reference",
+    "code" : "uris,ref",
+    "discoveryDisplayName" : "Uris Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:11:29.330+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:06:35.054+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "5ab5d1c3-1d17-4968-b0cf-581d24e57b0e",
+    "name" : "No Library",
+    "code" : "void",
+    "description" : "A temporary location to help with the data migration process. The intent is to delete this location before go-live.",
+    "discoveryDisplayName" : "No Location",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:53:27.221+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T20:53:27.221+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "2e19230b-aeeb-4419-92cb-853611611718",
+    "name" : "serv,remo",
+    "code" : "serv,remo",
+    "discoveryDisplayName" : "*Networked Resource",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "db6a0c73-db91-49f4-8659-e6e3e0b68baa",
+    "details" : { },
+    "primaryServicePoint" : "5e38cc90-3b7d-4253-b80b-43e342fecf09",
+    "servicePointIds" : [ "5e38cc90-3b7d-4253-b80b-43e342fecf09" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:55:07.852+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-24T13:04:49.462+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "a69b7fa9-e958-4160-bdca-94a384c7b02d",
+    "name" : "Olin Reference",
+    "code" : "olin,ref",
+    "discoveryDisplayName" : "Olin Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:01:56.922+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:08:38.455+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "70402679-e1e8-4be0-b43a-58a4654e6174",
+    "name" : "Conservation Dept.",
+    "code" : "cons",
+    "discoveryDisplayName" : "Preservation Department (B32 Olin)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:56:30.013+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:09:53.238+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "b32020e0-e929-4f83-9542-0f39ba6bb135",
+    "name" : "DCAPS",
+    "code" : "dcap",
+    "discoveryDisplayName" : "DCAPS (106G Olin)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:56:53.453+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:10:40.205+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "f99c4188-6083-4b43-b3a8-cbd6429aef44",
+    "name" : "Library Tech Services",
+    "code" : "cts",
+    "discoveryDisplayName" : "Library Tech Services",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:57:39.090+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:11:36.552+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "b57e518f-a15b-4c16-a276-74cace93fc0f",
+    "name" : "OCLC/Olin Reference",
+    "code" : "oclc,olir",
+    "discoveryDisplayName" : "Olin Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:01:03.994+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:14:49.313+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "8fed688b-ede9-478c-9609-407a750a2ac0",
+    "name" : "Vet",
+    "code" : "vet",
+    "discoveryDisplayName" : "Veterinary Library (Schurman Hall)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:14:24.707+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:14:24.707+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "7f9abec5-6727-478e-ae4a-57d0213aaa52",
+    "name" : "Olin Room 605",
+    "code" : "olin,605",
+    "discoveryDisplayName" : "Olin Library Room 604-605 (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:04:23.390+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:00:47.078+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "8cd03278-ab07-472a-9c07-7f75b496d371",
+    "name" : "JGSM Reserve",
+    "code" : "jgsm,res",
+    "discoveryDisplayName" : "Sage Hall Management Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "c5a5495c-c066-40b8-8537-549685e9d52c",
+    "details" : { },
+    "primaryServicePoint" : "f4b8e9e3-831b-44eb-aafe-20f583c555a1",
+    "servicePointIds" : [ "f4b8e9e3-831b-44eb-aafe-20f583c555a1" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:07:04.616+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:07:04.616+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "cc0ad7e1-011a-48a8-8f6d-6c1130a38dd8",
+    "name" : "Vet Companion",
+    "code" : "vet,comp",
+    "discoveryDisplayName" : "Companion Animal Hospital Collection (Departmental use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:15:16.782+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:15:16.782+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "3bceb724-fa5e-43b2-b435-d925ac01e218",
+    "name" : "LTS E-Resources & Serials",
+    "code" : "lts,ersm",
+    "discoveryDisplayName" : "LTS E-Resources and Serials Management",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:08:02.231+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-23T19:37:57.622+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "dda231cf-891d-492d-8ad1-22a2d930caf3",
+    "name" : "Phys Sci",
+    "code" : "phys",
+    "discoveryDisplayName" : "Spacecraft Planetary Imaging Facility (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a957c196-5d74-4027-9f97-9418741b64d7",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:08:54.384+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:08:54.384+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "ccb0345a-ee44-439d-ad57-587d29d487d6",
+    "name" : "Echols A/V",
+    "code" : "ech,av",
+    "discoveryDisplayName" : "Uris Library Asia A/V",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:10:19.721+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:05:04.895+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "bec63af4-12b2-4987-87be-22ce3b29042b",
+    "name" : "Vet CARE",
+    "code" : "vet,crar",
+    "discoveryDisplayName" : "Center for Animal Resources and Education (Dept. use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:14:53.627+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:14:53.627+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "992edd39-6334-42a0-8e82-0dd04ddf121b",
+    "name" : "Uris Reserve",
+    "code" : "uris,res",
+    "discoveryDisplayName" : "Uris Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:11:53.050+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:07:40.304+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "0decdee8-df4f-4a64-8760-62dba8c1828f",
+    "name" : "Vet Equine",
+    "code" : "vet,equ",
+    "discoveryDisplayName" : "Equine Farm Animal Collection (Departmental use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:16:18.167+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:16:18.167+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "5ab349a1-91a1-493f-98ea-e9473ab29dac",
+    "name" : "Vet Pathology",
+    "code" : "vet,path",
+    "discoveryDisplayName" : "Anatomic Pathology Collection (Departmental use only)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:18:24.336+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:18:24.336+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "17ab710b-9032-4ff4-9189-850357c06c91",
+    "name" : "Vet Reference",
+    "code" : "vet,ref",
+    "discoveryDisplayName" : "Veterinary Library Reference (Non-Circulating)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:18:47.378+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:18:47.378+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "719d9d68-fa57-4871-b317-9503d98b730a",
+    "name" : "Vet Reserve",
+    "code" : "vet,res",
+    "discoveryDisplayName" : "Veterinary Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:21:25.439+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-06-17T21:21:25.439+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "465f2240-0b36-4c23-bcfd-ef9c6bef5655",
+    "name" : "Africana Permanent Reserve",
+    "code" : "afr,permres",
+    "discoveryDisplayName" : "Africana Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e299862b-3796-44d6-bca2-4de111198667",
+    "details" : { },
+    "primaryServicePoint" : "7c5abc9f-f3d7-4856-b8d7-6712462ca007",
+    "servicePointIds" : [ "7c5abc9f-f3d7-4856-b8d7-6712462ca007" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:30:33.969+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:30:33.969+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "3515ae46-c0d1-4cc3-a010-4416087f4799",
+    "name" : "ILR Permanent Reserve",
+    "code" : "ilr,permres",
+    "discoveryDisplayName" : "ILR Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "15bb9972-9505-4929-9b5f-6834e3148338",
+    "details" : { },
+    "primaryServicePoint" : "ab1fce49-e832-41a4-8afc-7179a62332e2",
+    "servicePointIds" : [ "ab1fce49-e832-41a4-8afc-7179a62332e2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:31:46.623+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:31:46.623+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "9e42d420-813e-4f61-ae38-7f833ef22e6d",
+    "name" : "Mann Permanent Reserve",
+    "code" : "mann,permres",
+    "discoveryDisplayName" : "Mann Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "dc3177b4-b4b7-4d39-8855-8aa1e26db1f3",
+    "details" : { },
+    "primaryServicePoint" : "872beba0-1bdf-4870-95f3-8781baddc02e",
+    "servicePointIds" : [ "872beba0-1bdf-4870-95f3-8781baddc02e" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:32:59.866+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:32:59.866+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "c3be818c-e70b-4fcf-8381-21cd53d11a88",
+    "name" : "Law Permanent Reserve",
+    "code" : "law,permres",
+    "discoveryDisplayName" : "Law Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "0ff445c9-f690-4b75-84bb-4705db17dfbf",
+    "details" : { },
+    "primaryServicePoint" : "8d40f52a-02cf-4753-b423-0615d4c98479",
+    "servicePointIds" : [ "8d40f52a-02cf-4753-b423-0615d4c98479" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:32:22.875+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-08-24T13:25:39.639+00:00",
+      "updatedByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de"
+    }
+  }, {
+    "id" : "a56307df-98c2-4116-bc1c-a8f4eec8a35a",
+    "name" : "Fine Arts Permanent Reserve",
+    "code" : "fine,permres",
+    "discoveryDisplayName" : "Fine Arts Permanent Reserve",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "11b36bfa-754f-48d0-8027-a58ad4bccd58",
+    "details" : { },
+    "primaryServicePoint" : "86932cca-3b71-4d29-b0e9-0680b1fffabf",
+    "servicePointIds" : [ "86932cca-3b71-4d29-b0e9-0680b1fffabf" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:31:17.262+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2022-04-29T18:23:51.015+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "bf47c315-2366-4107-85d6-f9fb04ec93c2",
+    "name" : "Math Permanent Reserve",
+    "code" : "math,permres",
+    "discoveryDisplayName" : "Math Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "35e2af9a-6f60-4a1d-b906-104cf266887b",
+    "details" : { },
+    "primaryServicePoint" : "d6756e21-b828-4a0f-9346-2a10633c3b7a",
+    "servicePointIds" : [ "d6756e21-b828-4a0f-9346-2a10633c3b7a" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:33:33.292+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:33:33.292+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "55d84b33-c9fb-4e8e-a0cd-2c3dbc20c04c",
+    "name" : "Music Permanent Reserve",
+    "code" : "mus,permres",
+    "discoveryDisplayName" : "Music Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "d1633c8c-21be-4754-903a-79ebc1af5455",
+    "details" : { },
+    "primaryServicePoint" : "1eb3510f-c403-44bf-b3ce-cf693b20ba56",
+    "servicePointIds" : [ "1eb3510f-c403-44bf-b3ce-cf693b20ba56" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:34:08.027+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:34:08.027+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "31fdd448-b3bb-4b24-8806-fea12a39675c",
+    "name" : "Nestle Library Permanent Reserve",
+    "code" : "hote,permres",
+    "discoveryDisplayName" : "Nestle Library Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "e50aa68e-d4b3-4951-83d8-ca0554a4c2d8",
+    "details" : { },
+    "primaryServicePoint" : "8e4f5d73-2f77-4906-8d6a-329fc79c5994",
+    "servicePointIds" : [ "8e4f5d73-2f77-4906-8d6a-329fc79c5994" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:36:38.389+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:36:38.389+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "65f7b95c-f52d-4e1f-bffd-b60f61c3edc8",
+    "name" : "JGSM Permanent Reserve",
+    "code" : "jgsm,permres",
+    "discoveryDisplayName" : "JGSM Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "c5a5495c-c066-40b8-8537-549685e9d52c",
+    "details" : { },
+    "primaryServicePoint" : "f4b8e9e3-831b-44eb-aafe-20f583c555a1",
+    "servicePointIds" : [ "f4b8e9e3-831b-44eb-aafe-20f583c555a1" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:38:28.909+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:38:28.909+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "8dc78028-517f-42f9-a791-2e6d775844a1",
+    "name" : "Vet Permanent Reserve",
+    "code" : "vet,permres",
+    "discoveryDisplayName" : "Vet Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "fd56a80d-e057-4ec5-891f-c58e19ea6d65",
+    "details" : { },
+    "primaryServicePoint" : "b097fb3b-3323-4812-9bf9-ccd7f2ff973d",
+    "servicePointIds" : [ "b097fb3b-3323-4812-9bf9-ccd7f2ff973d" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:43:25.845+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-06-23T19:43:25.845+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "3b044de7-4781-4fe8-9d11-ab7896e9bf03",
+    "name" : "Olin Permanent Reserve",
+    "code" : "olin,permres",
+    "discoveryDisplayName" : "Olin Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:37:17.595+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-07-01T13:02:03.654+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "f21f837e-214b-4eb9-9e40-06547c93f371",
+    "name" : "Uris",
+    "code" : "uris",
+    "discoveryDisplayName" : "Uris Library",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:11:08.152+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T14:06:08.763+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "c8e127a3-1d59-42e6-9600-bbdffc13b373",
+    "name" : "Olin",
+    "code" : "olin",
+    "description" : "Olin library location.",
+    "discoveryDisplayName" : "Olin Library",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:01:27.809+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-13T11:47:29.271+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "e0a73e79-fa4c-49db-8ab5-610dc121dd5a",
+    "name" : "Entomology - Annex",
+    "code" : "Ent,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:20:26.471+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:31:02.639+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "f1796d53-dcff-4e6b-bd64-48e1f74cb06a",
+    "name" : "Olin Reserve",
+    "code" : "olin,res",
+    "discoveryDisplayName" : "Olin Library Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T21:02:28.474+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-07-01T13:08:15.445+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "7aa73077-9d36-4d8e-832d-b88df7f133a2",
+    "name" : "Uris Permanent Reserve",
+    "code" : "uris,permres",
+    "discoveryDisplayName" : "Uris Permanent Reserve",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "58488de6-59e9-47e3-b1e1-85ac75c01c2e",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-23T19:39:12.659+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-07-01T14:06:21.167+00:00",
+      "updatedByUserId" : "c15bd76c-54f7-44b7-8009-2169654294e2"
+    }
+  }, {
+    "id" : "eb78fbc7-802b-4e39-aeb9-e09939ded820",
+    "name" : "x-test",
+    "code" : "xtest",
+    "discoveryDisplayName" : "xtest",
+    "isActive" : false,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "760beccd-362d-45b6-bfae-639565a877f2",
+    "servicePointIds" : [ "760beccd-362d-45b6-bfae-639565a877f2" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-07-19T20:32:39.696+00:00",
+      "createdByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb",
+      "updatedDate" : "2021-07-19T20:32:39.696+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "aab20e47-9c80-4794-98ae-59b5656422a5",
+    "name" : "Geneva - Annex",
+    "code" : "gnva,anx",
+    "discoveryDisplayName" : "Library Annex",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "7e8b8ebd-52b5-4abc-b1d0-fdaf45786712",
+    "details" : { },
+    "primaryServicePoint" : "91f726ff-cbb1-4d60-821e-543ec1e91cc5",
+    "servicePointIds" : [ "91f726ff-cbb1-4d60-821e-543ec1e91cc5" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:22:23.105+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:31:34.582+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  }, {
+    "id" : "ac4df05c-8e68-428d-9b49-a5e104adae54",
+    "name" : "Interlibrary Loan - Olin",
+    "code" : "olin,ils",
+    "discoveryDisplayName" : "Interlibrary Loan (Olin)",
+    "isActive" : true,
+    "institutionId" : "f9062c65-4902-4f0a-afc8-4fed5df08482",
+    "campusId" : "ee275fa1-0124-4c35-866e-fc0872f8d092",
+    "libraryId" : "a945abee-49db-45ac-9a80-22c708b63d3b",
+    "details" : { },
+    "primaryServicePoint" : "c5429efe-3517-4489-ba0e-4e8cd5799919",
+    "servicePointIds" : [ "c5429efe-3517-4489-ba0e-4e8cd5799919" ],
+    "servicePoints" : [ ],
+    "metadata" : {
+      "createdDate" : "2021-06-17T20:57:14.667+00:00",
+      "createdByUserId" : "b6bfbac0-5cad-4ca1-aff7-0596a73128de",
+      "updatedDate" : "2021-08-03T00:39:09.620+00:00",
+      "updatedByUserId" : "93933f60-ca01-4170-92ad-9dbd07f9f1fb"
+    }
+  } ],
+  "totalRecords" : 163
+}
