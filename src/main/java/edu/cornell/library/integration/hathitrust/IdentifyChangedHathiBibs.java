@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.processing;
+package edu.cornell.library.integration.hathitrust;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,8 +13,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.folio.DownloadMARC;
 import edu.cornell.library.integration.marc.ControlField;
+import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.utilities.Config;
@@ -43,6 +47,7 @@ public class IdentifyChangedHathiBibs {
 		List<HathiVolume> hathiFiles = getHathifilesList(config);
 		System.out.printf("%d volumes have moddates in Hathi\n",hathiFiles.size());
 		Map<String,Timestamp> changedTimestamps = new HashMap<>();
+		Set<String> instancesToSend = new HashSet<>();
 
 		for (HathiVolume vol : hathiFiles) {
 			Timestamp folioTimestamp = getFolioTimestamp(config,vol.bibid);
@@ -56,7 +61,7 @@ public class IdentifyChangedHathiBibs {
 			MarcRecord folioRec = null;
 			// If the Folio timestamp is pre Folio go-live, the modification date will not represent
 			// an actual modification (beyond what's involved in Folio import (999)).
-			// MARC 005 will represent the last mod date in Voyager.
+			// MARC 005 will likely represent the last mod date in Voyager.
 			if ( folioTimestamp.before(folioGoLive) ) {
 				try (Connection inventory = config.getDatabaseConnection("Current")) {
 					System.out.printf("%s: old f(%s) date\n", vol.bibid,folioTimestamp);
@@ -84,17 +89,73 @@ public class IdentifyChangedHathiBibs {
 			}
 
 			// If we get to this point, it should mean the bib has been changed locally.
-			// Next, compare to Zephyr and/or HT record to see if changes matter
+			// Next, compare to Zephir and/or HT record to see if changes matter
 			if (folioRec == null) folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,vol.bibid);
-			System.out.println(folioRec.toString());
-			MarcRecord zephyrMarc = getZephyrRecord( vol.volumeId );
-			System.out.println(zephyrMarc.toString());
-			MarcRecord hathiMarc = getHathiRecord( vol.volumeId );
-			System.out.println(hathiMarc.toString());
+			MarcRecord zephirMarc = getZephirRecord( vol.volumeId );
+			if (zephirMarc == null) continue;
+			boolean bibChanged = determineWhetherRelevantBibChanges(folioRec, zephirMarc);
+//			MarcRecord hathiMarc = getHathiRecord( vol.volumeId );
+//			System.out.println(hathiMarc.toString());
+			if ( bibChanged ) {
+				System.out.println("Bibliographic changes noted.");
+				instancesToSend.add(getInstanceUUID(config, vol.bibid));
+			}
 		}
-		System.out.printf("%d changed bibs\n",changedTimestamps.size());
+		System.out.printf("%d instances to update\n",instancesToSend.size());
+		for (String s : instancesToSend) System.out.println(s);
 
 	}
+
+	private static boolean determineWhetherRelevantBibChanges( MarcRecord f, MarcRecord z ) {
+		MarcRecord coreF = filterMarc(f);
+		MarcRecord coreZ = filterMarc(z);
+		boolean changed = ! coreF.toString().equals(coreZ.toString());
+		if (changed)
+			System.out.printf("Bibliographic changes found\n%s%s\n",coreF.toString(),coreZ.toString());
+		return changed;
+	}
+
+	private static MarcRecord filterMarc( MarcRecord before ) {
+		MarcRecord after = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		after.leader = String.format("     %s     %s", before.leader.substring(5, 12), before.leader.substring(17));
+		for( ControlField f : before.controlFields )
+			if (f.tag.equals("008")) after.controlFields.add(f);
+		Map<String,TreeMap<String,DataField>> fields = new TreeMap<>();
+		for( DataField f: before.dataFields ) {
+			char fieldBlock = f.tag.charAt(0);
+			switch(fieldBlock) {
+			case '1':
+			case '2':
+			case '3':
+			case '7':
+				if (! fields.containsKey(f.tag))
+					fields.put(f.tag, new TreeMap<>());
+				fields.get(f.tag).put(f.toString(), f);
+				break;
+			case '5':
+				if (f.tag.equals("538") && f.concatenateSpecificSubfields("a").equals("Mode of access: Internet."))
+					break;
+				if (! fields.containsKey(f.tag))
+					fields.put(f.tag, new TreeMap<>());
+				fields.get(f.tag).put(f.toString(), f);
+				break;
+			case '6':
+				if (f.concatenateSpecificSubfields("2").contains("fast"))
+					break;
+				if (! fields.containsKey(f.tag))
+					fields.put(f.tag, new TreeMap<>());
+				fields.get(f.tag).put(f.toString(), f);
+				break;
+			}
+		}
+		int id = 3;
+		for (Map<String,DataField> fieldMap : fields.values())
+			for (DataField f : fieldMap.values())
+				after.dataFields.add(new DataField(++id,f.tag,f.ind1,f.ind2,f.subfields));
+		return after;
+	}
+
+
 	private static MarcRecord getHathiRecord(String volumeId) throws IOException, XMLStreamException {
 		URL link = new URL("https://catalog.hathitrust.org/api/volumes/full/htid/"+volumeId+".json");
 		HttpURLConnection httpURLConnection = (HttpURLConnection) link.openConnection();
@@ -121,12 +182,11 @@ public class IdentifyChangedHathiBibs {
 		System.out.println("GET request not worked");
 		return null;
 	}
-	private static MarcRecord getZephyrRecord(String volumeId) throws IOException {
+	private static MarcRecord getZephirRecord(String volumeId) throws IOException {
 		URL link = new URL("http://zephir.cdlib.org/api/item/"+volumeId+".json");
 		HttpURLConnection httpURLConnection = (HttpURLConnection) link.openConnection();
 		httpURLConnection.setRequestMethod("GET");
 		int responseCode = httpURLConnection.getResponseCode();
-		System.out.println("GET Response Code :: " + responseCode);
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			try ( BufferedReader in = new BufferedReader(
 					new InputStreamReader(httpURLConnection.getInputStream()));){
@@ -140,7 +200,7 @@ public class IdentifyChangedHathiBibs {
 			}
 
 		}
-		System.out.println("GET request not worked");
+		System.out.println("GET request failed");
 		return null;
 	}
 	static Pattern dateMatcher = Pattern.compile("(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2}).*");
@@ -160,6 +220,21 @@ public class IdentifyChangedHathiBibs {
 		return null;
 	}
 
+	private static String getInstanceUUID(Config config, String bibid) throws SQLException {
+
+		try (Connection inventory = config.getDatabaseConnection("Current");
+				PreparedStatement stmt = inventory.prepareStatement(
+						"SELECT id FROM instanceFolio WHERE hrid = ?")) {
+			stmt.setString(1, bibid);
+			try( ResultSet rs = stmt.executeQuery()) {
+				while (rs.next()) return rs.getString(1);
+			}
+			
+		}
+		return null;
+	}
+
+
 	private static List<HathiVolume> getHathifilesList(Config config) throws SQLException {
 
 		List<HathiVolume> dates = new ArrayList<>();
@@ -169,7 +244,7 @@ public class IdentifyChangedHathiBibs {
 				"SELECT Source_Inst_Record_Number, Date_Last_Update, Volume_Identifier, update_file_name"+
 				"  FROM raw_hathi"+
 				" WHERE source = 'COO'"+
-				" ORDER BY RAND() LIMIT 10")) {
+				" ORDER BY RAND() LIMIT 100")) {
 			while (rs.next()) {
 				Timestamp moddate ;
 				{	String s = rs.getString("Date_Last_Update");
