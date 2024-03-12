@@ -51,6 +51,7 @@ public class IdentifyChangedHathiBibs {
 
 		for (HathiVolume vol : hathiFiles) {
 			Timestamp folioTimestamp = getFolioTimestamp(config,vol.bibid);
+			System.out.printf("volume %s:%s %s %s\n", vol.volumeId, vol.bibid, vol.moddate, folioTimestamp);
 			if ( folioTimestamp == null ) {
 //				System.out.printf("%s: h(%s) NOT IN FOLIO CACHE\n",bibid,hathiTimestamp);
 				continue;
@@ -93,12 +94,13 @@ public class IdentifyChangedHathiBibs {
 			if (folioRec == null) folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,vol.bibid);
 			MarcRecord zephirMarc = getZephirRecord( vol.volumeId );
 			if (zephirMarc == null) continue;
-			boolean bibChanged = determineWhetherRelevantBibChanges(folioRec, zephirMarc);
+			boolean bibChanged = determineWhetherRelevantBibChanges(vol.bibid, folioRec, zephirMarc);
 //			MarcRecord hathiMarc = getHathiRecord( vol.volumeId );
 //			System.out.println(hathiMarc.toString());
 			if ( bibChanged ) {
-				System.out.println("Bibliographic changes noted.");
-				instancesToSend.add(getInstanceUUID(config, vol.bibid));
+				String instanceUUID = getInstanceUUID(config, vol.bibid);
+				instancesToSend.add(instanceUUID);
+				System.out.println("instance "+instanceUUID);
 			}
 		}
 		System.out.printf("%d instances to update\n",instancesToSend.size());
@@ -106,12 +108,12 @@ public class IdentifyChangedHathiBibs {
 
 	}
 
-	private static boolean determineWhetherRelevantBibChanges( MarcRecord f, MarcRecord z ) {
+	private static boolean determineWhetherRelevantBibChanges( String bibId, MarcRecord f, MarcRecord z ) {
 		MarcRecord coreF = filterMarc(f);
 		MarcRecord coreZ = filterMarc(z);
 		boolean changed = ! coreF.toString().equals(coreZ.toString());
 		if (changed)
-			System.out.printf("Bibliographic changes found\n%s%s\n",coreF.toString(),coreZ.toString());
+			System.out.printf("Bibliographic changes found %s\n%s%s\n",bibId, coreF.toString(),coreZ.toString());
 		return changed;
 	}
 
@@ -244,7 +246,7 @@ public class IdentifyChangedHathiBibs {
 				"SELECT Source_Inst_Record_Number, Date_Last_Update, Volume_Identifier, update_file_name"+
 				"  FROM raw_hathi"+
 				" WHERE source = 'COO'"+
-				" ORDER BY RAND() LIMIT 100")) {
+				" ORDER BY RAND()")) {
 			while (rs.next()) {
 				Timestamp moddate ;
 				{	String s = rs.getString("Date_Last_Update");
