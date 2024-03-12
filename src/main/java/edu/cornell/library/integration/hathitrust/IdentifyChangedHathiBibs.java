@@ -63,31 +63,32 @@ public class IdentifyChangedHathiBibs {
 			// If the Folio timestamp is pre Folio go-live, the modification date will not represent
 			// an actual modification (beyond what's involved in Folio import (999)).
 			// MARC 005 will likely represent the last mod date in Voyager.
-			if ( folioTimestamp.before(folioGoLive) ) {
-				try (Connection inventory = config.getDatabaseConnection("Current")) {
-					System.out.printf("%s: old f(%s) date\n", vol.bibid,folioTimestamp);
-					folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, vol.bibid);
-					Timestamp folio005timestamp = null;
-					for ( ControlField f : folioRec.controlFields ) if ( f.tag.equals("005") ) {
-						Matcher m = dateMatcher.matcher(f.value);
-						if ( m.matches() ) {
-							String timestamp = String.format("%s-%s-%s %s:%s:%s",
-									m.group(1),m.group(2),m.group(3),m.group(4),m.group(5),m.group(6));
-							folio005timestamp = Timestamp.valueOf(timestamp);
-						}
-					}
-					System.out.printf("%s: h(%s) f005(%s)\n", vol.bibid,hathiTimestamp,folio005timestamp);
-					if ( folio005timestamp != null && folio005timestamp.after(hathiTimestamp) ) {
-						System.out.printf("%s: h(%s) f005(%s) CHANGED IN VOYAGER\n",
-								vol.bibid,hathiTimestamp,folio005timestamp);
-						changedTimestamps.put(vol.bibid, folio005timestamp);
-					} else continue;
-				}
-			} else {
-				System.out.printf("%s:%s: h(%s) f(%s) CHANGED IN FOLIO\n",
-						vol.bibid,vol.volumeId,hathiTimestamp,folioTimestamp);
-				changedTimestamps.put(vol.bibid, folioTimestamp);
-			}
+			if ( folioTimestamp.before(folioGoLive) )
+				System.out.println("Instance untouched since Folio probably has no 903 fields. "+vol.bibid);
+//				try (Connection inventory = config.getDatabaseConnection("Current")) {
+//					System.out.printf("%s: old f(%s) date\n", vol.bibid,folioTimestamp);
+//					folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, vol.bibid);
+//					Timestamp folio005timestamp = null;
+//					for ( ControlField f : folioRec.controlFields ) if ( f.tag.equals("005") ) {
+//						Matcher m = dateMatcher.matcher(f.value);
+//						if ( m.matches() ) {
+//							String timestamp = String.format("%s-%s-%s %s:%s:%s",
+//									m.group(1),m.group(2),m.group(3),m.group(4),m.group(5),m.group(6));
+//							folio005timestamp = Timestamp.valueOf(timestamp);
+//						}
+//					}
+//					System.out.printf("%s: h(%s) f005(%s)\n", vol.bibid,hathiTimestamp,folio005timestamp);
+//					if ( folio005timestamp != null && folio005timestamp.after(hathiTimestamp) ) {
+//						System.out.printf("%s: h(%s) f005(%s) CHANGED IN VOYAGER\n",
+//								vol.bibid,hathiTimestamp,folio005timestamp);
+//						changedTimestamps.put(vol.bibid, folio005timestamp);
+//					} else continue;
+//				}
+//			} else {
+			System.out.printf("%s:%s: h(%s) f(%s) CHANGED IN FOLIO\n",
+					vol.bibid,vol.volumeId,hathiTimestamp,folioTimestamp);
+			changedTimestamps.put(vol.bibid, folioTimestamp);
+//			}
 
 			// If we get to this point, it should mean the bib has been changed locally.
 			// Next, compare to Zephir and/or HT record to see if changes matter
