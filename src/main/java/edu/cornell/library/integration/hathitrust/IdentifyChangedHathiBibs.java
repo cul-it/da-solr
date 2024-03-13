@@ -150,6 +150,14 @@ public class IdentifyChangedHathiBibs {
 		for( DataField f: before.dataFields ) {
 			char fieldBlock = f.tag.charAt(0);
 			switch(fieldBlock) {
+			case '0':
+				if (f.tag.equals("035"))
+					for (Subfield sf : f.subfields) if (sf.code.equals('a') && sf.value.contains("OCoLC")) {
+						if (! fields.containsKey(f.tag))
+							fields.put(f.tag, new TreeMap<>());
+						fields.get(f.tag).put(f.toString(), f);
+					}
+				break;
 			case '1':
 			case '2':
 			case '3':
