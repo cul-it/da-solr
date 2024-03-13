@@ -90,9 +90,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 						rec.bib_id = (String) fieldValue; rec.id = rec.bib_id;
 					}
 				} else {
-					Map<String,Object> fieldContent = (Map<String, Object>) fieldValue;
+					Map<String,Object> fValue = (Map<String, Object>) fieldValue;
 					int subfieldId = 1;
-					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fieldContent.get("subfields");
+					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fValue.get("subfields");
 					TreeSet<Subfield> processedSubfields = new TreeSet<>();
 					for (Map<String,Object> subfield : subfields) {
 						if ( subfield.isEmpty() ) continue;
@@ -100,11 +100,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
 								Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
 					}
-					rec.dataFields.add(new DataField(fieldId++,field.getKey(),
-							((String)fieldContent.get("ind1")).charAt(0),
-							((String)fieldContent.get("ind2")).charAt(0),
-							processedSubfields
-							));
+					Character ind1 = ((String)fValue.get("ind1")+" ").charAt(0); //if ind is empty, default to space
+					Character ind2 = ((String)fValue.get("ind2")+" ").charAt(0);
+					rec.dataFields.add(new DataField(fieldId++,field.getKey(),ind1,ind2,processedSubfields));
 				}
 			}
 		F: for ( DataField f : rec.dataFields )

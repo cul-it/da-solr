@@ -31,6 +31,7 @@ import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.utilities.Config;
 
 public class IdentifyChangedHathiBibs {
@@ -43,63 +44,55 @@ public class IdentifyChangedHathiBibs {
 		Config config = Config.loadConfig(requiredArgs);
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 		Timestamp folioGoLive = Timestamp.valueOf("2021-07-01 00:00:00");
+		Timestamp cursor = Timestamp.valueOf("2002-03-06 00:00:00");
 
 		List<HathiVolume> hathiFiles = getHathifilesList(config);
-		System.out.printf("%d volumes have moddates in Hathi\n",hathiFiles.size());
-		Map<String,Timestamp> changedTimestamps = new HashMap<>();
+		System.out.printf("%d volumes from COO in Hathifiles\n",hathiFiles.size());
 		Set<String> instancesToSend = new HashSet<>();
 
 		for (HathiVolume vol : hathiFiles) {
-			Timestamp folioTimestamp = getFolioTimestamp(config,vol.bibid);
-			System.out.printf("volume %s:%s %s %s\n", vol.volumeId, vol.bibid, vol.moddate, folioTimestamp);
-			if ( folioTimestamp == null ) {
-//				System.out.printf("%s: h(%s) NOT IN FOLIO CACHE\n",bibid,hathiTimestamp);
+			Map<String,Timestamp> recentBibids = new HashMap<>();
+			for (String bibid : vol.bibids) {
+				Timestamp folioTimestamp = getFolioTimestamp(config,bibid);
+				if ( folioTimestamp == null ) {
+//					System.out.printf("%s: h(%s) NOT IN FOLIO CACHE\n",bibid,hathiTimestamp);
+					continue;
+				}
+				if ( folioTimestamp.before(cursor) ) continue;
+				recentBibids.put(bibid, folioTimestamp);
+			}
+			if (recentBibids.isEmpty()) continue;
+
+			try { Thread.sleep(300); } catch (InterruptedException e) { System.exit(1); } // don't pressure Zephir API
+			MarcRecord zephirMarc = getZephirRecord( vol.volumeId );
+			if (zephirMarc == null) {
+				System.out.printf("Record for volume %s not found in Zephir.\n", vol.volumeId);
 				continue;
 			}
-			Timestamp hathiTimestamp = vol.moddate;
-			if ( ! folioTimestamp.after(hathiTimestamp) ) continue;
+			String zephirBibid = getZephirBibid(zephirMarc);
+			if (zephirBibid == null) {
+				System.out.printf("Zephir marc for %s lacks 035 sdr-coo value.\n", vol.volumeId);
+				continue;
+			}
+			if ( ! recentBibids.containsKey(zephirBibid)) continue;
 
-			MarcRecord folioRec = null;
-			// If the Folio timestamp is pre Folio go-live, the modification date will not represent
-			// an actual modification (beyond what's involved in Folio import (999)).
-			// MARC 005 will likely represent the last mod date in Voyager.
+			Timestamp folioTimestamp = recentBibids.get(zephirBibid);
 			if ( folioTimestamp.before(folioGoLive) )
-				System.out.println("Instance untouched since Folio probably has no 903 fields. "+vol.bibid);
-//				try (Connection inventory = config.getDatabaseConnection("Current")) {
-//					System.out.printf("%s: old f(%s) date\n", vol.bibid,folioTimestamp);
-//					folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC, vol.bibid);
-//					Timestamp folio005timestamp = null;
-//					for ( ControlField f : folioRec.controlFields ) if ( f.tag.equals("005") ) {
-//						Matcher m = dateMatcher.matcher(f.value);
-//						if ( m.matches() ) {
-//							String timestamp = String.format("%s-%s-%s %s:%s:%s",
-//									m.group(1),m.group(2),m.group(3),m.group(4),m.group(5),m.group(6));
-//							folio005timestamp = Timestamp.valueOf(timestamp);
-//						}
-//					}
-//					System.out.printf("%s: h(%s) f005(%s)\n", vol.bibid,hathiTimestamp,folio005timestamp);
-//					if ( folio005timestamp != null && folio005timestamp.after(hathiTimestamp) ) {
-//						System.out.printf("%s: h(%s) f005(%s) CHANGED IN VOYAGER\n",
-//								vol.bibid,hathiTimestamp,folio005timestamp);
-//						changedTimestamps.put(vol.bibid, folio005timestamp);
-//					} else continue;
-//				}
-//			} else {
-			System.out.printf("%s:%s: h(%s) f(%s) CHANGED IN FOLIO\n",
-					vol.bibid,vol.volumeId,hathiTimestamp,folioTimestamp);
-			changedTimestamps.put(vol.bibid, folioTimestamp);
-//			}
+				System.out.println("Instance untouched since Folio probably has no 903 fields. "+zephirBibid);
+			System.out.printf("%s:%s: h(%s) f(%s)\n", zephirBibid,vol.volumeId,vol.moddate,folioTimestamp);
 
-			// If we get to this point, it should mean the bib has been changed locally.
-			// Next, compare to Zephir and/or HT record to see if changes matter
-			if (folioRec == null) folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,vol.bibid);
-			MarcRecord zephirMarc = getZephirRecord( vol.volumeId );
-			if (zephirMarc == null) continue;
-			boolean bibChanged = determineWhetherRelevantBibChanges(vol.bibid, folioRec, zephirMarc);
+			// If record has been changed locally since cursor, compare to Zephir record to see if significant
+			MarcRecord folioRec = marc.getMarc(MarcRecord.RecordType.BIBLIOGRAPHIC,zephirBibid);
+			boolean has903 = recordHasMatching903(folioRec, vol.volumeId);
+			if ( ! has903 ) {
+				System.out.printf("Folio bib %s lacks 903 field for %s\n", zephirBibid, vol.volumeId);
+				continue;
+			}
+			boolean bibChanged = determineWhetherRelevantBibChanges(zephirBibid, folioRec, zephirMarc);
 //			MarcRecord hathiMarc = getHathiRecord( vol.volumeId );
-//			System.out.println(hathiMarc.toString());
+
 			if ( bibChanged ) {
-				String instanceUUID = getInstanceUUID(config, vol.bibid);
+				String instanceUUID = getInstanceUUID(config, zephirBibid);
 				instancesToSend.add(instanceUUID);
 				System.out.println("instance "+instanceUUID);
 			}
@@ -107,6 +100,29 @@ public class IdentifyChangedHathiBibs {
 		System.out.printf("%d instances to update\n",instancesToSend.size());
 		for (String s : instancesToSend) System.out.println(s);
 
+	}
+
+	private static boolean recordHasMatching903(MarcRecord folioRec, String volumeId) {
+		for (DataField f : folioRec.dataFields)
+			if (f.tag.equals("903"))
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('n'))
+						if (volumeId.endsWith(sf.value))
+							return true;
+		return false;
+	}
+
+	private static String getZephirBibid(MarcRecord zephirMarc) {
+		for (DataField f : zephirMarc.dataFields)
+			if (f.tag.equals("035"))
+				for (Subfield sf : f.subfields)
+					if (sf.code.equals('a'))
+						if (sf.value.startsWith("sdr-coo")) {
+							String zBibid = sf.value.substring(7);
+							if (zBibid.startsWith(".")) zBibid = zBibid.substring(1);
+							return zBibid;
+						}
+		return null;
 	}
 
 	private static boolean determineWhetherRelevantBibChanges( String bibId, MarcRecord f, MarcRecord z ) {
@@ -254,8 +270,8 @@ public class IdentifyChangedHathiBibs {
 					if ( s.isEmpty() ) moddate = timestampFromFileName(rs.getString("update_file_name"));
 					else moddate = Timestamp.valueOf(s);
 				}
-				for (String bibid : rs.getString("Source_Inst_Record_Number").split(","))
-					dates.add(new HathiVolume(bibid,moddate,rs.getString("Volume_Identifier")));
+				dates.add(new HathiVolume(rs.getString("Source_Inst_Record_Number").split(","),
+						moddate,rs.getString("Volume_Identifier")));
 			}
 		}
 		return dates;
@@ -272,12 +288,12 @@ public class IdentifyChangedHathiBibs {
 	private static Pattern yyyymmdd = Pattern.compile("^.*(\\d{4})(\\d{2})(\\d{2}).txt$");
 
 	private static class HathiVolume {
-		final String bibid;
+		final String[] bibids;
 		final Timestamp moddate;
 		final String volumeId;
 
-		public HathiVolume(String bibid, Timestamp moddate, String volumeId) {
-			this.bibid = bibid;
+		public HathiVolume(String[] bibids, Timestamp moddate, String volumeId) {
+			this.bibids = bibids;
 			this.moddate = moddate;
 			this.volumeId = volumeId;
 		}
