@@ -96,7 +96,7 @@ public class IdentifyChangedHathiBibs {
 			instancesToSend.add(instanceUUID);
 			System.out.println("instance "+instanceUUID);
 			if ( isShadowRecord(zephirMarc) )
-				System.out.printf("Shadow record %s queued for update.",vol.volumeId);
+				System.out.printf("Shadow record %s queued for update.\n",vol.volumeId);
 		}
 		System.out.printf("%d instances to update\n",instancesToSend.size());
 		for (String s : instancesToSend) System.out.println(s);
