@@ -90,16 +90,23 @@ public class IdentifyChangedHathiBibs {
 			}
 			boolean bibChanged = determineWhetherRelevantBibChanges(zephirBibid, folioRec, zephirMarc);
 //			MarcRecord hathiMarc = getHathiRecord( vol.volumeId );
+			if ( ! bibChanged ) continue;
 
-			if ( bibChanged ) {
-				String instanceUUID = getInstanceUUID(config, zephirBibid);
-				instancesToSend.add(instanceUUID);
-				System.out.println("instance "+instanceUUID);
-			}
+			String instanceUUID = getInstanceUUID(config, zephirBibid);
+			instancesToSend.add(instanceUUID);
+			System.out.println("instance "+instanceUUID);
+			if ( isShadowRecord(zephirMarc) )
+				System.out.printf("Shadow record %s queued for update.",vol.volumeId);
 		}
 		System.out.printf("%d instances to update\n",instancesToSend.size());
 		for (String s : instancesToSend) System.out.println(s);
 
+	}
+
+	private static boolean isShadowRecord(MarcRecord r) {
+		for (DataField f : r.dataFields)
+			if (f.tag.equals("COM")) return true;
+		return false;
 	}
 
 	private static boolean recordHasMatching903(MarcRecord folioRec, String volumeId) {
