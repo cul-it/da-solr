@@ -289,7 +289,8 @@ public class ProcessAuthorityChangeFile {
 				" GROUP BY file.updateFile ORDER BY 1");
 				ResultSet rs = s.executeQuery()) {
 
-			msgBuilder.append("<table border=2><tr><th>FILE</th><th>POSTED</th><th>IMPORTED</th><th>AUTHRECS</th></tr>\n");
+			msgBuilder.append("<table border=2><tr><th colspan=4>FILES AVAILABLE FOR REPORTING</th></tr>\n");
+			msgBuilder.append("<tr><th>FILE</th><th>POSTED</th><th>IMPORTED</th><th>AUTHRECS</th></tr>\n");
 
 			while (rs.next())
 				msgBuilder.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", 
