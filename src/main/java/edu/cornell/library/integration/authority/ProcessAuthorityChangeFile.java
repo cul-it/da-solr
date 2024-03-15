@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -46,6 +45,7 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.metadata.support.AuthorityData;
 import edu.cornell.library.integration.utilities.Config;
+import edu.cornell.library.integration.utilities.Email;
 
 public class ProcessAuthorityChangeFile {
 
@@ -57,6 +57,7 @@ public class ProcessAuthorityChangeFile {
 		requiredArgs.add("blacklightSolrUrl");
 		Config config = Config.loadConfig(requiredArgs);
 		config.setDatabasePoolsize("Authority", 2);
+		config.activateSES();
 
 		Map<String, String> env = System.getenv();
 		String fileId = env.get("box_file_id");
@@ -66,7 +67,6 @@ public class ProcessAuthorityChangeFile {
 		System.out.printf("file: %s ; %s\nrequester %s <%s>\n", fileId, fileName, requesterName, requesterEmail);
 
 		checkForNewAuthorityFiles( config );
-
 
 		String firstFile = null;
 		String lastFile = null;
@@ -87,6 +87,7 @@ public class ProcessAuthorityChangeFile {
 			lastFile = firstFile;
 			outputFile = firstFile+now()+".json";
 		}
+
 		System.out.printf("Generating file %s\n", outputFile);
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
@@ -255,17 +256,16 @@ public class ProcessAuthorityChangeFile {
 				jsonWriter.flush();
 				jsonWriter.close();
 
-				uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
+				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
 				registerReportCompletion(authority,config.getServerConfig("authReportEmail"),
-						firstFile,lastFile, requesterName, requesterEmail,outputFile);
-				System.out.println(count);
-				System.out.println("Entailed bibs: "+entailedBibs.size());
+						firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 			}
 		}
 	}
 
 	private static void registerReportCompletion(
-			Connection db, Map<String,String> authReportEmailConfig, String firstFile, String lastFile, String toName, String toEmail, String file)
+			Connection db, Map<String,String> authReportEmailConfig, String firstFile, String lastFile,
+			String toName, String toEmail, String file, List<String> boxIds)
 			throws SQLException {
 		try (PreparedStatement stmt = db.prepareStatement(
 						"UPDATE lcAuthorityFile SET reportedDate = NOW() WHERE updateFile BETWEEN ? AND ?")){
@@ -273,34 +273,46 @@ public class ProcessAuthorityChangeFile {
 			stmt.setString(2, lastFile);
 			stmt.executeUpdate();
 		}
-		System.out.printf("Subject: %s: %s\n",authReportEmailConfig.get("Subject"), file);
-		System.out.printf("From: %s\n",authReportEmailConfig.get("From"));
-		System.out.printf("To: %s <%s>\n",toName, toEmail);
-		System.out.println();
-		String horizRow = "+-"+"-".repeat(11)+"-+-"+"-".repeat(20)+"-+-"+"-".repeat(20)+"-+";
+		String fullSubjectLine = String.format("%s: %s", authReportEmailConfig.get("Subject"), file);
+		System.out.printf("Sending email to %s <%s>\n", toName, toEmail);
+
+		StringBuilder msgBuilder = new StringBuilder();
+		msgBuilder.append("<html>\n");
+		msgBuilder.append(String.format("<p>File %s available at:<br/>\n", file));
+		msgBuilder.append(String.format("file: https://cornell.app.box.com/file/%s<br/>\n",boxIds.get(0)));
+		msgBuilder.append(String.format("folder: https://cornell.app.box.com/folder/%s</p>\n\n", boxIds.get(1)));
+
 		try (PreparedStatement s = db.prepareStatement(
-				"select * from lcAuthorityFile where reportedDate is null order by updateFile");
+				"SELECT file.updateFile, file.postedDate, file.importedDate, COUNT(*) "+
+				"  FROM lcAuthorityFile file, authorityUpdate upd "+
+				" WHERE file.updateFile = upd.updateFile AND reportedDate IS NULL"+
+				" GROUP BY file.updateFile ORDER BY 1");
 				ResultSet rs = s.executeQuery()) {
-			System.out.println(horizRow);
-			System.out.printf("| %11s | %20s | %20s |\n","FILE","POSTED DATE", "IMPORT DATE");
-			System.out.println(horizRow);
-			while (rs.next()) {
-				String posted = (rs.getTimestamp(2) == null) ? "" : humanDate(rs.getTimestamp(2));
-				String imported = (rs.getTimestamp(3) == null) ? "" : humanDate(rs.getTimestamp(3));
-				System.out.printf("| %11s | %20s | %20s |\n", rs.getString(1), posted, imported);
-			}
-			System.out.println(horizRow);
+
+			msgBuilder.append("<table border=2><tr><th>FILE</th><th>POSTED</th><th>IMPORTED</th><th>AUTHRECS</th></tr>\n");
+
+			while (rs.next())
+				msgBuilder.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", 
+						rs.getString(1), humanDate(rs.getDate(2)), humanDate(rs.getDate(3)), rs.getInt(4)));
+
+			msgBuilder.append("</table></html>");
 		}
+		Email.sendSESHtmlMessage(
+				authReportEmailConfig.get("From"),
+				String.format("%s <%s>", toName, toEmail),
+				fullSubjectLine,
+				msgBuilder.toString());
 	}
 
 	private static String now(  ) {
 		return nowFormat.format( new Date() );
 	}
-	private static String humanDate( Timestamp ts ) {
-		return dateFormat.format( new Date(ts.getTime()) );
+	private static String humanDate( Date date ) {
+		if (date == null) return "";
+		return dateFormat.format( date );
 	}
 	private static SimpleDateFormat nowFormat = new SimpleDateFormat("_yyMMdd-kkmm");
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy hh:mma z");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 
 	private static void checkForNewAuthorityFiles(Config config) throws SQLException{
 

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.box.sdk.BoxConfig;
@@ -42,7 +44,7 @@ public class BoxInteractions {
 		return content.toString();
 	}
 
-	public static void uploadFileToBox( String keyFile, String boxFolder, String filename ) throws IOException {
+	public static List<String> uploadFileToBox( String keyFile, String boxFolder, String filename ) throws IOException {
 		Reader reader = new FileReader(keyFile);
 		BoxConfig boxConfig = BoxConfig.readFrom(reader);
 		IAccessTokenCache tokenCache = new InMemoryLRUAccessTokenCache(100);
@@ -65,6 +67,8 @@ public class BoxInteractions {
 		List<Info> path = boxFile.getPathCollection();
 		for (Info i : path) System.out.println(i.getName()+" : "+i.getID());
 		System.out.println("File uploaded.");
+		return new ArrayList<String>(Arrays.asList(boxFile.getID(), outputFolder.getID()));
+
 	}
 
 	/**
