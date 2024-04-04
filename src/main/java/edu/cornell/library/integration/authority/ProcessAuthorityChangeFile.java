@@ -39,7 +39,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -67,9 +66,11 @@ public class ProcessAuthorityChangeFile {
 		String fileName = env.get("box_file_name");
 		String requesterName = env.get("box_user_name");
 		String requesterEmail = env.get("box_user_login");
+		String testMode = env.get("test_mode");
 		System.out.printf("file: %s ; %s\nrequester %s <%s>\n", fileId, fileName, requesterName, requesterEmail);
 
-		checkForNewAuthorityFiles( config );
+		if (testMode == null || ! testMode.equalsIgnoreCase("true"))
+			checkForNewAuthorityFiles( config );
 
 		String firstFile = null;
 		String lastFile = null;
@@ -92,6 +93,7 @@ public class ProcessAuthorityChangeFile {
 		}
 
 		System.out.printf("Generating file %s\n", outputFile);
+		String autoFlipFile = outputFile.replaceAll(".json", "-candidates.json");
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
@@ -100,13 +102,14 @@ public class ProcessAuthorityChangeFile {
 						"  FROM authorityUpdate"+
 						" WHERE updateFile BETWEEN ? AND ?"+
 						" ORDER BY updateFile, positionInFile");
-				BufferedWriter jsonWriter = Files.newBufferedWriter(Paths.get(outputFile))) {
+				BufferedWriter jsonWriter = Files.newBufferedWriter(Paths.get(outputFile));
+				BufferedWriter autoFlipWriter = Files.newBufferedWriter(Paths.get(autoFlipFile))) {
 
 			jsonWriter.append("[\n");
+			autoFlipWriter.append("[\n");
 			boolean writtenJson = false;
+			boolean writtenAutoFlip = false;
 
-			Set<String> entailedBibs = new HashSet<>();
-			int count = 0;
 			getAuthStmt.setString(1, firstFile);
 			getAuthStmt.setString(2, lastFile);
 			try (ResultSet records = getAuthStmt.executeQuery()) {
@@ -191,15 +194,12 @@ public class ProcessAuthorityChangeFile {
 									&& changeType.equals(ChangeType.UPDATE)
 									&& ! ( searchField.contains("_unk_") ) ) continue;
 							SolrQuery q = new SolrQuery(searchField+":\""+heading.replaceAll("\"","'")+'"');
-							q.setRows(1_000);
+							q.setRows(0);
 							q.setFields("instance_id","id");
 
 							SolrDocumentList res = solr.query(q).getResults();
 							Long recordCount = res.getNumFound();
 							if ( recordCount == 0 ) continue;
-							Set<String> recordSet = new HashSet<>();
-							for (SolrDocument doc : res) recordSet.add((String)doc.getFieldValue("id"));
-							entailedBibs.addAll(recordSet);
 							if ( flags.contains(DiffType.DIACR) ) {
 								String facetField = (searchField.startsWith("author")
 										?"author_facet":searchField.replace("browse","facet"));
@@ -213,29 +213,50 @@ public class ProcessAuthorityChangeFile {
 											displayForms.get(displayForm), flags, config, autoFlip, vocab));
 								}
 							} else {
-								relevantChanges.add(buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config, autoFlip, vocab));
+								Map<String,Object> rc = buildRelevantChange(
+										heading,searchField,searchField,recordCount, flags, config, autoFlip, vocab);
+								relevantChanges.add(rc);
+								if (rc.containsKey("autoFlip")) {
+									System.out.println(recordCount);
+									q.setRows(recordCount.intValue()+100);
+									res = solr.query(q).getResults();
+									List<List<String>> instances = new ArrayList<>();
+									for (SolrDocument doc : res) {
+										instances.add(new ArrayList<String>(Arrays.asList(
+												(String)doc.getFieldValue("id"),
+												(String)doc.getFieldValue("instance_id"))));
+									}
+									autoFlip.put(searchField, instances);
+								}
 							}
 						}
 					}
 					if ( ! relevantChanges.isEmpty() ) {
 						json.put("relevantChanges", relevantChanges);
-						if ( writtenJson )
-							jsonWriter.append(",\n");
-						else
-							writtenJson = true;
+						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 						jsonWriter.append(mapper.writeValueAsString(json));
+						if (autoFlip != null && autoFlip.keySet().size() > 2) {
+							if ( writtenAutoFlip ) autoFlipWriter.append(",\n"); else writtenAutoFlip = true;
+							autoFlipWriter.append(mapper.writeValueAsString(autoFlip));
+						}
 					}
-					count++;
 
 				}
 				jsonWriter.append("]");
 				jsonWriter.flush();
 				jsonWriter.close();
+				autoFlipWriter.append("]");
+				autoFlipWriter.flush();
+				autoFlipWriter.close();
 
-				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
-				registerReportCompletion(authority,config.getServerConfig("authReportEmail"),
-						firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
+				if (testMode == null || ! testMode.equalsIgnoreCase("true")) {
+					List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
+					registerReportCompletion(authority,config.getServerConfig("authReportEmail"),
+							firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
+					if (writtenAutoFlip) {
+						boxIds = uploadFileToBox(env.get("boxKeyFile"),"Automatic Authority Flips",autoFlipFile);
+					}
+				}
 			}
 		}
 	}
