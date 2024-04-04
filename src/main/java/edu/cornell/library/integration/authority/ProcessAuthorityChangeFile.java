@@ -249,16 +249,19 @@ public class ProcessAuthorityChangeFile {
 			if (oldHead.subfields.size() != newHead.subfields.size()) break DC;
 			Iterator<Subfield> oldI = oldHead.subfields.iterator();
 			Iterator<Subfield> newI = newHead.subfields.iterator();
+			boolean flippableD = false;
 			while ( oldI.hasNext() ) {
 				Subfield oldSF = oldI.next();
 				Subfield newSF = newI.next();
 				if ( ! oldSF.code.equals(newSF.code) ) break DC;
 				if (oldSF.code.equals('d')) {
 					if ( ! flippableDateChange( oldSF.value, newSF.value) ) break DC;
+					flippableD = true;
 				} else {
 					if ( ! getFilingForm(oldSF.value).equals( getFilingForm(newSF.value) )) break DC;
 				}
 			}
+			if ( ! flippableD ) break DC;
 			Map<String,Object> flip = new HashMap<>();
 			flip.put("oldHeading",oldHead);
 			flip.put("newHeading", newHead);
