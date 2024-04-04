@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +39,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.Email;
@@ -91,8 +94,6 @@ public class ProcessAuthorityChangeFile {
 		System.out.printf("Generating file %s\n", outputFile);
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
-				PreparedStatement getOldRecordStmt = authority.prepareStatement(
-						"SELECT marc21 FROM authorityUpdate WHERE id = ? AND moddate < ?");
 				HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
 				PreparedStatement getAuthStmt = authority.prepareStatement(
 						"SELECT *"+
@@ -136,35 +137,11 @@ public class ProcessAuthorityChangeFile {
 					}
 
 					MarcRecord oldR = null;
-					if ( lookForOldRecordVersion ) {
-						getOldRecordStmt.setString(1, id);
-						getOldRecordStmt.setDate(2, records.getDate("moddate"));
-						try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
-							while (rs.next()) {
-								byte[] marc = rs.getBytes(1);
-								try {
-									oldR = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
-									String oldMainEntry = null;
-									for ( DataField f : oldR.dataFields ) if ( f.tag.startsWith("1") ) {
-										if ( f.tag.startsWith("18") )
-											oldMainEntry = f.concatenateSpecificSubfields(" > ", "vxyz");
-										else {
-											oldMainEntry = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
-											String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
-											if ( ! oldMainEntry.isEmpty() && ! dashed_terms.isEmpty() )
-												oldMainEntry += " > "+dashed_terms;
-										}
-									}
-									if ( ! mainEntry.equals(oldMainEntry) ) {
-										System.out.println(oldMainEntry);
-										json.put("oldHeading", oldMainEntry);
-									}
-								} catch(IllegalArgumentException e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					}
+					if ( lookForOldRecordVersion )
+						oldR = getOldRecordVersion(authority, id, records.getDate("moddate"), mainEntry, json);
+					Map<String,Object> autoFlip = null;
+					if (json.containsKey("oldHeading"))
+						autoFlip = lookForEligibleAutoFlip(getHeadField(r), getHeadField(oldR));
 
 					String differences = null;
 					Map<String,EnumSet<DiffType>> actionableHeadings = null;
@@ -233,11 +210,11 @@ public class ProcessAuthorityChangeFile {
 									System.out.printf("%s relevant w/ %d instances (%s).\n",
 											displayForm,displayForms.get(displayForm),searchField);
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config));
+											displayForms.get(displayForm), flags, config, autoFlip, vocab));
 								}
 							} else {
 								relevantChanges.add(buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config));
+										heading,searchField,searchField,recordCount, flags, config, autoFlip, vocab));
 							}
 						}
 					}
@@ -261,6 +238,126 @@ public class ProcessAuthorityChangeFile {
 						firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 			}
 		}
+	}
+
+	private static Map<String,Object> lookForEligibleAutoFlip(DataField newHead, DataField oldHead) {
+
+		// DATE CLOSURE FLIP
+		DC: {
+			if (! newHead.tag.equals("100")) break DC;
+			if (! oldHead.tag.equals("100")) break DC;
+			if (oldHead.subfields.size() != newHead.subfields.size()) break DC;
+			Iterator<Subfield> oldI = oldHead.subfields.iterator();
+			Iterator<Subfield> newI = newHead.subfields.iterator();
+			while ( oldI.hasNext() ) {
+				Subfield oldSF = oldI.next();
+				Subfield newSF = newI.next();
+				if ( ! oldSF.code.equals(newSF.code) ) break DC;
+				if (oldSF.code.equals('d')) {
+					if ( ! flippableDateChange( oldSF.value, newSF.value) ) break DC;
+				} else {
+					if ( ! getFilingForm(oldSF.value).equals( getFilingForm(newSF.value) )) break DC;
+				}
+			}
+			Map<String,Object> flip = new HashMap<>();
+			flip.put("oldHeading",oldHead);
+			flip.put("newHeading", newHead);
+			flip.put("name", "DateClosure");
+			System.out.printf("DateClosure: %s -> %s\n", oldHead.toString(), newHead.toString());
+			return flip;
+		}
+
+		return null;
+	}
+
+	static boolean flippableDateChange(String d1, String d2) {
+		if (d1.equals(d2)) return false;
+		d1 = d1.replaceAll("[,.]*$", "");
+		d2 = d2.replaceAll("[,.]*$", "");
+		if (d1.equals(d2)) return false;
+		String d1norm = normalizeDates(d1);
+		String d2norm = normalizeDates(d2);
+		if (d1norm.equals(d2norm)) return true;
+		String[] d1parts = d1norm.split("-",-1);
+		String[] d2parts = d2norm.split("-",-1);
+		if ( d1parts.length == 2 && d2parts.length == 2) {
+			if (d1parts[0].equals(d2parts[0]) && d1parts[1].isBlank())
+				return true;
+			if (d1parts[1].equals(d2parts[1]) && d1parts[0].isBlank())
+				return true;
+			Integer leftDiff = yearsDiff(d1parts[0], d2parts[0]);
+			Integer rightDiff = yearsDiff(d1parts[1], d2parts[1]);
+			if (leftDiff == null || rightDiff == null) return false;
+			if (leftDiff == 0 && rightDiff < 5) return true;
+			if (rightDiff == 0 && leftDiff < 5) return true;
+		}
+		return false;
+	}
+
+	private static Integer yearsDiff(String y1, String y2) {
+		if (y1 == null || y1.isBlank()) return null;
+		if (y2 == null || y2.isBlank()) return null;
+		try {
+			int year1 = Integer.valueOf( y1.replaceAll("[^\\d]", "") );
+			int year2 = Integer.valueOf( y2.replaceAll("[^\\d]", "") );
+			if (year1 < 1000 || year1 > 9999) return null;
+			if (year2 < 1000 || year2 > 9999) return null;
+			return Math.abs( year1 - year2 );
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	private static String normalizeDates(String before) {
+		return before
+				.replaceAll("\\bca\\. ?", "approximately ")
+				.replaceAll("\\bfl\\. ?", "active ")
+				.replaceAll("\\bcent(\\.|\\b)", "century")
+				.replaceAll("\\bb\\. ?([^\\-]+)", "$1-")
+				.replaceAll("\\bd\\. ?(\\d\\d\\d\\d)", "-$1")
+				;
+	}
+
+	private static DataField getHeadField(MarcRecord r) {
+		for (DataField f : r.dataFields)
+			if (f.tag.startsWith("1"))
+				return f;
+		return null;
+	}
+
+	private static MarcRecord getOldRecordVersion(Connection authority, String id,
+			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException {
+		MarcRecord oldR = null;
+		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
+				"SELECT marc21 FROM authorityUpdate WHERE id = ? AND moddate < ? ORDER BY moddate DESC")){
+			getOldRecordStmt.setString(1, id);
+			getOldRecordStmt.setDate(2, moddate);
+			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
+				while (rs.next()) {
+					byte[] marc = rs.getBytes(1);
+					try {
+						oldR = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+						String oldMainEntry = null;
+						for ( DataField f : oldR.dataFields ) if ( f.tag.startsWith("1") ) {
+							if ( f.tag.startsWith("18") )
+								oldMainEntry = f.concatenateSpecificSubfields(" > ", "vxyz");
+							else {
+								oldMainEntry = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
+								String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
+								if ( ! oldMainEntry.isEmpty() && ! dashed_terms.isEmpty() )
+									oldMainEntry += " > "+dashed_terms;
+							}
+						}
+						if ( ! mainEntry.equals(oldMainEntry) )
+							json.put("oldHeading", oldMainEntry);
+						return oldR;
+					} catch(IllegalArgumentException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private static void registerReportCompletion(
@@ -621,8 +718,9 @@ public class ProcessAuthorityChangeFile {
 
 	private static Map<String,Object> buildRelevantChange (
 			String heading, String searchField, String blField, Long records, EnumSet<DiffType> flags,
-			Config config)
+			Config config, Map<String,Object> autoFlip, AuthoritySource vocab)
 					throws UnsupportedEncodingException {
+
 		Map<String,Object> rc = new HashMap<>();
 		rc.put("heading", heading);
 		String link;
@@ -667,6 +765,10 @@ public class ProcessAuthorityChangeFile {
 			rc.put("variantHeadingType", "No $q");
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
+		if (autoFlip != null
+				&& flags.contains(DiffType.OLD) && flags.size() == 1
+				&& (blField.contains("author") || vocab.name().toLowerCase().equals(rc.get("vocab"))))
+			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;
 	}
