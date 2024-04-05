@@ -234,7 +234,7 @@ public class ProcessAuthorityChangeFile {
 						json.put("relevantChanges", relevantChanges);
 						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 						jsonWriter.append(mapper.writeValueAsString(json));
-						if (autoFlip != null && autoFlip.keySet().size() > 2) {
+						if (autoFlip != null && autoFlip.keySet().size() > 3) {
 							if ( writtenAutoFlip ) autoFlipWriter.append(",\n"); else writtenAutoFlip = true;
 							autoFlipWriter.append(mapper.writeValueAsString(autoFlip));
 						}
