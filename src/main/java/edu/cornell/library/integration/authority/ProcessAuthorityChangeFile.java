@@ -277,6 +277,8 @@ public class ProcessAuthorityChangeFile {
 				if (oldSF.code.equals('d')) {
 					if ( ! flippableDateChange( oldSF.value, newSF.value) ) break DC;
 					flippableD = true;
+				} else if (oldSF.code.equals('t') || oldSF.code.equals('k')) {
+					break DC;
 				} else {
 					if ( ! getFilingForm(oldSF.value).equals( getFilingForm(newSF.value) )) break DC;
 				}
