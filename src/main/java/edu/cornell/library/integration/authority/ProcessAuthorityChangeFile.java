@@ -792,7 +792,7 @@ public class ProcessAuthorityChangeFile {
 			rc.put("variantHeadingType", "No $q or $d");
 		if (autoFlip != null
 				&& flags.contains(DiffType.OLD) && flags.size() == 1
-				&& (blField.contains("author") || vocab.name().toLowerCase().equals(rc.get("vocab"))))
+				&& (blField.contains("author") || rc.get("vocab").equals("lc")))
 			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;
