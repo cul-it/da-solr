@@ -54,7 +54,7 @@ public class BoxInteractions {
 		BoxFolder rootFolder = BoxFolder.getRootFolder(api);
 		BoxFolder outputFolder = null;
 		for (BoxItem.Info itemInfo : rootFolder) {
-			System.out.format("[%s] %s\n", itemInfo.getID(), itemInfo.getName());
+//			System.out.format("[%s] %s\n", itemInfo.getID(), itemInfo.getName());
 			if (itemInfo.getName().equals(boxFolder))
 				outputFolder = new BoxFolder(api,itemInfo.getID());
 		}
@@ -62,10 +62,20 @@ public class BoxInteractions {
 			throw new IOException(String.format("Target folder on box, '%s' not found.\n", boxFolder));
 
 		FileInputStream instream = new FileInputStream(filename);
-		BoxFile.Info boxFile = outputFolder.uploadFile(instream, filename);
+		BoxFile.Info boxFile = null;
+		for (BoxItem.Info folderFile : outputFolder) {
+//			System.out.format("  [%s/%s] %s\n", boxFolder, folderFile.getName(), folderFile.getID());
+			if (folderFile.getName().equals(filename))
+				boxFile = (BoxFile.Info)folderFile;
+		}
+		if (boxFile != null) {
+			(new BoxFile(api, boxFile.getID())).uploadNewVersion(instream);
+		} else {
+			boxFile = outputFolder.uploadFile(instream, filename);
+		}
 		instream.close();
-		List<Info> path = boxFile.getPathCollection();
-		for (Info i : path) System.out.println(i.getName()+" : "+i.getID());
+//		List<Info> path = boxFile.getPathCollection();
+//		for (Info i : path) System.out.println(i.getName()+" : "+i.getID());
 		System.out.println("File uploaded.");
 		return new ArrayList<String>(Arrays.asList(boxFile.getID(), outputFolder.getID()));
 

@@ -85,11 +85,11 @@ public class ProcessAuthorityChangeFile {
 		if ( lines.length > 1 ) {
 			firstFile = lines[0];
 			lastFile = lines[1];
-			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+now()+".json";
+			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+".json";
 		} else {
 			firstFile = lines[0];
 			lastFile = firstFile;
-			outputFile = firstFile+now()+".json";
+			outputFile = firstFile+".json";
 		}
 
 		System.out.printf("Generating file %s\n", outputFile);
