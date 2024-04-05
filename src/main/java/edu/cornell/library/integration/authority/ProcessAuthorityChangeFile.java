@@ -518,7 +518,7 @@ public class ProcessAuthorityChangeFile {
 	private static Map<String,EnumSet<DiffType>> identifyActionableChanges(
 			String differences, MarcRecord r, String mainHeading) {
 
-		Map<String,EnumSet<DiffType>> headings = new HashMap<>();
+		Map<String,EnumSet<DiffType>> headings = new TreeMap<>();
 		for ( String difference : differences.split("\n")) {
 			String tag = difference.substring(2, 5);
 			boolean isNew = difference.startsWith("+");
