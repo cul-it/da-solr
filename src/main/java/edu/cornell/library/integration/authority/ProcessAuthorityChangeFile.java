@@ -217,7 +217,6 @@ public class ProcessAuthorityChangeFile {
 										heading,searchField,searchField,recordCount, flags, config, autoFlip, vocab);
 								relevantChanges.add(rc);
 								if (rc.containsKey("autoFlip")) {
-									System.out.println(recordCount);
 									q.setRows(recordCount.intValue()+100);
 									res = solr.query(q).getResults();
 									List<List<String>> instances = new ArrayList<>();
