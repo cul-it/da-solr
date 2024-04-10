@@ -60,7 +60,6 @@ public class ProcessAuthorityChangeFile {
 		Config config = Config.loadConfig(requiredArgs);
 		config.setDatabasePoolsize("Authority", 2);
 		config.activateSES();
-
 		Map<String, String> env = System.getenv();
 		String fileId = env.get("box_file_id");
 		String fileName = env.get("box_file_name");
@@ -142,16 +141,12 @@ public class ProcessAuthorityChangeFile {
 					MarcRecord oldR = null;
 					if ( lookForOldRecordVersion )
 						oldR = getOldRecordVersion(authority, id, records.getDate("moddate"), mainEntry, json);
-					Map<String,Object> autoFlip = null;
-					if (json.containsKey("oldHeading"))
-						autoFlip = lookForEligibleAutoFlip(getHeadField(r), getHeadField(oldR));
 
-					String differences = null;
-					Map<String,EnumSet<DiffType>> actionableHeadings = null;
+					Map<String,Change> actionableHeadings = null;
 					if ( oldR != null ) {
-						differences = compareOldAndNewMarc( oldR, r).toString() ;
-						actionableHeadings = identifyActionableChanges( differences, r, mainEntry );
-						if ( actionableHeadings.isEmpty() ) continue;
+						Map<String,DataField> differences = compareOldAndNewMarc( oldR, r);
+						actionableHeadings = identifyActionableChanges( differences, r, getHeadField(r), mainEntry );
+
 					} else {
 						actionableHeadings = identifyActionableFields(
 								r, changeType.equals(ChangeType.DELETE) );
@@ -164,7 +159,8 @@ public class ProcessAuthorityChangeFile {
 					String mainEntrySort = getFilingForm( mainEntry );
 					List<Map<String,Object>> relevantChanges = new ArrayList<>();
 					for (String field : actionableHeadings.keySet() ) {
-						EnumSet<DiffType> flags = actionableHeadings.get(field);
+						EnumSet<DiffType> flags = actionableHeadings.get(field).flags;
+						Map<String,Object> autoFlip = actionableHeadings.get(field).autoFlip;
 						HeadingType ht = HeadingType.byAuthField("1"+field.substring(1, 3));
 						String heading = field.substring(4);
 						if ( checkedHeadings.contains(heading) ) continue;
@@ -229,15 +225,15 @@ public class ProcessAuthorityChangeFile {
 								}
 							}
 						}
+						if (autoFlip != null && autoFlip.keySet().size() > 3) {
+							if ( writtenAutoFlip ) autoFlipWriter.append(",\n"); else writtenAutoFlip = true;
+							autoFlipWriter.append(mapper.writeValueAsString(autoFlip));
+						}
 					}
 					if ( ! relevantChanges.isEmpty() ) {
 						json.put("relevantChanges", relevantChanges);
 						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 						jsonWriter.append(mapper.writeValueAsString(json));
-						if (autoFlip != null && autoFlip.keySet().size() > 3) {
-							if ( writtenAutoFlip ) autoFlipWriter.append(",\n"); else writtenAutoFlip = true;
-							autoFlipWriter.append(mapper.writeValueAsString(autoFlip));
-						}
 					}
 
 				}
@@ -353,6 +349,7 @@ public class ProcessAuthorityChangeFile {
 	private static MarcRecord getOldRecordVersion(Connection authority, String id,
 			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException {
 		MarcRecord oldR = null;
+		int maxFieldId = 0;
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
 				"SELECT marc21 FROM authorityUpdate WHERE id = ? AND moddate < ? ORDER BY moddate DESC")){
 			getOldRecordStmt.setString(1, id);
@@ -361,28 +358,44 @@ public class ProcessAuthorityChangeFile {
 				while (rs.next()) {
 					byte[] marc = rs.getBytes(1);
 					try {
-						oldR = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
-						String oldMainEntry = null;
-						for ( DataField f : oldR.dataFields ) if ( f.tag.startsWith("1") ) {
-							if ( f.tag.startsWith("18") )
-								oldMainEntry = f.concatenateSpecificSubfields(" > ", "vxyz");
-							else {
-								oldMainEntry = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
-								String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
-								if ( ! oldMainEntry.isEmpty() && ! dashed_terms.isEmpty() )
-									oldMainEntry += " > "+dashed_terms;
-							}
+						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+						if (oldR == null) {
+							oldR = r;
+							maxFieldId = oldR.dataFields.last().id;
+						} else {
+							DataField f = getHeadField(r);
+							f.id = ++maxFieldId ;
+							oldR.dataFields.add(f);
 						}
-						if ( ! mainEntry.equals(oldMainEntry) )
-							json.put("oldHeading", oldMainEntry);
-						return oldR;
 					} catch(IllegalArgumentException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		}
-		return null;
+		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
+				"SELECT marc21 FROM voyagerAuthority WHERE id = ?")){
+			getOldRecordStmt.setString(1, id);
+			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
+				while (rs.next()) {
+					byte[] marc = rs.getBytes(1);
+					try {
+						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+						if (oldR == null) {
+							oldR = r;
+							maxFieldId = oldR.dataFields.last().id;
+						} else {
+							DataField f = getHeadField(r);
+							f.id = ++maxFieldId ;
+							oldR.dataFields.add(f);
+						}
+					} catch(IllegalArgumentException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		return oldR;
 	}
 
 	private static void registerReportCompletion(
@@ -484,21 +497,23 @@ public class ProcessAuthorityChangeFile {
 	static ObjectMapper mapper = new ObjectMapper();
 	static { mapper.enable(SerializationFeature.INDENT_OUTPUT); }
 
-	private static String serializeActionable(Map<String, EnumSet<DiffType>> actionableHeadings) {
+	private static String serializeActionable(Map<String, Change> actionableHeadings) {
 		StringBuilder sb = new StringBuilder();
 		for (String heading : actionableHeadings.keySet()) {
 			sb.append(heading);
-			EnumSet<DiffType> flags = actionableHeadings.get(heading);
+			EnumSet<DiffType> flags = actionableHeadings.get(heading).flags;
 			if ( ! flags.isEmpty() )
 				sb.append(": "+flags.toString());
+			if ( actionableHeadings.get(heading).autoFlip != null)
+				sb.append(" ("+actionableHeadings.get(heading).autoFlip.get("name")+")");
 			sb.append("\n");
 		}
 		return sb.toString();
 	}
 
-	private static Map<String,EnumSet<DiffType>> identifyActionableFields(
+	private static Map<String,Change> identifyActionableFields(
 			MarcRecord r, boolean isDelete) {
-		Map<String,EnumSet<DiffType>> fields = new HashMap<>();
+		Map<String,Change> fields = new HashMap<>();
 		for (DataField f : r.dataFields) {
 			if ( ! f.tag.startsWith("1") && ! f.tag.startsWith("4") && ! f.tag.startsWith("78")) continue;
 			String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
@@ -506,30 +521,33 @@ public class ProcessAuthorityChangeFile {
 			EnumSet<DiffType> flags = EnumSet.noneOf(DiffType.class);
 			if (f.tag.startsWith("1") && ! isDelete) flags.add(DiffType.NEWMAIN);
 			if ( heading.isEmpty() ) {
-				if ( ! dashed_terms.isEmpty() ) fields.put(f.tag+" "+dashed_terms,flags);
+				if ( ! dashed_terms.isEmpty() ) fields.put(f.tag+" "+dashed_terms,new Change(flags));
 			} else {
 				if ( ! dashed_terms.isEmpty() ) heading += " > "+dashed_terms;
-				fields.put(f.tag+" "+heading,flags);
+				fields.put(f.tag+" "+heading,new Change(flags));
 			}
 		}
 		return fields;
 	}
 
-	private static Map<String,EnumSet<DiffType>> identifyActionableChanges(
-			String differences, MarcRecord r, String mainHeading) {
+	private static Map<String,Change> identifyActionableChanges(
+			Map<String,DataField> differences, MarcRecord r, DataField newMainF, String mainHeading) {
 
-		Map<String,EnumSet<DiffType>> headings = new TreeMap<>();
-		for ( String difference : differences.split("\n")) {
-			String tag = difference.substring(2, 5);
-			boolean isNew = difference.startsWith("+");
+		Map<String,Change> headings = new TreeMap<>();
+		for ( String difference : differences.keySet()) {
+			String tag = difference.substring(0, 3);
+			DataField f = differences.get(difference);
+			boolean isNew = f.mainTag.equals("NEW");
 			if ( ! tag.startsWith("1") && ! tag.startsWith("4") && ! tag.startsWith("78")) continue;
 			boolean newMain = tag.startsWith("1") && isNew;
-			DataField f = new DataField(1,tag,difference.charAt(5),
-					difference.charAt(6),difference.substring(6));
 			Map<String,EnumSet<DiffType>> diffHeadings = findHeadingVariants(f,newMain, mainHeading);
 			for ( Entry<String,EnumSet<DiffType>> e : diffHeadings.entrySet() ) {
 				e.getValue().add((isNew)?DiffType.NEW:DiffType.OLD);
-				headings.putIfAbsent(e.getKey(),e.getValue());
+				if ( ! isNew && f.tag.startsWith("1") && e.getValue().size() == 1) {
+					Map<String,Object> autoFlip = lookForEligibleAutoFlip(newMainF, f);
+					headings.putIfAbsent(e.getKey(),new Change(e.getValue(), autoFlip));
+				}
+				headings.putIfAbsent(e.getKey(),new Change(e.getValue()));
 			}
 		}
 		// pull in all the 4xx headings for updated records
@@ -537,7 +555,7 @@ public class ProcessAuthorityChangeFile {
 			Map<String,EnumSet<DiffType>> diffHeadings = findHeadingVariants(f,false, mainHeading);
 			for ( Entry<String,EnumSet<DiffType>> e : diffHeadings.entrySet() ) {
 				e.getValue().add(DiffType.UNCH);
-				headings.putIfAbsent(e.getKey(),e.getValue());
+				headings.putIfAbsent(e.getKey(),new Change(e.getValue()));
 			}
 		}
 		return headings;
@@ -798,7 +816,7 @@ public class ProcessAuthorityChangeFile {
 		return rc;
 	}
 
-	private static LinkedHashMap<String,String> serializeForComparison(MarcRecord marc) {
+	private static LinkedHashMap<String,DataField> serializeForComparison(MarcRecord marc) {
 /*		marc.leader = "00000" + marc.leader.substring(5, 12) + "00000" + marc.leader.substring(17);
 		ControlField five = null;
 		for (ControlField f : marc.controlFields)
@@ -808,51 +826,63 @@ public class ProcessAuthorityChangeFile {
 				f.value = "000000"+f.value.substring(6);
 		if (five != null)
 			marc.controlFields.remove(five);*/
-		for ( DataField f : marc.dataFields ) if ( f.tag.startsWith("1") ) f.ind2 = ' ';
-		String recordAsString = " "+Normalizer.normalize(
-				marc.toString(), Normalizer.Form.NFC).replaceAll("\u0361(.)", "\uFE20$1\uFE21");
-		List<String> lines = Arrays.asList(recordAsString.split("\n"));
-		LinkedHashMap<String,String> serializedFields = new LinkedHashMap<>();
-		for (String line : lines ) {
-			if ( line.startsWith("1") ) line = removeTrailingPunctuation(line,". ");
-			String sortableLine = getFilingForm(line);
-			serializedFields.put(line, sortableLine);
+		LinkedHashMap<String,DataField> serializedFields = new LinkedHashMap<>();
+		for ( DataField f : marc.dataFields ) {
+			if ( f.tag.startsWith("1") ) f.ind2 = ' ';
+			String fieldAsString = Normalizer.normalize(
+					f.toString(), Normalizer.Form.NFC).replaceAll("\u0361(.)", "\uFE20$1\uFE21");
+			if ( fieldAsString.startsWith("1") ) fieldAsString = removeTrailingPunctuation(fieldAsString,". ");
+			serializedFields.put(fieldAsString, f);
+
 		}
 		return serializedFields;
 	}
-	private static StringBuilder compareOldAndNewMarc(MarcRecord rec1, MarcRecord rec2) {
-		Map<String,String> before = serializeForComparison(rec1);
-		Map<String,String> after = serializeForComparison(rec2);
+	private static Map<String,DataField> compareOldAndNewMarc(MarcRecord rec1, MarcRecord rec2) {
+		Map<String,DataField> before = serializeForComparison(rec1);
+		Map<String,DataField> after = serializeForComparison(rec2);
 		List<String> common = new ArrayList<>();
 		List<String> commonSortables = new ArrayList<>();
 		for (String b : before.keySet())
 			for (String a : after.keySet())
 				if (b.equals(a)) {
 					common.add(b);
-				} else if (before.get(b).equals(after.get(a)))
-					commonSortables.add(before.get(b));
-		Map<String, Boolean> diff = new TreeMap<>();
+				} else if (getFilingForm(b).equals(getFilingForm(a)))
+					commonSortables.add(getFilingForm(b));
+		Map<String, DataField> diff = new TreeMap<>();
 		for (String b : before.keySet())
 			if (!common.contains(b)) {
-				if (! commonSortables.contains(before.get(b)))
-					diff.put(b, false);
-				else 
-					diff.put(b+" ~~~", false);
+				if (! commonSortables.contains(getFilingForm(b))) {
+					before.get(b).mainTag = "OLD";
+					diff.put(b, before.get(b));
+				} else {
+					before.get(b).mainTag = "OLD";
+					diff.put(b+" ~~~", before.get(b));
+				}
 			}
 		for (String a : after.keySet())
 			if (!common.contains(a))
-				if (! commonSortables.contains(after.get(a)))
-					diff.put(a, true);
-				else 
-					diff.put(a+" ~~~", true);
-		if (diff.isEmpty())
-			return new StringBuilder();
-		StringBuilder sb = new StringBuilder();
-		for (Entry<String, Boolean> e : diff.entrySet())
-			sb.append((e.getValue()) ? "+ " : "- ").append(e.getKey()).append('\n');
-		return sb;
+				if (! commonSortables.contains(getFilingForm(a))) {
+					after.get(a).mainTag = "NEW";
+					diff.put(a, after.get(a));
+				} else {
+					after.get(a).mainTag = "NEW";
+					diff.put(a+" ~~~", after.get(a));
+				}
+		return diff;
 	}
 
+	public static class Change {
+		final EnumSet<DiffType> flags;
+		final Map<String,Object> autoFlip;
+		Change( EnumSet<DiffType> flags ) {
+			this.flags = flags;
+			this.autoFlip = null;
+		}
+		Change( EnumSet<DiffType> flags, Map<String,Object> autoFlip ) {
+			this.flags = flags;
+			this.autoFlip = autoFlip;
+		}
+	}
 	
 	public static byte[] readFile(String filename) throws IOException {
 		return Files.readAllBytes(Paths.get(filename));
