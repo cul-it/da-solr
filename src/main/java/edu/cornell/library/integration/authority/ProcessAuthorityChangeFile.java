@@ -206,11 +206,11 @@ public class ProcessAuthorityChangeFile {
 									System.out.printf("%s relevant w/ %d instances (%s).\n",
 											displayForm,displayForms.get(displayForm),searchField);
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip, vocab));
+											displayForms.get(displayForm), flags, config, autoFlip));
 								}
 							} else {
 								Map<String,Object> rc = buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config, autoFlip, vocab);
+										heading,searchField,searchField,recordCount, flags, config, autoFlip);
 								relevantChanges.add(rc);
 								if (rc.containsKey("autoFlip")) {
 									q.setRows(recordCount.intValue()+100);
@@ -767,7 +767,7 @@ public class ProcessAuthorityChangeFile {
 
 	private static Map<String,Object> buildRelevantChange (
 			String heading, String searchField, String blField, Long records, EnumSet<DiffType> flags,
-			Config config, Map<String,Object> autoFlip, AuthoritySource vocab)
+			Config config, Map<String,Object> autoFlip)
 					throws UnsupportedEncodingException {
 
 		Map<String,Object> rc = new HashMap<>();
@@ -784,12 +784,14 @@ public class ProcessAuthorityChangeFile {
 				+ "qt=search&wt=csv&rows=9999999&fl=instance_id&q="
 				+ blField+":%22"+URLEncoder.encode(heading, "UTF-8")+"%22";
 
-		if      (blField.contains("_lc_"))    rc.put("vocab", "lc");
-		else if (blField.contains("_unk_"))   rc.put("vocab", "unk");
-		else if (blField.contains("_lcgft_")) rc.put("vocab", "lcgft");
-		else if (blField.contains("_lcjsh_")) rc.put("vocab", "lcjsh");
-		else if (blField.contains("_other_")) rc.put("vocab", "other");
-		else if (blField.contains("_fast_"))  rc.put("vocab", "fast");
+		String vocab = null;
+		if      (blField.contains("_lc_"))    vocab = "lc";
+		else if (blField.contains("_unk_"))   vocab = "unk";
+		else if (blField.contains("_lcgft_")) vocab = "lcgft";
+		else if (blField.contains("_lcjsh_")) vocab = "lcjsh";
+		else if (blField.contains("_other_")) vocab = "other";
+		else if (blField.contains("_fast_"))  vocab = "fast";
+		if (vocab != null) rc.put("vocab", vocab);
 
 		if      (searchField.contains("_pers_"))  rc.put("type", "pers");
 		else if (searchField.contains("_corp_"))  rc.put("type", "corp");
@@ -815,7 +817,7 @@ public class ProcessAuthorityChangeFile {
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
 		if (autoFlip != null
-				&& (blField.contains("author") || rc.get("vocab").equals("lc")) || rc.get("vocab").equals("fast"))
+				&& (blField.contains("author") || "lc".equals(vocab) || "fast".equals(vocab)))
 			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;
