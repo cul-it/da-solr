@@ -182,7 +182,7 @@ public class ProcessAuthorityChangeFile {
 								}
 						}
 
-						List<String> searchFields = identifySearchFields(ht,vocab);
+						List<String> searchFields = identifySearchFields(ht,vocab, autoFlip == null);
 						if ( searchFields == null ) continue;
 
 						for (String searchField : searchFields) {
@@ -665,7 +665,7 @@ public class ProcessAuthorityChangeFile {
 		return displayForms;
 	}
 
-	private static List<String> identifySearchFields(HeadingType fieldType, AuthoritySource vocab) {
+	private static List<String> identifySearchFields(HeadingType fieldType, AuthoritySource vocab, boolean alsoFast) {
 		List<String> searchFields = new ArrayList<>();
 		switch (fieldType) {
 		case PERS:
@@ -676,6 +676,8 @@ public class ProcessAuthorityChangeFile {
 				searchFields.add("subject_pers_lc_browse");
 				searchFields.add("subject_pers_unk_browse");
 			}
+			if ( alsoFast )
+				searchFields.add("subject_pers_fast_browse");
 			break;
 		case CORP:
 			searchFields.add("author_corp_roman_browse");
@@ -685,6 +687,8 @@ public class ProcessAuthorityChangeFile {
 				searchFields.add("subject_corp_lc_browse");
 				searchFields.add("subject_corp_unk_browse");
 			}
+			if ( alsoFast )
+				searchFields.add("subject_corp_fast_browse");
 			break;
 		case MEETING:
 		case EVENT:
@@ -695,6 +699,8 @@ public class ProcessAuthorityChangeFile {
 				searchFields.add("subject_event_lc_browse");
 				searchFields.add("subject_event_unk_browse");
 			}
+			if ( alsoFast )
+				searchFields.add("subject_event_fast_browse");
 			break;
 		case WORK:
 			searchFields.add("title_exact");
