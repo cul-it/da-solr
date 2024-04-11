@@ -815,8 +815,7 @@ public class ProcessAuthorityChangeFile {
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
 		if (autoFlip != null
-				&& flags.contains(DiffType.OLD) && flags.size() == 1
-				&& (blField.contains("author") || rc.get("vocab").equals("lc")))
+				&& (blField.contains("author") || rc.get("vocab").equals("lc")) || rc.get("vocab").equals("fast"))
 			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;
