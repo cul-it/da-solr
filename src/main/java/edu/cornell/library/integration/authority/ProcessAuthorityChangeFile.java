@@ -182,7 +182,7 @@ public class ProcessAuthorityChangeFile {
 								}
 						}
 
-						List<String> searchFields = identifySearchFields(ht,vocab, autoFlip == null);
+						List<String> searchFields = identifySearchFields(ht,vocab, autoFlip != null);
 						if ( searchFields == null ) continue;
 
 						for (String searchField : searchFields) {
