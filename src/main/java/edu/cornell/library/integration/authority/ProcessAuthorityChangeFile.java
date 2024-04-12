@@ -7,7 +7,10 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -250,10 +253,40 @@ public class ProcessAuthorityChangeFile {
 							firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 					if (writtenAutoFlip) {
 						boxIds = uploadFileToBox(env.get("boxKeyFile"),"Automatic Authority Flips",autoFlipFile);
+						triggerFlipJob(config, autoFlipFile);
 					}
 				}
 			}
 		}
+	}
+
+	private static void triggerFlipJob(Config config, String inputFile) throws IOException {
+		Map<String,String> prefectConfig = config.getServerConfig("prefect");
+		for (String key : prefectConfig.keySet())
+			System.out.format("%s: %s\n",key, prefectConfig.get(key));
+		Map<String,Object> payload = new HashMap<>();
+		payload.put("state", Map.of("type","SCHEDULED"));
+		payload.put("parameters", Map.of(
+				"config_block", prefectConfig.get("FlipJobConfig"),
+				"input_file",   inputFile));
+		payload.put("idempotency_key", java.util.UUID.randomUUID());
+		System.out.println(mapper.writeValueAsString(payload));
+		String url = String.format("%s/accounts/%s/workspaces/%s/deployments/%s/create_flow_run",
+				prefectConfig.get("Api"), prefectConfig.get("Account"),
+				prefectConfig.get("Workspace"), prefectConfig.get("FlipJobDeployment"));
+		System.out.println(url);
+		final HttpURLConnection c = (HttpURLConnection) (new URL(url)).openConnection();
+		c.setRequestProperty("Content-type", "application/json; charset=utf-8");
+		c.setRequestProperty("Authorization", "Bearer "+prefectConfig.get("Token"));
+		c.setRequestMethod("POST");
+		c.setDoOutput(true);
+		final OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
+		writer.write(mapper.writeValueAsString(payload));
+		writer.flush();
+		writer.close();
+		c.connect();
+		System.out.println(c.getResponseCode());
+		System.out.println(c.getResponseMessage());
 	}
 
 	private static Map<String,Object> lookForEligibleAutoFlip(DataField newHead, DataField oldHead) {
