@@ -262,8 +262,6 @@ public class ProcessAuthorityChangeFile {
 
 	private static void triggerFlipJob(Config config, String inputFile) throws IOException {
 		Map<String,String> prefectConfig = config.getServerConfig("prefect");
-		for (String key : prefectConfig.keySet())
-			System.out.format("%s: %s\n",key, prefectConfig.get(key));
 		Map<String,Object> payload = new HashMap<>();
 		payload.put("state", Map.of("type","SCHEDULED"));
 		payload.put("parameters", Map.of(
