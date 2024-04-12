@@ -270,11 +270,9 @@ public class ProcessAuthorityChangeFile {
 				"config_block", prefectConfig.get("FlipJobConfig"),
 				"input_file",   inputFile));
 		payload.put("idempotency_key", java.util.UUID.randomUUID());
-		System.out.println(mapper.writeValueAsString(payload));
 		String url = String.format("%s/accounts/%s/workspaces/%s/deployments/%s/create_flow_run",
 				prefectConfig.get("Api"), prefectConfig.get("Account"),
 				prefectConfig.get("Workspace"), prefectConfig.get("FlipJobDeployment"));
-		System.out.println(url);
 		final HttpURLConnection c = (HttpURLConnection) (new URL(url)).openConnection();
 		c.setRequestProperty("Content-type", "application/json; charset=utf-8");
 		c.setRequestProperty("Authorization", "Bearer "+prefectConfig.get("Token"));
@@ -285,8 +283,10 @@ public class ProcessAuthorityChangeFile {
 		writer.flush();
 		writer.close();
 		c.connect();
-		System.out.println(c.getResponseCode());
-		System.out.println(c.getResponseMessage());
+		if (c.getResponseCode() == 201)
+			System.out.println("Auto-flip job launched");
+		else
+			System.out.format("Auto-flip job launch unsuccessful. %d: %s\n", c.getResponseCode(), c.getResponseMessage());
 	}
 
 	private static Map<String,Object> lookForEligibleAutoFlip(DataField newHead, DataField oldHead) {
