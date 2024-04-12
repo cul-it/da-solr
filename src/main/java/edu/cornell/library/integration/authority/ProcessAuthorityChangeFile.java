@@ -1,5 +1,8 @@
 package edu.cornell.library.integration.authority;
 
+import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
+import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibCount;
+import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
 import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
@@ -40,7 +43,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -192,17 +194,18 @@ public class ProcessAuthorityChangeFile {
 							if ( ( flags.contains(DiffType.NEWMAIN) || isSeparatelyAuthorized)
 									&& changeType.equals(ChangeType.UPDATE)
 									&& ! ( searchField.contains("_unk_") ) ) continue;
-							SolrQuery q = new SolrQuery(searchField+":\""+heading.replaceAll("\"","'")+'"');
-							q.setRows(0);
-							q.setFields("instance_id","id");
-
-							SolrDocumentList res = solr.query(q).getResults();
-							Long recordCount = res.getNumFound();
-							if ( recordCount == 0 ) continue;
+//							SolrQuery q = new SolrQuery(searchField+":\""+heading.replaceAll("\"","'")+'"');
+//							q.setRows(0);
+//							q.setFields("instance_id","id");
+//
+//							SolrDocumentList res = solr.query(q).getResults();
+//							Long recordCount = res.getNumFound();
+							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading);
+							if ( 0 == recordCount) continue;
 							if ( flags.contains(DiffType.DIACR) ) {
 								String facetField = (searchField.startsWith("author")
 										?"author_facet":searchField.replace("browse","facet"));
-								Map<String,Long> displayForms = tabulateActualUnnormalizedHeadings(
+								Map<String,Integer> displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField);
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
@@ -215,17 +218,8 @@ public class ProcessAuthorityChangeFile {
 								Map<String,Object> rc = buildRelevantChange(
 										heading,searchField,searchField,recordCount, flags, config, autoFlip);
 								relevantChanges.add(rc);
-								if (rc.containsKey("autoFlip")) {
-									q.setRows(recordCount.intValue()+100);
-									res = solr.query(q).getResults();
-									List<List<String>> instances = new ArrayList<>();
-									for (SolrDocument doc : res) {
-										instances.add(new ArrayList<String>(Arrays.asList(
-												(String)doc.getFieldValue("id"),
-												(String)doc.getFieldValue("instance_id"))));
-									}
-									autoFlip.put(searchField, instances);
-								}
+								if (rc.containsKey("autoFlip"))
+									autoFlip.put(searchField, querySolrForMatchingBibs(solr,searchField,heading));
 							}
 						}
 						if (autoFlip != null && autoFlip.keySet().size() > 3) {
@@ -660,12 +654,12 @@ public class ProcessAuthorityChangeFile {
 		NEWMAIN, DIACR, UNCH, VAR_Q, VAR_D, VAR_QD, OLD, NEW;
 	}
 
-	private static Map<String,Long> tabulateActualUnnormalizedHeadings (
+	private static Map<String,Integer> tabulateActualUnnormalizedHeadings (
 			HttpSolrClient solr, String heading, String field, String facetField)
 					throws SolrServerException, IOException {
 
 		Map<String,Boolean> authors = new HashMap<>();
-		Map<String,Long> displayForms = new HashMap<>();
+		Map<String,Integer> displayForms = new HashMap<>();
 		String normalizedHeading = getFilingForm( heading );
 
 		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'")+'"');
@@ -684,7 +678,7 @@ public class ProcessAuthorityChangeFile {
 					continue; 
 				if ( displayForms.containsKey(author) )
 					displayForms.put(author, displayForms.get(author)+1);
-				else displayForms.put(author,1L);
+				else displayForms.put(author,1);
 			}
 		}
 		if ( incompleteIndexing ) {
@@ -696,108 +690,9 @@ public class ProcessAuthorityChangeFile {
 		return displayForms;
 	}
 
-	private static List<String> identifySearchFields(HeadingType fieldType, AuthoritySource vocab, boolean alsoFast) {
-		List<String> searchFields = new ArrayList<>();
-		switch (fieldType) {
-		case PERS:
-			searchFields.add("author_pers_roman_browse");
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_pers_lcjsh_browse");
-			else {
-				searchFields.add("subject_pers_lc_browse");
-				searchFields.add("subject_pers_unk_browse");
-			}
-			if ( alsoFast )
-				searchFields.add("subject_pers_fast_browse");
-			break;
-		case CORP:
-			searchFields.add("author_corp_roman_browse");
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_corp_lcjsh_browse");
-			else {
-				searchFields.add("subject_corp_lc_browse");
-				searchFields.add("subject_corp_unk_browse");
-			}
-			if ( alsoFast )
-				searchFields.add("subject_corp_fast_browse");
-			break;
-		case MEETING:
-		case EVENT:
-			searchFields.add("author_event_roman_browse");
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_event_lcjsh_browse");
-			else {
-				searchFields.add("subject_event_lc_browse");
-				searchFields.add("subject_event_unk_browse");
-			}
-			if ( alsoFast )
-				searchFields.add("subject_event_fast_browse");
-			break;
-		case WORK:
-			searchFields.add("title_exact");
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_work_lcjsh_browse");
-			else {
-				searchFields.add("subject_work_lc_browse");
-				searchFields.add("subject_work_unk_browse");
-			}
-			break;
-		case ERA:
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_era_lcjsh_browse");
-			else {
-				searchFields.add("subject_era_lc_browse");
-				searchFields.add("subject_era_unk_browse");
-			}
-			break;
-		case TOPIC:
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_topic_lcjsh_browse");
-			else {
-				searchFields.add("subject_topic_lc_browse");
-				searchFields.add("subject_topic_unk_browse");
-			}
-			break;
-		case PLACE:
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_geo_lcjsh_browse");
-			else {
-				searchFields.add("subject_geo_lc_browse");
-				searchFields.add("subject_geo_unk_browse");
-			}
-			break;
-		case GENRE:
-			searchFields.add("subject_genr_lcgft_browse");
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_genr_lcjsh_browse");
-			else {
-				searchFields.add("subject_genr_lc_browse");
-				searchFields.add("subject_genr_unk_browse");
-			}
-			break;
-		case INSTRUMENT:
-			searchFields = Arrays.asList("notes_t");
-			break;
-		case SUB_GEN:
-		case SUB_GEO:
-		case SUB_ERA:
-		case SUB_GNR:
-			if ( vocab.equals(AuthoritySource.LCJSH) )
-				searchFields.add("subject_sub_lcjsh_browse");
-			else {
-				searchFields.add("subject_sub_lc_browse");
-				searchFields.add("subject_sub_unk_browse");
-			}
-			break;
-		default:
-			System.out.println("Unexpected field type "+fieldType);
-			return null;
-		}
-		return searchFields;
-	}
 
 	private static Map<String,Object> buildRelevantChange (
-			String heading, String searchField, String blField, Long records, EnumSet<DiffType> flags,
+			String heading, String searchField, String blField, int records, EnumSet<DiffType> flags,
 			Config config, Map<String,Object> autoFlip)
 					throws UnsupportedEncodingException {
 
