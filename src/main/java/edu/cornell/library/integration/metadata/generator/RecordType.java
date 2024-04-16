@@ -10,6 +10,7 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
+import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
@@ -21,7 +22,7 @@ import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.3a"; }
+	public String getVersion() { return "1.4"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -55,9 +56,12 @@ public class RecordType implements SolrFieldGenerator {
 		else
 			sfs.add(getTypeField(rec.instance,statCodes,true));
 		sfs.add(new SolrField("source","Folio"));
-		if ( statCodes != null )
+		if ( statCodes != null ) {
 			for (String code : statCodes )
 				sfs.add(new SolrField("statcode_facet","instance_"+code));
+			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
+			if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
+		}
 		return sfs;
 	}
 
