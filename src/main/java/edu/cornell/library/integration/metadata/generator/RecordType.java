@@ -91,8 +91,11 @@ public class RecordType implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 		sfs.add(getTypeField(instance,statCodes,false));
 		sfs.add(new SolrField("source","Folio"));
-		if (statCodes != null ) for (String code : statCodes )
-			sfs.add(new SolrField("statcode_facet","instance_"+code));
+		if (statCodes != null ) {
+			for (String code : statCodes ) sfs.add(new SolrField("statcode_facet","instance_"+code));
+			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
+			if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
+		}
 		return sfs;
 	}
 
