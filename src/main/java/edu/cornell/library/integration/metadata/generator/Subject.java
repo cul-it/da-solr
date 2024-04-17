@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.7"; }
+	public String getVersion() { return "2.8"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -111,6 +111,8 @@ public class Subject implements SolrFieldGenerator {
 						case "aat":     h.vocab = HeadingVocab.AAT;     break;
 						case "agrovoc": h.vocab = HeadingVocab.AGROVOC; break;
 						case "homoit":  h.vocab = HeadingVocab.HOMOIT;  break;
+						case "rbmscv":  h.vocab = HeadingVocab.RBMSCV;  break;
+						case "zst":     h.vocab = HeadingVocab.ZST;     break;
 						case "local":   h.vocab = HeadingVocab.LOCAL;   break;
 						default: h.vocab = HeadingVocab.OTHER;
 						}
@@ -427,5 +429,5 @@ public class Subject implements SolrFieldGenerator {
 		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
-	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, LOCAL, OTHER, UNK; }
+	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, ZST, RBMSCV, LOCAL, OTHER, UNK; }
 }
