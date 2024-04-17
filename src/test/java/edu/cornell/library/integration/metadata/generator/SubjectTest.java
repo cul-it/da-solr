@@ -499,6 +499,8 @@ public class SubjectTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(2,"650",' ','7',"‡2 aat ‡a Recognized Vocab Term"));
 		rec.dataFields.add(new DataField(3,"650",' ','4',"‡a Unspecified Vocab Term"));
 		rec.dataFields.add(new DataField(4,"650",' ','7',"‡a Unspecified Vocab Term B"));
+		rec.dataFields.add(new DataField(5,"650",' ','7',"‡a Rare & Manuscript Term ‡2 rbmscv"));
+		rec.dataFields.add(new DataField(6,"650",' ','7',"‡2 zst ‡a Zine Vocab Term"));
 		String expected =
 		"subject_t: Unrecognized Vocab Term\n" +
 		"subject_topic_other_facet: Unrecognized Vocab Term\n" +
@@ -522,12 +524,28 @@ public class SubjectTest extends DbBaseTest {
 		"subject_topic_unk_facet: Unspecified Vocab Term B.\n" +
 		"subject_topic_unk_filing: unspecified vocab term b\n" +
 
+		"subject_t: Rare & Manuscript Term\n" +
+		"subject_topic_facet: Rare & Manuscript Term\n" +
+		"subject_topic_filing: rare manuscript term 5&\n" +
+		"subject_topic_rbmscv_facet: Rare & Manuscript Term\n" +
+		"subject_topic_rbmscv_filing: rare manuscript term 5&\n" +
+
+		"subject_t: Zine Vocab Term\n" +
+		"subject_topic_facet: Zine Vocab Term\n" +
+		"subject_topic_filing: zine vocab term\n" +
+		"subject_topic_zst_facet: Zine Vocab Term\n" +
+		"subject_topic_zst_filing: zine vocab term\n" +
+
 		"subject_json: [{\"subject\":\"Recognized Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
 		"subject_json: [{\"subject\":\"Unspecified Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
 		"subject_json: [{\"subject\":\"Unspecified Vocab Term B\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Rare & Manuscript Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n"+
+		"subject_json: [{\"subject\":\"Zine Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
 		"subject_display: Recognized Vocab Term\n" +
 		"subject_display: Unspecified Vocab Term\n" +
 		"subject_display: Unspecified Vocab Term B.\n" +
+		"subject_display: Rare & Manuscript Term\n" +
+		"subject_display: Zine Vocab Term\n" +
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
