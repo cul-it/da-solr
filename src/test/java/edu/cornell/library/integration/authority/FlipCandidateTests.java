@@ -59,7 +59,6 @@ class FlipCandidateTests {
 				));
 		for (DateFlip f : flips) {
 			boolean actual = ProcessAuthorityChangeFile.flippableDateChange(f.d1, f.d2);
-			System.out.printf("%30s %33s %8s\n", f.d1, f.d2, actual);
 			assertEquals(f.a, actual);
 		}
 	}
