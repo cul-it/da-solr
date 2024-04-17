@@ -74,4 +74,32 @@ public class RecordTypeTest {
 		"statcode_facet: instance_test-code\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
+
+	@Test
+	public void integrationSuppressions() throws SQLException, IOException {
+		StatisticalCodes.codes = new ReferenceData("code");
+		StatisticalCodes.codes.addTestValue("no-google-img-code-uuid", "no-google-img");
+		StatisticalCodes.codes.addTestValue("no-syndetics-code-uuid", "no-syndetics");
+
+		// non-marc instance
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("statisticalCodeIds", Arrays.asList("no-google-img-code-uuid"));
+		String expected =
+		"type: Non-MARC Instance\n"+
+		"source: Folio\n"+
+		"statcode_facet: instance_no-google-img\n"+
+		"no_google_img_b: true\n";
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// marc instance
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.instance = new HashMap<>();
+		rec.instance.put("statisticalCodeIds", Arrays.asList("no-syndetics-code-uuid"));
+		expected =
+		"type: Catalog\n"+
+		"source: Folio\n"+
+		"statcode_facet: instance_no-syndetics\n"+
+		"no_syndetics_b: true\n";
+		assertEquals(expected, this.gen.generateSolrFields(rec, null).toString());
+	}
 }
