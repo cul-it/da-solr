@@ -49,7 +49,8 @@ public class RetrieveAuthorityUpdateFiles {
   
 			if ( ! ftp.login(ftpConfig.get("User"), ftpConfig.get("Password")) ) {
 				System.out.println("FTP login to LC Authorities failed.");
-				ftp.disconnect(); 
+				ftp.disconnect();
+				return;
 			}
 			System.out.println("Connected and logged into FTP.");
 			ftp.setFileType(FTP.BINARY_FILE_TYPE); 
