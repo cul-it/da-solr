@@ -39,20 +39,25 @@ public class OkapiClient {
 
 	public String getToken() { return this.token; }
 
-	public String post(final String endPoint, final String json) throws IOException {
+	public String post(final String endPoint, final String payload) throws IOException {
+		return post(endPoint, payload, "application/json;charset=utf-8");
+	}
 
-		System.out.println("About to post " + endPoint);
+	public String post(final String endPoint, final String payload, String contentType) throws IOException {
+
+		System.out.println(endPoint+" POST");
 
 		final URL fullPath = new URL(this.url + endPoint);
 		final HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
-		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+		c.setRequestProperty("Content-Type", contentType);
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
+		c.setRequestProperty("X-Okapi-Token", this.token);
 
 		c.setRequestMethod("POST");
 		c.setDoOutput(true);
 		c.setDoInput(true);
 		final OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
-		writer.write(json);
+		writer.write(payload);
 		writer.flush();
 		//      int responseCode = httpConnection.getResponseCode();
 		//      if (responseCode != 200)
@@ -256,7 +261,6 @@ public class OkapiClient {
 
 	private HttpURLConnection commonConnectionSetup(String path) throws IOException {
 		URL fullPath = new URL(this.url + path);
-		System.out.println(fullPath.toString());
 		HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
 		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);

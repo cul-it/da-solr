@@ -174,6 +174,15 @@ public class Config {
 
 		return true;
 	}
+	public boolean isTestOkapiConfigured(String id) {
+		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
+		if ( ! this.values.get("okapiUrl"+id).contains("test")) return false;
+		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
+		if ( ! (this.values.containsKey("okapiUser"+id) && this.values.containsKey("okapiPass"+id) )
+				&& ! this.values.containsKey("okapiToken"+id) ) return false;
+
+		return true;
+	}
 	public OkapiClient getOkapi(String id) throws IOException {
 		OkapiClient okapi = new OkapiClient(
 				this.values.get("okapiUrl"+id),
