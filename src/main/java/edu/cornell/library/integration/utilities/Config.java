@@ -250,6 +250,7 @@ public class Config {
 			if (url != null && url.contains("mysql")) {
 				try (Statement stmt = c.createStatement()) {
 					stmt.executeUpdate("SET NAMES utf8");
+					stmt.executeUpdate("SET time_zone = '+00:00'");
 				}
 			}
 			return c;
@@ -259,6 +260,7 @@ public class Config {
 		if (url != null && url.contains("mysql")) {
 			try (Statement stmt = c.createStatement()) {
 				stmt.executeUpdate("SET NAMES utf8");
+				stmt.executeUpdate("SET time_zone = '+00:00'");
 			}
 		}
 		return c;
