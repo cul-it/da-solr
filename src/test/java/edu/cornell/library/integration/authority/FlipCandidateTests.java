@@ -43,22 +43,23 @@ class FlipCandidateTests {
 				new DateFlip("25th cent.", "24th century",false),
 				new DateFlip("b. ca. 1912", "approximately 1912-",true),
 				new DateFlip("b. ca. 1912", "approximately 1912-1999",true),
-				new DateFlip("1912-1999", "1913-1999",true),
+				new DateFlip("1912-1999", "1913-1999",false),
 				new DateFlip("1912-1999", "1913-1985",false),
 				new DateFlip("1912-1999", "1917-1999",false),
-				new DateFlip("ca. 1912-1999", "1913-1999",true),
-				new DateFlip("ca. 1912-1999", "approximately 1915-1999",true),
+				new DateFlip("ca. 1912-1999", "1913-1999",false),
+				new DateFlip("ca. 1912-1999", "approximately 1915-1999",false),
 				new DateFlip("approximately 1912-1999", "1917-1999",false),
-				new DateFlip("1755-approximately 1825", "1755-1824", true),
-				new DateFlip("1912-1999", "approximately 1913-1999",true),
+				new DateFlip("1755-approximately 1825", "1755-1824", false),
+				new DateFlip("1912-1999", "approximately 1913-1999",false),
 				new DateFlip("1912-1999", "approximately 1912-1999",true),
-				new DateFlip("1912-1999", "approximately 1912-1997",true),
+				new DateFlip("1912-1999", "approximately 1912-1997",false),
 				new DateFlip("ca. 4 B.C.-65 A.D.", "7 B.C.-65 A.D.",false)
 				
 				
 				));
 		for (DateFlip f : flips) {
 			boolean actual = ProcessAuthorityChangeFile.flippableDateChange(f.d1, f.d2);
+//			System.out.format("%25s -> (%-5S) %s\n", f.d1, f.a, f.d2);
 			assertEquals(f.a, actual);
 		}
 	}

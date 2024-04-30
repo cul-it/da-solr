@@ -334,8 +334,7 @@ public class ProcessAuthorityChangeFile {
 			Integer leftDiff = yearsDiff(d1parts[0], d2parts[0]);
 			Integer rightDiff = yearsDiff(d1parts[1], d2parts[1]);
 			if (leftDiff == null || rightDiff == null) return false;
-			if (leftDiff == 0 && rightDiff < 5) return true;
-			if (rightDiff == 0 && leftDiff < 5) return true;
+			if (leftDiff == 0 && rightDiff == 0) return true;
 		}
 		return false;
 	}
