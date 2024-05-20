@@ -224,6 +224,7 @@ public class ProcessAuthorityChangeFile {
 						}
 						if (autoFlip != null && autoFlip.keySet().size() > 3) {
 							if ( writtenAutoFlip ) autoFlipWriter.append(",\n"); else writtenAutoFlip = true;
+							autoFlip.put("authorityId", id);
 							autoFlipWriter.append(mapper.writeValueAsString(autoFlip));
 						}
 					}
