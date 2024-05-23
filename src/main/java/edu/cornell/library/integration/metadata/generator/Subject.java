@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.8"; }
+	public String getVersion() { return "2.9"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -126,6 +126,7 @@ public class Subject implements SolrFieldGenerator {
 			final Set<String> values880_breadcrumbed = new LinkedHashSet<>();
 			final Set<String> valuesMain_breadcrumbed = new LinkedHashSet<>();
 			final List<BrowseValue> values_browse = new ArrayList<>();
+			final Map<HeadingType,String> values_auth_browse = new HashMap<>();
 			final Set<String> valuesMain_json = new LinkedHashSet<>();
 			final Set<String> values880_json = new LinkedHashSet<>();
 			final Set<String> values_dashed = new LinkedHashSet<>();
@@ -258,6 +259,11 @@ public class Subject implements SolrFieldGenerator {
 					json.add(subj1);
 
 					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$",is880));
+					if (vals != null && vals.category.equals(HeadingCategory.AUTHORTITLE) && ! is880) {
+						HeadingType nameType = (f.mainTag.equals("600")) ? HeadingType.PERSNAME
+								: (f.mainTag.equals("610")) ? HeadingType.CORPNAME : HeadingType.EVENT;
+						values_auth_browse.put(nameType, removeTrailingPunctuation(vals.author,"."));
+					}
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
@@ -344,6 +350,13 @@ public class Subject implements SolrFieldGenerator {
 				String vocab = h.vocab.name().toLowerCase();
 				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
 				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));
+			}
+			for (final HeadingType parentHt : values_auth_browse.keySet()) {
+				String value = values_auth_browse.get(parentHt);
+				if (isCJK(value)) continue;
+				String vocab = h.vocab.name().toLowerCase();
+				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_facet", value));
+				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_filing",getFilingForm(value)));
 			}
 
 			if ( ! h.is653 &&
