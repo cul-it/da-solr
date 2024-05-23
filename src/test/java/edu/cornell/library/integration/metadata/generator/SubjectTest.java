@@ -133,6 +133,8 @@ public class SubjectTest extends DbBaseTest {
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
 		"subject_work_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
+		"subject_corp_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy)\n"+
+		"subject_corp_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy\n"+
 		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four.\",\"authorized\":true,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"authority_subject_t: Jesuits. Congregatio Generalis. | Jesuits today\n"+
@@ -148,9 +150,29 @@ public class SubjectTest extends DbBaseTest {
 		"subject_work_filing: bible 0000 paraphrases ot english\n"+
 		"subject_work_lc_facet: Bible. | Paraphrases. O.T. English\n"+
 		"subject_work_lc_filing: bible 0000 paraphrases ot english\n"+
+		"subject_corp_lc_facet: Bible\n"+
+		"subject_corp_lc_filing: bible\n"+
 		"subject_json: [{\"subject\":\"Bible. | Paraphrases. O.T. English.\","
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testPersonTitle600() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"600",'1','0',"‡a Mill, John Stuart, ‡d 1806-1873. ‡t System of logic."));
+		String expected =
+		"subject_t: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_work_lc_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_lc_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_pers_lc_facet: Mill, John Stuart, 1806-1873\n"+
+		"subject_pers_lc_filing: mill john stuart 1806 1873\n"+
+		"subject_json: [{\"subject\":\"Mill, John Stuart, 1806-1873. | System of logic.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
+		"subject_display: Mill, John Stuart, 1806-1873. | System of logic\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
