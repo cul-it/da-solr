@@ -142,6 +142,13 @@ public class Config {
 		return null;
 	}
 
+	public String getAwsS3Bucket() {
+		if (this.values.containsKey("awsS3Bucket")) {
+			return this.values.get("awsS3Bucket");
+		}
+		return null;
+	}
+
 	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
 		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
 				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
@@ -164,6 +171,15 @@ public class Config {
 		if (this.values.containsKey("randomGeneratorWavelength"))
 			return Integer.valueOf(this.values.get("randomGeneratorWavelength"));
 		return 400;
+	}
+
+	public boolean activateS3() {
+		if (! this.values.containsKey("awsS3AccessKey")) return false;
+		if (! this.values.containsKey("awsS3SecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsS3AccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsS3SecretKey"));
+		return true;
 	}
 
 	public boolean isOkapiConfigured(String id) {

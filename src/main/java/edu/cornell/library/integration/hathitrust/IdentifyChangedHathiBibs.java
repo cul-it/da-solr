@@ -11,9 +11,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +34,7 @@ import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.utilities.AWSS3;
 import edu.cornell.library.integration.utilities.Config;
 
 public class IdentifyChangedHathiBibs {
@@ -110,6 +111,10 @@ public class IdentifyChangedHathiBibs {
 		}
 		System.out.printf("%d instances to update\n",instancesToSend.size());
 		for (String s : instancesToSend) System.out.println(s);
+		String today = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+		AWSS3.putS3Object(config,
+				"hathi/input_test/change_detection/bibs_"+today+"_"+instancesToSend.size()+".txt",
+				String.join("\n", instancesToSend));
 
 	}
 
