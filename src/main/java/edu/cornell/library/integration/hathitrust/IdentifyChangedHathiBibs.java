@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +46,15 @@ public class IdentifyChangedHathiBibs {
 		Config config = Config.loadConfig(requiredArgs);
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
 		Timestamp folioGoLive = Timestamp.valueOf("2021-07-01 00:00:00");
-		Timestamp cursor = Timestamp.valueOf("2002-03-06 00:00:00");
+		Timestamp cursor = Timestamp.valueOf("2024-03-13 00:00:00");
+		try ( Connection inventory = config.getDatabaseConnection("Current");
+				Statement stmt = inventory.createStatement();
+				ResultSet rs = stmt.executeQuery(
+						"SELECT current_to_date FROM updateCursor WHERE cursor_name = 'hathi_upd'")) {
+			while (rs.next())
+				cursor = rs.getTimestamp(1);
+		}
+
 
 		List<HathiVolume> hathiFiles = getHathifilesList(config);
 		System.out.printf("%d volumes from COO in Hathifiles\n",hathiFiles.size());
@@ -61,7 +71,7 @@ public class IdentifyChangedHathiBibs {
 				if ( folioTimestamp.before(cursor) ) continue;
 				recentBibids.put(bibid, folioTimestamp);
 			}
-			if (recentBibids.isEmpty()) continue;
+			if (recentBibids.isEmpty()) { System.out.print('.'); continue; }
 
 			try { Thread.sleep(300); } catch (InterruptedException e) { System.exit(1); } // don't pressure Zephir API
 			MarcRecord zephirMarc = getZephirRecord( vol.volumeId );
