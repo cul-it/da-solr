@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.ConfigurationException;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.folio.OkapiClient;
@@ -79,6 +77,12 @@ public class Config {
 		return null;
 	}
 
+	public String getAuthorityDataDirectory() {
+		if (this.values.containsKey("authorityDataDirectory"))
+			return this.values.get("authorityDataDirectory");
+		return null;
+	}
+
 	public String getAuthorityChangeFileDirectory() {
 		if (this.values.containsKey("authorityChangeFileDirectory"))
 			return this.values.get("authorityChangeFileDirectory");
@@ -92,6 +96,13 @@ public class Config {
 		return null;
 	}
 
+
+	public String getBlacklightUrl() {
+		if (this.values.containsKey("blacklightUrl")) {
+			return this.values.get("blacklightUrl");
+		}
+		return null;
+	}
 
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {
@@ -142,28 +153,27 @@ public class Config {
 		return null;
 	}
 
-	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
-		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
-				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
-				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
-		if (this.values.containsKey("endOfIterativeCatalogUpdates")) {
-			try {
-				Integer hour = Integer.valueOf(this.values.get("endOfIterativeCatalogUpdates"));
-				if (hour < 1 || hour > 24)
-					throw new ConfigurationException(usage);
-				return hour;
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-				throw new ConfigurationException(usage);
-			}
-		}
-		return null;
+	public Map<String,String> getServerConfig(String serverPrefix) {
+		Map<String,String> args = new HashMap<>();
+		for (String key : this.values.keySet())
+			if (key.startsWith(serverPrefix))
+				args.put(key.replaceFirst(serverPrefix, ""), values.get(key));
+		return args;
 	}
 
 	public int getRandomGeneratorWavelength() {
 		if (this.values.containsKey("randomGeneratorWavelength"))
 			return Integer.valueOf(this.values.get("randomGeneratorWavelength"));
 		return 400;
+	}
+
+	public boolean activateSES() {
+		if (! this.values.containsKey("awsAccessKey")) return false;
+		if (! this.values.containsKey("awsSecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsAccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsSecretKey"));
+		return true;
 	}
 
 	public boolean isOkapiConfigured(String id) {

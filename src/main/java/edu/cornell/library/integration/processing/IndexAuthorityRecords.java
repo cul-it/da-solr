@@ -831,7 +831,7 @@ public class IndexAuthorityRecords {
 					r.reciprocalRelationship = "Progenitor"; break;
 				case "descendants":
 					r.relationship = "Progenitor";
-					r.reciprocalRelationship = "Descentants"; break;
+					r.reciprocalRelationship = "Descendants"; break;
 				case "employee": 
 					r.relationship = "Employer"; break;
 				case "employer":

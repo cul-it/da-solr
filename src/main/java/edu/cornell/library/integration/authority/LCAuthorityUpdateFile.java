@@ -185,6 +185,10 @@ public class LCAuthorityUpdateFile {
 	private static byte[] getTopRecordFromArray(byte[] bytes) {
 		int recordLength = Integer.valueOf( new String (
 				Arrays.copyOfRange(bytes, 0, 5), StandardCharsets.UTF_8 ) );
+/*		System.out.printf("[%s] -> [%s]\n",
+				new String(Arrays.copyOfRange(bytes, 0, 10),StandardCharsets.UTF_8),
+				(bytes.length > recordLength)?
+						new String(Arrays.copyOfRange(bytes, recordLength, recordLength+10),StandardCharsets.UTF_8):"");*/
 		return Arrays.copyOfRange(bytes, 0, recordLength);
 	}
 

@@ -1,16 +1,15 @@
 package edu.cornell.library.integration.metadata.support;
 
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.cornell.library.integration.utilities.Config;
-
-import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 public class AuthorityData {
 
@@ -37,7 +36,7 @@ public class AuthorityData {
 			}
 
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
-						"SELECT main_entry, heading.id, authority.id"+
+						"SELECT main_entry, heading.id, authority.nativeId"+
 						"  FROM heading, authority2heading, authority"+
 						" WHERE heading_type = ? AND sort = ?"+
 						"   AND heading.id = authority2heading.heading_id"+
@@ -48,6 +47,8 @@ public class AuthorityData {
 					while (rs.next()) {
 						this.authorized = this.authorized || rs.getBoolean(1);
 						this.headingId = rs.getInt(2);
+						if (rs.getBoolean(1))
+							this.authorityId.add(rs.getString(3));
 					}
 				}
 			}
