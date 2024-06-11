@@ -92,6 +92,12 @@ public class Config {
 		return null;
 	}
 
+	public String getHathiJobInputPath() {
+		if (this.values.containsKey("hathiJobInputPath")) {
+			return this.values.get("hathiJobInputPath");
+		}
+		return null;
+	}
 
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {

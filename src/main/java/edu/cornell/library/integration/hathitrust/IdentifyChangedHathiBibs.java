@@ -113,8 +113,14 @@ public class IdentifyChangedHathiBibs {
 		for (String s : instancesToSend) System.out.println(s);
 		String today = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		AWSS3.putS3Object(config,
-				"hathi/input_test/change_detection/bibs_"+today+"_"+instancesToSend.size()+".txt",
+				config.getHathiJobInputPath()+"bibs_"+today+"_"+instancesToSend.size()+".txt",
 				String.join("\n", instancesToSend));
+		try ( Connection inventory = config.getDatabaseConnection("Current");
+				PreparedStatement stmt = inventory.prepareStatement(
+						"UPDATE updateCursor SET current_to_date = ? WHERE cursor_name = 'hathi_upd'")) {
+			stmt.setString(1, today);
+			stmt.executeUpdate();
+		}
 
 	}
 
