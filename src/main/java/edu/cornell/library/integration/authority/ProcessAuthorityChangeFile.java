@@ -427,12 +427,13 @@ public class ProcessAuthorityChangeFile {
 			Connection db, Map<String,String> authReportConfig, String firstFile, String lastFile,
 			String toName, String toEmail, String file, List<String> boxIds)
 			throws SQLException {
-		try (PreparedStatement stmt = db.prepareStatement(
-						"UPDATE lcAuthorityFile SET reportedDate = NOW() WHERE updateFile BETWEEN ? AND ?")){
-			stmt.setString(1, firstFile);
-			stmt.setString(2, lastFile);
-			stmt.executeUpdate();
-		}
+		if ( ! authReportConfig.containsKey("Mode") || ! authReportConfig.get("Mode").equalsIgnoreCase("test"))
+			try (PreparedStatement stmt = db.prepareStatement(
+							"UPDATE lcAuthorityFile SET reportedDate = NOW() WHERE updateFile BETWEEN ? AND ?")){
+				stmt.setString(1, firstFile);
+				stmt.setString(2, lastFile);
+				stmt.executeUpdate();
+			}
 		String fullSubjectLine = String.format("%s: %s", authReportConfig.get("EmailSubject"), file);
 		System.out.printf("Sending email to %s <%s>\n", toName, toEmail);
 
