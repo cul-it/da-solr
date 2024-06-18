@@ -26,7 +26,6 @@ import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -243,11 +242,12 @@ public class ProcessAuthorityChangeFile {
 				autoFlipWriter.close();
 
 				if (testMode == null || ! testMode.equalsIgnoreCase("true")) {
-					List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),"JSON folder",outputFile);
-					registerReportCompletion(authority,config.getServerConfig("authReportEmail"),
-							firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
+					Map<String,String> authConfig = config.getServerConfig("authReport");
+					List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
+					registerReportCompletion(
+							authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 					if (writtenAutoFlip) {
-						boxIds = uploadFileToBox(env.get("boxKeyFile"),"Automatic Authority Flips",autoFlipFile);
+						boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("AutoFlipDir"),autoFlipFile);
 						triggerFlipJob(config, autoFlipFile);
 					}
 				}
@@ -424,7 +424,7 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static void registerReportCompletion(
-			Connection db, Map<String,String> authReportEmailConfig, String firstFile, String lastFile,
+			Connection db, Map<String,String> authReportConfig, String firstFile, String lastFile,
 			String toName, String toEmail, String file, List<String> boxIds)
 			throws SQLException {
 		try (PreparedStatement stmt = db.prepareStatement(
@@ -433,7 +433,7 @@ public class ProcessAuthorityChangeFile {
 			stmt.setString(2, lastFile);
 			stmt.executeUpdate();
 		}
-		String fullSubjectLine = String.format("%s: %s", authReportEmailConfig.get("Subject"), file);
+		String fullSubjectLine = String.format("%s: %s", authReportConfig.get("EmailSubject"), file);
 		System.out.printf("Sending email to %s <%s>\n", toName, toEmail);
 
 		StringBuilder msgBuilder = new StringBuilder();
@@ -459,7 +459,7 @@ public class ProcessAuthorityChangeFile {
 			msgBuilder.append("</table></html>");
 		}
 		Email.sendSESHtmlMessage(
-				authReportEmailConfig.get("From"),
+				authReportConfig.get("EmailFrom"),
 				String.format("%s <%s>", toName, toEmail),
 				fullSubjectLine,
 				msgBuilder.toString());
