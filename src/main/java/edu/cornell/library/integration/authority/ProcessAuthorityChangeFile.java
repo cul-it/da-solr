@@ -69,10 +69,10 @@ public class ProcessAuthorityChangeFile {
 		String fileName = env.get("box_file_name");
 		String requesterName = env.get("box_user_name");
 		String requesterEmail = env.get("box_user_login");
-		String testMode = env.get("test_mode");
 		System.out.printf("file: %s ; %s\nrequester %s <%s>\n", fileId, fileName, requesterName, requesterEmail);
 
-		if (testMode == null || ! testMode.equalsIgnoreCase("true"))
+		Map<String,String> authConfig = config.getServerConfig("authReport");
+		if ( ! authConfig.containsKey("Mode") || ! authConfig.get("Mode").equalsIgnoreCase("test"))
 			checkForNewAuthorityFiles( config );
 
 		String firstFile = null;
@@ -241,15 +241,12 @@ public class ProcessAuthorityChangeFile {
 				autoFlipWriter.flush();
 				autoFlipWriter.close();
 
-				if (testMode == null || ! testMode.equalsIgnoreCase("true")) {
-					Map<String,String> authConfig = config.getServerConfig("authReport");
-					List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
-					registerReportCompletion(
-							authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
-					if (writtenAutoFlip) {
-						boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("AutoFlipDir"),autoFlipFile);
-						triggerFlipJob(config, autoFlipFile);
-					}
+				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
+				registerReportCompletion(
+						authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
+				if (writtenAutoFlip) {
+					boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("AutoFlipDir"),autoFlipFile);
+					triggerFlipJob(config, autoFlipFile);
 				}
 			}
 		}
