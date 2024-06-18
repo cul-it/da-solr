@@ -132,7 +132,7 @@ public class ProcessAuthorityChangeFile {
 					json.put("heading",mainEntry);
 					AuthoritySource vocab = AuthoritySource.byOrdinal(records.getInt("vocabulary"));
 
-					System.out.println(id+": "+mainEntry);
+					System.out.format("[%5d] %s: %s\n", records.getInt("positionInFile"), id, mainEntry);
 
 					if ( records.getBoolean("undifferentiated") ) {
 						json.put("undifferentiated", true);
