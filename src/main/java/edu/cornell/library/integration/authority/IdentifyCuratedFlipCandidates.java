@@ -2,24 +2,26 @@ package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
+import static edu.cornell.library.integration.utilities.Excel.readExcel;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -27,20 +29,47 @@ import edu.cornell.library.integration.utilities.Config;
 
 public class IdentifyCuratedFlipCandidates {
 
+	
 	public static void main(String[] args) throws SQLException, IOException, SolrServerException {
-
-		Flip michael = new Flip(
-				new DataField(1,"150",' ',' ',"‡a Michael (Archangel)"),
-				new DataField(1,"100",'0',' ',"‡a Michael ‡c (Archangel)"),
-				"n 2001096929",
-				EnumSet.of(AuthoritySource.LC, AuthoritySource.FAST));
 
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Authority");
 		requiredArgs.add("blacklightSolrUrl");
 		Config config = Config.loadConfig(requiredArgs);
 
 
-		if ( michael.authorityId != null ) {
+		List<Map<String,String>> data = readExcel("C:\\Users\\fbw4\\Documents\\authUpdates\\names-that-may-be-fictitious_full (1).xlsx");
+		List<String> errors = new ArrayList<>();
+		for( Map<String,String> row: data) {
+			try {
+				DataField before = parseDataField(row.get("Heading - BEFORE"), row.get("LC Authority - BEFORE"));
+				DataField after = parseDataField(row.get("Heading - AFTER"), row.get("LC Authority - AFTER"));
+				String lcIdBefore = row.containsKey("LC Authority - BEFORE")?row.get("LC Authority - BEFORE")
+						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
+				String lcIdAfter = row.containsKey("LC Authority - AFTER")?row.get("LC Authority - AFTER")
+						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
+				Flip flip = new Flip(before, after, lcIdBefore, lcIdAfter, getVocabsToFlip(after));
+				boolean isCurrent = confirmAfterFormIsCurrent(config, flip);
+				if ( ! isCurrent ) {
+					errors.add("AFTER NOT CURRENT ERROR: "+ row.get("Heading - AFTER"));
+					continue;
+				}
+			} catch (UnsupportedEncodingException e) {
+				errors.add(e.getMessage());
+			}
+		}
+		for (String error : errors)
+			System.out.println(error);
+
+		Flip michael = new Flip(
+				new DataField(1,"150",' ',' ',"‡a Michael (Archangel)"),
+				new DataField(1,"100",'0',' ',"‡a Michael ‡c (Archangel)"),
+				"sh 85061506",
+				"n 2001096929",
+				EnumSet.of(AuthoritySource.LC, AuthoritySource.FAST));
+
+
+
+		if ( michael.authorityIdAfter != null ) {
 			boolean isCurrent = confirmAfterFormIsCurrent(config, michael);
 			if ( ! isCurrent ) {
 				System.out.println("The flip's 'after' form doesn't match its current authority.");
@@ -49,9 +78,46 @@ public class IdentifyCuratedFlipCandidates {
 			}
 		}
 
-		List<String> blacklightFields = identifyBlacklightFields( michael );
+//		Map<String,Object> autoFlip = buildAutoFlip(config, michael);
+//		if (autoFlip != null)
+//			System.out.println(mapper.writeValueAsString(autoFlip));
+	}
 
-		String heading = headingOf(michael.before);
+	private static EnumSet<AuthoritySource> getVocabsToFlip(DataField f) {
+		boolean isName = (f.tag.equals("100") || f.tag.equals("110") || f.tag.equals("111"));
+		if (!isName ) return EnumSet.of(AuthoritySource.LC);
+		for (Subfield sf : f.subfields)
+			if (sf.code.equals('v') || sf.code.equals('x') || sf.code.equals('y') || sf.code.equals('z'))
+				return EnumSet.of(AuthoritySource.LC);
+		return EnumSet.of(AuthoritySource.LC, AuthoritySource.FAST);
+	}
+
+	private static DataField parseDataField( String s, String lcId ) throws UnsupportedEncodingException {
+		String[] parts = s.split("[$‡ǂ]");
+		TreeSet<Subfield> subfields = new TreeSet<>();
+		for (int i = 1; i<parts.length; i++)
+			subfields.add(new Subfield(i,parts[i].charAt(0),parts[i].substring(1).trim()));
+		String prefix = parts[0];
+		if (prefix.length() > 8) throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
+		String tag = "1"+prefix.substring(1, 3);
+		HeadingType ht = HeadingType.byAuthField(tag);
+		if (ht == null) throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
+		if ( lcId == null ) return new DataField(1, tag,' ',' ',subfields);
+
+		boolean isName = ht.equals(HeadingType.PERS) || ht.equals(HeadingType.CORP) || ht.equals(HeadingType.MEETING);
+		if (lcId.startsWith("n")) {
+			if (!isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
+		} else {
+			if (isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
+		}
+		return new DataField(1, tag,' ',' ',subfields);
+	}
+
+
+	private static Map<String,Object> buildAutoFlip(Config config, Flip flip) throws IOException, SolrServerException {
+		List<String> blacklightFields = identifyBlacklightFields( flip );
+
+		String heading = headingOf(flip.before);
 
 		try( HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl())) {
 			
@@ -61,11 +127,11 @@ public class IdentifyCuratedFlipCandidates {
 				if (instances.isEmpty()) continue;
 				autoFlip.put(field, instances);
 			}
-			if (autoFlip.isEmpty()) return;
-			autoFlip.put("oldHeading", michael.before);
-			autoFlip.put("newHeading", michael.after);
+			if (autoFlip.isEmpty()) return null;
+			autoFlip.put("oldHeading", flip.before);
+			autoFlip.put("newHeading", flip.after);
 			autoFlip.put("name", "Replace");
-			System.out.println(mapper.writeValueAsString(autoFlip));
+			return autoFlip;
 		}
 	}
 
@@ -94,27 +160,29 @@ public class IdentifyCuratedFlipCandidates {
 
 	private static EnumSet<HeadingType> authorHeadingTypes = EnumSet.of(HeadingType.PERS, HeadingType.CORP, HeadingType.MEETING);
 
-	private static boolean confirmAfterFormIsCurrent(Config config, Flip michael) throws SQLException {
+	private static boolean confirmAfterFormIsCurrent(Config config, Flip flip) throws SQLException, UnsupportedEncodingException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				PreparedStatement mostRecentAuth = authority.prepareStatement(
 						"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1") ){
-			mostRecentAuth.setString(1, michael.authorityId);
+			mostRecentAuth.setString(1, flip.authorityIdAfter);
 			try (ResultSet rs = mostRecentAuth.executeQuery()) {
 				while (rs.next()) {
 					MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY, rs.getBytes("marc21"));
 					DataField f = getHeadField(r);
-					if ( ! f.tag.equals(michael.after.tag) || f.subfields.size() != michael.after.subfields.size()) {
-						System.out.printf("Heading has changed from %s to %s.\n",michael.after.toString(), f.toString());
-						return false;
-					}
-					List<Subfield> after = new ArrayList<>(michael.after.subfields);
+					flip.after.ind1 = f.ind1;
+					flip.after.ind2 = f.ind2;
+					if ( ! f.tag.equals(flip.after.tag) || f.subfields.size() != flip.after.subfields.size())
+						throw new UnsupportedEncodingException(String.format(
+								"NOT CURRENT ERROR: AFTER: %s CURRENT: %s", flip.after.toString(), f.toString()));
+					List<Subfield> after = new ArrayList<>(flip.after.subfields);
 					List<Subfield> current = new ArrayList<>(f.subfields);
 					for (int i = 0; i < after.size(); i++) {
 						Subfield a = after.get(i);
+						a.value = Normalizer.normalize(a.value,Normalizer.Form.NFC);
 						Subfield b = current.get(i);
 						if (a.code.equals(b.code) && a.value.equals(b.value)) continue;
-						System.out.printf("Heading has changed from %s to %s.\n",michael.after.toString(), f.toString());
-						return false;
+						throw new UnsupportedEncodingException(String.format(
+								"NOT CURRENT ERROR: AFTER: %s CURRENT: %s", flip.after.toString(), f.toString()));
 					}
 				}
 			}
@@ -132,7 +200,8 @@ public class IdentifyCuratedFlipCandidates {
 	private static class Flip {
 		final DataField before;
 		final DataField after;
-		final String authorityId;
+		final String authorityIdBefore;
+		final String authorityIdAfter;
 		final EnumSet<AuthoritySource> vocabs;
 //		Flip( DataField before, DataField after, String authorityId) {
 //			this.before = before;
@@ -140,15 +209,15 @@ public class IdentifyCuratedFlipCandidates {
 //			this.authorityId = authorityId;
 //			this.vocabs =EnumSet.of(AuthoritySource.LC);
 //		}
-		Flip( DataField before, DataField after, String authorityId, EnumSet<AuthoritySource> vocabs) {
+		Flip( DataField before, DataField after, String authorityIdBefore, String authorityIdAfter, EnumSet<AuthoritySource> vocabs) {
 			this.before = before;
 			this.after = after;
-			this.authorityId = authorityId;
+			this.authorityIdAfter = authorityIdAfter;
+			this.authorityIdBefore = authorityIdBefore;
 			this.vocabs = vocabs;
 		}
 	}
 
 	static ObjectMapper mapper = new ObjectMapper();
-	static { mapper.enable(SerializationFeature.INDENT_OUTPUT); }
 
 }
