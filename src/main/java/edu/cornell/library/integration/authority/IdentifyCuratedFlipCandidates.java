@@ -44,6 +44,10 @@ public class IdentifyCuratedFlipCandidates {
 		Map<String, String> env = System.getenv();
 		String fileId = env.get("box_file_id");
 		String fileName = env.get("box_file_name");
+		if (! fileName.endsWith(".xlsx")) {
+			System.out.println(fileName+" is not an xslx spreadsheet so will not trigger this process.");
+			System.exit(0);
+		}
 		byte[] fileContent = getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024*1024);
 //		System.out.println(fileContent);
 //		System.out.println(fileContent.length());
