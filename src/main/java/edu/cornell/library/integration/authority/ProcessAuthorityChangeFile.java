@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -79,7 +80,9 @@ public class ProcessAuthorityChangeFile {
 		String lastFile = null;
 		String outputFile = null;
 
-		String fileContent = getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024);
+		String fileContent = new String(
+				getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024),
+				StandardCharsets.UTF_8);
 
 		String[] lines = fileContent.split("\\r?\\n");
 		for (String line : lines ) {

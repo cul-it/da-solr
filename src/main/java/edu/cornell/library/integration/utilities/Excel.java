@@ -2,6 +2,7 @@ package edu.cornell.library.integration.utilities;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,10 @@ public class Excel {
 
 	public static List<Map<String,String>> readExcel(String filename) throws IOException {
 		FileInputStream is = new FileInputStream(filename);
+		return readExcel(is);
+	}
+
+	public static List<Map<String,String>> readExcel(InputStream is) throws IOException {
 		XSSFWorkbook wb = new XSSFWorkbook(is);
 		int sheets = wb.getNumberOfSheets();
 		XSSFSheet sheet = wb.getSheetAt(0);
@@ -24,7 +29,6 @@ public class Excel {
 		XSSFRow headingRow = sheet.getRow(0);
 		for (int col = 0; col < headingRow.getLastCellNum(); col++) {
 			String value = headingRow.getCell(col).getStringCellValue();
-			System.out.format("%d: %s\n", col, value);
 			headers.put(col, value);
 		}
 		

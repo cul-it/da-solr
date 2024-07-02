@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -22,7 +23,7 @@ import com.box.sdk.InMemoryLRUAccessTokenCache;
 
 public class BoxInteractions {
 
-	public static String getBoxFileContents( String keyFile, String fileId, String fileName, int maxSize )
+	public static byte[] getBoxFileContents( String keyFile, String fileId, String fileName, int maxSize )
 			throws IOException {
 		Reader reader = new FileReader(keyFile);
 		BoxConfig boxConfig = BoxConfig.readFrom(reader);
@@ -38,13 +39,18 @@ public class BoxInteractions {
 			System.out.println(msg);
 			throw new IllegalArgumentException(msg);
 		}
-		System.out.println("file_name "+info.getSize()+" bytes");
+		System.out.println(fileName+" "+info.getSize()+" bytes");
 		ByteArrayOutputStream content = new ByteArrayOutputStream();
 		file.download(content);
-		return content.toString();
+		return content.toByteArray();
 	}
 
 	public static List<String> uploadFileToBox( String keyFile, String boxFolder, String filename ) throws IOException {
+		return uploadFileToBox(keyFile, boxFolder, filename, null);
+	}
+
+	public static List<String> uploadFileToBox( String keyFile, String boxFolder, String filename, InputStream fileContent )
+			throws IOException {
 		Reader reader = new FileReader(keyFile);
 		BoxConfig boxConfig = BoxConfig.readFrom(reader);
 		IAccessTokenCache tokenCache = new InMemoryLRUAccessTokenCache(100);
@@ -61,7 +67,7 @@ public class BoxInteractions {
 		if (outputFolder == null)
 			throw new IOException(String.format("Target folder on box, '%s' not found.\n", boxFolder));
 
-		FileInputStream instream = new FileInputStream(filename);
+		InputStream instream = (fileContent != null)? fileContent: new FileInputStream(filename);
 		BoxFile.Info boxFile = null;
 		for (BoxItem.Info folderFile : outputFolder) {
 //			System.out.format("  [%s/%s] %s\n", boxFolder, folderFile.getName(), folderFile.getID());

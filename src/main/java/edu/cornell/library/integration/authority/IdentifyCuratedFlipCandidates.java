@@ -2,10 +2,14 @@ package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
+import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
+import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.Excel.readExcel;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +26,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
@@ -36,9 +41,16 @@ public class IdentifyCuratedFlipCandidates {
 		requiredArgs.add("blacklightSolrUrl");
 		Config config = Config.loadConfig(requiredArgs);
 
+		Map<String, String> env = System.getenv();
+		String fileId = env.get("box_file_id");
+		String fileName = env.get("box_file_name");
+		byte[] fileContent = getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024*1024);
+//		System.out.println(fileContent);
+//		System.out.println(fileContent.length());
 
-		List<Map<String,String>> data = readExcel("C:\\Users\\fbw4\\Documents\\authUpdates\\names-that-may-be-fictitious_full (1).xlsx");
+		List<Map<String,String>> data = readExcel(new ByteArrayInputStream(fileContent));
 		List<String> errors = new ArrayList<>();
+		List<Flip> flips = new ArrayList<>();
 		for( Map<String,String> row: data) {
 			try {
 				DataField before = parseDataField(row.get("Heading - BEFORE"), row.get("LC Authority - BEFORE"));
@@ -48,39 +60,30 @@ public class IdentifyCuratedFlipCandidates {
 				String lcIdAfter = row.containsKey("LC Authority - AFTER")?row.get("LC Authority - AFTER")
 						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
 				Flip flip = new Flip(before, after, lcIdBefore, lcIdAfter, getVocabsToFlip(after));
-				boolean isCurrent = confirmAfterFormIsCurrent(config, flip);
-				if ( ! isCurrent ) {
-					errors.add("AFTER NOT CURRENT ERROR: "+ row.get("Heading - AFTER"));
-					continue;
-				}
+				if (flip.authorityIdAfter != null)
+					confirmAfterFormIsCurrent(config, flip);
+//				if (flip.authorityIdBefore != null)
+//					confirmBeforeFormWasCurrent(config, flip);
+
+				flips.add(flip);
 			} catch (UnsupportedEncodingException e) {
+				System.out.println(e.getMessage());
 				errors.add(e.getMessage());
 			}
 		}
+		StringBuilder log = new StringBuilder();
+		
+		if (! errors.isEmpty()) log.append("DISABLED FLIPS\n");
 		for (String error : errors)
-			System.out.println(error);
+			log.append(error).append('\n');
 
-		Flip michael = new Flip(
-				new DataField(1,"150",' ',' ',"‡a Michael (Archangel)"),
-				new DataField(1,"100",'0',' ',"‡a Michael ‡c (Archangel)"),
-				"sh 85061506",
-				"n 2001096929",
-				EnumSet.of(AuthoritySource.LC, AuthoritySource.FAST));
-
-
-
-		if ( michael.authorityIdAfter != null ) {
-			boolean isCurrent = confirmAfterFormIsCurrent(config, michael);
-			if ( ! isCurrent ) {
-				System.out.println("The flip's 'after' form doesn't match its current authority.");
-				System.out.println("TODO: some workflow for addressing outdated flips.");
-				System.exit(1);
-			}
-		}
-
-//		Map<String,Object> autoFlip = buildAutoFlip(config, michael);
-//		if (autoFlip != null)
-//			System.out.println(mapper.writeValueAsString(autoFlip));
+		if (! flips.isEmpty()) log.append("\nFLIPS\n");
+		for (Flip flip : flips)
+			log.append(String.format("%s =>\t%s %s\n",
+					flip.before.toString(), flip.after.toString(), flip.vocabs.toString()));
+		System.out.println(log.toString());
+		uploadFileToBox(env.get("boxKeyFile"),"Flip Lists - TEST",fileName.replaceAll(".xlsx", ".txt"),
+				new ByteArrayInputStream(log.toString().getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private static EnumSet<AuthoritySource> getVocabsToFlip(DataField f) {
@@ -95,20 +98,31 @@ public class IdentifyCuratedFlipCandidates {
 	private static DataField parseDataField( String s, String lcId ) throws UnsupportedEncodingException {
 		String[] parts = s.split("[$‡ǂ]");
 		TreeSet<Subfield> subfields = new TreeSet<>();
-		for (int i = 1; i<parts.length; i++)
-			subfields.add(new Subfield(i,parts[i].charAt(0),parts[i].substring(1).trim()));
+		for (int i = 1; i<parts.length; i++) {
+			char code = parts[i].charAt(0);
+			subfields.add(new Subfield(i,code,parts[i].substring(1).trim()));
+			if ( ! Character.isLowerCase(code))
+				throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
+		}
 		String prefix = parts[0];
 		if (prefix.length() > 8) throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
 		String tag = "1"+prefix.substring(1, 3);
 		HeadingType ht = HeadingType.byAuthField(tag);
 		if (ht == null) throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
-		if ( lcId == null ) return new DataField(1, tag,' ',' ',subfields);
 
 		boolean isName = ht.equals(HeadingType.PERS) || ht.equals(HeadingType.CORP) || ht.equals(HeadingType.MEETING);
-		if (lcId.startsWith("n")) {
-			if (!isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
-		} else {
-			if (isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
+		if (lcId != null)
+			if (lcId.startsWith("n")) {
+				if (!isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
+			} else {
+				if (isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
+			}
+		if (isName) {
+			String indicators = prefix.substring(3);
+			if (indicators.contains("1"))
+				return new DataField(1, tag,'1',' ',subfields);
+			if (indicators.contains("0"))
+				return new DataField(1, tag,'0',' ',subfields);
 		}
 		return new DataField(1, tag,' ',' ',subfields);
 	}
@@ -160,7 +174,7 @@ public class IdentifyCuratedFlipCandidates {
 
 	private static EnumSet<HeadingType> authorHeadingTypes = EnumSet.of(HeadingType.PERS, HeadingType.CORP, HeadingType.MEETING);
 
-	private static boolean confirmAfterFormIsCurrent(Config config, Flip flip) throws SQLException, UnsupportedEncodingException {
+	private static void confirmAfterFormIsCurrent(Config config, Flip flip) throws SQLException, UnsupportedEncodingException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 				PreparedStatement mostRecentAuth = authority.prepareStatement(
 						"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1") ){
@@ -187,7 +201,35 @@ public class IdentifyCuratedFlipCandidates {
 				}
 			}
 		}
-		return true;
+		return;
+	}
+
+	private static void confirmBeforeFormWasCurrent(Config config, Flip flip) throws SQLException, UnsupportedEncodingException {
+		try ( Connection authority = config.getDatabaseConnection("Authority");
+				PreparedStatement mostRecentAuth = authority.prepareStatement(
+						"SELECT marc21,updateFile FROM authorityUpdate WHERE id = ? ORDER BY moddate") ){
+			mostRecentAuth.setString(1, flip.authorityIdBefore);
+			try (ResultSet rs = mostRecentAuth.executeQuery()) {
+				RS: while (rs.next()) {
+					MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY, rs.getBytes("marc21"));
+					DataField f = getHeadField(r);
+					System.out.format("%s %s %s\n",flip.authorityIdBefore, rs.getString("updateFile"), f.toString());
+					if ( ! f.tag.equals(flip.before.tag) || f.subfields.size() != flip.before.subfields.size())
+						continue; // not a match
+					List<Subfield> before = new ArrayList<>(flip.before.subfields);
+					List<Subfield> current = new ArrayList<>(f.subfields);
+					for (int i = 0; i < before.size(); i++) {
+						Subfield a = before.get(i);
+						a.value = Normalizer.normalize(a.value,Normalizer.Form.NFC);
+						Subfield b = current.get(i);
+						if ( ! a.code.equals(b.code) || ! a.value.equals(b.value)) continue RS; // not a match
+					}
+					return; //match found
+				}
+			}
+			throw new UnsupportedEncodingException(
+					String.format("NOT PREVIOUSLY VALID: %s (%s)", flip.before.toString(), flip.authorityIdBefore));
+		}
 	}
 
 	private static DataField getHeadField(MarcRecord r) {
