@@ -618,34 +618,41 @@ public class ProcessAuthorityChangeFile {
 		Map<String,EnumSet<DiffType>> headings = new HashMap<>();
 		String mainHead = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		Entry<String,EnumSet<DiffType>> mainEntry = headingOf(mainHead,f,null,newMain);
+		if (mainEntry == null) return headings;
 		headings.putIfAbsent(mainEntry.getKey(), mainEntry.getValue());
 
 		if ( ! mainHead.isEmpty() ) {
 			String mainHead_sansQ = f.concatenateSpecificSubfields("abcdefghjklmnoprstu");
 			if ( ! mainHead_sansQ.equals(mainHead) && ! mainHead_sansQ.isEmpty() ) {
 				Entry<String,EnumSet<DiffType>> entry = headingOf(mainHead_sansQ,f,DiffType.VAR_Q,false);
-				String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
-				if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
-								extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
-					headings.putIfAbsent(entry.getKey(), entry.getValue());
+				if (entry != null) {
+					String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
+					if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
+									extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
+						headings.putIfAbsent(entry.getKey(), entry.getValue());
+				}
 			}
 
 			String mainHead_sansD = f.concatenateSpecificSubfields("abcefghjklmnopqrstu");
 			if ( ! mainHead_sansD.equals(mainHead) && ! mainHead_sansD.isEmpty() ) {
 				Entry<String,EnumSet<DiffType>> entry = headingOf(mainHead_sansD,f,DiffType.VAR_D,false);
-				String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
-				if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
-								extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
-					headings.putIfAbsent(entry.getKey(), entry.getValue());
+				if (entry != null) {
+					String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
+					if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
+									extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
+						headings.putIfAbsent(entry.getKey(), entry.getValue());
+				}
 			}
 
 			String mainHead_sansQD = f.concatenateSpecificSubfields("abcefghjklmnoprstu");
 			if ( ! mainHead_sansQD.equals(mainHead) && ! mainHead_sansQD.isEmpty() ) {
 				Entry<String,EnumSet<DiffType>> entry = headingOf(mainHead_sansQD,f,DiffType.VAR_QD,false);
-				String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
-				if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
-								extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
-					headings.putIfAbsent(entry.getKey(), entry.getValue());
+				if (entry != null) {
+					String thisHeadingClean = removeTrailingPunctuation(entry.getKey(),"., ");
+					if ( ! preferredClean.equals(thisHeadingClean) && ! headings.keySet().stream().anyMatch(
+									extant -> thisHeadingClean.equals(removeTrailingPunctuation(extant,"., "))))
+						headings.putIfAbsent(entry.getKey(), entry.getValue());
+				}
 			}
 		}
 
