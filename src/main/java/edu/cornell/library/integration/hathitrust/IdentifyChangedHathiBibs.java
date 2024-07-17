@@ -39,7 +39,24 @@ import edu.cornell.library.integration.utilities.Config;
 
 public class IdentifyChangedHathiBibs {
 
-
+	/**
+	 * IdentifyChangedHathiBibs<br>
+	 * <br>
+	 * Look for the timestamps on Folio instances that are connected with scanned volumes in <b>HathiTrust*</b>.
+	 * For each local record that is updated since <b>cursor*</b>, determine whether the local record has
+	 * significant bibliographic differences compared to the version previously uploaded by Cornell to
+	 * <b>Zephir*</b> (and thus made available to HathiTrust). Build a list of instance UUID's for those with
+	 * significant differences, and trigger their update in Zephir by uploading a list of UUID's as a
+	 * text file to the S3 bucket where it will trigger the <b>Prefect*</b> job that will execute the necessary
+	 * metadata push.<br>
+	 * <br>
+	 * 
+	 * * <b>cursor</b> is stored in the local Solr inventory db in the updateCursor table.<br>
+	 * * <b>HathiTrust</b> volumes are identified in the raw_hathi table in the local Hathi db.<br>
+	 * * <b>Zephir</b> is a service of the UC Lib. that serves as a metadata broker between us and HT.<br>
+	 * * <b>Prefect</b> is a service we use for Library automation jobs, in this case a push of metadata
+	 * related to bibliographic metadata and their scanned volumes to HT and Google books.<br>
+	 */
 	public static void main(String[] args) throws
 	SQLException, IOException, InterruptedException, XMLStreamException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");

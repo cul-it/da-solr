@@ -32,7 +32,7 @@ public class CallNumber {
 	private List<Sort> sortCandidates = new ArrayList<>();
 	private Set<Classification> classes = new LinkedHashSet<>();
 	private SolrFields sfs = new SolrFields();
-	public static ReferenceData callNumberTypes = null;
+	private static ReferenceData callNumberTypes = null;
 
 	public CallNumber () {
 		

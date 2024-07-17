@@ -29,6 +29,15 @@ import edu.cornell.library.integration.utilities.Config;
 
 public class BuildLocalHathiFilesDB {
 
+	/**
+	 *  BuildLocalHathiFilesDB<br/>
+	 *  Download most recent full export of hathifiles database and all intervening intermitent updates
+	 *  from HathiTrust and use them to build a local MySql database. The main table, raw_hathi, and 
+	 *  supplementary tables volume_to_source_inst_rec_num and volume_to_oclc will be given the table
+	 *  name prefix provided in the environment variable "prefixes".<br/>
+	 *  <br/>
+	 *  The raw data coming from HT is in gzipped tab-delimited files.
+	 */
 	public static void main(String[] args) throws IOException, SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Hathi");
 		requiredArgs.add("hathifilesUrl");

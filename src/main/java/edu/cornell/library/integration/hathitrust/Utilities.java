@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Utilities {
 
+	/**
+	 * Accepts a comma-separated list of table prefixes into a list of prefixes, stripping characters not
+	 * we don't want in our mysql table names, and converting the word 'none' into an empty prefix.
+	 */
 	static List<String> identifyPrefixes(String prefixes_param) {
 		List<String> prefixes = new ArrayList<>();
 		if (prefixes_param == null) {

@@ -17,9 +17,14 @@ import java.util.TreeSet;
 
 import edu.cornell.library.integration.utilities.Config;
 
-
 public class BuildHathiFilesDiffReport {
 
+	/**
+	 * BuildHathiFilesDiffReport<br/>
+	 * <br/>
+	 * Compare two versions of the hathifiles database to identify differents that may be due to drift
+	 * due to missing updates in incrementals.
+	 */
 	public static void main(String[] args) throws SQLException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Hathi");
 		Config config = Config.loadConfig(requiredArgs);
