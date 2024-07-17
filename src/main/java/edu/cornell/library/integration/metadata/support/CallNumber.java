@@ -32,7 +32,7 @@ public class CallNumber {
 	private List<Sort> sortCandidates = new ArrayList<>();
 	private Set<Classification> classes = new LinkedHashSet<>();
 	private SolrFields sfs = new SolrFields();
-	private static ReferenceData callNumberTypes = null;
+	public static ReferenceData callNumberTypes = null;
 
 	public CallNumber () {
 		
@@ -40,6 +40,10 @@ public class CallNumber {
 	public CallNumber (OkapiClient okapi) throws IOException {
 		if ( callNumberTypes == null )
 			callNumberTypes = new ReferenceData(okapi,"/call-number-types","name");
+	}
+	public CallNumber (String json) throws IOException{
+		if ( callNumberTypes == null )
+			callNumberTypes = new ReferenceData(json,"name");
 	}
 
 	public void tabulateCallNumber( Map<String,Object> holding ) {
