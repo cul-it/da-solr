@@ -33,3 +33,4 @@ tdbIndex/
 #emacs backups
 \#*#
 /target/
+*.prefs
