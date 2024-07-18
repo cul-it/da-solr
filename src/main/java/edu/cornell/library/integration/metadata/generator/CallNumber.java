@@ -15,6 +15,13 @@ import edu.cornell.library.integration.utilities.SolrFields;
 
 public class CallNumber implements SolrFieldGenerator {
 
+static edu.cornell.library.integration.metadata.support.CallNumber cn = null;
+
+public CallNumber() {}
+public CallNumber(String staticCallNumberJson) throws IOException {
+	cn = new edu.cornell.library.integration.metadata.support.CallNumber(staticCallNumberJson);
+}
+
 @Override
 public String getVersion() { return "1.2"; }
 
@@ -24,10 +31,10 @@ public List<String> getHandledFields() { return Arrays.asList("050","950","holdi
 @Override
 public SolrFields generateSolrFields(MarcRecord rec, Config config)
 		throws SQLException, IOException {
-	edu.cornell.library.integration.metadata.support.CallNumber cn =
-			(config.isOkapiConfigured("Folio"))?
-			new edu.cornell.library.integration.metadata.support.CallNumber(config.getOkapi("Folio")):
-				new edu.cornell.library.integration.metadata.support.CallNumber();
+	if (cn == null)
+		cn = (config.isOkapiConfigured("Folio"))?
+				new edu.cornell.library.integration.metadata.support.CallNumber(config.getOkapi("Folio")):
+					new edu.cornell.library.integration.metadata.support.CallNumber();
 	for (DataField f : rec.dataFields)
 		cn.tabulateCallNumber(f);
 	if ( rec.marcHoldings != null ) for ( MarcRecord h : rec.marcHoldings )
