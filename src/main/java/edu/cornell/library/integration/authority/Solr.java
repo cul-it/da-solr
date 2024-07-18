@@ -136,7 +136,8 @@ public class Solr {
 
 	public static int querySolrForMatchingBibCount(HttpSolrClient solr, String field, String heading) 
 			throws SolrServerException, IOException {
-		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'")+'"');
+		String query = field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"';
+		SolrQuery q = new SolrQuery(query);
 		q.setRows(0);
 		q.setFields("instance_id","id");
 		SolrDocumentList res = solr.query(q).getResults();

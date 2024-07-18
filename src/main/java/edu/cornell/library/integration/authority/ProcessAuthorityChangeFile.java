@@ -131,7 +131,7 @@ public class ProcessAuthorityChangeFile {
 
 					json.put("id", id);
 					json.put("inputFile", records.getString("updateFile"));
-					String mainEntry = records.getString("heading");
+					String mainEntry = records.getString("heading").replaceAll("\\\\$", "");
 					json.put("heading",mainEntry);
 					AuthoritySource vocab = AuthoritySource.byOrdinal(records.getInt("vocabulary"));
 
@@ -604,8 +604,8 @@ public class ProcessAuthorityChangeFile {
 		EnumSet<DiffType> flags = (variantType == null)
 				?EnumSet.noneOf(DiffType.class):EnumSet.of(variantType);
 		if ( newMain ) flags.add(DiffType.NEWMAIN);
-		if (heading.endsWith(" ~~~"))
-			heading = heading.replaceAll(" ~~~", "");
+		heading = heading.replaceAll(" ~~~$", "");
+		heading = heading.replaceAll("[,\\\\]$", "");
 
 		return new AbstractMap.SimpleEntry<>(heading,flags);
 	}
@@ -669,8 +669,9 @@ public class ProcessAuthorityChangeFile {
 		Map<String,Boolean> authors = new HashMap<>();
 		Map<String,Integer> displayForms = new HashMap<>();
 		String normalizedHeading = getFilingForm( heading );
+		System.out.format("tabulating display versions for %s (%s)\n", field, facetField);
 
-		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'")+'"');
+		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"');
 		q.setRows(10_000);
 		q.setFields(facetField,"id");
 
