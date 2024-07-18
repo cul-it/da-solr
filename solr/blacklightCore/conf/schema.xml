@@ -382,7 +382,6 @@
   <copyField source="id" dest="id_startsNum"/>
   <copyField source="donor_s" dest="donor_startsC"/>
   <copyField source="*_filing" dest="*_browse"/>
-  <copyField source="donor_display" dest="donor_t"/>
 
   <!-- spellcheck fields -->
   <!-- default spell check;  should match fields for default request handler -->

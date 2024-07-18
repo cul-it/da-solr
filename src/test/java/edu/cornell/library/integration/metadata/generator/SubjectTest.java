@@ -5,28 +5,30 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 
-public class SubjectTest {
-
-	static Config config = null;
+public class SubjectTest extends DbBaseTest {
 	SolrFieldGenerator gen = new Subject();
 
+//	@BeforeClass
+//	public static void setup() {
+//		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+//		config = Config.loadConfig(requiredArgs);
+//	}
+
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException, SQLException {
+		setup("Headings");
 	}
 
 	@Test
-	public void testAuthorizedNoFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedNoFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		String expected =
@@ -53,7 +55,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testAuthorizedWithFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorizedWithFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Submerged lands ‡z United States."));
 		rec.dataFields.add(new DataField(9,"650",' ','7',"‡a Submerged lands ‡2 fast ‡0 (OCoLC)fst01136664"));
@@ -87,7 +89,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testChronFAST() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFAST() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 2000-2099 ‡2 fast"));
 		String expected =
@@ -104,7 +106,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testChronFASTWithUnwantedSpaces() throws ClassNotFoundException, SQLException, IOException {
+	public void testChronFASTWithUnwantedSpaces() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"648",' ','7',"‡a 1900 - 1999 ‡2 fast"));
 		String expected =
@@ -121,7 +123,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testComplex610() throws ClassNotFoundException, SQLException, IOException {
+	public void testComplex610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"610",'2','0',"‡a Jesuits. ‡b Congregatio Generalis ‡n (32nd :"
 				+ " ‡d 1974-1975 : ‡c Rome, Italy). ‡t Decree Four."));
@@ -131,6 +133,8 @@ public class SubjectTest {
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
 		"subject_work_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
+		"subject_corp_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy)\n"+
+		"subject_corp_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy\n"+
 		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four.\",\"authorized\":true,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"authority_subject_t: Jesuits. Congregatio Generalis. | Jesuits today\n"+
@@ -146,6 +150,8 @@ public class SubjectTest {
 		"subject_work_filing: bible 0000 paraphrases ot english\n"+
 		"subject_work_lc_facet: Bible. | Paraphrases. O.T. English\n"+
 		"subject_work_lc_filing: bible 0000 paraphrases ot english\n"+
+		"subject_corp_lc_facet: Bible\n"+
+		"subject_corp_lc_filing: bible\n"+
 		"subject_json: [{\"subject\":\"Bible. | Paraphrases. O.T. English.\","
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
@@ -154,7 +160,25 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testNonRoman610() throws ClassNotFoundException, SQLException, IOException {
+	public void testPersonTitle600() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"600",'1','0',"‡a Mill, John Stuart, ‡d 1806-1873. ‡t System of logic."));
+		String expected =
+		"subject_t: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_work_lc_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_lc_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_pers_lc_facet: Mill, John Stuart, 1806-1873\n"+
+		"subject_pers_lc_filing: mill john stuart 1806 1873\n"+
+		"subject_json: [{\"subject\":\"Mill, John Stuart, 1806-1873. | System of logic.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
+		"subject_display: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testNonRoman610() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,4,"610",'2','0',"‡6 880-04 ‡a Asahi Shinbun ‡v Indexes.",false));
 		rec.dataFields.add(new DataField(2,4,"610",'2','0',"‡6 610-04/$1 ‡a 朝日新聞 ‡x Indexes.",true));
@@ -186,7 +210,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void testUnwantedFacetValue() throws ClassNotFoundException, SQLException, IOException {
+	public void testUnwantedFacetValue() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"650",' ','4',"‡a Electronic books."));
 		String expected =
@@ -206,7 +230,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void test653() throws ClassNotFoundException, SQLException, IOException {
+	public void test653() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Textiles and Fashion Design"));
 		String expected =
@@ -223,7 +247,7 @@ public class SubjectTest {
 
 
 	@Test
-	public void test653core() throws ClassNotFoundException, SQLException, IOException {
+	public void test653core() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Art and Architecture (Core)"));
 		String expected =
@@ -240,7 +264,7 @@ public class SubjectTest {
 
 	@Test //DISCOVERYACCESS-3760
 	public void dontSearchOnParentheticalDisamiguationsInAlternateForms()
-			throws ClassNotFoundException, SQLException, IOException {
+			throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10215428";
 		rec.dataFields.add(new DataField(1,"651",' ','7',"‡a Cambodia ‡z Svay Riĕng. ‡2 fast ‡0 (OCoLC)fst01878040"));
@@ -248,7 +272,7 @@ public class SubjectTest {
 	}
 
 	@Test
-	public void swappedOffensiveSubjectTerms() throws ClassNotFoundException, SQLException, IOException {
+	public void swappedOffensiveSubjectTerms() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "10329599";
 		rec.dataFields.add(new DataField(1,"650",' ','0',"‡a Illegal aliens ‡z United States."));
@@ -359,25 +383,19 @@ public class SubjectTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		// related to "bisacsh" vocab term
 		"subject_t: POLITICAL SCIENCE > American Government\n"+ 
-		"subject_topic_facet: POLITICAL SCIENCE\n" +
-		"subject_topic_filing: political science\n" +
 		"subject_topic_other_facet: POLITICAL SCIENCE\n" +
 		"subject_topic_other_filing: political science\n"+ 
-		"subject_topic_facet: POLITICAL SCIENCE > American Government\n"+ 
-		"subject_topic_filing: political science 0000 american government\n"+ 
 		"subject_topic_other_facet: POLITICAL SCIENCE > American Government\n"+ 
 		"subject_topic_other_filing: political science 0000 american government\n"+ 
 		"subject_sub_other_facet: American Government\n"+
 		"subject_sub_other_filing: american government\n"+
 
+		// related to "sears" vocab term
 		"subject_t: Undocumented immigrants > United States\n" +
-		"subject_topic_facet: Undocumented immigrants\n" +
-		"subject_topic_filing: undocumented immigrants\n" + 
 		"subject_topic_other_facet: Illegal aliens\n" + 
 		"subject_topic_other_filing: illegal aliens\n" + 
-		"subject_topic_facet: Undocumented immigrants > United States\n" + 
-		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
 		"subject_topic_other_facet: Illegal aliens > United States\n" + 
 		"subject_topic_other_filing: illegal aliens 0000 united states\n" + 
 		"subject_sub_other_facet: United States\n"+
@@ -408,7 +426,7 @@ public class SubjectTest {
 		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"United States\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Emigration and immigration\",\"authorized\":false},{\"subject\":\"Government policy.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"Emigration and immigration law\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":true}]\n" + 
-		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
+//		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"Immigration law\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
 
 		"subject_display: Undocumented immigrants > United States\n" + 
@@ -417,7 +435,7 @@ public class SubjectTest {
 		"subject_display: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_display: United States > Emigration and immigration > Government policy\n" + 
 		"subject_display: Emigration and immigration law > United States\n" + 
-		"subject_display: POLITICAL SCIENCE > American Government\n" + 
+//		"subject_display: POLITICAL SCIENCE > American Government\n" + 
 		"subject_display: Immigration law > United States\n" + 
 
 		"authority_subject_t: Law, Immigration\n" + 
@@ -447,4 +465,111 @@ public class SubjectTest {
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
+
+	@Test // Should not populate vocabulary-specific fields intended for authority control
+	// And, now, also should not populate display and public facet fields due to untracked vocab
+	public void cjkIn6xx() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡a 子部 ‡x 小說家類. ‡2 sk"));
+		String expected =
+		"subject_t: 子部 > 小說家類\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void matching880withwrong2ndIndicator() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "5071114";
+		rec.dataFields.add(new DataField(1,4,"600",'1','0',"‡6 880-06 ‡a Zhang, Lei, ‡d 1054-1114 ‡v Chronology.",false));
+		rec.dataFields.add(new DataField(2,4,"600",'1','4',"‡6 600-06/$1 ‡a 張耒, ‡d 1054-1114 ‡v Chronology.",true));
+		/* This name actually does have an authority record, but we have other tests to capture that, so
+		 * I saw no need to import that into the test suite just to get 9 alternate forms of the name adding
+		 * to the expected Solr results.
+		 */
+		String expected =
+		"subject_t: 張耒, 1054-1114 > Chronology\n"+
+		"subject_t: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_facet: 張耒, 1054-1114\n"+
+		"subject_pers_filing: 張耒 1054 1114\n"+
+		"subject_pers_facet: 張耒, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: 張耒 1054 1114 0000 chronology\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_filing: zhang lei 1054 1114\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114\n"+
+		"subject_pers_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_sub_lc_facet: Chronology\n"+
+		"subject_sub_lc_filing: chronology\n"+
+		"subject_json: [{\"subject\":\"張耒, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_json: [{\"subject\":\"Zhang, Lei, 1054-1114\",\"authorized\":false,\"type\":\"Personal Name\"},"
+		+ "{\"subject\":\"Chronology.\",\"authorized\":false}]\n"+
+		"subject_display: 張耒, 1054-1114 > Chronology\n"+
+		"subject_display: Zhang, Lei, 1054-1114 > Chronology\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test //Only the term with an unrecognized but specified vocab should be suppressed from display.
+	public void undisplayedVocabularies() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡2 unrec ‡a Unrecognized Vocab Term"));
+		rec.dataFields.add(new DataField(2,"650",' ','7',"‡2 aat ‡a Recognized Vocab Term"));
+		rec.dataFields.add(new DataField(3,"650",' ','4',"‡a Unspecified Vocab Term"));
+		rec.dataFields.add(new DataField(4,"650",' ','7',"‡a Unspecified Vocab Term B"));
+		rec.dataFields.add(new DataField(5,"650",' ','7',"‡a Rare & Manuscript Term ‡2 rbmscv"));
+		rec.dataFields.add(new DataField(6,"650",' ','7',"‡2 zst ‡a Zine Vocab Term"));
+		String expected =
+		"subject_t: Unrecognized Vocab Term\n" +
+		"subject_topic_other_facet: Unrecognized Vocab Term\n" +
+		"subject_topic_other_filing: unrecognized vocab term\n" +
+
+		"subject_t: Recognized Vocab Term\n" +
+		"subject_topic_facet: Recognized Vocab Term\n" +
+		"subject_topic_filing: recognized vocab term\n" +
+		"subject_topic_aat_facet: Recognized Vocab Term\n" +
+		"subject_topic_aat_filing: recognized vocab term\n" +
+
+		"subject_t: Unspecified Vocab Term\n" +
+		"subject_topic_facet: Unspecified Vocab Term\n" +
+		"subject_topic_filing: unspecified vocab term\n" +
+		"subject_topic_unk_facet: Unspecified Vocab Term\n" +
+		"subject_topic_unk_filing: unspecified vocab term\n" +
+
+		"subject_t: Unspecified Vocab Term B.\n" +
+		"subject_topic_facet: Unspecified Vocab Term B.\n" +
+		"subject_topic_filing: unspecified vocab term b\n" +
+		"subject_topic_unk_facet: Unspecified Vocab Term B.\n" +
+		"subject_topic_unk_filing: unspecified vocab term b\n" +
+
+		"subject_t: Rare & Manuscript Term\n" +
+		"subject_topic_facet: Rare & Manuscript Term\n" +
+		"subject_topic_filing: rare manuscript term 5&\n" +
+		"subject_topic_rbmscv_facet: Rare & Manuscript Term\n" +
+		"subject_topic_rbmscv_filing: rare manuscript term 5&\n" +
+
+		"subject_t: Zine Vocab Term\n" +
+		"subject_topic_facet: Zine Vocab Term\n" +
+		"subject_topic_filing: zine vocab term\n" +
+		"subject_topic_zst_facet: Zine Vocab Term\n" +
+		"subject_topic_zst_filing: zine vocab term\n" +
+
+		"subject_json: [{\"subject\":\"Recognized Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Unspecified Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Unspecified Vocab Term B\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_json: [{\"subject\":\"Rare & Manuscript Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n"+
+		"subject_json: [{\"subject\":\"Zine Vocab Term\",\"authorized\":false,\"type\":\"Topical Term\"}]\n" +
+		"subject_display: Recognized Vocab Term\n" +
+		"subject_display: Unspecified Vocab Term\n" +
+		"subject_display: Unspecified Vocab Term B.\n" +
+		"subject_display: Rare & Manuscript Term\n" +
+		"subject_display: Zine Vocab Term\n" +
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
 }

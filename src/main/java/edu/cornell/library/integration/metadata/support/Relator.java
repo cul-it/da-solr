@@ -15,7 +15,7 @@ package edu.cornell.library.integration.metadata.support;
  * r.name();     // returns "aut". <br/>
  * <br/>
  * Relator r = Relator.valueOf("invalid code"); <br/>
- *   // -> throws IllegalArgumentException
+ *   // -> throws IllegalArgumentException <br/>
  * Relator r = Relator.valueOfString("invalid term"); <br/>
  *   // -> returns null
  * 

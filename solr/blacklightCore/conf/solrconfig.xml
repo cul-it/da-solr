@@ -752,10 +752,22 @@
       <str name="f.lc_callnum.pf"></str>
       <str name="f.lc_callnum_starts.qf"> lc_callnum_full lc_callnum_suffix </str>
 
-      <str name="f.donor.qf"> donor_s donor_t donor_tP donor_t_cjk </str>
-      <str name="f.donor.pf"> donor_s donor_t donor_tP donor_t_cjk </str>
-      <str name="f.donor_starts.qf"> donor_startsC donor_startsP donor_startsCJK </str>
-      <str name="f.donor_quoted.qf"> donor_s donor_unstemC donor_unstemP donor_t_cjk </str>
+      <str name="f.donor.qf">
+        donor_s donor_t donor_tP donor_t_cjk
+        former_owner_t former_owner_tP former_owner_t_cjk
+      </str>
+      <str name="f.donor.pf">
+        donor_s donor_t donor_tP donor_t_cjk
+        former_owner_t former_owner_tP former_owner_t_cjk
+      </str>
+      <str name="f.donor_starts.qf">
+        donor_startsC donor_startsP donor_startsCJK
+        former_owner_startsC former_owner_startsP former_owner_startsCJK
+      </str>
+      <str name="f.donor_quoted.qf">
+        donor_s donor_unstemC donor_unstemP donor_t_cjk
+        former_owner_unstemC former_owner_unstemP former_owner_t_cjk
+      </str>
 
       <str name="f.isbnissn.qf">
         isbn_t   isbn_tP   isbn_t_cjk
@@ -840,17 +852,17 @@
         online, 
         language_display, 
         pub_info_display,
-	pub_date_display,
+        pub_date_display,
         pub_date_facet,
-	url_access_display,
-	url_access_json,
-    	holdings_record_display,
-	item_record_display,
-	edition_display,
-	title_uniform_display,
-	oclc_id_display,
-	availability_json,
-	acquired_dt
+        url_access_display,
+        url_access_json,
+        holdings_record_display,
+        item_record_display,
+        edition_display,
+        title_uniform_display,
+        oclc_id_display,
+        availability_json,
+        acquired_dt
       </str>
      
       <str name="facet">true</str>

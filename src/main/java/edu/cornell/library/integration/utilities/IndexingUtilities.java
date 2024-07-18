@@ -42,8 +42,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.cornell.library.integration.voyager.IdentifyChangedRecords.ChangeType;
-
 public class IndexingUtilities {
 
 	/**
@@ -72,28 +70,6 @@ public class IndexingUtilities {
 			instanceFolioDStmt.executeUpdate();
 			queueDeleteStmt.setString(1,hrid);
 			queueDeleteStmt.executeUpdate();
-		}
-	}
-	public static void addBibToUpdateQueue(Connection current, Integer bib_id,
-			ChangeType type, Timestamp recordDate) throws SQLException {
-		try (PreparedStatement bibQueueStmt = current.prepareStatement(
-				"INSERT INTO generationQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
-			bibQueueStmt.setInt(1, bib_id);
-			bibQueueStmt.setInt(2, type.getPriority());
-			bibQueueStmt.setString(3,type.toString());
-			bibQueueStmt.setTimestamp(4, recordDate);
-			bibQueueStmt.executeUpdate();
-		}
-	}
-	public static void addBibToAvailQueue(Connection current, Integer bib_id,
-			ChangeType type, Timestamp recordDate) throws SQLException {
-		try (PreparedStatement bibQueueStmt = current.prepareStatement(
-				"INSERT INTO availabilityQueue (bib_id, priority, cause, record_date) VALUES (?, ?, ?, ?)")) {
-			bibQueueStmt.setInt(1, bib_id);
-			bibQueueStmt.setInt(2, type.getPriority());
-			bibQueueStmt.setString(3,type.toString());
-			bibQueueStmt.setTimestamp(4, recordDate);
-			bibQueueStmt.executeUpdate();
 		}
 	}
 

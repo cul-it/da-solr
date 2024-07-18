@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.ConfigurationException;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.folio.OkapiClient;
@@ -79,12 +77,38 @@ public class Config {
 		return null;
 	}
 
+	public String getAuthorityDataDirectory() {
+		if (this.values.containsKey("authorityDataDirectory"))
+			return this.values.get("authorityDataDirectory");
+		return null;
+	}
+
 	public String getAuthorityChangeFileDirectory() {
 		if (this.values.containsKey("authorityChangeFileDirectory"))
 			return this.values.get("authorityChangeFileDirectory");
 		return null;
 	}
 
+	public String getHathifilesUrl() {
+		if (this.values.containsKey("hathifilesUrl")) {
+			return this.values.get("hathifilesUrl");
+		}
+		return null;
+	}
+
+	public String getHathiJobInputPath() {
+		if (this.values.containsKey("hathiJobInputPath")) {
+			return this.values.get("hathiJobInputPath");
+		}
+		return null;
+	}
+
+	public String getBlacklightUrl() {
+		if (this.values.containsKey("blacklightUrl")) {
+			return this.values.get("blacklightUrl");
+		}
+		return null;
+	}
 
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {
@@ -135,22 +159,19 @@ public class Config {
 		return null;
 	}
 
-	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
-		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
-				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
-				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
-		if (this.values.containsKey("endOfIterativeCatalogUpdates")) {
-			try {
-				Integer hour = Integer.valueOf(this.values.get("endOfIterativeCatalogUpdates"));
-				if (hour < 1 || hour > 24)
-					throw new ConfigurationException(usage);
-				return hour;
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-				throw new ConfigurationException(usage);
-			}
+	public String getAwsS3Bucket() {
+		if (this.values.containsKey("awsS3Bucket")) {
+			return this.values.get("awsS3Bucket");
 		}
 		return null;
+	}
+
+	public Map<String,String> getServerConfig(String serverPrefix) {
+		Map<String,String> args = new HashMap<>();
+		for (String key : this.values.keySet())
+			if (key.startsWith(serverPrefix))
+				args.put(key.replaceFirst(serverPrefix, ""), values.get(key));
+		return args;
 	}
 
 	public int getRandomGeneratorWavelength() {
@@ -159,29 +180,44 @@ public class Config {
 		return 400;
 	}
 
-	public boolean isOkapiConfigured(String id) {
-		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
-		if ( ! this.values.containsKey("okapiToken"+id) ) return false;
-		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
+	public boolean activateS3() {
+		if (! this.values.containsKey("awsS3AccessKey")) return false;
+		if (! this.values.containsKey("awsS3SecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsS3AccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsS3SecretKey"));
 		return true;
 	}
-	public OkapiClient getOkapi(String id) {
-		String url = this.values.get("okapiUrl"+id);
-		if ( url == null ) {
-			System.out.println("Value not found for okapiUrl" + id);
-			System.exit(1);
+
+	public boolean activateSES() {
+		if (! this.values.containsKey("awsAccessKey")) return false;
+		if (! this.values.containsKey("awsSecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsAccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsSecretKey"));
+		return true;
+	}
+
+	public boolean isOkapiConfigured(String id) {
+		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
+		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
+		if ( ! (this.values.containsKey("okapiUser"+id) && this.values.containsKey("okapiPass"+id) )
+				&& ! this.values.containsKey("okapiToken"+id) ) return false;
+
+		return true;
+	}
+	public OkapiClient getOkapi(String id) throws IOException {
+		OkapiClient okapi = new OkapiClient(
+				this.values.get("okapiUrl"+id),
+				this.values.get("okapiTenant"+id),
+				this.values.get("okapiToken"+id),
+				this.values.get("okapiUser"+id),
+				this.values.get("okapiPass"+id));
+		if ( ! this.values.containsKey("okapiToken"+id) ) {
+			this.values.put("okapiToken"+id, okapi.getToken());
+			System.out.println("Recording token to config: "+okapi.getToken());
 		}
-		String token = this.values.get("okapiToken"+id);
-		if ( token == null ) {
-			System.out.println("Value not found for okapiToken" + id);
-			System.exit(1);
-		}
-		String tenant = this.values.get("okapiTenant"+id);
-		if ( tenant == null ) {
-			System.out.println("Value not found for okapiTenant" + id);
-			System.exit(1);
-		}
-		return new OkapiClient(url,token,tenant);
+		return okapi;
 	}
 
 	public boolean isDatabaseConfigured(String id) {
@@ -285,7 +321,6 @@ public class Config {
 	 *                       environment variable. Should be argv from main().
 	 */
 	public static Config loadConfig(Collection<String> requiredFields) {
-
 		String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
 
 		if (v2bl_config == null)
@@ -300,6 +335,27 @@ public class Config {
 			throw new RuntimeException("There were problems loading the configuration.\n ", ex);
 		}
 
+		return _loadConfig(requiredFields, config);
+	}
+
+	/*
+	 * A utility method to load properties from config file path.
+	 */
+	public static Config loadConfig(Collection<String> requiredFields, String configPath) throws IOException {
+		Config config = null;
+
+		List<InputStream> inputStreams = new ArrayList<>();
+		try {
+			inputStreams.add(getFile(configPath));
+			config = loadFromPropertiesFile(inputStreams);
+		} catch (Exception ex) {
+			throw new RuntimeException("There were problems loading the configuration.\n ", ex);
+		}
+
+		return _loadConfig(requiredFields, config);
+	}
+
+	private static Config _loadConfig(Collection<String> requiredFields, Config config) {
 		String errs = checkConfiguration(requiredFields, config);
 		if (errs == null || !errs.trim().isEmpty()) {
 			throw new RuntimeException("There were problems with the configuration.\n " + errs);

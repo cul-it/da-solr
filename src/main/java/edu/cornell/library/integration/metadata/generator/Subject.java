@@ -1,6 +1,6 @@
 package edu.cornell.library.integration.metadata.generator;
 
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
@@ -45,7 +45,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.4"; }
+	public String getVersion() { return "2.9"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -61,8 +61,7 @@ public class Subject implements SolrFieldGenerator {
 	public Duration resultsShelfLife() { return Duration.ofDays(14); }
 
 	@Override
-	public SolrFields generateSolrFields( MarcRecord rec, Config config )
-			throws ClassNotFoundException, SQLException, IOException {
+	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();
@@ -77,9 +76,9 @@ public class Subject implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 		for( DataFieldSet fs: sets ) {
 
-			// First DataField in each FieldSet should be representative, so we'll examine that.
+			// For the purposes of id'ing vocabulary, the Roman (last) field is most reliable, so we'll examine that.
 			final Heading h = new Heading();
-			final DataField f = fs.getFields().get(0);
+			final DataField f = fs.getFields().get(fs.getFields().size()-1);
 			switch (f.ind2) {
 			case '0':
 				h.vocab = HeadingVocab.LC;
@@ -89,22 +88,33 @@ public class Subject implements SolrFieldGenerator {
 				h.vocab = HeadingVocab.LCJSH;
 				break;
 			case '2':
+				h.vocab = HeadingVocab.MESH;
+				break;
 			case '3':
+				h.vocab = HeadingVocab.AGROVOC;
+				break;
 			case '6':
 				h.vocab = HeadingVocab.OTHER;
 				break;
 			case '7':
 				for ( final Subfield sf : f.subfields )
 					if (sf.code.equals('2')) {
-						if (sf.value.equalsIgnoreCase("fast")
-								|| sf.value.equalsIgnoreCase("fast/NIC")
-								|| sf.value.equalsIgnoreCase("fast/NIC/NAC")) {
+						switch (sf.value.toLowerCase()) {
+						case "fast":
+						case "fast/nic":
+						case "fast/nic/nac":
 							recordHasFAST = true;
 							h.vocab = HeadingVocab.FAST;
-						} else if (sf.value.equalsIgnoreCase("lcgft")) {
-							h.vocab = HeadingVocab.LCGFT;
-						} else {
-							h.vocab = HeadingVocab.OTHER;
+							break;
+						case "lcgft":   h.vocab = HeadingVocab.LCGFT;   break;
+						case "lcsh":    h.vocab = HeadingVocab.LC;      break;
+						case "aat":     h.vocab = HeadingVocab.AAT;     break;
+						case "agrovoc": h.vocab = HeadingVocab.AGROVOC; break;
+						case "homoit":  h.vocab = HeadingVocab.HOMOIT;  break;
+						case "rbmscv":  h.vocab = HeadingVocab.RBMSCV;  break;
+						case "zst":     h.vocab = HeadingVocab.ZST;     break;
+						case "local":   h.vocab = HeadingVocab.LOCAL;   break;
+						default: h.vocab = HeadingVocab.OTHER;
 						}
 					}
 				break;
@@ -116,6 +126,7 @@ public class Subject implements SolrFieldGenerator {
 			final Set<String> values880_breadcrumbed = new LinkedHashSet<>();
 			final Set<String> valuesMain_breadcrumbed = new LinkedHashSet<>();
 			final List<BrowseValue> values_browse = new ArrayList<>();
+			final Map<HeadingType,String> values_auth_browse = new HashMap<>();
 			final Set<String> valuesMain_json = new LinkedHashSet<>();
 			final Set<String> values880_json = new LinkedHashSet<>();
 			final Set<String> values_dashed = new LinkedHashSet<>();
@@ -242,12 +253,17 @@ public class Subject implements SolrFieldGenerator {
 					if (authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
 							authorityAltForms.add(altForm);
-							if (hasCJK(altForm))
+							if (isCJK(altForm))
 								authorityAltFormsCJK.add(altForm);
 						}
 					json.add(subj1);
 
 					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$",is880));
+					if (vals != null && vals.category.equals(HeadingCategory.AUTHORTITLE) && ! is880) {
+						HeadingType nameType = (f.mainTag.equals("600")) ? HeadingType.PERSNAME
+								: (f.mainTag.equals("610")) ? HeadingType.CORPNAME : HeadingType.EVENT;
+						values_auth_browse.put(nameType, removeTrailingPunctuation(vals.author,"."));
+					}
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
@@ -263,7 +279,7 @@ public class Subject implements SolrFieldGenerator {
 						if (authData.authorized && authData.alternateForms != null)
 							for (final String altForm : authData.alternateForms) {
 								authorityAltForms.add(altForm);
-								if (hasCJK(altForm))
+								if (isCJK(altForm))
 									authorityAltFormsCJK.add(altForm);
 							}
 						json.add(subj);
@@ -309,30 +325,43 @@ public class Subject implements SolrFieldGenerator {
 				if (h.vocab.equals(HeadingVocab.FAST)
 						|| (h.vocab.equals(HeadingVocab.LCGFT) && facet_type.equals("genre")))
 					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
-				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
+				if ( ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
+					&& ! h.vocab.equals(HeadingVocab.OTHER))
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
 			}
 			for (final BrowseValue value: values_browse)
 				if (ht != null) {
-					if ( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
+					if (( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
+							&& ! h.vocab.equals(HeadingVocab.OTHER) )
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",value.display));
 					String filing = getFilingForm(value.display);
-					sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
+					if (! h.vocab.equals(HeadingVocab.OTHER))
+						sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
 					String canonFiling = getFilingForm(value.canon);
-					if ( ! value.is880 ) {
+					if ( ! value.is880 && ! isCJK(value.canon)) {
 						String vocab = h.vocab.name().toLowerCase();
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon));
 						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling));
 					}
 				}
 			for (final String s: values_dashed) {
+				if ( isCJK(s) ) continue;
 				String vocab = h.vocab.name().toLowerCase();
 				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
 				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));
 			}
+			for (final HeadingType parentHt : values_auth_browse.keySet()) {
+				String value = values_auth_browse.get(parentHt);
+				if (isCJK(value)) continue;
+				String vocab = h.vocab.name().toLowerCase();
+				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_facet", value));
+				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_filing",getFilingForm(value)));
+			}
 
-			if ( ! h.is653 && ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
+			if ( ! h.is653 &&
+					! h.vocab.equals(HeadingVocab.OTHER) &&
+					( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH ) ) {
 				for (final String s: values880_json)
 					subjectJson.add( s );
 				for (final String s: valuesMain_json)
@@ -413,5 +442,5 @@ public class Subject implements SolrFieldGenerator {
 		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
-	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, OTHER, UNK; }
+	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, ZST, RBMSCV, LOCAL, OTHER, UNK; }
 }

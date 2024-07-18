@@ -5,52 +5,50 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
-public class TitleChangeTest {
-
+public class TitleChangeTest extends DbBaseTest {
 	SolrFieldGenerator gen = new TitleChange();
-	static Config config = null;
 
 	@BeforeClass
-	public static void setup() {
-		List<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		config = Config.loadConfig(requiredArgs);
+	public static void setup() throws IOException, SQLException {
+		setup("Headings");
 	}
 
 	@Test
-	public void testSimple700() throws ClassNotFoundException, SQLException, IOException {
+	public void testSimple700() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Smith, John, ‡d 1900-1999"));
-		String expected = "author_addl_display: Smith, John, 1900-1999\n"+
+		String expected =
+		"author_pers_roman_filing: smith john 1900 1999\n"+
+		"author_addl_display: Smith, John, 1900-1999\n"+
 		"author_addl_t: Smith, John, 1900-1999\n"+
 		"author_facet: Smith, John, 1900-1999\n"+
 		"author_pers_filing: smith john 1900 1999\n"+
-		"author_pers_roman_filing: smith john 1900 1999\n"+
 		"author_addl_json: {\"name1\":\"Smith, John, 1900-1999\",\"search1\":\"Smith, John, 1900-1999\","
 		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
-	public void testAuthorized700WithRelator() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorized700WithRelator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ko, Dorothy, ‡d 1957- ‡e author."));
-		String expected = "author_addl_display: Ko, Dorothy, 1957- author\n"+
+		String expected =
+		"author_pers_roman_filing: ko dorothy 1957\n"+
+		"author_addl_display: Ko, Dorothy, 1957- author\n"+
 		"author_addl_t: Ko, Dorothy, 1957- author\n"+
 		"author_facet: Ko, Dorothy, 1957-\n"+
 		"author_pers_filing: ko dorothy 1957\n"+
-		"author_pers_roman_filing: ko dorothy 1957\n"+
 		"author_addl_json: {\"name1\":\"Ko, Dorothy, 1957- author\",\"search1\":\"Ko, Dorothy, 1957-\","
 		+ "\"relator\":\"author\",\"type\":\"Personal Name\",\"authorizedForm\":true}\n"+
 		"authority_author_t: Gao, Yanyi, 1957-\n"+
@@ -60,7 +58,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void testAuthorTitle700() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitle700() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-1878
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a Sallinen, Aulis. ‡t Vintern war hård; ‡o arranged."));
@@ -68,7 +66,8 @@ public class TitleChangeTest {
 				+ " dances for peace. ‡p Half-wolf dances mad in moonlight."));
 		rec.dataFields.add(new DataField(3,"700",'1','2',"‡a Barber, Samuel, ‡d 1910-1981. ‡t Quartets, ‡m violins"
 				+ " (2), viola, cello, ‡n no. 1, op. 11, ‡r B minor. ‡p Adagio."));
-		String expected = "authortitle_facet: Sallinen, Aulis. | Vintern war hård; arranged\n"+
+		String expected =
+		"authortitle_facet: Sallinen, Aulis. | Vintern war hård; arranged\n"+
 		"authortitle_filing: sallinen aulis 0000 vintern war hard arranged\n"+
 		"author_addl_t: Sallinen, Aulis.\n"+
 		"author_facet: Sallinen, Aulis\n"+
@@ -101,30 +100,30 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void testNonRoman700() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman700() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,5,"700",'1',' ',"‡6 880-05 ‡a Xiang, Shurong, ‡e translator.",false));
 		rec.dataFields.add(new DataField(2,6,"700",'1',' ',"‡6 880-06 ‡a Yao, Jianing, ‡e translator.",false));
 		rec.dataFields.add(new DataField(3,5,"700",'1',' ',"‡6 700-05/$1 ‡a 向淑容, ‡e translator.",true));
 		rec.dataFields.add(new DataField(4,6,"700",'1',' ',"‡6 700-06/$1 ‡a 堯嘉寧, ‡e translator.",true));
 		String expected =
+		"author_pers_roman_filing: xiang shurong\n"+
 		"author_addl_display: 向淑容 / Xiang, Shurong, translator\n"+
 		"author_facet: 向淑容\n"+
 		"author_facet: Xiang, Shurong\n"+
 		"author_pers_filing: 向淑容\n"+
 		"author_pers_filing: xiang shurong\n"+
-		"author_pers_roman_filing: xiang shurong\n"+
 		"author_addl_t_cjk: 向淑容, translator\n"+
 		"author_addl_t: Xiang, Shurong, translator\n"+
 		"author_addl_json: {\"name1\":\"向淑容\",\"search1\":\"向淑容,\",\"name2\":\"Xiang, Shurong, translator\","
 		+ "\"search2\":\"Xiang, Shurong,\",\"relator\":\"translator\","
 		+ "\"type\":\"Personal Name\",\"authorizedForm\":false}\n"+
+		"author_pers_roman_filing: yao jianing\n"+
 		"author_addl_display: 堯嘉寧 / Yao, Jianing, translator\n"+
 		"author_facet: 堯嘉寧\n"+
 		"author_facet: Yao, Jianing\n"+
 		"author_pers_filing: 堯嘉寧\n"+
 		"author_pers_filing: yao jianing\n"+
-		"author_pers_roman_filing: yao jianing\n"+
 		"author_addl_t_cjk: 堯嘉寧, translator\n"+
 		"author_addl_t: Yao, Jianing, translator\n"+
 		"author_addl_json: {\"name1\":\"堯嘉寧\",\"search1\":\"堯嘉寧,\",\"name2\":\"Yao, Jianing, translator\","
@@ -134,17 +133,18 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void testNonRoman710WithRelator() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonRoman710WithRelator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,6,"710",'2',' ',"‡6 880-06 ‡a Fa lü chu ban she. ‡b Fa gui chu ban"
 				+ " fen she, ‡e editor.",false));
 		rec.dataFields.add(new DataField(2,6,"710",'2',' ',"‡6 710-06/$1 ‡a 法律出版社. ‡b 法规出版分社, ‡e editor.",true));
-		String expected = "author_addl_display: 法律出版社. 法规出版分社 / Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
+		String expected =
+		"author_corp_roman_filing: fa lu chu ban she fa gui chu ban fen she\n"+
+		"author_addl_display: 法律出版社. 法规出版分社 / Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
 		"author_facet: 法律出版社. 法规出版分社\n"+
 		"author_facet: Fa lü chu ban she. Fa gui chu ban fen she\n"+
 		"author_corp_filing: 法律出版社 法规出版分社\n"+
 		"author_corp_filing: fa lu chu ban she fa gui chu ban fen she\n"+
-		"author_corp_roman_filing: fa lu chu ban she fa gui chu ban fen she\n"+
 		"author_addl_t_cjk: 法律出版社. 法规出版分社, editor\n"+
 		"author_addl_t: Fa lü chu ban she. Fa gui chu ban fen she, editor\n"+
 		"author_addl_json: {\"name1\":\"法律出版社. 法规出版分社\",\"search1\":\"法律出版社. 法规出版分社,\","
@@ -157,7 +157,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test730WithSubfieldI() throws ClassNotFoundException, SQLException, IOException {
+	public void test730WithSubfieldI() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-3496
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"730",'0','2',"‡i Container of (work): ‡a All the way (Television program)"));
@@ -167,7 +167,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test740RelatedWork() throws ClassNotFoundException, SQLException, IOException {
+	public void test740RelatedWork() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"740",'0',' ',
 				"‡a Historic structure report. ‡p Architectural data section. ‡n Phase II, ‡p Exterior preservation."));
@@ -180,7 +180,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void testAuthorTitleSegregationOf776() throws ClassNotFoundException, SQLException, IOException {
+	public void testAuthorTitleSegregationOf776() throws SQLException, IOException {
 		{ // Example from DISCOVERYACCESS-3445 b10047079
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'0','8',
@@ -232,7 +232,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void testNonBib776Fields() throws ClassNotFoundException, SQLException, IOException {
+	public void testNonBib776Fields() throws SQLException, IOException {
 		{ // b 9926193
 			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 			rec.dataFields.add(new DataField(1,"776",'0','8',"‡i Original: ‡w (Voyager)3605552"));
@@ -272,7 +272,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test711AuthorTitle() throws ClassNotFoundException, SQLException, IOException {
+	public void test711AuthorTitle() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','2',"‡a Vatican Council ‡n (2nd : ‡d 1962-1965). ‡t"
@@ -294,17 +294,17 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test711Author() throws ClassNotFoundException, SQLException, IOException {
+	public void test711Author() throws SQLException, IOException {
 		// Example from DISCOVERYACCESS-2492
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"711",'2','0',"‡a Institute on Religious Freedom ‡d (1966 : ‡c"
 				+ " North Aurora, Ill.)"));
 		String expected =
+		"author_event_roman_filing: institute on religious freedom\n"+
 		"author_addl_display: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
 		"author_addl_t: Institute on Religious Freedom (1966 : North Aurora, Ill.)\n"+
 		"author_facet: Institute on Religious Freedom\n"+
 		"author_event_filing: institute on religious freedom\n"+
-		"author_event_roman_filing: institute on religious freedom\n"+
 		"author_addl_json: {\"name1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\","
 		+ "\"search1\":\"Institute on Religious Freedom (1966 : North Aurora, Ill.)\",\"relator\":\"\","
 		+ "\"type\":\"Event\",\"authorizedForm\":false}\n";
@@ -312,7 +312,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test720() throws ClassNotFoundException, SQLException, IOException {
+	public void test720() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"720",' ',' ',"‡a al-Salimi, Abdulrahman"));
 		String expected =
@@ -325,7 +325,7 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test2684613() throws ClassNotFoundException, SQLException, IOException {
+	public void test2684613() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(3,"776",'1',' ',
 				"‡a In vitro cellular & developmental biology. ‡p Animal (Online)"));
@@ -336,14 +336,14 @@ public class TitleChangeTest {
 	}
 
 	@Test
-	public void test2812927() throws ClassNotFoundException, SQLException, IOException {
+	public void test2812927() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(2,"700",'1',' ', "‡s Schnoor, Jerald A."));
 		assertEquals( "", this.gen.generateSolrFields(rec, config).toString() );
 	}
 
 	@Test
-	public void periodsBeforeRelators() throws ClassNotFoundException, SQLException, IOException {
+	public void periodsBeforeRelators() throws SQLException, IOException {
 		Map<DataField,String> fields = new HashMap<>();
 		fields.put(new DataField(1,"700",'1',' ',
 			"‡a Busteed, John. ‡4 sgn"),
@@ -391,5 +391,72 @@ public class TitleChangeTest {
 		rec.dataFields.add(new DataField(1,"700",'1',' ',
 				"‡a Vasilieva, Olga. ‡4 http://id.loc.gov/vocabulary/relators/edt"));
 	}
+
+	@Test
+	public void cjk700() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a 林玲子"));
+		String expected =
+		"author_addl_display: 林玲子\n"+
+		"author_addl_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"author_addl_json: {\"name1\":\"林玲子\",\"search1\":\"林玲子\","
+		+ "\"relator\":\"\",\"type\":\"Personal Name\",\"authorizedForm\":false}\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+		rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1','2',"‡a 林玲子 ‡t Some title"));
+		expected =
+		"authortitle_facet: 林玲子 | Some title\n"+
+		"authortitle_filing: 林玲子 0000 some title\n"+
+		"author_addl_t: 林玲子\n"+
+		"author_facet: 林玲子\n"+
+		"author_pers_filing: 林玲子\n"+
+		"included_work_display: 林玲子 Some title|Some title|林玲子\n"+
+		"title_uniform_t: Some title\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void formerOwner() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"700",'1',' ',"‡a Ammons, A. R., ‡d 1926-2001 ‡e former owner. ‡5 NIC"));
+		String expected =
+		"author_pers_roman_filing: ammons a r 1926 2001\n"+
+		"former_owner_display: Ammons, A. R., 1926-2001\n"+
+		"former_owner_t: Ammons, A. R., 1926-2001\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void formerOwnerAndAuthor() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"710",'1',' ',"‡a Some corporate entity ‡e former owner, ‡e author."));
+		String expected =
+		"author_corp_roman_filing: some corporate entity\n"+
+		"former_owner_t: Some corporate entity, author\n"+
+		"author_addl_display: Some corporate entity, former owner, author\n"+
+		"author_addl_t: Some corporate entity, former owner, author\n"+
+		"author_facet: Some corporate entity\n"+
+		"author_corp_filing: some corporate entity\n"+
+		"author_addl_json: {\"name1\":\"Some corporate entity, former owner, author\","
+		+ "\"search1\":\"Some corporate entity\",\"relator\":\"former owner, author\","
+		+ "\"type\":\"Corporate Name\",\"authorizedForm\":false}\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void nonRomanFormerOwner() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,5,"700",'1',' ',"‡6 880-05 ‡a Xiang, Shurong, ‡4 fmo",false));
+		rec.dataFields.add(new DataField(3,5,"700",'1',' ',"‡6 700-05/$1 ‡a 向淑容, ‡4 fmo",true));
+		String expected =
+		"author_pers_roman_filing: xiang shurong\n"+
+		"former_owner_display: 向淑容 / Xiang, Shurong\n"+
+		"former_owner_t: 向淑容\n"+
+		"former_owner_t: Xiang, Shurong\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
 
 }

@@ -20,7 +20,7 @@ public class RecordTypeTest {
 	SolrFieldGenerator gen = new RecordType();
 
 	@Test
-	public void testStandardCatalogRecord() throws ClassNotFoundException, SQLException, IOException {
+	public void testStandardCatalogRecord() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"948",'2',' ',
 				"‡a 20141130 ‡b m ‡d batch ‡e lts ‡x addfast"));
@@ -31,7 +31,7 @@ public class RecordTypeTest {
 	}
 
 	@Test
-	public void testShadowRecordBibIndicator() throws ClassNotFoundException, SQLException, IOException {
+	public void testShadowRecordBibIndicator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"948",'1',' ',
 				"‡a 20050809 ‡b o ‡d str1 ‡e lts ‡h PUBLIC SERVICES SHADOW RECORD"));
@@ -42,7 +42,7 @@ public class RecordTypeTest {
 	}
 
 	@Test
-	public void testShadowRecordHoldingsIndicator() throws ClassNotFoundException, SQLException, IOException {
+	public void testShadowRecordHoldingsIndicator() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
 		hRec.id = "6161049";
@@ -56,7 +56,7 @@ public class RecordTypeTest {
 	}
 
 	@Test
-	public void statisticalCodes() throws ClassNotFoundException, SQLException, IOException {
+	public void statisticalCodes() throws SQLException, IOException {
 		StatisticalCodes.codes = new ReferenceData("code");
 		StatisticalCodes.codes.addTestValue("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d", "test-code");
 		Map<String,Object> instance = new HashMap<>();
@@ -73,5 +73,33 @@ public class RecordTypeTest {
 		"source: Folio\n" + 
 		"statcode_facet: instance_test-code\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void integrationSuppressions() throws SQLException, IOException {
+		StatisticalCodes.codes = new ReferenceData("code");
+		StatisticalCodes.codes.addTestValue("no-google-img-code-uuid", "no-google-img");
+		StatisticalCodes.codes.addTestValue("no-syndetics-code-uuid", "no-syndetics");
+
+		// non-marc instance
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("statisticalCodeIds", Arrays.asList("no-google-img-code-uuid"));
+		String expected =
+		"type: Non-MARC Instance\n"+
+		"source: Folio\n"+
+		"statcode_facet: instance_no-google-img\n"+
+		"no_google_img_b: true\n";
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// marc instance
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.instance = new HashMap<>();
+		rec.instance.put("statisticalCodeIds", Arrays.asList("no-syndetics-code-uuid"));
+		expected =
+		"type: Catalog\n"+
+		"source: Folio\n"+
+		"statcode_facet: instance_no-syndetics\n"+
+		"no_syndetics_b: true\n";
+		assertEquals(expected, this.gen.generateSolrFields(rec, null).toString());
 	}
 }
