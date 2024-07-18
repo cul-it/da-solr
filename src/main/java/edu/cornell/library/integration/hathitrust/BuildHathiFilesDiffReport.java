@@ -22,7 +22,7 @@ public class BuildHathiFilesDiffReport {
 	/**
 	 * BuildHathiFilesDiffReport<br/>
 	 * <br/>
-	 * Compare two versions of the hathifiles database to identify differents that may be due to drift
+	 * Compare two versions of the hathifiles database to identify differences that may be due to drift
 	 * due to missing updates in incrementals.
 	 */
 	public static void main(String[] args) throws SQLException {
@@ -89,7 +89,7 @@ public class BuildHathiFilesDiffReport {
 		try (Connection hathidb = config.getDatabaseConnection("Hathi");
 				Statement stmt = hathidb.createStatement()) {
 			String table1 = prefixes.get(0) + "raw_hathi";
-			String table2 = prefixes.get(0) + "raw_hathi";
+			String table2 = prefixes.get(1) + "raw_hathi";
 			try (ResultSet rs = stmt.executeQuery(String.format("SELECT Volume_Identifier FROM %s", table1))) {
 				while (rs.next()) ids.add(rs.getString(1));
 			}
