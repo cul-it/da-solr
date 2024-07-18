@@ -75,15 +75,10 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 		return null;
 	}
 
-	public MarcRecord jsonToMarcRec( String marcResponse ) throws IOException {
-		Map<String,Object> parsedResults = mapper.readValue(marcResponse, Map.class);
-		if ( ! parsedResults.containsKey("parsedRecord") ) return null;
-		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
-		if ( ! parsedRecord.containsKey("content") ) return null;
-		Map<String,Object> jsonStructure = (Map<String,Object>)parsedRecord.get("content");
+	public static MarcRecord jsonMarcToMarcRecord(Map<String,Object> jsonMarc) {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		rec.leader = (String) jsonStructure.get("leader");
-		List<Map<String,Object>> fields = (List<Map<String, Object>>) jsonStructure.get("fields");
+		rec.leader = (String) jsonMarc.get("leader");
+		List<Map<String,Object>> fields = (List<Map<String, Object>>) jsonMarc.get("fields");
 		int fieldId = 1;
 		for ( Map<String,Object> f : fields )
 			for ( Entry<String,Object> field : f.entrySet() ) {
@@ -95,9 +90,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 						rec.bib_id = (String) fieldValue; rec.id = rec.bib_id;
 					}
 				} else {
-					Map<String,Object> fieldContent = (Map<String, Object>) fieldValue;
+					Map<String,Object> fValue = (Map<String, Object>) fieldValue;
 					int subfieldId = 1;
-					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fieldContent.get("subfields");
+					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fValue.get("subfields");
 					TreeSet<Subfield> processedSubfields = new TreeSet<>();
 					for (Map<String,Object> subfield : subfields) {
 						if ( subfield.isEmpty() ) continue;
@@ -105,11 +100,9 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
 								Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
 					}
-					rec.dataFields.add(new DataField(fieldId++,field.getKey(),
-							((String)fieldContent.get("ind1")).charAt(0),
-							((String)fieldContent.get("ind2")).charAt(0),
-							processedSubfields
-							));
+					Character ind1 = ((String)fValue.get("ind1")+" ").charAt(0); //if ind is empty, default to space
+					Character ind2 = ((String)fValue.get("ind2")+" ").charAt(0);
+					rec.dataFields.add(new DataField(fieldId++,field.getKey(),ind1,ind2,processedSubfields));
 				}
 			}
 		F: for ( DataField f : rec.dataFields )
@@ -121,8 +114,17 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 						f.linkNumber = Integer.valueOf(sf.value.substring(4,6));
 						continue F;
 					}
+			return rec;
+	}
 
-		return rec;
+
+	public static MarcRecord jsonToMarcRec( String marcResponse ) throws IOException {
+		Map<String,Object> parsedResults = mapper.readValue(marcResponse, Map.class);
+		if ( ! parsedResults.containsKey("parsedRecord") ) return null;
+		Map<String,Object> parsedRecord = (Map<String,Object>) parsedResults.get("parsedRecord");
+		if ( ! parsedRecord.containsKey("content") ) return null;
+		Map<String,Object> jsonStructure = (Map<String,Object>)parsedRecord.get("content");
+		return jsonMarcToMarcRecord(jsonStructure);
 	}
 	private static ObjectMapper mapper = new ObjectMapper();
 
