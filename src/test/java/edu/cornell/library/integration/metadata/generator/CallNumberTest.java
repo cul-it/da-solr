@@ -3,11 +3,9 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,18 +17,18 @@ import edu.cornell.library.integration.marc.MarcRecord;
 
 public class CallNumberTest extends DbBaseTest {
 
-	SolrFieldGenerator gen = null;
+//	static Config config = null;
+	SolrFieldGenerator gen = new CallNumber();
 	static ObjectMapper mapper = new ObjectMapper();
 
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
+//		config = Config.loadConfig(new ArrayList<>());
 		setup("Headings");
 	}
 
 	@Test
 	public void testCarriageReturnCallNumber() throws IOException, SQLException {
-		if (this.gen == null)
-			this.gen = new CallNumber(loadResourceFile("example_reference_data/call_number_types.json"));
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		String holdingJson =
 		"{\"id\":\"6f77216e-7ef3-4d61-8de2-6b0cad6b11ff\","
@@ -54,10 +52,4 @@ public class CallNumberTest extends DbBaseTest {
 		+ "PJ7695.8-7976 - Individual authors or works\n";
 		assertEquals(expected, gen.generateSolrFields(rec, config).toString());
 	}
-
-	public static String loadResourceFile(String filename) throws IOException {
-		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-				Scanner s = new Scanner(is,"UTF-8")) {
-			return s.useDelimiter("\\A").next();
-		}
-	}}
+}
