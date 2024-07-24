@@ -572,4 +572,47 @@ public class SubjectTest extends DbBaseTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
+	@Test
+	public void ingestVocabulary() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "15607152";
+		rec.dataFields.add(new DataField(2,"650",' ','7',"‡a Clothing industry--Study and teaching. ‡2 ingest"));
+		rec.dataFields.add(new DataField(7,"650",' ','0',"‡a Interior decoration ‡x Study and teaching."));
+		rec.dataFields.add(new DataField(10,"650",' ','7',"‡a Work environment -- Design. ‡2 ingest"));
+		String expected =
+		"subject_t: Clothing industry--Study and teaching\n"+
+		"subject_topic_facet: Clothing industry--Study and teaching\n"+
+		"subject_topic_filing: clothing industry 0000 study and teaching\n"+
+		"subject_topic_unk_facet: Clothing industry--Study and teaching\n"+
+		"subject_topic_unk_filing: clothing industry 0000 study and teaching\n"+
+
+		"subject_t: Interior decoration > Study and teaching\n"+
+		"subject_topic_facet: Interior decoration\n"+
+		"subject_topic_filing: interior decoration\n"+
+		"subject_topic_lc_facet: Interior decoration\n"+
+		"subject_topic_lc_filing: interior decoration\n"+
+		"subject_topic_facet: Interior decoration > Study and teaching\n"+
+		"subject_topic_filing: interior decoration 0000 study and teaching\n"+
+		"subject_topic_lc_facet: Interior decoration > Study and teaching\n"+
+		"subject_topic_lc_filing: interior decoration 0000 study and teaching\n"+
+
+		"subject_sub_lc_facet: Study and teaching\n"+
+		"subject_sub_lc_filing: study and teaching\n"+
+		"subject_t: Work environment -- Design\n"+
+		"subject_topic_facet: Work environment -- Design\n"+
+		"subject_topic_filing: work environment 0000 design\n"+
+		"subject_topic_unk_facet: Work environment -- Design\n"+
+		"subject_topic_unk_filing: work environment 0000 design\n"+
+
+		"subject_json: [{\"subject\":\"Clothing industry--Study and teaching.\",\"authorized\":false,"
+		+ "\"type\":\"Topical Term\"}]\n"+
+		"subject_json: [{\"subject\":\"Interior decoration\",\"authorized\":false,\"type\":\"Topical Term\"},"
+		+ "{\"subject\":\"Study and teaching.\",\"authorized\":false}]\n"+
+		"subject_json: [{\"subject\":\"Work environment -- Design.\",\"authorized\":false,\"type\":\"Topical Term\"}]\n"+
+		"subject_display: Clothing industry--Study and teaching\n"+
+		"subject_display: Interior decoration > Study and teaching\n"+
+		"subject_display: Work environment -- Design\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
 }
