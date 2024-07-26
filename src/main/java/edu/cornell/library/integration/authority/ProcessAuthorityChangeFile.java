@@ -207,7 +207,7 @@ public class ProcessAuthorityChangeFile {
 //							SolrDocumentList res = solr.query(q).getResults();
 //							Long recordCount = res.getNumFound();
 							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading,false);
-							int aspaceCount = (searchField.contains("subject"))
+							int aspaceCount = (id.startsWith("s"))
 									? querySolrForMatchingBibCount(solr,searchField,heading,true) : 0;
 							if ( 0 == recordCount) continue;
 							if ( flags.contains(DiffType.DIACR) ) {
@@ -218,7 +218,7 @@ public class ProcessAuthorityChangeFile {
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip));
+											displayForms.get(displayForm), flags, config, autoFlip, false));
 								}
 								if ( 0 == aspaceCount) continue;
 								displayForms = tabulateActualUnnormalizedHeadings(
@@ -226,16 +226,16 @@ public class ProcessAuthorityChangeFile {
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
 									relevantASpaceChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip));
+											displayForms.get(displayForm), flags, config, autoFlip, true));
 								}
 							} else {
 								Map<String,Object> rc = buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config, autoFlip);
+										heading,searchField,searchField,recordCount, flags, config, autoFlip, false);
 								relevantChanges.add(rc);
 								if (rc.containsKey("autoFlip"))
 									autoFlip.put(searchField, querySolrForMatchingBibs(solr,searchField,heading));
 								if ( 0 < aspaceCount) relevantASpaceChanges.add(buildRelevantChange(
-										heading,searchField,searchField,aspaceCount, flags, config, autoFlip));
+										heading,searchField,searchField,aspaceCount, flags, config, autoFlip, true));
 							}
 						}
 						if (autoFlip != null && autoFlip.keySet().size() > 3) {
@@ -250,7 +250,7 @@ public class ProcessAuthorityChangeFile {
 						jsonWriter.append(mapper.writeValueAsString(json));
 					}
 					if ( ! relevantASpaceChanges.isEmpty() ) {
-						json.put("relevantChanges", relevantChanges);
+						json.put("relevantChanges", relevantASpaceChanges);
 						if ( writtenASpaceJson ) jsonASpaceWriter.append(",\n"); else writtenASpaceJson = true;
 						jsonASpaceWriter.append(mapper.writeValueAsString(json));
 					}
@@ -689,22 +689,23 @@ public class ProcessAuthorityChangeFile {
 
 	private static Map<String,Object> buildRelevantChange (
 			String heading, String searchField, String blField, int records, EnumSet<DiffType> flags,
-			Config config, Map<String,Object> autoFlip)
+			Config config, Map<String,Object> autoFlip, boolean aspace)
 					throws UnsupportedEncodingException {
 
 		Map<String,Object> rc = new HashMap<>();
 		rc.put("heading", heading);
 		String link;
-		if ( blField.endsWith("facet") )
-			link = config.getBlacklightUrl()+"/?f["+blField+"][]="+heading;
-		else
-			link = config.getBlacklightUrl()+"/?q=%22"+
-					URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+blField;
-		rc.put("blacklightLink", link);
-		String solrLink =
-				config.getBlacklightSolrUrl()+"/select?"
-				+ "qt=search&wt=csv&rows=9999999&fl=instance_id&q="
-				+ blField+":%22"+URLEncoder.encode(heading, "UTF-8")+"%22";
+		if ( ! aspace ) {
+			if ( blField.endsWith("facet") )
+				link = config.getBlacklightUrl()+"/?f["+blField+"][]="+heading;
+			else
+				link = config.getBlacklightUrl()+"/?q=%22"+
+						URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+blField;
+			rc.put("blacklightLink", link);
+			String solrLink = String.format("%s/select?qt=search&wt=csv&rows=9999999&fl=instance_id&q=%s:%%22%s%%22",
+					config.getBlacklightSolrUrl(), blField, URLEncoder.encode(heading, "UTF-8"));
+			rc.put("solrLink", solrLink);
+		}
 
 		String vocab = null;
 		if      (blField.contains("_lc_"))    vocab = "lc";
@@ -726,7 +727,6 @@ public class ProcessAuthorityChangeFile {
 		else if (searchField.contains("_genr_"))  rc.put("type", "genr");
 		else if (searchField.contains("_sub_"))   rc.put("type", "sub");
 
-		rc.put("solrLink", solrLink);
 		rc.put("instanceCount",records);
 		if (flags.contains(DiffType.NEWMAIN))
 			rc.put("newMainHeading", true);
