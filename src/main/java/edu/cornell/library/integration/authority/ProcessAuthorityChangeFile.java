@@ -114,6 +114,7 @@ public class ProcessAuthorityChangeFile {
 				BufferedWriter autoFlipWriter = Files.newBufferedWriter(Paths.get(autoFlipFile))) {
 
 			jsonWriter.append("[\n");
+			jsonASpaceWriter.append("[\n");
 			autoFlipWriter.append("[\n");
 			boolean writtenJson = false;
 			boolean writtenASpaceJson = false;
