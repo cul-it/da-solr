@@ -1,6 +1,7 @@
 package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
+import static edu.cornell.library.integration.authority.Solr.tabulateActualUnnormalizedHeadings;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibCount;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
@@ -39,11 +40,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.solr.client.solrj.SolrQuery;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrDocument;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -56,7 +56,7 @@ import edu.cornell.library.integration.utilities.Email;
 
 public class ProcessAuthorityChangeFile {
 
-	public static void main(String[] args) throws IOException, SQLException, SolrServerException {
+	public static void main(String[] args) throws IOException, SQLException, SolrServerException, XMLStreamException {
 
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.addAll(        Config.getRequiredArgsForDB("Authority") );
@@ -79,6 +79,7 @@ public class ProcessAuthorityChangeFile {
 		String firstFile = null;
 		String lastFile = null;
 		String outputFile = null;
+		String aspaceOutputFile = null;
 
 		String fileContent = new String(
 				getBoxFileContents(env.get("boxKeyFile"), fileId, fileName, 1024),
@@ -92,10 +93,12 @@ public class ProcessAuthorityChangeFile {
 			firstFile = lines[0];
 			lastFile = lines[1];
 			outputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+".json";
+			aspaceOutputFile = firstFile+"-"+lastFile.substring(lastFile.length()-2)+"-aspace.json";
 		} else {
 			firstFile = lines[0];
 			lastFile = firstFile;
 			outputFile = firstFile+".json";
+			aspaceOutputFile = firstFile+"-aspace.json";
 		}
 
 		System.out.printf("Generating file %s\n", outputFile);
@@ -109,11 +112,14 @@ public class ProcessAuthorityChangeFile {
 						" WHERE updateFile BETWEEN ? AND ?"+
 						" ORDER BY updateFile, positionInFile");
 				BufferedWriter jsonWriter = Files.newBufferedWriter(Paths.get(outputFile));
+				BufferedWriter jsonASpaceWriter = Files.newBufferedWriter(Paths.get(aspaceOutputFile));
 				BufferedWriter autoFlipWriter = Files.newBufferedWriter(Paths.get(autoFlipFile))) {
 
 			jsonWriter.append("[\n");
+			jsonASpaceWriter.append("[\n");
 			autoFlipWriter.append("[\n");
 			boolean writtenJson = false;
+			boolean writtenASpaceJson = false;
 			boolean writtenAutoFlip = false;
 
 			getAuthStmt.setString(1, firstFile);
@@ -165,6 +171,7 @@ public class ProcessAuthorityChangeFile {
 					Set<String> checkedHeadings = new HashSet<>();
 					String mainEntrySort = getFilingForm( mainEntry );
 					List<Map<String,Object>> relevantChanges = new ArrayList<>();
+					List<Map<String,Object>> relevantASpaceChanges = new ArrayList<>();
 					for (String field : actionableHeadings.keySet() ) {
 						EnumSet<DiffType> flags = actionableHeadings.get(field).flags;
 						Map<String,Object> autoFlip = actionableHeadings.get(field).autoFlip;
@@ -202,26 +209,36 @@ public class ProcessAuthorityChangeFile {
 //
 //							SolrDocumentList res = solr.query(q).getResults();
 //							Long recordCount = res.getNumFound();
-							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading);
+							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading,false);
+							int aspaceCount = (id.startsWith("s"))
+									? querySolrForMatchingBibCount(solr,searchField,heading,true) : 0;
 							if ( 0 == recordCount) continue;
 							if ( flags.contains(DiffType.DIACR) ) {
 								String facetField = (searchField.startsWith("author")
 										?"author_facet":searchField.replace("browse","facet"));
 								Map<String,Integer> displayForms = tabulateActualUnnormalizedHeadings(
-										solr, heading, searchField, facetField);
+										solr, heading, searchField, facetField, false);
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
-									System.out.printf("%s relevant w/ %d instances (%s).\n",
-											displayForm,displayForms.get(displayForm),searchField);
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip));
+											displayForms.get(displayForm), flags, config, autoFlip, false));
+								}
+								if ( 0 == aspaceCount) continue;
+								displayForms = tabulateActualUnnormalizedHeadings(
+										solr, heading, searchField, facetField, true);
+								for ( String displayForm : displayForms.keySet() ) {
+									if (displayForm.equals(mainEntry)) continue;
+									relevantASpaceChanges.add(buildRelevantChange(displayForm,searchField,facetField,
+											displayForms.get(displayForm), flags, config, autoFlip, true));
 								}
 							} else {
 								Map<String,Object> rc = buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config, autoFlip);
+										heading,searchField,searchField,recordCount, flags, config, autoFlip, false);
 								relevantChanges.add(rc);
 								if (rc.containsKey("autoFlip"))
 									autoFlip.put(searchField, querySolrForMatchingBibs(solr,searchField,heading));
+								if ( 0 < aspaceCount) relevantASpaceChanges.add(buildRelevantChange(
+										heading,searchField,searchField,aspaceCount, flags, config, autoFlip, true));
 							}
 						}
 						if (autoFlip != null && autoFlip.keySet().size() > 3) {
@@ -235,16 +252,26 @@ public class ProcessAuthorityChangeFile {
 						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 						jsonWriter.append(mapper.writeValueAsString(json));
 					}
+					if ( ! relevantASpaceChanges.isEmpty() ) {
+						json.put("relevantChanges", relevantASpaceChanges);
+						if ( writtenASpaceJson ) jsonASpaceWriter.append(",\n"); else writtenASpaceJson = true;
+						jsonASpaceWriter.append(mapper.writeValueAsString(json));
+					}
 
 				}
 				jsonWriter.append("]");
 				jsonWriter.flush();
 				jsonWriter.close();
+				jsonASpaceWriter.append("]");
+				jsonASpaceWriter.flush();
+				jsonASpaceWriter.close();
 				autoFlipWriter.append("]");
 				autoFlipWriter.flush();
 				autoFlipWriter.close();
 
 				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
+				if (writtenASpaceJson || aspaceOutputFile.contains("sub"))
+					uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
 				registerReportCompletion(
 						authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 				if (writtenAutoFlip) {
@@ -372,7 +399,7 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static MarcRecord getOldRecordVersion(Connection authority, String id,
-			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException {
+			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException, IOException, XMLStreamException {
 		MarcRecord oldR = null;
 		int maxFieldId = 0;
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
@@ -399,13 +426,13 @@ public class ProcessAuthorityChangeFile {
 			}
 		}
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
-				"SELECT marc21 FROM voyagerAuthority WHERE id = ?")){
+				"SELECT marcxml FROM voyagerAuthority WHERE id = ?")){
 			getOldRecordStmt.setString(1, id);
 			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
 				while (rs.next()) {
-					byte[] marc = rs.getBytes(1);
+					String marc = rs.getString(1);
 					try {
-						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc,false);
 						if (oldR == null) {
 							oldR = r;
 							maxFieldId = oldR.dataFields.last().id;
@@ -662,62 +689,26 @@ public class ProcessAuthorityChangeFile {
 		NEWMAIN, DIACR, UNCH, VAR_Q, VAR_D, VAR_QD, OLD, NEW;
 	}
 
-	private static Map<String,Integer> tabulateActualUnnormalizedHeadings (
-			HttpSolrClient solr, String heading, String field, String facetField)
-					throws SolrServerException, IOException {
-
-		Map<String,Boolean> authors = new HashMap<>();
-		Map<String,Integer> displayForms = new HashMap<>();
-		String normalizedHeading = getFilingForm( heading );
-		System.out.format("tabulating display versions for %s (%s)\n", field, facetField);
-
-		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"');
-		q.setRows(10_000);
-		q.setFields(facetField,"id");
-
-		boolean incompleteIndexing = false;
-		for (SolrDocument doc : solr.query(q).getResults()) {
-			if ( ! doc.containsKey(facetField)) {
-				System.out.printf("Needs indexing: %s\n", doc.getFieldValue("id"));
-				incompleteIndexing = true;
-			} else for (String author : (ArrayList<String>)doc.getFieldValue(facetField)) {
-				if ( ! authors.containsKey(author) )
-					authors.put(author, normalizedHeading.equals(getFilingForm(author)));
-				if ( ! authors.get(author) )
-					continue; 
-				if ( displayForms.containsKey(author) )
-					displayForms.put(author, displayForms.get(author)+1);
-				else displayForms.put(author,1);
-			}
-		}
-		if ( incompleteIndexing ) {
-			System.out.printf( "query: %s\nfacet %s\n",q.getQuery(),facetField);
-		}
-
-		for ( String form : displayForms.keySet() )
-			System.out.printf("%s: %d\n", form, displayForms.get(form));
-		return displayForms;
-	}
-
 
 	private static Map<String,Object> buildRelevantChange (
 			String heading, String searchField, String blField, int records, EnumSet<DiffType> flags,
-			Config config, Map<String,Object> autoFlip)
+			Config config, Map<String,Object> autoFlip, boolean aspace)
 					throws UnsupportedEncodingException {
 
 		Map<String,Object> rc = new HashMap<>();
 		rc.put("heading", heading);
 		String link;
-		if ( blField.endsWith("facet") )
-			link = config.getBlacklightUrl()+"/?f["+blField+"][]="+heading;
-		else
-			link = config.getBlacklightUrl()+"/?q=%22"+
-					URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+blField;
-		rc.put("blacklightLink", link);
-		String solrLink =
-				config.getBlacklightSolrUrl()+"/select?"
-				+ "qt=search&wt=csv&rows=9999999&fl=instance_id&q="
-				+ blField+":%22"+URLEncoder.encode(heading, "UTF-8")+"%22";
+		if ( ! aspace ) {
+			if ( blField.endsWith("facet") )
+				link = config.getBlacklightUrl()+"/?f["+blField+"][]="+heading;
+			else
+				link = config.getBlacklightUrl()+"/?q=%22"+
+						URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+blField;
+			rc.put("blacklightLink", link);
+			String solrLink = String.format("%s/select?qt=search&wt=csv&rows=9999999&fl=instance_id&q=%s:%%22%s%%22",
+					config.getBlacklightSolrUrl(), blField, URLEncoder.encode(heading, "UTF-8"));
+			rc.put("solrLink", solrLink);
+		}
 
 		String vocab = null;
 		if      (blField.contains("_lc_"))    vocab = "lc";
@@ -739,7 +730,6 @@ public class ProcessAuthorityChangeFile {
 		else if (searchField.contains("_genr_"))  rc.put("type", "genr");
 		else if (searchField.contains("_sub_"))   rc.put("type", "sub");
 
-		rc.put("solrLink", solrLink);
 		rc.put("instanceCount",records);
 		if (flags.contains(DiffType.NEWMAIN))
 			rc.put("newMainHeading", true);

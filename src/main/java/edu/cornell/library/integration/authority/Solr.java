@@ -1,9 +1,13 @@
 package edu.cornell.library.integration.authority;
 
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -134,13 +138,53 @@ public class Solr {
 	}
 
 
-	public static int querySolrForMatchingBibCount(HttpSolrClient solr, String field, String heading) 
+	public static int querySolrForMatchingBibCount(HttpSolrClient solr, String field, String heading, boolean aspace) 
 			throws SolrServerException, IOException {
 		String query = field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"';
 		SolrQuery q = new SolrQuery(query);
 		q.setRows(0);
 		q.setFields("instance_id","id");
+		if (aspace) q.addFilterQuery("id_t:culaspace");
 		SolrDocumentList res = solr.query(q).getResults();
 		return (int) res.getNumFound();
+	}
+
+
+	public static Map<String,Integer> tabulateActualUnnormalizedHeadings (
+			HttpSolrClient solr, String heading, String field, String facetField, boolean aspace)
+					throws SolrServerException, IOException {
+
+		Map<String,Boolean> authors = new HashMap<>();
+		Map<String,Integer> displayForms = new HashMap<>();
+		String normalizedHeading = getFilingForm( heading );
+		System.out.format("tabulating display versions for %s (%s)\n", field, facetField);
+
+		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"');
+		q.setRows(10_000);
+		q.setFields(facetField,"id");
+		if (aspace) q.addFilterQuery("id_t:culaspace");
+
+		boolean incompleteIndexing = false;
+		for (SolrDocument doc : solr.query(q).getResults()) {
+			if ( ! doc.containsKey(facetField)) {
+				System.out.printf("Needs indexing: %s\n", doc.getFieldValue("id"));
+				incompleteIndexing = true;
+			} else for (String author : (ArrayList<String>)doc.getFieldValue(facetField)) {
+				if ( ! authors.containsKey(author) )
+					authors.put(author, normalizedHeading.equals(getFilingForm(author)));
+				if ( ! authors.get(author) )
+					continue; 
+				if ( displayForms.containsKey(author) )
+					displayForms.put(author, displayForms.get(author)+1);
+				else displayForms.put(author,1);
+			}
+		}
+		if ( incompleteIndexing ) {
+			System.out.printf( "query: %s\nfacet %s\n",q.getQuery(),facetField);
+		}
+
+		for ( String form : displayForms.keySet() )
+			System.out.printf("%s: %d\n", form, displayForms.get(form));
+		return displayForms;
 	}
 }
