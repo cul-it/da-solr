@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +56,7 @@ import edu.cornell.library.integration.utilities.Email;
 
 public class ProcessAuthorityChangeFile {
 
-	public static void main(String[] args) throws IOException, SQLException, SolrServerException {
+	public static void main(String[] args) throws IOException, SQLException, SolrServerException, XMLStreamException {
 
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.addAll(        Config.getRequiredArgsForDB("Authority") );
@@ -268,7 +270,7 @@ public class ProcessAuthorityChangeFile {
 				autoFlipWriter.close();
 
 				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
-				if (writtenASpaceJson)
+				if (writtenASpaceJson || aspaceOutputFile.contains("sub"))
 					uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
 				registerReportCompletion(
 						authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
@@ -397,7 +399,7 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static MarcRecord getOldRecordVersion(Connection authority, String id,
-			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException {
+			java.sql.Date moddate, String mainEntry, Map<String,Object> json) throws SQLException, IOException, XMLStreamException {
 		MarcRecord oldR = null;
 		int maxFieldId = 0;
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
@@ -424,13 +426,13 @@ public class ProcessAuthorityChangeFile {
 			}
 		}
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
-				"SELECT marc21 FROM voyagerAuthority WHERE id = ?")){
+				"SELECT marcxml FROM voyagerAuthority WHERE id = ?")){
 			getOldRecordStmt.setString(1, id);
 			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
 				while (rs.next()) {
-					byte[] marc = rs.getBytes(1);
+					String marc = rs.getString(1);
 					try {
-						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc);
+						MarcRecord r = new MarcRecord(MarcRecord.RecordType.AUTHORITY,marc,false);
 						if (oldR == null) {
 							oldR = r;
 							maxFieldId = oldR.dataFields.last().id;
