@@ -3,13 +3,10 @@
 and => et
 
 # tweaks for K-Stemmer, relating to words that should or should not be in dictionary
-waterers, waterer => watererprot
-thor => thorprot
-homer => homerprot
-tardis => tardisprot
 stars => star
 works, working => work
 locks => lock
+superheroes => superhero
 
 # computer languages
 # these are explicit mappings so when WDF drops the non-letter chars, c++ is not equivalent to c
