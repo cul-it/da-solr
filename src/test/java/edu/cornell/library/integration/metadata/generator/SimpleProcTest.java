@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -251,6 +253,35 @@ public class SimpleProcTest {
 			"notes_t: Morse, Jedidiah, 1761-1826. American geography. New ed., rev., cor., and greatly enlarged."
 			+ " London : Printed for John Stockdale, 1794. [Map 6], facing p. 284. (OCoLC)51834027\n";
 			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+		}
+	}
+
+	@Test
+	public void issnIncludeCancelledAndIncorrect() throws SQLException, IOException {
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"022",'0',' ',"‡a 1570-1522 "));
+			assertEquals("Testing subfield a", "issn_display: 1570-1522\nissn_t: 1570-1522\n",
+					this.gen.generateSolrFields(rec, null).toString());
+		}
+
+		{
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"022",'0',' ',"‡k 1570-1522 "));
+			assertEquals("Testing bad subfield k", "",
+					this.gen.generateSolrFields(rec, null).toString());
+		}
+
+		List<String> subfields = new ArrayList<>();
+		subfields.add("l");
+		subfields.add("m");
+		subfields.add("y");
+		subfields.add("z");
+		for (String subfield : subfields) {
+			MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+			rec.dataFields.add(new DataField(1,"022",'0',' ',"‡" + subfield + " 1570-1522 "));
+			assertEquals("Testing subfield " + subfield, "issn_t: 1570-1522\n",
+					this.gen.generateSolrFields(rec, null).toString());
 		}
 	}
 }
