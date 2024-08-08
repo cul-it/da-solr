@@ -36,7 +36,7 @@ public class URL implements SolrFieldGenerator {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public String getVersion() { return "1.6"; }
+	public String getVersion() { return "1.6.1"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("856","899","holdings"); }
