@@ -438,10 +438,6 @@ public class URLTest {
 
 	@Test
 	public void supressedHoldingAccessLink() throws IOException, SQLException {
-		MarcRecord withAccessLink = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-		withAccessLink.id = "1";
-		withAccessLink.dataFields.add(new DataField(1,"852",' ',' ',"‡b serv,remo"));
-
 		Map<String, String> accessLink = new TreeMap<>();
 		accessLink.put("uri", "https://bogus.com/bogus");
 		accessLink.put("publicNote", "Test");
