@@ -7,6 +7,7 @@ stars => star
 works, working => work
 locks => lock
 superheroes => superhero
+waterers => waterer
 
 # computer languages
 # these are explicit mappings so when WDF drops the non-letter chars, c++ is not equivalent to c
