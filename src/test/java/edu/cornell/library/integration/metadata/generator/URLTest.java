@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -433,5 +434,57 @@ public class URLTest {
 				"http://sunsite2.berkeley.edu:8000/%22target=%22_blank",
 				URL.selectivelyUrlEncode("http://sunsite2.berkeley.edu:8000/\"target=\"_blank"));
 		
+	}
+
+	@Test
+	public void supressedHoldingAccessLink() throws IOException, SQLException {
+		Map<String, String> accessLink = new TreeMap<>();
+		accessLink.put("uri", "https://bogus.com/bogus");
+		accessLink.put("publicNote", "Test");
+		accessLink.put("relationshipId", "00000000-00000-0000-0000-000000000000");
+
+		List<Map<String, String>> electronicAccess = new ArrayList<>();
+		electronicAccess.add(accessLink);
+
+		Map<String, Object> folioHolding = new TreeMap<>();
+		folioHolding.put("permanentLocationId", "2e19230b-aeeb-4419-92cb-853611611718");
+		folioHolding.put("electronicAccess", electronicAccess);
+
+		List<Map<String, Object>> folioHoldings = new ArrayList<>();
+		folioHoldings.add(folioHolding);
+
+		// un-suppressed
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"856",'4','0',
+		"‡i 2471499 "+
+		"‡y Click here to find online versions of this title. "+
+		"‡u https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
+		+ "bQuery=AN%202471499&direct=true&site=pfi-live"));
+		rec.folioHoldings = folioHoldings;
+		StringBuilder expected = new StringBuilder("ebsco_title_facet: 2471499\n")
+				.append("notes_t: Test\n")
+				.append("url_access_json: {")
+				.append("\"description\":\"Test\",")
+				.append("\"url\":\"https://bogus.com/bogus\"}\n")
+				.append("notes_t: Click here to find online versions of this title.\n")
+				.append("url_access_json: {")
+				.append("\"titleid\":\"2471499\",")
+				.append("\"description\":\"Click here to find online versions of this title.\",")
+				.append("\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&")
+				.append(          "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n")
+				.append("online: Online\n");
+		assertEquals( expected.toString(), this.gen.generateSolrFields(rec, null).toString() );
+
+		// suppressed
+		folioHolding.put("discoverySuppress", true);
+		expected = new StringBuilder("ebsco_title_facet: 2471499\n")
+				.append("notes_t: Click here to find online versions of this title.\n")
+				.append("url_access_json: {")
+				.append("\"titleid\":\"2471499\",")
+				.append("\"description\":\"Click here to find online versions of this title.\",")
+				.append("\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&")
+				.append(          "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n")
+				.append("online: Online\n");
+		assertEquals( expected.toString(), this.gen.generateSolrFields(rec, null).toString() );
 	}
 }

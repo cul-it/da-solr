@@ -301,6 +301,7 @@ public class URL implements SolrFieldGenerator {
 		List<Map<String, Object>> links = new ArrayList<>();
 		if ( ! record.containsKey("electronicAccess") ) return links;
 		if ( ! ArrayList.class.isInstance(record.get("electronicAccess"))) return links;
+		if (Boolean.TRUE.equals(record.get("discoverySuppress"))) return links;
 		List<Map<String,String>> rawLinks = ArrayList.class.cast(record.get("electronicAccess"));
 		for (Map<String,String> rawLink : rawLinks) {
 			if ( rawLink == null
