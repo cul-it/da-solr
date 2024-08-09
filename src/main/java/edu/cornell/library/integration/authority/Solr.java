@@ -140,7 +140,7 @@ public class Solr {
 
 	public static int querySolrForMatchingBibCount(HttpSolrClient solr, String field, String heading, boolean aspace) 
 			throws SolrServerException, IOException {
-		String query = field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"';
+		String query = field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\","")+'"';
 		SolrQuery q = new SolrQuery(query);
 		q.setRows(0);
 		q.setFields("instance_id","id");
@@ -159,7 +159,7 @@ public class Solr {
 		String normalizedHeading = getFilingForm( heading );
 		System.out.format("tabulating display versions for %s (%s)\n", field, facetField);
 
-		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\$","")+'"');
+		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\","")+'"');
 		q.setRows(10_000);
 		q.setFields(facetField,"id");
 		if (aspace) q.addFilterQuery("id_t:culaspace");
