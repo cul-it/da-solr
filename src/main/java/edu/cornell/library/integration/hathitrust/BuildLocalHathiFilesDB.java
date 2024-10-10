@@ -215,6 +215,7 @@ public class BuildLocalHathiFilesDB {
 			while ((line = in.readLine()) != null) {
 				String[] columns = line.split("\\t");
 				String Volume_Identifier = columns[0];
+				System.out.printf("%s (%d) %d\n", Volume_Identifier,columns.length, count);
 				String Source_Inst_Record_Number = dedupeList(columns[6]);
 				String OCLC_Numbers = columns[7];
 				String Author = (columns.length > 25)?columns[25]:null;
