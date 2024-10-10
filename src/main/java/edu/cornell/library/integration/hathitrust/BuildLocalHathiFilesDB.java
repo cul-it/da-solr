@@ -218,6 +218,7 @@ public class BuildLocalHathiFilesDB {
 				System.out.printf("%s (%d) %d\n", Volume_Identifier,columns.length, count);
 				String Source_Inst_Record_Number = dedupeList(columns[6]);
 				String OCLC_Numbers = columns[7];
+				String Access_profile = (columns.length > 24)?columns[24]:"";
 				String Author = (columns.length > 25)?columns[25]:null;
 
 				for (PreparedStatement insert : insertStmts) {
@@ -245,7 +246,7 @@ public class BuildLocalHathiFilesDB {
 				insert.setString(22,columns[21]);// Content_provider_code
 				insert.setString(23,columns[22]);// Responsible_Entity_code
 				insert.setString(24,columns[23]);// Collection_code
-				insert.setString(25,columns[24]);// Access_profile
+				insert.setString(25,Access_profile);// Access_profile
 				insert.setString(26,Author);// Author
 				insert.setString(27,filename);// update_file_name
 				insert.executeUpdate();
