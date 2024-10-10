@@ -285,6 +285,9 @@ public class BuildLocalHathiFilesDB {
 			for (PreparedStatement s : insertOclcStmts) s.close();
 			for (PreparedStatement s : deleteSourceNoStmts) s.close();
 			for (PreparedStatement s : insertSourceNoStmts) s.close();
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+			throw(e);
 		}
 	}
 
