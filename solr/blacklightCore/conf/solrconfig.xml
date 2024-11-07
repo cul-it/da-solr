@@ -832,8 +832,8 @@
       <str name="f.series_starts.qf">title_series_startsC^25 title_series_startsP^25 title_series_startsCJK</str>
       <str name="f.series_quoted.qf"> title_series_unstemC^25 title_series_unstemP^25 title_series_t_cjk</str>
 
- 	  <str name="f.notes_qf.qf">notes_t notes_tP notes_t_cjk</str>
- 	  <str name="f.notes_qf.pf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="f.notes.qf">notes_t notes_tP notes_t_cjk</str>
+ 	  <str name="f.notes.pf">notes_t notes_tP notes_t_cjk</str>
  	  <str name="f.notes_starts.qf">notes_startsC notes_startsP notes_startsCJK</str>
  	  <str name="f.notes_quoted.qf">notes_unstemC notes_unstemP notes_t_cjk</str>
 
