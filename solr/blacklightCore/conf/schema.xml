@@ -15,63 +15,69 @@
 
     <!-- Primary text fields, concatenate words and generate word parts variants -->
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
+      <analyzer type="index">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.FlattenGraphFilterFactory"/>
         <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
+        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
+        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
-    <fieldType name="textP" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
 
     <!-- Unstemmed text fields, concatenate words and generate word parts variants -->
-    <fieldType name="textNoStemC" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
+    <!-- WordDelimiterGraphFilter -->
+    <fieldType name="textNoStem" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.FlattenGraphFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
-    </fieldType>
-    <fieldType name="textNoStemP" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
+      <analyzer type="query">
         <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
       </analyzer>
     </fieldType>
 
     <!-- Left-anchored ngram text fields, concatenate words and generate word parts variants -->
-    <fieldType name="textLeftAnchoredP" class="solr.TextField" omitNorms="true">
+    <!-- WordDelimiterGraphFilter -->
+    <fieldType name="textLeftAnchored" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- prefix value to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.FlattenGraphFilterFactory"/>
         <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
+        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
         <filter class="solr.KStemFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
       </analyzer>
@@ -81,82 +87,45 @@
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
         <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-      </analyzer>
-    </fieldType>
-    <fieldType name="textLeftAnchoredC" class="solr.TextField" omitNorms="true">
-      <analyzer type="index">
-        <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
-      </analyzer>
-      <analyzer type="query">
-        <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
+        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
         <filter class="solr.KStemFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <!-- Left-anchored boost text fields, concatenate words and generate word parts variants -->
-    <fieldType name="textLeftAnchoredBoostC" class="solr.TextField" omitNorms="true">
+    <!-- WordDelimiterGraphFilter -->
+    <fieldType name="textLeftAnchoredBoost" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-      </analyzer>
-    </fieldType>
-    <fieldType name="textLeftAnchoredBoostP" class="solr.TextField" omitNorms="true">
-      <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.FlattenGraphFilterFactory"/>
+        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
         <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
         <filter class="solr.KStemFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <!-- Unstemmed left-anchored boost text fields, concatenate words and generate word parts variants -->
-    <fieldType name="textLeftAnchoredUnstemBoostC" class="solr.TextField" omitNorms="true">
+    <!-- WordDelimiterGraphFilter -->
+    <fieldType name="textLeftAnchoredUnstemBoost" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
         <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/>
-      </analyzer>
-    </fieldType>
-    <fieldType name="textLeftAnchoredUnstemBoostP" class="solr.TextField" omitNorms="true">
-      <analyzer type="index">
-        <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="&amp;" replacement="et" />
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
+        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter class="solr.FlattenGraphFilterFactory"/>
       </analyzer>
     </fieldType>
 
@@ -334,15 +303,12 @@
     <field name="availability_json" type="string" indexed="false" stored="true" multiValued="false" />
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
-    <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="*_s"  type="text"  indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
     <dynamicField name="*_t"  type="text"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_left_chunked"  type="callNumberNormalized"    indexed="true"  stored="false" multiValued="true"/>
-    <dynamicField name="*_tP"  type="textP"    indexed="true"  stored="false" multiValued="true"/>
-    <dynamicField name="*_leftboost_tC"  type="textLeftAnchoredBoostC" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_leftboost_tP"  type="textLeftAnchoredBoostP" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_leftUnstemBoostC"  type="textLeftAnchoredUnstemBoostC" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_leftUnstemBoostP"  type="textLeftAnchoredUnstemBoostP" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftboost_t"  type="textLeftAnchoredBoost" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_leftUnstemBoost"  type="textLeftAnchoredUnstemBoost" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_t_cjk"  type="textCJK"    indexed="true"  stored="false" multiValued="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
     <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
@@ -360,11 +326,9 @@
     <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="filing" indexed="true" stored="false" multiValued="false"/>
     <dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
-    <dynamicField name="*_unstemC" type="textNoStemC" indexed="true" stored="false" multiValued="true" />
-    <dynamicField name="*_unstemP" type="textNoStemP" indexed="true" stored="false" multiValued="true" />
-    <dynamicField name="*_startsC" type="textLeftAnchoredC" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_unstem" type="textNoStem" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_starts" type="textLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsCJK" type="textLeftAnchoredCJK" indexed="true" stored="false" multiValued="true" />
-    <dynamicField name="*_startsP" type="textLeftAnchoredP" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsNum" type="numericLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
   </fields>
@@ -373,11 +337,8 @@
 
   <!-- Copy Fields -->
 
-  <copyField source="*_t" dest="*_tP"/>
-  <copyField source="*_t" dest="*_unstemC"/>
-  <copyField source="*_t" dest="*_unstemP"/>
-  <copyField source="*_t" dest="*_startsC"/>
-  <copyField source="*_t" dest="*_startsP"/>
+  <copyField source="*_t" dest="*_unstem"/>
+  <copyField source="*_t" dest="*_starts"/>
   <copyField source="*_t_cjk" dest="*_startsCJK"/>
   <copyField source="issn_t" dest="issn_startsNum"/>
   <copyField source="isbn_t" dest="isbn_startsNum"/>
@@ -387,36 +348,11 @@
   <copyField source="barcode_addl_t" dest="barcode_addl_startsNum"/>
   <copyField source="id_t" dest="id_startsNum"/>
   <copyField source="id" dest="id_startsNum"/>
-  <copyField source="donor_s" dest="donor_startsC"/>
+  <copyField source="donor_s" dest="donor_starts"/>
   <copyField source="*_filing" dest="*_browse"/>
 
-  <!-- spellcheck fields -->
-  <!-- default spell check;  should match fields for default request handler -->
-  <!-- it won't work with a copy of a copy field -->
-  <!-- <copyField source="*_t" dest="spell"/> -->
-  <!-- title spell check;  should match fields for title request handler -->
-  <!-- <copyField source="title_t" dest="title_spell"/> -->
-  <copyField source="title_t" dest="title_leftUnstemBoostC"/>
-  <copyField source="title_t" dest="title_leftUnstemBoostP"/>
-  <copyField source="title_t" dest="title_leftboost_tC"/>
-  <copyField source="title_t" dest="title_leftboost_tP"/>
-  <!--
-  <copyField source="subtitle_t" dest="title_spell"/>
-  <copyField source="addl_titles_t" dest="title_spell"/>
-  <copyField source="title_added_entry_t" dest="title_spell"/>
-  <copyField source="title_series_t" dest="title_spell"/>
-     -->
-  <!-- author spell check; should match fields for author request handler -->
-  <!--
-  <copyField source="author_t" dest="author_spell"/>
-  <copyField source="author_addl_t" dest="author_spell"/>
-     -->
-  <!-- subject spell check; should match fields for subject request handler -->
-  <!--
-  <copyField source="subject_topic_facet" dest="subject_spell"/>
-  <copyField source="subject_t" dest="subject_spell"/>
-  <copyField source="subject_addl_t" dest="subject_spell"/>
-     -->  
+  <copyField source="title_t" dest="title_leftUnstemBoost"/>
+  <copyField source="title_t" dest="title_leftboost_t"/>
   
   <!-- OpenSearch query field should match request handler search fields -->
   <copyField source="fulltitle_display" dest="opensearch_display"/>
