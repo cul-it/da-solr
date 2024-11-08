@@ -280,7 +280,6 @@
     <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
 
-    <field name="notes" type="text" indexed="false" stored="true" multiValued="true"/>
     <!-- fields used for back-end linking of license data for databases -->
     <field name="dbcode" type="string" indexed="false" stored="true" multiValued="true"/>
     <field name="providercode" type="string" indexed="false" stored="true" multiValued="true"/>
