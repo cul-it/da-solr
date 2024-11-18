@@ -210,7 +210,7 @@ public class ProcessAuthorityChangeFile {
 //							SolrDocumentList res = solr.query(q).getResults();
 //							Long recordCount = res.getNumFound();
 							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading,false);
-							int aspaceCount = (id.startsWith("s"))
+							int aspaceCount = (recordCount > 0)
 									? querySolrForMatchingBibCount(solr,searchField,heading,true) : 0;
 							if ( 0 == recordCount) continue;
 							if ( flags.contains(DiffType.DIACR) ) {
@@ -270,8 +270,7 @@ public class ProcessAuthorityChangeFile {
 				autoFlipWriter.close();
 
 				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
-				if (writtenASpaceJson || aspaceOutputFile.contains("sub"))
-					uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
+				uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
 				registerReportCompletion(
 						authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 				if (writtenAutoFlip) {
