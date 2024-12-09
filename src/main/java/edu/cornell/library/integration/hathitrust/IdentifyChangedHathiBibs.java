@@ -255,7 +255,7 @@ public class IdentifyChangedHathiBibs {
 		return null;
 	}
 	private static MarcRecord getZephirRecord(String volumeId) throws IOException {
-		URL link = new URL("http://zephir.cdlib.org/api/item/"+volumeId+".json");
+		URL link = new URL("https://zephir.cdlib.org/api/item/"+volumeId+".json");
 		HttpURLConnection httpURLConnection = (HttpURLConnection) link.openConnection();
 		httpURLConnection.setRequestMethod("GET");
 		int responseCode = httpURLConnection.getResponseCode();
