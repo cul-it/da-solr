@@ -862,7 +862,8 @@
         title_uniform_display,
         oclc_id_display,
         availability_json,
-        acquired_dt
+        acquired_dt,
+        no_google_img_b
       </str>
      
       <str name="facet">true</str>
