@@ -462,7 +462,8 @@ public class SubjectTest extends DbBaseTest {
 		"authority_subject_t: Politics\n" + 
 		"authority_subject_t: Undocumented aliens\n" + 
 		"authority_subject_t: Illegal alien children\n" + 
-		"fast_b: true\n";
+		"fast_b: true\n" +
+		"subject_overlay_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
