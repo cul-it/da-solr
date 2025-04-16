@@ -43,7 +43,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.10.1"; }
+	public String getVersion() { return "2.10.2"; }
 
 	@Override
 	public List<String> getHandledFields() {
