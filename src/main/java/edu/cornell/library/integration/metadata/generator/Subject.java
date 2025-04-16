@@ -62,7 +62,6 @@ public class Subject implements SolrFieldGenerator {
 	public SolrFields generateSolrFields( MarcRecord rec, Config config ) throws SQLException, IOException {
 		boolean recordHasFAST = false;
 		boolean recordHasLCSH = false;
-		boolean recordHasOverlay = false;
 		final Collection<Heading> taggedFields = new LinkedHashSet<>();
 		final Collection<String> subjectDisplay = new LinkedHashSet<>();
 		final Collection<String> subjectJson = new LinkedHashSet<>();
@@ -239,7 +238,7 @@ public class Subject implements SolrFieldGenerator {
 				if (primarySubjectTerm != null) {
 					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
 					if ( authData.replacementForm != null ) {
-						recordHasOverlay = true;
+						sfs.add("subject_overlay_facet", authData.replacementForm);
 						if ( authData.alternateForms == null ) authData.alternateForms = new ArrayList<>();
 						authData.alternateForms.add(primarySubjectTerm);
 						origPrimaryTerm = primarySubjectTerm;
@@ -371,8 +370,6 @@ public class Subject implements SolrFieldGenerator {
 		}
 
 		sfs.add( "fast_b", recordHasFAST );
-		if (recordHasOverlay)
-			sfs.add("subject_overlay_b", true);
 
 		for (String json : subjectJson)
 			sfs.add("subject_json",json);

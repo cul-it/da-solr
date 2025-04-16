@@ -286,6 +286,7 @@ public class SubjectTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(9,"650",' ','4',"‡a Immigration law ‡z United States."));
 		rec.dataFields.add(new DataField(10,"650",' ','7',"‡a Illegal aliens. ‡2 fast ‡0 (OCoLC)fst00967153"));
 		String expected =
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" + 
@@ -298,6 +299,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" +
@@ -318,6 +320,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
@@ -330,6 +333,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
@@ -370,7 +374,6 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: Government policy\n"+
 		"subject_sub_lc_filing: government policy\n"+
 
-
 		"subject_t: Emigration and immigration law > United States\n" + 
 		"subject_topic_facet: Emigration and immigration law\n" +
 		"subject_topic_filing: emigration and immigration law\n" +
@@ -393,6 +396,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_other_filing: american government\n"+
 
 		// related to "sears" vocab term
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" +
 		"subject_topic_other_facet: Illegal aliens\n" + 
 		"subject_topic_other_filing: illegal aliens\n" + 
@@ -413,6 +417,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_unk_facet: United States\n"+
 		"subject_sub_unk_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants\n" + 
 		"fast_topic_facet: Undocumented immigrants\n" +
 		"subject_topic_facet: Undocumented immigrants\n" + 
@@ -462,8 +467,7 @@ public class SubjectTest extends DbBaseTest {
 		"authority_subject_t: Politics\n" + 
 		"authority_subject_t: Undocumented aliens\n" + 
 		"authority_subject_t: Illegal alien children\n" + 
-		"fast_b: true\n" +
-		"subject_overlay_b: true\n";
+		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
