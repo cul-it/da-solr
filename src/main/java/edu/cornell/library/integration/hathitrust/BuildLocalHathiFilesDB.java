@@ -184,7 +184,8 @@ public class BuildLocalHathiFilesDB {
 	public static void loadFile(Connection hathidb, String url, String filename, List<String> prefixes)
 			throws IOException, SQLException {
 		URL website = new URL(url+filename);
-		System.out.printf("Loading file %s\n", filename);
+		boolean isInitialLoad = filename.startsWith("hathi_full");
+		System.out.printf("Loading file %s%s\n", filename, isInitialLoad?" (db initialize)":"");
 		try (InputStream is = website.openStream();
 			 GZIPInputStream gzis = new GZIPInputStream(is);
 			 InputStreamReader reader = new InputStreamReader(gzis);
@@ -209,7 +210,12 @@ public class BuildLocalHathiFilesDB {
 				insertSourceNoStmts.add(hathidb.prepareStatement(
 						"INSERT INTO "+prefix+"volume_to_source_inst_rec_num VALUES (? , ?)"));
 			}
-
+			List<PreparedStatement> allStmts = new ArrayList<>();
+			allStmts.addAll(insertStmts);
+			allStmts.addAll(deleteOclcStmts);
+			allStmts.addAll(insertOclcStmts);
+			allStmts.addAll(deleteSourceNoStmts);
+			allStmts.addAll(insertSourceNoStmts);
 			String line;
 			int count = 0;
 			while ((line = in.readLine()) != null) {
@@ -221,6 +227,9 @@ public class BuildLocalHathiFilesDB {
 				String OCLC_Numbers = columns[7];
 				String Access_profile = (columns.length > 24)?columns[24]:"";
 				String Author = (columns.length > 25)?columns[25]:null;
+
+				if (count % 50_000 == 0) 
+					executeSqlBatchStmts(allStmts);
 
 				for (PreparedStatement insert : insertStmts) {
 				insert.setString(1, Volume_Identifier);
@@ -250,12 +259,12 @@ public class BuildLocalHathiFilesDB {
 				insert.setString(25,Access_profile);// Access_profile
 				insert.setString(26,Author);// Author
 				insert.setString(27,filename);// update_file_name
-				insert.executeUpdate();
+				insert.addBatch();
 				}
 
-				for (PreparedStatement deleteOclc : deleteOclcStmts) {
+				if ( ! isInitialLoad) for (PreparedStatement deleteOclc : deleteOclcStmts) {
 				deleteOclc.setString(1, Volume_Identifier);
-				deleteOclc.executeUpdate();
+				deleteOclc.addBatch();;
 				}
 				String[] oclcs = OCLC_Numbers.split(", *");
 				for (String oclc : oclcs) {
@@ -263,13 +272,13 @@ public class BuildLocalHathiFilesDB {
 					for (PreparedStatement insertOclc : insertOclcStmts) {
 					insertOclc.setString(1, Volume_Identifier);
 					insertOclc.setString(2, oclc.trim());
-					insertOclc.executeUpdate();
+					insertOclc.addBatch();
 					}
 				}
 
-				for (PreparedStatement deleteSourceNo : deleteSourceNoStmts) {
+				if ( ! isInitialLoad) for (PreparedStatement deleteSourceNo : deleteSourceNoStmts) {
 				deleteSourceNo.setString(1, Volume_Identifier);
-				deleteSourceNo.executeUpdate();
+				deleteSourceNo.addBatch();
 				}
 				String[] sourcenos = Source_Inst_Record_Number.split(",");
 				for (String sourceno : sourcenos) {
@@ -277,18 +286,19 @@ public class BuildLocalHathiFilesDB {
 					for (PreparedStatement insertSourceNo : insertSourceNoStmts) {
 					insertSourceNo.setString(1, Volume_Identifier);
 					insertSourceNo.setString(2, sourceno.trim());
-					insertSourceNo.executeUpdate();
+					insertSourceNo.addBatch();
 					}
 				}
 				count++;
 			}
+			executeSqlBatchStmts(allStmts);
+			for (PreparedStatement s : allStmts) s.close();
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
-			for (PreparedStatement s : insertStmts) s.close();
-			for (PreparedStatement s : deleteOclcStmts) s.close();
-			for (PreparedStatement s : insertOclcStmts) s.close();
-			for (PreparedStatement s : deleteSourceNoStmts) s.close();
-			for (PreparedStatement s : insertSourceNoStmts) s.close();
 		}
+	}
+
+	private static void executeSqlBatchStmts(List<PreparedStatement> allStatements) throws SQLException {
+		for (PreparedStatement pstmt : allStatements) pstmt.executeBatch();
 	}
 
 	private static String dedupeList(String list) {
