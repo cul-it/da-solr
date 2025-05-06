@@ -16,8 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -191,7 +189,7 @@ public class BuildLocalHathiFilesDB {
 	public static void loadFileWithRetries(Connection hathidb, String url, String filename, List<String> prefixes)
 			throws IOException, SQLException, InterruptedException {
 		int[] startCount = {0};
-		int attemptLimit = 5;
+		int attemptLimit = 20;
 		boolean done = false;
 		for (int attempt = 1; !done && attempt <= attemptLimit; attempt++)  
 		try {
@@ -349,14 +347,12 @@ public class BuildLocalHathiFilesDB {
 	}
 
 	private static void executeSqlBatchStmts(int count, List<PreparedStatement> allStatements) throws SQLException {
-		Instant start = Instant.now();
 		List<String> resultCounts = new ArrayList<>();
 		for (PreparedStatement pstmt : allStatements) {
 			int[] results = pstmt.executeBatch();
 			resultCounts.add(commify(results.length)); //counting executions, not affected recs
 		}
-		System.out.format("%d seconds (%s) - position %s\n",
-				Duration.between(start, Instant.now()).getSeconds(),String.join(", ", resultCounts),commify(count));
+		System.out.format("Loaded records (%s) - up to position %s\n", String.join(", ", resultCounts),commify(count));
 	}
 
 	private static String commify (int number) {
