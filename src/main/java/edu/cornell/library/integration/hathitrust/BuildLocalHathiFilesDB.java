@@ -3,9 +3,12 @@ package edu.cornell.library.integration.hathitrust;
 import static edu.cornell.library.integration.hathitrust.Utilities.identifyPrefixes;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,14 +26,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import org.junit.jupiter.api.ClassOrderer.ClassName;
+
 import edu.cornell.library.integration.utilities.Config;
 
 public class BuildLocalHathiFilesDB {
-
 	/**
 	 *  BuildLocalHathiFilesDB<br/>
 	 *  Download most recent full export of hathifiles database and all intervening intermitent updates
@@ -39,8 +45,9 @@ public class BuildLocalHathiFilesDB {
 	 *  name prefix provided in the environment variable "prefixes".<br/>
 	 *  <br/>
 	 *  The raw data coming from HT is in gzipped tab-delimited files.
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Hathi");
 		requiredArgs.add("hathifilesUrl");
 		Config config = Config.loadConfig(requiredArgs);
@@ -66,7 +73,7 @@ public class BuildLocalHathiFilesDB {
 				filename = String.format(incrementalHathiFilenameFormat, dayParam);
 			}
 			try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
-				loadFile(hathidb,hathifilesUrl,filename,dbPrefixes);
+				loadFileWithRetries(hathidb,hathifilesUrl,filename,dbPrefixes);
 			}
 			System.exit(0);
 		}
@@ -90,7 +97,7 @@ public class BuildLocalHathiFilesDB {
 		try ( Connection hathidb = config.getDatabaseConnection("Hathi") ) {
 			confirmDbPresentAndEmpty(hathidb, dbPrefixes);
 			for (String fileToLoad : filesToLoad)
-				loadFile(hathidb,hathifilesUrl,fileToLoad,dbPrefixes);
+				loadFileWithRetries(hathidb,hathifilesUrl,fileToLoad,dbPrefixes);
 		}
 
 	}
@@ -183,11 +190,42 @@ public class BuildLocalHathiFilesDB {
 	private static String incrementalHathiFilenameFormat = "hathi_upd_%s.txt.gz";
 	static Pattern dateMatcher = Pattern.compile("\\d{8}");
 
-	public static void loadFile(Connection hathidb, String url, String filename, List<String> prefixes)
+	public static void loadFileWithRetries(Connection hathidb, String url, String filename, List<String> prefixes)
+			throws IOException, SQLException, InterruptedException {
+		int[] startCount = {0};
+		int attemptLimit = 5;
+		boolean done = false;
+		for (int attempt = 1; !done && attempt <= attemptLimit; attempt++)  
+		try {
+			if (attempt > 1) {
+				System.out.format("Attempt #%d of %d\n",attempt,attemptLimit);
+			}
+			loadFile(hathidb, url, filename, prefixes, startCount);
+			done = true;
+		} catch (EOFException|SocketException e) {
+			LOGGER.log(Level.WARNING, e.getClass()+" "+ e.getMessage());
+		} catch (FileNotFoundException e) {
+			if (attempt < attemptLimit) {
+				LOGGER.log(Level.WARNING, e.getClass()+" "+ e.getMessage()+
+						"\nFile not found can be a glitch. Wait 10 seconds and see" );
+				Thread.sleep(10_000);
+			} else
+				LOGGER.log(Level.WARNING, e.getClass()+" "+ e.getMessage());
+		}
+		if ( ! done ) {
+			LOGGER.log(Level.SEVERE, "Data not loaded after maximum retries.");
+			throw new IOException("Data not loaded after maximum retries.");
+		}
+	}
+
+	public static void loadFile(Connection hathidb, String url, String filename, List<String> prefixes, int[] startCount)
 			throws IOException, SQLException {
 		URL website = new URL(url+filename);
 		boolean isInitialLoad = filename.startsWith("hathi_full");
 		System.out.printf("Loading file %s%s\n", filename, isInitialLoad?" (db initialize)":"");
+		int start = startCount[0];
+		if (start > 0)
+			System.out.format("Resuming from after row %d\n", start);
 		try (InputStream is = website.openStream();
 			 GZIPInputStream gzis = new GZIPInputStream(is);
 			 InputStreamReader reader = new InputStreamReader(gzis);
@@ -222,6 +260,10 @@ public class BuildLocalHathiFilesDB {
 			int count = 0;
 			int batchSize = 50_000;
 			while ((line = in.readLine()) != null) {
+
+				// fast forward on resume
+				if (count < start) { count++; continue; }
+
 				String[] columns = line.split("\\t");
 				String Volume_Identifier = columns[0];
 				if ( columns.length < 25 )
@@ -291,31 +333,53 @@ public class BuildLocalHathiFilesDB {
 				}
 				count++;
 				if (count % batchSize == 0) {
-					System.out.format("count: %d, count %% %d: %d\n", count, batchSize, count % batchSize);
-					executeSqlBatchStmts(allStmts);
+					executeSqlBatchStmts(count, allStmts);
+					startCount[0] = count;
+
+//					Random rand = new Random();
+//					switch (rand.nextInt(4)) {
+//					case 0:throw new EOFException("artificially thrown exception");
+//					case 1:throw new SocketException("artificially thrown exception");
+//					}
 				}
 			}
-			System.out.format("count: %d, count %% %d: %d\n", count, batchSize, count % batchSize);
-			executeSqlBatchStmts(allStmts);
+			if (count % batchSize > 0)
+				executeSqlBatchStmts(count, allStmts);
 			for (PreparedStatement s : allStmts) s.close();
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
 		}
 	}
 
-	private static void executeSqlBatchStmts(List<PreparedStatement> allStatements) throws SQLException {
+	private static void executeSqlBatchStmts(int count, List<PreparedStatement> allStatements) throws SQLException {
 		Instant start = Instant.now();
 		List<String> resultCounts = new ArrayList<>();
 		for (PreparedStatement pstmt : allStatements) {
 			int[] results = pstmt.executeBatch();
-			resultCounts.add(String.valueOf(results.length)); //counting executions, not affected recs
+			resultCounts.add(commify(results.length)); //counting executions, not affected recs
 		}
-		System.out.format("%d seconds (%s)\n",
-				Duration.between(start, Instant.now()).getSeconds(),String.join(", ", resultCounts));
+		System.out.format("%d seconds (%s) - position %s\n",
+				Duration.between(start, Instant.now()).getSeconds(),String.join(", ", resultCounts),commify(count));
 	}
 
+	private static String commify (int number) {
+		String s = String.valueOf(number);
+		if (s.length() <= 3) return s;
+		List<String> parts = new ArrayList<>();
+		int i = 0;
+//		System.out.println(s);
+		int remainder = s.length() % 3;
+		if (remainder > 0) {
+			parts.add(s.substring(0, remainder));
+			i = remainder;
+		}
+		while (i < s.length() - 1) {
+			parts.add(s.substring(i, i+3)); i += 3; }
+		return String.join(",", parts);
+	}
 	private static String dedupeList(String list) {
 		Set<String> after = new LinkedHashSet<>();
 		for (String s : list.split(", *")) after.add(s);
 		return String.join(",",after);
 	}
+	private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
 }
