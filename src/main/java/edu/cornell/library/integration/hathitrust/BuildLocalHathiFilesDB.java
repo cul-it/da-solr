@@ -291,11 +291,11 @@ public class BuildLocalHathiFilesDB {
 				}
 				count++;
 				if (count % batchSize == 0) {
-					System.out.format("count: %d, count %% batchSize: %d\n", count, count % batchSize);
+					System.out.format("count: %d, count %% %d: %d\n", count, batchSize, count % batchSize);
 					executeSqlBatchStmts(allStmts);
 				}
 			}
-			System.out.format("count: %d, count %% batchSize: %d\n", count, count % batchSize);
+			System.out.format("count: %d, count %% %d: %d\n", count, batchSize, count % batchSize);
 			executeSqlBatchStmts(allStmts);
 			for (PreparedStatement s : allStmts) s.close();
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
