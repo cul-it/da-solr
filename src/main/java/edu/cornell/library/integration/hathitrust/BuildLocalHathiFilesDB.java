@@ -32,8 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.junit.jupiter.api.ClassOrderer.ClassName;
-
 import edu.cornell.library.integration.utilities.Config;
 
 public class BuildLocalHathiFilesDB {
@@ -381,5 +379,5 @@ public class BuildLocalHathiFilesDB {
 		for (String s : list.split(", *")) after.add(s);
 		return String.join(",",after);
 	}
-	private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
+	private static final Logger LOGGER = Logger.getLogger( "edu.cornell.library.integration.hathitrust.BuildLocalHathiFilesDB" );
 }
