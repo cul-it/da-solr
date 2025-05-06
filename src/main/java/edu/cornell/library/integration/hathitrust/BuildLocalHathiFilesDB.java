@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -218,6 +220,7 @@ public class BuildLocalHathiFilesDB {
 			allStmts.addAll(insertSourceNoStmts);
 			String line;
 			int count = 0;
+			int batchSize = 50_000;
 			while ((line = in.readLine()) != null) {
 				String[] columns = line.split("\\t");
 				String Volume_Identifier = columns[0];
@@ -227,9 +230,6 @@ public class BuildLocalHathiFilesDB {
 				String OCLC_Numbers = columns[7];
 				String Access_profile = (columns.length > 24)?columns[24]:"";
 				String Author = (columns.length > 25)?columns[25]:null;
-
-				if (count % 50_000 == 0) 
-					executeSqlBatchStmts(allStmts);
 
 				for (PreparedStatement insert : insertStmts) {
 				insert.setString(1, Volume_Identifier);
@@ -290,7 +290,12 @@ public class BuildLocalHathiFilesDB {
 					}
 				}
 				count++;
+				if (count % batchSize == 0) {
+					System.out.format("count: %d, count %% batchSize: %d\n", count, count % batchSize);
+					executeSqlBatchStmts(allStmts);
+				}
 			}
+			System.out.format("count: %d, count %% batchSize: %d\n", count, count % batchSize);
 			executeSqlBatchStmts(allStmts);
 			for (PreparedStatement s : allStmts) s.close();
 			System.out.printf("%d bibs loaded from file %s\n", count,filename);
@@ -298,7 +303,14 @@ public class BuildLocalHathiFilesDB {
 	}
 
 	private static void executeSqlBatchStmts(List<PreparedStatement> allStatements) throws SQLException {
-		for (PreparedStatement pstmt : allStatements) pstmt.executeBatch();
+		Instant start = Instant.now();
+		List<String> resultCounts = new ArrayList<>();
+		for (PreparedStatement pstmt : allStatements) {
+			int[] results = pstmt.executeBatch();
+			resultCounts.add(String.valueOf(results.length)); //counting executions, not affected recs
+		}
+		System.out.format("%d seconds (%s)\n",
+				Duration.between(start, Instant.now()).getSeconds(),String.join(", ", resultCounts));
 	}
 
 	private static String dedupeList(String list) {
