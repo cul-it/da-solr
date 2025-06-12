@@ -425,8 +425,9 @@ public class ProcessAuthorityChangeFile {
 			}
 		}
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
-				"SELECT marcxml FROM voyagerAuthority WHERE id = ?")){
+				"SELECT marcxml FROM voyagerAuthority WHERE id = ? AND moddate < ?")){
 			getOldRecordStmt.setString(1, id);
+			getOldRecordStmt.setDate(2, moddate);
 			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
 				while (rs.next()) {
 					String marc = rs.getString(1);
