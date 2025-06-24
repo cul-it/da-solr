@@ -34,7 +34,7 @@ public class HathiLinks implements SolrFieldGenerator {
 //	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("035"); }
