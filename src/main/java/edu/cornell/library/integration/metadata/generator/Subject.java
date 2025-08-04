@@ -32,8 +32,6 @@ import edu.cornell.library.integration.metadata.support.HeadingType;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.SolrFields;
-import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
-import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
  * process subject field values into display, facet, search, and browse/filing fields
@@ -45,7 +43,7 @@ public class Subject implements SolrFieldGenerator {
 	private static List<String> unwantedFacetValues = Arrays.asList("Electronic books");
 
 	@Override
-	public String getVersion() { return "2.10"; }
+	public String getVersion() { return "2.10.2"; }
 
 	@Override
 	public List<String> getHandledFields() {
@@ -240,6 +238,7 @@ public class Subject implements SolrFieldGenerator {
 				if (primarySubjectTerm != null) {
 					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
 					if ( authData.replacementForm != null ) {
+						sfs.add("subject_overlay_facet", authData.replacementForm);
 						if ( authData.alternateForms == null ) authData.alternateForms = new ArrayList<>();
 						authData.alternateForms.add(primarySubjectTerm);
 						origPrimaryTerm = primarySubjectTerm;
@@ -268,7 +267,7 @@ public class Subject implements SolrFieldGenerator {
 					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
 					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
-						sfs.add(new SolrField("sixfivethree",primarySubjectTerm));
+						sfs.add("sixfivethree",primarySubjectTerm);
 					}
 					for (final String dashed_term : dashed_terms) {
 						final Map<String,Object> subj = new HashMap<>();
@@ -311,9 +310,9 @@ public class Subject implements SolrFieldGenerator {
 
 			for (final String s: values880_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				sfs.add(new SolrField("subject_t",s));
+				sfs.add("subject_t",s);
 				if (h.vocab.equals(HeadingVocab.FAST))
-					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
+					sfs.add("fast_"+facet_type+"_facet",disp);
 				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
@@ -322,10 +321,10 @@ public class Subject implements SolrFieldGenerator {
 				String disp = removeTrailingPunctuation(s,".");
 				if (facet_type.equals("era"))
 					disp = normalizeDateRangeSpacing( disp );
-				sfs.add(new SolrField("subject_t",s));
+				sfs.add("subject_t",s);
 				if (h.vocab.equals(HeadingVocab.FAST)
 						|| (h.vocab.equals(HeadingVocab.LCGFT) && facet_type.equals("genre")))
-					sfs.add(new SolrField("fast_"+facet_type+"_facet",disp));
+					sfs.add("fast_"+facet_type+"_facet",disp);
 				if ( ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
 					&& ! h.vocab.equals(HeadingVocab.OTHER))
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
@@ -335,29 +334,29 @@ public class Subject implements SolrFieldGenerator {
 				if (ht != null) {
 					if (( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
 							&& ! h.vocab.equals(HeadingVocab.OTHER) )
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_facet",value.display));
+						sfs.add("subject_"+ht.abbrev()+"_facet",value.display);
 					String filing = getFilingForm(value.display);
 					if (! h.vocab.equals(HeadingVocab.OTHER))
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_filing",filing));
+						sfs.add("subject_"+ht.abbrev()+"_filing",filing);
 					String canonFiling = getFilingForm(value.canon);
 					if ( ! value.is880 && ! isCJK(value.canon)) {
 						String vocab = h.vocab.name().toLowerCase();
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon));
-						sfs.add(new SolrField("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling));
+						sfs.add("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon);
+						sfs.add("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling);
 					}
 				}
 			for (final String s: values_dashed) {
 				if ( isCJK(s) ) continue;
 				String vocab = h.vocab.name().toLowerCase();
-				sfs.add(new SolrField("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,".")));
-				sfs.add(new SolrField("subject_sub_"+vocab+"_filing",getFilingForm(s)));
+				sfs.add("subject_sub_"+vocab+"_facet", removeTrailingPunctuation(s,"."));
+				sfs.add("subject_sub_"+vocab+"_filing",getFilingForm(s));
 			}
 			for (final HeadingType parentHt : values_auth_browse.keySet()) {
 				String value = values_auth_browse.get(parentHt);
 				if (isCJK(value)) continue;
 				String vocab = h.vocab.name().toLowerCase();
-				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_facet", value));
-				sfs.add(new SolrField("subject_"+parentHt.abbrev()+"_"+vocab+"_filing",getFilingForm(value)));
+				sfs.add("subject_"+parentHt.abbrev()+"_"+vocab+"_facet", value);
+				sfs.add("subject_"+parentHt.abbrev()+"_"+vocab+"_filing",getFilingForm(value));
 			}
 
 			if ( ! h.is653 &&
@@ -370,18 +369,18 @@ public class Subject implements SolrFieldGenerator {
 			}
 		}
 
-		sfs.add( new BooleanSolrField( "fast_b", recordHasFAST ));
+		sfs.add( "fast_b", recordHasFAST );
 
 		for (String json : subjectJson)
-			sfs.add(new SolrField("subject_json",json));
+			sfs.add("subject_json",json);
 		for (String display : subjectDisplay)
-			sfs.add(new SolrField("subject_display",display));
+			sfs.add("subject_display",display);
 		for (String display : keywordDisplay)
-			sfs.add(new SolrField("keyword_display",display));
+			sfs.add("keyword_display",display);
 		for (String altForm : authorityAltForms)
-			sfs.add(new SolrField("authority_subject_t",altForm));
+			sfs.add("authority_subject_t",altForm);
 		for (String altForm : authorityAltFormsCJK)
-			sfs.add(new SolrField("authority_subject_t_cjk",altForm));
+			sfs.add("authority_subject_t_cjk",altForm);
 
 		return sfs;
 	}

@@ -136,12 +136,14 @@ public class ProcessAuthorityChangeFile {
 					String id = records.getString("id");
 
 					json.put("id", id);
-					json.put("inputFile", records.getString("updateFile"));
+					String updateFile = records.getString("updateFile");
+					json.put("inputFile", updateFile);
 					String mainEntry = records.getString("heading").replaceAll("\\\\$", "");
 					json.put("heading",mainEntry);
 					AuthoritySource vocab = AuthoritySource.byOrdinal(records.getInt("vocabulary"));
 
-					System.out.format("[%5d] %s: %s\n", records.getInt("positionInFile"), id, mainEntry);
+					System.out.format("[%s/%d] %s: %s\n",updateFile.replaceAll("[a-z]",""),
+							records.getInt("positionInFile"), id, mainEntry);
 
 					if ( records.getBoolean("undifferentiated") ) {
 						json.put("undifferentiated", true);
@@ -210,7 +212,7 @@ public class ProcessAuthorityChangeFile {
 //							SolrDocumentList res = solr.query(q).getResults();
 //							Long recordCount = res.getNumFound();
 							int recordCount = querySolrForMatchingBibCount(solr,searchField,heading,false);
-							int aspaceCount = (id.startsWith("s"))
+							int aspaceCount = (recordCount > 0)
 									? querySolrForMatchingBibCount(solr,searchField,heading,true) : 0;
 							if ( 0 == recordCount) continue;
 							if ( flags.contains(DiffType.DIACR) ) {
@@ -270,8 +272,7 @@ public class ProcessAuthorityChangeFile {
 				autoFlipWriter.close();
 
 				List<String> boxIds = uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),outputFile);
-				if (writtenASpaceJson || aspaceOutputFile.contains("sub"))
-					uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
+				uploadFileToBox(env.get("boxKeyFile"),authConfig.get("OutputDir"),aspaceOutputFile);
 				registerReportCompletion(
 						authority,authConfig,firstFile,lastFile, requesterName, requesterEmail,outputFile, boxIds);
 				if (writtenAutoFlip) {
@@ -426,8 +427,9 @@ public class ProcessAuthorityChangeFile {
 			}
 		}
 		try (PreparedStatement getOldRecordStmt = authority.prepareStatement(
-				"SELECT marcxml FROM voyagerAuthority WHERE id = ?")){
+				"SELECT marcxml FROM voyagerAuthority WHERE id = ? AND moddate < ?")){
 			getOldRecordStmt.setString(1, id);
+			getOldRecordStmt.setDate(2, moddate);
 			try ( ResultSet rs = getOldRecordStmt.executeQuery() ) {
 				while (rs.next()) {
 					String marc = rs.getString(1);
