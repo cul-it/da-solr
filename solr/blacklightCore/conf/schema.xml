@@ -16,27 +16,27 @@
     <!-- Primary text fields, concatenate words and generate word parts variants -->
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        <tokenizer name="whitespace"/>
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="flattenGraph"/>
+        <filter name="keywordMarker" protected="protwords.txt" />
+        <filter name="stemmerOverride" dictionary="stemdict.txt" />
+        <filter name="kStem"/>
+        <filter name="removeDuplicates"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        <tokenizer name="whitespace"/>
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="keywordMarker" protected="protwords.txt" />
+        <filter name="stemmerOverride" dictionary="stemdict.txt" />
+        <filter name="kStem"/>
+        <filter name="removeDuplicates"/>
       </analyzer>
     </fieldType>
 
@@ -44,23 +44,23 @@
     <!-- WordDelimiterGraphFilter -->
     <fieldType name="textNoStem" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+        <tokenizer name="whitespace" />
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="flattenGraph"/>
+        <filter name="removeDuplicates" />
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory" />
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+        <tokenizer name="whitespace" />
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="removeDuplicates" />
       </analyzer>
     </fieldType>
 
@@ -69,29 +69,29 @@
     <fieldType name="textLeftAnchored" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter class="solr.KStemFilterFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
+        <charFilter name="patternReplace" pattern="^" replacement="bgn " />
+        <tokenizer name="whitespace"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="flattenGraph"/>
+        <filter name="keywordMarker" protected="protwords.txt" />
+        <filter name="stemmerOverride" dictionary="stemdict.txt" />
+        <filter name="kStem"/>
+        <filter name="edgeNGram" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
         <!-- prefix value to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="bgn " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter class="solr.KStemFilterFactory"/>
+        <charFilter name="patternReplace" pattern="^" replacement="bgn " />
+        <tokenizer name="whitespace"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms2.txt" ignoreCase="true" expand="false"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="0"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="keywordMarker" protected="protwords.txt" />
+        <filter name="stemmerOverride" dictionary="stemdict.txt" />
+        <filter name="kStem"/>
       </analyzer>
     </fieldType>
 
@@ -100,17 +100,17 @@
     <fieldType name="textLeftAnchoredBoost" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
-        <filter class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt" />
-        <filter class="solr.KStemFilterFactory"/>
+        <charFilter name="patternReplace" pattern="^" replacement="beginswith " />
+        <tokenizer name="whitespace"/>
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <filter name="synonym" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="flattenGraph"/>
+        <filter name="keywordMarker" protected="protwords.txt" />
+        <filter name="stemmerOverride" dictionary="stemdict.txt" />
+        <filter name="kStem"/>
       </analyzer>
     </fieldType>
 
@@ -119,51 +119,51 @@
     <fieldType name="textLeftAnchoredUnstemBoost" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
         <!-- replace any leading whitespace with "beginswith " to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^" replacement="beginswith " />
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping.txt"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>
-        <!-- <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
-        <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
+        <charFilter name="patternReplace" pattern="^" replacement="beginswith " />
+        <tokenizer name="whitespace"/>
+        <charFilter name="mapping" mapping="mapping.txt"/>
+        <filter name="icuFolding"/>
+        <!-- <filter name="wordDelimiter" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/> -->
+        <filter name="wordDelimiterGraph" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"/>
+        <filter name="flattenGraph"/>
       </analyzer>
     </fieldType>
 
     <!-- Left-anchored CJK text field -->
     <fieldType name="textLeftAnchoredCJK" class="solr.TextField" omitNorms="true">
       <analyzer type="index">
-		<!--  remove all spaces  -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.CJKWidthFilterFactory"/>
+        <!--  remove all spaces  -->
+        <charFilter name="patternReplace" pattern="[\s\u3000]+" replacement=""/>
+        <tokenizer name="keyword"/>
+        <filter name="cjkWidth"/>
         <filter class="edu.stanford.lucene.analysis.CJKFoldingFilterFactory"/>
-        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
-        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
-        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
+        <filter name="icuTransform" id="Traditional-Simplified"/>
+        <filter name="icuTransform" id="Katakana-Hiragana"/>
+        <filter name="icuFolding"/> <!-- NFKC, case folding, diacritics removed -->
+        <filter name="edgeNGram" minGramSize="1" maxGramSize="30"/>
       </analyzer>
       <analyzer type="query">
-		<!--  remove all spaces  -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\s\u3000]+" replacement=""/>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.CJKWidthFilterFactory"/>
+        <!--  remove all spaces  -->
+        <charFilter name="patternReplace" pattern="[\s\u3000]+" replacement=""/>
+        <tokenizer name="keyword"/>
+        <filter name="cjkWidth"/>
         <filter class="edu.stanford.lucene.analysis.CJKFoldingFilterFactory"/>
-        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
-        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
-        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
+        <filter name="icuTransform" id="Traditional-Simplified"/>
+        <filter name="icuTransform" id="Katakana-Hiragana"/>
+        <filter name="icuFolding"/> <!-- NFKC, case folding, diacritics removed -->
       </analyzer>
     </fieldType>
 
     <!-- Left-anchored numeric/identifier text field -->
     <fieldType name="numericLeftAnchored" class="solr.TextField" >
     <analyzer type="index">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
-	<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20"/>
+        <charFilter name="patternReplace" pattern="-" replacement=""/>
+        <tokenizer name="pattern" pattern="[^a-zA-Z\d\.]+"/>
+        <filter name="edgeNGram" minGramSize="1" maxGramSize="20"/>
     </analyzer>
     <analyzer type="query">
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="-" replacement=""/>
-	<tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.]+"/>
+        <charFilter name="patternReplace" pattern="-" replacement=""/>
+        <tokenizer name="pattern" pattern="[^a-zA-Z\d\.]+"/>
     </analyzer>
     </fieldType>
     
@@ -171,35 +171,35 @@
     <!--  CJK field type for Chinese, Japanese & Korean text is care of Naomi Dushay and her work at Stanford -->
     <fieldtype name="textCJK" class="solr.TextField" positionIncrementGap="10000" autoGeneratePhraseQueries="false">
      <analyzer>
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\+\+" replacement="plusplus"/>
+        <charFilter name="patternReplace" pattern="\+\+" replacement="plusplus"/>
         <!-- remove spaces among hangul and han chars if there is at least one hangul char -->
         <!-- a korean char guaranteed at the start of the pattern: pattern="(\p{Hangul}\p{Han}*)\s+(?=[\p{Hangul}\p{Han}])" -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}][\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}]*)\s+(?=[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])" replacement="$1"/>
+        <charFilter name="patternReplace" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}][\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}]*)\s+(?=[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])" replacement="$1"/>
         <!-- a korean char guaranteed at the end of the pattern: pattern="([\p{Hangul}\p{Han}])\s+(?=[\p{Han}\s]*\p{Hangul})" -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])\s+(?=[\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}\s]*[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}])" replacement="$1"/>
-        <tokenizer class="solr.ICUTokenizerFactory" />
-        <filter class="solr.CJKWidthFilterFactory"/>
+        <charFilter name="patternReplace" pattern="([\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}])\s+(?=[\p{InBopomofo}\p{InBopomofo_Extended}\p{InCJK_Compatibility}\p{InCJK_Compatibility_Forms}\p{InCJK_Compatibility_Ideographs}\p{InCJK_Compatibility_Ideographs_Supplement}\p{InCJK_Radicals_Supplement}\p{InCJK_Symbols_And_Punctuation}\p{InCJK_Unified_Ideographs}\p{InCJK_Unified_Ideographs_Extension_A}\p{InCJK_Unified_Ideographs_Extension_B}\p{InKangxi_Radicals}\p{InHalfwidth_And_Fullwidth_Forms}\p{InIdeographic_Description_Characters}\s]*[\p{InHangul_Jamo}\p{InHangul_Compatibility_Jamo}\p{InHangul_Syllables}])" replacement="$1"/>
+        <tokenizer name="icu" />
+        <filter name="cjkWidth"/>
         <filter class="edu.stanford.lucene.analysis.CJKFoldingFilterFactory"/> <!-- This filter includes modifications from Princeton -->
-        <filter class="solr.ICUTransformFilterFactory" id="Traditional-Simplified"/>
-        <filter class="solr.ICUTransformFilterFactory" id="Katakana-Hiragana"/>
-        <filter class="solr.ICUFoldingFilterFactory"/> <!-- NFKC, case folding, diacritics removed -->
-        <filter class="solr.CJKBigramFilterFactory" han="true" hiragana="true" katakana="true" hangul="true" outputUnigrams="true" />
+        <filter name="icuTransform" id="Traditional-Simplified"/>
+        <filter name="icuTransform" id="Katakana-Hiragana"/>
+        <filter name="icuFolding"/> <!-- NFKC, case folding, diacritics removed -->
+        <filter name="cjkBigram" han="true" hiragana="true" katakana="true" hangul="true" outputUnigrams="true" />
       </analyzer>
     </fieldtype>
 
     <fieldType name="textSpell" class="solr.TextField" positionIncrementGap="100" >
       <analyzer>
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        <tokenizer name="standard"/>
+        <filter name="lowercase"/>
+        <filter name="removeDuplicates"/>
       </analyzer>
     </fieldType>
 
     <!-- attempt to do exact matches taking into account Unicode -->
       <fieldType name="exact" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.ICUFoldingFilterFactory"/>        
+        <tokenizer name="keyword"/>
+        <filter name="icuFolding"/>
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
     </fieldType>
@@ -209,32 +209,32 @@
     <fieldType name="callNumberNormalized" class="solr.TextField" omitNorms="true">
       <analyzer>
         <!-- replace any periods with spaces if they don't precede number -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\.(?!\d)" replacement=" " />
+        <charFilter name="patternReplace" pattern="\.(?!\d)" replacement=" " />
         <!-- if a number follows directly after a letter, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
+        <charFilter name="patternReplace" pattern="([a-zA-Z])(\d)" replacement="$1 $2" />
         <!-- if a letter follows directly after a number, insert a space between them -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
+        <charFilter name="patternReplace" pattern="(\d)([a-zA-Z])" replacement="$1 $2" />
         <!-- replace any leading whitespace with "lccncode." to ensure left-anchored phrase searching -->
-        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="^[^a-zA-Z\d\+]*([a-zA-Z\d\+])" replacement="lccncode.$1" />
+        <charFilter name="patternReplace" pattern="^[^a-zA-Z\d\+]*([a-zA-Z\d\+])" replacement="lccncode.$1" />
         <!-- treat any sequences of characters that are not alphanumeric, plus signs, and periods as breaks between tokens -->
-        <tokenizer class="solr.PatternTokenizerFactory" pattern="[^a-zA-Z\d\.\+]+"/>
-        <filter class="solr.LowerCaseFilterFactory" />
+        <tokenizer name="pattern" pattern="[^a-zA-Z\d\.\+]+"/>
+        <filter name="lowercase" />
       </analyzer>
     </fieldType>
 
     <fieldType name="callNumberSort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <tokenizer name="keyword"/>
         <filter class="edu.cornell.library.integration.solr.CallNumberSortFilterFactory" prefixes="callnumberprefixes.txt"/>
       </analyzer>
     </fieldType>
 
     <fieldType name="filing" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer type="index">
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <tokenizer name="keyword"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <tokenizer name="keyword"/>
         <filter class="edu.cornell.library.integration.utilities.FilingFilterFactory" />
       </analyzer>
     </fieldType>

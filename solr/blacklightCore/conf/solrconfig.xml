@@ -11,7 +11,7 @@
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <lib dir="/cul/data/solr/instancelibs/bl2/"/>
+  <lib dir="/cul/data/solr/instancelibs/bl/"/>
 
   <dataDir>${solr.data.dir:}</dataDir>
 
