@@ -222,14 +222,14 @@
       </analyzer>
     </fieldType>
 
-    <fieldType name="callNumberSort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+    <fieldType name="callNumberSort" class="solr.SortableTextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
         <tokenizer name="keyword"/>
         <filter class="edu.cornell.library.integration.solr.CallNumberSortFilterFactory" prefixes="callnumberprefixes.txt"/>
       </analyzer>
     </fieldType>
 
-    <fieldType name="filing" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+    <fieldType name="filing" class="solr.SortableTextField" sortMissingLast="true" omitNorms="true">
       <analyzer type="index">
         <tokenizer name="keyword"/>
       </analyzer>
@@ -276,7 +276,7 @@
 
     <field name="pub_date"              type="string" indexed="false"  stored="true"  multiValued="true"/>
     <field name="pub_date_facet"        type="int"    docValues="true" stored="false" multiValued="false"/>
-    <field name="pub_date_sort"         type="int"    indexed="true"   stored="false" multiValued="false"/>
+    <field name="pub_date_sort"         type="int"    docValues="true" stored="false" multiValued="false"/>
 
     <field name="acquired"              type="int"    docValues="true" stored="false" multiValued="false"/>
     <field name="acquired_month"        type="string" docValues="true" stored="false" multiValued="false"/>
@@ -285,7 +285,7 @@
     <!-- call number uses custom type -->
     <field name="lc_callnum_full"   type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
     <field name="lc_callnum_suffix" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="callnum_sort"      type="callNumberSort"       indexed="true" stored="true"  multiValued="false" />
+    <field name="callnum_sort"      type="callNumberSort"     docValues="true" stored="true"  multiValued="false" />
 
     <!-- fields used for facet, display, and results filtering, only need to be stored where order is important -->
     <field name="format"                type="string" docValues="true" stored="false" multiValued="true"/>
@@ -298,9 +298,9 @@
     <field name="format_main_facet"     type="string" docValues="true" stored="false" multiValued="false"/>
 
 	<!--  Single-valued json fields are the exception (currently) -->
-    <field name="holdings_json" type="string" indexed="false" stored="true" multiValued="false" />
-    <field name="items_json" type="string" indexed="false" stored="true" multiValued="false" />
-    <field name="availability_json" type="string" indexed="false" stored="true" multiValued="false" />
+    <field name="holdings_json" type="exact" indexed="false" stored="true" multiValued="false" />
+    <field name="items_json" type="exact" indexed="false" stored="true" multiValued="false" />
+    <field name="availability_json" type="exact" indexed="false" stored="true" multiValued="false" />
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="text"  indexed="true"  stored="true" multiValued="true"/>
@@ -320,12 +320,12 @@
 
     <dynamicField name="*_facet" type="string" docValues="true" stored="false" multiValued="true" />
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
-    <dynamicField name="*_cts" type="string" indexed="false" stored="true" multiValued="true" />
-    <dynamicField name="*_piped" type="string" indexed="false" stored="true" multiValued="true" />
-    <dynamicField name="*_json" type="string" indexed="false" stored="true" multiValued="true" />
-    <dynamicField name="*_display" type="string" indexed="false" stored="true" multiValued="true" />
-    <dynamicField name="*_sort" type="filing" indexed="true" stored="false" multiValued="false"/>
-    <dynamicField name="*_browse" type="filing" indexed="true" stored="false"  multiValued="true"/>
+    <dynamicField name="*_cts" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_piped" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_json" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_display" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_sort" type="filing" docValues="true" stored="false" multiValued="false"/>
+    <dynamicField name="*_browse" type="filing" docValues="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstem" type="textNoStem" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_starts" type="textLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsCJK" type="textLeftAnchoredCJK" indexed="true" stored="false" multiValued="true" />
