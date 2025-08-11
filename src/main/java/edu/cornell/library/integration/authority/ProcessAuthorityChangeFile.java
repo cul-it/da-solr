@@ -320,7 +320,7 @@ public class ProcessAuthorityChangeFile {
 
 	private static String getMostRecentHeadingVersion(Connection authority, String id) throws SQLException {
 		try( PreparedStatement mostRecentHeadingStmt = authority.prepareStatement(
-				"SELECT heading FROM authorityUodate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+				"SELECT heading FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
 			mostRecentHeadingStmt.setString(1, id);
 			try (ResultSet rs = mostRecentHeadingStmt.executeQuery()) {
 				while (rs.next()) return rs.getString(1);
