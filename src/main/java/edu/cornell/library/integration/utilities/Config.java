@@ -119,36 +119,55 @@ public class Config {
 	}
 
 	public String getBlacklightSolrUrl() {
-		if (this.values.containsKey("blacklightSolrUrl")) {
-			return this.values.get("blacklightSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("blacklightSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("blacklightSolrCore");
+			}
+			return null;
 	}
 
 	public String getAuthorSolrUrl() {
-		if (this.values.containsKey("authorSolrUrl")) {
-			return this.values.get("authorSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("authorSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("authorSolrCore");
+			}
+			return null;
 	}
 
 	public String getAuthorTitleSolrUrl() {
-		if (this.values.containsKey("authorTitleSolrUrl")) {
-			return this.values.get("authorTitleSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("authorTitleSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("authorTitleSolrCore");
+			}
+			return null;
 	}
 
 	public String getSubjectSolrUrl() {
-		if (this.values.containsKey("subjectSolrUrl")) {
-			return this.values.get("subjectSolrUrl");
+		if (this.values.containsKey("solrUrl") &&
+			this.values.containsKey("subjectSolrCore")) {
+			return this.values.get("solrUrl")+"/"+this.values.get("subjectSolrCore");
 		}
 		return null;
 	}
 
 	public String getCallnumSolrUrl() {
-		if (this.values.containsKey("callnumSolrUrl")) {
-			return this.values.get("callnumSolrUrl");
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("callnumSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("callnumSolrCore");
+			}
+			return null;
+	}
+
+	public String getSolrUser() {
+		if (this.values.containsKey("solrUser")) {
+			return this.values.get("solrUser");
+		}
+		return null;
+	}
+
+	public String getSolrPassword() {
+		if (this.values.containsKey("solrPassword")) {
+			return this.values.get("solrPassword");
 		}
 		return null;
 	}
