@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.authority.Solr.querySolrForMatchin
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
 import static edu.cornell.library.integration.authority.Solr.tabulateActualUnnormalizedHeadings;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
+import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
