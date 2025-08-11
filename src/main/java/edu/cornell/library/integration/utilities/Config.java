@@ -43,6 +43,7 @@ public class Config {
 
 	private Map<String, String> values = new HashMap<>();
 	private Map<String, ComboPooledDataSource> databases = new HashMap<>();
+	private Map<String, OkapiClient> okapiClients = new HashMap<>();
 
 	public static List<String> getRequiredArgsForDB(String db) {
 		List<String> list = new ArrayList<>();
@@ -207,16 +208,16 @@ public class Config {
 		return true;
 	}
 	public OkapiClient getOkapi(String id) throws IOException {
+		if (okapiClients.containsKey(id))
+			return okapiClients.get(id);
+
 		OkapiClient okapi = new OkapiClient(
+				id,
 				this.values.get("okapiUrl"+id),
 				this.values.get("okapiTenant"+id),
-				this.values.get("okapiToken"+id),
 				this.values.get("okapiUser"+id),
 				this.values.get("okapiPass"+id));
-		if ( ! this.values.containsKey("okapiToken"+id) ) {
-			this.values.put("okapiToken"+id, okapi.getToken());
-			System.out.println("Recording token to config: "+okapi.getToken());
-		}
+		okapiClients.put(id, okapi);
 		return okapi;
 	}
 
