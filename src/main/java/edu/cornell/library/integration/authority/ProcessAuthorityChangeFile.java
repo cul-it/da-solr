@@ -168,7 +168,6 @@ public class ProcessAuthorityChangeFile {
 						Map<String,DataField> differences = compareOldAndNewMarc( oldR, r);
 						actionableHeadings = identifyActionableChanges(
 								differences, r, mainEntryField, mainEntry, mostRecentHeading );
-						System.out.println("oldR != null");
 					} else {
 						actionableHeadings = identifyActionableFields(
 								r, changeType.equals(ChangeType.DELETE), mostRecentHeading );
