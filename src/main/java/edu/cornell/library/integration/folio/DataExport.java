@@ -34,13 +34,13 @@ public class DataExport {
 		fdPayload.put("fileName", "test.csv");
 		fdPayload.put("uploadFormat", "csv");
 		String fileDefinitionId = (String)mapper.readValue(
-				okapi.post("/data-export/file-definitions",
-						mapper.writeValueAsString(fdPayload)), Map.class).get("id");
+				okapi.postToString("/data-export/file-definitions",
+						mapper.writeValueAsString(fdPayload),null,null), Map.class).get("id");
 
 		// UPLOAD FILE
 		String csv = String.join("\n", instanceUuids);
 		String uploadUrl = String.format("/data-export/file-definitions/%s/upload", fileDefinitionId);
-		String output = okapi.post(uploadUrl, csv, "application/octet-stream");
+		String output = okapi.postToString(uploadUrl, csv, null, "application/octet-stream");
 		String jobExecutionId = (String)mapper.readValue(output, Map.class).get("jobExecutionId");
 
 		// TRIGGER JOB
