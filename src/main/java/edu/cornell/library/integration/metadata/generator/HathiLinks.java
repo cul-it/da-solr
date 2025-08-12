@@ -34,7 +34,7 @@ public class HathiLinks implements SolrFieldGenerator {
 //	private final String hathiInfoLinkTextEtas = "Information for users about temporary access";
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("035"); }
@@ -86,6 +86,7 @@ public class HathiLinks implements SolrFieldGenerator {
 				try ( java.sql.ResultSet rs = pstmt.executeQuery() ) {
 					tabulateResults(rs,availableHathiMaterials,denyTitles); }
 			}
+
 /* Emergency Access
 			Map<String,Collection<String>> etasMaterials = new HashMap<>();
 			int etasVolumeCount = 0;
@@ -158,6 +159,12 @@ public class HathiLinks implements SolrFieldGenerator {
 				sfs.add(new SolrField("etas_facet",String.valueOf(etasVolumeCount)));
 			}
 */
+		}
+		int i;
+		for (i = 0; i < sfs.fields.size(); i++) {
+			SolrField sf = sfs.fields.get(i);
+			if (sf.fieldName.equals("availability_facet"))
+				sf.fieldValue += "_hathi";
 		}
 		return sfs;
 	}

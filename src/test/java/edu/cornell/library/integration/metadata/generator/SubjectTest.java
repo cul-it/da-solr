@@ -133,6 +133,8 @@ public class SubjectTest extends DbBaseTest {
 		"subject_work_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
 		"subject_work_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"subject_work_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four\n"+
+		"subject_corp_lc_facet: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy)\n"+
+		"subject_corp_lc_filing: jesuits congregatio generalis 32nd 1974 1975 rome italy\n"+
 		"subject_json: [{\"subject\":\"Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four.\",\"authorized\":true,\"type\":\"Work\"}]\n"+
 		"subject_display: Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four\n"+
 		"authority_subject_t: Jesuits. Congregatio Generalis. | Jesuits today\n"+
@@ -148,9 +150,29 @@ public class SubjectTest extends DbBaseTest {
 		"subject_work_filing: bible 0000 paraphrases ot english\n"+
 		"subject_work_lc_facet: Bible. | Paraphrases. O.T. English\n"+
 		"subject_work_lc_filing: bible 0000 paraphrases ot english\n"+
+		"subject_corp_lc_facet: Bible\n"+
+		"subject_corp_lc_filing: bible\n"+
 		"subject_json: [{\"subject\":\"Bible. | Paraphrases. O.T. English.\","
 		+ "\"authorized\":false,\"type\":\"Work\"}]\n"+
 		"subject_display: Bible. | Paraphrases. O.T. English\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testPersonTitle600() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"600",'1','0',"‡a Mill, John Stuart, ‡d 1806-1873. ‡t System of logic."));
+		String expected =
+		"subject_t: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_work_lc_facet: Mill, John Stuart, 1806-1873. | System of logic\n"+
+		"subject_work_lc_filing: mill john stuart 1806 1873 0000 system of logic\n"+
+		"subject_pers_lc_facet: Mill, John Stuart, 1806-1873\n"+
+		"subject_pers_lc_filing: mill john stuart 1806 1873\n"+
+		"subject_json: [{\"subject\":\"Mill, John Stuart, 1806-1873. | System of logic.\",\"authorized\":false,\"type\":\"Work\"}]\n"+
+		"subject_display: Mill, John Stuart, 1806-1873. | System of logic\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -264,6 +286,7 @@ public class SubjectTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(9,"650",' ','4',"‡a Immigration law ‡z United States."));
 		rec.dataFields.add(new DataField(10,"650",' ','7',"‡a Illegal aliens. ‡2 fast ‡0 (OCoLC)fst00967153"));
 		String expected =
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" + 
@@ -276,6 +299,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" +
@@ -296,6 +320,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
@@ -308,6 +333,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
@@ -348,7 +374,6 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: Government policy\n"+
 		"subject_sub_lc_filing: government policy\n"+
 
-
 		"subject_t: Emigration and immigration law > United States\n" + 
 		"subject_topic_facet: Emigration and immigration law\n" +
 		"subject_topic_filing: emigration and immigration law\n" +
@@ -371,6 +396,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_other_filing: american government\n"+
 
 		// related to "sears" vocab term
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" +
 		"subject_topic_other_facet: Illegal aliens\n" + 
 		"subject_topic_other_filing: illegal aliens\n" + 
@@ -391,6 +417,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_unk_facet: United States\n"+
 		"subject_sub_unk_filing: united states\n"+
 
+		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants\n" + 
 		"fast_topic_facet: Undocumented immigrants\n" +
 		"subject_topic_facet: Undocumented immigrants\n" + 
@@ -550,4 +577,47 @@ public class SubjectTest extends DbBaseTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
+	@Test
+	public void ingestVocabulary() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.id = "15607152";
+		rec.dataFields.add(new DataField(2,"650",' ','7',"‡a Clothing industry--Study and teaching. ‡2 ingest"));
+		rec.dataFields.add(new DataField(7,"650",' ','0',"‡a Interior decoration ‡x Study and teaching."));
+		rec.dataFields.add(new DataField(10,"650",' ','7',"‡a Work environment -- Design. ‡2 ingest"));
+		String expected =
+		"subject_t: Clothing industry--Study and teaching\n"+
+		"subject_topic_facet: Clothing industry--Study and teaching\n"+
+		"subject_topic_filing: clothing industry 0000 study and teaching\n"+
+		"subject_topic_unk_facet: Clothing industry--Study and teaching\n"+
+		"subject_topic_unk_filing: clothing industry 0000 study and teaching\n"+
+
+		"subject_t: Interior decoration > Study and teaching\n"+
+		"subject_topic_facet: Interior decoration\n"+
+		"subject_topic_filing: interior decoration\n"+
+		"subject_topic_lc_facet: Interior decoration\n"+
+		"subject_topic_lc_filing: interior decoration\n"+
+		"subject_topic_facet: Interior decoration > Study and teaching\n"+
+		"subject_topic_filing: interior decoration 0000 study and teaching\n"+
+		"subject_topic_lc_facet: Interior decoration > Study and teaching\n"+
+		"subject_topic_lc_filing: interior decoration 0000 study and teaching\n"+
+
+		"subject_sub_lc_facet: Study and teaching\n"+
+		"subject_sub_lc_filing: study and teaching\n"+
+		"subject_t: Work environment -- Design\n"+
+		"subject_topic_facet: Work environment -- Design\n"+
+		"subject_topic_filing: work environment 0000 design\n"+
+		"subject_topic_unk_facet: Work environment -- Design\n"+
+		"subject_topic_unk_filing: work environment 0000 design\n"+
+
+		"subject_json: [{\"subject\":\"Clothing industry--Study and teaching.\",\"authorized\":false,"
+		+ "\"type\":\"Topical Term\"}]\n"+
+		"subject_json: [{\"subject\":\"Interior decoration\",\"authorized\":false,\"type\":\"Topical Term\"},"
+		+ "{\"subject\":\"Study and teaching.\",\"authorized\":false}]\n"+
+		"subject_json: [{\"subject\":\"Work environment -- Design.\",\"authorized\":false,\"type\":\"Topical Term\"}]\n"+
+		"subject_display: Clothing industry--Study and teaching\n"+
+		"subject_display: Interior decoration > Study and teaching\n"+
+		"subject_display: Work environment -- Design\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
 }

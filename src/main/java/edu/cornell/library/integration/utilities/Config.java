@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.ConfigurationException;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import edu.cornell.library.integration.folio.OkapiClient;
@@ -45,6 +43,7 @@ public class Config {
 
 	private Map<String, String> values = new HashMap<>();
 	private Map<String, ComboPooledDataSource> databases = new HashMap<>();
+	private Map<String, OkapiClient> okapiClients = new HashMap<>();
 
 	public static List<String> getRequiredArgsForDB(String db) {
 		List<String> list = new ArrayList<>();
@@ -79,6 +78,12 @@ public class Config {
 		return null;
 	}
 
+	public String getAuthorityDataDirectory() {
+		if (this.values.containsKey("authorityDataDirectory"))
+			return this.values.get("authorityDataDirectory");
+		return null;
+	}
+
 	public String getAuthorityChangeFileDirectory() {
 		if (this.values.containsKey("authorityChangeFileDirectory"))
 			return this.values.get("authorityChangeFileDirectory");
@@ -92,6 +97,19 @@ public class Config {
 		return null;
 	}
 
+	public String getHathiJobInputPath() {
+		if (this.values.containsKey("hathiJobInputPath")) {
+			return this.values.get("hathiJobInputPath");
+		}
+		return null;
+	}
+
+	public String getBlacklightUrl() {
+		if (this.values.containsKey("blacklightUrl")) {
+			return this.values.get("blacklightUrl");
+		}
+		return null;
+	}
 
 	public String getSolrUrl() {
 		if (this.values.containsKey("solrUrl")) {
@@ -142,28 +160,43 @@ public class Config {
 		return null;
 	}
 
-	public Integer getEndOfIterativeCatalogUpdates() throws ConfigurationException {
-		final String usage = "Configuration parameter endOfIterativeCatalogUpdates is expected "
-				+ "to be an integer representing the hour to stop processing on a 24-hour clock. "
-				+ "For example, to stop processing catalog updates at 6pm, enter the number '18'.";
-		if (this.values.containsKey("endOfIterativeCatalogUpdates")) {
-			try {
-				Integer hour = Integer.valueOf(this.values.get("endOfIterativeCatalogUpdates"));
-				if (hour < 1 || hour > 24)
-					throw new ConfigurationException(usage);
-				return hour;
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-				throw new ConfigurationException(usage);
-			}
+	public String getAwsS3Bucket() {
+		if (this.values.containsKey("awsS3Bucket")) {
+			return this.values.get("awsS3Bucket");
 		}
 		return null;
+	}
+
+	public Map<String,String> getServerConfig(String serverPrefix) {
+		Map<String,String> args = new HashMap<>();
+		for (String key : this.values.keySet())
+			if (key.startsWith(serverPrefix))
+				args.put(key.replaceFirst(serverPrefix, ""), values.get(key));
+		return args;
 	}
 
 	public int getRandomGeneratorWavelength() {
 		if (this.values.containsKey("randomGeneratorWavelength"))
 			return Integer.valueOf(this.values.get("randomGeneratorWavelength"));
 		return 400;
+	}
+
+	public boolean activateS3() {
+		if (! this.values.containsKey("awsS3AccessKey")) return false;
+		if (! this.values.containsKey("awsS3SecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsS3AccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsS3SecretKey"));
+		return true;
+	}
+
+	public boolean activateSES() {
+		if (! this.values.containsKey("awsAccessKey")) return false;
+		if (! this.values.containsKey("awsSecretKey")) return false;
+		Properties props = System.getProperties();
+		props.setProperty("aws.accessKeyId", this.values.get("awsAccessKey"));
+		props.setProperty("aws.secretAccessKey", this.values.get("awsSecretKey"));
+		return true;
 	}
 
 	public boolean isOkapiConfigured(String id) {
@@ -184,16 +217,16 @@ public class Config {
 		return true;
 	}
 	public OkapiClient getOkapi(String id) throws IOException {
+		if (okapiClients.containsKey(id))
+			return okapiClients.get(id);
+
 		OkapiClient okapi = new OkapiClient(
+				id,
 				this.values.get("okapiUrl"+id),
 				this.values.get("okapiTenant"+id),
-				this.values.get("okapiToken"+id),
 				this.values.get("okapiUser"+id),
 				this.values.get("okapiPass"+id));
-		if ( ! this.values.containsKey("okapiToken"+id) ) {
-			this.values.put("okapiToken"+id, okapi.getToken());
-			System.out.println("Recording token to config: "+okapi.getToken());
-		}
+		okapiClients.put(id, okapi);
 		return okapi;
 	}
 

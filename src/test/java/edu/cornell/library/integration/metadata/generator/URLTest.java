@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -68,6 +69,7 @@ public class URLTest {
 		+ "\"description\":\"Click here to find online versions of this title.\","
 		+ "\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
 		+           "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n" + 
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
@@ -90,6 +92,7 @@ public class URLTest {
 			+ "\"url\":\"http://proxy.library.cornell.edu/login?url="
 			+           "http://site.ebrary.com/lib/cornell/docDetail.action?docID=11113926\","
 			+ "\"users\":3}\n" + 
+			"availability_facet: url_access\n"+
 			"online: Online\n";
 			assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 		}
@@ -112,6 +115,7 @@ public class URLTest {
 			+  "\"url\":\"http://proxy.library.cornell.edu/login?"
 			+            "url=http://www.brepolsonline.net/doi/book/10.1484/M.CURSOR-EB.6.09070802050003050302020604\","
 			+  "\"users\":9}\n"+
+			"availability_facet: url_access\n"+
 			"online: Online\n";
 			assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 		}
@@ -135,11 +139,13 @@ public class URLTest {
 		+ "\"Full text available from Ebrary The Arts Subscription Collection Connect to text.\","
 		+ "\"ssid\":\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
 		+ "http://site.ebrary.com/lib/cornell/Top?id=10657875\"}\n"+
+		"availability_facet: url_access\n"+
 		"notes_t: Full text available from Safari Technical Books Connect to text.\n"+
 		"url_access_json: {\"providercode\":\"PRVPQU\",\"dbcode\":\"DRU\",\"description\":"
 		+ "\"Full text available from Safari Technical Books Connect to text.\",\"ssid\":"
 		+ "\"ssj0000907852\",\"url\":\"http://proxy.library.cornell.edu/login?url="
 		+ "http://proquest.safaribooksonline.com/9781118529669\"}\n"+
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
@@ -157,6 +163,7 @@ public class URLTest {
 		"url_access_json: {\"description\":\"Full text available from Ebrary The Arts Subscription Collection"
 		+ " Connect to text.\",\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/"
 		+ "cornell/Top?id=10657875\"}\n"+
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
@@ -167,7 +174,8 @@ public class URLTest {
 		rec.dataFields.add(new DataField(1,"856",'4','2',"‡3 Finding aid ‡u http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107"));
 		String expected =
 		"url_findingaid_display: http://resolver.library.cornell.edu/cgi-bin/EADresolver?id=RMM08107|Finding aid\n" + 
-		"notes_t: Finding aid\n";
+		"notes_t: Finding aid\n"+
+		"availability_facet: url_findingaid\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
 	
@@ -180,6 +188,7 @@ public class URLTest {
 		String expected =
 		"url_access_json: {\"url\":\"http://proxy.library.cornell.edu/login?url=http://site.ebrary.com/lib/cornell/Top"
 		+ "?id=10657875\"}\n"+
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
@@ -203,7 +212,8 @@ public class URLTest {
 		String expected =
 		"donor_t: From the Estate of Charles A. Leslie.\n"+
 		"donor_display: From the Estate of Charles A. Leslie.\n"+
-		"donor_s: DNR00450\n";
+		"donor_s: DNR00450\n"+
+		"availability_facet: url_bookplate\n";
 
 		MarcRecord marc = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		marc.folioHoldings = holdings;
@@ -249,6 +259,7 @@ public class URLTest {
 		                + "\"description\":\"Full text is available via download of individual chapter PDFs;"
 		                                 + " scroll down for full table of contents.\","
 		+ "\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.taylorfrancis.com/books/e/9781466552609\"}\n" + 
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
@@ -263,7 +274,8 @@ public class URLTest {
 //		System.out.println(gen.generateSolrFields(bibRec, null).toString());
 		String expected =
 		"url_other_display: http://midwesttapes.com/images/movies/000/000/000/011/353/000000000011353737.jpg|View cover art\n" + 
-		"notes_t: View cover art\n";
+		"notes_t: View cover art\n"+
+		"availability_facet: url_other\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
 
@@ -284,10 +296,12 @@ public class URLTest {
 		"url_other_display: http://www.loc.gov/catdir/enhancements/fy0667/2006046631-t.html|"
 		+ "Available from the U.S. Government Printing Office. Table of contents only\n" + 
 		"notes_t: Available from the U.S. Government Printing Office. Table of contents only\n" + 
+		"availability_facet: url_other\n"+
 		"notes_t: Available from the U.S. Government Printing Office.\n" + 
 		"url_access_json: {\"providercode\":\"PRVLSH\",\"dbcode\":\"ACAJP\",\"description\":"
 		+ "\"Available from the U.S. Government Printing Office.\","
 		+ "\"url\":\"http://purl.access.gpo.gov/GPO/LPS77292\"}\n" + 
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
@@ -313,9 +327,11 @@ public class URLTest {
 		+ "\"description\":\"Plumb's is currently in a rebuild of the website to be completed by the end of Q1 of 2021."
 		+     " On campus access is working during this time. For off campus access, please contact vetref@cornell.edu\","
 		+ "\"url\":\"http://resolver.library.cornell.edu/misc/10758189\"}\n" + 
+		"availability_facet: url_access\n"+
 		"notes_t: New Plumb's website as of April 2021. Off campus access to be working soon.\n" + 
 		"url_access_json: {\"description\":\"New Plumb's website as of April 2021. Off campus access to be working soon.\","
 		+ "\"url\":\"http://proxy.library.cornell.edu/login?url=https://academic.plumbs.com/\"}\n" + 
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
@@ -335,6 +351,7 @@ public class URLTest {
 		"url_access_json: {\"providercode\":\"PRVLSH\",\"dbcode\":\"ACAJP\","
 		+ "\"description\":\"Available from the U.S. Government Printing Office\","
 		+ "\"url\":\"https://purl.fdlp.gov/GPO/gpo86434\"}\n" + 
+		"availability_facet: url_access\n"+
 		"online: Online\n";
 		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
 	}
@@ -365,8 +382,10 @@ public class URLTest {
 		String expected =
 		"notes_t: 2022 - Present\n"+
 		"url_access_json: {\"description\":\"2022 - Present\",\"url\":\"http://proxy.library.cornell.edu/login?url=https://www.berghahnjournals.com/view/journals/turba/turba-overview.xml?rskey=scYRra&result=44\"}\n"+
+		"availability_facet: url_access\n"+
 		"url_pda_display: http://pda.library.cornell.edu/coutts/pod.cgi?CouttsID=cou37972731|Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n" + 
 		"notes_t: Click to ask Cornell University Library to RUSH purchase. We will contact you by email when it arrives (typically within a week)\n"+
+		"availability_facet: url_pda\n"+
 		"online: Online\n";
 		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
@@ -420,9 +439,11 @@ public class URLTest {
 				"notes_t: Image\n" + 
 				"url_access_json: {\"description\":\"Image\","
 				+ "\"url\":\"https://img1.od-cdn.com/ImageType-100/3082-1/{04999A8F-6BC6-4370-B438-EE0C49D8C921}Img100.jpg\"}\n" + 
+				"availability_facet: url_access\n"+
 				"notes_t: Connect to full text.\n" + 
 				"url_access_json: {\"description\":\"Connect to full text.\","
 				+ "\"url\":\"http://1.2.3.4/ipaddress-accepted-as-host.html\"}\n"+
+				"availability_facet: url_access\n"+
 				"online: Online\n",
 				this.gen.generateSolrFields(bibRec, null).toString() );
 	}
@@ -434,4 +455,74 @@ public class URLTest {
 				URL.selectivelyUrlEncode("http://sunsite2.berkeley.edu:8000/\"target=\"_blank"));
 		
 	}
+
+	@Test
+	public void supressedHoldingAccessLink() throws IOException, SQLException {
+		Map<String, String> accessLink = new TreeMap<>();
+		accessLink.put("uri", "https://bogus.com/bogus");
+		accessLink.put("publicNote", "Test");
+		accessLink.put("relationshipId", "00000000-00000-0000-0000-000000000000");
+
+		List<Map<String, String>> electronicAccess = new ArrayList<>();
+		electronicAccess.add(accessLink);
+
+		Map<String, Object> folioHolding = new TreeMap<>();
+		folioHolding.put("permanentLocationId", "2e19230b-aeeb-4419-92cb-853611611718");
+		folioHolding.put("electronicAccess", electronicAccess);
+
+		List<Map<String, Object>> folioHoldings = new ArrayList<>();
+		folioHoldings.add(folioHolding);
+
+		// un-suppressed
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"856",'4','0',
+		"‡i 2471499 "+
+		"‡y Click here to find online versions of this title. "+
+		"‡u https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&"
+		+ "bQuery=AN%202471499&direct=true&site=pfi-live"));
+		rec.folioHoldings = folioHoldings;
+		StringBuilder expected = new StringBuilder("ebsco_title_facet: 2471499\n")
+				.append("notes_t: Test\n")
+				.append("url_access_json: {")
+				.append("\"description\":\"Test\",")
+				.append("\"url\":\"https://bogus.com/bogus\"}\n")
+				.append("availability_facet: url_access\n")
+				.append("notes_t: Click here to find online versions of this title.\n")
+				.append("url_access_json: {")
+				.append("\"titleid\":\"2471499\",")
+				.append("\"description\":\"Click here to find online versions of this title.\",")
+				.append("\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&")
+				.append(          "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n")
+				.append("availability_facet: url_access\n")
+				.append("online: Online\n");
+		assertEquals( expected.toString(), this.gen.generateSolrFields(rec, null).toString() );
+
+		// suppressed
+		folioHolding.put("discoverySuppress", true);
+		expected = new StringBuilder("ebsco_title_facet: 2471499\n")
+				.append("notes_t: Click here to find online versions of this title.\n")
+				.append("url_access_json: {")
+				.append("\"titleid\":\"2471499\",")
+				.append("\"description\":\"Click here to find online versions of this title.\",")
+				.append("\"url\":\"https://search.ebscohost.com/login.aspx?CustID=s9001366&db=edspub&type=44&")
+				.append(          "bQuery=AN%202471499&direct=true&site=pfi-live\"}\n")
+				.append("availability_facet: url_access\n")
+				.append("online: Online\n");
+		assertEquals( expected.toString(), this.gen.generateSolrFields(rec, null).toString() );
+	}
+
+	@Test
+	public void tocview() throws IOException, SQLException {
+		MarcRecord bibRec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		bibRec.id = "10204686";
+		bibRec.dataFields.add(new DataField(1,"856",' ',' ',
+		"‡u http://tocview.library.cornell.edu/viewer/bib/1084136 ‡z Link to table of Contents Images"));
+		bibRec.marcHoldings.add(online);
+		String expected =
+		"url_tocview_display: http://tocview.library.cornell.edu/viewer/bib/1084136|Link to table of Contents Images\n"+
+		"notes_t: Link to table of Contents Images\n"+
+		"availability_facet: url_tocview\n";
+		assertEquals( expected, this.gen.generateSolrFields(bibRec, null).toString() );
+	}
+
 }
