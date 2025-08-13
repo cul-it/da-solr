@@ -6,7 +6,7 @@
 -->
 <config>
 
-  <luceneMatchVersion>6.0</luceneMatchVersion>
+  <luceneMatchVersion>9.11.1</luceneMatchVersion>
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
@@ -479,11 +479,11 @@
       </str>
       <str name="pf">
         title_unstem^25000
-        title_starts^42000         title_startsCJK^4200
+        title_startsT^42000         title_startsCJK^4200
         title_t^12500              title_t_cjk^2500
         title_exact^2500           title_main_exact^1800
         title_uniform_unstem^2500
-        title_uniform_starts^2500  title_uniform_startsCJK^250
+        title_uniform_startsT^2500  title_uniform_startsCJK^250
         title_uniform_t^1250       title_uniform_t_cjk^250
         title_addl_unstem^2500
         title_addl_t^1250          title_addl_t_cjk^250
@@ -559,29 +559,29 @@
       </str>
       <str name="f.phrase.pf"> </str>
       <str name="f.starts.qf">
-        title_starts^25000         title_startsCJK^2500
-        title_uniform_starts^2500  title_uniform_startsCJK^250
-        title_addl_starts^2500     title_addl_startsCJK^250
-        subject_starts^375         subject_startsCJK^50
-        author_starts^125          author_startsCJK^10
-        author_addl_starts^75      author_addl_startsCJK^5
+        title_startsT^25000         title_startsCJK^2500
+        title_uniform_startsT^2500  title_uniform_startsCJK^250
+        title_addl_startsT^2500     title_addl_startsCJK^250
+        subject_startsT^375         subject_startsCJK^50
+        author_startsT^125          author_startsCJK^10
+        author_addl_startsT^75      author_addl_startsCJK^5
         lc_callnum_full^100
-        publisher_starts^75        publisher_startsCJK^10
+        publisher_startsT^75        publisher_startsCJK^10
         pub_date_facet^25
-        pub_date_starts^25         pub_date_startsCJK^5 pub_date_t_startsNum^5
-        subject_addl_starts^125    subject_addl_startsCJK^5
-        title_series_starts^25     title_series_startsCJK
-        isbn_starts                isbn_startsCJK       isbn_startsNum
-        issn_starts                issn_startsCJK       issn_startsNum
-        donor_starts               donor_startsCJK
-        pubplace_starts            pubplace_startsCJK
-        eightninenine_starts       eightninenine_startsNum
-        notes_starts               notes_startsCJK
-        summary_starts             summary_startsCJK
-        toc_starts                 toc_startsCJK
-        author_245c_starts         author_245c_startsCJK
-        barcode_starts             barcode_startsNum
-        barcode_addl_starts        barcode_addl_startsNum
+        pub_date_startsT^25         pub_date_startsCJK^5 pub_date_t_startsNum^5
+        subject_addl_startsT^125    subject_addl_startsCJK^5
+        title_series_startsT^25     title_series_startsCJK
+        isbn_startsT                isbn_startsCJK       isbn_startsNum
+        issn_startsT                issn_startsCJK       issn_startsNum
+        donor_startsT               donor_startsCJK
+        pubplace_startsT            pubplace_startsCJK
+        eightninenine_startsT       eightninenine_startsNum
+        notes_startsT               notes_startsCJK
+        summary_startsT             summary_startsCJK
+        toc_startsT                 toc_startsCJK
+        author_245c_startsT         author_245c_startsCJK
+        barcode_startsT             barcode_startsNum
+        barcode_addl_startsT        barcode_addl_startsNum
       </str>
       <str name="f.quoted.qf">
         title_unstem^25000         title_t_cjk^2500
@@ -631,9 +631,9 @@
         authority_author_t         authority_author_t_cjk
       </str>
       <str name="f.author_starts.qf">
-        author_starts^125          author_startsCJK^10
-        author_addl_starts^75      author_addl_startsCJK^5
-        author_245c_starts         author_245c_startsCJK
+        author_startsT^125          author_startsCJK^10
+        author_addl_startsT^75      author_addl_startsCJK^5
+        author_245c_startsT         author_245c_startsCJK
       </str>
       <str name="f.author_cts.qf"> author_pers_browse author_corp_browse author_event_browse </str>
       <str name="f.author_quoted.qf">
@@ -681,10 +681,10 @@
         title_series_unstem^3
       </str>
       <str name="f.title_starts.qf">
-        title_starts^250           title_startsCJK^25
-        title_uniform_starts^25    title_uniform_startsCJK^3
-        title_addl_starts^25       title_addl_startsCJK^3
-        title_series_starts^3      title_series_startsCJK
+        title_startsT^250           title_startsCJK^25
+        title_uniform_startsT^25    title_uniform_startsCJK^3
+        title_addl_startsT^25       title_addl_startsCJK^3
+        title_series_startsT^3      title_series_startsCJK
       </str>
       <str name="f.title_quoted.qf">
         title_exact^800            title_main_exact^400
@@ -710,8 +710,8 @@
         authority_subject_t        authority_subject_t_cjk
       </str>
       <str name="f.subject_starts.qf">
-        subject_starts^200         subject_startsCJK^5
-        subject_addl_starts^50     subject_addl_startsCJK
+        subject_startsT^200         subject_startsCJK^5
+        subject_addl_startsT^50     subject_addl_startsCJK
       </str>
       <str name="f.subject_cts.qf">
         subject_pers_browse
@@ -738,12 +738,12 @@
         publisher_unstem^10
         publisher_t                publisher_t_cjk
       </str>
-      <str name="f.publisher_starts.qf">publisher_starts^10 publisher_startsCJK</str>
+      <str name="f.publisher_starts.qf">publisher_startsT^10 publisher_startsCJK</str>
       <str name="f.publisher_quoted.qf">publisher_unstem^10 publisher_t_cjk</str>
 
       <str name="f.pubplace.qf"> pubplace_t  pubplace_t_cjk </str>
       <str name="f.pubplace.pf"> pubplace_t  pubplace_t_cjk </str>
-      <str name="f.pubplace_starts.qf"> pubplace_starts pubplace_startsCJK </str>
+      <str name="f.pubplace_starts.qf"> pubplace_startsT pubplace_startsCJK </str>
       <str name="f.pubplace_quoted.qf"> pubplace_unstem pubplace_t_cjk </str>
       
       <str name="f.lc_callnum.qf"> lc_callnum_full lc_callnum_suffix </str>
@@ -759,8 +759,8 @@
         former_owner_t former_owner_t_cjk
       </str>
       <str name="f.donor_starts.qf">
-        donor_starts donor_startsCJK
-        former_owner_starts former_owner_startsCJK
+        donor_startsT donor_startsCJK
+        former_owner_startsT former_owner_startsCJK
       </str>
       <str name="f.donor_quoted.qf">
         donor_s donor_unstem donor_t_cjk
@@ -776,8 +776,8 @@
         issn_t   issn_t_cjk
       </str>
       <str name="f.isbnissn_starts.qf">
-        isbn_starts   isbn_startsCJK   isbn_startsNum
-        issn_starts   issn_startsCJK   issn_startsNum
+        isbn_startsT   isbn_startsCJK   isbn_startsNum
+        issn_startsT   issn_startsCJK   issn_startsNum
       </str>
       <str name="f.isbnissn_quoted.qf">
         isbn_unstem   isbn_t_cjk
@@ -807,9 +807,9 @@
       </str>
       <str name="f.number_starts.qf">
       	id_startsNum
-        eightninenine_starts       eightninenine_startsNum
-        barcode_starts             barcode_startsNum
-        barcode_addl_starts        barcode_addl_startsNum
+        eightninenine_startsT       eightninenine_startsNum
+        barcode_startsT             barcode_startsNum
+        barcode_addl_startsT        barcode_addl_startsNum
       </str>
       <str name="f.number_quoted.qf">
         id_unstem              id_t_cjk
@@ -827,12 +827,12 @@
         title_series_unstem^25
         title_series_t^5           title_series_t_cjk
       </str>
-      <str name="f.series_starts.qf">title_series_starts^25 title_series_startsCJK</str>
+      <str name="f.series_starts.qf">title_series_startsT^25 title_series_startsCJK</str>
       <str name="f.series_quoted.qf"> title_series_unstem^25 title_series_t_cjk</str>
 
  	  <str name="f.notes.qf">notes_t notes_t_cjk</str>
  	  <str name="f.notes.pf">notes_t notes_t_cjk</str>
- 	  <str name="f.notes_starts.qf">notes_starts notes_startsCJK</str>
+ 	  <str name="f.notes_starts.qf">notes_startsT notes_startsCJK</str>
  	  <str name="f.notes_quoted.qf">notes_unstem notes_t_cjk</str>
 
       <int name="ps">2</int>

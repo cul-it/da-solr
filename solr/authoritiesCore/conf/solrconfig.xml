@@ -6,7 +6,7 @@
 -->
 <config>
 
-  <luceneMatchVersion>6.0</luceneMatchVersion>
+  <luceneMatchVersion>9.11.1</luceneMatchVersion>
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>

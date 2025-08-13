@@ -222,7 +222,7 @@
       </analyzer>
     </fieldType>
 
-    <fieldType name="callNumberSort" class="solr.SortableTextField" sortMissingLast="true" omitNorms="true">
+    <fieldType name="callNumberSort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer>
         <tokenizer name="keyword"/>
         <filter class="edu.cornell.library.integration.solr.CallNumberSortFilterFactory" prefixes="callnumberprefixes.txt"/>
@@ -285,7 +285,8 @@
     <!-- call number uses custom type -->
     <field name="lc_callnum_full"   type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
     <field name="lc_callnum_suffix" type="callNumberNormalized" indexed="true" stored="false" multiValued="true" />
-    <field name="callnum_sort"      type="callNumberSort"     docValues="true" stored="true"  multiValued="false" />
+    <field name="callnum_sort"      type="callNumberSort"       indexed="true"
+                                                           uninvertible="true" stored="true"  multiValued="false" />
 
     <!-- fields used for facet, display, and results filtering, only need to be stored where order is important -->
     <field name="format"                type="string" docValues="true" stored="false" multiValued="true"/>
@@ -327,7 +328,7 @@
     <dynamicField name="*_sort" type="filing" docValues="true" stored="false" multiValued="false"/>
     <dynamicField name="*_browse" type="filing" docValues="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstem" type="textNoStem" indexed="true" stored="false" multiValued="true" />
-    <dynamicField name="*_starts" type="textLeftAnchored" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*_startsT" type="textLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsCJK" type="textLeftAnchoredCJK" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*_startsNum" type="numericLeftAnchored" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="*spell" type="textSpell" indexed="true" stored="false" multiValued="true"/>
@@ -338,7 +339,7 @@
   <!-- Copy Fields -->
 
   <copyField source="*_t" dest="*_unstem"/>
-  <copyField source="*_t" dest="*_starts"/>
+  <copyField source="*_t" dest="*_startsT"/>
   <copyField source="*_t_cjk" dest="*_startsCJK"/>
   <copyField source="issn_t" dest="issn_startsNum"/>
   <copyField source="isbn_t" dest="isbn_startsNum"/>
@@ -348,7 +349,7 @@
   <copyField source="barcode_addl_t" dest="barcode_addl_startsNum"/>
   <copyField source="id_t" dest="id_startsNum"/>
   <copyField source="id" dest="id_startsNum"/>
-  <copyField source="donor_s" dest="donor_starts"/>
+  <copyField source="donor_s" dest="donor_startsT"/>
   <copyField source="*_filing" dest="*_browse"/>
 
   <copyField source="title_t" dest="title_leftUnstemBoost"/>
