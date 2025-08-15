@@ -254,15 +254,15 @@
     <field name="providercode" type="string" indexed="false" stored="true" multiValued="true"/>
 
     <!-- these display fields are NOT multi-valued -->
-    <field name="marc_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="title_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="title_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="fulltitle_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="fulltitle_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="subtitle_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="subtitle_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="author_display" type="string" indexed="false" stored="true" multiValued="false"/>
-    <field name="author_vern_display" type="string" indexed="false" stored="true" multiValued="false"/>
+    <field name="marc_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="title_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="title_vern_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="fulltitle_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="fulltitle_vern_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="subtitle_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="subtitle_vern_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="author_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="author_vern_display" type="string" docValues="false" stored="true" multiValued="false"/>
 
     <field name="isbn_t" type="text" indexed="true" stored="true" multiValued="true"/>
 
@@ -274,7 +274,7 @@
     <field name="author_facet"          type="string" docValues="true" stored="false" multiValued="true" />
     <field name="location"              type="string" docValues="true" stored="false" multiValued="true"/>
 
-    <field name="pub_date"              type="string" indexed="false"  stored="true"  multiValued="true"/>
+    <field name="pub_date"              type="string" docValues="false" stored="true" multiValued="true"/>
     <field name="pub_date_facet"        type="int"    docValues="true" stored="false" multiValued="false"/>
     <field name="pub_date_sort"         type="int"    docValues="true" stored="false" multiValued="false"/>
 
@@ -299,9 +299,9 @@
     <field name="format_main_facet"     type="string" docValues="true" stored="false" multiValued="false"/>
 
 	<!--  Single-valued json fields are the exception (currently) -->
-    <field name="holdings_json" type="exact" indexed="false" stored="true" multiValued="false" />
-    <field name="items_json" type="exact" indexed="false" stored="true" multiValued="false" />
-    <field name="availability_json" type="exact" indexed="false" stored="true" multiValued="false" />
+    <field name="holdings_json" type="exact" docValues="false" stored="true" multiValued="false" />
+    <field name="items_json" type="exact" docValues="false" stored="true" multiValued="false" />
+    <field name="availability_json" type="exact" docValues="false" stored="true" multiValued="false" />
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="text"  indexed="true"  stored="true" multiValued="true"/>
