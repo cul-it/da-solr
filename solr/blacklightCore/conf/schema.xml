@@ -254,7 +254,7 @@
     <field name="providercode" type="string" indexed="false" stored="true" multiValued="true"/>
 
     <!-- these display fields are NOT multi-valued -->
-    <field name="marc_display" type="string" docValues="false" stored="true" multiValued="false"/>
+    <field name="marc_display" type="text" docValues="false" stored="true" multiValued="false"/>
     <field name="title_display" type="string" docValues="false" stored="true" multiValued="false"/>
     <field name="title_vern_display" type="string" docValues="false" stored="true" multiValued="false"/>
     <field name="fulltitle_display" type="string" docValues="false" stored="true" multiValued="false"/>
@@ -323,8 +323,8 @@
     <dynamicField name="*_data" type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="*_cts" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
     <dynamicField name="*_piped" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
-    <dynamicField name="*_json" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
-    <dynamicField name="*_display" type="string" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_json" type="text" indexed="false" docValues="false" stored="true" multiValued="true" />
+    <dynamicField name="*_display" type="text" indexed="false" docValues="false" stored="true" multiValued="true" />
     <dynamicField name="*_sort" type="filing" docValues="true" stored="false" multiValued="false"/>
     <dynamicField name="*_browse" type="filing" docValues="true" stored="false"  multiValued="true"/>
     <dynamicField name="*_unstem" type="textNoStem" indexed="true" stored="false" multiValued="true" />
