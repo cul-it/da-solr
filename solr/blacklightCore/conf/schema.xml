@@ -299,9 +299,9 @@
     <field name="format_main_facet"     type="string" docValues="true" stored="false" multiValued="false"/>
 
 	<!--  Single-valued json fields are the exception (currently) -->
-    <field name="holdings_json" type="exact" docValues="false" stored="true" multiValued="false" />
-    <field name="items_json" type="exact" docValues="false" stored="true" multiValued="false" />
-    <field name="availability_json" type="exact" docValues="false" stored="true" multiValued="false" />
+    <field name="holdings_json" type="text" docValues="false" stored="true" multiValued="false" />
+    <field name="items_json" type="text" docValues="false" stored="true" multiValued="false" />
+    <field name="availability_json" type="text" docValues="false" stored="true" multiValued="false" />
 
     <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="text"  indexed="true"  stored="true" multiValued="true"/>
