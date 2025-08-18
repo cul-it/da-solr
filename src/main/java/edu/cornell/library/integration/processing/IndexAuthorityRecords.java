@@ -26,8 +26,6 @@ import java.util.TreeSet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.catalog.Catalog;
-import edu.cornell.library.integration.folio.DownloadMARC;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -65,6 +63,7 @@ public class IndexAuthorityRecords {
 
 			for (String identifier : identifiers) {
 				MarcRecord rec = getMostRecentRecord(authority, identifier);
+				if (rec == null) continue;
 				String heading = null;
 				for (DataField f : rec.dataFields) if (f.tag.startsWith("1"))
 					heading = nativeHeading(f);
@@ -104,6 +103,8 @@ public class IndexAuthorityRecords {
 			try (ResultSet rs = getAuthStmt.executeQuery()) {
 				while (rs.next())
 					return new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
+			} catch (IllegalArgumentException e) {
+				System.out.format("ERROR: IllegalArgumentException %s (%s)\n", e.getMessage(), identifier);
 			}
 			
 		}
