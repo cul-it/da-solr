@@ -21,13 +21,7 @@
 
 		<fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
-		<fieldType name="exact" class="solr.TextField" positionIncrementGap="100">
-			<analyzer>
-				<tokenizer name="keyword"/>
-				<filter name="icuFolding"/>
-				<filter class="solr.TrimFilterFactory" />
-			</analyzer>
-		</fieldType>
+		<fieldType name="text" class="solr.TextField"/>
 
 		<fieldType name="filing" class="solr.SortableTextField" sortMissingLast="true" omitNorms="true">
 			<analyzer type="index">
@@ -57,12 +51,12 @@
 		<field name="marcId"          type="string"  docValues="true"  stored="true"  multiValued="true" />
 		<field name="see"             type="string"  docValues="false" stored="true"  multiValued="true" />
 		<field name="alternateForm"   type="string"  docValues="false" stored="true"  multiValued="true" />
-		<field name="seeAlso"         type="exact"   docValues="false" stored="true"  multiValued="false" />
+		<field name="seeAlso"         type="text"    docValues="false" stored="true"  multiValued="false" />
 		<field name="blacklightField" type="string"  docValues="false" stored="true"  multiValued="false" />
 		<field name="authority"       type="boolean" docValues="true"  stored="true"  multiValued="false" />
 		<field name="mainEntry"       type="boolean" docValues="true"  stored="true"  multiValued="false" />
-		<field name="notes"           type="exact"   docValues="false" stored="true"  multiValued="true" />
-		<field name="rda_json"        type="exact"   docValues="false" stored="true"  multiValued="false" />
+		<field name="notes"           type="text"    docValues="false" stored="true"  multiValued="true" />
+		<field name="rda_json"        type="text"    docValues="false" stored="true"  multiValued="false" />
 		<field name="count"           type="tint"    docValues="true"  stored="true"  multiValued="false" />
 		<field name="counts_json"     type="string"  docValues="false" stored="true"  multiValued="false" />
 
