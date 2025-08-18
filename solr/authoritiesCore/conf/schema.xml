@@ -21,7 +21,7 @@
 
 		<fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
-		<fieldType name="unparsed" class="solr.TextField" positionIncrementGap="100">
+		<fieldType name="exact" class="solr.TextField" positionIncrementGap="100">
 			<analyzer>
 				<tokenizer name="keyword"/>
 				<filter name="icuFolding"/>
