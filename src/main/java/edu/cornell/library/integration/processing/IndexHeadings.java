@@ -83,9 +83,9 @@ public class IndexHeadings {
 				.Builder(config.getBlacklightSolrUrl())
 				.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();) {
 
-			for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
+			deleteCountsFromDB();
 
-				deleteCountsFromDB();
+			for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
 				processBlacklightHeadingFieldHeaderData( solr, blf );
 			}
 			
