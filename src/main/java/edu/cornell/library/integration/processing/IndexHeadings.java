@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.request.json.JsonQueryRequest;
 import org.apache.solr.client.solrj.request.json.TermsFacetMap;
@@ -114,7 +115,7 @@ public class IndexHeadings {
 			QueryResponse qr = null;
 			for (int i = 0; qr == null && i < 20; i++) {
 				try { qr = request.process(solr); }
-				catch (SolrServerException e) {
+				catch (RemoteSolrException e) {
 					e.printStackTrace();
 					Thread.sleep(5_000);//5 seconds
 				}
