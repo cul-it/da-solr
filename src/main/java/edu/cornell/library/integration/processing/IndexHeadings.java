@@ -9,11 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -55,7 +57,7 @@ public class IndexHeadings {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.add("blacklightSolrUrl");
 		this.config = Config.loadConfig(requiredArgs);
-		this.config.setDatabasePoolsize("Headings", 2);
+		this.config.setDatabasePoolsize("Headings", 6);
 		if (args.length > 0) {
 			int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 			try {
@@ -86,51 +88,60 @@ public class IndexHeadings {
 
 			deleteCountsFromDB();
 
-			for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
-				processBlacklightHeadingFieldHeaderData( solr, blf );
-			}
-			
+			Arrays.stream(BlacklightHeadingField.values()).parallel()
+				.forEach( blf -> processBlacklightHeadingFieldHeaderData( solr, blf ));
+
 		}
 
 	}
 
-	private void processBlacklightHeadingFieldHeaderData(Http2SolrClient solr, BlacklightHeadingField blf)
-			throws SQLException, InterruptedException, SolrServerException, IOException {
+	private void processBlacklightHeadingFieldHeaderData(Http2SolrClient solr, BlacklightHeadingField blf) {
 
-		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
+		try {
+
+			System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingType(),blf.headingCategory());
 
-		if ( ! this.queries.containsKey(blf.headingCategory()))
-			this.queries.put(blf.headingCategory(), new HashMap<String,String>());
+			if ( ! this.queries.containsKey(blf.headingCategory()))
+				this.queries.put(blf.headingCategory(), new HashMap<String,String>());
 
-		int batchSize = 100_000;
-		int numFound = 1;
-		int currentOffset = 0;
-		while (numFound > 0) {
+			int batchSize = 100_000;
+			int numFound = 1;
+			int currentOffset = 0;
+			while (numFound > 0) {
 
-			TermsFacetMap blFacet = new TermsFacetMap(blf.fieldName())
-					.setLimit(batchSize).setBucketOffset(currentOffset).setSort("index");
-			JsonQueryRequest request = new JsonQueryRequest()
-					.setQuery("type:Catalog").setLimit(0).withFacet("headings", blFacet);
-			QueryResponse qr = null;
-			for (int i = 0; qr == null && i < 20; i++) {
-				try { qr = request.process(solr); }
-				catch (RemoteSolrException e) {
-					e.printStackTrace();
-					Thread.sleep(5_000);//5 seconds
+				TermsFacetMap blFacet = new TermsFacetMap(blf.fieldName())
+						.setLimit(batchSize).setBucketOffset(currentOffset).setSort("index");
+				JsonQueryRequest request = new JsonQueryRequest()
+						.setQuery("type:Catalog").setLimit(0).withFacet("headings", blFacet);
+				QueryResponse qr = null;
+				for (int i = 0; qr == null && i < 20; i++) {
+					try { qr = request.process(solr); }
+					catch (RemoteSolrException e) {
+						e.printStackTrace();
+						Thread.sleep(5_000);//5 seconds
+					}
 				}
+				if (qr == null) System.exit(1);
+
+				Map<String,Object> m = new HashMap<>();
+				qr.toMap(m);
+
+				Map<String,Object> facets = (Map<String,Object>)m.get("facets");
+				Map<String,Object> headings = (Map<String,Object>)facets.get("headings");
+				List<Map<String,Object>> buckets = (List<Map<String,Object>>)headings.get("buckets");
+
+				numFound = addCountsToDB( solr, buckets, blf );
+				currentOffset += batchSize;
 			}
-			if (qr == null) System.exit(1);
+			System.out.format("%s DONE %s\n", blf.name(), blf.name());
 
-			Map<String,Object> m = new HashMap<>();
-			qr.toMap(m);
-
-			Map<String,Object> facets = (Map<String,Object>)m.get("facets");
-			Map<String,Object> headings = (Map<String,Object>)facets.get("headings");
-			List<Map<String,Object>> buckets = (List<Map<String,Object>>)headings.get("buckets");
-
-			numFound = addCountsToDB( solr, buckets, blf );
-			currentOffset += batchSize;
+		} catch (InterruptedException e) {
+			System.out.println("Interrupt signal received. Quitting.");
+			System.exit(1);
+		} catch (SQLException | SolrServerException | IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -146,7 +157,7 @@ public class IndexHeadings {
 
 			addCountToDB(solr, blf, heading, recordCount.intValue());
 			if (++headingCount % 10_000 == 0) {
-				System.out.printf("%s => %d\n",heading,recordCount);
+				System.out.printf("%s: %s => %d\n",blf.fieldName(),heading,recordCount);
 			}
 		}
 		return headingCount;
