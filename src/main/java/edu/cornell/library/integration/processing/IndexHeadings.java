@@ -48,7 +48,7 @@ public class IndexHeadings {
 	}
 
 
-	public IndexHeadings(String[] args) throws Exception {
+	public IndexHeadings(String[] args) throws SQLException, InterruptedException, SolrServerException, IOException {
 
 		// load configuration for location of index, location of authorities
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
@@ -93,7 +93,8 @@ public class IndexHeadings {
 
 	}
 
-	private void processBlacklightHeadingFieldHeaderData(Http2SolrClient solr, BlacklightHeadingField blf) throws Exception {
+	private void processBlacklightHeadingFieldHeaderData(Http2SolrClient solr, BlacklightHeadingField blf)
+			throws SQLException, InterruptedException, SolrServerException, IOException {
 
 		System.out.printf("Poling Blacklight Solr field %s for %s values as %s\n",
 					blf.fieldName(),blf.headingType(),blf.headingCategory());
@@ -110,7 +111,15 @@ public class IndexHeadings {
 					.setLimit(batchSize).setBucketOffset(currentOffset).setSort("index");
 			JsonQueryRequest request = new JsonQueryRequest()
 					.setQuery("type:Catalog").setLimit(0).withFacet("headings", blFacet);
-			QueryResponse qr = request.process(solr);
+			QueryResponse qr = null;
+			for (int i = 0; qr == null && i < 20; i++) {
+				try { qr = request.process(solr); }
+				catch (SolrServerException e) {
+					e.printStackTrace();
+					Thread.sleep(5_000);//5 seconds
+				}
+			}
+			if (qr == null) System.exit(1);
 
 			Map<String,Object> m = new HashMap<>();
 			qr.toMap(m);
@@ -125,7 +134,8 @@ public class IndexHeadings {
 	}
 
 	private int addCountsToDB(Http2SolrClient solr, List<Map<String,Object>> buckets, BlacklightHeadingField blf)
-			throws Exception {
+			throws SQLException, InterruptedException, SolrServerException
+			{
 
 		int headingCount = 0;
 		for (Map<String,Object> bucket : buckets) {
