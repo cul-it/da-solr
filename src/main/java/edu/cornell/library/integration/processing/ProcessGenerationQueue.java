@@ -92,6 +92,7 @@ public class ProcessGenerationQueue {
 				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
 						"SELECT * FROM holdingFolio WHERE instanceHrid = ?");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
+				PreparedStatement availabilityQueueStmt2 = AddToQueue.availabilityQueueStmt2(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				) {
@@ -243,6 +244,7 @@ public class ProcessGenerationQueue {
 							rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges.changedSegments != null) {
 					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges.changedSegments);
+					AddToQueue.add2Queue(availabilityQueueStmt2, bib, priority, minChangeDate, solrChanges.changedSegments);
 					if (solrChanges.changedHeadingsSegments != null)
 						AddToQueue.add2Queue(headingsQueueStmt, bib, priority, minChangeDate,
 								solrChanges.changedHeadingsSegments);
