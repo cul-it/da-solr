@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.common.SolrDocument;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,10 @@ public class GenerateHathiLinkReport {
 		Config config = Config.loadConfig(requiredFields);
 		ObjectMapper mapper = new ObjectMapper();
 
-		try ( HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl()) ) {
+		try (Http2SolrClient solr = new Http2SolrClient
+				.Builder(config.getBlacklightSolrUrl())
+				.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();
+) {
 
 			SolrQuery q = new SolrQuery();
 			q.setFields("id","url_access_json","oclc_id_display",

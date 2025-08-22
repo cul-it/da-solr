@@ -141,9 +141,9 @@ public class SimpleProcTest {
 		rec.dataFields.add(new DataField(1,"500",' ',' ',"‡a Here's the first note."));
 		rec.dataFields.add(new DataField(2,"500",' ',' ',"‡a Here's the second note."));
 		String expected =
-		"notes: Here's the first note.\n"+
+		"notes_display: Here's the first note.\n"+
 		"notes_t: Here's the first note.\n"+
-		"notes: Here's the second note.\n"+
+		"notes_display: Here's the second note.\n"+
 		"notes_t: Here's the second note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -155,9 +155,9 @@ public class SimpleProcTest {
 		rec.dataFields.add(new DataField(2,1,"500",' ',' ',
 				"‡6 500-01/$1 ‡a Here's the non-Roman version of the note.", true));
 		String expected =
-		"notes: Here's the non-Roman version of the note.\n"+
+		"notes_display: Here's the non-Roman version of the note.\n"+
 		"notes_t_cjk: Here's the non-Roman version of the note.\n"+
-		"notes: Here's the main note.\n"+
+		"notes_display: Here's the main note.\n"+
 		"notes_t: Here's the main note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -172,13 +172,13 @@ public class SimpleProcTest {
 		rec.dataFields.add(new DataField(4,1,"500",' ',' ',
 				"‡6 500-01/$1 ‡a Here's the non-Roman version of the second note.", true));
 		String expected =
-		"notes: Here's the first note.\n"+
+		"notes_display: Here's the first note.\n"+
 		"notes_t: Here's the first note.\n"+
-		"notes: Here's the non-Roman version of the second note.\n"+
+		"notes_display: Here's the non-Roman version of the second note.\n"+
 		"notes_t_cjk: Here's the non-Roman version of the second note.\n"+
-		"notes: Here's the second note with non-Roman version.\n"+
+		"notes_display: Here's the second note with non-Roman version.\n"+
 		"notes_t: Here's the second note with non-Roman version.\n"+
-		"notes: Context note: Here's the third note.\n"+
+		"notes_display: Context note: Here's the third note.\n"+
 		"notes_t: Here's the third note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
@@ -228,7 +228,7 @@ public class SimpleProcTest {
 			rec.dataFields.add(new DataField(1,"511",'0',' ',
 					"‡a Fires of London ; the composer conducting."));
 			String expected =
-			"notes: Fires of London ; the composer conducting.\n" + 
+			"notes_display: Fires of London ; the composer conducting.\n" + 
 			"notes_t: Fires of London ; the composer conducting.\n";
 			assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 		}

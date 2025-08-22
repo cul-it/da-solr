@@ -127,7 +127,7 @@ public class IndexingUtilities {
 		ref.id = Integer.valueOf(parts[0]);
 		ref.timestamp = new Timestamp((new SimpleDateFormat( MARC_DATE_FORMAT )).parse(parts[1]).getTime() );
 
-		ref.format = String.join(",",doc.getFieldValues("format"));
+		ref.format = String.join(",",(Collection<String>)(Collection<?>)doc.getFieldValues("format"));
 
 		if (doc.containsKey("url_access_display")) {
 			Collection<Object> urlJsons = doc.getFieldValues("url_access_json");
@@ -138,7 +138,7 @@ public class IndexingUtilities {
 
 		if (doc.containsKey("location_facet")) {
 			Collection<String> libraries = new LinkedHashSet<>();
-			libraries.addAll(doc.getFieldValues("location_facet"));
+			libraries.addAll((Collection<String>)(Collection<?>)doc.getFieldValues("location_facet"));
 			ref.libraries = String.join(", ",libraries);
 		}
 
@@ -146,10 +146,10 @@ public class IndexingUtilities {
 			ref.edition = (String)doc.getFieldValues("edition_display").iterator().next();
 
 		if (doc.containsKey("pub_date_display"))
-			ref.pub_date = String.join(", ",doc.getFieldValues("pub_date_display"));
+			ref.pub_date = String.join(", ",(Collection<String>)(Collection<?>)doc.getFieldValues("pub_date_display"));
 
 		if (doc.containsKey("language_facet"))
-			ref.language = String.join(",",doc.getFieldValues("language_facet"));
+			ref.language = String.join(",",(Collection<String>)(Collection<?>)doc.getFieldValues("language_facet"));
 
 		if (doc.containsKey("title_uniform_display")) {
 			String uniformTitle = (String)doc.getFieldValues
@@ -281,11 +281,7 @@ public class IndexingUtilities {
 				input_factory.createXMLStreamReader(new StringReader(xml));
 		while (r.hasNext()) {
 			if (r.next() == XMLStreamConstants.START_ELEMENT) {
-				if (r.getLocalName().equals("doc")) {
-					for (int i = 0; i < r.getAttributeCount(); i++)
-						if (r.getAttributeLocalName(i).equals("boost"))
-							doc.setDocumentBoost(Float.valueOf(r.getAttributeValue(i)));
-				} else if (r.getLocalName().equals("field")) {
+				if (r.getLocalName().equals("field")) {
 					String fieldName = null;
 					Float boost = null;
 					for (int i = 0; i < r.getAttributeCount(); i++)
@@ -293,10 +289,7 @@ public class IndexingUtilities {
 							fieldName = r.getAttributeValue(i);
 						else if (r.getAttributeLocalName(i).equals("boost"))
 							boost = Float.valueOf(r.getAttributeValue(i));
-					if (boost != null)
-						doc.addField(fieldName, r.getElementText(), boost);
-					else
-						doc.addField(fieldName, r.getElementText());
+					doc.addField(fieldName, r.getElementText());
 				}
 			}
 		}

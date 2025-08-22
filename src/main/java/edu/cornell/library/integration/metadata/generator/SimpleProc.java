@@ -37,7 +37,7 @@ public class SimpleProc implements SolrFieldGenerator {
 		boolean f300e = false;
 
 		for (DataField f : rec.matchSortAndFlattenDataFields()) {
-			String displayField = "notes";
+			String displayField = "notes_display";
 			String searchField = "notes_t";
 			String cjkSearchField = "notes_t_cjk";
 			String displaySubfields = null;

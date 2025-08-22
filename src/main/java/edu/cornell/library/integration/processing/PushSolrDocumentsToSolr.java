@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.cornell.library.integration.utilities.Config;
@@ -32,9 +31,11 @@ public class PushSolrDocumentsToSolr {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Current");
 		requiredArgs.add("solrUrl");
 		Config config = Config.loadConfig(requiredArgs);
-        System.out.println("Populating Solr index at: "+config.getSolrUrl());
+		System.out.println("Populating Solr index at: "+config.getSolrUrl());
 
-		try ( SolrClient solr = new HttpSolrClient( config.getSolrUrl() );
+		try ( Http2SolrClient solr = new Http2SolrClient
+				.Builder(config.getBlacklightSolrUrl())
+				.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();
 			  Connection current = config.getDatabaseConnection("Current")) {
 			int maxBib = 0;
 			try (Statement stmt = current.createStatement();

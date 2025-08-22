@@ -20,15 +20,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.marc.MarcRecord.RecordType;
 import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.RecordSet;
@@ -49,38 +49,84 @@ public class IndexAuthorityRecords {
 			throws FileNotFoundException, IOException, SQLException {
 
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		requiredArgs.addAll( Config.getRequiredArgsForDB("Voy"));
-		requiredArgs.add("catalogClass");
+		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
 		Config config = Config.loadConfig(requiredArgs);
 
-		int maxId;
-		try ( Connection voyager = config.getDatabaseConnection("Voy") ){
-			maxId = getMaxAuthorityId( voyager );
-		}
 		config.setDatabasePoolsize("Headings", 2);
-		try ( Connection headings = config.getDatabaseConnection("Headings") ) {
-			
+		try ( Connection authority = config.getDatabaseConnection("Authority");
+			  Connection headings = config.getDatabaseConnection("Headings") ) {
+
+			Set<String> identifiers = getAllIdentifiers(authority);
+
 			//set up database (including populating description maps)
 			setUpDatabase(headings);
 
-			Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
+			for (String identifier : identifiers) {
+				MarcRecord rec = getMostRecentRecord(authority, identifier);
+				if (rec == null) continue;
+				String heading = null;
+				for (DataField f : rec.dataFields) if (f.tag.startsWith("1"))
+					heading = nativeHeading(f);
+				Character recordStatus = rec.leader.charAt(5);
+				if ( recordStatus.equals('d') || recordStatus.equals('o')) {
+					System.out.format("%s %s deleted\n", identifier, heading);
+					continue;
+				}
+
+				processAuthorityMarc( headings, rec );
+			}
+/*
+
 			int cursor = 0;
 			int batchSize = 100;
 			while (cursor <= maxId) {
 				for (MarcRecord rec : marc.retrieveRecordsByIdRange(RecordType.AUTHORITY, cursor+1, cursor+batchSize))
-					processAuthorityMarc( headings, rec );
 				cursor += batchSize;
 			}
+*/
 		}
 	}
 
-	private static int getMaxAuthorityId(Connection voyager) throws SQLException {
-		try ( Statement stmt = voyager.createStatement();
-				ResultSet rs = stmt.executeQuery("select max(auth_id) from auth_data")) {
-			while ( rs.next() )
-				return rs.getInt(1);
+	private static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
+		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
+				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+			getAuthStmt.setString(1, identifier);
+			try (ResultSet rs = getAuthStmt.executeQuery()) {
+				while (rs.next())
+					return new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
+			}
+			
 		}
-		throw new RuntimeException("Max authority record id not determined.");
+		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
+				"SELECT marc21 FROM voyagerAuthority WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+			getAuthStmt.setString(1, identifier);
+			try (ResultSet rs = getAuthStmt.executeQuery()) {
+				while (rs.next())
+					return new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
+			} catch (IllegalArgumentException e) {
+				System.out.format("ERROR: IllegalArgumentException %s (%s)\n", e.getMessage(), identifier);
+			}
+			
+		}
+		return null;
+	}
+
+	private static Set<String> getAllIdentifiers(Connection authority) throws SQLException {
+		Set<String> identifiers = new TreeSet<>();
+		try (Statement stmt = authority.createStatement()) {
+			try (ResultSet rs = stmt.executeQuery("SELECT DISTINCT id FROM authorityUpdate")) {
+				while (rs.next()) identifiers.add(rs.getString(1));
+			}
+			System.out.format("%d distinct records in authorityUpdate.\n",identifiers.size());
+			Set<String> voyIdentifiers = new TreeSet<>();
+			try (ResultSet rs = stmt.executeQuery("SELECT DISTINCT id FROM voyagerAuthority")) {
+				while (rs.next()) voyIdentifiers.add(rs.getString(1));
+			}
+			System.out.format("%d distinct records in voyagerAuthority.\n",voyIdentifiers.size());
+			identifiers.addAll(voyIdentifiers);
+			System.out.format("%d total.\n",identifiers.size());
+		}
+		return identifiers;
 	}
 
 	private static void setUpDatabase(Connection headings) throws SQLException {
@@ -118,10 +164,10 @@ public class IndexAuthorityRecords {
 					+ "`source` int(1) unsigned NOT NULL, "
 					+ "`nativeId` varchar(80) NOT NULL, "
 					+ "`nativeHeading` text NOT NULL, "
-					+ "`voyagerId` varchar(10) NOT NULL, "
+					+ "`localId` varchar(50) NOT NULL, "
 					+ "`undifferentiated` tinyint(1) unsigned NOT NULL default '0', "
 					+ "KEY (`id`), "
-					+ "KEY (`voyagerId`), "
+					+ "KEY (`localId`), "
 					+ "PRIMARY KEY(`source`,`nativeId`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -572,7 +618,7 @@ public class IndexAuthorityRecords {
 
 		else try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO authority"
-				+ " (source, nativeId, nativeHeading, voyagerId, undifferentiated)"
+				+ " (source, nativeId, nativeHeading, localId, undifferentiated)"
 				+ " VALUES (?,?,?,?,?)",
 				Statement.RETURN_GENERATED_KEYS) ){
 			stmt.setInt    (1, a.source.ordinal());

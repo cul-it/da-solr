@@ -3,35 +3,48 @@
 and => et
 
 # tweaks for K-Stemmer, relating to words that should or should not be in dictionary
-stars => star
-works, working => work
-locks => lock
-superheroes => superhero
-waterers => waterer
+# stars => star
+# works, working => work
+# locks => lock
+# waterers => waterer
 
 # computer languages
 # these are explicit mappings so when WDF drops the non-letter chars, c++ is not equivalent to c
-c++ => cplusplus
+# c++ => cplusplus
 # c# and f# are music keys as well as computer languages
 
 # musical keys
 # these are explicit mappings so when WDF drops the non-letter chars, c# is not equivalent to c
 # We map from number-sign (#), musical sharp (♯)
-a#, a♯, a-sharp, a sharp => asharp
-b#, b♯, b-sharp, b sharp => bsharp
-c#, c♯, c-sharp, c sharp => csharp
-d#, d♯, d-sharp, d sharp => dsharp
-e#, e♯, e-sharp, e sharp => esharp
-f#, f♯, f-sharp, f sharp => fsharp
-g#, g♯, g-sharp, g sharp => gsharp
+a-sharp, a sharp => asharp
+b-sharp, b sharp => bsharp
+c-sharp, c sharp => csharp
+d-sharp, d sharp => dsharp
+e-sharp, e sharp => esharp
+f-sharp, f sharp => fsharp
+g-sharp, g sharp => gsharp
+# a#, a♯, a-sharp, a sharp => asharp
+# b#, b♯, b-sharp, b sharp => bsharp
+# c#, c♯, c-sharp, c sharp => csharp
+# d#, d♯, d-sharp, d sharp => dsharp
+# e#, e♯, e-sharp, e sharp => esharp
+# f#, f♯, f-sharp, f sharp => fsharp
+# g#, g♯, g-sharp, g sharp => gsharp
 # We map both from lower case b and musical flat (♭)
-ab, a♭, a-flat, a flat => aflat
-bb, b♭, b-flat, b flat => bflat
-cb, c♭, c-flat, c flat => cflat
-db, d♭, d-flat, d flat => dflat
-eb, e♭, e-flat, e flat => eflat
-fb, f♭, f-flat, f flat => fflat
-gb, g♭, g-flat, g flat => gflat
+ab, a-flat, a flat => aflat
+bb, b-flat, b flat => bflat
+cb, c-flat, c flat => cflat
+db, d-flat, d flat => dflat
+eb, e-flat, e flat => eflat
+fb, f-flat, f flat => fflat
+gb, g-flat, g flat => gflat
+# ab, a♭, a-flat, a flat => aflat
+# bb, b♭, b-flat, b flat => bflat
+# cb, c♭, c-flat, c flat => cflat
+# db, d♭, d-flat, d flat => dflat
+# eb, e♭, e-flat, e flat => eflat
+# fb, f♭, f-flat, f flat => fflat
+# gb, g♭, g-flat, g flat => gflat
 
 
 
