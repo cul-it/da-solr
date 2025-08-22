@@ -270,6 +270,9 @@ public class Format implements SolrFieldGenerator {
 					format = BLFormat.FILE;
 					break;
 
+				case "interlibrary loan":
+					break; // not format metadata
+
 				case "notated movement":
 				case "notated music":
 					format = BLFormat.SCORE;
