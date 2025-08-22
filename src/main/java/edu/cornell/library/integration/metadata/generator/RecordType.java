@@ -14,15 +14,12 @@ import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
- * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
- * detected through a 948‡h note. Blacklight searches will be filtered to type:Catalog,
- * so only records that should NOT be returned in Blacklight work-level searches should
- * vary from this.
+ * Record type "Catalog" is required to be visible in Blacklight.
  */
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -55,7 +52,7 @@ public class RecordType implements SolrFieldGenerator {
 			sfs.add(new SolrField("type","Shadow"));
 		else
 			sfs.add(getTypeField(rec.instance,statCodes,true));
-		sfs.add(new SolrField("source","Folio"));
+		sfs.add(new SolrField("source","MARC"));
 		if ( statCodes != null ) {
 			for (String code : statCodes )
 				sfs.add(new SolrField("statcode_facet","instance_"+code));
@@ -90,7 +87,7 @@ public class RecordType implements SolrFieldGenerator {
 
 		SolrFields sfs = new SolrFields();
 		sfs.add(getTypeField(instance,statCodes,false));
-		sfs.add(new SolrField("source","Folio"));
+		sfs.add(new SolrField("source",(String)instance.get("source")));
 		if (statCodes != null ) {
 			for (String code : statCodes ) sfs.add(new SolrField("statcode_facet","instance_"+code));
 			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
