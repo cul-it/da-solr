@@ -92,7 +92,7 @@ public class ProcessGenerationQueue {
 				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
 						"SELECT * FROM holdingFolio WHERE instanceHrid = ?");
 				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
-				PreparedStatement availabilityQueueStmt2 = AddToQueue.availabilityQueueStmt(current);
+				PreparedStatement availabilityQueueStmt2 = AddToQueue.availabilityQueueStmt2(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				) {
