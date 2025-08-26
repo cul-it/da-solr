@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,7 +109,9 @@ public class ProcessAuthorityChangeFile {
 		String autoFlipFile = outputFile.replaceAll(".json", "-candidates.json");
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
-				HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
+				Http2SolrClient solr = new Http2SolrClient
+						.Builder(config.getBlacklightSolrUrl())
+						.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();
 				PreparedStatement getAuthStmt = authority.prepareStatement(
 						"SELECT *"+
 						"  FROM authorityUpdate"+

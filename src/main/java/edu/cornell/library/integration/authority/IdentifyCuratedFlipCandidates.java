@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -137,7 +137,9 @@ public class IdentifyCuratedFlipCandidates {
 
 		String heading = headingOf(flip.before);
 
-		try( HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl())) {
+		try( Http2SolrClient solr = new Http2SolrClient
+				.Builder(config.getBlacklightSolrUrl())
+				.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();) {
 			
 			Map<String,Object> autoFlip = new HashMap<>();
 			for (String field : blacklightFields) {

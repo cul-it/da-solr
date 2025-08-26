@@ -8,6 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.rmi.NoSuchObjectException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,32 +25,94 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OkapiClient {
 
+	private final String name;
 	private final String url;
-	private final String token;
 	private final String tenant;
+	private final String username;
+	private final String password;
+	private String accessToken = null;
+	private Instant accessExpires = null;
+	private String refreshToken = null;
+	private Instant refreshExpires = null;
 
-	public OkapiClient(String url, String tenant, String token, String user, String pass)
-			throws IOException {
+
+	public OkapiClient(String name, String url, String tenant, String username, String password) throws IOException {
+		this.name = name;
 		this.url = url;
 		this.tenant = tenant;
-		if ( token != null)
-			this.token = token;
-		else {
-			this.token = post("/authn/login",
-					String.format("{\"username\":\"%s\",\"password\":\"%s\"}",user,pass));
-		}
+		this.username = username;
+		this.password = password;
+		HttpURLConnection c = this.post("/authn/login-with-expiry",String.format(
+				"{\"username\":\"%s\",\"password\":\"%s\"}",this.username,this.password));
+		if (201 != c.getResponseCode())
+			throw new IOException(String.format("%s:%s %s",this.name,this.username,c.getResponseMessage()));
+		parseLoginResponse(c);
 	}
 
-	public String getToken() { return this.token; }
+	public void confirmTokensCurrent() throws IOException {
+		Instant inTwoMinutes = Instant.now().plus(2, ChronoUnit.MINUTES);
+		if (this.accessToken != null && this.accessExpires != null) {
 
-	public String post(final String endPoint, final String json) throws IOException {
+			// access token has at least 2 minutes left, so use it.
+			if (this.accessExpires.isAfter(inTwoMinutes))
+				return;
 
-		System.out.println("About to post " + endPoint);
+			// access token is old, but refresh token is still good, so refresh
+			if (this.refreshToken != null && this.refreshExpires != null
+					&& this.refreshExpires.isAfter(inTwoMinutes)) {
+				refreshTokens();
+				return;
+			}
+		}
+
+		// login again
+		HttpURLConnection c = this.post("/authn/login-with-expiry",String.format(
+				"{\"username\":\"%s\",\"password\":\"%s\"}",this.username,this.password));
+		if (201 != c.getResponseCode())
+			throw new IOException(String.format("%s:%s %s",this.name,this.username,c.getResponseMessage()));
+		parseLoginResponse(c);
+	}
+
+	public void refreshTokens() throws IOException {
+		Map<String,String> headers = new HashMap<>();
+		headers.put("Cookie", String.format("folioRefreshToken=%s; folioAccessToken=%s", this.refreshToken,this.accessToken));
+
+		HttpURLConnection c = post("/authn/refresh","", headers);
+		if (201 != c.getResponseCode())
+			throw new IOException(String.format("%s:%s %s",this.name,this.username,c.getResponseMessage()));
+		parseLoginResponse(c);
+	}
+
+	private void parseLoginResponse(HttpURLConnection c) throws IOException {
+		for (String cookie : c.getHeaderFields().get("Set-Cookie")) {
+			if (cookie.startsWith("folioAccessToken"))
+				this.accessToken = cookie.substring(17,cookie.indexOf(';'));
+			if (cookie.startsWith("folioRefreshToken"))
+				this.refreshToken = cookie.substring(18,cookie.indexOf(';'));
+		}
+		Map<String,Object> response = mapper.readValue(convertStreamToString(c.getInputStream()), Map.class);
+		this.accessExpires = isoDT.parse((String)response.get("accessTokenExpiration"), Instant::from);
+		this.refreshExpires = isoDT.parse((String)response.get("refreshTokenExpiration"), Instant::from);
+	}
+	private static final DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("Z"));
+
+	public HttpURLConnection post(final String endPoint, final String json) throws IOException {
+		return post(endPoint,json,null);
+	}
+
+	public HttpURLConnection post(final String endPoint, final String json, Map<String,String> headers) throws IOException {
+
+		System.out.println(endPoint+" (post)");
 
 		final URL fullPath = new URL(this.url + endPoint);
 		final HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
 		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
+		if (this.accessToken != null)
+			c.setRequestProperty("X-Okapi-Token", this.accessToken);
+		if (headers != null)
+			for (String headerName : headers.keySet())
+				c.setRequestProperty(headerName, headers.get(headerName));
 
 		c.setRequestMethod("POST");
 		c.setDoOutput(true);
@@ -54,23 +120,8 @@ public class OkapiClient {
 		final OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
 		writer.write(json);
 		writer.flush();
-		//      int responseCode = httpConnection.getResponseCode();
-		//      if (responseCode != 200)
-		//          throw new IOException(httpConnection.getResponseMessage());
 
-		String token = c.getHeaderField("x-okapi-token");
-
-		final StringBuilder sb = new StringBuilder();
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "utf-8"))) {
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-		}
-		String response = sb.toString();
-		if ( token != null )
-			return token;
-		return response;
+		return c;
 	}
 
 	public String put(String endPoint, Map<String, Object> object) throws IOException {
@@ -79,6 +130,7 @@ public class OkapiClient {
 
 	public String put(String endPoint, String uuid, String json) throws IOException {
 
+		confirmTokensCurrent();
 		HttpURLConnection c = commonConnectionSetup(endPoint + "/" + uuid);
 		c.setRequestMethod("PUT");
 		c.setDoOutput(true);
@@ -132,6 +184,7 @@ public class OkapiClient {
 	}
 
 	public String getRecord(String endPoint, String uuid) throws IOException {
+		confirmTokensCurrent();
 		HttpURLConnection c = commonConnectionSetup(endPoint + "/" + uuid);
 		int responseCode = c.getResponseCode();
 		if (responseCode != 200)
@@ -160,6 +213,7 @@ public class OkapiClient {
 	}
 
 	public String query(String endPoint, String query, Integer limit) throws IOException {
+		confirmTokensCurrent();
 		StringBuilder sb = new StringBuilder();
 		sb.append(endPoint);
 		if (query != null) {
@@ -190,6 +244,7 @@ public class OkapiClient {
 	}
 
 	public String query(String endPointQuery) throws IOException {
+		confirmTokensCurrent();
 		StringBuilder sb = new StringBuilder();
 		sb.append(endPointQuery);
 		System.out.println(sb.toString());
@@ -260,7 +315,7 @@ public class OkapiClient {
 		HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
 		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
-		c.setRequestProperty("X-Okapi-Token", this.token);
+		c.setRequestProperty("X-Okapi-Token", this.accessToken);
 		return c;
 
 	}
@@ -280,5 +335,41 @@ public class OkapiClient {
 		return sb;
 	}
 
+	private static String convertStreamToString(final java.io.InputStream is) {
+		try (java.util.Scanner s = new java.util.Scanner(is)) {
+			s.useDelimiter("\\A");
+			return s.hasNext() ? s.next() : "";
+		}
+	}
+
+
 	private static ObjectMapper mapper = new ObjectMapper();
+
+
+	public void printLoginStatus(OkapiClient folio) {
+		Instant now = Instant.now();
+		System.out.format("%s:%s; ACCESS: %s; REFRESH: %s\n",
+				this.name,this.username,
+				humanReadableTimespan(now.until(accessExpires,ChronoUnit.SECONDS)),
+				humanReadableTimespan(now.until(refreshExpires,ChronoUnit.SECONDS)));
+	}
+
+	private String humanReadableTimespan(long seconds) {
+		int minuteLen = 60, hourLen = 3600, dayLen = 86_400;
+		if (seconds > dayLen) {
+			long days = seconds / (dayLen);
+			long hours = (seconds-(dayLen*days))/(hourLen);
+			return String.format("%d days, %d hours", days, hours);
+		}
+		if (seconds > hourLen) {
+			long hours = seconds / (hourLen);
+			long minutes = (seconds-(hourLen*hours))/minuteLen;
+			return String.format("%d hours, %d minutes", hours, minutes);
+		}
+		if (seconds > 60) {
+			long minutes = seconds / minuteLen;
+			return String.format("%d minutes, %d seconds", minutes, seconds - (minuteLen*minutes));
+		}
+		return seconds + " seconds";
+	}
 }

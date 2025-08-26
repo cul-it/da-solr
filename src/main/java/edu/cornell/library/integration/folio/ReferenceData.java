@@ -122,12 +122,12 @@ public class ReferenceData {
 			System.out.printf("%s => %s\n", e.getKey(), e.getValue());
 	}
 
-	// PRIVATE VALUES AND METHODS
 
-	private final Map<String, String> dataByName;
-	private final Map<String, String> dataByUuid;
-	private final Map<String, Map<String,String>> entriesByUuid;
+	final Map<String, String> dataByName;
+	final Map<String, String> dataByUuid;
+	final Map<String, Map<String,String>> entriesByUuid;
+	String defaultKey = null;
+
 	private static ObjectMapper mapper = new ObjectMapper();
-	private String defaultKey = null;
 
 }
