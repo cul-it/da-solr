@@ -46,7 +46,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.Http2SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -150,8 +149,8 @@ public class ProcessAuthorityChangeFile {
 					DataField mainEntryField = getHeadField(r);
 					boolean looksLikeAACR2 = looksLikeAACR2(mainEntryField);
 
-					System.out.format("[%s/%d] %s: %s\n",updateFile.replaceAll("[a-z]",""),
-							records.getInt("positionInFile"), id, mainEntry);
+					System.out.format("[%s/%d] %s: %s%s\n",updateFile.replaceAll("[a-z]",""),
+							records.getInt("positionInFile"), id, mainEntry, looksLikeAACR2?" ($d looks like AACR2)":"");
 
 					if ( records.getBoolean("undifferentiated") ) {
 						json.put("undifferentiated", true);
@@ -170,7 +169,7 @@ public class ProcessAuthorityChangeFile {
 					if ( oldR != null ) {
 						Map<String,DataField> differences = compareOldAndNewMarc( oldR, r);
 						actionableHeadings = identifyActionableChanges(
-								differences, r, mainEntryField, mainEntry, mostRecentHeading );
+								differences, r, mainEntryField, mainEntry, mostRecentHeading, looksLikeAACR2 );
 					} else {
 						actionableHeadings = identifyActionableFields(
 								r, changeType.equals(ChangeType.DELETE), mostRecentHeading );
@@ -233,7 +232,7 @@ public class ProcessAuthorityChangeFile {
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip, false, looksLikeAACR2));
+											displayForms.get(displayForm), flags, config, autoFlip, false));
 								}
 								if ( 0 == aspaceCount) continue;
 								displayForms = tabulateActualUnnormalizedHeadings(
@@ -241,16 +240,16 @@ public class ProcessAuthorityChangeFile {
 								for ( String displayForm : displayForms.keySet() ) {
 									if (displayForm.equals(mainEntry)) continue;
 									relevantASpaceChanges.add(buildRelevantChange(displayForm,searchField,facetField,
-											displayForms.get(displayForm), flags, config, autoFlip, true, looksLikeAACR2));
+											displayForms.get(displayForm), flags, config, autoFlip, true));
 								}
 							} else {
 								Map<String,Object> rc = buildRelevantChange(
-										heading,searchField,searchField,recordCount, flags, config, autoFlip, false, looksLikeAACR2);
+										heading,searchField,searchField,recordCount, flags, config, autoFlip, false);
 								relevantChanges.add(rc);
 								if (rc.containsKey("autoFlip"))
 									autoFlip.put(searchField, querySolrForMatchingBibs(solr,searchField,heading));
 								if ( 0 < aspaceCount) relevantASpaceChanges.add(buildRelevantChange(
-										heading,searchField,searchField,aspaceCount, flags, config, autoFlip, true, looksLikeAACR2));
+										heading,searchField,searchField,aspaceCount, flags, config, autoFlip, true));
 							}
 						}
 						if (autoFlip != null && autoFlip.keySet().size() > 3) {
@@ -411,7 +410,7 @@ public class ProcessAuthorityChangeFile {
 		}
 		return false;
 	}
-	static Pattern aacr2DateMarkerPattern = Pattern.compile(".*\\b(ca\\.|fl\\.|cent[^u]|b\\.|d\\..*)");
+	static Pattern aacr2DateMarkerPattern = Pattern.compile(".*\\b(ca\\.|fl\\.|cent[^u]|b\\.|d\\.).*");
 
 	private static String normalizeDates(String before) {
 		return before
@@ -618,7 +617,8 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static Map<String,Change> identifyActionableChanges(
-			Map<String,DataField> differences, MarcRecord r, DataField newMainF, String mainHeading, String currentHeading) {
+			Map<String,DataField> differences, MarcRecord r, DataField newMainF,
+			String mainHeading, String currentHeading, boolean looksLikeAACR2) {
 
 		Map<String,Change> headings = new TreeMap<>();
 		for ( String difference : differences.keySet()) {
@@ -631,7 +631,7 @@ public class ProcessAuthorityChangeFile {
 			for ( Entry<String,EnumSet<DiffType>> e : diffHeadings.entrySet() ) {
 				e.getValue().add((isNew)?DiffType.NEW:DiffType.OLD);
 				if ( ! isNew && f.tag.startsWith("1") && e.getValue().size() == 1) {
-					Map<String,Object> autoFlip = lookForEligibleAutoFlip(newMainF, f);
+					Map<String,Object> autoFlip = (! looksLikeAACR2) ? lookForEligibleAutoFlip(newMainF, f) : null;
 					headings.putIfAbsent(e.getKey(),new Change(e.getValue(), autoFlip));
 				}
 				if (f.tag.startsWith("4") && e.getKey().equals(currentHeading))
@@ -728,7 +728,7 @@ public class ProcessAuthorityChangeFile {
 
 	private static Map<String,Object> buildRelevantChange (
 			String heading, String searchField, String blField, int records, EnumSet<DiffType> flags,
-			Config config, Map<String,Object> autoFlip, boolean aspace, boolean looksLikeAACR2)
+			Config config, Map<String,Object> autoFlip, boolean aspace)
 					throws UnsupportedEncodingException {
 
 		Map<String,Object> rc = new HashMap<>();
@@ -777,8 +777,7 @@ public class ProcessAuthorityChangeFile {
 			rc.put("variantHeadingType", "No $q");
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
-		if (autoFlip != null && ! looksLikeAACR2
-				&& (blField.contains("author") || "lc".equals(vocab) || "fast".equals(vocab)))
+		if (autoFlip != null && (blField.contains("author") || "lc".equals(vocab) || "fast".equals(vocab)))
 			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;
