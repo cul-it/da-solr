@@ -6,12 +6,10 @@
 -->
 <config>
 
-  <luceneMatchVersion>6.0</luceneMatchVersion>
+  <luceneMatchVersion>9.11.1</luceneMatchVersion>
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
 
   <schemaFactory class="ClassicIndexSchemaFactory"/>
-
-  <lib dir="/cul/data/solr/instancelibs/bl2/"/>
 
   <dataDir>${solr.data.dir:}</dataDir>
 

@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
@@ -122,7 +122,7 @@ public class Solr {
 
 
 
-	public static List<List<String>> querySolrForMatchingBibs(HttpSolrClient solr, String field, String heading)
+	public static List<List<String>> querySolrForMatchingBibs(Http2SolrClient solr, String field, String heading)
 			throws SolrServerException, IOException {
 		SolrQuery q = new SolrQuery(field+":\""+heading.replaceAll("\"","'")+'"');
 		q.setRows(99999);
@@ -138,7 +138,7 @@ public class Solr {
 	}
 
 
-	public static int querySolrForMatchingBibCount(HttpSolrClient solr, String field, String heading, boolean aspace) 
+	public static int querySolrForMatchingBibCount(Http2SolrClient solr, String field, String heading, boolean aspace) 
 			throws SolrServerException, IOException {
 		String query = field+":\""+heading.replaceAll("\"","'").replaceAll("\\\\","")+'"';
 		SolrQuery q = new SolrQuery(query);
@@ -151,7 +151,7 @@ public class Solr {
 
 
 	public static Map<String,Integer> tabulateActualUnnormalizedHeadings (
-			HttpSolrClient solr, String heading, String field, String facetField, boolean aspace)
+			Http2SolrClient solr, String heading, String field, String facetField, boolean aspace)
 					throws SolrServerException, IOException {
 
 		Map<String,Boolean> authors = new HashMap<>();

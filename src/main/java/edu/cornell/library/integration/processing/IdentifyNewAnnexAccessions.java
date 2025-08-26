@@ -49,7 +49,7 @@ public class IdentifyNewAnnexAccessions {
 		try ( Connection voyager = config.getDatabaseConnection("Voy");
 				Statement stmt = voyager.createStatement();
 				Connection current = config.getDatabaseConnection("Current");
-				PreparedStatement availQ = AddToQueue.availabilityQueueStmt(current)) {
+				PreparedStatement availQ = AddToQueue.availQueueStmt(current)) {
 			for (List<String> barcodeChunk : barcodeChunks) {
 				String query = "SELECT DISTINCT bib_id FROM item_barcode, mfhd_item, bib_mfhd WHERE item_barcode in ('";
 				query += String.join("', '", barcodeChunk);
