@@ -229,8 +229,9 @@ public class ProcessAuthorityChangeFile {
 										?"author_facet":searchField.replace("browse","facet"));
 								Map<String,Integer> displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField, false);
+
 								for ( String displayForm : displayForms.keySet() ) {
-									if (displayForm.equals(mainEntry)) continue;
+									if (displayForm.equals(mainEntry) || displayForm.equals(mostRecentHeading)) continue;
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
 											displayForms.get(displayForm), flags, config, autoFlip, false));
 								}
@@ -238,7 +239,7 @@ public class ProcessAuthorityChangeFile {
 								displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField, true);
 								for ( String displayForm : displayForms.keySet() ) {
-									if (displayForm.equals(mainEntry)) continue;
+									if (displayForm.equals(mainEntry) || displayForm.equals(mostRecentHeading)) continue;
 									relevantASpaceChanges.add(buildRelevantChange(displayForm,searchField,facetField,
 											displayForms.get(displayForm), flags, config, autoFlip, true));
 								}
