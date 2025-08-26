@@ -91,8 +91,7 @@ public class ProcessGenerationQueue {
 						("SELECT * FROM instanceFolio WHERE hrid = ?");
 				PreparedStatement holdingsByInstanceHrid = current.prepareStatement(
 						"SELECT * FROM holdingFolio WHERE instanceHrid = ?");
-				PreparedStatement availabilityQueueStmt = AddToQueue.availabilityQueueStmt(current);
-				PreparedStatement availabilityQueueStmt2 = AddToQueue.availabilityQueueStmt2(current);
+				PreparedStatement availQueueStmt = AddToQueue.availQueueStmt(current);
 				PreparedStatement headingsQueueStmt = AddToQueue.headingsQueueStmt(current);
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				) {
@@ -243,8 +242,7 @@ public class ProcessGenerationQueue {
 					solrChanges = gen.generateSolr(
 							rec, config, mapper.writeValueAsString(v),forcedGenerators);
 				if (solrChanges.changedSegments != null) {
-					AddToQueue.add2Queue(availabilityQueueStmt, bib, priority, minChangeDate, solrChanges.changedSegments);
-					AddToQueue.add2Queue(availabilityQueueStmt2, bib, priority, minChangeDate, solrChanges.changedSegments);
+					AddToQueue.add2Queue(availQueueStmt, bib, priority, minChangeDate, solrChanges.changedSegments);
 					if (solrChanges.changedHeadingsSegments != null)
 						AddToQueue.add2Queue(headingsQueueStmt, bib, priority, minChangeDate,
 								solrChanges.changedHeadingsSegments);
@@ -265,7 +263,7 @@ public class ProcessGenerationQueue {
 	private static int determineEightsToProcess(Connection current) throws SQLException {
 		try (
 			Statement s = current.createStatement();
-			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availabilityQueue")){
+			ResultSet r = s.executeQuery("SELECT COUNT(*) FROM availQueue")){
 			while ( r.next() ) {
 				int queued = r.getInt(1);
 				if (queued < 8_000) {
