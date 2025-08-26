@@ -29,7 +29,7 @@ public class LDPChangeDetection {
 			  PreparedStatement queueDelete = inventory.prepareStatement
 				("INSERT INTO deleteQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',NOW())");
 			  PreparedStatement queueAvail = inventory.prepareStatement
-				("INSERT INTO availabilityQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)");
+				("INSERT INTO availQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)");
 			  PreparedStatement queueGen = inventory.prepareStatement
 				("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")) {
 
@@ -370,7 +370,7 @@ public class LDPChangeDetection {
 					PreparedStatement deleteCache = inventory.prepareStatement(
 							"DELETE FROM holdingFolio WHERE hrid = ?");
 					PreparedStatement queueAvail = inventory.prepareStatement
-							("INSERT INTO availabilityQueue (hrid,priority,cause,record_date)"
+							("INSERT INTO availQueue (hrid,priority,cause,record_date)"
 									+ " VALUES (?,6,'LDP',NOW())");
 					PreparedStatement queueGen = inventory.prepareStatement
 							("INSERT INTO generationQueue (hrid,priority,cause,record_date)"
@@ -430,7 +430,7 @@ public class LDPChangeDetection {
 					"REPLACE INTO itemFolio (id, hrid, holdingId, holdingHrid, moddate, barcode, content) "+
 					" VALUES (?,?,?,?,?,?,?)");
 			PreparedStatement availGen = inventory.prepareStatement
-					("INSERT INTO availabilityQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")){
+					("INSERT INTO availQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")){
 				ITEM: for (String hrid : c.newerInLDP ) {
 					System.out.println(hrid);
 					itemIdByHridStmt.setString(1, hrid);
@@ -502,7 +502,7 @@ public class LDPChangeDetection {
 					PreparedStatement deleteCache = inventory.prepareStatement(
 							"DELETE FROM itemFolio WHERE hrid = ?");
 					PreparedStatement queueAvail = inventory.prepareStatement(
-							"INSERT INTO availabilityQueue (hrid,priority,cause,record_date)"
+							"INSERT INTO availQueue (hrid,priority,cause,record_date)"
 									+ " VALUES (?,6,'LDP',NOW())")){
 				for (String hrid : c.onlyInFC ) {
 					System.out.println(hrid);

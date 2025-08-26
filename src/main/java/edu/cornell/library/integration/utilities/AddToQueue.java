@@ -12,14 +12,9 @@ public class AddToQueue {
 				"INSERT INTO generationQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
-	public static PreparedStatement availabilityQueueStmt( Connection current ) throws SQLException {
+	public static PreparedStatement availQueueStmt( Connection current ) throws SQLException {
 		return current.prepareStatement(
 				"INSERT INTO availQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
-	}
-
-	public static PreparedStatement availabilityQueueStmt2( Connection current ) throws SQLException {
-		return current.prepareStatement(
-				"INSERT INTO availabilityQueue ( hrid, cause, priority, record_date ) VALUES (?, ?, ?, ?)");
 	}
 
 	public static PreparedStatement headingsQueueStmt( Connection current ) throws SQLException {
