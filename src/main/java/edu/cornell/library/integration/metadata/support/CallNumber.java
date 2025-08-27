@@ -211,7 +211,7 @@ public class CallNumber {
 
 					while (rs.next()) {
 						if (sb.length() > 0)
-							sb.append(":");
+							sb.append(" > ");
 						sb.append(rs.getString("label"));
 						facetVals.add(sb.toString());
 					}
