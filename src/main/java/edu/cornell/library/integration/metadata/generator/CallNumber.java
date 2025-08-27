@@ -15,7 +15,7 @@ import edu.cornell.library.integration.utilities.SolrFields;
 public class CallNumber implements SolrFieldGenerator {
 
 @Override
-public String getVersion() { return "1.2"; }
+public String getVersion() { return "1.3"; }
 
 @Override
 public List<String> getHandledFields() { return Arrays.asList("050","950","holdings"); }
