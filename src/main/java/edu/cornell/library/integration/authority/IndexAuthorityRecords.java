@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.processing;
+package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.addDashesTo_YYYYMMDD_Date;
@@ -12,7 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -45,12 +47,30 @@ public class IndexAuthorityRecords {
 	private static EnumSet<HeadingType> authorTypes = EnumSet.of(
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
+	private static final String ARG_INDEX_ALL = "--index-all";
+	private static final String ARG_SETUP_DB = "--setup-db";
+
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
+		if (args.length > 0 && args[0].equalsIgnoreCase(ARG_INDEX_ALL)) {
+			boolean setupDb = args.length > 1 && args[1].equalsIgnoreCase(ARG_SETUP_DB);
+			indexAllAuthorityRecords(setupDb);
+		} else {
+			indexNewAuthorityRecords();
+		}
+	}
 
+	protected static void indexAllAuthorityRecords(boolean setupDb) throws IOException, SQLException {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
 		Config config = Config.loadConfig(requiredArgs);
+
+		List<String> dbs = Arrays.asList("Authority", "Headings");
+		for (String db : dbs) {
+			if (! config.isDatabaseConfigured("")) {
+				System.out.println("DB " + db + " not configured!");
+			}
+		}
 
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
@@ -59,7 +79,8 @@ public class IndexAuthorityRecords {
 			Set<String> identifiers = getAllIdentifiers(authority);
 
 			//set up database (including populating description maps)
-			setUpDatabase(headings);
+			if (setupDb)
+				setUpDatabase(headings);
 
 			for (String identifier : identifiers) {
 				MarcRecord rec = getMostRecentRecord(authority, identifier);
@@ -75,19 +96,48 @@ public class IndexAuthorityRecords {
 
 				processAuthorityMarc( headings, rec );
 			}
-/*
 
-			int cursor = 0;
-			int batchSize = 100;
-			while (cursor <= maxId) {
-				for (MarcRecord rec : marc.retrieveRecordsByIdRange(RecordType.AUTHORITY, cursor+1, cursor+batchSize))
-				cursor += batchSize;
-			}
-*/
+			updateCursor(headings);
 		}
 	}
 
-	private static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
+	protected static void indexNewAuthorityRecords() throws IOException, SQLException {
+		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
+		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
+		Config config = Config.loadConfig(requiredArgs);
+
+		config.setDatabasePoolsize("Headings", 2);
+		try ( Connection authority = config.getDatabaseConnection("Authority");
+			  Connection headings = config.getDatabaseConnection("Headings") ) {
+
+			String cursor = getCursor(headings);
+			Set<MarcRecord> newRecords = getNewMarcRecords(authority, cursor);
+
+			headings.setAutoCommit(false);
+			for (MarcRecord rec : newRecords) {
+				if (rec == null) continue;
+
+				removeExistingAuthorityRecord(headings, rec);
+
+				String heading = null;
+				for (DataField f : rec.dataFields) if (f.tag.startsWith("1"))
+					heading = nativeHeading(f);
+				Character recordStatus = rec.leader.charAt(5);
+				if ( recordStatus.equals('d') || recordStatus.equals('o')) {
+					System.out.format("%s %s deleted\n", rec.id, heading);
+					continue;
+				}
+
+				processAuthorityMarc( headings, rec );
+				headings.commit();
+			}
+
+			updateCursor(headings);
+			headings.commit();
+		}
+	}
+
+	protected static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
 		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
 				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
 			getAuthStmt.setString(1, identifier);
@@ -111,7 +161,7 @@ public class IndexAuthorityRecords {
 		return null;
 	}
 
-	private static Set<String> getAllIdentifiers(Connection authority) throws SQLException {
+	protected static Set<String> getAllIdentifiers(Connection authority) throws SQLException {
 		Set<String> identifiers = new TreeSet<>();
 		try (Statement stmt = authority.createStatement()) {
 			try (ResultSet rs = stmt.executeQuery("SELECT DISTINCT id FROM authorityUpdate")) {
@@ -129,7 +179,109 @@ public class IndexAuthorityRecords {
 		return identifiers;
 	}
 
-	private static void setUpDatabase(Connection headings) throws SQLException {
+	protected static String getCursor(Statement stmt) throws SQLException {
+		try (ResultSet rs = stmt.executeQuery("SELECT current_to_date FROM headingsUpdateCursor WHERE cursor_name = 'index_authority_records'")) {
+			if (rs.next()) {
+				return rs.getString(1);
+			}
+			return null;
+		}
+	}
+
+	protected static String getCursor(Connection headings) throws SQLException {
+		try (Statement stmt = headings.createStatement()) {
+			String cursor = getCursor(stmt);
+			if (cursor != null) {
+				return cursor;
+			} else {
+				updateCursor(headings, "0000-01-01");
+				return getCursor(stmt);
+			}
+		}
+	}
+
+	protected static void updateCursor(Connection headings, String cursor) throws SQLException {
+		try (PreparedStatement pstmt = headings.prepareStatement("REPLACE INTO headingsUpdateCursor (cursor_name, current_to_date) VALUES ('index_authority_records', ?)")) {
+			pstmt.setString(1, cursor);
+			pstmt.execute();
+		}
+	}
+
+	protected static void updateCursor(Connection headings) throws SQLException {
+		LocalDate today = LocalDate.now();
+		updateCursor(headings, today.toString());
+	}
+
+	protected static Set<MarcRecord> getNewMarcRecords(Connection authority, String cursor) throws SQLException {
+		Set<MarcRecord> records = new TreeSet<>();
+		try (PreparedStatement pstmt = authority.prepareStatement("SELECT DISTINCT id FROM authorityUpdate WHERE moddate > ?")) {
+			pstmt.setString(1, cursor);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					records.add(getMostRecentRecord(authority, rs.getString(1)));
+				}
+			}
+			System.out.format("%d new records in authorityUpdate.\n",records.size());
+		}
+		return records;
+	}
+
+	protected static void removeReference(Connection headings, int authorityId) throws SQLException {
+		/*
+		 * Remove from authority2reference for given authorityId.
+		 * For each of the removed relationship, check if the reference_id has any other relationship to authority.
+		 * If no other relationship is found, also remove the reference itself.
+		 */
+		try (PreparedStatement checkReferenceWithAuthId = headings.prepareStatement("SELECT reference_id FROM authority2reference WHERE authority_id = ?");
+			 PreparedStatement checkReferenceWithRefId = headings.prepareStatement("SELECT authority_id FROM authority2reference WHERE reference_id = ?");
+			 PreparedStatement removeFromAuthority2Reference = headings.prepareStatement("DELETE FROM authority2reference WHERE authority_id = ?");
+			 PreparedStatement removeReference = headings.prepareStatement("DELETE FROM reference WHERE id = ?");) {
+			checkReferenceWithAuthId.setInt(1, authorityId);
+			List<Integer> refIds = new ArrayList<>();
+			try (ResultSet rs = checkReferenceWithAuthId.executeQuery()) {
+				while (rs.next()) {
+					refIds.add(rs.getInt(1));
+				}
+			}
+			removeFromAuthority2Reference.setInt(1, authorityId);
+			removeFromAuthority2Reference.execute();
+			for (Integer refId : refIds) {
+				checkReferenceWithRefId.setInt(1, refId);
+				try (ResultSet refRs = checkReferenceWithRefId.executeQuery()) {
+					if (refRs.next()) {
+						continue;
+					}
+					removeReference.setInt(1, refId);
+					removeReference.executeUpdate();
+				}
+			}
+		}
+	}
+
+	protected static void removeExistingAuthorityRecord(Connection headings, MarcRecord record) throws SQLException, JsonProcessingException {
+		try (PreparedStatement removeFromAuthority2Heading = headings.prepareStatement("DELETE FROM authority2heading WHERE authority_id = ?");
+			 PreparedStatement removeFromAuthority2Reference = headings.prepareStatement("DELETE FROM authority2reference WHERE authority_id = ?");
+			 PreparedStatement removeFromNote = headings.prepareStatement("DELETE FROM note WHERE authority_id = ?");
+			 PreparedStatement removeFromRda = headings.prepareStatement("DELETE FROM rda WHERE authority_id = ?");
+			 PreparedStatement removeFromAuthority = headings.prepareStatement("DELETE FROM authority WHERE id = ?");) {
+
+			AuthorityData a = parseMarcRecord(record);
+			Integer authorityId = getAuthorityId(headings, a);
+			if (authorityId == null) {
+				// a new record
+				return;
+			}
+
+			removeReference(headings, authorityId);
+
+			for (PreparedStatement pstmt : Arrays.asList(removeFromAuthority2Heading, removeFromNote, removeFromRda, removeFromAuthority)) {
+				pstmt.setInt(1, authorityId);
+				pstmt.execute();
+			}
+		}
+	}
+
+	protected static void setUpDatabase(Connection headings) throws SQLException {
 		try ( Statement stmt = headings.createStatement() ) {
 
 			stmt.execute("CREATE TABLE `heading` ("
@@ -233,6 +385,10 @@ public class IndexAuthorityRecords {
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
+		populateStaticData(headings);
+	}
+
+	protected static void populateStaticData( Connection headings ) throws SQLException {
 		try ( PreparedStatement insertDesc = headings.prepareStatement(
 				"INSERT INTO heading_type (id,name) VALUES (? , ?)") ) {
 		for ( HeadingType ht : HeadingType.values()) {
@@ -265,12 +421,9 @@ public class IndexAuthorityRecords {
 				insertAuthSource.executeUpdate();
 			}
 		}
-
 	}
 
-	private static void processAuthorityMarc( Connection headings, MarcRecord rec )
-			throws SQLException, JsonProcessingException  {
-
+	protected static AuthorityData parseMarcRecord(MarcRecord rec) throws JsonProcessingException {
 		AuthorityData a = new AuthorityData();
 
 		for (ControlField f : rec.controlFields) {
@@ -291,6 +444,7 @@ public class IndexAuthorityRecords {
 				}
 			}
 		}
+
 		Collection<String> foundNotes = new HashSet<>();
 		// iterate through fields. Look for main heading and alternate forms.
 		for (DataField f : rec.dataFields) {
@@ -301,7 +455,7 @@ public class IndexAuthorityRecords {
 							// this is a Juvenile subject authority heading, which
 							// we will not represent in the headings browse.
 							System.out.println("Skipping Juvenile subject authority heading: "+rec.id);
-							return;
+							return null;
 						}
 						a.lccn = sf.value;
 					}
@@ -363,20 +517,28 @@ public class IndexAuthorityRecords {
 				}
 			}
 		}
-		if ( a.mainHead == null ) return;
-		if ( a.lccn == null ) a.lccn = "local "+a.catalogId;
-
-		getHeadingId(headings, a.mainHead);
-		getAuthorityId(headings, a);
-		if (a.id == null) return;
-
-		for (String note : a.notes)
-			insertNote(headings, a.mainHead.id(), a.id, note);
 
 		a.expectedNotes.removeAll(foundNotes);
 		if ( ! a.expectedNotes.isEmpty())
 			System.out.println("Expected notes based on 4XX and/or 5XX subfield ws that didn't appear. "+rec.id);
 
+		return a;
+	}
+
+	protected static void processAuthorityMarc( Connection headings, MarcRecord rec )
+			throws SQLException, JsonProcessingException  {
+
+		AuthorityData a = parseMarcRecord(rec);
+		if (a == null || a.mainHead == null) return;
+
+		if ( a.lccn == null ) a.lccn = "local "+a.catalogId;
+
+		getHeadingId(headings, a.mainHead);
+		getSetAuthorityId(headings, a);
+		if (a.id == null) return;
+
+		for (String note : a.notes)
+			insertNote(headings, a.mainHead.id(), a.id, note);
 
 		// Populate incoming 4XX cross references
 		for (Relation r: a.sees) {
@@ -403,7 +565,7 @@ public class IndexAuthorityRecords {
 		return;
 	}
 
-	private static void addToRdaData(RdaData rda, DataField f) {
+	protected static void addToRdaData(RdaData rda, DataField f) {
 
 		String fieldName = null;
 
@@ -464,7 +626,7 @@ public class IndexAuthorityRecords {
 		
 	}
 
-	private static Heading processHeadingField( DataField f, String mainHeading ) {
+	protected static Heading processHeadingField( DataField f, String mainHeading ) {
 
 		Heading parentHeading = null;
 		HeadingType ht = null;
@@ -518,7 +680,7 @@ public class IndexAuthorityRecords {
 		return new Heading( heading, getFilingForm(heading),ht ,parentHeading);
 	}
 
-	private static String nativeHeading( DataField f ) {
+	protected static String nativeHeading( DataField f ) {
 		String main = f.concatenateSpecificSubfields("abcdefghijklmnopqrstu");
 		String dashedTerms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		if ( ! main.isEmpty() && ! dashedTerms.isEmpty() )
@@ -526,7 +688,7 @@ public class IndexAuthorityRecords {
 		return main;
 	}
 
-	private static String dashedHeading(DataField f, HeadingType ht, FieldValues nameFieldVals) {
+	protected static String dashedHeading(DataField f, HeadingType ht, FieldValues nameFieldVals) {
 		String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 		String heading = null;
 		if (ht.equals(HeadingType.WORK)) {
@@ -544,7 +706,7 @@ public class IndexAuthorityRecords {
 		return heading;
 	}
 
-	private static String buildJsonNote(DataField f) throws JsonProcessingException {
+	protected static String buildJsonNote(DataField f) throws JsonProcessingException {
 		List<Object> textBlocks = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		for (Subfield sf : f.subfields) {
@@ -566,7 +728,7 @@ public class IndexAuthorityRecords {
 		return mapper.writeValueAsString(textBlocks);
 	}
 
-	private static void populateRdaInfo(Connection headings, Integer headingId, Integer authorityId, RdaData data)
+	protected static void populateRdaInfo(Connection headings, Integer headingId, Integer authorityId, RdaData data)
 			throws SQLException, JsonProcessingException {
 		String json = data.json();
 		if (json == null) return;
@@ -579,7 +741,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private static void insertNote(Connection headings, Integer headingId, Integer authorityId, String note)
+	protected static void insertNote(Connection headings, Integer headingId, Integer authorityId, String note)
 			throws SQLException {
 		try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO note (heading_id, authority_id, note) VALUES (?,?,?)") ){
@@ -590,14 +752,14 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private static void getAuthorityId(Connection headings, AuthorityData a) throws SQLException {
-		if (a.lccn == null) return;
+	protected static Integer getAuthorityId(Connection headings, AuthorityData a) throws SQLException {
+		if (a.lccn == null) return null;
 		for ( AuthoritySource source : AuthoritySource.values() )
 			if (source.prefix() != null && a.lccn.startsWith(source.prefix()))
 				a.source = source;
 		if (a.source == null) {
 			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
-			return;
+			return null;
 		}
 
 		Integer authorityId = null;
@@ -613,6 +775,13 @@ public class IndexAuthorityRecords {
 					authorityId = resultSet.getInt(1);
 			}
 		}
+
+		return authorityId;
+	}
+
+	protected static void getSetAuthorityId(Connection headings, AuthorityData a) throws SQLException {
+		Integer authorityId = getAuthorityId(headings, a);
+
 		if ( authorityId != null )
 			System.out.println("Possible duplicate authority ID: "+authorityId);
 
@@ -644,7 +813,7 @@ public class IndexAuthorityRecords {
 		a.id = authorityId;
 	}
 
-	private static void storeReferenceAuthority2Heading(Connection headings, Integer headingId, Integer authorityId)
+	protected static void storeReferenceAuthority2Heading(Connection headings, Integer headingId, Integer authorityId)
 			throws SQLException {
 		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,0)")) {
@@ -654,7 +823,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private static void getHeadingId(Connection headings, Heading h) throws SQLException {
+	protected static void getHeadingId(Connection headings, Heading h) throws SQLException {
 
 		if (h.parent() != null)
 			getHeadingId(headings, h.parent());
@@ -694,14 +863,14 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private static void crossRef(
+	protected static void crossRef(
 			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt) throws SQLException {
 		getHeadingId( headings, r.heading );
 		insertRef(headings, r.heading.id(), mainHeadingId, authorityId, rt, r.relationship);
 		storeReferenceAuthority2Heading( headings, r.heading.id(), authorityId );
 	}
 
-	private static void directRef(
+	protected static void directRef(
 			Connection headings, Integer mainHeadingId, Integer authorityId, Relation r, ReferenceType rt)
 					throws SQLException {
 		getHeadingId( headings, r.heading );
@@ -709,7 +878,7 @@ public class IndexAuthorityRecords {
 		storeReferenceAuthority2Heading( headings, r.heading.id(), authorityId );
 	}
 
-	private static void insertRef(Connection headings, int fromId, int toId, int authorityId,
+	protected static void insertRef(Connection headings, int fromId, int toId, int authorityId,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 
 		Integer referenceId = null;
@@ -758,7 +927,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	private static Relation determineRelationship( DataField f ) {
+	protected static Relation determineRelationship( DataField f ) {
 		// Is there a subfield w? The relationship note in subfield w
 		// describes the 4XX or 5XX heading, and must be reversed for the
 		// from tracing.
@@ -936,7 +1105,7 @@ public class IndexAuthorityRecords {
 		boolean display = true;
 	}
 
-	private static class AuthorityData {
+	protected static class AuthorityData {
 		public AuthorityData() { }
 		Integer id = null;
 		String catalogId = null;
