@@ -52,19 +52,9 @@ public class IndexAuthorityRecords {
 
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
-		if (args.length > 0 && args[0].equalsIgnoreCase(ARG_INDEX_ALL)) {
-			boolean setupDb = args.length > 1 && args[1].equalsIgnoreCase(ARG_SETUP_DB);
-			indexAllAuthorityRecords(setupDb);
-		} else {
-			indexNewAuthorityRecords();
-		}
-	}
-
-	protected static void indexAllAuthorityRecords(boolean setupDb) throws IOException, SQLException {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
 		Config config = Config.loadConfig(requiredArgs);
-
 		List<String> dbs = Arrays.asList("Authority", "Headings");
 		for (String db : dbs) {
 			if (! config.isDatabaseConfigured("")) {
@@ -72,6 +62,15 @@ public class IndexAuthorityRecords {
 			}
 		}
 
+		if (args.length > 0 && args[0].equalsIgnoreCase(ARG_INDEX_ALL)) {
+			boolean setupDb = args.length > 1 && args[1].equalsIgnoreCase(ARG_SETUP_DB);
+			indexAllAuthorityRecords(config, setupDb);
+		} else {
+			indexNewAuthorityRecords(config);
+		}
+	}
+
+	protected static void indexAllAuthorityRecords(Config config, boolean setupDb) throws IOException, SQLException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
@@ -101,11 +100,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	protected static void indexNewAuthorityRecords() throws IOException, SQLException {
-		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
-		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
-		Config config = Config.loadConfig(requiredArgs);
-
+	protected static void indexNewAuthorityRecords(Config config) throws IOException, SQLException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {

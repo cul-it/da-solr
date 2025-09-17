@@ -26,14 +26,6 @@ import edu.cornell.library.integration.utilities.Config;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class IndexAuthorityRecordsTest extends DbBaseTest {
-	protected List<Integer> authorityIdToClean = new ArrayList<>();
-	protected Map<String, String> cleanUpDefinition = Map.of(
-			"authority2heading", "authority_id",
-			"authority2reference", "authority_id",
-			"note", "authority_id",
-			"rda", "authority_id",
-			"authority", "id"
-			);
 
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
@@ -50,7 +42,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 	public void testIndexAllAuthorityRecords() throws SQLException, FileNotFoundException, IOException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			IndexAuthorityRecords.indexAllAuthorityRecords(false);
+			IndexAuthorityRecords.indexAllAuthorityRecords(config, false);
 
 			PreparedStatement authByNativeId = headings.prepareStatement("SELECT id FROM authority WHERE source = 1 AND nativeId = ?");
 			Integer authId = dbQueryGetInt(authByNativeId, "sh 85066169");
@@ -105,7 +97,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			headingUpdate.executeUpdate();
 
 			IndexAuthorityRecords.updateCursor(headings, "2021-01-15");
-			IndexAuthorityRecords.indexNewAuthorityRecords();
+			IndexAuthorityRecords.indexNewAuthorityRecords(config);
 
 			Integer newAuthId = dbQueryGetInt(authByNativeId, "sh 85066169");
 			assert newAuthId != null;
