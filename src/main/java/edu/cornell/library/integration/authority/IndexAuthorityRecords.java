@@ -298,6 +298,7 @@ public class IndexAuthorityRecords {
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`note` text NOT NULL, "
 					+ "KEY (`heading_id`)) "
+					+ "KEY (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 			stmt.execute("CREATE TABLE `authority_source` ("
@@ -367,6 +368,7 @@ public class IndexAuthorityRecords {
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`rda` text NOT NULL, "
 					+ "KEY `heading_id` (`heading_id`)) "
+					+ "KEY `authority_id` (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
 			stmt.execute("CREATE TABLE `bib2heading` ( "
