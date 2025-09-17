@@ -141,7 +141,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 		else
 			return null;
 	}
-	
+
 	public List<Integer> dbQuery(PreparedStatement pstmt, String arg) throws SQLException {
 		pstmt.setString(1, arg);
 		ResultSet rs = pstmt.executeQuery();
