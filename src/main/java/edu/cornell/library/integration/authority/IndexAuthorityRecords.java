@@ -106,10 +106,11 @@ public class IndexAuthorityRecords {
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
 			String cursor = getCursor(headings);
-			Set<MarcRecord> newRecords = getNewMarcRecords(authority, cursor);
+			Set<String> identifiers = getNewIdentifiers(authority, cursor);
 
 			headings.setAutoCommit(false);
-			for (MarcRecord rec : newRecords) {
+			for (String identifier : identifiers) {
+				MarcRecord rec = getMostRecentRecord(authority, identifier);
 				if (rec == null) continue;
 
 				removeExistingAuthorityRecord(headings, rec);
@@ -207,18 +208,18 @@ public class IndexAuthorityRecords {
 		updateCursor(headings, today.toString());
 	}
 
-	protected static Set<MarcRecord> getNewMarcRecords(Connection authority, String cursor) throws SQLException {
-		Set<MarcRecord> records = new TreeSet<>();
+	protected static Set<String> getNewIdentifiers(Connection authority, String cursor) throws SQLException {
+		Set<String> identifiers = new TreeSet<>();
 		try (PreparedStatement pstmt = authority.prepareStatement("SELECT DISTINCT id FROM authorityUpdate WHERE moddate > ?")) {
 			pstmt.setString(1, cursor);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					records.add(getMostRecentRecord(authority, rs.getString(1)));
+					identifiers.add(rs.getString(1));
 				}
 			}
-			System.out.format("%d new records in authorityUpdate.\n",records.size());
+			System.out.format("%d new records in authorityUpdate.\n",identifiers.size());
 		}
-		return records;
+		return identifiers;
 	}
 
 	protected static void removeReference(Connection headings, int authorityId) throws SQLException {

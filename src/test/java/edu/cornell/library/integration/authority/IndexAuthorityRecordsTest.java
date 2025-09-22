@@ -67,14 +67,15 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 	public void testIndexNewAuthorityRecords() throws SQLException, FileNotFoundException, IOException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			Set<MarcRecord> recs = IndexAuthorityRecords.getNewMarcRecords(authority, "2025-01-15");
-			assert recs.size() == 0;
+			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2025-01-15");
+			assert identifiers.size() == 0;
 
-			recs = IndexAuthorityRecords.getNewMarcRecords(authority, "2021-01-15");
-			assert recs.size() == 1;
+			identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2021-01-15");
+			assert identifiers.size() == 1;
 
 			Map<String, Integer> authIds = new TreeMap<>();
-			for (MarcRecord mr : recs) {
+			for (String identifier: identifiers) {
+				MarcRecord mr = IndexAuthorityRecords.getMostRecentRecord(authority, identifier);
 				AuthorityData ad = IndexAuthorityRecords.parseMarcRecord(mr);
 				authIds.put(ad.lccn, ad.id);
 			}
