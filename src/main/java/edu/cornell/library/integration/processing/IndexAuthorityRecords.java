@@ -111,7 +111,7 @@ public class IndexAuthorityRecords {
 		return null;
 	}
 
-	private static Set<String> getAllIdentifiers(Connection authority) throws SQLException {
+	public static Set<String> getAllIdentifiers(Connection authority) throws SQLException {
 		Set<String> identifiers = new TreeSet<>();
 		try (Statement stmt = authority.createStatement()) {
 			try (ResultSet rs = stmt.executeQuery("SELECT DISTINCT id FROM authorityUpdate")) {
