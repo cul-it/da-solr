@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.xml.stream.XMLStreamException;
+
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -31,38 +33,46 @@ public class Compile00815 {
 			for (String identifier : identifiers) {
 				String heading = null;
 				MarcRecord rec = null;
+				String recSource = null;
 				try ( PreparedStatement getAuthStmt = authority.prepareStatement(
-						"SELECT marc21, heading FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+						"SELECT marc21, heading, updateFile FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
 					getAuthStmt.setString(1, identifier);
 					try (ResultSet rs = getAuthStmt.executeQuery()) {
 						while (rs.next()) {
 							rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
 							heading = rs.getString("heading");
+							recSource = rs.getString("updateFile");
 						}
 					}
 					
 				}
 				if (heading == null)
 					try ( PreparedStatement getAuthStmt = authority.prepareStatement(
-							"SELECT marc21 FROM voyagerAuthority WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+							"SELECT marcxml FROM voyagerAuthority WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
 						getAuthStmt.setString(1, identifier);
 						try (ResultSet rs = getAuthStmt.executeQuery()) {
 							while (rs.next()) {
-								rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
+								rec = new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getString("marcxml"),false);
 								heading = mainHeading(rec);
+								recSource = "voyager";
 							}
 						} catch (IllegalArgumentException e) {
 							System.out.format("ERROR: IllegalArgumentException %s (%s)\n", e.getMessage(), identifier);
+						} catch (XMLStreamException e) {
+							System.out.format("ERROR: XML Error %s (%s)\n",e.getMessage(),identifier);
 						}
 						
 					}
+
+				if (rec == null) continue;
+
 				Character recordStatus = rec.leader.charAt(5);
 				if ( recordStatus.equals('d') || recordStatus.equals('o')) continue;
 
 				Character eightFifteen = null;
 				for (ControlField f : rec.controlFields) if (f.tag.equals("008")) eightFifteen = f.value.charAt(15);
 
-				System.out.format("%s\t%s\t%s\n", identifier, heading, eightFifteen);
+				System.out.format("%s\t%s\t%s\t%s\n", identifier, recSource, heading, eightFifteen);
 			}
 
 		}
