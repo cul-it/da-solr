@@ -14,15 +14,12 @@ import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
 import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
- * Currently, the only record types are "Catalog" and "Shadow", where shadow records are 
- * detected through a 948‡h note. Blacklight searches will be filtered to type:Catalog,
- * so only records that should NOT be returned in Blacklight work-level searches should
- * vary from this.
+ * Record type "Catalog" is required to be visible in Blacklight.
  */
 public class RecordType implements SolrFieldGenerator {
 
 	@Override
-	public String getVersion() { return "1.4"; }
+	public String getVersion() { return "1.5"; }
 
 	@Override
 	public List<String> getHandledFields() { return Arrays.asList("948","holdings","instance"); }
@@ -54,8 +51,9 @@ public class RecordType implements SolrFieldGenerator {
 		if (isShadow)
 			sfs.add(new SolrField("type","Shadow"));
 		else
-			sfs.add(getTypeField(rec.instance,statCodes,true, hasUnsuppressedHolding));
-		sfs.add(new SolrField("source","Folio"));
+			sfs.add(getTypeField(rec.instance,statCodes,"MARC", hasUnsuppressedHolding));
+		sfs.add(new SolrField("source","MARC"));
+
 		if ( statCodes != null ) {
 			for (String code : statCodes )
 				sfs.add(new SolrField("statcode_facet","instance_"+code));
@@ -66,7 +64,7 @@ public class RecordType implements SolrFieldGenerator {
 	}
 
 	private static SolrField getTypeField(
-			Map<String, Object> instance, List<String> statCodes, boolean hasMarc, boolean hasUnsuppressedHolding ) {
+			Map<String, Object> instance, List<String> statCodes, String source, boolean hasUnsuppressedHolding ) {
 
 		if ( instance != null &&
 				(( instance.containsKey("discoverySuppress") && (boolean) instance.get("discoverySuppress") )
@@ -74,10 +72,10 @@ public class RecordType implements SolrFieldGenerator {
 			return new SolrField("type","Suppressed Bib");
 		else if ( statCodes != null && statCodes.contains("Delete") )
 			return new SolrField("type","Delete");
-		else if (hasMarc || hasUnsuppressedHolding)
+		else if (source.equals("MARC") || (source.equals("FOLIO") && hasUnsuppressedHolding))
 			return new SolrField("type","Catalog");
 		else
-			return new SolrField("type","Non-MARC Instance");
+			return new SolrField("type","Hidden not suppressed");
 	}
 
 	@Override
@@ -97,8 +95,9 @@ public class RecordType implements SolrFieldGenerator {
 			}
 
 		SolrFields sfs = new SolrFields();
-		sfs.add(getTypeField(instance,statCodes,false, hasUnsuppressedHolding));
-		sfs.add(new SolrField("source","Folio"));
+		String source = (String)instance.get("source");
+		sfs.add(getTypeField(instance,statCodes,source, hasUnsuppressedHolding));
+		sfs.add(new SolrField("source",source));
 		if (statCodes != null ) {
 			for (String code : statCodes ) sfs.add(new SolrField("statcode_facet","instance_"+code));
 			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));

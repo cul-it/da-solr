@@ -17,8 +17,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 
@@ -67,28 +66,25 @@ public class Headings2Solr {
 		this.config.setDatabasePoolsize("Headings", 2);
 		this.connection = this.config.getDatabaseConnection("Headings");
 
-		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getSubjectSolrUrl());
-				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(this.config.getSubjectSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadingCategory.SUBJECT);
-			solr_u.blockUntilFinished();
+		try (Http2SolrClient solr = new Http2SolrClient
+				.Builder(this.config.getSubjectSolrUrl())
+				.withBasicAuthCredentials(this.config.getSolrUser(),this.config.getSolrPassword()).build()){
+			findWorks(solr, HeadingCategory.SUBJECT);
 		}
-		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getAuthorSolrUrl());
-				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(this.config.getAuthorSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadingCategory.AUTHOR);
-			solr_u.blockUntilFinished();
+		try (Http2SolrClient solr = new Http2SolrClient
+				.Builder(this.config.getAuthorSolrUrl())
+				.withBasicAuthCredentials(this.config.getSolrUser(),this.config.getSolrPassword()).build()){
+			findWorks(solr, HeadingCategory.AUTHOR);
 		}
-		try ( HttpSolrClient solr_q = new HttpSolrClient(this.config.getAuthorTitleSolrUrl());
-				ConcurrentUpdateSolrClient solr_u =
-						new ConcurrentUpdateSolrClient(this.config.getAuthorTitleSolrUrl(),1000,5) ){
-			findWorks(solr_u, solr_q, HeadingCategory.AUTHORTITLE);
-			solr_u.blockUntilFinished();
+		try (Http2SolrClient solr = new Http2SolrClient
+				.Builder(this.config.getAuthorTitleSolrUrl())
+				.withBasicAuthCredentials(this.config.getSolrUser(),this.config.getSolrPassword()).build()){
+			findWorks(solr, HeadingCategory.AUTHORTITLE);
 		}
 		this.connection.close();
 	}
 
-	private void findWorks(ConcurrentUpdateSolrClient solr_u, HttpSolrClient solr_q, HeadingCategory hc)
+	private void findWorks(Http2SolrClient solr , HeadingCategory hc)
 			throws SolrServerException, IOException, SQLException {
 		String query =
 			"SELECT h.* "
@@ -102,7 +98,7 @@ public class Headings2Solr {
 			+ "    OR h2."+hc.dbField()+" > 0"
 			+ " GROUP BY h.id";
 		Collection<SolrInputDocument> docs = new ArrayList<>();
-		Date mostRecentDate = getMostRecentSolrDate( solr_q );
+		Date mostRecentDate = getMostRecentSolrDate( solr );
 		if (mostRecentDate != null)
 			System.out.println("Before processing, the most recent timestamp in Solr is "+
 					formatter.format( mostRecentDate.toInstant() ));
@@ -144,20 +140,20 @@ public class Headings2Solr {
 					docs.add(doc);
 					if (docs.size() == 5_000) {
 						System.out.printf("%d: %s\n",id,rs.getString("heading"));
-						solr_u.add(docs);
+						solr.add(docs);
 						docs.clear();
 					}
 				}
 				if ( ! docs.isEmpty() )
-					solr_u.add(docs);
+					solr.add(docs);
 				if ( mostRecentDate != null )
-					solr_u.deleteByQuery(String.format(
+					solr.deleteByQuery(String.format(
 							"timestamp:[ * TO \"%s\"]",formatter.format( mostRecentDate.toInstant() )));
 			}
 		}
 	}
 	
-	private static Date getMostRecentSolrDate(HttpSolrClient solr_q) throws SolrServerException, IOException {
+	private static Date getMostRecentSolrDate(Http2SolrClient solr_q) throws SolrServerException, IOException {
 		SolrQuery q = new SolrQuery("*:*");
 		q.setRows(1);
 		q.setSort("timestamp", SolrQuery.ORDER.desc);

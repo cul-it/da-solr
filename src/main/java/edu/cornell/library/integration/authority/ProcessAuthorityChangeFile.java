@@ -1,9 +1,9 @@
 package edu.cornell.library.integration.authority;
 
 import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
-import static edu.cornell.library.integration.authority.Solr.tabulateActualUnnormalizedHeadings;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibCount;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
+import static edu.cornell.library.integration.authority.Solr.tabulateActualUnnormalizedHeadings;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
 import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
@@ -39,11 +39,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -105,7 +108,9 @@ public class ProcessAuthorityChangeFile {
 		String autoFlipFile = outputFile.replaceAll(".json", "-candidates.json");
 
 		try ( Connection authority = config.getDatabaseConnection("Authority");
-				HttpSolrClient solr = new HttpSolrClient(config.getBlacklightSolrUrl());
+				Http2SolrClient solr = new Http2SolrClient
+						.Builder(config.getBlacklightSolrUrl())
+						.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();
 				PreparedStatement getAuthStmt = authority.prepareStatement(
 						"SELECT *"+
 						"  FROM authorityUpdate"+
@@ -141,9 +146,11 @@ public class ProcessAuthorityChangeFile {
 					String mainEntry = records.getString("heading").replaceAll("\\\\$", "");
 					json.put("heading",mainEntry);
 					AuthoritySource vocab = AuthoritySource.byOrdinal(records.getInt("vocabulary"));
+					DataField mainEntryField = getHeadField(r);
+					boolean looksLikeAACR2 = looksLikeAACR2(mainEntryField);
 
-					System.out.format("[%s/%d] %s: %s\n",updateFile.replaceAll("[a-z]",""),
-							records.getInt("positionInFile"), id, mainEntry);
+					System.out.format("[%s/%d] %s: %s%s\n",updateFile.replaceAll("[a-z]",""),
+							records.getInt("positionInFile"), id, mainEntry, looksLikeAACR2?" ($d looks like AACR2)":"");
 
 					if ( records.getBoolean("undifferentiated") ) {
 						json.put("undifferentiated", true);
@@ -156,15 +163,16 @@ public class ProcessAuthorityChangeFile {
 					MarcRecord oldR = null;
 					if ( lookForOldRecordVersion )
 						oldR = getOldRecordVersion(authority, id, records.getDate("moddate"), mainEntry, json);
+					String mostRecentHeading = getMostRecentHeadingVersion(authority, id);
 
 					Map<String,Change> actionableHeadings = null;
 					if ( oldR != null ) {
 						Map<String,DataField> differences = compareOldAndNewMarc( oldR, r);
-						actionableHeadings = identifyActionableChanges( differences, r, getHeadField(r), mainEntry );
-
+						actionableHeadings = identifyActionableChanges(
+								differences, r, mainEntryField, mainEntry, mostRecentHeading, looksLikeAACR2 );
 					} else {
 						actionableHeadings = identifyActionableFields(
-								r, changeType.equals(ChangeType.DELETE) );
+								r, changeType.equals(ChangeType.DELETE), mostRecentHeading );
 					}
 
 					if ( actionableHeadings.isEmpty() ) continue;
@@ -176,6 +184,7 @@ public class ProcessAuthorityChangeFile {
 					List<Map<String,Object>> relevantASpaceChanges = new ArrayList<>();
 					for (String field : actionableHeadings.keySet() ) {
 						EnumSet<DiffType> flags = actionableHeadings.get(field).flags;
+						if ( flags.contains(DiffType.CURRENT) ) continue;
 						Map<String,Object> autoFlip = actionableHeadings.get(field).autoFlip;
 						HeadingType ht = HeadingType.byAuthField("1"+field.substring(1, 3));
 						String heading = field.substring(4);
@@ -220,8 +229,9 @@ public class ProcessAuthorityChangeFile {
 										?"author_facet":searchField.replace("browse","facet"));
 								Map<String,Integer> displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField, false);
+
 								for ( String displayForm : displayForms.keySet() ) {
-									if (displayForm.equals(mainEntry)) continue;
+									if (displayForm.equals(mainEntry) || displayForm.equals(mostRecentHeading)) continue;
 									relevantChanges.add(buildRelevantChange(displayForm,searchField,facetField,
 											displayForms.get(displayForm), flags, config, autoFlip, false));
 								}
@@ -229,7 +239,7 @@ public class ProcessAuthorityChangeFile {
 								displayForms = tabulateActualUnnormalizedHeadings(
 										solr, heading, searchField, facetField, true);
 								for ( String displayForm : displayForms.keySet() ) {
-									if (displayForm.equals(mainEntry)) continue;
+									if (displayForm.equals(mainEntry) || displayForm.equals(mostRecentHeading)) continue;
 									relevantASpaceChanges.add(buildRelevantChange(displayForm,searchField,facetField,
 											displayForms.get(displayForm), flags, config, autoFlip, true));
 								}
@@ -310,6 +320,17 @@ public class ProcessAuthorityChangeFile {
 			System.out.format("Auto-flip job launch unsuccessful. %d: %s\n", c.getResponseCode(), c.getResponseMessage());
 	}
 
+	private static String getMostRecentHeadingVersion(Connection authority, String id) throws SQLException {
+		try( PreparedStatement mostRecentHeadingStmt = authority.prepareStatement(
+				"SELECT heading FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+			mostRecentHeadingStmt.setString(1, id);
+			try (ResultSet rs = mostRecentHeadingStmt.executeQuery()) {
+				while (rs.next()) return rs.getString(1);
+			}
+		}
+		return null;
+	}
+
 	private static Map<String,Object> lookForEligibleAutoFlip(DataField newHead, DataField oldHead) {
 
 		// DATE CLOSURE FLIP
@@ -381,6 +402,16 @@ public class ProcessAuthorityChangeFile {
 			return null;
 		}
 	}
+
+	private static boolean looksLikeAACR2(DataField nameField) {
+		if ( ! nameField.mainTag.endsWith("00") ) return false;
+		for (Subfield sf : nameField.subfields) if (sf.code.equals('d')) {
+			Matcher m = aacr2DateMarkerPattern.matcher(sf.value);
+			return m.matches();
+		}
+		return false;
+	}
+	static Pattern aacr2DateMarkerPattern = Pattern.compile(".*\\b(ca\\.|fl\\.|cent[^u]|b\\.|d\\.).*");
 
 	private static String normalizeDates(String before) {
 		return before
@@ -567,7 +598,7 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static Map<String,Change> identifyActionableFields(
-			MarcRecord r, boolean isDelete) {
+			MarcRecord r, boolean isDelete, String currentHeading) {
 		Map<String,Change> fields = new HashMap<>();
 		for (DataField f : r.dataFields) {
 			if ( ! f.tag.startsWith("1") && ! f.tag.startsWith("4") && ! f.tag.startsWith("78")) continue;
@@ -575,6 +606,7 @@ public class ProcessAuthorityChangeFile {
 			String dashed_terms = f.concatenateSpecificSubfields(" > ", "vxyz");
 			EnumSet<DiffType> flags = EnumSet.noneOf(DiffType.class);
 			if (f.tag.startsWith("1") && ! isDelete) flags.add(DiffType.NEWMAIN);
+			if (f.tag.startsWith("4") && heading.equals(currentHeading)) flags.add(DiffType.CURRENT);
 			if ( heading.isEmpty() ) {
 				if ( ! dashed_terms.isEmpty() ) fields.put(f.tag+" "+dashed_terms,new Change(flags));
 			} else {
@@ -586,7 +618,8 @@ public class ProcessAuthorityChangeFile {
 	}
 
 	private static Map<String,Change> identifyActionableChanges(
-			Map<String,DataField> differences, MarcRecord r, DataField newMainF, String mainHeading) {
+			Map<String,DataField> differences, MarcRecord r, DataField newMainF,
+			String mainHeading, String currentHeading, boolean looksLikeAACR2) {
 
 		Map<String,Change> headings = new TreeMap<>();
 		for ( String difference : differences.keySet()) {
@@ -599,9 +632,11 @@ public class ProcessAuthorityChangeFile {
 			for ( Entry<String,EnumSet<DiffType>> e : diffHeadings.entrySet() ) {
 				e.getValue().add((isNew)?DiffType.NEW:DiffType.OLD);
 				if ( ! isNew && f.tag.startsWith("1") && e.getValue().size() == 1) {
-					Map<String,Object> autoFlip = lookForEligibleAutoFlip(newMainF, f);
+					Map<String,Object> autoFlip = (! looksLikeAACR2) ? lookForEligibleAutoFlip(newMainF, f) : null;
 					headings.putIfAbsent(e.getKey(),new Change(e.getValue(), autoFlip));
 				}
+				if (f.tag.startsWith("4") && e.getKey().equals(currentHeading))
+					e.getValue().add(DiffType.CURRENT);
 				headings.putIfAbsent(e.getKey(),new Change(e.getValue()));
 			}
 		}
@@ -688,7 +723,7 @@ public class ProcessAuthorityChangeFile {
 		return headings;
 	}
 	private enum DiffType {
-		NEWMAIN, DIACR, UNCH, VAR_Q, VAR_D, VAR_QD, OLD, NEW;
+		NEWMAIN, DIACR, UNCH, VAR_Q, VAR_D, VAR_QD, OLD, NEW, CURRENT;
 	}
 
 
@@ -743,8 +778,7 @@ public class ProcessAuthorityChangeFile {
 			rc.put("variantHeadingType", "No $q");
 		if (flags.contains(DiffType.VAR_QD))
 			rc.put("variantHeadingType", "No $q or $d");
-		if (autoFlip != null
-				&& (blField.contains("author") || "lc".equals(vocab) || "fast".equals(vocab)))
+		if (autoFlip != null && (blField.contains("author") || "lc".equals(vocab) || "fast".equals(vocab)))
 			rc.put("autoFlip", autoFlip.get("name"));
 
 		return rc;

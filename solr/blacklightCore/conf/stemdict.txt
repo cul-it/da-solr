@@ -1,0 +1,5 @@
+superheroes	superhero
+waterers	waterer
+working	work
+dogs	dog
+cards	card

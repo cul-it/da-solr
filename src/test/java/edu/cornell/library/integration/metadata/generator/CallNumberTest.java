@@ -42,13 +42,13 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: PJ7916.I55999 D43 2019\n" + 
 		"callnum_sort: PJ7916.I55999 D43 2019\n" + 
 		"lc_callnum_facet: P - Language & Literature\n" +
-		"lc_callnum_facet: P - Language & Literature:PJ - Oriental Philology and Literature\n" + 
-		"lc_callnum_facet: P - Language & Literature:PJ - Oriental Philology and Literature:"
+		"lc_callnum_facet: P - Language & Literature > PJ - Oriental Philology and Literature\n" + 
+		"lc_callnum_facet: P - Language & Literature > PJ - Oriental Philology and Literature > "
 		+ "PJ6001-8517 - Arabic\n" + 
-		"lc_callnum_facet: P - Language & Literature:PJ - Oriental Philology and Literature:"
-		+ "PJ6001-8517 - Arabic:PJ7501-8517 - Arabic literature\n" + 
-		"lc_callnum_facet: P - Language & Literature:PJ - Oriental Philology and Literature:"
-		+ "PJ6001-8517 - Arabic:PJ7501-8517 - Arabic literature:"
+		"lc_callnum_facet: P - Language & Literature > PJ - Oriental Philology and Literature > "
+		+ "PJ6001-8517 - Arabic > PJ7501-8517 - Arabic literature\n" + 
+		"lc_callnum_facet: P - Language & Literature > PJ - Oriental Philology and Literature > "
+		+ "PJ6001-8517 - Arabic > PJ7501-8517 - Arabic literature > "
 		+ "PJ7695.8-7976 - Individual authors or works\n";
 		assertEquals(expected, gen.generateSolrFields(rec, config).toString());
 	}

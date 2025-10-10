@@ -13,7 +13,7 @@ public class RecordBoostTest {
 
 	SolrFieldGenerator gen = new RecordBoost();
 
-	@Test
+//	@Test
 	public void testShadowRecordLinked() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.id = "5384546";

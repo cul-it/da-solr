@@ -119,36 +119,55 @@ public class Config {
 	}
 
 	public String getBlacklightSolrUrl() {
-		if (this.values.containsKey("blacklightSolrUrl")) {
-			return this.values.get("blacklightSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("blacklightSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("blacklightSolrCore");
+			}
+			return null;
 	}
 
 	public String getAuthorSolrUrl() {
-		if (this.values.containsKey("authorSolrUrl")) {
-			return this.values.get("authorSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("authorSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("authorSolrCore");
+			}
+			return null;
 	}
 
 	public String getAuthorTitleSolrUrl() {
-		if (this.values.containsKey("authorTitleSolrUrl")) {
-			return this.values.get("authorTitleSolrUrl");
-		}
-		return null;
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("authorTitleSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("authorTitleSolrCore");
+			}
+			return null;
 	}
 
 	public String getSubjectSolrUrl() {
-		if (this.values.containsKey("subjectSolrUrl")) {
-			return this.values.get("subjectSolrUrl");
+		if (this.values.containsKey("solrUrl") &&
+			this.values.containsKey("subjectSolrCore")) {
+			return this.values.get("solrUrl")+"/"+this.values.get("subjectSolrCore");
 		}
 		return null;
 	}
 
 	public String getCallnumSolrUrl() {
-		if (this.values.containsKey("callnumSolrUrl")) {
-			return this.values.get("callnumSolrUrl");
+		if (this.values.containsKey("solrUrl") &&
+				this.values.containsKey("callnumSolrCore")) {
+				return this.values.get("solrUrl")+"/"+this.values.get("callnumSolrCore");
+			}
+			return null;
+	}
+
+	public String getSolrUser() {
+		if (this.values.containsKey("solrUser")) {
+			return this.values.get("solrUser");
+		}
+		return null;
+	}
+
+	public String getSolrPassword() {
+		if (this.values.containsKey("solrPassword")) {
+			return this.values.get("solrPassword");
 		}
 		return null;
 	}
@@ -449,14 +468,16 @@ public class Config {
 	 * Returns empty String if configuration is good. Otherwise, it returns a
 	 * message describing what is missing or problematic.
 	 */
-	private static String checkConfiguration(Collection<String> requiredArgs, Config checkMe) {
+	private static String checkConfiguration(Collection<String> requiredArgs, Config configToCheck) {
 		String errMsgs = "";
 
 		for (String arg : requiredArgs)
-			if (arg.endsWith("Url") || arg.endsWith("UriPrefix"))
-				errMsgs += checkUrl(arg, checkMe.values.get(arg));
+			if (arg.endsWith("SolrUrl"))
+				errMsgs += checkSolrUrl(arg, configToCheck);
+			else if (arg.endsWith("Url") || arg.endsWith("UriPrefix"))
+				errMsgs += checkUrl(arg, configToCheck.values.get(arg));
 			else
-				errMsgs += checkExists(arg, checkMe.values.get(arg));
+				errMsgs += checkExists(arg, configToCheck.values.get(arg));
 
 		return errMsgs;
 	}
@@ -466,6 +487,38 @@ public class Config {
 			return "The property " + propName + " must not be empty or null.\n";
 		return "";
 	}
+
+	private static String checkSolrUrl(String propName, Config configToCheck) {
+		String errMsgs = "";
+		if (! configToCheck.values.containsKey("solrUrl") ) 
+			errMsgs += "solrUrl is a required parameter in suppled config for this task.";
+		if (! configToCheck.values.containsKey("solrUser") ) 
+			errMsgs += "solrUser is a required parameter in suppled config for this task.";
+		if (! configToCheck.values.containsKey("solrPassword") ) 
+			errMsgs += "solrPassword is a required parameter in suppled config for this task.";
+		if (propName.equals("blacklightSolrUrl")) {
+			if (! configToCheck.values.containsKey("blacklightSolrCore"))
+				errMsgs += "blacklightSolrCore is a required parameter in suppled config for this task.";
+		} else if (propName.equals("authorSolrUrl")) {
+			if (! configToCheck.values.containsKey("authorSolrCore"))
+				errMsgs += "authorSolrCore is a required parameter in suppled config for this task.";
+		} else if (propName.equals("authorTitleSolrUrl")) {
+			if (! configToCheck.values.containsKey("authorTitleSolrCore"))
+				errMsgs += "authorTitleSolrCore is a required parameter in suppled config for this task.";
+		} else if (propName.equals("subjectSolrUrl")) {
+			if (! configToCheck.values.containsKey("subjectSolrCore"))
+				errMsgs += "subjectSolrCore is a required parameter in suppled config for this task.";
+		} else if (propName.equals("callnumSolrUrl")) {
+			if (! configToCheck.values.containsKey("callnumSolrCore"))
+				errMsgs += "callnumSolrCore is a required parameter in suppled config for this task.";
+		} else {
+			errMsgs += propName;
+			errMsgs += " is not a valid Solr Url.";
+		}
+			
+		return errMsgs;
+	}
+
 
 	private static String checkUrl(String propName, String value) {
 		if (value == null || value.trim().isEmpty())

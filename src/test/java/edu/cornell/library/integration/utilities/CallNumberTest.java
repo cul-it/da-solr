@@ -40,8 +40,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: QA611 .R123.6\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -54,8 +54,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: Thesis QA611 .R123.6\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -68,8 +68,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: QA611 .R123.6\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -92,8 +92,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_bib_display: QA611 .R123.6\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -110,8 +110,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: Video 8\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -129,8 +129,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: Video 8\n"+
 		"callnum_sort: QA611 .R123.6\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 
@@ -146,8 +146,8 @@ public class CallNumberTest extends DbBaseTest {
 		"lc_callnum_full: Video 7\n"+
 		"callnum_sort: Video 7\n"+
 		"lc_callnum_facet: Q - Science\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics\n"+
-		"lc_callnum_facet: Q - Science:QA - Mathematics:QA440-699 - Geometry.  Trigonometry.  Topology\n";
+		"lc_callnum_facet: Q - Science > QA - Mathematics\n"+
+		"lc_callnum_facet: Q - Science > QA - Mathematics > QA440-699 - Geometry.  Trigonometry.  Topology\n";
 		assertEquals(expected,cn.getCallNumberFields(config).toString());
 	}
 }
