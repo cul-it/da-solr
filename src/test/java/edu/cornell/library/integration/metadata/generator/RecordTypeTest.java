@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -41,19 +43,6 @@ public class RecordTypeTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
 
-	@Test
-	public void testShadowRecordHoldingsIndicator() throws SQLException, IOException {
-		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
-		MarcRecord hRec = new MarcRecord(MarcRecord.RecordType.HOLDINGS);
-		hRec.id = "6161049";
-		hRec.dataFields.add(new DataField(1,"852",'8','1',
-				"‡b olin ‡h See link below ‡x PUBLIC SERVICES SHADOW RECORD"));
-		rec.marcHoldings.add(hRec);
-		String expected =
-		"type: Shadow\n"+
-		"source: Folio\n";
-		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
-	}
 
 	@Test
 	public void statisticalCodes() throws SQLException, IOException {
@@ -102,4 +91,42 @@ public class RecordTypeTest {
 		"no_syndetics_b: true\n";
 		assertEquals(expected, this.gen.generateSolrFields(rec, null).toString());
 	}
+
+	@Test
+	public void nonMarcWithoutHolding() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		String expected = 
+		"type: Non-MARC Instance\n"+
+		"source: Folio\n";
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
+	public void nonMarcWithHolding() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		Map<String,Object> holding = new HashMap<>();
+		List<Map<String,Object>> holdings = new ArrayList<Map<String,Object>>();
+		holdings.add(holding);
+		instance.put("holdings", holdings);
+		String expected = 
+		"type: Catalog\n"+
+		"source: Folio\n";
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+
+	@Test
+	public void nonMarcWithSuppressedHolding() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		Map<String,Object> holding = new HashMap<>();
+		holding.put("discoverySuppress", true);
+		List<Map<String,Object>> holdings = new ArrayList<Map<String,Object>>();
+		holdings.add(holding);
+		instance.put("holdings", holdings);
+		String expected = 
+		"type: Non-MARC Instance\n"+
+		"source: Folio\n";
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
 }
