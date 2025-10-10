@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import edu.cornell.library.integration.folio.ReferenceData;
@@ -21,11 +22,21 @@ public class RecordTypeTest {
 
 	SolrFieldGenerator gen = new RecordType();
 
+	@Before
+	public void populateHardcodedStatCodes() {
+		StatisticalCodes.codes = new ReferenceData("code");
+		StatisticalCodes.codes.addTestValue("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d", "test-code");
+		StatisticalCodes.codes.addTestValue("no-google-img-code-uuid", "no-google-img");
+		StatisticalCodes.codes.addTestValue("no-syndetics-code-uuid", "no-syndetics");
+
+	}
+
 	@Test
 	public void testStandardCatalogRecord() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"948",'2',' ',
 				"‡a 20141130 ‡b m ‡d batch ‡e lts ‡x addfast"));
+		rec.instance = new HashMap<String,Object>();
 		String expected =
 		"type: Catalog\n"+
 		"source: MARC\n";
@@ -37,6 +48,7 @@ public class RecordTypeTest {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"948",'1',' ',
 				"‡a 20050809 ‡b o ‡d str1 ‡e lts ‡h PUBLIC SERVICES SHADOW RECORD"));
+		rec.instance = new HashMap<String,Object>();
 		String expected =
 		"type: Shadow\n"+
 		"source: MARC\n";
@@ -46,8 +58,6 @@ public class RecordTypeTest {
 
 	@Test
 	public void statisticalCodes() throws SQLException, IOException {
-		StatisticalCodes.codes = new ReferenceData("code");
-		StatisticalCodes.codes.addTestValue("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d", "test-code");
 		Map<String,Object> instance = new HashMap<>();
 		instance.put("statisticalCodeIds", Arrays.asList("7509bbd4-9fb7-4fb7-ab65-cc4017709e2d"));
 		instance.put("source", "FOLIO");
@@ -67,9 +77,6 @@ public class RecordTypeTest {
 
 	@Test
 	public void integrationSuppressions() throws SQLException, IOException {
-		StatisticalCodes.codes = new ReferenceData("code");
-		StatisticalCodes.codes.addTestValue("no-google-img-code-uuid", "no-google-img");
-		StatisticalCodes.codes.addTestValue("no-syndetics-code-uuid", "no-syndetics");
 
 		// non-marc instance
 		Map<String,Object> instance = new HashMap<>();
