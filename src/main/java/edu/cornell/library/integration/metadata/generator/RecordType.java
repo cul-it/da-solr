@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.metadata.generator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -38,39 +39,35 @@ public class RecordType implements SolrFieldGenerator {
 
 		if (rec.folioHoldings != null)
 			for ( Map<String,Object> hRec : rec.folioHoldings ) {
-				if (hRec.containsKey("discoverySuppress") && (boolean) hRec.get("discoverySuppress")) continue;
+				if ( (boolean) hRec.getOrDefault("discoverySuppress", false)) continue;
 				hasUnsuppressedHolding = true;
 			}
 
 		SolrFields sfs = new SolrFields();
-		List<String> statCodes = null;
-		if ( rec.instance != null && rec.instance.containsKey("statisticalCodeIds") )
-			statCodes = StatisticalCodes.dereferenceStatCodes(
-				(List<String>)rec.instance.get("statisticalCodeIds"));
-			
+		List<String> statCodes = StatisticalCodes.dereferenceStatCodes(
+				(List<String>)rec.instance.getOrDefault("statisticalCodeIds", new ArrayList<String>()));
+
 		if (isShadow)
 			sfs.add(new SolrField("type","Shadow"));
 		else
 			sfs.add(getTypeField(rec.instance,statCodes,"MARC", hasUnsuppressedHolding));
 		sfs.add(new SolrField("source","MARC"));
 
-		if ( statCodes != null ) {
-			for (String code : statCodes )
-				sfs.add(new SolrField("statcode_facet","instance_"+code));
-			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
-			if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
-		}
+		for (String code : statCodes )
+			sfs.add(new SolrField("statcode_facet","instance_"+code));
+		if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
+		if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
 		return sfs;
 	}
 
 	private static SolrField getTypeField(
 			Map<String, Object> instance, List<String> statCodes, String source, boolean hasUnsuppressedHolding ) {
 
-		if ( instance != null &&
-				(( instance.containsKey("discoverySuppress") && (boolean) instance.get("discoverySuppress") )
-				|| ( instance.containsKey("staffSuppress") && (boolean) instance.get("staffSuppress") )) )
+		if ( instance != null && ( 
+				(boolean) instance.getOrDefault("discoverySuppress", false) ||
+				(boolean) instance.getOrDefault("staffSuppress", false)))
 			return new SolrField("type","Suppressed Bib");
-		else if ( statCodes != null && statCodes.contains("Delete") )
+		else if ( statCodes.contains("Delete") )
 			return new SolrField("type","Delete");
 		else if (source.equals("MARC") || (source.equals("FOLIO") && hasUnsuppressedHolding))
 			return new SolrField("type","Catalog");
@@ -83,14 +80,12 @@ public class RecordType implements SolrFieldGenerator {
 
 		Boolean hasUnsuppressedHolding = false;
 
-		List<String> statCodes = null;
-		if (instance.containsKey("statisticalCodeIds"))
-			statCodes = StatisticalCodes.dereferenceStatCodes(
-					(List<String>)instance.get("statisticalCodeIds"));
+		List<String> statCodes = StatisticalCodes.dereferenceStatCodes(
+				(List<String>)instance.getOrDefault("statisticalCodeIds", new ArrayList<String>()));
 
 		if ( instance.containsKey("holdings") )
 			for (Map<String,Object> hRec : (List<Map<String,Object>>) instance.get("holdings")) {
-				if (hRec.containsKey("discoverySuppress") && (boolean) hRec.get("discoverySuppress")) continue;
+				if ( (boolean) hRec.getOrDefault("discoverySuppress", false)) continue;
 				hasUnsuppressedHolding = true;
 			}
 
@@ -98,11 +93,9 @@ public class RecordType implements SolrFieldGenerator {
 		String source = (String)instance.get("source");
 		sfs.add(getTypeField(instance,statCodes,source, hasUnsuppressedHolding));
 		sfs.add(new SolrField("source",source));
-		if (statCodes != null ) {
-			for (String code : statCodes ) sfs.add(new SolrField("statcode_facet","instance_"+code));
-			if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
-			if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
-		}
+		for (String code : statCodes ) sfs.add(new SolrField("statcode_facet","instance_"+code));
+		if ( statCodes.contains("no-google-img")) sfs.add(new BooleanSolrField("no_google_img_b", true));
+		if ( statCodes.contains("no-syndetics") ) sfs.add(new BooleanSolrField("no_syndetics_b",  true));
 		return sfs;
 	}
 

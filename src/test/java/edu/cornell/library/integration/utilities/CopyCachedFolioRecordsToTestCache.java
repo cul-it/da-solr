@@ -16,7 +16,7 @@ public class CopyCachedFolioRecordsToTestCache {
 
 		Config config = Config.loadConfig(requiredArgs);
 
-		List<String> instanceHrids = Arrays.asList("17138766", "17138763", "17138764");
+		List<String> instanceHrids = Arrays.asList("5043174");
 
 		try (Connection inventoryProd = config.getDatabaseConnection("InventoryProd");
 				Connection inventoryTest = config.getDatabaseConnection("InventoryTest"); ) {
@@ -25,9 +25,57 @@ public class CopyCachedFolioRecordsToTestCache {
 			copyBibs( inventoryProd, inventoryTest, instanceHrids);
 			List<String> holdingHrids = copyHoldings(  inventoryProd, inventoryTest, instanceHrids);
 			List<String> itemHrids = copyItems(  inventoryProd, inventoryTest, holdingHrids);
+			copyLoans(  inventoryProd, inventoryTest, itemHrids);
+			copyRequests(  inventoryProd, inventoryTest, itemHrids);
 		}
 
 
+	}
+
+
+	private static void copyRequests(Connection inventoryProd, Connection inventoryTest, List<String> itemHrids) throws SQLException {
+		try(PreparedStatement getRequests = inventoryProd.prepareStatement("SELECT * FROM requestFolio WHERE itemHrid = ?");
+			PreparedStatement putRequests = inventoryTest.prepareStatement(
+					"REPLACE INTO requestFolio(id, itemId, itemHrid, moddate, content) VALUES (?, ?, ?, ?, ?)")){
+			for (String itemHrid : itemHrids) {
+				getRequests.setString(1, itemHrid);
+				try (ResultSet rs = getRequests.executeQuery()) {
+					while (rs.next()) {
+						putRequests.setString(1, rs.getString("id"));
+						putRequests.setString(2, rs.getString("itemId"));
+						putRequests.setString(3, rs.getString("itemHrid"));
+						putRequests.setTimestamp(4, rs.getTimestamp("moddate"));
+						putRequests.setString(5, rs.getString("content"));
+						putRequests.addBatch();
+						System.out.format("REQUEST %s (for item %s)\n",rs.getString("id"), rs.getString("itemHrid"));
+					}
+				}
+			}
+			putRequests.executeBatch();
+		}
+	}
+
+
+	private static void copyLoans(Connection inventoryProd, Connection inventoryTest, List<String> itemHrids) throws SQLException {
+		try(PreparedStatement getLoan = inventoryProd.prepareStatement("SELECT * FROM loanFolio WHERE itemHrid = ?");
+			PreparedStatement putLoan = inventoryTest.prepareStatement(
+					"REPLACE INTO loanFolio(id, holdingId, itemHrid, moddate, content) VALUES (?, ?, ?, ?, ?)")){
+			for (String itemHrid : itemHrids) {
+				getLoan.setString(1, itemHrid);
+				try (ResultSet rs = getLoan.executeQuery()) {
+					while (rs.next()) {
+						putLoan.setString(1, rs.getString("id"));
+						putLoan.setString(2, rs.getString("holdingId"));
+						putLoan.setString(3, rs.getString("itemHrid"));
+						putLoan.setTimestamp(4, rs.getTimestamp("moddate"));
+						putLoan.setString(5, rs.getString("content"));
+						putLoan.addBatch();
+						System.out.format("LOAN %s (for item %s)\n",rs.getString("id"), rs.getString("itemHrid"));
+					}
+				}
+			}
+			putLoan.executeBatch();
+		}
 	}
 
 
@@ -52,6 +100,7 @@ public class CopyCachedFolioRecordsToTestCache {
 						putItem.setString(8, rs.getString("content"));
 						putItem.addBatch();
 						itemHrids.add(rs.getString("hrid"));
+						System.out.format("ITEM %s (for holding %s)\n",rs.getString("id"), rs.getString("holdingHrid"));
 					}
 				}
 			}
@@ -81,6 +130,7 @@ public class CopyCachedFolioRecordsToTestCache {
 						putHolding.setInt(8, rs.getInt("podCurrent"));
 						putHolding.addBatch();
 						holdingHrids.add(rs.getString("hrid"));
+						System.out.format("HOLDING %s (for instance %s)\n",rs.getString("id"), rs.getString("instanceHrid"));
 					}
 				}
 			}
@@ -105,6 +155,7 @@ public class CopyCachedFolioRecordsToTestCache {
 						putInstance.setTimestamp(5, rs.getTimestamp("moddate"));
 						putInstance.setString(6, rs.getString("content"));
 						putInstance.addBatch();
+						System.out.format("INSTANCE %s\n",rs.getString("id"));
 					}
 				}
 			}
@@ -125,6 +176,7 @@ public class CopyCachedFolioRecordsToTestCache {
 						putBib.setTimestamp(2, rs.getTimestamp("moddate"));
 						putBib.setString(3, rs.getString("content"));
 						putBib.addBatch();
+						System.out.format("BIB (for instance %s)\n", rs.getString("instanceHrid"));
 					}
 				}
 			}
