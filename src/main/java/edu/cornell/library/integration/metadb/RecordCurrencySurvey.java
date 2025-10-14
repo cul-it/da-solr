@@ -70,12 +70,11 @@ public class RecordCurrencySurvey {
 			try (ResultSet cacheRs = cacheStmt.executeQuery(); ResultSet metadbRs = metadbStmt.executeQuery()) {
 				boolean endOfCache = !cacheRs.next();
 				boolean endOfMetadb = !metadbRs.next();
-				if (endOfCache && ! endOfMetadb) {
-					queueUpdateToCache(inventory, (UUID)metadbRs.getObject("id"), type, Cause.ADDED);
-					return cursor;
-				}
-				if (endOfMetadb && ! endOfCache) {
-					queueUpdateToCache(inventory, UUID.fromString(cacheRs.getString("id")), type, Cause.DELETED);
+				if ( endOfMetadb || endOfCache ) {
+					if ( ! endOfMetadb )
+						queueUpdateToCache(inventory, (UUID)metadbRs.getObject("id"), type, Cause.ADDED);
+					if ( ! endOfCache )
+						queueUpdateToCache(inventory, UUID.fromString(cacheRs.getString("id")), type, Cause.DELETED);
 					return cursor;
 				}
 
