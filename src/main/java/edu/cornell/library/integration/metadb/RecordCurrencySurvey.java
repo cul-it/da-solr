@@ -92,8 +92,6 @@ public class RecordCurrencySurvey {
 							// pre go-live records were loaded to cache without timestamps
 							// undated record in cache may be outdated if moddate is after go-live
 							if (mDate.substring(0,10).compareTo(folioGoLiveDate) > 0) {
-								System.out.format("%s is after %s\n",mDate.substring(0,10),folioGoLiveDate);
-								System.exit(0);
 								queueUpdateToCache(inventory, mId, type, Cause.UPDATED);
 							}
 						} else if ((mDate.substring(0,23).compareTo(cDate.substring(0,23)) > 0)
