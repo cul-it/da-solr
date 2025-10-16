@@ -179,7 +179,7 @@ public class ProcessCacheUpdQueue {
 			Map<String,Object> instance = getInstanceFromInventory(inventory, null, (String)holding.get("instanceHrid"), null);
 			String instanceHrid = (String)instance.get("hrid");
 			String barcode = (String)item.getOrDefault("barcode", null);
-			if (barcode.length() > 14) barcode = null;
+			if (barcode != null && barcode.length() > 14) barcode = null;
 			try (PreparedStatement rI = inventory.prepareStatement(
 					"REPLACE INTO itemFolio (id, hrid, holdingId, holdingHrid, moddate, barcode, content)" +
 					" VALUES (?,?,?,?,?,?,?)"); ){
