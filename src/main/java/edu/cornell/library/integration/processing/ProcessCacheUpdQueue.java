@@ -161,7 +161,6 @@ public class ProcessCacheUpdQueue {
 	private static void updateItem(Connection inventory, OkapiClient folio, Update upd)
 			throws SQLException, IOException {
 
-		System.out.format("%s %s (%s)\n", upd.type, upd.uuid, upd.cause);
 		String hrid = null;
 		if (! upd.cause.equals("ADDED"))
 			hrid = getHridFromInventory(inventory, upd);
