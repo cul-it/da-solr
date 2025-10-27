@@ -77,7 +77,7 @@ public class OkapiClient {
 		Map<String,String> headers = new HashMap<>();
 		headers.put("Cookie", String.format("folioRefreshToken=%s; folioAccessToken=%s", this.refreshToken,this.accessToken));
 
-		HttpURLConnection c = post("/authn/refresh","", headers);
+		HttpURLConnection c = post("/authn/refresh","", headers, null);
 		if (201 != c.getResponseCode())
 			throw new IOException(String.format("%s:%s %s",this.name,this.username,c.getResponseMessage()));
 		parseLoginResponse(c);
@@ -97,10 +97,10 @@ public class OkapiClient {
 	private static final DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("Z"));
 
 	public HttpURLConnection post(final String endPoint, final String json) throws IOException {
-		return post(endPoint,json,null);
+		return post(endPoint,json,null, null);
 	}
 
-	public HttpURLConnection post(final String endPoint, final String json, Map<String,String> headers) throws IOException {
+	public HttpURLConnection post(final String endPoint, final String json, Map<String,String> headers, final String contentType) throws IOException {
 
 		System.out.println(endPoint+" (post)");
 
@@ -122,6 +122,11 @@ public class OkapiClient {
 		writer.flush();
 
 		return c;
+	}
+
+	public String postToString(final String endPoint, final String json, Map<String,String> headers, final String contentType) throws IOException {
+		HttpURLConnection c = post(endPoint, json, headers, contentType);
+		return convertStreamToString(c.getInputStream());
 	}
 
 	public String put(String endPoint, Map<String, Object> object) throws IOException {

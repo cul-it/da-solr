@@ -56,7 +56,7 @@ public class ProcessGenerationQueue {
 		config.setDatabasePoolsize("Current", 5);
 		GenerateSolrFields gen = new GenerateSolrFields(
 				EnumSet.allOf(Generator.class),
-				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,
+				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,Generator.PUBINFO,
 						Generator.LANGUAGE, Generator.MARC, Generator.URL, Generator.FORMAT), "processedMarc" );
 
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
