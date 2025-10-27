@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -180,4 +181,74 @@ public class PubInfo implements SolrFieldGenerator {
 			return new LinkedHashSet<>(Arrays.asList(years.iterator().next()));
 		return humanDates;
 	}
+
+	@Override
+	public SolrFields generateNonMarcSolrFields(Map<String, Object> instance, Config config) {
+		SolrFields sfs = new SolrFields();
+
+		if (instance.containsKey("publication")) {
+			Set<String> pubdates = new HashSet<>();
+			for (Map<String,Object> publ : (List<Map<String,Object>>) instance.get("publication")) {
+				String publisher = null;
+				if (publ.containsKey("publisher")) {
+					publisher = (String)publ.get("publisher");
+					if (publisher.isBlank()) publisher = null;
+					else {
+						sfs.add("publisher_display", publisher);
+						sfs.add("publisher_t", publisher);
+					}
+				}
+				String pubplace = null;
+				if (publ.containsKey("place")) {
+					pubplace = (String)publ.get("place");
+					if (pubplace.isBlank()) pubplace = null;
+					else {
+						sfs.add("pubplace_display",pubplace);
+						sfs.add("pubplace_t",pubplace);
+					}
+				}
+				String pubdate = null;
+				if (publ.containsKey("dateOfPublication")) {
+					pubdate = (String)publ.get("dateOfPublication");
+					if (pubdate.isBlank()) pubdate = null;
+					else pubdates.add(pubdate);
+				}
+				String pubInfoDisplay = null;
+				if (publisher != null)
+					if (pubdate != null) {
+						if (pubplace != null)
+							pubInfoDisplay = String.format("%s : %s, %s.", pubplace, publisher, pubdate);
+						else 
+							pubInfoDisplay = String.format("%s, %s.", publisher, pubdate);
+					} else {
+						if (pubplace != null)
+							pubInfoDisplay = String.format("%s : %s.", pubplace, publisher);
+						else 
+							pubInfoDisplay = String.format("%s..", publisher);
+					}
+				if (pubInfoDisplay != null)
+					sfs.add("pub_info_display", pubInfoDisplay);
+			}
+			if ( ! pubdates.isEmpty() )
+				for (String date : dedupeDisplayDates(pubdates)) {
+					sfs.add("pub_date_display", date);
+					sfs.add("pub_date_t", date);
+				}
+			for (String date : pubdates) {
+				Matcher m = pYear.matcher(date);
+				if (m.matches()) {
+					date = date.replaceAll("u", "0");
+					int year = Integer.valueOf(date);
+					if (year <= current_year + 1) {
+						sfs.fields.add( new SolrField( "pub_date_sort",date));
+						sfs.fields.add( new SolrField( "pub_date_facet",date));
+						break;
+					}
+				}
+			}
+		}
+
+		return sfs;
+	}
+
 }
