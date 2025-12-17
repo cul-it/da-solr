@@ -303,7 +303,6 @@ public class ProcessAuthorityChangeFile {
 				"config_block", temporalConfig.get("FlipJobConfig"),
 				"input_file",	inputFile);
 		payload.put("parameters", List.of(parameters));
-		System.out.println(mapper.writeValueAsString(payload));
 
 		final HttpURLConnection c = (HttpURLConnection) (new URL(temporalConfig.get("Api"))).openConnection();
 		c.setRequestProperty("Content-type", "application/json; charset=utf-8");
