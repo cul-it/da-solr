@@ -293,20 +293,21 @@ public class ProcessAuthorityChangeFile {
 		}
 	}
 
-	private static void triggerFlipJob(Config config, String inputFile) throws IOException {
-		Map<String,String> prefectConfig = config.getServerConfig("prefect");
+	static void triggerFlipJob(Config config, String inputFile) throws IOException {
+		Map<String,String> temporalConfig = config.getServerConfig("temporal");
+
 		Map<String,Object> payload = new HashMap<>();
-		payload.put("state", Map.of("type","SCHEDULED"));
-		payload.put("parameters", Map.of(
-				"config_block", prefectConfig.get("FlipJobConfig"),
-				"input_file",   inputFile));
-		payload.put("idempotency_key", java.util.UUID.randomUUID());
-		String url = String.format("%s/accounts/%s/workspaces/%s/deployments/%s/create_flow_run",
-				prefectConfig.get("Api"), prefectConfig.get("Account"),
-				prefectConfig.get("Workspace"), prefectConfig.get("FlipJobDeployment"));
-		final HttpURLConnection c = (HttpURLConnection) (new URL(url)).openConnection();
+		payload.put("queue", temporalConfig.get("Queue"));
+		payload.put("workflow", "AuthoritiesFlipWorkflow");
+		Map<String,String> parameters = Map.of(
+				"config_block", temporalConfig.get("FlipJobConfig"),
+				"input_file",	inputFile);
+		payload.put("parameters", List.of(parameters));
+		System.out.println(mapper.writeValueAsString(payload));
+
+		final HttpURLConnection c = (HttpURLConnection) (new URL(temporalConfig.get("Api"))).openConnection();
 		c.setRequestProperty("Content-type", "application/json; charset=utf-8");
-		c.setRequestProperty("Authorization", "Bearer "+prefectConfig.get("Token"));
+		c.setRequestProperty("Authorization", "Bearer "+temporalConfig.get("AuthorityToken"));
 		c.setRequestMethod("POST");
 		c.setDoOutput(true);
 		final OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream());
@@ -314,7 +315,7 @@ public class ProcessAuthorityChangeFile {
 		writer.flush();
 		writer.close();
 		c.connect();
-		if (c.getResponseCode() == 201)
+		if (c.getResponseCode() == 200)
 			System.out.println("Auto-flip job launched");
 		else
 			System.out.format("Auto-flip job launch unsuccessful. %d: %s\n", c.getResponseCode(), c.getResponseMessage());
