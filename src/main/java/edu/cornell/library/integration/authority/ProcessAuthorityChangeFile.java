@@ -300,7 +300,7 @@ public class ProcessAuthorityChangeFile {
 		payload.put("queue", temporalConfig.get("Queue"));
 		payload.put("workflow", "AuthoritiesFlipWorkflow");
 		Map<String,String> parameters = Map.of(
-				"config_block", temporalConfig.get("FlipJobConfig"),
+				"config_key", temporalConfig.get("FlipJobConfig"),
 				"input_file",	inputFile);
 		payload.put("parameters", List.of(parameters));
 
