@@ -41,7 +41,7 @@ public class SqliteBaseTest {
 
 		PROPS = new Properties();
 		String jdbcPath = "jdbc:sqlite:" + sqliteDb.getAbsolutePath();
-		for (String id : Arrays.asList("CallNos", "Current", "Hathi", "Headings")) {
+		for (String id : Arrays.asList("Authority", "CallNos", "Current", "Hathi", "Headings")) {
 			PROPS.setProperty("databaseURL" + id, jdbcPath);
 			PROPS.setProperty("databaseUser" + id, DBUID);
 			PROPS.setProperty("databasePass" + id, DBPWD);

@@ -32,7 +32,7 @@ public class AbstractContainerBaseTest {
 	protected static boolean initialized = false;
 
 	static {
-		mysqlContainer = new MySQLContainer<>("mysql:latest")
+		mysqlContainer = new MySQLContainer<>("mysql:9.2.0")
 				.withDatabaseName(DBNAME)
 				.withUsername(DBUID)
 				.withPassword(DBPWD)
@@ -49,7 +49,7 @@ public class AbstractContainerBaseTest {
 					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
 					String line;
 					while ((line = br.readLine()) != null) {
-						if (StringUtils.isBlank(line)) {
+						if (StringUtils.isBlank(line) || line.startsWith("--")) {
 							continue;
 						}
 						stmt.executeUpdate(line);
@@ -67,7 +67,7 @@ public class AbstractContainerBaseTest {
 		}
 
 		PROPS = new Properties();
-		for (String id : Arrays.asList("CallNos", "Current", "Hathi", "Headings")) {
+		for (String id : Arrays.asList("Authority", "CallNos", "Current", "Hathi", "Headings")) {
 			PROPS.setProperty("databaseURL" + id, mysqlContainer.getJdbcUrl());
 			PROPS.setProperty("databaseUser" + id, DBUID);
 			PROPS.setProperty("databasePass" + id, DBPWD);

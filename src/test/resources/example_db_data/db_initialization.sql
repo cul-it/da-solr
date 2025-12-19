@@ -16,32 +16,32 @@ INSERT INTO note (heading_id, authority_id, note) VALUES (1537075, 742440, "Sear
 INSERT INTO note (heading_id, authority_id, note) VALUES (4496, 2327, '["For works of this author entered under other names, search also under",{"header":"Grandower, Elissa"},{"header":"Taylor, H. Baldwin"}]');
 
 -- AuthorTitleTest data
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (10422460, 0, "n 2017073745", "León Cupe, Mariano, 1932-", 10721247, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (10422460, 0, "n 2017073745", "León Cupe, Mariano, 1932-", 10721247, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (18642914, 0, "León Cupe, Mariano, 1932-", "leon cupe mariano 1932", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (18642915, 0, "Cupe, Mariano León, 1932-", "cupe mariano leon 1932", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (18642914, 10422460, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (9187707, 18642915, 18642914, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (9187707, 10422460);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (10046868, 0, "no2016116176", "Papadēmētropoulos, Loukas P.", 10342895, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (10046868, 0, "no2016116176", "Papadēmētropoulos, Loukas P.", 10342895, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (18015372, 0, "Papadēmētropoulos, Loukas P.", "papademetropoulos loukas p", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (18015372, 10046868, 1);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (284161, 0, "n  83060502", "Foucher, A. (Alfred), 1865-1952", 286151, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (284161, 0, "n  83060502", "Foucher, A. (Alfred), 1865-1952", 286151, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (640475, 0, "Foucher, A. (Alfred), 1865-1952", "foucher a alfred 1865 1952", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (640476, 0, "Foucher, Alfred Charles Auguste, 1865-1952", "foucher alfred charles auguste 1865 1952", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (640475, 284161, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (368603, 640476, 640475, 1, "Later Form of Heading");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (368603, 284161);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (5302631, 0, "no2001043347", "Taga, Futoshi, 1968-", 5502637, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (5302631, 0, "no2001043347", "Taga, Futoshi, 1968-", 5502637, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (10141115, 0, "Taga, Futoshi, 1968-", "taga futoshi 1968", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (10141116, 0, "多賀太, 1968-", "多賀太 1968", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (10141115, 5302631, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (5370664, 10141116, 10141115, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (5370664, 5302631);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (999994, 0, "n  81062107", "Guo li gu gong bo wu yuan", 1033816, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (999994, 0, "n  81062107", "Guo li gu gong bo wu yuan", 1033816, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (376305, 0, "Guo li zhong yang bo wu yuan", "guo li zhong yang bo wu yuan", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (376318, 0, "Guo li gu gong bo wu yuan", "guo li gu gong bo wu yuan", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2255513, 0, "Gu gong yuan (Taipei, Taiwan)", "gu gong yuan taipei taiwan", 1, 0, 0, 0);
@@ -107,14 +107,14 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1462882, 99
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1462883, 999994);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1462884, 999994);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (1396245, 0, "n  99010492", "Fewer, T. N.", 1451941, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (1396245, 0, "n  99010492", "Fewer, T. N.", 1451941, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (3231839, 0, "Fewer, T. N.", "fewer t n", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (3231840, 0, "Fewer, Tom", "fewer tom", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (3231839, 1396245, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (2083972, 3231840, 3231839, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (2083972, 1396245);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (4017405, 0, "nr 96008001", "Korea (South). President (1993-1998 : Kim)", 4195887, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (4017405, 0, "nr 96008001", "Korea (South). President (1993-1998 : Kim)", 4195887, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2256520, 0, "Kim, Young Sam, 1927-2015", "kim young sam 1927 2015", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2256526, 0, "Korea (South). President (1993-1998 : Kim)", "korea south president 1993 1998 kim", 1, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (2256526, 1000403, 0);
@@ -122,7 +122,7 @@ INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (225
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (4290879, 2256520, 2256526, 3, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (4290879, 4017405);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (72775, 0, "n  80038440", "Speed, John, 1552?-1629", 73505, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (72775, 0, "n  80038440", "Speed, John, 1552?-1629", 73505, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (142720, 0, "Speed, John, 1552?-1629", "speed john 1552 1629", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (142721, 0, "J. S. (John Speed), 1552?-1629", "j s john speed 1552 1629", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (142722, 0, "Speed, I. (John Speed), 1552?-1629", "speed i john speed 1552 1629", 0, 0, 0, 0);
@@ -155,7 +155,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (72029, 7277
 
 
 -- SubjectTest data
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (1043886, 0, "n  94100484", "Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). Decree Four", 1078612, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (1043886, 0, "n  94100484", "Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). Decree Four", 1078612, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2364788, 2364787, "Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Decree Four", "jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 decree four", 9, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2364789, 2364787, "Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Our mission today", "jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 our mission today", 9, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2364790, 2364787, "Jesuits. Congregatio Generalis (32nd : 1974-1975 : Rome, Italy). | Jesuits today", "jesuits congregatio generalis 32nd 1974 1975 rome italy 0000 jesuits today", 9, 0, 0, 0);
@@ -165,7 +165,7 @@ INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES 
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1534029, 1043886);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1534030, 1043886);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (812808, 1, "sh 85003553", "Illegal aliens", 837139, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (812808, 1, "sh 85003553", "Illegal aliens", 837139, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1534531, 0, "Aliens", "aliens", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1825884, 0, "Aliens > Legal status, laws, etc.", "aliens 0000 legal status laws etc", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1825889, 0, "Illegal aliens", "illegal aliens", 4, 0, 0, 0);
@@ -200,7 +200,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1161510, 81
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1161511, 812808);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1161512, 812808);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (7394879, 1, "sh2008002554", "Illegal alien children", 7652978, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (7394879, 1, "sh2008002554", "Illegal alien children", 7652978, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1540026, 0, "Children", "children", 4, 0, 1, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (13650791, 0, "Illegal alien children", "illegal alien children", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (13650792, 0, "Undocumented children", "undocumented children", 4, 0, 0, 0);
@@ -210,7 +210,7 @@ INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES 
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (6963118, 7394879);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (6963119, 7394879);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (702299, 1, "sh 85042790", "Emigration and immigration law", 717360, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (702299, 1, "sh 85042790", "Emigration and immigration law", 717360, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1530221, 0, "International travel regulations", "international travel regulations", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1530222, 0, "Emigration and immigration law", "emigration and immigration law", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1601026, 0, "Emigration and immigration > Law and legislation", "emigration and immigration 0000 law and legislation", 4, 0, 0, 0);
@@ -242,14 +242,14 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (941370, 702
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (941371, 702299);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (941372, 702299);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (818337, 1, "sh 85042791", "Emigration and immigration law > United States", 843208, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (818337, 1, "sh 85042791", "Emigration and immigration law > United States", 843208, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1839204, 0, "Emigration and immigration law > United States", "emigration and immigration law 0000 united states", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1839205, 0, "United States > Emigration and immigration law", "united states 0000 emigration and immigration law", 5, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (1839204, 818337, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (1175029, 1839205, 1839204, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1175029, 818337);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (750825, 1, "sh 85104440", "Political science", 769920, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (750825, 1, "sh 85104440", "Political science", 769920, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1530169, 0, "Administration", "administration", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1544055, 0, "Political science", "political science", 4, 0, 1, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1571731, 0, "State, The", "state the", 4, 0, 0, 0);
@@ -361,7 +361,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1042613, 75
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1042614, 750825);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1042615, 750825);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (770611, 1, "sh 85129516", "Submerged lands", 791488, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (770611, 1, "sh 85129516", "Submerged lands", 791488, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1563559, 0, "Land use", "land use", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1674459, 0, "Submerged lands", "submerged lands", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1743287, 0, "Lands under the marginal sea", "lands under the marginal sea", 4, 0, 0, 0);
@@ -382,7 +382,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1082757, 77
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1082758, 770611);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1082759, 770611);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (1127010, 0, "n  80014970", "Cambodia", 1167533, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (1127010, 0, "n  80014970", "Cambodia", 1167533, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1183744, 0, "French Indochina", "french indochina", 5, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1397094, 0, "Cambodia", "cambodia", 5, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2567587, 0, "République du Cambodge", "republique du cambodge", 5, 0, 0, 0);
@@ -486,7 +486,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1661927, 11
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1661928, 1127010);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1661929, 1127010);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (885921, 1, "sh 93007047", "Electronic books", 914280, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (885921, 1, "sh 93007047", "Electronic books", 914280, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1550019, 0, "Books", "books", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1887436, 0, "Electronic publications", "electronic publications", 4, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (1997592, 0, "Electronic books", "electronic books", 4, 0, 0, 0);
@@ -515,7 +515,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (1301114, 88
 
 
 -- TOCTest data
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (5390754, 0, "nr2001039107", "Cornell University. College of Veterinary Medicine. Flower-Sprecher Veterinary Library", 5593099, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (5390754, 0, "nr2001039107", "Cornell University. College of Veterinary Medicine. Flower-Sprecher Veterinary Library", 5593099, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (10293879, 0, "New York State College of Veterinary Medicine. Flower Veterinary Library", "new york state college of veterinary medicine flower veterinary library", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (10293883, 0, "Cornell University. College of Veterinary Medicine. Flower-Sprecher Veterinary Library", "cornell university college of veterinary medicine flower sprecher veterinary library", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (10293899, 0, "Cornell University. College of Veterinary Medicine. Library", "cornell university college of veterinary medicine library", 1, 0, 0, 0);
@@ -532,7 +532,7 @@ INSERT INTO authority2reference (reference_id, authority_id) VALUES (5441039, 53
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (5441040, 5390754);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (5441041, 5390754);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (899021, 0, "n  87139570", "Salmon, D. E.", 928121, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (899021, 0, "n  87139570", "Salmon, D. E.", 928121, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2027395, 0, "Salmon, D. E.", "salmon d e", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2027396, 0, "Salmon, Daniel Elmer", "salmon daniel elmer", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (2027397, 0, "Salmon, D. E. (Daniel Elmer)", "salmon d e daniel elmer", 0, 0, 0, 0);
@@ -542,21 +542,21 @@ INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES 
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1319462, 899021);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (1319463, 899021);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (346500, 0, "n  84806477", "Thurston, Robert Henry, 1839-1903", 348942, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (346500, 0, "n  84806477", "Thurston, Robert Henry, 1839-1903", 348942, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (771938, 0, "Thurston, Robert Henry, 1839-1903", "thurston robert henry 1839 1903", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (771939, 0, "Thurston, R. H. (Robert Henry), 1839-1903", "thurston r h robert henry 1839 1903", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (771938, 346500, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (438507, 771939, 771938, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (438507, 346500);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (4878952, 0, "nr 99030039", "E. & F.N. Spon", 5067695, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (4878952, 0, "nr 99030039", "E. & F.N. Spon", 5067695, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (9391968, 0, "E. & F.N. Spon", "e fn spon 2&", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (9391969, 0, "E. and F.N. Spon", "e and fn spon", 1, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (9391968, 4878952, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (5016261, 9391969, 9391968, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (5016261, 4878952);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (8557464, 0, "n 2011057129", "Helgi Haraldsson, 1938-", 8832048, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (8557464, 0, "n 2011057129", "Helgi Haraldsson, 1938-", 8832048, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (15540893, 0, "Helgi Haraldsson, 1938-", "helgi haraldsson 1938", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (15540894, 0, "Khelʹgi Kharalʹdsson, 1938-", "khelgi kharaldsson 1938", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (15540895, 0, "Haraldsson, Helgi, 1938-", "haraldsson helgi 1938", 0, 0, 0, 0);
@@ -566,21 +566,21 @@ INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES 
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (7772870, 8557464);
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (7772871, 8557464);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (176495, 0, "n  81072606", "Rosenthal, Manuel, 1904-2003", 177891, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (176495, 0, "n  81072606", "Rosenthal, Manuel, 1904-2003", 177891, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (385813, 0, "Rosenthal, Manuel, 1904-2003", "rosenthal manuel 1904 2003", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (385814, 0, "Rosenthal, Emmanuel, 1904-2003", "rosenthal emmanuel 1904 2003", 0, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (385813, 176495, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (218163, 385814, 385813, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (218163, 176495);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (7938881, 0, "no2009190394", "Fa lü chu ban she. Fa gui chu ban fen she", 8205082, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (7938881, 0, "no2009190394", "Fa lü chu ban she. Fa gui chu ban fen she", 8205082, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (14540121, 0, "Fa lü chu ban she. Fa gui chu ban fen she", "fa lu chu ban she fa gui chu ban fen she", 1, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (14540122, 0, "法律出版社. 法规出版分社.", "法律出版社 法规出版分社", 1, 0, 0, 0);
 INSERT INTO authority2heading (heading_id, authority_id, main_entry) VALUES (14540121, 7938881, 1);
 INSERT INTO reference (id, from_heading, to_heading, ref_type, ref_desc) VALUES (7349248, 14540122, 14540121, 1, "");
 INSERT INTO authority2reference (reference_id, authority_id) VALUES (7349248, 7938881);
 
-INSERT INTO authority (id, source, nativeId, nativeHeading, voyagerId, undifferentiated) VALUES (4111039, 0, "nr 94002689", "Ko, Dorothy, 1957-", 4290234, 0);
+INSERT INTO authority (id, source, nativeId, nativeHeading, localId, undifferentiated) VALUES (4111039, 0, "nr 94002689", "Ko, Dorothy, 1957-", 4290234, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (8042916, 0, "Ko, Dorothy, 1957-", "ko dorothy 1957", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (8042917, 0, "高彦颐, 1957-", "高彦颐 1957", 0, 0, 0, 0);
 INSERT INTO heading (id, parent_id, heading, sort, heading_type, works_by, works_about, works) VALUES (8042918, 0, "Gao, Yanyi, 1957-", "gao yanyi 1957", 0, 0, 0, 0);
@@ -616,3 +616,6 @@ INSERT INTO volume_to_oclc (Volume_Identifier, OCLC_Number) VALUES ("mdp.3901501
 INSERT INTO classification (low_letters, high_letters, low_numbers, high_numbers, label) VALUES ("Q", "QZZ", 0.0000, 100000.0000, "Q - Science");
 INSERT INTO classification (low_letters, high_letters, low_numbers, high_numbers, label) VALUES ("QA", "QA", 0.0000, 100000.0000, "QA - Mathematics");
 INSERT INTO classification (low_letters, high_letters, low_numbers, high_numbers, label) VALUES ("QA", "QA", 440.0000, 699.9999, "QA440-699 - Geometry.  Trigonometry.  Topology");
+
+-- IndexAuthorityRecordsTest data
+INSERT INTO authorityUpdate (id,vocabulary,updateFile,positionInFile,changeType,heading,headingType,linkedSubdivision,undifferentiated,marc21,human,moddate) VALUES ("sh 85066169",2,"unsub21.03,10",10,1,"Information storage and retrieval systems > Architecture",6,NULL,0,"00352cz  a2200121n  4500001001300000003000400013005001700017008004100034010001700075040001800092150006000110450006000170sh 85066169 DLC20210114130944.8860211|| anannbabn          |a ana        ash 85066169  aDLCcDLCdDLC  aInformation storage and retrieval systemsxArchitecture  aArchitecturexInformation storage and retrieval systems","00352cz  a2200121n  4500\n001    sh 85066169 \n003    DLC\n005    20210114130944.8\n008    860211|| anannbabn          |a ana      \n010    ‡a sh 85066169 \n040    ‡a DLC ‡c DLC ‡d DLC\n150    ‡a Information storage and retrieval systems ‡x Architecture\n450    ‡a Architecture ‡x Information storage and retrieval systems\n","2025-01-15");
