@@ -22,9 +22,9 @@ public class FolioClientAuthTest {
 		
 		folio.printLoginStatus();
 
-		Instant testCompletedAt = Instant.now().plus(20, ChronoUnit.MINUTES);
+		Instant testCompletedAt = Instant.now().plus(21, ChronoUnit.MINUTES);
 		System.out.println("\nWe're logged in. The access tokens are meant to last 10 minutes, so we will make"
-				+ " periodic queries for the next 20, ending at "+testCompletedAt+ ". This should give enough time to"
+				+ " periodic queries for the next 21, ending at "+testCompletedAt+ ". This should give enough time to"
 				+ " require two refreshes of the access token.");
 		System.out.println("We'll just be retrieving statistical codes each time. The values won't be verified,"
 				+ " just that they are retrievable.");
@@ -34,7 +34,7 @@ public class FolioClientAuthTest {
 		boolean doneLongWait = false;
 		while (Instant.now().isBefore(testCompletedAt)) {
 			int seconds = 30 + generator.nextInt(30);
-			if ( ! doneLongWait && 160 > folio.getRemainingAuthSeconds()) {
+			if ( ! doneLongWait && 175 > folio.getRemainingAuthSeconds()) {
 				seconds = 180;
 				doneLongWait = true;
 			}
