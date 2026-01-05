@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.utilities.ComparisonLists;
 import edu.cornell.library.integration.utilities.Config;
 
@@ -33,7 +33,7 @@ public class LDPChangeDetection {
 			  PreparedStatement queueGen = inventory.prepareStatement
 				("INSERT INTO generationQueue (hrid,priority,cause,record_date) VALUES (?,6,'LDP',?)")) {
 
-			OkapiClient folio = config.getOkapi("Folio");
+			FolioClient folio = config.getFolio("Folio");
 
 			{ // INSTANCES
 				ComparisonLists c = ResourceListComparison.compareLists(
@@ -64,7 +64,7 @@ public class LDPChangeDetection {
 
 	private static void processBibDiffs(
 			Connection inventory,
-			OkapiClient folio,
+			FolioClient folio,
 			ComparisonLists c,
 			PreparedStatement queueGen
 			) throws SQLException, IOException, InterruptedException {
@@ -192,7 +192,7 @@ public class LDPChangeDetection {
 
 	private static void processInstanceDiffs(
 			Connection inventory,
-			OkapiClient folio,
+			FolioClient folio,
 			ComparisonLists c,
 			PreparedStatement queueGen,
 			PreparedStatement queueDelete
@@ -295,7 +295,7 @@ public class LDPChangeDetection {
 
 	private static void processHoldingDiffs(
 			Connection inventory,
-			OkapiClient folio,
+			FolioClient folio,
 			ComparisonLists c
 			) throws SQLException, IOException, InterruptedException {
 		System.out.printf("newerInLDP: %d holdings\n", c.newerInLDP.size());
@@ -412,7 +412,7 @@ public class LDPChangeDetection {
 
 	private static void processItemDiffs(
 			Connection inventory,
-			OkapiClient folio,
+			FolioClient folio,
 			ComparisonLists c
 			) throws SQLException, IOException, InterruptedException {
 		System.out.printf("newerInLDP: %d items\n", c.newerInLDP.size());

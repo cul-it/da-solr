@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.utilities.Config;
 
 public class ProcessCacheUpdQueue {
@@ -25,7 +25,7 @@ public class ProcessCacheUpdQueue {
 
 		Config config = Config.loadConfig(Config.getRequiredArgsForDB("Current"));
 
-		OkapiClient folio = config.getOkapi("Folio");
+		FolioClient folio = config.getFolio("Folio");
 		try (Connection inventory = config.getDatabaseConnection("Current")) {
 
 			Update upd = getUpdate(inventory);
@@ -51,7 +51,7 @@ public class ProcessCacheUpdQueue {
 		}
 	}
 
-	private static void updateInstance(Connection inventory, OkapiClient folio, Update upd)
+	private static void updateInstance(Connection inventory, FolioClient folio, Update upd)
 			throws SQLException, IOException {
 
 		String hrid = null;
@@ -100,7 +100,7 @@ public class ProcessCacheUpdQueue {
 	}
 
 
-	private static void updateHolding(Connection inventory, OkapiClient folio, Update upd)
+	private static void updateHolding(Connection inventory, FolioClient folio, Update upd)
 			throws SQLException, IOException {
 
 		String hrid = null;
@@ -158,7 +158,7 @@ public class ProcessCacheUpdQueue {
 		}
 	}
 
-	private static void updateItem(Connection inventory, OkapiClient folio, Update upd)
+	private static void updateItem(Connection inventory, FolioClient folio, Update upd)
 			throws SQLException, IOException {
 
 		String hrid = null;
@@ -215,7 +215,7 @@ public class ProcessCacheUpdQueue {
 	}
 
 
-	private static void updateBib(Connection inventory, OkapiClient folio, Update upd) throws SQLException, IOException {
+	private static void updateBib(Connection inventory, FolioClient folio, Update upd) throws SQLException, IOException {
 		// this presumes that the uuid in the Update record for a bib will be the instance uuid.
 		String hrid = getHridFromInventory(inventory, upd);
 		if (hrid == null && ! upd.type.equals("DELETE")) {

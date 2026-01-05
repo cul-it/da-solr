@@ -22,7 +22,7 @@ import edu.cornell.library.integration.utilities.Config;
  * 
  * UseSqlite=true
  * 
- * - If UseTestContainers and UseSqlite are not set, it will use the VoyagerToSolrConfig to connect to DB directly.
+ * - If UseTestContainers and UseSqlite are not set, it will use the configFile to connect to DB directly.
  */
 public class DbBaseTest {
 	protected static Config config = null;

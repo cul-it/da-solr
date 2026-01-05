@@ -24,8 +24,8 @@ public List<String> getHandledFields() { return Arrays.asList("050","950","holdi
 public SolrFields generateSolrFields(MarcRecord rec, Config config)
 		throws SQLException, IOException {
 	edu.cornell.library.integration.metadata.support.CallNumber cn =
-			(config.isOkapiConfigured("Folio"))?
-			new edu.cornell.library.integration.metadata.support.CallNumber(config.getOkapi("Folio")):
+			(config.isFolioConfigured("Folio"))?
+			new edu.cornell.library.integration.metadata.support.CallNumber(config.getFolio("Folio")):
 				new edu.cornell.library.integration.metadata.support.CallNumber();
 	for (DataField f : rec.dataFields)
 		cn.tabulateCallNumber(f);

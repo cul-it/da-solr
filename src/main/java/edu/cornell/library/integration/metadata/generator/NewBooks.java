@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -63,7 +63,7 @@ public class NewBooks implements SolrFieldGenerator {
 			if ( folioLocations == null ) {
 				folioLocations = SupportReferenceData.locations;
 				if (folioLocations == null) {
-					OkapiClient folio = config.getOkapi("Folio");
+					FolioClient folio = config.getFolio("Folio");
 					folioLocations = new ReferenceData( folio,"/locations","code");
 				}
 			}
