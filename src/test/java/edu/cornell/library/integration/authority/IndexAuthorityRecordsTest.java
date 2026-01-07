@@ -6,12 +6,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,13 +16,14 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import edu.cornell.library.integration.authority.IndexAuthorityRecords.AuthorityData;
 import edu.cornell.library.integration.db_test.DbBaseTest;
-import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class IndexAuthorityRecordsTest extends DbBaseTest {
+	// This value is the max moddate from the test data we added to authorityUpdate table.
+	static final String MAX_MODDATE = "2025-01-15";
+	static final String STARTING_CURSOR = "2025-01-14";
 
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
@@ -42,7 +40,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 	public void testIndexAllAuthorityRecords() throws SQLException, FileNotFoundException, IOException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			IndexAuthorityRecords.indexAllAuthorityRecords(config, false);
+			String cursor = IndexAuthorityRecords.indexAllAuthorityRecords(config, false);
 
 			PreparedStatement authByNativeId = headings.prepareStatement("SELECT id FROM authority WHERE source = 1 AND nativeId = ?");
 			Integer authId = dbQueryGetInt(authByNativeId, "sh 85066169");
@@ -56,9 +54,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			Integer referenceId = dbQueryGetInt(referenceRel, authId);
 			assert referenceId != null;
 
-			String cursor = IndexAuthorityRecords.getCursor(headings);
-			LocalDate today = LocalDate.now();
-			assert cursor.equalsIgnoreCase(today.toString());
+			assert cursor.equalsIgnoreCase(MAX_MODDATE) : "New cursor date should be max moddate from authorityUpdate";
 		}
 	}
 
@@ -67,22 +63,13 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 	public void testIndexNewAuthorityRecords() throws SQLException, FileNotFoundException, IOException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2025-01-15");
+			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, MAX_MODDATE);
 			assert identifiers.size() == 0;
 
 			identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2021-01-15");
 			assert identifiers.size() == 1;
 
-			Map<String, Integer> authIds = new TreeMap<>();
-			for (String identifier: identifiers) {
-				MarcRecord mr = IndexAuthorityRecords.getMostRecentRecord(authority, identifier);
-				AuthorityData ad = IndexAuthorityRecords.parseMarcRecord(mr);
-				authIds.put(ad.lccn, ad.id);
-			}
-
-			/*
-			 * To test the heading logic, we will manually update one of the heading record.
-			 */
+			// To test the heading logic, we will manually update one of the heading record.
 			PreparedStatement authByNativeId = headings.prepareStatement("SELECT id FROM authority WHERE source = 1 AND nativeId = ?");
 			PreparedStatement authById = headings.prepareStatement("SELECT id FROM authority WHERE id = ?");
 			PreparedStatement heading = headings.prepareStatement("SELECT id FROM heading WHERE id = ?");
@@ -97,8 +84,11 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			headingUpdate.setInt(1, existingHeadingIds.get(0));
 			headingUpdate.executeUpdate();
 
-			IndexAuthorityRecords.updateCursor(headings, "2021-01-15");
-			IndexAuthorityRecords.indexNewAuthorityRecords(config);
+			String cursor = IndexAuthorityRecords.getCursor(headings);
+			assert cursor.equalsIgnoreCase(STARTING_CURSOR) : "getCursor should subtract one day from previous cursor date";
+
+			cursor = IndexAuthorityRecords.indexNewAuthorityRecords(config);
+			assert cursor.equalsIgnoreCase(MAX_MODDATE) : "New cursor should match the max moddate in authorityUpdate";
 
 			Integer newAuthId = dbQueryGetInt(authByNativeId, "sh 85066169");
 			assert newAuthId != null;
@@ -120,10 +110,6 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			assert existingReferenceId != newReferenceId : "New references should be populated.";
 			Integer headingCheck = dbQueryGetInt(reference, existingReferenceId);
 			assert headingCheck == null : "Dangling reference record with id " + existingReferenceId + " should be deleted.";
-
-			String cursor = IndexAuthorityRecords.getCursor(headings);
-			LocalDate today = LocalDate.now();
-			assert cursor.equalsIgnoreCase(today.toString());
 		}
 	}
 

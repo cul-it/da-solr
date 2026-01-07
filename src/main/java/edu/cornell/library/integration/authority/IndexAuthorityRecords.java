@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,6 +50,7 @@ public class IndexAuthorityRecords {
 
 	private static final String ARG_INDEX_ALL = "--index-all";
 	private static final String ARG_SETUP_DB = "--setup-db";
+	private static final String BEGINNING_OF_TIME = "0000-01-02";
 
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
@@ -70,7 +72,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	protected static void indexAllAuthorityRecords(Config config, boolean setupDb) throws IOException, SQLException {
+	protected static String indexAllAuthorityRecords(Config config, boolean setupDb) throws IOException, SQLException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
@@ -96,11 +98,11 @@ public class IndexAuthorityRecords {
 				processAuthorityMarc( headings, rec );
 			}
 
-			updateCursor(headings);
+			return updateCursor(authority, headings);
 		}
 	}
 
-	protected static void indexNewAuthorityRecords(Config config) throws IOException, SQLException {
+	protected static String indexNewAuthorityRecords(Config config) throws IOException, SQLException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
@@ -128,8 +130,10 @@ public class IndexAuthorityRecords {
 				headings.commit();
 			}
 
-			updateCursor(headings);
+			cursor = updateCursor(authority, headings);
 			headings.commit();
+
+			return cursor;
 		}
 	}
 
@@ -141,7 +145,6 @@ public class IndexAuthorityRecords {
 				while (rs.next())
 					return new MarcRecord(MarcRecord.RecordType.AUTHORITY,rs.getBytes("marc21"));
 			}
-			
 		}
 		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
 				"SELECT marc21 FROM voyagerAuthority WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
@@ -175,11 +178,17 @@ public class IndexAuthorityRecords {
 		return identifiers;
 	}
 
+	protected static String subtractOneDay(String inputDateString) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate date = LocalDate.parse(inputDateString, formatter);
+		LocalDate dateYesterday = date.minusDays(1);
+		return dateYesterday.format(formatter);
+	}
+
 	protected static String getCursor(Statement stmt) throws SQLException {
 		try (ResultSet rs = stmt.executeQuery("SELECT current_to_date FROM headingsUpdateCursor WHERE cursor_name = 'index_authority_records'")) {
-			if (rs.next()) {
-				return rs.getString(1);
-			}
+			if (rs.next()) return subtractOneDay(rs.getString(1));
+
 			return null;
 		}
 	}
@@ -190,22 +199,27 @@ public class IndexAuthorityRecords {
 			if (cursor != null) {
 				return cursor;
 			} else {
-				updateCursor(headings, "0000-01-01");
+				updateCursor(headings, BEGINNING_OF_TIME);
 				return getCursor(stmt);
 			}
 		}
 	}
 
-	protected static void updateCursor(Connection headings, String cursor) throws SQLException {
+	protected static String updateCursor(Connection headings, String cursor) throws SQLException {
 		try (PreparedStatement pstmt = headings.prepareStatement("REPLACE INTO headingsUpdateCursor (cursor_name, current_to_date) VALUES ('index_authority_records', ?)")) {
 			pstmt.setString(1, cursor);
 			pstmt.execute();
 		}
+		return cursor;
 	}
 
-	protected static void updateCursor(Connection headings) throws SQLException {
-		LocalDate today = LocalDate.now();
-		updateCursor(headings, today.toString());
+	protected static String updateCursor(Connection authority, Connection headings) throws SQLException {
+		String cursorDate = BEGINNING_OF_TIME;
+		try (PreparedStatement pstmt = authority.prepareStatement("SELECT MAX(moddate) as maxModDate FROM authorityUpdate");
+			 ResultSet rs = pstmt.executeQuery()) {
+			if (rs.next()) cursorDate = rs.getString(1);
+		}
+		return updateCursor(headings, cursorDate);
 	}
 
 	protected static Set<String> getNewIdentifiers(Connection authority, String cursor) throws SQLException {
@@ -380,6 +394,12 @@ public class IndexAuthorityRecords {
 					+ "UNIQUE KEY `category` (`category`,`heading_id`,`bib_id`), "
 					+ "KEY `bib_id` (`bib_id`), "
 					+ "KEY `heading_id` (`heading_id`)) "
+					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
+
+			stmt.execute("CREATE TABLE `headingsUpdateCursor` ( "
+					+ "`cursor_name` varchar(25) NOT NULL, "
+					+ "`current_to_date` date DEFAULT NULL, "
+					+ "PRIMARY KEY (`cursor_name`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
 
