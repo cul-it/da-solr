@@ -76,6 +76,7 @@ public class IndexAuthorityRecords {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
+			String maxModdate = getMaxModDate(authority);
 			Set<String> identifiers = getAllIdentifiers(authority);
 
 			//set up database (including populating description maps)
@@ -97,7 +98,6 @@ public class IndexAuthorityRecords {
 				processAuthorityMarc( headings, rec );
 			}
 
-			String maxModdate = getMaxModDate(authority);
 			return updateCursor(headings, maxModdate);
 		}
 	}
@@ -108,8 +108,8 @@ public class IndexAuthorityRecords {
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
 			String cursor = getCursor(headings);
-			Set<String> identifiers = getNewIdentifiers(authority, cursor);
 			String maxModdate = getMaxModDate(authority);
+			Set<String> identifiers = getNewIdentifiers(authority, cursor);
 
 			headings.setAutoCommit(false);
 			for (String identifier : identifiers) {
