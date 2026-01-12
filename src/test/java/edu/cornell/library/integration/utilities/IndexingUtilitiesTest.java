@@ -114,4 +114,17 @@ public class IndexingUtilitiesTest {
 		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             null));
 		assertEquals("asdf."+PDF_closeRTL,      removeTrailingPunctuation("asdf."+PDF_closeRTL,        null));
 	}
+
+	@Test
+	public void nonStardardApostropheSorting() {
+		// For each non-standard apostrophe unicode character, filing normalization should strip it as not sortable.
+		assertEquals("imarah", getFilingForm("ʹImārah")); // 02B9
+		assertEquals("imarah", getFilingForm("ʻImārah")); // 02BB
+		assertEquals("imarah", getFilingForm("ʼImārah")); // 02BC
+		assertEquals("imarah", getFilingForm("ʽImārah")); // 02BD
+		assertEquals("imarah", getFilingForm("ʾImārah")); // 02BE
+		assertEquals("imarah", getFilingForm("ʿImārah")); // 02BF
+		assertEquals("imarah", getFilingForm("‘Imārah")); // 2018
+		assertEquals("imarah", getFilingForm("’Imārah")); // 2019
+	}
 }
