@@ -50,6 +50,8 @@ public class IndexAuthorityRecords {
 
 	private static final String ARG_INDEX_ALL = "--index-all";
 	private static final String ARG_SETUP_DB = "--setup-db";
+	private static final int NULL_LCCN = -1;
+	private static final int UNRECOGNIZED_SOURCE = -2;
 
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
@@ -755,13 +757,12 @@ public class IndexAuthorityRecords {
 	}
 
 	protected static Integer getAuthorityId(Connection headings, AuthorityData a) throws SQLException {
-		if (a.lccn == null) return null;
+		if (a.lccn == null) return NULL_LCCN;
 		for ( AuthoritySource source : AuthoritySource.values() )
 			if (source.prefix() != null && a.lccn.startsWith(source.prefix()))
 				a.source = source;
 		if (a.source == null) {
-			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
-			return null;
+			return UNRECOGNIZED_SOURCE;
 		}
 
 		Integer authorityId = null;
@@ -784,7 +785,13 @@ public class IndexAuthorityRecords {
 	protected static void getSetAuthorityId(Connection headings, AuthorityData a) throws SQLException {
 		Integer authorityId = getAuthorityId(headings, a);
 
-		if ( authorityId != null )
+		if ( authorityId == NULL_LCCN )
+			System.out.println("Null LCCN for native heading: " + a.nativeHeading);
+
+		else if ( authorityId == UNRECOGNIZED_SOURCE )
+			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
+
+		else if ( authorityId != null )
 			System.out.println("Possible duplicate authority ID: "+authorityId);
 
 		else try ( PreparedStatement stmt = headings.prepareStatement(
