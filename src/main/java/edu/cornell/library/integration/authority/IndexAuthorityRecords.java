@@ -811,7 +811,7 @@ public class IndexAuthorityRecords {
 				if (generatedKeys.next())
 					authorityId = generatedKeys.getInt(1); }
 		}
-		if (authorityId == null) return;
+		if (authorityId == null || authorityId < 0) return;
 
 		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
