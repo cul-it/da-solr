@@ -56,12 +56,6 @@ public class IndexAuthorityRecords {
 		Collection<String> requiredArgs = Config.getRequiredArgsForDB("Headings");
 		requiredArgs.addAll( Config.getRequiredArgsForDB("Authority"));
 		Config config = Config.loadConfig(requiredArgs);
-		List<String> dbs = Arrays.asList("Authority", "Headings");
-		for (String db : dbs) {
-			if (! config.isDatabaseConfigured("")) {
-				System.out.println("DB " + db + " not configured!");
-			}
-		}
 
 		if (args.length > 0 && args[0].equalsIgnoreCase(ARG_INDEX_ALL)) {
 			boolean setupDb = args.length > 1 && args[1].equalsIgnoreCase(ARG_SETUP_DB);
