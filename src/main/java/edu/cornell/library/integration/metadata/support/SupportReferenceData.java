@@ -2,7 +2,7 @@ package edu.cornell.library.integration.metadata.support;
 
 import java.io.IOException;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 
 public class SupportReferenceData {
@@ -12,7 +12,7 @@ public class SupportReferenceData {
 	public static ReferenceData instanceNoteTypes;
 	public static ReferenceData instanceStatuses;
 	public static ReferenceData locations;
-	public static void initialize( OkapiClient folio) throws IOException {
+	public static void initialize( FolioClient folio) throws IOException {
 		contributorTypes = new ReferenceData( folio, "/contributor-types","name");
 		contributorNameTypes = new ReferenceData( folio, "/contributor-name-types","ordering");
 		instanceNoteTypes = new ReferenceData( folio, "/instance-note-types","name");

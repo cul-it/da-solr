@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.catalog.Catalog;
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.metadata.support.SupportReferenceData;
@@ -96,14 +96,14 @@ public class ProcessGenerationQueue {
 				PreparedStatement generationQueueStmt = AddToQueue.generationQueueStmt(current);
 				) {
 
-			OkapiClient folio = null;
-			if ( ! config.isOkapiConfigured("Folio")) {
-				System.out.printf("Folio configuration requires config fields okapiUrl%s, okapiTenant%s, "
-						+ "and either okapiToken%s or both okapiUser%s and okapiPass%s\n",
-						"Folio","Folio","Folio","Folio","Folio");
+			FolioClient folio = null;
+			if ( ! config.isFolioConfigured("Folio")) {
+				System.out.printf("Folio configuration requires config fields folioUrl%s, folioTenant%s, "
+						+ "folioUser%s and folioPass%s\n",
+						"Folio","Folio","Folio","Folio");
 				System.exit(1);
 			}
-			folio = config.getOkapi("Folio");
+			folio = config.getFolio("Folio");
 			StatisticalCodes.initializeCodes(folio);
 			SupportReferenceData.initialize(folio);
 			if (SupportReferenceData.locations.getUuid("serv,remo") == null ) {

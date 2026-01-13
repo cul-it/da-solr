@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class OkapiClient {
+public class FolioClient {
 
 	private final String name;
 	private final String url;
@@ -36,7 +36,7 @@ public class OkapiClient {
 	private Instant refreshExpires = null;
 
 
-	public OkapiClient(String name, String url, String tenant, String username, String password) throws IOException {
+	public FolioClient(String name, String url, String tenant, String username, String password) throws IOException {
 		this.name = name;
 		this.url = url;
 		this.tenant = tenant;
@@ -350,12 +350,17 @@ public class OkapiClient {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 
-	public void printLoginStatus(OkapiClient folio) {
+	public void printLoginStatus() {
 		Instant now = Instant.now();
 		System.out.format("%s:%s; ACCESS: %s; REFRESH: %s\n",
 				this.name,this.username,
 				humanReadableTimespan(now.until(accessExpires,ChronoUnit.SECONDS)),
 				humanReadableTimespan(now.until(refreshExpires,ChronoUnit.SECONDS)));
+	}
+
+	public long getRemainingAuthSeconds() {
+		Instant now = Instant.now();
+		return now.until(accessExpires,ChronoUnit.SECONDS);
 	}
 
 	private String humanReadableTimespan(long seconds) {
