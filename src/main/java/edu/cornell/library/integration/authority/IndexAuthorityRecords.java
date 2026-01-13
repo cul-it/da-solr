@@ -70,12 +70,12 @@ public class IndexAuthorityRecords {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
-			String maxModdate = getMaxModDate(authority);
-			Set<String> identifiers = getAllIdentifiers(authority);
-
 			//set up database (including populating description maps)
 			if (setupDb)
 				setUpDatabase(headings);
+
+			String maxModdate = getMaxModDate(authority);
+			Set<String> identifiers = getAllIdentifiers(authority);
 
 			for (String identifier : identifiers) {
 				MarcRecord rec = getMostRecentRecord(authority, identifier);
@@ -296,7 +296,7 @@ public class IndexAuthorityRecords {
 					+ "`heading_id` int(10) unsigned NOT NULL, "
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`note` text NOT NULL, "
-					+ "KEY (`heading_id`)) "
+					+ "KEY (`heading_id`), "
 					+ "KEY (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -366,7 +366,7 @@ public class IndexAuthorityRecords {
 					+ "`heading_id` int(10) unsigned NOT NULL, "
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`rda` text NOT NULL, "
-					+ "KEY `heading_id` (`heading_id`)) "
+					+ "KEY `heading_id` (`heading_id`), "
 					+ "KEY `authority_id` (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
