@@ -134,7 +134,7 @@ public class IndexAuthorityRecords {
 
 	protected static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
 		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
-				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC LIMIT 1")) {
+				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC, updateFile DESC LIMIT 1")) {
 			getAuthStmt.setString(1, identifier);
 			try (ResultSet rs = getAuthStmt.executeQuery()) {
 				while (rs.next())

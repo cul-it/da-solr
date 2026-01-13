@@ -1,5 +1,7 @@
 package edu.cornell.library.integration.authority;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import edu.cornell.library.integration.db_test.DbBaseTest;
+import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.utilities.Config;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -64,10 +67,14 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, MAX_MODDATE);
-			assert identifiers.size() == 0;
+			assertEquals(0, identifiers.size());
 
 			identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2021-01-15");
-			assert identifiers.size() == 1;
+			assertEquals(2, identifiers.size());
+
+			String deletedIdentifier = "sh 85066170";
+			MarcRecord rec = IndexAuthorityRecords.getMostRecentRecord(authority, deletedIdentifier);
+			assert rec.leader.startsWith("00352dz");
 
 			// To test the heading logic, we will manually update one of the heading record.
 			PreparedStatement authByNativeId = headings.prepareStatement("SELECT id FROM authority WHERE source = 1 AND nativeId = ?");
