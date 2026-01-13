@@ -785,14 +785,13 @@ public class IndexAuthorityRecords {
 	protected static void getSetAuthorityId(Connection headings, AuthorityData a) throws SQLException {
 		Integer authorityId = getAuthorityId(headings, a);
 
-		if ( authorityId == NULL_LCCN )
-			System.out.println("Null LCCN for native heading: " + a.nativeHeading);
-
-		else if ( authorityId == UNRECOGNIZED_SOURCE )
-			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
-
-		else if ( authorityId != null )
-			System.out.println("Possible duplicate authority ID: "+authorityId);
+		if ( authorityId != null )
+			if ( authorityId == NULL_LCCN )
+				System.out.println("Null LCCN for native heading: " + a.nativeHeading);
+			else if ( authorityId == UNRECOGNIZED_SOURCE )
+				System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
+			else
+				System.out.println("Possible duplicate authority ID: "+authorityId);
 
 		else try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO authority"
