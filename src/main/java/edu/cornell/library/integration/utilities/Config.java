@@ -21,29 +21,19 @@ import java.util.Properties;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 
 /**
  * This is a basic structure intended to hold all the configuration information
- * needed for all steps of the Voyager MARC21 extract and convert to Blacklight
+ * needed for all steps of the Folio inventory records and convert to Blacklight
  * Solr index.
  * 
- * The goal is to facilitate the creation of various configurations that can be
- * called for from the command line of the different steps of the conversion.
- * 
- * See the method loadConfig(String[]) for how the SolrBuildConf can be loaded.
- * 
- * If you'd like to add a new configuration setting to this class, 1 add a
- * property to this class 2 add a getter to this class 3 make sure your property
- * is loaded in loadFromPropertiesFile 4 make sure your property is checked in
- * checkConfiguration 5 add your property to the example properties file at
- * voyagerToSolrConfig.properties.example
  */
 public class Config {
 
 	private Map<String, String> values = new HashMap<>();
 	private Map<String, ComboPooledDataSource> databases = new HashMap<>();
-	private Map<String, OkapiClient> okapiClients = new HashMap<>();
+	private Map<String, FolioClient> folioClients = new HashMap<>();
 
 	public static List<String> getRequiredArgsForDB(String db) {
 		List<String> list = new ArrayList<>();
@@ -218,35 +208,35 @@ public class Config {
 		return true;
 	}
 
-	public boolean isOkapiConfigured(String id) {
-		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
-		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
-		if ( ! (this.values.containsKey("okapiUser"+id) && this.values.containsKey("okapiPass"+id) )
-				&& ! this.values.containsKey("okapiToken"+id) ) return false;
+	public boolean isFolioConfigured(String id) {
+		if ( ! this.values.containsKey("folioUrl"+id) ) return false;
+		if ( ! this.values.containsKey("folioTenant"+id) ) return false;
+		if ( ! (this.values.containsKey("folioUser"+id) && this.values.containsKey("folioPass"+id) )
+				&& ! this.values.containsKey("folioToken"+id) ) return false;
 
 		return true;
 	}
-	public boolean isTestOkapiConfigured(String id) {
-		if ( ! this.values.containsKey("okapiUrl"+id) ) return false;
-		if ( ! this.values.get("okapiUrl"+id).contains("test")) return false;
-		if ( ! this.values.containsKey("okapiTenant"+id) ) return false;
-		if ( ! (this.values.containsKey("okapiUser"+id) && this.values.containsKey("okapiPass"+id) )
-				&& ! this.values.containsKey("okapiToken"+id) ) return false;
+	public boolean isTestFolioConfigured(String id) {
+		if ( ! this.values.containsKey("folioUrl"+id) ) return false;
+		if ( ! this.values.get("folioUrl"+id).contains("test")) return false;
+		if ( ! this.values.containsKey("folioTenant"+id) ) return false;
+		if ( ! (this.values.containsKey("folioUser"+id) && this.values.containsKey("folioPass"+id) )
+				&& ! this.values.containsKey("folioToken"+id) ) return false;
 
 		return true;
 	}
-	public OkapiClient getOkapi(String id) throws IOException {
-		if (okapiClients.containsKey(id))
-			return okapiClients.get(id);
+	public FolioClient getFolio(String id) throws IOException {
+		if (folioClients.containsKey(id))
+			return folioClients.get(id);
 
-		OkapiClient okapi = new OkapiClient(
+		FolioClient folio = new FolioClient(
 				id,
-				this.values.get("okapiUrl"+id),
-				this.values.get("okapiTenant"+id),
-				this.values.get("okapiUser"+id),
-				this.values.get("okapiPass"+id));
-		okapiClients.put(id, okapi);
-		return okapi;
+				this.values.get("folioUrl"+id),
+				this.values.get("folioTenant"+id),
+				this.values.get("folioUser"+id),
+				this.values.get("folioPass"+id));
+		folioClients.put(id, folio);
+		return folio;
 	}
 
 	public boolean isDatabaseConfigured(String id) {
@@ -333,29 +323,18 @@ public class Config {
 	 * A utility method to load properties from command line or environment.
 	 * 
 	 * Configured jobs on integration servers or automation systems are expected to
-	 * use the environment variable VOYAGER_TO_SOLR_CONFIG to indicate the property
-	 * file to use.
+	 * use the environment variable CONFIG_FILE_NAME to indicate the property file to use.
 	 * 
-	 * Development jobs are expected to use command line arguments.
-	 * 
-	 * If properties files exist on the command line use those, If the environment
-	 * variable VOYAGER_TO_SOLR_CONFIG exists use those, If both environment
-	 * variable VOYAGER_TO_SOLR_CONFIG and command line arguments exist, throw an
-	 * error because that is a confused state and likely a problem.
-	 * 
-	 * The value of the environment variable VOYAGER_TO_SOLR_CONFIG may be a comma
-	 * separated list of files.
 	 * @param requiredFields is a task-specific Collection of field names required
-	 *                       for the task. argv may be null to force use of the
-	 *                       environment variable. Should be argv from main().
+	 *                       for the task.
 	 */
 	public static Config loadConfig(Collection<String> requiredFields) {
-		String v2bl_config = System.getenv(VOYAGER_TO_SOLR_CONFIG);
+		String v2bl_config = System.getenv(CONFIG_FILE_NAME);
 
 		if (v2bl_config == null)
 			throw new RuntimeException("No configuration specified. \n"
 					+ "A configuration is expected in the environment variable "
-					+ VOYAGER_TO_SOLR_CONFIG + ".\n" + HELP);
+					+ CONFIG_FILE_NAME + ".\n" + HELP);
 
 		Config config = null;
 		try {
@@ -398,7 +377,7 @@ public class Config {
 	 * seperated by a comma. Also check the classpath.
 	 */
 	private static Config loadFromEnvVar(String value) throws Exception {
-		System.out.println("loading from environment variable '" + VOYAGER_TO_SOLR_CONFIG + "'=" + value);
+		System.out.println("loading from environment variable '" + CONFIG_FILE_NAME + "'=" + value);
 
 		String[] names = value.split(",");
 		List<InputStream> inputStreams = new ArrayList<>();
@@ -408,7 +387,7 @@ public class Config {
 	}
 
 	/**
-	 * Load properties for VoyagerToBlacklightSolrConfiguration. If both inA and inB
+	 * Load properties for the job configuration. If both inA and inB
 	 * are not null, inA will be loaded as defaults and inB will be loaded as
 	 * overrides to the values in inA.
 	 * 
@@ -543,10 +522,10 @@ public class Config {
 	/**
 	 * Name of environment variable for configuration files.
 	 */
-	private final static String VOYAGER_TO_SOLR_CONFIG = "VoyagerToSolrConfig";
+	private final static String CONFIG_FILE_NAME = "configFile";
 
-	private final static String HELP = "The environment variable VoyagerToSolrConfig must be set to one"
+	private final static String HELP = "The environment variable "+CONFIG_FILE_NAME+" must be set to one"
 			+ " or more properties files:\n"
-			+ "Ex. VoyagerToSolrConfig=prod.properties,database.properties java someClass\n"
+			+ "Ex. "+CONFIG_FILE_NAME+"=prod.properties,database.properties java someClass\n"
 			+ "These files will be searched for first in the file system, then from the classpath/ClassLoader.\n";
 }

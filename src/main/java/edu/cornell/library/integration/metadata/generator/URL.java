@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -369,7 +369,7 @@ public class URL implements SolrFieldGenerator {
 		if ( folioLocations == null ) {
 			folioLocations = SupportReferenceData.locations;
 			if (folioLocations == null) {
-				OkapiClient folio = config.getOkapi("Folio");
+				FolioClient folio = config.getFolio("Folio");
 				folioLocations = new ReferenceData( folio,"/locations","code");
 			}
 		}

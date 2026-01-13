@@ -26,8 +26,7 @@ public class AbstractContainerBaseTest {
 	protected static final String DBUID = "test_user";
 	protected static final String DBPWD = "test_pwd";
 	protected static Properties PROPS = null;
-	@SuppressWarnings("rawtypes")
-	protected final static MySQLContainer mysqlContainer;
+	protected final static MySQLContainer<?> mysqlContainer;
 	protected static File testPropertiesFile = null;
 	protected static boolean initialized = false;
 

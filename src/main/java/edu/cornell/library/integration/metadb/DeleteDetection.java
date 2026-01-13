@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.utilities.Config;
 
 public class DeleteDetection {
@@ -30,18 +30,18 @@ public class DeleteDetection {
 //			}
 			Timestamp cursor = getUpdateCursor(inventory);
 
-			Map<String,String> deletedHoldings= getDeletedHoldings(metadb, inventory, config.getOkapi("Folio"), cursor);
+			Map<String,String> deletedHoldings= getDeletedHoldings(metadb, inventory, config.getFolio("Folio"), cursor);
 			System.out.format("%d deleted holdings (%s)\n",
 					deletedHoldings.size(), String.join(", ", deletedHoldings.keySet()));
 
-			Map<String,String> deletedItems= getDeletedItems(metadb, inventory, config.getOkapi("Folio"), cursor);
+			Map<String,String> deletedItems= getDeletedItems(metadb, inventory, config.getFolio("Folio"), cursor);
 			System.out.format("%d deleted items (%s)\n",
 					deletedItems.size(), String.join(", ", deletedItems.keySet()));
 		}
 	}
 
 	private static Map<String,String> getDeletedHoldings(
-			Connection metadb, Connection inventory, OkapiClient folio, Timestamp cursor)
+			Connection metadb, Connection inventory, FolioClient folio, Timestamp cursor)
 					throws SQLException, IOException {
 		/**
 		 * Get holding record versions that have ended since cursor and don't have a more current version.
@@ -87,7 +87,7 @@ public class DeleteDetection {
 	}
 
 	private static Map<String,String> getDeletedItems(
-			Connection metadb, Connection inventory, OkapiClient folio, Timestamp cursor)
+			Connection metadb, Connection inventory, FolioClient folio, Timestamp cursor)
 					throws SQLException, IOException {
 		/**
 		 * Get item versions that have ended since cursor and don't have a more current version.

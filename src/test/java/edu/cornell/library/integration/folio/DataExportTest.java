@@ -19,15 +19,15 @@ public class DataExportTest {
 
 	public static void main(String[] args) throws IOException, InterruptedException, SQLException {
 		Config config = Config.loadConfig(Config.getRequiredArgsForDB("Current"));
-		if (! config.isTestOkapiConfigured("Folio")) {
-			System.out.println("Error: Test Okapi must be configured.");
+		if (! config.isTestFolioConfigured("Folio")) {
+			System.out.println("Error: Test Folio must be configured.");
 			System.exit(1);
 		}
-		OkapiClient okapi = config.getOkapi("Folio");
+		FolioClient folio = config.getFolio("Folio");
 		List<String> instances = new ArrayList<>();
 		instances.add("a5098d03-f6b4-431d-bcf5-779f41390a72");
 		instances.add("7c215d5e-de82-4f46-998d-791fe0b964b9");
-		List<MarcRecord> records = DataExport.retrieveMarcByUuid(okapi, instances);
+		List<MarcRecord> records = DataExport.retrieveMarcByUuid(folio, instances);
 		try (Connection conn = config.getDatabaseConnection("Current");
 			 PreparedStatement insert = conn.prepareStatement(
 					 "REPLACE INTO generatedMarcFolio (instanceHrid, moddate, xml) VALUES (?, ?, ?)")) {
