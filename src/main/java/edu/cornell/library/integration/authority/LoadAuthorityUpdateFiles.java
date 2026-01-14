@@ -23,7 +23,7 @@ public class LoadAuthorityUpdateFiles {
 		String inputFiles = env.get("input_files");
 
 		if (inputDir == null || inputFiles == null) {
-			System.out.println("inputDir and inputFiles are required environment variables.");
+			System.out.println("input_directory and input_files are required environment variables.");
 			System.exit(1);
 		}
 		String[] files = inputFiles.split(", *");
