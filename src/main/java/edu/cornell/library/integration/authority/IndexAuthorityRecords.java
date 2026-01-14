@@ -472,7 +472,7 @@ public class IndexAuthorityRecords {
 				addToRdaData(a.rdaData,f);
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
-				Relation r = determineRelationship(f);
+				Relation r = determineRelationship(f, rec.id);
 				if (r != null) {
 					if ( a.mainHead == null ) {
 						System.out.println("Found 4xx relation while main heading is null.");
@@ -485,7 +485,7 @@ public class IndexAuthorityRecords {
 				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
-				Relation r = determineRelationship(f);
+				Relation r = determineRelationship(f, rec.id);
 				if (r != null) {
 					a.expectedNotes.addAll(r.expectedNotes);
 					r.heading = processHeadingField(f,null);
@@ -935,7 +935,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	protected static Relation determineRelationship( DataField f ) {
+	protected static Relation determineRelationship( DataField f, String id ) {
 		// Is there a subfield w? The relationship note in subfield w
 		// describes the 4XX or 5XX heading, and must be reversed for the
 		// from tracing.
@@ -945,6 +945,9 @@ public class IndexAuthorityRecords {
 		for (Subfield sf : f.subfields) {
 			if (sf.code.equals('w')) {
 				hasW = true;
+
+				if (sf.value == null || sf.value.isEmpty())
+					System.out.println("Subfield w with empty value detected " + id);
 
 				switch (sf.value.charAt(0)) {
 				case 'a':
