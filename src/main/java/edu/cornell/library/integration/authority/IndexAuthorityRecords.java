@@ -91,7 +91,12 @@ public class IndexAuthorityRecords {
 					continue;
 				}
 
-				processAuthorityMarc( headings, rec );
+				try {
+					processAuthorityMarc( headings, rec );
+				} catch (Exception ex) {
+					System.out.println("ERROR: Exception encountered while processing " + rec.id);
+					System.out.println(ex);
+				}
 			}
 
 			return updateCursor(headings, maxModdate);
@@ -946,8 +951,10 @@ public class IndexAuthorityRecords {
 			if (sf.code.equals('w')) {
 				hasW = true;
 
-				if (sf.value == null || sf.value.isEmpty())
-					System.out.println("Subfield w with empty value detected " + id);
+				if (sf.value == null || sf.value.isEmpty()) {
+					System.out.println("ERROR: Subfield w with empty value detected " + id);
+					continue;
+				}
 
 				switch (sf.value.charAt(0)) {
 				case 'a':
