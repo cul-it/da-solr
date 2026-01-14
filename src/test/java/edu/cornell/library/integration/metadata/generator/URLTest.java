@@ -457,7 +457,7 @@ public class URLTest {
 	}
 
 	@Test
-	public void supressedHoldingAccessLink() throws IOException, SQLException {
+	public void suppressedHoldingAccessLink() throws IOException, SQLException {
 		Map<String, String> accessLink = new TreeMap<>();
 		accessLink.put("uri", "https://bogus.com/bogus");
 		accessLink.put("publicNote", "Test");
@@ -510,6 +510,42 @@ public class URLTest {
 				.append("online: Online\n");
 		assertEquals( expected.toString(), this.gen.generateSolrFields(rec, null).toString() );
 	}
+
+
+	@Test
+	public void accessLinkInSuppressedHolding() throws IOException, SQLException {
+		// un-suppressed
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		List<Map<String,Object>> holdings = new ArrayList<>();
+		rec.folioHoldings = holdings;
+		{
+			Map<String,String> link = new LinkedHashMap<>();
+			link.put("uri","https://libraryhelp.kanopy.com/hc/en-us/articles/1500003981461");
+			link.put("publicNote", "Licensing includes Public Performance Rights (PPR). The film can be screened to "
+					+ "large gatherings as long as admission is not charged.");
+			link.put("relationshipId", "3b430592-2e09-4b48-9a0c-0636d66b9fb3");
+			List<Map<String,String>> links = new ArrayList<>();
+			links.add(link);
+			Map<String,Object> holding = new HashMap<>();
+			holding.put("electronicAccess", links);
+			holdings.add(holding);
+		}
+
+		// If the holding isn't suppressed, the link is recognized. (As non-access link bec. no serv,remo is available)
+		String expected =
+		"url_other_display: https://libraryhelp.kanopy.com/hc/en-us/articles/1500003981461|Licensing includes Public "
+		+ "Performance Rights (PPR). The film can be screened to large gatherings as long as admission is not charged.\n" +
+		"notes_t: Licensing includes Public Performance Rights (PPR). The film can be screened to large gatherings as "
+		+ "long as admission is not charged.\n"+
+		"availability_facet: url_other\n";
+		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
+
+		// If the holding is suppressed, links it contains aren't recognized at all.
+		rec.folioHoldings.get(0).put("discoverySuppress", true);
+		System.out.println(this.gen.generateSolrFields(rec, null).toString());
+		assertEquals( "", this.gen.generateSolrFields(rec, null).toString() );
+	}
+
 
 	@Test
 	public void tocview() throws IOException, SQLException {
