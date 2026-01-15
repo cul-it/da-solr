@@ -137,5 +137,6 @@ public class IndexingUtilitiesTest {
 		assertEquals("doubleprime", getFilingForm("ʺDoubleʺprimeʺ")); // 02BA "modifier letter double prime"
 		assertEquals("singleprime", getFilingForm("′Single′prime′")); // 2032
 		// single prime sort also tested in nonStardardApostropheSorting()
+		assertEquals("tripleprime", getFilingForm("‴Triple‴prime‴")); // 2034 "triple prime"
 	}
 }
