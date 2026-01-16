@@ -58,7 +58,7 @@ CREATE INDEX "idx_reference_to_heading" ON "reference" (`to_heading`);
 CREATE INDEX "idx_replacement_headings_orig_sort" ON "replacement_headings" (`orig_sort`);
 CREATE UNIQUE INDEX "uidx_category" on "bib2heading" (`category`,`heading_id`,`bib_id`);
 -- classifications
-CREATE INDEX "idx_classification_low_letters" ON "classification" (`low_letters`,`high_letters`,`low_numbers`,`high_numbers`);
+CREATE INDEX "idx_classification_low_letters" ON "classification" (`low_letters` collate nocase,`high_letters` collate nocase,`low_numbers`,`high_numbers`);
 -- current
 CREATE INDEX "idx_syndeticsData_isbn" ON "syndeticsData" (`isbn`);
 -- Hathi
