@@ -24,13 +24,6 @@ import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 public class FormatTest {
 
 	SolrFieldGenerator gen = new Format();
-	
-	public String loadResourceFile(String filename) throws IOException {
-        try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-                Scanner s = new Scanner(is,"UTF-8")) {
-            return s.useDelimiter("\\A").next();
-        }
-    }
 
 	@BeforeClass
 	public static void instantiateTestInstanceResourceTypes() throws IOException {
@@ -217,9 +210,7 @@ public class FormatTest {
 
 	@Test
 	public void testLocations() throws SQLException, IOException {
-		String resourceDataJson = null;
-		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
-		SupportReferenceData.initializeLocations((resourceDataJson));
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 
 		// online, o
 		MarcRecord rec = generateTestMarcRecord("01548cocaa2200265 a 4500", "serv,remo");

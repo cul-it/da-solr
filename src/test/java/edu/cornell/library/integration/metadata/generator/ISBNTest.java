@@ -3,16 +3,30 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class ISBNTest {
 
 	SolrFieldGenerator gen = new ISBN();
+
+	@BeforeClass
+	public static void initializeStaticRefData() throws IOException {
+		SupportReferenceData.initializeIdentifierTypes("example_reference_data/identifier-types.json");
+	}
+
 
 	@Test
 	public void testOldStyle() throws SQLException, IOException {
@@ -159,6 +173,63 @@ public class ISBNTest {
 		"isbn_t: 0938x9462X\n" + 
 		"isbn_display: 0938x9462X\n";
 		assertEquals( expected, this.gen.generateSolrFields ( rec, null ).toString() );
+	}
+
+	@Test
+	public void nonMarcISBN() throws SQLException, IOException {
+		// basic example taken from instance 16614871
+		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<>() {{put("value","9786022630395");put("identifierTypeId",isbnUUID);}} ));
+		String expected =
+		"isbn_t: 9786022630395\n"+
+		"isbn_t: 6022630398\n"+
+		"isbn_display: 9786022630395\n";
+		assertEquals( expected, gen.generateNonMarcSolrFields(instance, null).toString() );
+	}
+
+
+	@Test
+	public void nonMarcISBNWithOtherIdentifier() throws SQLException, IOException {
+		// example taken from instance 16723205 
+		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
+		String scnUUID = SupportReferenceData.identifierTypes.getUuid("System control number");
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<>() {{put("value","9783031079283");put("identifierTypeId",isbnUUID);}},
+				new HashMap<>() {{put("value","(CaONFJC)114935494");put("identifierTypeId",scnUUID);}} ));
+		String expected =
+		"isbn_t: 9783031079283\n"+
+		"isbn_t: 3031079280\n"+
+		"isbn_display: 9783031079283\n";
+		assertEquals( expected, gen.generateNonMarcSolrFields(instance, null).toString() );
+	}
+
+	@Test
+	public void nonMarcISBNWithParens() throws SQLException, IOException {
+		// example taken from instance  16887244 
+		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<>() {{put("value","9789710180592 (v.1)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<>() {{put("value","9789710180578 (v.2a)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<>() {{put("value","9789710180585 (v.2b)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<>() {{put("value","97897101800622 (v.3)");put("identifierTypeId",isbnUUID);}}
+				));
+		String expected =
+		"isbn_t: 9789710180592\n"+
+		"isbn_t: 9710180592\n"+
+		"isbn_display: 9789710180592 (v.1)\n"+
+		"isbn_t: 9789710180578\n"+
+		"isbn_t: 9710180576\n"+
+		"isbn_display: 9789710180578 (v.2a)\n"+
+		"isbn_t: 9789710180585\n"+
+		"isbn_t: 9710180584\n"+
+		"isbn_display: 9789710180585 (v.2b)\n"+
+		"isbn_t: 97897101800622\n"+
+		"isbn_display: 97897101800622 (v.3)\n";
+		assertEquals( expected, gen.generateNonMarcSolrFields(instance, null).toString() );
 	}
 
 	@Test

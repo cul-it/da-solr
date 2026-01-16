@@ -93,10 +93,8 @@ public class NewBooksTest {
 
 	@Test
 	public void testFolioHoldings() throws SQLException, IOException {
-		String resourceDataJson = loadResourceFile("example_reference_data/locations.json");
-		SupportReferenceData.initializeLocations(resourceDataJson);
-		String instanceStatusesJson = loadResourceFile("example_reference_data/instance_statuses.json");
-		SupportReferenceData.initializeInstanceStatuses(instanceStatusesJson);
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
+		SupportReferenceData.initializeInstanceStatuses("example_reference_data/instance_statuses.json");
 		String statusIdBatch = SupportReferenceData.instanceStatuses.getUuid("batch");
 		String statusIdCataloged = SupportReferenceData.instanceStatuses.getUuid("cat");
 

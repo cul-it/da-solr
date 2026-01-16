@@ -4,14 +4,15 @@ import static edu.cornell.library.integration.utilities.IndexingUtilities.remove
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
-import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
  * Generate isbn_display and isbn_t fields from 020 MARC field data.
@@ -39,25 +40,7 @@ public class ISBN implements SolrFieldGenerator {
 				switch (sf.code) {
 				case 'a':
 					aFound = true;
-
-					String cleanedISBN ;
-					int posOfSpace = sf.value.indexOf(' ');
-					if (posOfSpace == -1) cleanedISBN = sf.value;
-					else cleanedISBN = sf.value.substring(0, sf.value.indexOf(' '));
-					cleanedISBN = cleanedISBN.replaceAll("[^0-9Xx]", "");
-					vals.add(new SolrField( "isbn_t", cleanedISBN ));
-					boolean valid = validISBN.matcher(cleanedISBN).matches();
-					if (cleanedISBN.length() == 10 && valid)
-						vals.add(new SolrField( "isbn_t", isbn10to13(cleanedISBN) ));
-					else if ( cleanedISBN.length() == 13 && valid && cleanedISBN.startsWith("978") )
-						vals.add(new SolrField( "isbn_t", isbn13to10(cleanedISBN) ));
-					
-					if (sbDisplay.length() > 0)
-						sbDisplay.append(' ');
-					if (posOfSpace == -1)
-						sbDisplay.append(cleanedISBN);
-					else
-						sbDisplay.append(cleanedISBN).append(sf.value.substring(posOfSpace));
+					processMainISBNField( vals, sf.value, sbDisplay);
 					break;
 				case 'c':
 					// Not currently displayed
@@ -89,11 +72,49 @@ public class ISBN implements SolrFieldGenerator {
 			}
 			if (aFound) {
 				String s = removeTrailingPunctuation(sbDisplay.toString()," :;");
-				vals.add(new SolrField("isbn_display",s));
+				vals.add("isbn_display",s);
 			}
 		}
 		return vals;
 	}
+
+	public SolrFields generateNonMarcSolrFields(Map<String,Object> instance, Config config ) {
+		SolrFields vals = new SolrFields();
+		if ( ! instance.containsKey("identifiers") ) return vals;
+		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
+		List<Map<String,String>> identifiers = (List<Map<String, String>>) instance.get("identifiers");
+		for (Map<String,String> identifier : identifiers) {
+			if ( identifier.get("identifierTypeId").equals(isbnUUID) && ! identifier.get("value").isBlank()) { 
+				StringBuilder sbDisplay = new StringBuilder();
+				processMainISBNField(vals, identifier.get("value"), sbDisplay);
+				vals.add("isbn_display",sbDisplay.toString());
+			}
+		}
+		return vals;
+		
+	}
+
+	private void processMainISBNField(SolrFields vals, String value, StringBuilder sbDisplay) {
+		String cleanedISBN ;
+		int posOfSpace = value.indexOf(' ');
+		if (posOfSpace == -1) cleanedISBN = value;
+		else cleanedISBN = value.substring(0, value.indexOf(' '));
+		cleanedISBN = cleanedISBN.replaceAll("[^0-9Xx]", "");
+		vals.add("isbn_t", cleanedISBN );
+		boolean valid = validISBN.matcher(cleanedISBN).matches();
+		if (cleanedISBN.length() == 10 && valid)
+			vals.add("isbn_t", isbn10to13(cleanedISBN));
+		else if ( cleanedISBN.length() == 13 && valid && cleanedISBN.startsWith("978") )
+			vals.add("isbn_t", isbn13to10(cleanedISBN));
+		
+		if (sbDisplay.length() > 0)
+			sbDisplay.append(' ');
+		if (posOfSpace == -1)
+			sbDisplay.append(cleanedISBN);
+		else
+			sbDisplay.append(cleanedISBN).append(value.substring(posOfSpace));
+	}
+
 
 	static String isbn13to10(String searchISBN) {
 		StringBuilder sb = new StringBuilder();
