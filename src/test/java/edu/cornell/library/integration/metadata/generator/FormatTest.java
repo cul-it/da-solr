@@ -3,14 +3,12 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,11 +25,8 @@ public class FormatTest {
 
 	@BeforeClass
 	public static void instantiateTestInstanceResourceTypes() throws IOException {
-		Format.resourceTypes = new ReferenceData("name");
-		Format.resourceTypes.addTestValue("c7f7446f-4642-4d97-88c9-55bae2ad6c7f", "spoken word");
-		Format.resourceTypes.addTestValue("2afc8005-8654-4401-8321-d991f8cb95e9", "borrow direct");
-		Format.resourceTypes.addTestValue("6312d172-f0cf-40f6-b27d-9fa8feaf332f", "text");
-		Format.resourceTypes.addTestValue("497b5090-3da2-486c-b57f-de5bb3c2e26d", "notated music");
+		SupportReferenceData.initializeInstanceTypes("example_reference_data/instance-types.json");
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 	}
 
 	@Test

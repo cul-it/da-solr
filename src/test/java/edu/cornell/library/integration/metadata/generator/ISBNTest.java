@@ -3,13 +3,10 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

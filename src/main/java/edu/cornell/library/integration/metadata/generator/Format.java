@@ -81,15 +81,9 @@ public class Format implements SolrFieldGenerator {
 				for (Subfield sf : f.subfields)
 					if (sf.code.equals('b')) loccodes.add(sf.value);
 		if ( rec.folioHoldings != null ) {
-			if ( folioLocations == null ) 
-				folioLocations = SupportReferenceData.locations;
-				if (folioLocations == null) {
-					FolioClient folio = config.getFolio("Folio");
-					folioLocations = new ReferenceData( folio,"/locations","code");
-				}
 			for (Map<String,Object> holding : rec.folioHoldings)
 				if ( holding.containsKey("permanentLocationId") ) {
-					String locationCode = folioLocations.getName(holding.get("permanentLocationId").toString());
+					String locationCode = SupportReferenceData.locations.getName(holding.get("permanentLocationId").toString());
 					if ( locationCode != null ) loccodes.add(locationCode);
 				}
 		}
@@ -241,9 +235,8 @@ public class Format implements SolrFieldGenerator {
 	public SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config ) throws IOException {
 		BLFormat format = BLFormat.MONO; //default
 		if (instance.containsKey("instanceTypeId")) {
-			if ( resourceTypes == null )
-				resourceTypes = new ReferenceData(config.getFolio("Folio"),"/instance-types","name");
-			String resourceType = resourceTypes.getName((String)instance.get("instanceTypeId"));
+
+			String resourceType = SupportReferenceData.instanceTypes.getName((String)instance.get("instanceTypeId"));
 			if ( resourceType == null )
 				// Most likely someone has been editing resource types in the last few hours. Very rare.
 				System.out.printf("instanceTypeId %s not known resource type.\n",
@@ -336,10 +329,6 @@ public class Format implements SolrFieldGenerator {
 		return sfs;
 
 	}
-
-	private static ReferenceData folioLocations = null;
-
-	static ReferenceData resourceTypes = null;
 
 	private enum BLFormat {
 		MONO    ("Book"),

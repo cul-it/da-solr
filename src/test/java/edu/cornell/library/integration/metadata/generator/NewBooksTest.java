@@ -3,13 +3,11 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.Test;
 
@@ -133,12 +131,5 @@ public class NewBooksTest {
 		meta.put("createdDate", createdDate);
 
 		return rec;
-	}
-	
-	public String loadResourceFile(String filename) throws IOException {
-		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-				Scanner s = new Scanner(is,"UTF-8")) {
-			return s.useDelimiter("\\A").next();
-		}
 	}
 }

@@ -9,19 +9,26 @@ import edu.cornell.library.integration.folio.ReferenceData;
 
 public class SupportReferenceData {
 
+	public static ReferenceData callNumberTypes;
 	public static ReferenceData contributorTypes;
 	public static ReferenceData contributorNameTypes;
 	public static ReferenceData identifierTypes;
 	public static ReferenceData instanceNoteTypes;
 	public static ReferenceData instanceStatuses;
+	public static ReferenceData instanceTypes;
 	public static ReferenceData locations;
 	public static void initialize( FolioClient folio) throws IOException {
+		callNumberTypes = new ReferenceData(folio,"/call-number-types","name");
 		contributorTypes = new ReferenceData( folio, "/contributor-types","name");
 		contributorNameTypes = new ReferenceData( folio, "/contributor-name-types","ordering");
 		identifierTypes = new ReferenceData( folio, "/identifier-types","name");
 		instanceNoteTypes = new ReferenceData( folio, "/instance-note-types","name");
 		instanceStatuses = new ReferenceData( folio, "/instance-statuses","code");
+		instanceStatuses = new ReferenceData( folio, "/instance-types","name");
 		locations = new ReferenceData( folio,"/locations","code");
+	}
+	public static void initializeCallNumberTypes(String filename) throws IOException {
+		callNumberTypes = new ReferenceData( loadResourceFile(filename), "name");
 	}
 	public static void initializeContributorTypes(String filename) throws IOException {
 		contributorTypes = new ReferenceData( loadResourceFile(filename), "name");
@@ -37,6 +44,9 @@ public class SupportReferenceData {
 	}
 	public static void initializeInstanceStatuses(String filename) throws IOException {
 		instanceStatuses = new ReferenceData( loadResourceFile(filename), "code");
+	}
+	public static void initializeInstanceTypes(String filename) throws IOException {
+		instanceTypes = new ReferenceData( loadResourceFile(filename), "name");
 	}
 	public static void initializeLocations(String filename) throws IOException {
 		locations = new ReferenceData( loadResourceFile(filename), "code");

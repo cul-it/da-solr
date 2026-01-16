@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class CallNumberTest extends DbBaseTest {
 
@@ -25,6 +26,8 @@ public class CallNumberTest extends DbBaseTest {
 	public static void setup() throws IOException, SQLException {
 //		config = Config.loadConfig(new ArrayList<>());
 		setup("Headings");
+		SupportReferenceData.initializeCallNumberTypes("example_reference_data/call-number-types.json");
+
 	}
 
 	@Test
