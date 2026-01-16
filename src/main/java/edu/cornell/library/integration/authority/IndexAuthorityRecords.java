@@ -12,8 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,8 +46,13 @@ public class IndexAuthorityRecords {
 	private static EnumSet<HeadingType> authorTypes = EnumSet.of(
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
-	private static final String ARG_INDEX_ALL = "--index-all";
-	private static final String ARG_SETUP_DB = "--setup-db";
+	protected static final String ARG_INDEX_ALL = "--index-all";
+	protected static final String ARG_SETUP_DB = "--setup-db";
+	protected static final int NULL_LCCN = -1;
+	protected static final int UNRECOGNIZED_SOURCE = -2;
+	protected static final String MIN_YEAR_WEEK = "00.00";
+	protected static final String MAX_YEAR_WEEK = "50.01";
+	protected static final String IndexAuthorityRecordsCursorName = "index_authority_records";
 
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
@@ -70,12 +73,13 @@ public class IndexAuthorityRecords {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
-			String maxModdate = getMaxModDate(authority);
-			Set<String> identifiers = getAllIdentifiers(authority);
-
 			//set up database (including populating description maps)
 			if (setupDb)
 				setUpDatabase(headings);
+
+			// It assumes we have at least one data after 2000.
+			String maxYearWeek = getMaxYearWeek(authority, MIN_YEAR_WEEK);
+			Set<String> identifiers = getAllIdentifiers(authority);
 
 			for (String identifier : identifiers) {
 				MarcRecord rec = getMostRecentRecord(authority, identifier);
@@ -89,10 +93,15 @@ public class IndexAuthorityRecords {
 					continue;
 				}
 
-				processAuthorityMarc( headings, rec );
+				try {
+					processAuthorityMarc( headings, rec );
+				} catch (Exception ex) {
+					System.out.println("ERROR: Exception encountered while processing " + rec.id);
+					System.out.println(ex);
+				}
 			}
 
-			return updateCursor(headings, maxModdate);
+			return updateCursor(headings, maxYearWeek);
 		}
 	}
 
@@ -102,7 +111,10 @@ public class IndexAuthorityRecords {
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
 			String cursor = getCursor(headings);
-			String maxModdate = getMaxModDate(authority);
+			String maxYearWeek = getMaxYearWeek(authority, cursor);
+			if (maxYearWeek.equalsIgnoreCase(cursor))
+				return cursor;
+
 			Set<String> identifiers = getNewIdentifiers(authority, cursor);
 
 			headings.setAutoCommit(false);
@@ -125,7 +137,7 @@ public class IndexAuthorityRecords {
 				headings.commit();
 			}
 
-			cursor = updateCursor(headings, maxModdate);
+			cursor = updateCursor(headings, maxYearWeek);
 			headings.commit();
 
 			return cursor;
@@ -134,7 +146,7 @@ public class IndexAuthorityRecords {
 
 	protected static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
 		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
-				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC, updateFile DESC LIMIT 1")) {
+				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY updateFile DESC LIMIT 1")) {
 			getAuthStmt.setString(1, identifier);
 			try (ResultSet rs = getAuthStmt.executeQuery()) {
 				while (rs.next())
@@ -173,29 +185,40 @@ public class IndexAuthorityRecords {
 		return identifiers;
 	}
 
-	protected static String subtractOneDay(String inputDateString) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate date = LocalDate.parse(inputDateString, formatter);
-		LocalDate dateYesterday = date.minusDays(1);
-		return dateYesterday.format(formatter);
-	}
-
 	protected static String getCursor(Connection headings) throws SQLException {
 		try (Statement stmt = headings.createStatement();
 			 ResultSet rs = stmt.executeQuery("SELECT current_to_date FROM headingsUpdateCursor WHERE cursor_name = 'index_authority_records'")) {
-			if (rs.next()) return subtractOneDay(rs.getString(1));
+			if (rs.next()) return rs.getString(1);
 
 			throw new SQLException("headingsUpdateCursor table is empty!");
 		}
 	}
 
-	protected static String getMaxModDate(Connection authority) throws SQLException {
-		try (PreparedStatement pstmt = authority.prepareStatement("SELECT MAX(moddate) as maxModDate FROM authorityUpdate");
-			 ResultSet rs = pstmt.executeQuery()) {
-			if (rs.next()) return rs.getString(1);
+	/*
+	 * Try to find maximum year week from authorityUpdate.
+	 * It tries to find maximum unname and unsub separately and return the bigger one.
+	 * If it doesn't find new data since previousCursor, it returns previousCursor.
+	 */
+	protected static String getMaxYearWeek(Connection authority, String previousCursor) throws SQLException {
+		String sql = "SELECT MAX(updateFile) FROM authorityUpdate WHERE updateFile > ? and updateFile < ?";
+		String newMax = previousCursor;
+		try (PreparedStatement pstmt = authority.prepareStatement(sql)) {
+			for (String columnPrefix : Arrays.asList("unname", "unsub")) {
+				pstmt.setString(1, columnPrefix + previousCursor);
+				pstmt.setString(2, columnPrefix + MAX_YEAR_WEEK);
+				ResultSet rs = pstmt.executeQuery();
+				if (rs.next()) {
+					String thisMax = rs.getString(1);
+					if (thisMax == null)
+						continue;
+					String thisYearWeek = thisMax.substring(thisMax.length() - 5);
+					if (thisYearWeek.compareToIgnoreCase(newMax) > 0)
+						newMax = thisYearWeek;
+				}
+			}
 		}
 
-		throw new SQLException("Shouldn't get here when getting max moddate!");
+		return newMax;
 	}
 
 	protected static String updateCursor(Connection headings, String cursor) throws SQLException {
@@ -208,11 +231,16 @@ public class IndexAuthorityRecords {
 
 	protected static Set<String> getNewIdentifiers(Connection authority, String cursor) throws SQLException {
 		Set<String> identifiers = new TreeSet<>();
-		try (PreparedStatement pstmt = authority.prepareStatement("SELECT DISTINCT id FROM authorityUpdate WHERE moddate > ?")) {
-			pstmt.setString(1, cursor);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs.next()) {
-					identifiers.add(rs.getString(1));
+		String sql = "SELECT DISTINCT id FROM authorityUpdate WHERE updateFile > ? AND updateFile < ?";
+		try (PreparedStatement pstmt = authority.prepareStatement(sql)) {
+			for (String columnPrefix : Arrays.asList("unname", "unsub")) {
+				String min = columnPrefix + cursor;
+				String max = columnPrefix + MAX_YEAR_WEEK;
+				pstmt.setString(1, min);
+				pstmt.setString(2, max);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next())
+						identifiers.add(rs.getString(1));
 				}
 			}
 			System.out.format("%d new records in authorityUpdate.\n",identifiers.size());
@@ -296,7 +324,7 @@ public class IndexAuthorityRecords {
 					+ "`heading_id` int(10) unsigned NOT NULL, "
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`note` text NOT NULL, "
-					+ "KEY (`heading_id`)) "
+					+ "KEY (`heading_id`), "
 					+ "KEY (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -366,7 +394,7 @@ public class IndexAuthorityRecords {
 					+ "`heading_id` int(10) unsigned NOT NULL, "
 					+ "`authority_id` int(10) unsigned NOT NULL, "
 					+ "`rda` text NOT NULL, "
-					+ "KEY `heading_id` (`heading_id`)) "
+					+ "KEY `heading_id` (`heading_id`), "
 					+ "KEY `authority_id` (`authority_id`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -470,7 +498,7 @@ public class IndexAuthorityRecords {
 				addToRdaData(a.rdaData,f);
 			} else if (f.tag.startsWith("4")) {
 				// equivalent values
-				Relation r = determineRelationship(f);
+				Relation r = determineRelationship(f, rec.id);
 				if (r != null) {
 					if ( a.mainHead == null ) {
 						System.out.println("Found 4xx relation while main heading is null.");
@@ -483,7 +511,7 @@ public class IndexAuthorityRecords {
 				}
 			} else if (f.tag.startsWith("5")) {
 				// see alsos
-				Relation r = determineRelationship(f);
+				Relation r = determineRelationship(f, rec.id);
 				if (r != null) {
 					a.expectedNotes.addAll(r.expectedNotes);
 					r.heading = processHeadingField(f,null);
@@ -755,13 +783,12 @@ public class IndexAuthorityRecords {
 	}
 
 	protected static Integer getAuthorityId(Connection headings, AuthorityData a) throws SQLException {
-		if (a.lccn == null) return null;
+		if (a.lccn == null) return NULL_LCCN;
 		for ( AuthoritySource source : AuthoritySource.values() )
 			if (source.prefix() != null && a.lccn.startsWith(source.prefix()))
 				a.source = source;
 		if (a.source == null) {
-			System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
-			return null;
+			return UNRECOGNIZED_SOURCE;
 		}
 
 		Integer authorityId = null;
@@ -785,7 +812,12 @@ public class IndexAuthorityRecords {
 		Integer authorityId = getAuthorityId(headings, a);
 
 		if ( authorityId != null )
-			System.out.println("Possible duplicate authority ID: "+authorityId);
+			if ( authorityId == NULL_LCCN )
+				System.out.println("Null LCCN for native heading: " + a.nativeHeading);
+			else if ( authorityId == UNRECOGNIZED_SOURCE )
+				System.out.println("Not registering authority. Failed to recognize source: "+a.lccn);
+			else
+				System.out.println("Possible duplicate authority ID: "+authorityId);
 
 		else try ( PreparedStatement stmt = headings.prepareStatement(
 				"INSERT INTO authority"
@@ -804,7 +836,7 @@ public class IndexAuthorityRecords {
 				if (generatedKeys.next())
 					authorityId = generatedKeys.getInt(1); }
 		}
-		if (authorityId == null) return;
+		if (authorityId == null || authorityId < 0) return;
 
 		try (PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO authority2heading (heading_id, authority_id, main_entry) VALUES (?,?,1)")) {
@@ -929,7 +961,7 @@ public class IndexAuthorityRecords {
 		}
 	}
 
-	protected static Relation determineRelationship( DataField f ) {
+	protected static Relation determineRelationship( DataField f, String id ) {
 		// Is there a subfield w? The relationship note in subfield w
 		// describes the 4XX or 5XX heading, and must be reversed for the
 		// from tracing.
@@ -939,6 +971,11 @@ public class IndexAuthorityRecords {
 		for (Subfield sf : f.subfields) {
 			if (sf.code.equals('w')) {
 				hasW = true;
+
+				if (sf.value == null || sf.value.isEmpty()) {
+					System.out.println("ERROR: Subfield w with empty value detected " + id);
+					continue;
+				}
 
 				switch (sf.value.charAt(0)) {
 				case 'a':
