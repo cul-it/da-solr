@@ -12,8 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Normalizer;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,10 +46,13 @@ public class IndexAuthorityRecords {
 	private static EnumSet<HeadingType> authorTypes = EnumSet.of(
 			HeadingType.PERSNAME, HeadingType.CORPNAME, HeadingType.EVENT);
 
-	private static final String ARG_INDEX_ALL = "--index-all";
-	private static final String ARG_SETUP_DB = "--setup-db";
-	private static final int NULL_LCCN = -1;
-	private static final int UNRECOGNIZED_SOURCE = -2;
+	protected static final String ARG_INDEX_ALL = "--index-all";
+	protected static final String ARG_SETUP_DB = "--setup-db";
+	protected static final int NULL_LCCN = -1;
+	protected static final int UNRECOGNIZED_SOURCE = -2;
+	protected static final String MIN_YEAR_WEEK = "00.00";
+	protected static final String MAX_YEAR_WEEK = "50.01";
+	protected static final String IndexAuthorityRecordsCursorName = "index_authority_records";
 
 	public static void main(String[] args)
 			throws FileNotFoundException, IOException, SQLException {
@@ -76,7 +77,8 @@ public class IndexAuthorityRecords {
 			if (setupDb)
 				setUpDatabase(headings);
 
-			String maxModdate = getMaxModDate(authority);
+			// It assumes we have at least one data after 2000.
+			String maxYearWeek = getMaxYearWeek(authority, MIN_YEAR_WEEK);
 			Set<String> identifiers = getAllIdentifiers(authority);
 
 			for (String identifier : identifiers) {
@@ -99,7 +101,7 @@ public class IndexAuthorityRecords {
 				}
 			}
 
-			return updateCursor(headings, maxModdate);
+			return updateCursor(headings, maxYearWeek);
 		}
 	}
 
@@ -109,7 +111,10 @@ public class IndexAuthorityRecords {
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
 			String cursor = getCursor(headings);
-			String maxModdate = getMaxModDate(authority);
+			String maxYearWeek = getMaxYearWeek(authority, cursor);
+			if (maxYearWeek.equalsIgnoreCase(cursor))
+				return cursor;
+
 			Set<String> identifiers = getNewIdentifiers(authority, cursor);
 
 			headings.setAutoCommit(false);
@@ -132,7 +137,7 @@ public class IndexAuthorityRecords {
 				headings.commit();
 			}
 
-			cursor = updateCursor(headings, maxModdate);
+			cursor = updateCursor(headings, maxYearWeek);
 			headings.commit();
 
 			return cursor;
@@ -141,7 +146,7 @@ public class IndexAuthorityRecords {
 
 	protected static MarcRecord getMostRecentRecord(Connection authority, String identifier) throws SQLException {
 		try ( PreparedStatement getAuthStmt = authority.prepareStatement(
-				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY moddate DESC, updateFile DESC LIMIT 1")) {
+				"SELECT marc21 FROM authorityUpdate WHERE id = ? ORDER BY updateFile DESC LIMIT 1")) {
 			getAuthStmt.setString(1, identifier);
 			try (ResultSet rs = getAuthStmt.executeQuery()) {
 				while (rs.next())
@@ -180,29 +185,40 @@ public class IndexAuthorityRecords {
 		return identifiers;
 	}
 
-	protected static String subtractOneDay(String inputDateString) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate date = LocalDate.parse(inputDateString, formatter);
-		LocalDate dateYesterday = date.minusDays(1);
-		return dateYesterday.format(formatter);
-	}
-
 	protected static String getCursor(Connection headings) throws SQLException {
 		try (Statement stmt = headings.createStatement();
 			 ResultSet rs = stmt.executeQuery("SELECT current_to_date FROM headingsUpdateCursor WHERE cursor_name = 'index_authority_records'")) {
-			if (rs.next()) return subtractOneDay(rs.getString(1));
+			if (rs.next()) return rs.getString(1);
 
 			throw new SQLException("headingsUpdateCursor table is empty!");
 		}
 	}
 
-	protected static String getMaxModDate(Connection authority) throws SQLException {
-		try (PreparedStatement pstmt = authority.prepareStatement("SELECT MAX(moddate) as maxModDate FROM authorityUpdate");
-			 ResultSet rs = pstmt.executeQuery()) {
-			if (rs.next()) return rs.getString(1);
+	/*
+	 * Try to find maximum year week from authorityUpdate.
+	 * It tries to find maximum unname and unsub separately and return the bigger one.
+	 * If it doesn't find new data since previousCursor, it returns previousCursor.
+	 */
+	protected static String getMaxYearWeek(Connection authority, String previousCursor) throws SQLException {
+		String sql = "SELECT MAX(updateFile) FROM authorityUpdate WHERE updateFile > ? and updateFile < ?";
+		String newMax = previousCursor;
+		try (PreparedStatement pstmt = authority.prepareStatement(sql)) {
+			for (String columnPrefix : Arrays.asList("unname", "unsub")) {
+				pstmt.setString(1, columnPrefix + previousCursor);
+				pstmt.setString(2, columnPrefix + MAX_YEAR_WEEK);
+				ResultSet rs = pstmt.executeQuery();
+				if (rs.next()) {
+					String thisMax = rs.getString(1);
+					if (thisMax == null)
+						continue;
+					String thisYearWeek = thisMax.substring(thisMax.length() - 5);
+					if (thisYearWeek.compareToIgnoreCase(newMax) > 0)
+						newMax = thisYearWeek;
+				}
+			}
 		}
 
-		throw new SQLException("Shouldn't get here when getting max moddate!");
+		return newMax;
 	}
 
 	protected static String updateCursor(Connection headings, String cursor) throws SQLException {
@@ -215,11 +231,16 @@ public class IndexAuthorityRecords {
 
 	protected static Set<String> getNewIdentifiers(Connection authority, String cursor) throws SQLException {
 		Set<String> identifiers = new TreeSet<>();
-		try (PreparedStatement pstmt = authority.prepareStatement("SELECT DISTINCT id FROM authorityUpdate WHERE moddate > ?")) {
-			pstmt.setString(1, cursor);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs.next()) {
-					identifiers.add(rs.getString(1));
+		String sql = "SELECT DISTINCT id FROM authorityUpdate WHERE updateFile > ? AND updateFile < ?";
+		try (PreparedStatement pstmt = authority.prepareStatement(sql)) {
+			for (String columnPrefix : Arrays.asList("unname", "unsub")) {
+				String min = columnPrefix + cursor;
+				String max = columnPrefix + MAX_YEAR_WEEK;
+				pstmt.setString(1, min);
+				pstmt.setString(2, max);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next())
+						identifiers.add(rs.getString(1));
 				}
 			}
 			System.out.format("%d new records in authorityUpdate.\n",identifiers.size());

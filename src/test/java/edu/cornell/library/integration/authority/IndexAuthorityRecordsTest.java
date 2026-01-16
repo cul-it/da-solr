@@ -24,9 +24,12 @@ import edu.cornell.library.integration.utilities.Config;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class IndexAuthorityRecordsTest extends DbBaseTest {
-	// This value is the max moddate from the test data we added to authorityUpdate table.
-	static final String MAX_MODDATE = "2025-01-15";
-	static final String STARTING_CURSOR = "2025-01-14";
+	// This value is the max year week portion of authorityFile column from the test data we added to authorityUpdate table.
+	static final String MAX_YEAR_WEEK = "25.01";
+	static final String STARTING_CURSOR = "20.01";
+	static final String IGNORED_UPDATE_FILE = "unname99.01";
+	static final String NEW_UPDATE_FILE = "unname25.02";
+	static final String NEW_MAX_YEAR_WEEK = "25.02";
 
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
@@ -57,7 +60,7 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			Integer referenceId = dbQueryGetInt(referenceRel, authId);
 			assert referenceId != null;
 
-			assert cursor.equalsIgnoreCase(MAX_MODDATE) : "New cursor date should be max moddate from authorityUpdate";
+			assertEquals(MAX_YEAR_WEEK, cursor, "New cursor should be " + MAX_YEAR_WEEK);
 		}
 	}
 
@@ -66,10 +69,10 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 	public void testIndexNewAuthorityRecords() throws SQLException, FileNotFoundException, IOException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, MAX_MODDATE);
+			Set<String> identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, MAX_YEAR_WEEK);
 			assertEquals(0, identifiers.size());
 
-			identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, "2021-01-15");
+			identifiers = IndexAuthorityRecords.getNewIdentifiers(authority, STARTING_CURSOR);
 			assertEquals(2, identifiers.size());
 
 			String deletedIdentifier = "sh 85066170";
@@ -91,11 +94,16 @@ public class IndexAuthorityRecordsTest extends DbBaseTest {
 			headingUpdate.setInt(1, existingHeadingIds.get(0));
 			headingUpdate.executeUpdate();
 
-			String cursor = IndexAuthorityRecords.getCursor(headings);
-			assert cursor.equalsIgnoreCase(STARTING_CURSOR) : "getCursor should subtract one day from previous cursor date";
-
-			cursor = IndexAuthorityRecords.indexNewAuthorityRecords(config);
-			assert cursor.equalsIgnoreCase(MAX_MODDATE) : "New cursor should match the max moddate in authorityUpdate";
+			/*
+			 * The test data contains a record whose updateFile is set to 99.01 so it wouldn't get picked up initially.
+			 * Set the updateFile to new max for indexNewAuthorityRecords test.
+			 */
+			PreparedStatement changeUpdateFile = authority.prepareStatement("UPDATE authorityUpdate SET updateFile = ? WHERE updateFile = ?");
+			changeUpdateFile.setString(1, NEW_UPDATE_FILE);
+			changeUpdateFile.setString(2, IGNORED_UPDATE_FILE);
+			changeUpdateFile.executeUpdate();
+			String cursor = IndexAuthorityRecords.indexNewAuthorityRecords(config);
+			assertEquals(NEW_MAX_YEAR_WEEK, cursor, "New cursor should match the max year week of updateFile in authorityUpdate");
 
 			Integer newAuthId = dbQueryGetInt(authByNativeId, "sh 85066169");
 			assert newAuthId != null;

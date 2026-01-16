@@ -22,7 +22,7 @@ CREATE TABLE `rda` (`heading_id` int(10) unsigned NOT NULL, `authority_id` int(1
 CREATE TABLE `ref_type` (`id` tinyint(3) unsigned NOT NULL, `name` varchar(256) NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 CREATE TABLE `reference` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `from_heading` int(10) unsigned NOT NULL, `to_heading` int(10) unsigned NOT NULL, `ref_type` tinyint(3) unsigned NOT NULL, `ref_desc` varchar(256) NOT NULL DEFAULT '', PRIMARY KEY (`id`), UNIQUE KEY `from_heading` (`from_heading`,`to_heading`,`ref_type`,`ref_desc`), KEY `to_heading` (`to_heading`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 CREATE TABLE `replacement_headings` (`orig_sort` mediumtext NOT NULL, `preferred_display` text NOT NULL, KEY `orig_sort` (`orig_sort`(100))) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-CREATE TABLE `headingsUpdateCursor` (`cursor_name` varchar(25) NOT NULL, `current_to_date` date DEFAULT NULL, PRIMARY KEY (`cursor_name`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+CREATE TABLE `headingsUpdateCursor` (`cursor_name` varchar(25) NOT NULL, `current_to_date` varchar(15) DEFAULT NULL, PRIMARY KEY (`cursor_name`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 -- classifications
 CREATE TABLE `classification` (`low_letters` char(3) NOT NULL, `high_letters` char(3) NOT NULL, `low_numbers` float(10,4) NOT NULL, `high_numbers` float(10,4) NOT NULL, `label` varchar(256) CHARACTER SET utf8 NOT NULL, KEY `low_letters` (`low_letters`,`high_letters`,`low_numbers`,`high_numbers`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 -- current
