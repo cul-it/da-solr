@@ -23,7 +23,7 @@ CREATE TABLE `rda` (`heading_id` int NOT NULL, `authority_id` int NOT NULL, `rda
 CREATE TABLE `ref_type` (`id` int NOT NULL, `name` text NOT NULL, PRIMARY KEY  (`id`));
 CREATE TABLE `reference` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `from_heading` integer NOT NULL, `to_heading` integer NOT NULL, `ref_type` integer NOT NULL, `ref_desc` varchar(256) NOT NULL DEFAULT '', UNIQUE (`from_heading`,`to_heading`,`ref_type`,`ref_desc`));
 CREATE TABLE `replacement_headings` (`orig_sort` mediumtext NOT NULL, `preferred_display` text NOT NULL);
-CREATE TABLE `headingsUpdateCursor` (`cursor_name` text NOT NULL, `current_to_date` date DEFAULT NULL, PRIMARY KEY (`cursor_name`));
+CREATE TABLE `headingsUpdateCursor` (`cursor_name` text NOT NULL, `current_to_date` char(5) DEFAULT NULL, PRIMARY KEY (`cursor_name`));
 -- classifications
 CREATE TABLE `classification` (`low_letters` char(3) NOT NULL, `high_letters` char(3) NOT NULL, `low_numbers` float(10,4) NOT NULL, `high_numbers` float(10,4) NOT NULL, `label` varchar(256) NOT NULL);
 -- current

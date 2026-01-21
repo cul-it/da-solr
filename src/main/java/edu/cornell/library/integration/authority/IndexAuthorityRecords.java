@@ -121,20 +121,26 @@ public class IndexAuthorityRecords {
 			for (String identifier : identifiers) {
 				MarcRecord rec = getMostRecentRecord(authority, identifier);
 				if (rec == null) continue;
+				try {
+					removeExistingAuthorityRecord(headings, rec);
 
-				removeExistingAuthorityRecord(headings, rec);
+					String heading = null;
+					for (DataField f : rec.dataFields) if (f.tag.startsWith("1"))
+						heading = nativeHeading(f);
+					Character recordStatus = rec.leader.charAt(5);
+					if ( recordStatus.equals('d') || recordStatus.equals('o')) {
+						System.out.format("%s %s deleted\n", rec.id, heading);
+						headings.commit();
+						continue;
+					}
 
-				String heading = null;
-				for (DataField f : rec.dataFields) if (f.tag.startsWith("1"))
-					heading = nativeHeading(f);
-				Character recordStatus = rec.leader.charAt(5);
-				if ( recordStatus.equals('d') || recordStatus.equals('o')) {
-					System.out.format("%s %s deleted\n", rec.id, heading);
-					continue;
+					processAuthorityMarc( headings, rec );
+					headings.commit();
+				} catch (Exception ex) {
+					System.out.println("ERROR: Exception encountered while processing " + rec.id);
+					System.out.println(ex);
+					headings.rollback();
 				}
-
-				processAuthorityMarc( headings, rec );
-				headings.commit();
 			}
 
 			cursor = updateCursor(headings, maxYearWeek);
@@ -288,11 +294,11 @@ public class IndexAuthorityRecords {
 			 PreparedStatement removeFromAuthority = headings.prepareStatement("DELETE FROM authority WHERE id = ?");) {
 
 			AuthorityData a = parseMarcRecord(record);
+			if (a == null) return;
+
 			Integer authorityId = getAuthorityId(headings, a);
-			if (authorityId == null) {
-				// a new record
+			if (authorityId == null || authorityId < 0)
 				return;
-			}
 
 			removeReference(headings, authorityId);
 
@@ -410,7 +416,7 @@ public class IndexAuthorityRecords {
 
 			stmt.execute("CREATE TABLE `headingsUpdateCursor` ( "
 					+ "`cursor_name` varchar(25) NOT NULL, "
-					+ "`current_to_date` date DEFAULT NULL, "
+					+ "`current_to_date` char(5) DEFAULT NULL, "
 					+ "PRIMARY KEY (`cursor_name`)) "
 					+ "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 		}
