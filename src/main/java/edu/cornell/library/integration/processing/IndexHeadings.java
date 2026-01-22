@@ -88,9 +88,9 @@ public class IndexHeadings {
 
 			deleteCountsFromDB();
 
-			Arrays.stream(BlacklightHeadingField.values()).parallel()
-				.forEach( blf -> processBlacklightHeadingFieldHeaderData( solr, blf ));
-
+			for (BlacklightHeadingField blf : BlacklightHeadingField.values()) {
+				processBlacklightHeadingFieldHeaderData( solr, blf );
+			}
 		}
 
 	}
