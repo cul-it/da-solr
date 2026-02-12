@@ -1,0 +1,25 @@
+package edu.cornell.library.integration.authority;
+
+public class AuthorityParsedData {
+	public String id = null;
+	public String lccn = null;
+	public AuthoritySource vocab = null;
+	public RecordStatus recordStatus = null;
+	public String authorativeLabel = null;
+	public HeadingTypeJsonLD headingType = null;
+	public boolean isSubdivision = false;
+	public boolean undifferentiated = false;
+	public String moddate = null;
+
+	public void print() {
+		System.out.println("ID: " + id);
+		System.out.println("LCCN: " + lccn);
+		System.out.println("Vocab: " + vocab);
+		System.out.println("Record status: " + recordStatus.getDisplay());
+		System.out.println("authorativeLabel: " + authorativeLabel);
+		System.out.println("Heading type: " + headingType);
+		System.out.println("Subdivision: " + isSubdivision);
+		System.out.println("Undifferentiated: " + undifferentiated);
+		System.out.println("Mod date: " + moddate);
+	}
+}

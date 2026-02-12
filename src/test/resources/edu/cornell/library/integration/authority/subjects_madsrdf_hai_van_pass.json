@@ -1,0 +1,257 @@
+{
+	"@context": "http://id.loc.gov/authorities/subjects/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/subjects/sh2007006611",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:Geographic"
+			],
+			"bflc:marcKey": "151  $aHải Vân Pass (Vietnam)",
+			"identifiers:lccn": "sh2007006611",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb1"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb2"
+				}
+			],
+			"madsrdf:authoritativeLabel": {
+				"@language": "en",
+				"@value": "Hải Vân Pass (Vietnam)"
+			},
+			"madsrdf:code": {
+				"@type": "http://id.loc.gov/datatypes/codes/gac",
+				"@value": "a-vt---"
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb3"
+					}
+				]
+			},
+			"madsrdf:hasBroaderAuthority": {
+				"@id": "http://id.loc.gov/authorities/subjects/sh2011002116"
+			},
+			"madsrdf:hasSource": [
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb5"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb6"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb7"
+				}
+			],
+			"madsrdf:hasVariant": [
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb8"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb11"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb14"
+				},
+				{
+					"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb17"
+				}
+			],
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_LCSH_General"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/subjects"
+			},
+			"owl:sameAs": [
+				{
+					"@id": "http://id.loc.gov/authorities/sh2007006611#concept"
+				},
+				{
+					"@id": "info:lc/authorities/sh2007006611"
+				}
+			]
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2007-10-16T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/wau"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2021-01-15T13:28:11"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/wau"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb3",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "Hải Vân Pass (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb5",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "p. 5 (Đèo Hải Vân) p. 11 (ải Vân) p. 20 (between district Phú Lộc, Thừa Thiên - Hué̂ Province and the district Liên Chiẻ̂u in the city of Đà Nã̆ng)"
+			},
+			"madsrdf:citationSource": "Work cat.: Hải Vân, thiên hạ đệ nhá̂t hùng quan, 2005:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb6",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "(Hải Vân, Đèo, pass, 16⁰12ʹ00ʺN, 108⁰08ʹ00ʺE, Vietnam, variant: Nuages, Col des; also separate listing for Nuages, Đèo, pass, 22⁰33ʹ00ʺN, 103⁰33ʹ00ʺE, Lai Châu Province)"
+			},
+			"madsrdf:citationSource": "GEOnet, Aug. 14, 2007",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb7",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "(Hai Van Pass is a pass on National Road 1A in Vietnam; located on the border of Danang and Thừa Thiên-Hué̂ Province, near Bach Ma National Park; Hải Vân Pass)"
+			},
+			"madsrdf:citationSource": "Wikipedia, Aug. 14, 2007",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb8",
+			"@type": [
+				"madsrdf:Geographic",
+				"madsrdf:Variant"
+			],
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb9"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "en",
+				"@value": "Ải Vân Pass (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb9",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "Ải Vân Pass (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb11",
+			"@type": [
+				"madsrdf:Geographic",
+				"madsrdf:Variant"
+			],
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb12"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "en",
+				"@value": "Col des Nuages (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb12",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "Col des Nuages (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb14",
+			"@type": [
+				"madsrdf:Geographic",
+				"madsrdf:Variant"
+			],
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb15"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "en",
+				"@value": "Nuages Pass (Quảng Nam--Đà Nã̆ng and Thừa Thiên-Huế, Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb15",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "Nuages Pass (Quảng Nam--Đà Nã̆ng and Thừa Thiên-Huế, Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb17",
+			"@type": [
+				"madsrdf:Geographic",
+				"madsrdf:Variant"
+			],
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb18"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "en",
+				"@value": "Đèo Hải Vân (Vietnam)"
+			}
+		},
+		{
+			"@id": "_:n01f5853f810b47d0bd62a77a7cba19cfb18",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "Đèo Hải Vân (Vietnam)"
+			}
+		}
+	],
+	"@id": "/authorities/subjects/sh2007006611"
+}

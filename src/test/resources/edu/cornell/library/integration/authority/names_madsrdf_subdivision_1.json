@@ -1,0 +1,116 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/rwo/agents/n80125931",
+			"@type": "madsrdf:Geographic"
+		},
+		{
+			"@id": "http://id.loc.gov/authorities/names/n00000066-781",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:HierarchicalGeographic"
+			],
+			"bflc:marcKey": "181  $zGermany$zMarienstatt",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:ne6448e8b283940989a9e949010f203c9b1"
+				},
+				{
+					"@id": "_:ne6448e8b283940989a9e949010f203c9b2"
+				}
+			],
+			"madsrdf:authoritativeLabel": "Germany--Marienstatt",
+			"madsrdf:componentList": {
+				"@list": [
+					{
+						"@id": "http://id.loc.gov/rwo/agents/n80125931"
+					},
+					{
+						"@id": "_:ne6448e8b283940989a9e949010f203c9b3"
+					}
+				]
+			},
+			"madsrdf:editorialNote": "[Resource automatically generated from LCCN n00000066]",
+			"madsrdf:hasSource": {
+				"@id": "_:ne6448e8b283940989a9e949010f203c9b8"
+			},
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_Subdivisions"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		},
+		{
+			"@id": "_:ne6448e8b283940989a9e949010f203c9b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2025-08-08T16:31:10"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/ocolc"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:ne6448e8b283940989a9e949010f203c9b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-01-10T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:ne6448e8b283940989a9e949010f203c9b3",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:Geographic"
+			],
+			"madsrdf:authoritativeLabel": "Marienstatt",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:ne6448e8b283940989a9e949010f203c9b4"
+					}
+				]
+			}
+		},
+		{
+			"@id": "_:ne6448e8b283940989a9e949010f203c9b4",
+			"@type": "madsrdf:GeographicElement",
+			"madsrdf:elementValue": "Marienstatt"
+		},
+		{
+			"@id": "_:ne6448e8b283940989a9e949010f203c9b8",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/n00000066"
+				},
+				"Source: "
+			],
+			"madsrdf:citationStatus": "found"
+		}
+	],
+	"@id": "/authorities/names/n00000066-781"
+}
