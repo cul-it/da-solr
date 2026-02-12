@@ -68,8 +68,8 @@ public class AuthorityJsonLDHandler {
 				PreparedStatement insertStmt = authorityDB.prepareStatement(
 						"REPLACE INTO authorityUpdateJsonLD"+
 						"       (id,vocabulary,recordStatus,"+
-						"        heading,headingType,undifferentiated,"+
-						"        isSubdivision,moddate,rawId) "+
+						"        heading,headingType,isSubdivision,"+
+						"        undifferentiated,moddate,rawId) "+
 						"VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
 			try ( ResultSet rs = stmt.executeQuery()) {
 				while ( rs.next() ) {
