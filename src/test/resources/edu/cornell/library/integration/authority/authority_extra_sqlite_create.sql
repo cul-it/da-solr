@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS `authoritySourceJsonLD` (`id` int PRIMARY KEY, `json` text);
+CREATE TABLE IF NOT EXISTS `authorityUpdateJsonLD` (`id` text DEFAULT NULL, `lccn` text DEFAULT NULL, `vocabulary` int DEFAULT NULL, `recordStatus` int DEFAULT NULL, `heading` text DEFAULT NULL, `headingType` int DEFAULT NULL, `isSubdivision` int DEFAULT NULL, `undifferentiated` int DEFAULT NULL, `moddate` text DEFAULT NULL, `rawId` int DEFAULT NULL, PRIMARY KEY (`id`, `moddate`));
+CREATE TABLE IF NOT EXISTS `authorityJsonLDUpdateCursor` (`cursor_name` varchar(30) NOT NULL, `cursor` varchar(30) NOT NULL, PRIMARY KEY (`cursor_name`));

@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.authority;
+package edu.cornell.library.integration.authority.jsonld;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,12 +17,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
+import edu.cornell.library.integration.authority.AuthoritySource;
+import edu.cornell.library.integration.utilities.Config;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
@@ -30,27 +33,41 @@ import jakarta.json.JsonStructure;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 
-public class AuthorityJsonLDHandler {
-	public static final String SUBDIV_URL = "http://id.loc.gov/authorities/subjects/collection_Subdivisions";
-	public static final String UNDIFF_URL = "http://id.loc.gov/authorities/names/collection_NamesUndifferentiated";
+public class BulkDownloadHandler {
+	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
+		List<String> requiredArgs = Config.getRequiredArgsForDB("Authority");
+		Config config = Config.loadConfig(requiredArgs);
+		Map<String, String> env = System.getenv();
+		String jsonldURL = env.get("BulkDownloadURL");
+		boolean initDB = Boolean.getBoolean(env.get("initDB"));
 
-	public void loadBulkJsonLD(String url, Connection authorityDB) throws IOException, InterruptedException, SQLException {
-		HttpClient client = HttpClient.newHttpClient();
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(url)).build();
-		HttpResponse<InputStream> response = client.send(
-				request, HttpResponse.BodyHandlers.ofInputStream());
+		try (Connection authority = config.getDatabaseConnection("Authority")) {
+			if (initDB)
+				DBHelper.setUpDatabase(authority);
 
-		InputStream bodyStream = response.body();
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create(jsonldURL)).build();
+			HttpResponse<InputStream> response = client.send(
+					request, HttpResponse.BodyHandlers.ofInputStream());
+			InputStream bodyStream = response.body();
+
+			BulkDownloadHandler handler = new BulkDownloadHandler();
+			String cursor = handler.loadBulkJsonLD(bodyStream, authority);
+			DBHelper.updateCursor(authority, cursor);
+		}
+	}
+
+	public String loadBulkJsonLD(InputStream bodyStream, Connection authorityDB) throws IOException, InterruptedException, SQLException {
 		storeRawData(bodyStream, authorityDB);
-		processData(authorityDB);
+		return processData(authorityDB);
 	}
 
 	public void storeRawData(InputStream jsonLdStream, Connection authorityDB) throws IOException, SQLException {
 		int count = 0;
 		try (   BufferedReader reader = new BufferedReader(new InputStreamReader(jsonLdStream, StandardCharsets.UTF_8));
 				PreparedStatement insertStmt = authorityDB.prepareStatement(
-						"REPLACE INTO authorityRawJsonLD (json) VALUES (?)")) {
+						"REPLACE INTO %s (json) VALUES (?)".formatted(DBHelper.SOURCE_TABLE))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				insertStmt.setString(1, line);
@@ -62,31 +79,20 @@ public class AuthorityJsonLDHandler {
 		}
 	}
 
-	public void processData(Connection authorityDB) throws IOException, SQLException {
+	public String processData(Connection authorityDB) throws IOException, SQLException {
 		int count = 0;
-		try (   PreparedStatement stmt = authorityDB.prepareStatement("SELECT id, json FROM authorityUpdateJsonLD");
-				PreparedStatement insertStmt = authorityDB.prepareStatement(
-						"REPLACE INTO authorityUpdateJsonLD"+
-						"       (id,vocabulary,recordStatus,"+
-						"        heading,headingType,isSubdivision,"+
-						"        undifferentiated,moddate,rawId) "+
-						"VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
+		String latestModdate = "";
+		try (   PreparedStatement stmt = authorityDB.prepareStatement("SELECT id, json FROM %s".formatted(DBHelper.SOURCE_TABLE));
+				PreparedStatement insertStmt = DBHelper.getInsertStmt(authorityDB)) {
 			try ( ResultSet rs = stmt.executeQuery()) {
 				while ( rs.next() ) {
-					int rawId = rs.getInt(0);
-					String raw = rs.getString(1);
+					int rawId = rs.getInt(1);
+					String raw = rs.getString(2);
 					try {
 						AuthorityParsedData data = parseBulkEntry(raw);
-						insertStmt.setString(1, data.id);
-						insertStmt.setInt(2, data.vocab.ordinal());
-						insertStmt.setInt(3, data.recordStatus.ordinal());
-						insertStmt.setString(4, data.authorativeLabel);
-						insertStmt.setInt(5, data.headingType.ordinal());
-						insertStmt.setBoolean(6, data.isSubdivision);
-						insertStmt.setBoolean(7, data.undifferentiated);
-						insertStmt.setString(8, data.moddate);
-						insertStmt.setInt(9, rawId);
-						insertStmt.addBatch();
+						DBHelper.addBatch(insertStmt, data, rawId);
+						if (data.moddate.compareToIgnoreCase(latestModdate) > 0)
+							latestModdate = data.moddate;
 
 						if ( 0 == count % 100 ) insertStmt.executeBatch();
 						count++;
@@ -97,6 +103,7 @@ public class AuthorityJsonLDHandler {
 			}
 			if ( 0 != count % 100 ) insertStmt.executeBatch();
 		}
+		return latestModdate;
 	}
 
 	public AuthorityParsedData parseBulkEntry(String jsonld) throws JsonLdError, URISyntaxException {
@@ -144,7 +151,7 @@ public class AuthorityJsonLDHandler {
 		JsonObject riRecord = getLatestRecordInfo(graph, mainEntry);
 		parsed.moddate = riRecord.getJsonObject("ri:recordChangeDate").getString("@value");
 		String recordStatus = riRecord.getString("ri:recordStatus");
-		parsed.recordStatus = RecordStatus.byName(recordStatus);
+		parsed.recordStatus = MadsRecordStatus.byName(recordStatus);
 
 		return parsed;
 	}
@@ -219,16 +226,16 @@ public class AuthorityJsonLDHandler {
 		return labelForLang;
 	}
 
-	public HeadingTypeJsonLD parseHeadingType(JsonObject mainEntry) {
+	public MadsHeadingType parseHeadingType(JsonObject mainEntry) {
 		JsonValue ht = mainEntry.get("@type");
 		if (ht.getValueType() == ValueType.ARRAY) {
 			for (JsonValue type : ht.asJsonArray()) {
-				HeadingTypeJsonLD t = HeadingTypeJsonLD.byType(getString(type));
+				MadsHeadingType t = MadsHeadingType.byType(getString(type));
 				if (t != null)
 					return t;
 			}
 		} else if (ht.getValueType() == ValueType.STRING)
-			return HeadingTypeJsonLD.byType(getString(ht));
+			return MadsHeadingType.byType(getString(ht));
 		return null;
 	}
 
@@ -269,11 +276,11 @@ public class AuthorityJsonLDHandler {
 	}
 
 	public boolean parseIsSubdivision(JsonValue isMemberOf) {
-		return parseIsMemberOfMADSCollection(isMemberOf, SUBDIV_URL);
+		return parseIsMemberOfMADSCollection(isMemberOf, Constants.SUBDIV_URL);
 	}
 
 	public boolean parseUndifferentiated(JsonValue isMemberOf) {
-		return parseIsMemberOfMADSCollection(isMemberOf, UNDIFF_URL);
+		return parseIsMemberOfMADSCollection(isMemberOf, Constants.UNDIFF_URL);
 	}
 
 	protected AuthoritySource extractVocab(String id) {

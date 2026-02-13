@@ -1,12 +1,14 @@
-package edu.cornell.library.integration.authority;
+package edu.cornell.library.integration.authority.jsonld;
+
+import edu.cornell.library.integration.authority.AuthoritySource;
 
 public class AuthorityParsedData {
 	public String id = null;
 	public String lccn = null;
 	public AuthoritySource vocab = null;
-	public RecordStatus recordStatus = null;
+	public MadsRecordStatus recordStatus = null;
 	public String authorativeLabel = null;
-	public HeadingTypeJsonLD headingType = null;
+	public MadsHeadingType headingType = null;
 	public boolean isSubdivision = false;
 	public boolean undifferentiated = false;
 	public String moddate = null;
