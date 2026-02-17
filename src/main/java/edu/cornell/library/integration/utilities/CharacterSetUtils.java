@@ -189,7 +189,7 @@ public class CharacterSetUtils {
 	 */
 	public static String standardizeApostrophes( String s ) {
 		if (nonStandardApostrophes_pattern == null)
-			nonStandardApostrophes_pattern = Pattern.compile("[\u02b9\u02bb\u02bc\u02bd\u02be\u02bf\u2018\u2019]");
+			nonStandardApostrophes_pattern = Pattern.compile("[\u02b9\u02bb\u02bc\u02bd\u02be\u02bf\u2018\u2019\u2032]");
 		if (s == null) return null;
 		return nonStandardApostrophes_pattern.matcher(s).replaceAll("'");
 	}

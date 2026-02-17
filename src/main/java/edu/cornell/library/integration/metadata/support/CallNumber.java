@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.utilities.Config;
@@ -37,9 +37,9 @@ public class CallNumber {
 	public CallNumber () {
 		
 	}
-	public CallNumber (OkapiClient okapi) throws IOException {
+	public CallNumber (FolioClient folio) throws IOException {
 		if ( callNumberTypes == null )
-			callNumberTypes = new ReferenceData(okapi,"/call-number-types","name");
+			callNumberTypes = new ReferenceData(folio,"/call-number-types","name");
 	}
 
 	public void tabulateCallNumber( Map<String,Object> holding ) {

@@ -93,7 +93,7 @@ public class FilingNormalization {
 			case '\u200B': case '\uFEFF': //zero-width spaces
 			// things that look like apostrophes 
 			case '\u02b9': case '\u02bb': case '\u02bc': case '\u02bd':
-			case '\u02be': case '\u02bf': case '\u2018': case '\u2019':
+			case '\u02be': case '\u02bf': case '\u2018': case '\u2019': case '\u2032':
 			// a thing that looks like a double quote
 			case '\u02ba':
 				break;

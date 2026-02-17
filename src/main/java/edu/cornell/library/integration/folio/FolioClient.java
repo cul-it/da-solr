@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class OkapiClient {
+public class FolioClient {
 
 	private final String name;
 	private final String url;
@@ -36,7 +36,7 @@ public class OkapiClient {
 	private Instant refreshExpires = null;
 
 
-	public OkapiClient(String name, String url, String tenant, String username, String password) throws IOException {
+	public FolioClient(String name, String url, String tenant, String username, String password) throws IOException {
 		this.name = name;
 		this.url = url;
 		this.tenant = tenant;
@@ -77,7 +77,7 @@ public class OkapiClient {
 		Map<String,String> headers = new HashMap<>();
 		headers.put("Cookie", String.format("folioRefreshToken=%s; folioAccessToken=%s", this.refreshToken,this.accessToken));
 
-		HttpURLConnection c = post("/authn/refresh","", headers);
+		HttpURLConnection c = post("/authn/refresh","", headers, null);
 		if (201 != c.getResponseCode())
 			throw new IOException(String.format("%s:%s %s",this.name,this.username,c.getResponseMessage()));
 		parseLoginResponse(c);
@@ -97,10 +97,10 @@ public class OkapiClient {
 	private static final DateTimeFormatter isoDT = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("Z"));
 
 	public HttpURLConnection post(final String endPoint, final String json) throws IOException {
-		return post(endPoint,json,null);
+		return post(endPoint,json,null, null);
 	}
 
-	public HttpURLConnection post(final String endPoint, final String json, Map<String,String> headers) throws IOException {
+	public HttpURLConnection post(final String endPoint, final String json, Map<String,String> headers, final String contentType) throws IOException {
 
 		System.out.println(endPoint+" (post)");
 
@@ -122,6 +122,11 @@ public class OkapiClient {
 		writer.flush();
 
 		return c;
+	}
+
+	public String postToString(final String endPoint, final String json, Map<String,String> headers, final String contentType) throws IOException {
+		HttpURLConnection c = post(endPoint, json, headers, contentType);
+		return convertStreamToString(c.getInputStream());
 	}
 
 	public String put(String endPoint, Map<String, Object> object) throws IOException {
@@ -311,7 +316,6 @@ public class OkapiClient {
 
 	private HttpURLConnection commonConnectionSetup(String path) throws IOException {
 		URL fullPath = new URL(this.url + path);
-		System.out.println(fullPath.toString());
 		HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
 		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
@@ -346,12 +350,17 @@ public class OkapiClient {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 
-	public void printLoginStatus(OkapiClient folio) {
+	public void printLoginStatus() {
 		Instant now = Instant.now();
 		System.out.format("%s:%s; ACCESS: %s; REFRESH: %s\n",
 				this.name,this.username,
 				humanReadableTimespan(now.until(accessExpires,ChronoUnit.SECONDS)),
 				humanReadableTimespan(now.until(refreshExpires,ChronoUnit.SECONDS)));
+	}
+
+	public long getRemainingAuthSeconds() {
+		Instant now = Instant.now();
+		return now.until(accessExpires,ChronoUnit.SECONDS);
 	}
 
 	private String humanReadableTimespan(long seconds) {

@@ -126,6 +126,19 @@ public class MarcRecord implements Comparable<MarcRecord>{
 			}
 	}
 
+	public static List<MarcRecord> readMarc21File( RecordType type, byte[] marcdata) {
+		List<MarcRecord> recs = new ArrayList<>();
+		while (marcdata.length != 0) {
+			if (Character.isWhitespace(0)) {
+				marcdata = Arrays.copyOfRange(marcdata, 1, marcdata.length); continue; }
+			int recordLength = Integer.valueOf(new String( Arrays.copyOfRange(marcdata,0,5) ));
+			byte[] record = Arrays.copyOfRange(marcdata,0,recordLength);
+			recs.add(new MarcRecord(type, record));
+			marcdata = Arrays.copyOfRange(marcdata, recordLength, marcdata.length);
+		}
+		return recs;
+	}
+
 	public static List<MarcRecord> readMarcFile (
 			RecordType type , String marcXml, boolean trimSubfields ) throws IOException, XMLStreamException {
 		List<MarcRecord> recs = new ArrayList<>();

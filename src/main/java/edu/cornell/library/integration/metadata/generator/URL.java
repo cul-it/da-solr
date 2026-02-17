@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -302,9 +302,11 @@ public class URL implements SolrFieldGenerator {
 
 	private static List<Map<String, Object>> extractLinks(Map<String, Object> record, boolean isOnline) {
 		List<Map<String, Object>> links = new ArrayList<>();
+
 		if ( ! record.containsKey("electronicAccess") ) return links;
 		if ( ! ArrayList.class.isInstance(record.get("electronicAccess"))) return links;
 		if (Boolean.TRUE.equals(record.get("discoverySuppress"))) return links;
+		if (Boolean.TRUE.equals(record.get("staffSuppress"))) return links;
 		List<Map<String,String>> rawLinks = ArrayList.class.cast(record.get("electronicAccess"));
 		for (Map<String,String> rawLink : rawLinks) {
 			if ( rawLink == null
@@ -369,7 +371,7 @@ public class URL implements SolrFieldGenerator {
 		if ( folioLocations == null ) {
 			folioLocations = SupportReferenceData.locations;
 			if (folioLocations == null) {
-				OkapiClient folio = config.getOkapi("Folio");
+				FolioClient folio = config.getFolio("Folio");
 				folioLocations = new ReferenceData( folio,"/locations","code");
 			}
 		}

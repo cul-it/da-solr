@@ -8,6 +8,8 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 
+import java.text.Normalizer;
+
 import org.junit.Test;
 
 public class IndexingUtilitiesTest {
@@ -113,5 +115,28 @@ public class IndexingUtilitiesTest {
 		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             ""));
 		assertEquals(""+PDF_closeRTL,           removeTrailingPunctuation(""+PDF_closeRTL,             null));
 		assertEquals("asdf."+PDF_closeRTL,      removeTrailingPunctuation("asdf."+PDF_closeRTL,        null));
+	}
+
+	@Test
+	public void nonStardardApostropheSorting() {
+		// For each non-standard apostrophe unicode character, filing normalization should strip it as not sortable.
+		assertEquals("imarah", getFilingForm("ʹImārah")); // 02B9
+		assertEquals("imarah", getFilingForm("ʻImārah")); // 02BB
+		assertEquals("imarah", getFilingForm("ʼImārah")); // 02BC
+		assertEquals("imarah", getFilingForm("ʽImārah")); // 02BD
+		assertEquals("imarah", getFilingForm("ʾImārah")); // 02BE
+		assertEquals("imarah", getFilingForm("ʿImārah")); // 02BF
+		assertEquals("imarah", getFilingForm("‘Imārah")); // 2018
+		assertEquals("imarah", getFilingForm("’Imārah")); // 2019
+		assertEquals("imarah", getFilingForm("′Imārah")); // 2032
+	}
+
+	@Test
+	public void doublePrimeSorting() {
+		assertEquals("doubleprime", getFilingForm("″Double″prime″")); // 2033 "double prime"
+		assertEquals("doubleprime", getFilingForm("ʺDoubleʺprimeʺ")); // 02BA "modifier letter double prime"
+		assertEquals("singleprime", getFilingForm("′Single′prime′")); // 2032
+		// single prime sort also tested in nonStardardApostropheSorting()
+		assertEquals("tripleprime", getFilingForm("‴Triple‴prime‴")); // 2034 "triple prime"
 	}
 }

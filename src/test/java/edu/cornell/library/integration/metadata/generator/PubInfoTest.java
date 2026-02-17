@@ -4,8 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -150,5 +154,22 @@ public class PubInfoTest {
 		assertEquals( expected, this.gen.generateSolrFields(rec,null).toString());
 	}
 
+	@Test
+	public void testNonMarc() throws SQLException, IOException {
+		String expected =
+		"publisher_display: ALFRED A KNOPF\n"+
+		"publisher_t: ALFRED A KNOPF\n"+
+		"pub_info_display: ALFRED A KNOPF, 2025.\n"+
+		"pub_date_display: 2025\n"+
+		"pub_date_t: 2025\n"+
+		"pub_date_sort: 2025\n"+
+		"pub_date_facet: 2025\n";
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String,Object> instance = mapper.readValue(
+				"{\"publication\": [{\"publisher\": \"ALFRED A KNOPF\",\"dateOfPublication\": \"2025\"}]}",HashMap.class);
+		assertEquals(expected, this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+	}
+	
 
 }

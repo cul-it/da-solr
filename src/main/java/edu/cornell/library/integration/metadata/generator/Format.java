@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
@@ -84,7 +84,7 @@ public class Format implements SolrFieldGenerator {
 			if ( folioLocations == null ) 
 				folioLocations = SupportReferenceData.locations;
 				if (folioLocations == null) {
-					OkapiClient folio = config.getOkapi("Folio");
+					FolioClient folio = config.getFolio("Folio");
 					folioLocations = new ReferenceData( folio,"/locations","code");
 				}
 			for (Map<String,Object> holding : rec.folioHoldings)
@@ -242,7 +242,7 @@ public class Format implements SolrFieldGenerator {
 		BLFormat format = BLFormat.MONO; //default
 		if (instance.containsKey("instanceTypeId")) {
 			if ( resourceTypes == null )
-				resourceTypes = new ReferenceData(config.getOkapi("Folio"),"/instance-types","name");
+				resourceTypes = new ReferenceData(config.getFolio("Folio"),"/instance-types","name");
 			String resourceType = resourceTypes.getName((String)instance.get("instanceTypeId"));
 			if ( resourceType == null )
 				// Most likely someone has been editing resource types in the last few hours. Very rare.

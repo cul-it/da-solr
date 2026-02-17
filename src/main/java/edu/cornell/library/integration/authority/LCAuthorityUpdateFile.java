@@ -50,6 +50,7 @@ public class LCAuthorityUpdateFile {
 				System.out.printf("Error parsing %s. Skipping the rest.\n", inputPath);
 				return records;
 			}
+			enforceMarc8Expectation(recordArray);
 			bytes = removeTopRecordFromArray( bytes, recordArray.length );
 			byte[] recordArrayUTF8 = convertMarc8RecordToUtf8( recordArray );
 			if ( recordArrayUTF8 == null ) {
@@ -68,7 +69,7 @@ public class LCAuthorityUpdateFile {
 
 		int count = 0;
 		try (PreparedStatement insertStmt = authorityDB.prepareStatement(
-				"INSERT INTO authorityUpdate"+
+				"REPLACE INTO authorityUpdate"+
 				"       (id,vocabulary,updateFile,positionInFile,changeType,"+
 				"        heading,headingType,linkedSubdivision,undifferentiated,"+
 				"        marc21,human,moddate) "+
@@ -106,6 +107,12 @@ public class LCAuthorityUpdateFile {
 		}
 	}
 
+	private static void enforceMarc8Expectation(byte[] recordBytes) {
+		// If we were ever to get authority MARC files coming through here that are actually Unicode and
+		// not just flagged as Unicde, we would need to remove or modify this.
+		char charSetByte = (char) recordBytes[9];
+		if (charSetByte == 'a') recordBytes[9] = ' ';
+	}
 
 	private static String extractLinkedSubdivision(MarcRecord r) {
 		for (DataField f : r.dataFields)

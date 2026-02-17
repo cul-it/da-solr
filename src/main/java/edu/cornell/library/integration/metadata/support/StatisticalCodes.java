@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.library.integration.folio.OkapiClient;
+import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.folio.ReferenceData;
 
 public class StatisticalCodes {
 	
 	public static ReferenceData codes = null;
 
-	public static void initializeCodes(OkapiClient folio ) throws IOException {
+	public static void initializeCodes(FolioClient folio ) throws IOException {
 		if ( codes == null ) codes = new ReferenceData(folio, "/statistical-codes", "code") ;
 	}
 
