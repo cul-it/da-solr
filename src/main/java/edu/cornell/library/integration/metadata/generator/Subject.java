@@ -442,5 +442,5 @@ public class Subject implements SolrFieldGenerator {
 		boolean is653 = false;
 		DataFieldSet fs = null;
 	}
-	private enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, ZST, RBMSCV, LOCAL, OTHER, UNK; }
+	public enum HeadingVocab { LC, LCJSH, LCGFT, FAST, AAT, AGROVOC, HOMOIT, MESH, ZST, RBMSCV, LOCAL, OTHER, UNK; }
 }
