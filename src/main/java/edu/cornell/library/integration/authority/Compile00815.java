@@ -198,9 +198,8 @@ public class Compile00815 {
 		b.put("solr link", String.format("%s/select?qt=search&wt=csv&rows=99999&fl=instance_id&q=%s:%%22%s%%22",
 				solr.getBaseURL(),field,URLEncoder.encode(heading, "UTF-8")));
 		b.put("bib count", found);
-		if (marcTag.equals("151"))
-			b.put("blacklight link",
-					blacklightUrl+"/?q=%22"+URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+field);
+		b.put("blacklight link",
+				blacklightUrl+"/?q=%22"+URLEncoder.encode(heading, "UTF-8")+"%22&search_field="+field);
 		return b;
 	}
 
