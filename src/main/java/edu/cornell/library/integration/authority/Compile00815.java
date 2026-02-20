@@ -119,6 +119,19 @@ public class Compile00815 {
 					jsonWriter.flush();
 				}
 
+				// Look for bibs matching main heading but in subdivision fields
+				for (HeadingVocab vocab : HeadingVocab.values()) {
+					String solrField = "subject_sub_"+vocab.name().toLowerCase()+"_browse";
+					Map<String,Object> mhsdb = querySolrForMatchingBibCount(
+							solr, solrField, heading, "151 (as sd)", blacklightUrl);
+					if (mhsdb != null) {
+						mhsdb.put("identifier", identifier); mhsdb.put("record source", recSource);
+						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
+						jsonWriter.append(mapper.writeValueAsString(mhsdb));
+						jsonWriter.flush();
+					}
+				}
+
 				// Potentially look for bibs matching secondary subdivision heading
 				String geographicSubdivision = get781Subdivision(rec);
 				if (geographicSubdivision != null)
@@ -131,7 +144,6 @@ public class Compile00815 {
 							if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 							jsonWriter.append(mapper.writeValueAsString(sdb));
 						}
-
 					}
 
 			}
