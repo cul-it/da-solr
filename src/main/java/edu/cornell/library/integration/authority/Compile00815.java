@@ -195,8 +195,8 @@ public class Compile00815 {
 		Map<String,Object> b = new HashMap<>();
 		b.put("marc tag", marcTag);
 		b.put("heading", heading);
-		b.put("solr link",
-				solr.getBaseURL()+"/select?qt=search&wt=csv&rows=99999&fl=instance_id&q="+query.replaceAll("\"", "%22"));
+		b.put("solr link", String.format("%s/select?qt=search&wt=csv&rows=99999&fl=instance_id&q=%s:%%22%s%%22",
+				solr.getBaseURL(),field,URLEncoder.encode(heading, "UTF-8")));
 		b.put("bib count", found);
 		if (marcTag.equals("151"))
 			b.put("blacklight link",
