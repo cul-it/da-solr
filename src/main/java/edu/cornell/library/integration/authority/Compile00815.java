@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -47,6 +49,7 @@ public class Compile00815 {
 		Config config = Config.loadConfig(requiredArgs);
 
 		String outputFile = "report-"+Math.abs(UUID.randomUUID().toString().hashCode())+".json";
+		System.out.println("Output file: "+outputFile);
 		String blacklightUrl = config.getBlacklightUrl();
 
 		try ( Connection authority = config.getDatabaseConnection("Authority") ;
@@ -58,6 +61,7 @@ public class Compile00815 {
 			Set<String> identifiers = getAllIdentifiers(authority);
 			jsonWriter.append("[\n");
 			boolean writtenJson = false;
+			Pattern endsWithParentheses = Pattern.compile("^\\s*([^\\(\\)]+)\\s+\\(([^\\(\\)]+)\\)\\s*");
 
 			for (String identifier : identifiers) {
 				String heading = null;
@@ -116,7 +120,6 @@ public class Compile00815 {
 					mhb.put("identifier", identifier); mhb.put("record source", recSource);
 					if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 					jsonWriter.append(mapper.writeValueAsString(mhb));
-					jsonWriter.flush();
 				}
 
 				// Look for bibs matching main heading but in subdivision fields
@@ -128,9 +131,27 @@ public class Compile00815 {
 						mhsdb.put("identifier", identifier); mhsdb.put("record source", recSource);
 						if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
 						jsonWriter.append(mapper.writeValueAsString(mhsdb));
-						jsonWriter.flush();
 					}
 				}
+
+				// Look for bibs matching inverted main heading in subdivision fields
+				Matcher m = endsWithParentheses.matcher(heading);
+				if (m.find()) {
+					String inverted = m.group(2) + " > " + m.group(1);
+					System.out.format("%s\t[%s]\n", heading, inverted);
+					for (HeadingVocab vocab : HeadingVocab.values()) {
+						String solrField = "subject_sub_"+vocab.name().toLowerCase()+"_browse";
+						Map<String,Object> imhsdb = querySolrForMatchingBibCount(
+								solr, solrField, inverted, "151 (as inv sd)", blacklightUrl);
+						if (imhsdb != null) {
+							imhsdb.put("identifier", identifier); imhsdb.put("record source", recSource);
+							if ( writtenJson ) jsonWriter.append(",\n"); else writtenJson = true;
+							jsonWriter.append(mapper.writeValueAsString(imhsdb));
+						}
+					}
+				}
+				else
+					System.out.println(heading);
 
 				// Potentially look for bibs matching secondary subdivision heading
 				String geographicSubdivision = get781Subdivision(rec);
