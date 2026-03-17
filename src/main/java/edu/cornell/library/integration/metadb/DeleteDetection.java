@@ -6,13 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.utilities.Config;
+import static edu.cornell.library.integration.metadb.Utils.getUpdateCursor;
 
 public class DeleteDetection {
 
@@ -28,7 +28,7 @@ public class DeleteDetection {
 //					System.out.println(tables.getString("TABLE_NAME"));
 //				}
 //			}
-			Timestamp cursor = getUpdateCursor(inventory);
+			Timestamp cursor = getUpdateCursor(inventory, "deletes");
 
 			Map<String,String> deletedHoldings= getDeletedHoldings(metadb, inventory, config.getFolio("Folio"), cursor);
 			System.out.format("%d deleted holdings (%s)\n",
@@ -135,19 +135,6 @@ public class DeleteDetection {
 			}
 		}
 		return deletedItems;
-	}
-
-	private static Timestamp getUpdateCursor(Connection inventory) throws SQLException {
-		try (PreparedStatement pstmt = inventory.prepareStatement(
-						"SELECT current_to_date FROM updateCursor WHERE cursor_name = ?")) {
-			pstmt.setString(1, "deletes");
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs.next())
-					return rs.getTimestamp(1);
-			}
-		}
-		// default to two days ago
-		return new Timestamp(Calendar.getInstance().getTime().getTime()-(48*60*60*1000));
 	}
 
 }

@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import edu.cornell.library.integration.metadb.Utils.Cause;
+import edu.cornell.library.integration.metadb.Utils.FolioType;
 import edu.cornell.library.integration.utilities.Config;
+import static edu.cornell.library.integration.metadb.Utils.queueUpdateToCache;
 
 public class RecordCurrencySurvey {
 
@@ -119,31 +122,4 @@ public class RecordCurrencySurvey {
 			}
 		}
 	}
-
-	private static void queueUpdateToCache(Connection inventory, UUID uuid, FolioType t, Cause c) throws SQLException {
-		//TODO
-		System.out.format("QUEUE %s %s (cause:%s)\n",t.toString(), uuid.toString(), c.toString());
-		try (PreparedStatement stmt = inventory.prepareStatement(
-				"INSERT INTO cacheUpdateQueue (type, uuid, cause) VALUES (?, ?, ?)")) {
-			stmt.setString(1, t.toString().toLowerCase());
-			stmt.setString(2, uuid.toString());
-			stmt.setString(3, c.toString());
-			stmt.executeUpdate();
-		}
-	}
-
-	private enum FolioType {
-		INSTANCE ( "instanceFolio", "folio_inventory.instance"),
-		HOLDING ( "holdingFolio", "folio_inventory.holdings_record"), 
-		ITEM ("itemFolio", "folio_inventory.item"),
-		BIB ("bibFolio", "folio_source_record.records_lb"); //TODO needs different metadb query
-
-		final public String cacheTableName;
-		final public String metadbTableName;
-		private FolioType(String cacheTableName, String metadbTableName) {
-			this.cacheTableName = cacheTableName;
-			this.metadbTableName = metadbTableName;
-		}
-	}
-	private enum Cause { DELETED, ADDED, UPDATED; }
 }
