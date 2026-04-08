@@ -1,26 +1,30 @@
-package edu.cornell.library.integration.authority.jsonld;
+package edu.cornell.library.integration.authority.activitystreams;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 import com.apicatalog.jsonld.JsonLdError;
+import com.apicatalog.jsonld.JsonLdErrorCode;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
@@ -28,110 +32,113 @@ import edu.cornell.library.integration.authority.AuthoritySource;
 import edu.cornell.library.integration.utilities.Config;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
-import jakarta.json.JsonString;
 import jakarta.json.JsonStructure;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 
 public class BulkDownloadHandler {
-	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
 		List<String> requiredArgs = Config.getRequiredArgsForDB("Authority");
 		Config config = Config.loadConfig(requiredArgs);
 		Map<String, String> env = System.getenv();
+		int chunkSize = Integer.parseInt(env.getOrDefault("ChunkSize", "100"));
+		boolean deleteOldFile = Boolean.parseBoolean(env.getOrDefault("DeleteOldFile", "false"));
+		boolean deleteTempFileOnCompletion = Boolean.parseBoolean(env.getOrDefault("DeleteTempFileOnCompletion", "true"));
+		String destinationDir = env.get("DestinationDir");
+		boolean initDB = Boolean.parseBoolean(env.getOrDefault("initDB", "false"));
 		String jsonldURL = env.get("BulkDownloadURL");
-		boolean initDB = Boolean.getBoolean(env.get("initDB"));
+		String addedDate = Helper.getToday();
 
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
-			if (initDB)
-				DBHelper.setUpDatabase(authority);
-
-			HttpClient client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-					.uri(URI.create(jsonldURL)).build();
-			HttpResponse<InputStream> response = client.send(
-					request, HttpResponse.BodyHandlers.ofInputStream());
-			InputStream bodyStream = response.body();
-
+			Path destination = Paths.get(destinationDir, Helper.getDestName(jsonldURL));
+			System.out.println("Chunk size: " + chunkSize);
+			System.out.println("DeleteOldFile: " + deleteOldFile);
+			System.out.println("Destination: " + destination);
+			System.out.println("init DB: " + initDB);
+			System.out.println("jsonldURL: " + jsonldURL);
+			System.out.println("Added date: " + addedDate);
+			System.out.println("Bulk download handler started...");
 			BulkDownloadHandler handler = new BulkDownloadHandler();
-			String cursor = handler.loadBulkJsonLD(bodyStream, authority);
-			DBHelper.updateCursor(authority, cursor);
-		}
-	}
-
-	public String loadBulkJsonLD(InputStream bodyStream, Connection authorityDB) throws IOException, InterruptedException, SQLException {
-		storeRawData(bodyStream, authorityDB);
-		return processData(authorityDB);
-	}
-
-	public void storeRawData(InputStream jsonLdStream, Connection authorityDB) throws IOException, SQLException {
-		int count = 0;
-		try (   BufferedReader reader = new BufferedReader(new InputStreamReader(jsonLdStream, StandardCharsets.UTF_8));
-				PreparedStatement insertStmt = authorityDB.prepareStatement(
-						"REPLACE INTO %s (json) VALUES (?)".formatted(DBHelper.SOURCE_TABLE))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				insertStmt.setString(1, line);
-				insertStmt.addBatch();
-				count++;
-				if ( 0 == count % 100 ) insertStmt.executeBatch();
+			handler.run(addedDate, authority, chunkSize, deleteOldFile, destination, initDB, jsonldURL);
+			System.out.println("Complete!");
+			if (deleteTempFileOnCompletion) {
+				System.out.print("Removing temporary file... ");
+				Files.delete(destination);
+				System.out.println("Done!");
 			}
-			if ( 0 != count % 100 ) insertStmt.executeBatch();
 		}
 	}
 
-	public String processData(Connection authorityDB) throws IOException, SQLException {
-		int count = 0;
-		String latestModdate = "";
-		try (   PreparedStatement stmt = authorityDB.prepareStatement("SELECT id, json FROM %s".formatted(DBHelper.SOURCE_TABLE));
-				PreparedStatement insertStmt = DBHelper.getInsertStmt(authorityDB)) {
-			try ( ResultSet rs = stmt.executeQuery()) {
-				while ( rs.next() ) {
-					int rawId = rs.getInt(1);
-					String raw = rs.getString(2);
-					try {
-						AuthorityParsedData data = parseBulkEntry(raw);
-						DBHelper.addBatch(insertStmt, data, rawId);
-						if (data.moddate.compareToIgnoreCase(latestModdate) > 0)
-							latestModdate = data.moddate;
+	public void run(String addedDate, Connection authority, int chunkSize, boolean deleteOldFile, Path destination, boolean initDB, String jsonldURL) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
+		if (initDB)
+			Helper.setUpDatabase(authority);
 
-						if ( 0 == count % 100 ) insertStmt.executeBatch();
-						count++;
-					} catch (JsonLdError | URISyntaxException e) {
-						e.printStackTrace();
-					}
+		BulkDownloadHandler handler = new BulkDownloadHandler();
+
+		if (deleteOldFile)
+			Files.delete(destination);
+
+		if (! Files.exists(destination))
+			handler.downloadBulkJsonLd(jsonldURL, destination);
+
+		handler.processData(addedDate, destination, authority, chunkSize);
+	}
+
+	public void downloadBulkJsonLd(String url, Path destination) throws IOException, InterruptedException {
+		HttpClient client = HttpClient.newBuilder()
+				.followRedirects(HttpClient.Redirect.NORMAL)
+				.build();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(url)).build();
+		HttpResponse<InputStream> response = client.send(
+				request, HttpResponse.BodyHandlers.ofInputStream());
+		if (response.statusCode() != 200) {
+			System.out.println("Failed to bulk download file at " + url);
+			System.out.println("Response status code: " + response.statusCode());
+			System.out.println(response.toString());
+			System.exit(1);
+		}
+
+		try (InputStream gzipStream = new GZIPInputStream(response.body());
+			 OutputStream outputStream = Files.newOutputStream(destination, StandardOpenOption.CREATE)) {
+			byte[] buffer = new byte[8192];
+			int length;
+			while ((length = gzipStream.read(buffer)) > 0)
+				outputStream.write(buffer, 0, length);
+		}
+	}
+
+	public void processData(String addedDate, Path bulkFile, Connection authorityDB, int chunkSize) throws IOException, JsonLdError, SQLException, URISyntaxException {
+		/*
+		 * Java 22 has Preview feature for Stream Gatherers
+		 * Stream<List<Integer>> chunkedStream = Stream.of(1, 2, 3, 4, 5)
+		 * 		.gather(Gatherers.windowFixed(3)); // [[1, 2, 3], [4, 5]]
+		 * We may refactor this code to use that in later releases.
+		 */
+		try (Stream<String> lines = Files.lines(bulkFile);
+			 PreparedStatement insertStmt = Helper.replaceStmt(authorityDB)) {
+			Iterator<String> it = lines.iterator();
+			while (it.hasNext()) {
+				for (int i = 0; i < chunkSize && it.hasNext(); i++) {
+					String line = it.next();
+					AuthorityParsedData data = parseBulkEntry(line);
+					Helper.addBatch(insertStmt, data, addedDate, line);
 				}
+				insertStmt.executeBatch();
 			}
-			if ( 0 != count % 100 ) insertStmt.executeBatch();
 		}
-		return latestModdate;
 	}
 
 	public AuthorityParsedData parseBulkEntry(String jsonld) throws JsonLdError, URISyntaxException {
 		JsonObject doc = parseJsonLd(jsonld);
 		String docUri = "http://id.loc.gov" + doc.getJsonString("@id").getString();
 		JsonArray graph = doc.getJsonArray("@graph");
-		return parseAuthorityData(graph, docUri);
-	}
-
-	public JsonObject parseJsonLd(String jsonld) throws JsonLdError {
-		StringReader reader = new StringReader(jsonld);
-		Document document = JsonDocument.of(reader);
-		Optional<JsonStructure> jsonContentOptional = document.getJsonContent();
-		if (jsonContentOptional.isPresent()) {
-			JsonStructure jsonContent = jsonContentOptional.get();
-			if (jsonContent.getValueType() == ValueType.OBJECT)
-				return jsonContent.asJsonObject();
-		}
-
-		throw new JsonLdError(null, "Failed to parse jsonld " + jsonld);
-	}
-
-	public AuthorityParsedData parseAuthorityData(JsonArray graph, String docUri) throws URISyntaxException {
+		
 		AuthorityParsedData parsed = new AuthorityParsedData();
-		JsonObject mainEntry = getJsonObjectForId(graph, docUri);
+		JsonObject mainEntry = Helper.getJsonObjectForId(graph, docUri);
 
 		parsed.id = mainEntry.getJsonString("@id").getString();
-		parsed.lccn = getString(mainEntry, "identifiers:lccn");
+		parsed.lccn = Helper.getString(mainEntry, "identifiers:lccn");
 
 		String path = new URI(parsed.id).getPath();
 		int lastSlashIndex = path.lastIndexOf('/');
@@ -153,49 +160,22 @@ public class BulkDownloadHandler {
 		String recordStatus = riRecord.getString("ri:recordStatus");
 		parsed.recordStatus = MadsRecordStatus.byName(recordStatus);
 
+		parsed.numUpdates = countNumUpdate(graph, mainEntry);
+
 		return parsed;
 	}
 
-	// Get string value or null if key doesn't exist or not a string type
-	public String getString(JsonObject obj, String key) {
-		JsonValue value = obj.get(key);
-		if (value == null)
-			return null;
-		if (value.getValueType() == JsonValue.ValueType.STRING)
-			return ((JsonString) value).getString();
-		return null;
-	}
-
-	/*
-	 * Shorthand to get string value from a generic type JsonValue
-	 * If it is an object, return the @value as string
-	 */
-	public String getString(JsonValue value) {
-		if (value.getValueType() == ValueType.STRING)
-			return ((JsonString) value).getString();
-		else if (value.getValueType() == ValueType.OBJECT)
-			return value.asJsonObject().getJsonString("@value").getString();
-		return null;
-	}
-
-	public JsonObject getJsonObjectForId(JsonArray graph, String id) {
-		for (JsonValue entry : graph) {
-			JsonObject obj = entry.asJsonObject();
-			String entryId = obj.getString("@id");
-			if (id.equalsIgnoreCase(entryId))
-				return obj;
+	public JsonObject parseJsonLd(String jsonld) throws JsonLdError {
+		StringReader reader = new StringReader(jsonld);
+		Document document = JsonDocument.of(reader);
+		Optional<JsonStructure> jsonContentOptional = document.getJsonContent();
+		if (jsonContentOptional.isPresent()) {
+			JsonStructure jsonContent = jsonContentOptional.get();
+			if (jsonContent.getValueType() == ValueType.OBJECT)
+				return jsonContent.asJsonObject();
 		}
-		return JsonValue.EMPTY_JSON_OBJECT;
-	}
 
-	public List<String> getIdAsList(JsonValue arg) {
-		List<String> ids = new ArrayList<>();
-		if (arg.getValueType() == ValueType.ARRAY) {
-			for (JsonValue val : arg.asJsonArray())
-				ids.add(val.asJsonObject().getJsonString("@id").getString());
-		} else if (arg.getValueType() == ValueType.OBJECT)
-			ids.add(arg.asJsonObject().getJsonString("@id").getString());
-		return ids;
+		throw new JsonLdError(JsonLdErrorCode.LOADING_DOCUMENT_FAILED, "Failed to parse jsonld " + jsonld);
 	}
 
 	/*
@@ -212,12 +192,12 @@ public class BulkDownloadHandler {
 		if (authLabel == null)
 			return null;
 		if (authLabel.getValueType() == ValueType.STRING)
-			return getString(authLabel);
+			return Helper.getString(authLabel);
 		String labelForLang = null;
 		if (authLabel.getValueType() == ValueType.ARRAY) {
 			for (JsonValue label : authLabel.asJsonArray()) {
 				if (label.getValueType() == ValueType.STRING)
-					return getString(label);
+					return Helper.getString(label);
 				else if (label.getValueType() == ValueType.OBJECT)
 					labelForLang = label.asJsonObject().getJsonString("@value").getString();
 			}
@@ -230,22 +210,22 @@ public class BulkDownloadHandler {
 		JsonValue ht = mainEntry.get("@type");
 		if (ht.getValueType() == ValueType.ARRAY) {
 			for (JsonValue type : ht.asJsonArray()) {
-				MadsHeadingType t = MadsHeadingType.byType(getString(type));
+				MadsHeadingType t = MadsHeadingType.byType(Helper.getString(type));
 				if (t != null)
 					return t;
 			}
 		} else if (ht.getValueType() == ValueType.STRING)
-			return MadsHeadingType.byType(getString(ht));
+			return MadsHeadingType.byType(Helper.getString(ht));
 		return null;
 	}
 
 	public JsonObject getLatestRecordInfo(JsonArray graph, JsonObject mainEntry) {
 		JsonValue adminMds = mainEntry.get("madsrdf:adminMetadata");
-		List<String> adminMdIds = getIdAsList(adminMds);
+		List<String> adminMdIds = Helper.getIdAsList(adminMds);
 		JsonObject recordInfo = JsonValue.EMPTY_JSON_OBJECT;
 		String latest = null;
 		for (String adminMdId : adminMdIds) {
-			JsonObject ri = getJsonObjectForId(graph, adminMdId);
+			JsonObject ri = Helper.getJsonObjectForId(graph, adminMdId);
 			if (latest == null) {
 				recordInfo = ri;
 				latest = recordInfo.getJsonObject("ri:recordChangeDate").getJsonString("@value").getString();
@@ -260,18 +240,25 @@ public class BulkDownloadHandler {
 		return recordInfo;
 	}
 
+	public int countNumUpdate(JsonArray graph, JsonObject mainEntry) {
+		JsonValue adminMds = mainEntry.get("madsrdf:adminMetadata");
+		List<String> adminMdIds = Helper.getIdAsList(adminMds);
+		return adminMdIds.size();
+	}
+
 	protected boolean parseIsMemberOfMADSCollection(JsonValue isMemberOf, String idUrl) {
 		if (isMemberOf == null)
 			return false;
-		if (isMemberOf.getValueType() == ValueType.OBJECT)
-			return idUrl.equalsIgnoreCase(getString(isMemberOf));
+		if (isMemberOf.getValueType() == ValueType.STRING)
+			return idUrl.equalsIgnoreCase(Helper.getString(isMemberOf));
+		else if (isMemberOf.getValueType() == ValueType.OBJECT)
+			return idUrl.equalsIgnoreCase(Helper.getString(isMemberOf.asJsonObject(), "@id"));
 		else if (isMemberOf.getValueType() == ValueType.ARRAY) {
 			for (JsonValue memberOf : isMemberOf.asJsonArray()) {
 				if (idUrl.equalsIgnoreCase(memberOf.asJsonObject().getJsonString("@id").getString()))
 					return true;
 			}
 		}
-
 		return false;
 	}
 

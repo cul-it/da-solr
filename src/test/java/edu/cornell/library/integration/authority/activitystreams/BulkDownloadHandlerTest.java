@@ -1,11 +1,10 @@
-package edu.cornell.library.integration.authority.jsonld;
+package edu.cornell.library.integration.authority.activitystreams;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -36,7 +35,7 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();
 		if (useTestContainers != null) {
 			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				DBHelper.setUpDatabase(authority);
+				Helper.setUpDatabase(authority);
 			}
 		} else if (useSqlite != null) {
 			String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
@@ -58,21 +57,25 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 	}
 
 	@Test
-	public void loadBulkJsonLDTest() throws IOException, SQLException, InterruptedException {
+	public void loadBulkJsonLDTest() throws IOException, InterruptedException, JsonLdError, SQLException, URISyntaxException {
 		StringBuilder builder = new StringBuilder();
+		/*
+		 * Combine the individual test data to simulate the bulk download.
+		 * Each line should contain complete data for a single record.
+		 */
 		for (Path path : resources.values()) {
 			String raw = Files.readString(path).replaceAll("\\R", "");
 			builder.append(raw).append(System.lineSeparator());
 		}
-		InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-		BulkDownloadHandler lbd = new BulkDownloadHandler();
-		try ( Connection authority = config.getDatabaseConnection("Authority");
-			  PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND moddate = ?".formatted(DBHelper.UPDATE_TABLE))) {
-			String newCursor = lbd.loadBulkJsonLD(inputStream, authority);
-			assertEquals("2025-08-08T16:31:10", newCursor);
-			DBHelper.updateCursor(authority, newCursor);
-			String cursor = DBHelper.getCursor(authority);
-			assertEquals(newCursor, cursor);
+		Path tempFile = Files.createTempFile("myPrefix", ".tmp");
+		try (OutputStream out = Files.newOutputStream(tempFile);
+			 Connection authority = config.getDatabaseConnection("Authority");
+			 PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND moddate = ?".formatted(Helper.UPDATE_TABLE))) {
+			out.write(builder.toString().getBytes(StandardCharsets.UTF_8));
+
+			String today = Helper.getToday();
+			BulkDownloadHandler bdh = new BulkDownloadHandler();
+			bdh.processData(today, tempFile, authority, 2);
 
 			stmt.setString(1, "http://id.loc.gov/authorities/names/n00000001");
 			stmt.setString(2, "2025-08-05T02:34:09");
@@ -85,6 +88,10 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 			assertEquals(MadsHeadingType.valueOf("PERSONAL_NAME").ordinal(), rs.getInt("headingType"));
 			assertEquals(false, rs.getBoolean("isSubdivision"));
 			assertEquals(false, rs.getBoolean("undifferentiated"));
+			assertEquals(today, rs.getString("addedDate"));
+			assertEquals(2, rs.getInt("numUpdates"));
+		} finally {
+			Files.delete(tempFile);
 		}
 	}
 

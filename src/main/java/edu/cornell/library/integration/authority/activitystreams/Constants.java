@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.authority.jsonld;
+package edu.cornell.library.integration.authority.activitystreams;
 
 import java.util.Map;
 import java.util.stream.Collectors;

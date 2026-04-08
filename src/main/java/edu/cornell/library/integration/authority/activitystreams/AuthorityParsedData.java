@@ -1,4 +1,4 @@
-package edu.cornell.library.integration.authority.jsonld;
+package edu.cornell.library.integration.authority.activitystreams;
 
 import edu.cornell.library.integration.authority.AuthoritySource;
 
@@ -12,6 +12,7 @@ public class AuthorityParsedData {
 	public boolean isSubdivision = false;
 	public boolean undifferentiated = false;
 	public String moddate = null;
+	public int numUpdates = 0;
 
 	public void print() {
 		System.out.println("ID: " + id);
@@ -23,5 +24,6 @@ public class AuthorityParsedData {
 		System.out.println("Subdivision: " + isSubdivision);
 		System.out.println("Undifferentiated: " + undifferentiated);
 		System.out.println("Mod date: " + moddate);
+		System.out.println("Num updates: " + numUpdates);
 	}
 }
