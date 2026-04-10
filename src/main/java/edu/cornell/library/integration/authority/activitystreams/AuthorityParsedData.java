@@ -13,6 +13,7 @@ public class AuthorityParsedData {
 	public boolean undifferentiated = false;
 	public String moddate = null;
 	public int numUpdates = 0;
+	public String source = null;
 
 	public void print() {
 		System.out.println("ID: " + id);
@@ -25,5 +26,6 @@ public class AuthorityParsedData {
 		System.out.println("Undifferentiated: " + undifferentiated);
 		System.out.println("Mod date: " + moddate);
 		System.out.println("Num updates: " + numUpdates);
+		System.out.println("Source: " + source);
 	}
 }
