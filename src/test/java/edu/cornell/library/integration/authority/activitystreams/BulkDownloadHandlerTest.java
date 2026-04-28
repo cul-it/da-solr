@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.apicatalog.jsonld.JsonLdError;
 
@@ -29,7 +29,7 @@ import edu.cornell.library.integration.db_test.SqliteBaseTest;
 public class BulkDownloadHandlerTest extends DbBaseTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() throws IOException, SQLException {
 		setup("Authority");
 		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();

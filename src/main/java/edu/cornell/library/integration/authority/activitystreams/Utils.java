@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
@@ -30,12 +31,14 @@ import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
 import edu.cornell.library.integration.authority.AuthoritySource;
+import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
 import jakarta.json.JsonStructure;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
+import jakarta.json.JsonWriter;
 
 public class Utils {
 	public static final String UPDATE_TABLE = "authorityUpdateActivityStreams";
@@ -55,6 +58,22 @@ public class Utils {
 		insertStmt.setInt(11, data.numUpdates);
 		insertStmt.setString(12, data.source);
 		insertStmt.addBatch();
+	}
+
+	public static PreparedStatement existsStmt(Connection authorityDB) throws SQLException {
+		return authorityDB.prepareStatement(
+				"SELECT 1 FROM %s WHERE id = ? AND numUpdates = ? AND moddate = ? LIMIT 1".formatted(UPDATE_TABLE));
+	}
+
+	public static boolean exists(PreparedStatement checkStmt, AuthorityParsedData toCheck) throws SQLException {
+		checkStmt.setString(1, toCheck.id);
+		checkStmt.setInt(2, toCheck.numUpdates);
+		checkStmt.setString(3, toCheck.moddate);
+		try (ResultSet rs = checkStmt.executeQuery()) {
+			if (rs.next())
+				return true;
+		}
+		return false;
 	}
 
 	public static int countNumUpdate(JsonArray graph, JsonObject mainEntry) {
@@ -228,7 +247,7 @@ public class Utils {
 		throw new JsonLdError(JsonLdErrorCode.LOADING_DOCUMENT_FAILED, "Failed to parse jsonld");
 	}
 
-	public static AuthorityParsedData parseAuthorityData(JsonObject doc) throws JsonLdError, URISyntaxException {
+	public static AuthorityParsedData parseAuthorityData(JsonObject doc) throws JsonLdError, URISyntaxException, IOException {
 		String docUri = "http://id.loc.gov" + doc.getJsonString("@id").getString();
 		JsonArray graph = doc.getJsonArray("@graph");
 		
@@ -260,12 +279,16 @@ public class Utils {
 
 		parsed.numUpdates = countNumUpdate(graph, mainEntry);
 
-		parsed.source = doc.toString();
+		try (StringWriter sw = new StringWriter();
+			 JsonWriter jsonWriter = Json.createWriter(sw)) {
+			jsonWriter.write(doc);
+			parsed.source = sw.toString();
+		}
 
 		return parsed;
 	}
 
-	public static AuthorityParsedData parseAuthorityData(String jsonld) throws JsonLdError, URISyntaxException {
+	public static AuthorityParsedData parseAuthorityData(String jsonld) throws JsonLdError, URISyntaxException, IOException {
 		JsonObject doc = parseJsonLd(jsonld);
 		return parseAuthorityData(doc);
 	}
@@ -328,7 +351,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 	KEY `idx_id` (`id`),
 	KEY `idx_added_date` (`addedDate`),
 	KEY `idx_moddate` (`moddate`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8""".formatted(UPDATE_TABLE));
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(UPDATE_TABLE));
 		try ( Statement stmt = authority.createStatement() ) {
 			for (String sql : sqls)
 				stmt.execute(sql);
