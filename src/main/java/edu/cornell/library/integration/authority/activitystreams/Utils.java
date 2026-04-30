@@ -186,9 +186,8 @@ public class Utils {
 		JsonValue value = obj.get(key);
 		if (value == null)
 			return null;
-		if (value.getValueType() == JsonValue.ValueType.STRING)
-			return ((JsonString) value).getString();
-		return null;
+
+		return getString(value);
 	}
 
 	/*
@@ -207,6 +206,25 @@ public class Utils {
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return now.format(formatter);
+	}
+
+	public static String getUri(JsonObject doc, JsonArray graph, String idPrefix) {
+		String docUri = "http://id.loc.gov";
+		var val = doc.getJsonString("@id");
+		// bulk download format has @id at the root level
+		if (val != null)
+			return docUri += doc.getJsonString("@id").getString();
+
+		// activity streams doesn't have @id at the root level
+		for (var item : graph) {
+			if (item.getValueType() != ValueType.OBJECT)
+				continue;
+			String id = getString(item.asJsonObject(), "@id");
+			if (id.startsWith(idPrefix)) {
+				return id;
+			}
+		}
+		return null;
 	}
 
 	public static <T> HttpResponse<T> httpGet(String url, BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
@@ -248,9 +266,12 @@ public class Utils {
 	}
 
 	public static AuthorityParsedData parseAuthorityData(JsonObject doc) throws JsonLdError, URISyntaxException, IOException {
-		String docUri = "http://id.loc.gov" + doc.getJsonString("@id").getString();
+		return parseAuthorityData(doc, null);
+	}
+
+	public static AuthorityParsedData parseAuthorityData(JsonObject doc, String idPrefix) throws JsonLdError, URISyntaxException, IOException {
 		JsonArray graph = doc.getJsonArray("@graph");
-		
+		String docUri = getUri(doc, graph, idPrefix);
 		AuthorityParsedData parsed = new AuthorityParsedData();
 		JsonObject mainEntry = Utils.getJsonObjectForId(graph, docUri);
 
@@ -273,8 +294,9 @@ public class Utils {
 		parsed.headingType = parseHeadingType(mainEntry);
 
 		JsonObject riRecord = getLatestRecordInfo(graph, mainEntry);
-		parsed.moddate = riRecord.getJsonObject("ri:recordChangeDate").getString("@value");
-		String recordStatus = riRecord.getString("ri:recordStatus");
+		parsed.moddate = getString(riRecord, "ri:recordChangeDate");
+
+		String recordStatus = getString(riRecord, "ri:recordStatus");
 		parsed.recordStatus = MadsRecordStatus.byName(recordStatus);
 
 		parsed.numUpdates = countNumUpdate(graph, mainEntry);
@@ -335,7 +357,7 @@ REPLACE INTO %s (id,lccn,vocabulary,recordStatus,heading,headingType,isSubdivisi
 		List<String> sqls = Arrays.asList(
 				"""
 CREATE TABLE IF NOT EXISTS `%s` (
-	`id` VARCHAR(255) NOT NULL,
+	`id` VARCHAR(210) NOT NULL,
 	`lccn` VARCHAR(50) DEFAULT NULL,
 	`vocabulary` TINYINT(4) DEFAULT NULL,
 	`recordStatus` TINYINT(1) DEFAULT NULL,

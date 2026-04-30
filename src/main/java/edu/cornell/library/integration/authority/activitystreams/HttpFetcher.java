@@ -8,7 +8,6 @@ public class HttpFetcher implements IFetcher {
 
 	@Override
 	public InputStream fetch(String url) throws IOException, InterruptedException {
-		// TODO Auto-generated method stub
 		HttpResponse<InputStream> resp = Utils.httpGet(url, HttpResponse.BodyHandlers.ofInputStream());
 		return resp.body();
 	}

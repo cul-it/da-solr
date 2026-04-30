@@ -26,32 +26,34 @@ public class ActivityStreamsHandler {
 		Config config = Config.loadConfig(requiredArgs);
 		Map<String, String> env = System.getenv();
 		int chunkSize = Integer.parseInt(env.getOrDefault("ChunkSize", "100"));
-		String context = env.get("Context");
-		String activityStreamsURL = env.get("ActivityStreamsURL");
+		String paramsName = env.get("paramsName");
 		String addedDate = Utils.getToday();
+		var params = ActivityStreamsParams.getParam(paramsName);
+		if (params == null) {
+			System.out.println("Unknown params name provided: " + paramsName);
+			System.exit(1);
+		}
 
+		System.out.println("Chunk size: " + chunkSize);
+		System.out.println("activity streams URL: " + params.url);
+		System.out.println("context URL: " + params.contextUrl);
+		System.out.println("id prefix: " + params.idPrefix);
+		IFetcher fetcher = new HttpFetcher();
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
 			ActivityStreamsHandler handler = new ActivityStreamsHandler();
-			handler.run(activityStreamsURL, addedDate, authority, chunkSize, context);
+			handler.processData(addedDate, authority, fetcher, params);
 		}
 	}
 
-	public void run(String activityStreamsURL, String addedDate, Connection authority, int chunkSize, String context) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
-		System.out.println("Chunk size: " + chunkSize);
-		System.out.println("jsonldURL: " + activityStreamsURL);
-
-		IFetcher fetcher = new HttpFetcher();
-		processData(activityStreamsURL, addedDate, authority, context, fetcher);
-	}
-
-	public void processData(String activityStreamsURL, String addedDate, Connection authority, String context, IFetcher fetcher) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
+	public void processData(String addedDate, Connection authority, IFetcher fetcher, ActivityStreamsParamsEntry params) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
+		String url = params.url;
 		try (PreparedStatement insertStmt = Utils.replaceStmt(authority);
 			 PreparedStatement existsStmt = Utils.existsStmt(authority)) {
 			do {
-				try (InputStream is = fetcher.fetch(activityStreamsURL)) {
+				try (InputStream is = fetcher.fetch(url)) {
 					ActivityStreams activityStreams = parseActivityStreams(is);
 					for (OrderedItem orderedItem : activityStreams.orderedItems) {
-						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, context);
+						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, params.contextUrl, params.idPrefix);
 						if (Utils.exists(existsStmt, parsed)) {
 							activityStreams.next = null;
 							break;
@@ -59,17 +61,18 @@ public class ActivityStreamsHandler {
 							Utils.addBatch(insertStmt, parsed, addedDate);
 					}
 					insertStmt.executeBatch();
-					activityStreamsURL = activityStreams.next;
+					url = activityStreams.next;
 				}
-			} while (activityStreamsURL != null);
+			} while (url != null);
 		}
 	}
 
-	public AuthorityParsedData fetchAndParse(IFetcher fetcher, String url, String context) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
-		try (InputStream is = fetcher.fetch(url)) {
+	public AuthorityParsedData fetchAndParse(IFetcher fetcher, String url, String context, String type) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
+		System.out.println("Fetching " + url);
+		try (InputStream is = fetcher.fetch(url + ".json")) {
 			Document doc = JsonDocument.of(is);
 			JsonObject compact = JsonLd.compact(doc, context).get();
-			return Utils.parseAuthorityData(compact);
+			return Utils.parseAuthorityData(compact, type);
 		}
 	}
 
