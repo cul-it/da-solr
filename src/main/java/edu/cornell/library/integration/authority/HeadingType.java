@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.cornell.library.integration.utilities.StringUtils;
-
 enum HeadingType {
 	PERS      ("100"),//0
 	CORP      ("110"),
@@ -60,39 +58,6 @@ enum HeadingType {
 
 		default: return null;
 		}
-	}
-}
-
-enum HeadingTypeJsonLD {
-	COMPLEX_SUBJECT("madsrdf:ComplexSubject"),
-	CONFERENCE_NAME("madsrdf:ConferenceName"),
-	CORPORATE_NAME("madsrdf:CorporateName"),
-	FAMILY_NAME("madsrdf:FamilyName"),
-	GENRE_FORM("madsrdf:GenreForm"),
-	GEOGRAPHIC("madsrdf:Geographic"),
-	HIERARCHICAL_GEOGRAPHIC("madsrdf:HierarchicalGeographic"),
-	LANGUAGE("madsrdf:Language"),
-	NAME_TITLE("madsrdf:NameTitle"),
-	OCCUPATION("madsrdf:Occupation"),
-	PERSONAL_NAME("madsrdf:PersonalName"),
-	TEMPORAL("madsrdf:Temporal"),
-	TITLE("madsrdf:Title"),
-	TOPIC("madsrdf:Topic")
-	;
-
-	private final String madsType;
-	private HeadingTypeJsonLD(String madsType) {
-		this.madsType = madsType;
-	}
-	public String getAutorityType() {
-		return madsType;
-	}
-
-	private static Map<String,HeadingTypeJsonLD> _byAuthType =
-			Stream.of(HeadingTypeJsonLD.values()).collect(Collectors.toMap(ht -> ht.madsType,ht -> ht));
-
-	public static HeadingTypeJsonLD byType (String type) {
-		return _byAuthType.get(type);
 	}
 }
 

@@ -37,7 +37,6 @@ public class ActivityStreamsHandler {
 		System.out.println("Chunk size: " + chunkSize);
 		System.out.println("activity streams URL: " + params.url);
 		System.out.println("context URL: " + params.contextUrl);
-		System.out.println("id prefix: " + params.idPrefix);
 		IFetcher fetcher = new HttpFetcher();
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
 			ActivityStreamsHandler handler = new ActivityStreamsHandler();
@@ -53,7 +52,7 @@ public class ActivityStreamsHandler {
 				try (InputStream is = fetcher.fetch(url)) {
 					ActivityStreams activityStreams = parseActivityStreams(is);
 					for (OrderedItem orderedItem : activityStreams.orderedItems) {
-						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, params.contextUrl, params.idPrefix);
+						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, params.contextUrl);
 						if (Utils.exists(existsStmt, parsed)) {
 							activityStreams.next = null;
 							break;
@@ -67,12 +66,12 @@ public class ActivityStreamsHandler {
 		}
 	}
 
-	public AuthorityParsedData fetchAndParse(IFetcher fetcher, String url, String context, String type) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
+	public AuthorityParsedData fetchAndParse(IFetcher fetcher, String url, String context) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
 		System.out.println("Fetching " + url);
-		try (InputStream is = fetcher.fetch(url + ".json")) {
+		try (InputStream is = fetcher.fetch(url + ".madsrdf.json")) {
 			Document doc = JsonDocument.of(is);
 			JsonObject compact = JsonLd.compact(doc, context).get();
-			return Utils.parseAuthorityData(compact, type);
+			return Utils.parseAuthorityData(compact, url);
 		}
 	}
 

@@ -33,6 +33,7 @@ public class BulkDownloadHandler {
 		String destinationDir = env.get("DestinationDir");
 		boolean initDB = Boolean.parseBoolean(env.getOrDefault("initDB", "false"));
 		String jsonldURL = env.get("BulkDownloadURL");
+		int numChunksPerReport = Integer.parseInt(env.getOrDefault("NumChunksPerReport", "0"));
 		String addedDate = Utils.getToday();
 
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
@@ -45,17 +46,17 @@ public class BulkDownloadHandler {
 			System.out.println("Added date: " + addedDate);
 			System.out.println("Bulk download handler started...");
 			BulkDownloadHandler handler = new BulkDownloadHandler();
-			handler.run(addedDate, authority, chunkSize, deleteOldFile, destination, initDB, jsonldURL);
+			handler.run(addedDate, authority, chunkSize, deleteOldFile, destination, initDB, jsonldURL, numChunksPerReport);
 			System.out.println("Complete!");
 			if (deleteTempFileOnCompletion) {
-				System.out.print("Removing temporary file... ");
+				System.out.print("Removing temporary file...");
 				Files.delete(destination);
 				System.out.println("Done!");
 			}
 		}
 	}
 
-	public void run(String addedDate, Connection authority, int chunkSize, boolean deleteOldFile, Path destination, boolean initDB, String jsonldURL) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
+	public void run(String addedDate, Connection authority, int chunkSize, boolean deleteOldFile, Path destination, boolean initDB, String jsonldURL, int numChunksPerReport) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
 		if (initDB)
 			Utils.setUpDatabase(authority);
 
@@ -67,7 +68,7 @@ public class BulkDownloadHandler {
 		if (! Files.exists(destination))
 			handler.downloadBulkJsonLd(jsonldURL, destination);
 
-		handler.processData(addedDate, destination, authority, chunkSize);
+		handler.processData(addedDate, destination, authority, chunkSize, numChunksPerReport);
 	}
 
 	public void downloadBulkJsonLd(String url, Path destination) throws IOException, InterruptedException {
@@ -88,7 +89,7 @@ public class BulkDownloadHandler {
 		}
 	}
 
-	public void processData(String addedDate, Path bulkFile, Connection authorityDB, int chunkSize) throws IOException, JsonLdError, SQLException, URISyntaxException {
+	public void processData(String addedDate, Path bulkFile, Connection authorityDB, int chunkSize, int numChunksPerReport) throws IOException, JsonLdError, SQLException, URISyntaxException {
 		/*
 		 * Java 22 has Preview feature for Stream Gatherers
 		 * Stream<List<Integer>> chunkedStream = Stream.of(1, 2, 3, 4, 5)
@@ -98,6 +99,7 @@ public class BulkDownloadHandler {
 		try (Stream<String> lines = Files.lines(bulkFile);
 			 PreparedStatement insertStmt = Utils.replaceStmt(authorityDB)) {
 			Iterator<String> it = lines.iterator();
+			int processedChunks = 0;
 			while (it.hasNext()) {
 				for (int i = 0; i < chunkSize && it.hasNext(); i++) {
 					String line = it.next();
@@ -105,6 +107,8 @@ public class BulkDownloadHandler {
 					Utils.addBatch(insertStmt, data, addedDate);
 				}
 				insertStmt.executeBatch();
+				if (numChunksPerReport > 0 && ++processedChunks % numChunksPerReport == 0)
+					System.out.println("Processed " + String.format("%,d", processedChunks * chunkSize) + " entries");
 			}
 		}
 	}

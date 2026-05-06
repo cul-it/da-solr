@@ -75,7 +75,7 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 
 			String today = Utils.getToday();
 			BulkDownloadHandler bdh = new BulkDownloadHandler();
-			bdh.processData(today, tempFile, authority, 2);
+			bdh.processData(today, tempFile, authority, 2, 0);
 
 			stmt.setString(1, "http://id.loc.gov/authorities/names/n00000001");
 			stmt.setInt(2, 2);

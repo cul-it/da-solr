@@ -30,7 +30,6 @@ import com.apicatalog.jsonld.JsonLdErrorCode;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
-import edu.cornell.library.integration.authority.AuthoritySource;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -40,8 +39,12 @@ import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.JsonWriter;
 
+import edu.cornell.library.integration.authority.AuthoritySource;
+
 public class Utils {
-	public static final String UPDATE_TABLE = "authorityUpdateActivityStreams";
+	public static final String HEADING_TYPE_TABLE = "madsAuthorityHeadingType";
+	public static final String RECORD_STATUS_TABLE = "madsAuthorityRecordStatus";
+	public static final String UPDATE_TABLE = "madsAuthorityUpdate";
 	private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().followRedirects(Redirect.NORMAL).build();
 
 	public static void addBatch(PreparedStatement insertStmt, AuthorityParsedData data, String addedDate) throws SQLException {
@@ -208,25 +211,6 @@ public class Utils {
 		return now.format(formatter);
 	}
 
-	public static String getUri(JsonObject doc, JsonArray graph, String idPrefix) {
-		String docUri = "http://id.loc.gov";
-		var val = doc.getJsonString("@id");
-		// bulk download format has @id at the root level
-		if (val != null)
-			return docUri += doc.getJsonString("@id").getString();
-
-		// activity streams doesn't have @id at the root level
-		for (var item : graph) {
-			if (item.getValueType() != ValueType.OBJECT)
-				continue;
-			String id = getString(item.asJsonObject(), "@id");
-			if (id.startsWith(idPrefix)) {
-				return id;
-			}
-		}
-		return null;
-	}
-
 	public static <T> HttpResponse<T> httpGet(String url, BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create(url)).build();
@@ -269,9 +253,19 @@ public class Utils {
 		return parseAuthorityData(doc, null);
 	}
 
-	public static AuthorityParsedData parseAuthorityData(JsonObject doc, String idPrefix) throws JsonLdError, URISyntaxException, IOException {
+	public static AuthorityParsedData parseAuthorityData(JsonObject doc, String docUri) throws JsonLdError, URISyntaxException, IOException {
 		JsonArray graph = doc.getJsonArray("@graph");
-		String docUri = getUri(doc, graph, idPrefix);
+		if (docUri == null) {
+			docUri = "http://id.loc.gov";
+			var val = doc.getJsonString("@id");
+			// bulk download format has @id at the root level
+			if (val != null)
+				docUri += doc.getJsonString("@id").getString();
+			else
+				throw new JsonLdError(JsonLdErrorCode.UNSPECIFIED, "ID not found for bulk download entry");
+		} else
+			docUri = docUri.replace("https://", "http://");
+
 		AuthorityParsedData parsed = new AuthorityParsedData();
 		JsonObject mainEntry = Utils.getJsonObjectForId(graph, docUri);
 
@@ -291,7 +285,19 @@ public class Utils {
 		if (parsed.isSubdivision)
 			parsed.authorativeLabel = parsed.authorativeLabel.replace("--", " > ");
 
-		parsed.headingType = parseHeadingType(mainEntry);
+		List<MadsHeadingType> types = parseHeadingType(mainEntry);
+		switch (types.size()) {
+		case 0:
+			System.out.println("Identified no Mads heading type for " + docUri);
+			parsed.headingType = null;
+			break;
+		case 1:
+			parsed.headingType = types.get(0);
+			break;
+		default:
+			System.out.println("Identified multiple Mads heading types for " + docUri + " : " + types);
+			parsed.headingType = types.get(0);
+		}
 
 		JsonObject riRecord = getLatestRecordInfo(graph, mainEntry);
 		parsed.moddate = getString(riRecord, "ri:recordChangeDate");
@@ -319,18 +325,21 @@ public class Utils {
 		return parseIsMemberOfMADSCollection(isMemberOf, Constants.UNDIFF_URL);
 	}
 
-	public static MadsHeadingType parseHeadingType(JsonObject mainEntry) {
+	public static List<MadsHeadingType> parseHeadingType(JsonObject mainEntry) {
 		JsonValue ht = mainEntry.get("@type");
+		List<MadsHeadingType> types = new ArrayList<>();
 		if (ht.getValueType() == ValueType.ARRAY) {
 			for (JsonValue type : ht.asJsonArray()) {
 				MadsHeadingType t = MadsHeadingType.byType(Utils.getString(type));
 				if (t != null)
-					return t;
+					types.add(t);
 			}
 		} else if (ht.getValueType() == ValueType.STRING) {
-			return MadsHeadingType.byType(Utils.getString(ht));
+			MadsHeadingType t = MadsHeadingType.byType(Utils.getString(ht));
+			if (t != null)
+				types.add(t);
 		}
-		return null;
+		return types;
 	}
 
 	public static JsonObject parseJsonLd(String jsonld) throws JsonLdError {
@@ -372,11 +381,42 @@ CREATE TABLE IF NOT EXISTS `%s` (
 	UNIQUE KEY `unique_id` (`id`, `numUpdates`, `moddate`),
 	KEY `idx_id` (`id`),
 	KEY `idx_added_date` (`addedDate`),
+	KEY `idx_heading` (heading(255)),
 	KEY `idx_moddate` (`moddate`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(UPDATE_TABLE));
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(UPDATE_TABLE),
+				"""
+CREATE TABLE IF NOT EXISTS `%s` (
+	`id` TINYINT(3) unsigned NOT NULL,
+	`name` VARCHAR(256) NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=MyISAM""".formatted(HEADING_TYPE_TABLE),
+				"""
+CREATE TABLE IF NOT EXISTS `%s` (
+	`id` TINYINT(1) unsigned NOT NULL,
+	`name` VARCHAR(256) NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=MyISAM""".formatted(RECORD_STATUS_TABLE)
+);
+
 		try ( Statement stmt = authority.createStatement() ) {
 			for (String sql : sqls)
 				stmt.execute(sql);
 		}
+
+		try ( PreparedStatement insertDesc = authority.prepareStatement(
+				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(HEADING_TYPE_TABLE)) ) {
+		for ( MadsHeadingType ht : MadsHeadingType.values()) {
+			insertDesc.setInt(1, ht.ordinal());
+			insertDesc.setString(2, ht.toString());
+			insertDesc.executeUpdate();
+		}}
+
+		try ( PreparedStatement insertDesc = authority.prepareStatement(
+				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(RECORD_STATUS_TABLE)) ) {
+		for ( MadsRecordStatus rs : MadsRecordStatus.values()) {
+			insertDesc.setInt(1, rs.ordinal());
+			insertDesc.setString(2, rs.toString());
+			insertDesc.executeUpdate();
+		}}
 	}
 }
