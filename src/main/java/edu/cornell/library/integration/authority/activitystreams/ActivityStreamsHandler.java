@@ -26,11 +26,11 @@ public class ActivityStreamsHandler {
 		Config config = Config.loadConfig(requiredArgs);
 		Map<String, String> env = System.getenv();
 		int chunkSize = Integer.parseInt(env.getOrDefault("ChunkSize", "100"));
-		String paramsName = env.get("paramsName");
+		String dataset = env.get("dataset");
 		String addedDate = Utils.getToday();
-		var params = ActivityStreamsParams.getParam(paramsName);
+		var params = ActivityStreamsParams.getParam(dataset);
 		if (params == null) {
-			System.out.println("Unknown params name provided: " + paramsName);
+			System.out.println("Unknown params name provided: " + dataset);
 			System.exit(1);
 		}
 
@@ -42,6 +42,7 @@ public class ActivityStreamsHandler {
 			ActivityStreamsHandler handler = new ActivityStreamsHandler();
 			handler.processData(addedDate, authority, fetcher, params);
 		}
+		System.out.println("Complete!");
 	}
 
 	public void processData(String addedDate, Connection authority, IFetcher fetcher, ActivityStreamsParamsEntry params) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
@@ -55,11 +56,14 @@ public class ActivityStreamsHandler {
 						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, params.contextUrl);
 						if (Utils.exists(existsStmt, parsed)) {
 							activityStreams.next = null;
+							System.out.println(String.format("Existing record found, stopping... %s, %s, %s", parsed.id, parsed.numUpdates, parsed.moddate));
 							break;
 						} else
 							Utils.addBatch(insertStmt, parsed, addedDate);
 					}
-					insertStmt.executeBatch();
+					var inserted = insertStmt.executeBatch();
+					if (inserted.length > 0)
+						System.out.println("Processed " + url);
 					url = activityStreams.next;
 				}
 			} while (url != null);
@@ -67,7 +71,6 @@ public class ActivityStreamsHandler {
 	}
 
 	public AuthorityParsedData fetchAndParse(IFetcher fetcher, String url, String context) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
-		System.out.println("Fetching " + url);
 		try (InputStream is = fetcher.fetch(url + ".madsrdf.json")) {
 			Document doc = JsonDocument.of(is);
 			JsonObject compact = JsonLd.compact(doc, context).get();
