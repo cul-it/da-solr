@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.JsonLdErrorCode;
 import com.apicatalog.jsonld.document.Document;
@@ -129,11 +128,6 @@ public class Utils {
 			throw new IllegalArgumentException("Input is not gzip! " + url);
 
 		return basename.substring(0, basename.length() - 3);
-	}
-
-	public static JsonObject getFramedDoc(String context, InputStream jsonld) throws InterruptedException, IOException, JsonLdError {
-		Document doc = JsonDocument.of(jsonld);
-		return JsonLd.compact(doc, context).get();
 	}
 
 	public static List<String> getIdAsList(JsonValue arg) {
@@ -404,7 +398,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 		}
 
 		try ( PreparedStatement insertDesc = authority.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(HEADING_TYPE_TABLE)) ) {
+				"REPLACE INTO %s (id,name) VALUES (? , ?)".formatted(HEADING_TYPE_TABLE)) ) {
 		for ( MadsHeadingType ht : MadsHeadingType.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
@@ -412,7 +406,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 		}}
 
 		try ( PreparedStatement insertDesc = authority.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(RECORD_STATUS_TABLE)) ) {
+				"REPLACE INTO %s (id,name) VALUES (? , ?)".formatted(RECORD_STATUS_TABLE)) ) {
 		for ( MadsRecordStatus rs : MadsRecordStatus.values()) {
 			insertDesc.setInt(1, rs.ordinal());
 			insertDesc.setString(2, rs.toString());

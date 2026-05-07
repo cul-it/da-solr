@@ -28,9 +28,9 @@ public class ActivityStreamsHandler {
 		int chunkSize = Integer.parseInt(env.getOrDefault("ChunkSize", "100"));
 		String dataset = env.get("dataset");
 		String addedDate = Utils.getToday();
-		var params = ActivityStreamsParams.getParam(dataset);
+		var params = ActivityStreamsDataset.getParam(dataset);
 		if (params == null) {
-			System.out.println("Unknown params name provided: " + dataset);
+			System.out.println("Unknown dataset provided: " + dataset);
 			System.exit(1);
 		}
 
@@ -45,7 +45,7 @@ public class ActivityStreamsHandler {
 		System.out.println("Complete!");
 	}
 
-	public void processData(String addedDate, Connection authority, IFetcher fetcher, ActivityStreamsParamsEntry params) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
+	public void processData(String addedDate, Connection authority, IFetcher fetcher, ActivityStreamsDatasetEntry params) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
 		String url = params.url;
 		try (PreparedStatement insertStmt = Utils.replaceStmt(authority);
 			 PreparedStatement existsStmt = Utils.existsStmt(authority)) {
