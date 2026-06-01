@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 enum MadsRecordStatus {
-	NEW("new"), REVISED("revised"), DEPRECATED("deprecated");
+	NEW("new"), REVISED("revised"), DEPRECATED("deprecated"), UPDATED("updated");
 
 	private final String display;
 	private MadsRecordStatus( String display ) {
@@ -24,10 +24,10 @@ enum MadsRecordStatus {
 
 	public static MadsRecordStatus byName(String recordStatus) {
 		for (MadsRecordStatus status : MadsRecordStatus.values()) {
-            if (status.display.equalsIgnoreCase(recordStatus) || status.name().equalsIgnoreCase(recordStatus)) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("No constant with valid record status " + recordStatus + " found");
+			if (status.display.equalsIgnoreCase(recordStatus) || status.name().equalsIgnoreCase(recordStatus)) {
+				return status;
+			}
+		}
+		throw new IllegalArgumentException("No constant with valid record status '" + recordStatus + "' found");
 	}
 }
