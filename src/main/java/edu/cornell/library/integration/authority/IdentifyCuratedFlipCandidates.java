@@ -1,5 +1,6 @@
 package edu.cornell.library.integration.authority;
 
+import static edu.cornell.library.integration.authority.IdentifyBibFlipCandidates.fromFlipList;
 import static edu.cornell.library.integration.authority.Solr.identifySearchFields;
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
@@ -63,6 +64,11 @@ public class IdentifyCuratedFlipCandidates {
 						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
 				String lcIdAfter = row.containsKey("LC Authority - AFTER")?row.get("LC Authority - AFTER")
 						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
+				Boolean disabled = row.containsKey("Disabled") && ! row.get("Disabled").isBlank();
+				if (disabled) {
+					errors.add(String.format("DISABLED FLIP: %s -> %s", headingOf(before), headingOf(after)));
+					continue;
+				}
 				Flip flip = new Flip(before, after, lcIdBefore, lcIdAfter, getVocabsToFlip(after));
 				if (flip.authorityIdAfter != null)
 					confirmAfterFormIsCurrent(config, flip);
@@ -86,8 +92,12 @@ public class IdentifyCuratedFlipCandidates {
 			log.append(String.format("%s =>\t%s %s\n",
 					flip.before.toString(), flip.after.toString(), flip.vocabs.toString()));
 		System.out.println(log.toString());
+		String candidatesFileName = fileName.replaceAll(".xlsx", "-candidates.json");
+		boolean candidatesIdentified = fromFlipList(config, flips, candidatesFileName);
 		uploadFileToBox(env.get("boxKeyFile"),"Flip Lists - TEST",fileName.replaceAll(".xlsx", ".txt"),
 				new ByteArrayInputStream(log.toString().getBytes(StandardCharsets.UTF_8)));
+		if ( candidatesIdentified )
+			uploadFileToBox(env.get("boxKeyFile"),"Flip Lists - TEST",candidatesFileName);
 	}
 
 	private static EnumSet<AuthoritySource> getVocabsToFlip(DataField f) {
@@ -122,6 +132,8 @@ public class IdentifyCuratedFlipCandidates {
 				if (isName) throw new UnsupportedEncodingException(String.format("VOCABULARY ERROR (%s): %s", lcId, s));
 			}
 		if (isName) {
+			for (Subfield sf : subfields) if (sf.code.equals('t') || sf.code.equals('k'))
+				throw new UnsupportedEncodingException(String.format("NAME-TITLE FLIP NOT YET SUPPORTED: %s", s));
 			String indicators = prefix.substring(3);
 			if (indicators.contains("1"))
 				return new DataField(1, tag,'1',' ',subfields);
@@ -132,53 +144,12 @@ public class IdentifyCuratedFlipCandidates {
 	}
 
 
-	private static Map<String,Object> buildAutoFlip(Config config, Flip flip) throws IOException, SolrServerException {
-		List<String> blacklightFields = identifyBlacklightFields( flip );
-
-		String heading = headingOf(flip.before);
-
-		try( Http2SolrClient solr = new Http2SolrClient
-				.Builder(config.getBlacklightSolrUrl())
-				.withBasicAuthCredentials(config.getSolrUser(),config.getSolrPassword()).build();) {
-			
-			Map<String,Object> autoFlip = new HashMap<>();
-			for (String field : blacklightFields) {
-				List<List<String>> instances = querySolrForMatchingBibs( solr, field, heading );
-				if (instances.isEmpty()) continue;
-				autoFlip.put(field, instances);
-			}
-			if (autoFlip.isEmpty()) return null;
-			autoFlip.put("oldHeading", flip.before);
-			autoFlip.put("newHeading", flip.after);
-			autoFlip.put("name", "Replace");
-			return autoFlip;
-		}
-	}
-
 	private static String headingOf(DataField f) {
 		String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
 		String dashed = f.concatenateSpecificSubfields(" > ", "xvyz");
 		if ( ! dashed.isEmpty() ) heading = String.format("%s > %s", heading, dashed);
 		return heading;
 	}
-
-
-	private static List<String> identifyBlacklightFields(Flip flip) {
-
-		HeadingType before_ht = HeadingType.byAuthField( flip.before.tag );
-		HeadingType after_ht = HeadingType.byAuthField( flip.after.tag );
-
-		boolean includeAuthorFields = authorHeadingTypes.contains(before_ht) && authorHeadingTypes.contains(after_ht);
-		List<String> searchFields = identifySearchFields(
-				before_ht, AuthoritySource.LC, flip.vocabs.contains(AuthoritySource.FAST));
-		if ( ! includeAuthorFields ) searchFields.removeIf(p -> p.contains("author"));
-		searchFields.removeIf(p -> p.contains("_unk_"));
-		return searchFields;
-	}
-
-
-
-	private static EnumSet<HeadingType> authorHeadingTypes = EnumSet.of(HeadingType.PERS, HeadingType.CORP, HeadingType.MEETING);
 
 	private static void confirmAfterFormIsCurrent(Config config, Flip flip) throws SQLException, UnsupportedEncodingException {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
@@ -245,18 +216,13 @@ public class IdentifyCuratedFlipCandidates {
 		return null;
 	}
 
-	private static class Flip {
+	public static class Flip {
 		final DataField before;
 		final DataField after;
 		final String authorityIdBefore;
 		final String authorityIdAfter;
 		final EnumSet<AuthoritySource> vocabs;
-//		Flip( DataField before, DataField after, String authorityId) {
-//			this.before = before;
-//			this.after = after;
-//			this.authorityId = authorityId;
-//			this.vocabs =EnumSet.of(AuthoritySource.LC);
-//		}
+
 		Flip( DataField before, DataField after, String authorityIdBefore, String authorityIdAfter, EnumSet<AuthoritySource> vocabs) {
 			this.before = before;
 			this.after = after;
