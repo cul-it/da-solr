@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.authority.Solr.identifySearchField
 import static edu.cornell.library.integration.authority.Solr.querySolrForMatchingBibs;
 import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFileContents;
 import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.normalizeRussianLigatures;
 import static edu.cornell.library.integration.utilities.Excel.readExcel;
 
 import java.io.ByteArrayInputStream;
@@ -17,14 +18,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,12 +58,16 @@ public class IdentifyCuratedFlipCandidates {
 		List<Flip> flips = new ArrayList<>();
 		for( Map<String,String> row: data) {
 			try {
-				DataField before = parseDataField(row.get("Heading - BEFORE"), row.get("LC Authority - BEFORE"));
-				DataField after = parseDataField(row.get("Heading - AFTER"), row.get("LC Authority - AFTER"));
 				String lcIdBefore = row.containsKey("LC Authority - BEFORE")?row.get("LC Authority - BEFORE")
 						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
 				String lcIdAfter = row.containsKey("LC Authority - AFTER")?row.get("LC Authority - AFTER")
 						:row.containsKey("LC Authority")?row.get("LC Authority"):null;
+
+				DataField before = parseDataField(row.get("Heading - BEFORE"), lcIdBefore);
+				DataField after =  parseDataField(row.get("Heading - AFTER"),  lcIdAfter);
+				for (Subfield sf : after.subfields)
+					sf.value = normalizeRussianLigatures(Normalizer.normalize(sf.value,Normalizer.Form.NFC));
+
 				Boolean disabled = row.containsKey("Disabled") && ! row.get("Disabled").isBlank();
 				if (disabled) {
 					errors.add(String.format("DISABLED FLIP: %s -> %s", headingOf(before), headingOf(after)));
@@ -110,7 +114,9 @@ public class IdentifyCuratedFlipCandidates {
 	}
 
 	private static DataField parseDataField( String s, String lcId ) throws UnsupportedEncodingException {
-		String[] parts = s.split("[$‡ǂ]");
+		String sfSeparator = identifySubfieldSeparatorChar(s);
+		if (sfSeparator == null) throw new UnsupportedEncodingException(String.format("PARSE ERROR: %s", s));
+		String[] parts = s.split(sfSeparator);
 		TreeSet<Subfield> subfields = new TreeSet<>();
 		for (int i = 1; i<parts.length; i++) {
 			char code = parts[i].charAt(0);
@@ -143,6 +149,30 @@ public class IdentifyCuratedFlipCandidates {
 		return new DataField(1, tag,' ',' ',subfields);
 	}
 
+	/**
+	 * Identify which subfield separator character is in use for this field. The determination is based on
+	 * which ever appears first in the string. The choices are $ U+0024 (dollar sign), ‡ U+2021 (double dagger),
+	 * and ǂ U+01C2 (latin letter alveolar click). If none appear, the return will be null. This function does
+	 * not validate the field incoding otherwise.
+	 * @param s
+	 * @return
+	 */
+	private static String identifySubfieldSeparatorChar( String field ) {
+		String firstChar = null;
+		int firstOffset = Integer.MAX_VALUE;
+
+		int dollarOffset = field.indexOf('$');
+		if (dollarOffset > -1) {
+			firstOffset = dollarOffset;
+			firstChar = "$";
+		}
+		for (char c : Arrays.asList('‡', 'ǂ')) {
+			int offset = field.indexOf(c);
+			if (offset > -1 && offset < firstOffset)
+				return "[‡ǂ]";
+		}
+		return firstChar;
+	}
 
 	private static String headingOf(DataField f) {
 		String heading = f.concatenateSpecificSubfields("abcdefghjklmnopqrstu");
@@ -169,7 +199,6 @@ public class IdentifyCuratedFlipCandidates {
 					List<Subfield> current = new ArrayList<>(f.subfields);
 					for (int i = 0; i < after.size(); i++) {
 						Subfield a = after.get(i);
-						a.value = Normalizer.normalize(a.value,Normalizer.Form.NFC);
 						Subfield b = current.get(i);
 						if (a.code.equals(b.code) && a.value.equals(b.value)) continue;
 						throw new UnsupportedEncodingException(String.format(

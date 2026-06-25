@@ -3,8 +3,9 @@ package edu.cornell.library.integration.utilities;
 
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.hasCJK;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
-import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.limitStringToGSMChars;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.normalizeRussianLigatures;
+import static edu.cornell.library.integration.utilities.CharacterSetUtils.trimInternationally;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -12,6 +13,12 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class CharacterSetUtilsTest {
+
+	@Test
+	public void testRussianLigatureConversions() {
+		assertEquals("Vostochnai͡a", normalizeRussianLigatures("Vostochnai︠a︡"));
+		assertEquals("i͡a t͡s t︠ i︠ i͡a i͡as︡", normalizeRussianLigatures("i︠a︡ t︠s︡ t︠ i︠ i͡a i︠a︡s︡"));
+	}
 
 	@Test
 	public void testLimitStringToGSMChars() {

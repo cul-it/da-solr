@@ -16,6 +16,23 @@ public class CharacterSetUtils {
 	public static final float MIN_RATIO = (float)0.15;
 	public static final int MIN_CHAR = 2;
 
+
+
+	/**
+	 * Convert unicode encoding of a diacritical mark common in Romanized Russian text from a form
+	 * that uses two separate combining diacritical characters to create a ligature line over two letters:<br/>
+	 * <b>letter1 + U+FE20 (combining ligature left half) + letter2 + U+FE21 (combining ligature right half)</b>
+	 * -- (e.g. i︠a︡)<br/>
+	 * into the form that uses only one combining diacritic between the two letters:<br/>
+	 * <b>letter1 + U+0361 (combining double inverted breve) + letter2</b> -- (e.g. i͡a)
+	 * @param orig
+	 * @return modified string
+	 */
+	public static String normalizeRussianLigatures( String orig ) {
+		return orig.replaceAll("\ufe20(.)\ufe21", "\u0361$1");
+	}
+
+
 	/**
 	 * Remove various diacritics and characters from the provided string
 	 * that are not supported by the GSM character set used for SMS. Note
