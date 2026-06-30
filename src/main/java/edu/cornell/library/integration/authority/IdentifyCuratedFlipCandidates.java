@@ -7,6 +7,7 @@ import static edu.cornell.library.integration.utilities.BoxInteractions.getBoxFi
 import static edu.cornell.library.integration.utilities.BoxInteractions.uploadFileToBox;
 import static edu.cornell.library.integration.utilities.CharacterSetUtils.normalizeRussianLigatures;
 import static edu.cornell.library.integration.utilities.Excel.readExcel;
+import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -93,8 +94,8 @@ public class IdentifyCuratedFlipCandidates {
 
 		if (! flips.isEmpty()) log.append("\nFLIPS\n");
 		for (Flip flip : flips)
-			log.append(String.format("%s =>\t%s %s\n",
-					flip.before.toString(), flip.after.toString(), flip.vocabs.toString()));
+			log.append(String.format("%s =>\t%s %s%s\n",
+					flip.before.toString(), flip.after.toString(), flip.vocabs.toString(), (flip.isDiacritical)?" DIAC":""));
 		System.out.println(log.toString());
 		String candidatesFileName = fileName.replaceAll(".xlsx", "-candidates.json");
 		boolean candidatesIdentified = fromFlipList(config, flips, candidatesFileName);
@@ -251,6 +252,7 @@ public class IdentifyCuratedFlipCandidates {
 		final String authorityIdBefore;
 		final String authorityIdAfter;
 		final EnumSet<AuthoritySource> vocabs;
+		final boolean isDiacritical;
 
 		Flip( DataField before, DataField after, String authorityIdBefore, String authorityIdAfter, EnumSet<AuthoritySource> vocabs) {
 			this.before = before;
@@ -258,6 +260,7 @@ public class IdentifyCuratedFlipCandidates {
 			this.authorityIdAfter = authorityIdAfter;
 			this.authorityIdBefore = authorityIdBefore;
 			this.vocabs = vocabs;
+			this.isDiacritical = getFilingForm( headingOf(before) ).equals( getFilingForm(  headingOf(after) ));
 		}
 	}
 
