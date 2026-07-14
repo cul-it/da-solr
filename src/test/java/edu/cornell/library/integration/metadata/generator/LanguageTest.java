@@ -23,7 +23,8 @@ public class LanguageTest {
 		String expected =
 		"language_facet: English\n"+
 		"language_display: English.\n"+
-		"language_articles_t: the a an\n";
+		"language_articles_t: the a an\n"+
+		"language_iana_data: en\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -33,7 +34,8 @@ public class LanguageTest {
 		rec.controlFields.add(new ControlField(1,"008","170202s2017    ch a          000 0 chi  "));
 		String expected =
 		"language_facet: Chinese\n"+
-		"language_display: Chinese.\n";
+		"language_display: Chinese.\n"+
+		"language_iana_data: zh\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -57,7 +59,8 @@ public class LanguageTest {
 		String expected =
 		"language_facet: English\n"+
 		"language_display: In English.\n"+
-		"language_articles_t: the a an\n";
+		"language_articles_t: the a an\n"+
+		"language_iana_data: en\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -83,7 +86,8 @@ public class LanguageTest {
 		rec.dataFields.add(f);
 		String expected =
 		"language_facet: Vietnamese\n"+
-		"language_display: Vietnamese.\n";
+		"language_display: Vietnamese.\n"+
+		"language_iana_data: vi\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -103,7 +107,8 @@ public class LanguageTest {
 		"language_facet: Hindi\n"+
 		"language_facet: English\n"+
 		"language_display: In Hindi with English subtitles.\n"+
-		"language_articles_t: the a an\n";
+		"language_articles_t: the a an\n"+
+		"language_iana_data: hi\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
@@ -137,7 +142,8 @@ public class LanguageTest {
 		"language_facet: German\n" + 
 		"language_display: English, Russian, German.\n" + 
 		"language_articles_t: the a an\n" + 
-		"language_articles_t: das dem den der des die ein eine einem einen einer eines\n";
+		"language_articles_t: das dem den der des die ein eine einem einen einer eines\n"+
+		"language_iana_data: mul\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
 
