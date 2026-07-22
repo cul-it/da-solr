@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +50,15 @@ public class ActivityStreamsHandler {
 		String url = params.url;
 		try (PreparedStatement insertStmt = Utils.replaceStmt(authority);
 			 PreparedStatement existsStmt = Utils.existsStmt(authority)) {
+			Map<String, Boolean> seen = new HashMap<>();
 			do {
 				try (InputStream is = fetcher.fetch(url)) {
 					ActivityStreams activityStreams = parseActivityStreams(is);
 					for (OrderedItem orderedItem : activityStreams.orderedItems) {
 						AuthorityParsedData parsed = fetchAndParse(fetcher, orderedItem.id, params.contextUrl);
+						if (Utils.alreadyProcessed(seen, parsed))
+							continue;
+
 						if (Utils.exists(existsStmt, parsed)) {
 							activityStreams.next = null;
 							System.out.println(String.format("Existing record found, stopping... %s, %s, %s", parsed.id, parsed.numUpdates, parsed.moddate));

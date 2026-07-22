@@ -24,8 +24,8 @@ public class ActivityStreamsDataset {
 					"https://id.loc.gov/authorities/performanceMediums/activitystreams/feed/1.json"
 					)),
 			Map.entry("RBMS", new ActivityStreamsDatasetEntry(
-					"https://id.loc.gov/authorities/rbmscv/context.json",
-					"https://id.loc.gov/authorities/rbmscv/activitystreams/feed/1.json"
+					"https://id.loc.gov/vocabulary/rbmscv/context.json",
+					"https://id.loc.gov/vocabulary/rbmscv/activitystreams/feed/1.json"
 					))
 		);
 
