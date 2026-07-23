@@ -22,13 +22,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.JsonLdErrorCode;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
+import edu.cornell.library.integration.authority.AuthoritySource;
+import edu.cornell.library.integration.authority.mads.AuthorityMap;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -37,8 +42,6 @@ import jakarta.json.JsonStructure;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.JsonWriter;
-
-import edu.cornell.library.integration.authority.AuthoritySource;
 
 public class Utils {
 	public static final String HEADING_TYPE_TABLE = "madsAuthorityHeadingType";
@@ -76,6 +79,16 @@ public class Utils {
 				return true;
 		}
 		return false;
+	}
+
+	public static boolean alreadyProcessed(Map<String, Boolean> seen, AuthorityParsedData toCheck) {
+		String key = toCheck.id + toCheck.moddate + toCheck.numUpdates;
+		if (seen.containsKey(key)) {
+			return true;
+		} else {
+			seen.put(key,  true);
+			return false;
+		}
 	}
 
 	public static int countNumUpdate(JsonArray graph, JsonObject mainEntry) {
@@ -132,6 +145,8 @@ public class Utils {
 
 	public static List<String> getIdAsList(JsonValue arg) {
 		List<String> ids = new ArrayList<>();
+		if (arg == null) return ids;
+
 		if (arg.getValueType() == ValueType.ARRAY) {
 			for (JsonValue val : arg.asJsonArray())
 				ids.add(val.asJsonObject().getJsonString("@id").getString());
@@ -171,6 +186,19 @@ public class Utils {
 		return recordInfo;
 	}
 
+	public static List<JsonObject> getRwos(JsonObject node, JsonArray graph) {
+		List<JsonObject> rwos = new ArrayList<>();
+		JsonValue rwosVal = node.get("madsrdf:identifiesRWO");
+		List<String> rwoIds = getIdAsList(rwosVal);
+		for (String rwoId : rwoIds) {
+			JsonObject rwo = getJsonObjectForId(graph, rwoId);
+			if (rwo.isEmpty()) continue;
+
+			rwos.add(rwo);
+		}
+		return rwos;
+	}
+
 	public static String getStackTraceAsString(Throwable throwable) {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
@@ -190,12 +218,15 @@ public class Utils {
 	/*
 	 * Shorthand to get string value from a generic type JsonValue
 	 * If it is an object, return the @value as string
+	 * If it is an array, return the first element as string
 	 */
 	public static String getString(JsonValue value) {
 		if (value.getValueType() == ValueType.STRING)
 			return ((JsonString) value).getString();
 		else if (value.getValueType() == ValueType.OBJECT)
 			return value.asJsonObject().getJsonString("@value").getString();
+		else if (value.getValueType() == ValueType.ARRAY)
+			return getString(value.asJsonArray().get(0));
 		return null;
 	}
 
@@ -203,6 +234,25 @@ public class Utils {
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return now.format(formatter);
+	}
+
+	public static List<String> getListForArray(JsonObject node, String key) {
+		List<String> list = new ArrayList<>();
+		JsonValue value = node.get(key);
+		if (value == null)
+			return list;
+		if (value.getValueType() == ValueType.ARRAY) {
+			for (JsonValue val : value.asJsonArray()) {
+				if (val.getValueType() == ValueType.OBJECT)
+					list.add(val.asJsonObject().getJsonString("@id").getString());
+				else
+					list.add(((JsonString) val).getString());
+			}
+		} else if (value.getValueType() == ValueType.OBJECT)
+			list.add(value.asJsonObject().getJsonString("@id").getString());
+		else if (value.getValueType() == ValueType.STRING)
+			list.add(((JsonString) value).getString());
+		return list;
 	}
 
 	public static <T> HttpResponse<T> httpGet(String url, BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
@@ -279,19 +329,7 @@ public class Utils {
 		if (parsed.isSubdivision)
 			parsed.authorativeLabel = parsed.authorativeLabel.replace("--", " > ");
 
-		List<MadsHeadingType> types = parseHeadingType(mainEntry);
-		switch (types.size()) {
-		case 0:
-			System.out.println("Identified no Mads heading type for " + docUri);
-			parsed.headingType = null;
-			break;
-		case 1:
-			parsed.headingType = types.get(0);
-			break;
-		default:
-			System.out.println("Identified multiple Mads heading types for " + docUri + " : " + types);
-			parsed.headingType = types.get(0);
-		}
+		parsed.headingType = headingType(mainEntry, docUri);
 
 		JsonObject riRecord = getLatestRecordInfo(graph, mainEntry);
 		parsed.moddate = getString(riRecord, "ri:recordChangeDate");
@@ -308,6 +346,20 @@ public class Utils {
 		}
 
 		return parsed;
+	}
+
+	public static MadsHeadingType headingType(JsonObject mainEntry, String docUri) {
+		List<MadsHeadingType> types = parseHeadingType(mainEntry);
+		switch (types.size()) {
+		case 0:
+			System.out.println("Identified no Mads heading type for " + docUri);
+			return null;
+		case 1:
+			return types.get(0);
+		default:
+			System.out.println("Identified multiple Mads heading types for " + docUri + " : " + types);
+			return types.get(0);
+		}
 	}
 
 	public static AuthorityParsedData parseAuthorityData(String jsonld) throws JsonLdError, URISyntaxException, IOException {
@@ -354,6 +406,93 @@ public class Utils {
 				"""
 REPLACE INTO %s (id,lccn,vocabulary,recordStatus,heading,headingType,isSubdivision,undifferentiated,moddate,addedDate,numUpdates,source)
 	VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""".formatted(UPDATE_TABLE));
+	}
+
+	public static PreparedStatement selectMostRecentStmt(Connection authorityDB, String id) throws SQLException {
+		return authorityDB.prepareStatement("SELECT * FROM %s WHERE id = ? order by addedDate desc LIMIT 1".formatted(UPDATE_TABLE));
+	}
+
+	public static AuthorityMap mostRecentMadsRecord(Connection authority, String identifier) throws SQLException, JsonLdError, IOException {
+		try (PreparedStatement stmt = Utils.selectMostRecentStmt(authority, identifier)) {
+			stmt.setString(1, identifier);
+			try (ResultSet rs = stmt.executeQuery()) {
+				while (rs.next()) {
+					return AuthorityMap.fromMadsJsonld(authority, rs.getString("id"), rs.getString("source"), rs.getBoolean("undifferentiated"));
+//					try (ByteArrayInputStream is = new ByteArrayInputStream(rs.getString(1).getBytes(StandardCharsets.UTF_8))) {
+//						return JsonDocument.of(is);
+//					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String maxAddedDate(Connection authority) throws SQLException {
+		try (PreparedStatement pstmt = authority.prepareStatement("SELECT MAX(addedDate) as maxAddedDate FROM %s".formatted(Utils.UPDATE_TABLE));
+			 ResultSet rs = pstmt.executeQuery()) {
+			if (rs.next()) return rs.getString(1);
+		}
+
+		throw new SQLException("No addedDate in system!");
+	}
+
+	public static Set<String> allMadsIdentifiers(Connection authority) throws SQLException {
+		Set<String> identifiers = new TreeSet<>();
+		try (Statement stmt = authority.createStatement()) {
+			 try (ResultSet rs = stmt.executeQuery("SELECT DISTINCT id FROM %s".formatted(Utils.UPDATE_TABLE))) {
+////			String sql = "SELECT DISTINCT id FROM %s WHERE id = 'http://id.loc.gov/authorities/names/n90633346'".formatted(Utils.UPDATE_TABLE);			
+//			System.out.println(sql);
+//			try (ResultSet rs = stmt.executeQuery(sql)) {
+				while (rs.next()) identifiers.add(rs.getString(1));
+			}
+			System.out.format("%d distinct records in %s.\n".formatted(identifiers.size(), Utils.UPDATE_TABLE));
+		}
+//		identifiers.add("");
+//		identifiers.add("http://id.loc.gov/authorities/names/n90633346");
+//		identifiers.add("http://id.loc.gov/authorities/names/n83133203");
+		return identifiers;
+	}
+
+	public static JsonObject madsDoc(Connection authority, String identifier) throws SQLException, IOException, JsonLdError {
+		try (PreparedStatement pstmt = authority.prepareStatement("SELECT source FROM %s WHERE id = ?".formatted(Utils.UPDATE_TABLE))) {
+			pstmt.setString(1, identifier);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (!rs.next()) return null;
+
+				return parseJsonLd(rs.getString(1));
+//				try (ByteArrayInputStream is = new ByteArrayInputStream(rs.getString(1).getBytes(StandardCharsets.UTF_8))) {
+//					Document doc = JsonDocument.of(is);
+//					return 
+//				}
+			}
+		}
+	}
+
+	public static Set<String> madsIdentifiersNewerThan(Connection authorityDB, String cursor) throws SQLException {
+		Set<String> identifiers = new TreeSet<>();
+		try ( PreparedStatement pstmt = authorityDB.prepareStatement("SELECT DISTINCT id FROM %s WHERE addedDate > ?".formatted(UPDATE_TABLE))) {
+			pstmt.setString(1, cursor);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next())
+					identifiers.add(rs.getString(1));
+			}
+		}
+		return identifiers;
+	}
+
+	public static AuthorityParsedData headingFromLcId(Connection authority, String id) throws SQLException {
+		try ( PreparedStatement pstmt = authority.prepareStatement("SELECT heading, headingType FROM %s WHERE id = ? ORDER BY addedDate desc LIMIT 1".formatted(UPDATE_TABLE))) {
+			pstmt.setString(1, id);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					AuthorityParsedData rec = new AuthorityParsedData();
+					rec.authorativeLabel = rs.getString("heading");
+					rec.headingType = MadsHeadingType.byOrdinal(rs.getInt("headingType"));
+					return rec;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static void setUpDatabase(Connection authority) throws SQLException {
@@ -412,5 +551,13 @@ CREATE TABLE IF NOT EXISTS `%s` (
 			insertDesc.setString(2, rs.toString());
 			insertDesc.executeUpdate();
 		}}
+	}
+
+	public static void printJsonLd(JsonObject doc) throws IOException {
+		try (StringWriter sw = new StringWriter();
+			 JsonWriter jsonWriter = Json.createWriter(sw)) {
+			jsonWriter.write(doc);
+			System.out.println(sw.toString());
+		}
 	}
 }
