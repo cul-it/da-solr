@@ -28,7 +28,7 @@
     </autoCommit>
 
     <autoSoftCommit> 
-      <maxTime>1000</maxTime> <!-- 1 second -->
+      <maxTime>10000</maxTime> <!-- 10 seconds -->
     </autoSoftCommit>
   </updateHandler>
 
