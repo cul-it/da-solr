@@ -1,6 +1,4 @@
-package edu.cornell.library.integration.authority.activitystreams;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package edu.cornell.library.integration.authority.mads;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -12,12 +10,13 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.AuthoritySource;
 
-public class UtilsTest {
+public class MadsUtilsTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
 
 	@BeforeClass
@@ -37,7 +36,7 @@ public class UtilsTest {
 	@Test
 	public void parseBulkEntryTest() throws IOException, JsonLdError, URISyntaxException {
 		String content = Files.readString(resources.get("names_madsrdf_1.json"));
-		AuthorityParsedData data = Utils.parseAuthorityData(content);
+		AuthorityDataMadsSimple data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals("http://id.loc.gov/authorities/names/n00000001", data.id);
 		assertEquals("n 00000001", data.lccn);
 		assertEquals(AuthoritySource.valueOf("NAF"), data.vocab);
@@ -49,57 +48,57 @@ public class UtilsTest {
 		assertEquals("2025-08-05T02:34:09", data.moddate);
 
 		content = Files.readString(resources.get("names_madsrdf_2.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals("Belʹdiĭ, A. I︠A︡.", data.authorativeLabel);
 
 		content = Files.readString(resources.get("subjects_madsrdf_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(AuthoritySource.valueOf("LCSH"), data.vocab);
 		assertEquals("ActionScript (Computer program language)", data.authorativeLabel);
 		assertEquals(MadsHeadingType.valueOf("TOPIC"), data.headingType);
 
 		content = Files.readString(resources.get("names_madsrdf_subdivision_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(null, data.lccn);
 		assertEquals("Germany > Marienstatt", data.authorativeLabel);
 		assertEquals(MadsHeadingType.valueOf("HIERARCHICAL_GEOGRAPHIC"), data.headingType);
 
 		content = Files.readString(resources.get("subjects_madsrdf_subdivision_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals("sh 00008433", data.lccn);
 		assertEquals("Reinstatement", data.authorativeLabel);
 		assertEquals(MadsHeadingType.valueOf("TOPIC"), data.headingType);
 		assertEquals(true, data.isSubdivision);
 
 		content = Files.readString(resources.get("subjects_madsrdf_hai_van_pass.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals("Hải Vân Pass (Vietnam)", data.authorativeLabel);
 		assertEquals(MadsHeadingType.valueOf("GEOGRAPHIC"), data.headingType);
 		assertEquals(false, data.isSubdivision);
 
 		content = Files.readString(resources.get("names_undifferentiated_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals("Mason, Jack", data.authorativeLabel);
 		assertEquals(true, data.undifferentiated);
 
 		content = Files.readString(resources.get("names_deprecated_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(null, data.lccn);
 		assertEquals(MadsRecordStatus.valueOf("DEPRECATED"), data.recordStatus);
 		assertEquals(null, data.authorativeLabel);
 
 		content = Files.readString(resources.get("names_name_title_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(MadsHeadingType.valueOf("NAME_TITLE"), data.headingType);
 
 		// Following two have -- in authoratativeLabel but is not subdivision
 		content = Files.readString(resources.get("subjects_name_title_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(MadsHeadingType.valueOf("NAME_TITLE"), data.headingType);
 		assertEquals("Texas. Declaration of Independence--Signers", data.authorativeLabel);
 
 		content = Files.readString(resources.get("subjects_complex_subject_1.json"));
-		data = Utils.parseAuthorityData(content);
+		data = AuthorityJsonldUtils.parseAuthorityData(content);
 		assertEquals(MadsHeadingType.valueOf("COMPLEX_SUBJECT"), data.headingType);
 		assertEquals("Space vehicles--Doppler tracking", data.authorativeLabel);
 	}

@@ -3,6 +3,7 @@ package edu.cornell.library.integration.authority.activitystreams;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
@@ -16,16 +17,13 @@ public class ActivityStreams {
 		orderedItems.add(new OrderedItem(id, link));
 	}
 
-	class OrderedItem {
+	public class OrderedItem {
 		public String id = null;
 		public String link = null;
 		public OrderedItem(String id, String link) {
 			this.id = id;
-			if (link == null) {
-				link = id + ".json";
-			} else {
-				this.link = link;
-			}
+			if (link == null) this.link = id + ".json";
+			else this.link = link;
 		}
 	}
 
@@ -41,8 +39,8 @@ public class ActivityStreams {
 		 */
 		for (JsonValue link : url) {
 			JsonObject obj = link.asJsonObject();
-			if ("Link".equalsIgnoreCase(Utils.getString(obj, "type")) && "application/json".equalsIgnoreCase(Utils.getString(obj, "mediaType"))) {
-				return Utils.getString(obj, "href");
+			if ("Link".equalsIgnoreCase(AuthorityJsonldUtils.getString(obj, "type")) && "application/json".equalsIgnoreCase(AuthorityJsonldUtils.getString(obj, "mediaType"))) {
+				return AuthorityJsonldUtils.getString(obj, "href");
 			}
 		}
 		return null;

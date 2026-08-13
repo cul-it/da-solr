@@ -20,6 +20,8 @@ import java.util.zip.GZIPInputStream;
 
 import com.apicatalog.jsonld.JsonLdError;
 
+import edu.cornell.library.integration.authority.mads.AuthorityDataMadsSimple;
+import edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils;
 import edu.cornell.library.integration.utilities.Config;
 
 public class BulkDownloadHandler {
@@ -34,10 +36,10 @@ public class BulkDownloadHandler {
 		boolean initDB = Boolean.parseBoolean(env.getOrDefault("initDB", "false"));
 		String jsonldURL = env.get("BulkDownloadURL");
 		int numChunksPerReport = Integer.parseInt(env.getOrDefault("NumChunksPerReport", "0"));
-		String addedDate = Utils.getToday();
+		String addedDate = ActivityStreamsUtils.getToday();
 
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
-			Path destination = Paths.get(destinationDir, Utils.getDestName(jsonldURL));
+			Path destination = Paths.get(destinationDir, ActivityStreamsUtils.getDestName(jsonldURL));
 			System.out.println("Chunk size: " + chunkSize);
 			System.out.println("DeleteOldFile: " + deleteOldFile);
 			System.out.println("Destination: " + destination);
@@ -58,7 +60,7 @@ public class BulkDownloadHandler {
 
 	public void run(String addedDate, Connection authority, int chunkSize, boolean deleteOldFile, Path destination, boolean initDB, String jsonldURL, int numChunksPerReport) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
 		if (initDB)
-			Utils.setUpDatabase(authority);
+			ActivityStreamsUtils.setUpDatabase(authority);
 
 		BulkDownloadHandler handler = new BulkDownloadHandler();
 
@@ -72,7 +74,7 @@ public class BulkDownloadHandler {
 	}
 
 	public void downloadBulkJsonLd(String url, Path destination) throws IOException, InterruptedException {
-		HttpResponse<InputStream> response = Utils.httpGet(url, HttpResponse.BodyHandlers.ofInputStream());
+		HttpResponse<InputStream> response = IFetcher.HttpFetcher.httpGet(url, HttpResponse.BodyHandlers.ofInputStream());
 		if (response.statusCode() != 200) {
 			System.out.println("Failed to bulk download file at " + url);
 			System.out.println("Response status code: " + response.statusCode());
@@ -97,14 +99,14 @@ public class BulkDownloadHandler {
 		 * We may refactor this code to use that in later releases.
 		 */
 		try (Stream<String> lines = Files.lines(bulkFile);
-			 PreparedStatement insertStmt = Utils.replaceStmt(authorityDB)) {
+			 PreparedStatement insertStmt = ActivityStreamsUtils.replaceStmt(authorityDB)) {
 			Iterator<String> it = lines.iterator();
 			int processedChunks = 0;
 			while (it.hasNext()) {
 				for (int i = 0; i < chunkSize && it.hasNext(); i++) {
 					String line = it.next();
-					AuthorityParsedData data = Utils.parseAuthorityData(line);
-					Utils.addBatch(insertStmt, data, addedDate);
+					AuthorityDataMadsSimple data = AuthorityJsonldUtils.parseAuthorityData(line);
+					ActivityStreamsUtils.addBatch(insertStmt, data, addedDate);
 				}
 				insertStmt.executeBatch();
 				if (numChunksPerReport > 0 && ++processedChunks % numChunksPerReport == 0)

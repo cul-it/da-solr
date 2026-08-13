@@ -1,10 +1,11 @@
-package edu.cornell.library.integration.authority.activitystreams;
+package edu.cornell.library.integration.authority.mads;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum MadsHeadingType {
+	UNKNOWN("unknown"),
 	COMPLEX_SUBJECT("madsrdf:ComplexSubject"),
 	CONFERENCE_NAME("madsrdf:ConferenceName"),
 	CORPORATE_NAME("madsrdf:CorporateName"),
@@ -31,14 +32,14 @@ public enum MadsHeadingType {
 		return madsType;
 	}
 
-	private static Map<Integer,MadsHeadingType> _byOrdinal =
+	private static final Map<Integer,MadsHeadingType> _byOrdinal =
 			Stream.of(MadsHeadingType.values()).collect(Collectors.toMap(s -> s.ordinal(), s -> s));
 
 	public static MadsHeadingType byOrdinal( int ordinal ) {
 		return _byOrdinal.get(ordinal);
 	}
 
-	private static Map<String,MadsHeadingType> _byAuthType =
+	private static final Map<String,MadsHeadingType> _byAuthType =
 			Stream.of(MadsHeadingType.values()).collect(Collectors.toMap(ht -> ht.madsType,ht -> ht));
 
 	public static MadsHeadingType byType (String type) {

@@ -1,0 +1,284 @@
+[
+    {
+        "@id": "_:b34iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Introduction to potential fields: gravity, 1997:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@language": "en",
+                "@value": "p. 2 (a gravity map is made using numerous gravity measurements across the area of interest ... gravity measurements are often processed to a complete-Bouguer or isostatic gravity anomaly. These data are then gridded, so that the randomly spaced data are converted to a representation of the gravity field at equally spaced locations)"
+            }
+        ]
+    },
+    {
+        "@id": "_:b42iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Gravity anomaly maps, via Wisconsin State Cartographer's Office website, July 16, 2010"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@language": "en",
+                "@value": "(Gravity anomaly maps depict the difference between theoretical computed gravity values and observed gravity values for a region of the earth's crust)"
+            }
+        ]
+    },
+    {
+        "@id": "_:b28iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "GRACE gravity map image gallery, via WWW, July 16, 2010."
+            }
+        ]
+    },
+    {
+        "@id": "_:b64iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2011-10-19T00:00:00"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "new"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/wau"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b50iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Smith, W.H.F. Global seafloor topography from satellite altimetry, via NOAA National Geophysical Data Center website, July 16, 2010"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@language": "en",
+                "@value": "(gravity maps are useful in revealing the geology of the sea floor)"
+            }
+        ]
+    },
+    {
+        "@id": "_:b8iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#GenreFormElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@language": "en",
+                "@value": "Gravity anomaly maps"
+            }
+        ]
+    },
+    {
+        "@id": "_:b13iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#GenreForm",
+            "http://www.loc.gov/mads/rdf/v1#Variant"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#variantLabel": [
+            {
+                "@language": "en",
+                "@value": "Gravity maps"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b19iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "@id": "_:b22iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Work cat.: Thompson, G.A. Aeromagnetic and Bouguer gravity map of Twin Sisters dunite, northwestern Washington, 1973."
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/authorities/genreForms/gf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#GenreForm",
+            "http://www.loc.gov/mads/rdf/v1#Authority"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+            {
+                "@language": "en",
+                "@value": "Gravity anomaly maps"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b8iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+                    }
+                ]
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@value": "155  $aGravity anomaly maps"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasVariant": [
+            {
+                "@id": "_:b13iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasSource": [
+            {
+                "@id": "_:b22iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            },
+            {
+                "@id": "_:b28iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            },
+            {
+                "@id": "_:b34iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            },
+            {
+                "@id": "_:b42iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            },
+            {
+                "@id": "_:b50iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            }
+        ],
+        "http://id.loc.gov/vocabulary/identifiers/lccn": [
+            {
+                "@value": "gf2010025067"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+            {
+                "@id": "http://id.loc.gov/authorities/genreForms"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+            {
+                "@id": "http://id.loc.gov/authorities/genreForms/collection_LCGFT_General"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasBroaderAuthority": [
+            {
+                "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasCloseExternalAuthority": [
+            {
+                "@id": "http://id.worldcat.org/fast/1910777"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+            {
+                "@id": "_:b64iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            },
+            {
+                "@id": "_:b72iddOtlocdOtgovauthoritiesgenreFormsgf2010025067"
+            }
+        ]
+    },
+    {
+        "@id": "_:b72iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2012-03-29T08:31:40"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "revised"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b19iddOtlocdOtgovauthoritiesgenreFormsgf2010025067",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#GenreFormElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@language": "en",
+                "@value": "Gravity maps"
+            }
+        ]
+    }
+]

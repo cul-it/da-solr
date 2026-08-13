@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.authority.activitystreams;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,24 +12,29 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.apicatalog.jsonld.JsonLdError;
 
+import edu.cornell.library.integration.authority.mads.AuthorityDbUtils;
+import edu.cornell.library.integration.authority.mads.MadsHeadingType;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.db_test.SqliteBaseTest;
 
 public class ActivityStreamsHandlerTest extends DbBaseTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
+	static String addedDate = ActivityStreamsUtils.getToday();
+	static Path rootPath = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority");
 
 	@BeforeAll
 	public static void setup() throws IOException, SQLException {
 		setup("Authority");
-		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();
+		String base = rootPath.toString();
 		if (useTestContainers != null) {
 			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				Utils.setUpDatabase(authority);
+				ActivityStreamsUtils.setUpDatabase(authority);
 			}
 		} else if (useSqlite != null) {
 			String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
@@ -54,8 +57,9 @@ public class ActivityStreamsHandlerTest extends DbBaseTest {
 
 	@Test
 	public void parseActivityStreamsTest() throws IOException, InterruptedException, JsonLdError {
-		Path path = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority", "names_activitystreams_feed_1.json");
-		ActivityStreamsHandler handler = new ActivityStreamsHandler();
+		Path path = Path.of(rootPath.toString(), "names_activity_streams_feed_1.json");
+		var handlerConfig = new IActivityStreamsHandlerConfig.ActivityStreamsHandlerConfigT(addedDate, 100, "LCNAF", rootPath, null);
+		ActivityStreamsHandler handler = new ActivityStreamsHandler(handlerConfig);
 		try (InputStream is = Files.newInputStream(path)) {
 			ActivityStreams activityStreams = handler.parseActivityStreams(is);
 			assertEquals("http://id.loc.gov/authorities/names/activitystreams/feed/1", activityStreams.id);
@@ -68,14 +72,27 @@ public class ActivityStreamsHandlerTest extends DbBaseTest {
 
 	@Test
 	public void processDataTest() throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
-		Path localDir = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority");
+		/*
+		 * The real activity streams feed will only contain a single type.
+		 * To increase test coverage, we are faking a feed that contains both name and subject.
+		 */
+		var handlerConfig = new IActivityStreamsHandlerConfig.ActivityStreamsHandlerConfigT(addedDate, 100, "LCNAF", rootPath, "mixed_activity_streams_feed_1.json");
 		try (Connection authority = config.getDatabaseConnection("Authority")) {
-			ActivityStreamsHandler handler = new ActivityStreamsHandler();
-			IFetcher fetcher = new FileFetcher(localDir);
-			String addedDate = Utils.getToday();
-			ActivityStreamsDatasetEntry entry = ActivityStreamsDataset.getParam("subjects");
-			entry.url = "subjects_activity_streams_feed_1.json";
-			handler.processData(addedDate, authority, fetcher, entry);
+			ActivityStreamsHandler handler = new ActivityStreamsHandler(handlerConfig);
+			handler.processData(authority);
+			var ids = AuthorityDbUtils.identifiers(authority).stream().sorted().toList();
+			String id = ids.get(0);
+			var doc = AuthorityDbUtils.authorityRecord(authority, id);
+			doc.print();
+			assert doc.id.equalsIgnoreCase("http://id.loc.gov/authorities/names/no2026038416");
+			assert doc.authorativeLabel.equalsIgnoreCase("Ferras, Patrick, 1958-");
+			assert doc.headingType == MadsHeadingType.PERSONAL_NAME;
+
+			id = ids.get(1);
+			doc = AuthorityDbUtils.authorityRecord(authority, id);
+			assert doc.id.equalsIgnoreCase("http://id.loc.gov/authorities/subjects/sh97007140");
+			assert doc.authorativeLabel.equalsIgnoreCase("Judeo-Tat language");
+			assert doc.headingType == MadsHeadingType.TOPIC;
 		}
 	}
 }

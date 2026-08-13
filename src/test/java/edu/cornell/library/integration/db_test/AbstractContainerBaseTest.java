@@ -21,6 +21,8 @@ import java.util.Properties;
 import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.mariadb.MariaDBContainer;
 
+@SuppressWarnings("resource")
+// Testcontainers uses Ryuk to forcefully clean up any leaked containers and networks when the JVM process exits.
 public class AbstractContainerBaseTest {
 	protected static final String DBNAME = "test";
 	protected static final String DBUID = "test_user";
@@ -43,10 +45,10 @@ public class AbstractContainerBaseTest {
 	public static void init(List<String> sqls) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
 		if (!initialized) {
 			String jdbc_str = mariaDBContainer.getJdbcUrl() + "?user=" + DBUID + "&password=" + DBPWD;
-			Connection conn = DriverManager.getConnection(jdbc_str);
-			for (String sql : sqls) {
-				try (Statement stmt = conn.createStatement();
-					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
+			try (Connection conn = DriverManager.getConnection(jdbc_str);
+					Statement stmt = conn.createStatement()) {
+				for (String sql : sqls) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"));
 					String line;
 					while ((line = br.readLine()) != null) {
 						if (StringUtils.isBlank(line) || line.startsWith("--")) {
@@ -56,7 +58,6 @@ public class AbstractContainerBaseTest {
 					}
 				}
 			}
-			conn.close();
 			initialized = true;
 		}
 	}

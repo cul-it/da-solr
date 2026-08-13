@@ -1,0 +1,206 @@
+[
+    {
+        "@id": "http://id.loc.gov/rwo/agents/n50071533",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#RWO",
+            "http://id.loc.gov/ontologies/bibframe/Organization",
+            "http://xmlns.com/foaf/0.1/Organization"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#label": [
+            {
+                "@value": "Burma (Union). Kyēitaing hnịn Myei Sayīn Mīn-kyī Yōn"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isIdentifiedByAuthority": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/n50071533"
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/authorities/names/n50071533",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#CorporateName",
+            "http://www.loc.gov/mads/rdf/v1#Authority"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+            {
+                "@value": "Burma (Union). Kyēitaing hnịn Myei Sayīn Mīn-kyī Yōn"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b8iddOtlocdOtgovauthoritiesnamesn50071533"
+                    },
+                    {
+                        "@id": "_:b11iddOtlocdOtgovauthoritiesnamesn50071533"
+                    }
+                ]
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@value": "1101 $aBurma (Union).$bKyēitaing hnịn Myei Sayīn Mīn-kyī Yōn"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#identifiesRWO": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n50071533"
+            },
+            {
+                "@id": "https://isni.org/isni/0000000092692702"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasSource": [
+            {
+                "@id": "_:b23iddOtlocdOtgovauthoritiesnamesn50071533"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#editorialNote": [
+            {
+                "@value": "[THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED]"
+            }
+        ],
+        "http://id.loc.gov/vocabulary/identifiers/lccn": [
+            {
+                "@value": "n 50071533"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_Jurisdictions"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+            {
+                "@id": "http://id.loc.gov/authorities/names"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#see": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/n50071531"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/n50071530"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/n50071532"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority": [
+            {
+                "@id": "http://viaf.org/en/viaf/LC%7Cn%20%2050071533"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+            {
+                "@id": "_:b42iddOtlocdOtgovauthoritiesnamesn50071533"
+            },
+            {
+                "@id": "_:b50iddOtlocdOtgovauthoritiesnamesn50071533"
+            }
+        ]
+    },
+    {
+        "@id": "_:b11iddOtlocdOtgovauthoritiesnamesn50071533",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#NameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Kyēitaing hnịn Myei Sayīn Mīn-kyī Yōn"
+            }
+        ]
+    },
+    {
+        "@id": "_:b42iddOtlocdOtgovauthoritiesnamesn50071533",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "1981-04-02T00:00:00"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "new"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b8iddOtlocdOtgovauthoritiesnamesn50071533",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#NameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Burma (Union)."
+            }
+        ]
+    },
+    {
+        "@id": "_:b50iddOtlocdOtgovauthoritiesnamesn50071533",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2025-08-05T01:08:38"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "revised"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b23iddOtlocdOtgovauthoritiesnamesn50071533",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Its Pyihtaungsụ Myanma Naing ... 1953-"
+            }
+        ]
+    }
+]

@@ -1,10 +1,10 @@
-package edu.cornell.library.integration.authority.activitystreams;
+package edu.cornell.library.integration.authority.mads;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-enum MadsRecordStatus {
+public enum MadsRecordStatus {
 	NEW("new"), REVISED("revised"), DEPRECATED("deprecated"), UPDATED("updated");
 
 	private final String display;
@@ -15,7 +15,7 @@ enum MadsRecordStatus {
 		return this.display;
 	}
 
-	private static Map<Integer,MadsRecordStatus> _byOrdinal =
+	private static final Map<Integer,MadsRecordStatus> _byOrdinal =
 			Stream.of(MadsRecordStatus.values()).collect(Collectors.toMap(s -> s.ordinal(), s -> s));
 
 	public static MadsRecordStatus byOrdinal( int ordinal ) {

@@ -1,0 +1,463 @@
+[
+    {
+        "@id": "_:b123iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2025-08-05T02:45:00"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "revised"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/nnc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b72iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#FullNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Nishimura, Shigeo,"
+            }
+        ]
+    },
+    {
+        "@id": "_:b75iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#DateNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "1929-"
+            }
+        ]
+    },
+    {
+        "@id": "_:b115iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2000-07-28T00:00:00"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "new"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b12iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#FullNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Nishimura, Shigeo,"
+            }
+        ]
+    },
+    {
+        "@id": "_:b34iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Affiliation"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#organization": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n82079299"
+            }
+        ]
+    },
+    {
+        "@id": "_:b66iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#PersonalName",
+            "http://www.loc.gov/mads/rdf/v1#Variant"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#variantLabel": [
+            {
+                "@value": "Nishimura, Shigeo, 1929-"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b72iddOtlocdOtgovauthoritiesnamesn00014709"
+                    },
+                    {
+                        "@id": "_:b75iddOtlocdOtgovauthoritiesnamesn00014709"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "@id": "_:b86iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Kenkyūsha sōran, shizen, 1990:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "p. 2424 (Nishimura Shigeo; b. Apr. 20, 1929)"
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/rwo/agents/n00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#RWO",
+            "http://id.loc.gov/ontologies/bibframe/Person",
+            "http://xmlns.com/foaf/0.1/Person"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#label": [
+            {
+                "@value": "Nishimura, Shigeo, 1929-2006"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#birthDate": [
+            {
+                "@type": "http://id.loc.gov/datatypes/edtf",
+                "@value": "1929-04-20"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#note": [
+            {
+                "@value": "Date 1929-04-20 -- Whoplus, Nov. 10, 2022"
+            },
+            {
+                "@value": "Date 2006-02-04 -- Whoplus, Nov. 10, 2022"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#deathDate": [
+            {
+                "@type": "http://id.loc.gov/datatypes/edtf",
+                "@value": "2006-02-04"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasAffiliation": [
+            {
+                "@id": "_:b34iddOtlocdOtgovauthoritiesnamesn00014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isIdentifiedByAuthority": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/n00014709"
+            }
+        ]
+    },
+    {
+        "@id": "_:b38iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#PersonalName",
+            "http://www.loc.gov/mads/rdf/v1#Variant"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#variantLabel": [
+            {
+                "@language": "zxx-Latn",
+                "@value": "Nishimura, Shigeo, 1929-"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b44iddOtlocdOtgovauthoritiesnamesn00014709"
+                    },
+                    {
+                        "@id": "_:b47iddOtlocdOtgovauthoritiesnamesn00014709"
+                    }
+                ]
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@language": "zxx-Latn",
+                "@value": "4001 $wnnea$aNishimura, Shigeo,$d1929-"
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/authorities/names/n00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#PersonalName",
+            "http://www.loc.gov/mads/rdf/v1#Authority"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+            {
+                "@value": "Nishimura, Shigeo, 1929-2006"
+            },
+            {
+                "@language": "zxx-Hani",
+                "@value": "西村重夫, 1929-2006"
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@language": "zxx-Hani",
+                "@value": "4001 $a西村重夫,$d1929-2006"
+            },
+            {
+                "@value": "1001 $aNishimura, Shigeo,$d1929-2006"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b12iddOtlocdOtgovauthoritiesnamesn00014709"
+                    },
+                    {
+                        "@id": "_:b15iddOtlocdOtgovauthoritiesnamesn00014709"
+                    }
+                ]
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#identifiesRWO": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n00014709"
+            },
+            {
+                "@id": "http://viaf.org/viaf/66687897"
+            },
+            {
+                "@id": "https://d-nb.info/gnd/1056122935"
+            },
+            {
+                "@id": "https://isni.org/isni/0000000081466320"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasVariant": [
+            {
+                "@id": "_:b38iddOtlocdOtgovauthoritiesnamesn00014709"
+            },
+            {
+                "@id": "_:b52iddOtlocdOtgovauthoritiesnamesn00014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasEarlierEstablishedForm": [
+            {
+                "@id": "_:b66iddOtlocdOtgovauthoritiesnamesn00014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasSource": [
+            {
+                "@id": "_:b78iddOtlocdOtgovauthoritiesnamesn00014709"
+            },
+            {
+                "@id": "_:b86iddOtlocdOtgovauthoritiesnamesn00014709"
+            },
+            {
+                "@id": "_:b94iddOtlocdOtgovauthoritiesnamesn00014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#editorialNote": [
+            {
+                "@value": "[Machine-derived non-Latin script reference project.]"
+            },
+            {
+                "@value": "[Non-Latin script reference not evaluated.]"
+            }
+        ],
+        "http://id.loc.gov/vocabulary/identifiers/lccn": [
+            {
+                "@value": "n 00014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+            {
+                "@id": "http://id.loc.gov/authorities/names"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority": [
+            {
+                "@id": "http://viaf.org/en/viaf/LC%7Cn%20%2000014709"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+            {
+                "@id": "_:b115iddOtlocdOtgovauthoritiesnamesn00014709"
+            },
+            {
+                "@id": "_:b123iddOtlocdOtgovauthoritiesnamesn00014709"
+            }
+        ]
+    },
+    {
+        "@id": "_:b47iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#DateNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "1929-"
+            }
+        ]
+    },
+    {
+        "@id": "_:b15iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#DateNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "1929-2006"
+            }
+        ]
+    },
+    {
+        "@id": "_:b44iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#FullNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Nishimura, Shigeo,"
+            }
+        ]
+    },
+    {
+        "@id": "_:b58iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#FullNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "西村重夫,"
+            }
+        ]
+    },
+    {
+        "@id": "_:b61iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#DateNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "1929-2006"
+            }
+        ]
+    },
+    {
+        "@id": "_:b78iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Nishimura, Shigeo. Handbook of heterogeneous catalytic hydrogenation for organic synthesis, 2001:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "CIP t.p. (Shigeo Nishimura; prof. emeritus, Tokyo University of Agriculture and Technology)"
+            }
+        ]
+    },
+    {
+        "@id": "_:b52iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#PersonalName",
+            "http://www.loc.gov/mads/rdf/v1#Variant"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#variantLabel": [
+            {
+                "@language": "zxx-Hani",
+                "@value": "西村重夫, 1929-2006"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b58iddOtlocdOtgovauthoritiesnamesn00014709"
+                    },
+                    {
+                        "@id": "_:b61iddOtlocdOtgovauthoritiesnamesn00014709"
+                    }
+                ]
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@language": "zxx-Hani",
+                "@value": "4001 $a西村重夫,$d1929-2006"
+            }
+        ]
+    },
+    {
+        "@id": "_:b94iddOtlocdOtgovauthoritiesnamesn00014709",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "JTNDL in VIAF, Nov. 10, 2022"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "(access point: 西村, 重夫, 1929- = Nishimura, Shigeo, 1929- ; r)"
+            }
+        ]
+    }
+]

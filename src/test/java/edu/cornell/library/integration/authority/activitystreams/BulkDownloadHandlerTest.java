@@ -1,7 +1,5 @@
 package edu.cornell.library.integration.authority.activitystreams;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,12 +15,16 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.AuthoritySource;
+import edu.cornell.library.integration.authority.mads.AuthorityDbUtils;
+import edu.cornell.library.integration.authority.mads.MadsHeadingType;
+import edu.cornell.library.integration.authority.mads.MadsRecordStatus;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.db_test.SqliteBaseTest;
 
@@ -35,7 +37,7 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();
 		if (useTestContainers != null) {
 			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				Utils.setUpDatabase(authority);
+				ActivityStreamsUtils.setUpDatabase(authority);
 			}
 		} else if (useSqlite != null) {
 			String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
@@ -70,10 +72,10 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 		Path tempFile = Files.createTempFile("myPrefix", ".tmp");
 		try (OutputStream out = Files.newOutputStream(tempFile);
 			 Connection authority = config.getDatabaseConnection("Authority");
-			 PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND numUpdates = ? AND moddate = ?".formatted(Utils.UPDATE_TABLE))) {
+			 PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND numUpdates = ? AND moddate = ?".formatted(AuthorityDbUtils.MADS_UPDATE_TABLE))) {
 			out.write(builder.toString().getBytes(StandardCharsets.UTF_8));
 
-			String today = Utils.getToday();
+			String today = ActivityStreamsUtils.getToday();
 			BulkDownloadHandler bdh = new BulkDownloadHandler();
 			bdh.processData(today, tempFile, authority, 2, 0);
 

@@ -8,18 +8,18 @@
 			"bf": "http://id.loc.gov/ontologies/bibframe/"
 		}
 	],
-	"summary": "Page 1 of 123058 pages in http://id.loc.gov/authorities/names/activitystreams/feed",
+	"summary": "Page 1 of 123058 pages in http://id.loc.gov/authorities/mixed/activitystreams/feed",
 	"type": "OrderedCollectionPage",
-	"id": "http://id.loc.gov/authorities/names/activitystreams/feed/1",
-	"partOf": "http://id.loc.gov/authorities/names/activitystreams/feed",
+	"id": "http://id.loc.gov/authorities/mixed/activitystreams/feed/1",
+	"partOf": "http://id.loc.gov/authorities/mixed/activitystreams/feed",
 	"orderedItems": [
 		{
 			"type": "Update",
-			"published": "2026-04-09",
+			"published": "2026-04-30",
 			"actor": "http://id.loc.gov/vocabulary/organizations/ien",
 			"object": {
 				"id": "http://id.loc.gov/authorities/names/no2026038416",
-				"updated": "2026-04-09",
+				"updated": "2026-04-30",
 				"type": [
 					"madsrdf:PersonalName",
 					"madsrdf:SimpleType",
@@ -57,41 +57,40 @@
 		},
 		{
 			"type": "Update",
-			"published": "2026-04-09",
-			"actor": "http://id.loc.gov/vocabulary/organizations/iahccs",
+			"published": "2026-04-29",
+			"actor": "http://id.loc.gov/vocabulary/organizations/dlc",
 			"object": {
-				"id": "http://id.loc.gov/authorities/names/no2026038420",
-				"updated": "2026-04-09",
+				"id": "http://id.loc.gov/authorities/subjects/sh97007140",
+				"updated": "2026-04-24",
 				"type": [
-					"madsrdf:PersonalName",
+					"madsrdf:Topic",
 					"madsrdf:SimpleType",
-					"madsrdf:Name",
 					"madsrdf:Authority"
 				],
 				"url": [
 					{
 						"type": "Link",
-						"href": "http://id.loc.gov/authorities/names/no2026038420.rdf",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.rdf",
 						"mediaType": "application/rdf+xml"
 					},
 					{
 						"type": "Link",
-						"href": "http://id.loc.gov/authorities/names/no2026038420.json",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.json",
 						"mediaType": "application/json"
 					},
 					{
 						"type": "Link",
-						"href": "http://id.loc.gov/authorities/names/no2026038420.nt",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.nt",
 						"mediaType": "text/plain"
 					},
 					{
 						"type": "Link",
-						"href": "http://id.loc.gov/authorities/names/no2026038420.marcxml.xml",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.marcxml.xml",
 						"mediaType": "application/marc+xml"
 					},
 					{
 						"type": "Link",
-						"href": "http://id.loc.gov/authorities/names/no2026038420.madsxml.xml",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.madsxml.xml",
 						"mediaType": "application/mads+xml"
 					}
 				]
