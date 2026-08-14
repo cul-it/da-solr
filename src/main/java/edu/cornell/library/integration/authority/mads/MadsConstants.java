@@ -40,6 +40,8 @@ public final class MadsConstants {
 	);
 
 	public static final String ASSOCIATED_LOCALE = "madsrdf:associatedLocale";
+	public static final String BIRTH_PLACE = "madsrdf:birthPlace";
+	public static final String DEATH_PLACE = "madsrdf:deathPlace";
 	public static final String FIELD_OF_ACTIVITY = "madsrdf:fieldOfActivity";
 	public static final String HAS_AFFILIATION = "madsrdf:hasAffiliation";
 	public static final String OCCUPATION = "madsrdf:occupation";

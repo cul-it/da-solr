@@ -255,10 +255,10 @@ public class AuthorityJsonldUtils {
 			docUri = docUri.replace("https://", "http://");
 
 		AuthorityDataMadsSimple parsed = new AuthorityDataMadsSimple();
-		JsonObject mainEntry = AuthorityJsonldUtils.getJsonObjectForId(graph, docUri);
+		JsonObject mainEntry = getJsonObjectForId(graph, docUri);
 
 		parsed.id = mainEntry.getJsonString("@id").getString();
-		parsed.lccn = AuthorityJsonldUtils.getString(mainEntry, "identifiers:lccn");
+		parsed.lccn = getString(mainEntry, "identifiers:lccn");
 
 		String path = new URI(parsed.id).getPath();
 		int lastSlashIndex = path.lastIndexOf('/');

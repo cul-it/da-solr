@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import static java.util.Map.entry;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -26,7 +27,7 @@ import edu.cornell.library.integration.authority.activitystreams.ActivityStreams
 import edu.cornell.library.integration.db_test.CustomDbSetupTest;
 import edu.cornell.library.integration.marc.MarcRecord;
 
-public class AuthorityMapTest extends CustomDbSetupTest {
+public class MadsAuthorityTest extends CustomDbSetupTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
 	static final Path rootPath = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority");
 
@@ -37,24 +38,26 @@ public class AuthorityMapTest extends CustomDbSetupTest {
 		n00000203 - rda birthPlace, occupation with rdf:label Author, affiliation, field
 		n00000264 - rda in rwo
 		n00002040 - notes: 663 (most common)
-		n00014709 - 
+		n00014709 - has a variant that is also an earlier form that we don't display
 		n50071532 - notes: 665
-		sh2001001501 - 
+		n78015928 - 500 $w f - Based On
+		sh2001001501 - parent heading
 		sh2010004770 - 
 	 */
 
 	static final List<String> extensions = Arrays.asList(".madsrdf.json", ".marcxml.xml");
-	static final Map<String, String> ids = Map.of(
-		"gf2010025067", "http://id.loc.gov/authorities/genreForms/gf2010025067",
-		"n00000001", "http://id.loc.gov/authorities/names/n00000001",
-		"n00000203", "http://id.loc.gov/authorities/names/n00000203",
-		"n00000264", "http://id.loc.gov/authorities/names/n00000264",
-		"n00002040", "http://id.loc.gov/authorities/names/n00002040",
-		"n00002659", "http://id.loc.gov/authorities/names/n00002659",
-		"n00014709", "http://id.loc.gov/authorities/names/n00014709",
-		"n50071532", "http://id.loc.gov/authorities/names/n50071532",
-		"sh2001001501", "http://id.loc.gov/authorities/subjects/sh2001001501",
-		"sh2010004770", "http://id.loc.gov/authorities/subjects/sh2010004770"
+	static final Map<String, String> ids = Map.ofEntries(
+		entry("gf2010025067", "http://id.loc.gov/authorities/genreForms/gf2010025067"),
+		entry("n00000001", "http://id.loc.gov/authorities/names/n00000001"),
+		entry("n00000203", "http://id.loc.gov/authorities/names/n00000203"),
+		entry("n00000264", "http://id.loc.gov/authorities/names/n00000264"),
+		entry("n00002040", "http://id.loc.gov/authorities/names/n00002040"),
+		entry("n00002659", "http://id.loc.gov/authorities/names/n00002659"),
+		entry("n00014709", "http://id.loc.gov/authorities/names/n00014709"),
+		entry("n50071532", "http://id.loc.gov/authorities/names/n50071532"),
+		entry("n78015928", "http://id.loc.gov/authorities/names/n78015928"),
+		entry("sh2001001501", "http://id.loc.gov/authorities/subjects/sh2001001501"),
+		entry("sh2010004770", "http://id.loc.gov/authorities/subjects/sh2010004770")
 	);
 	static final List<String> files = ids.keySet().stream().toList();
 
@@ -155,7 +158,7 @@ public class AuthorityMapTest extends CustomDbSetupTest {
 	@Test
 	public void testReferences() throws SQLException, FileNotFoundException, IOException, JsonLdError, URISyntaxException, XMLStreamException, InterruptedException {
 		try ( Connection headings = config.getDatabaseConnection("Headings") ) {
-			String id = "n00014709";
+			String id = "n78015928";
 			String uri = ids.get(id);
 			System.out.println("URI: " + uri);
 			AuthorityDataMadsSimple rec = AuthorityDbUtils.authorityRecordMostRecent(headings, uri);

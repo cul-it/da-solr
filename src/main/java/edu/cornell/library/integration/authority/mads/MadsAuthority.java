@@ -19,12 +19,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.authority.activitystreams.IFetcher;
+import static edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils.getJsonObjectForId;
+import static edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils.parseHeadingType;
+import edu.cornell.library.integration.authority.mads.ComponentList.Component;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.ASSOCIATED_LOCALE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.BIRTH_PLACE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.DEATH_PLACE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.FIELD_OF_ACTIVITY;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_AFFILIATION;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_BROADER_AUTHORITY;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_EARLIER_ESTABLISHED_FORM;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_LATER_ESTABLISHED_FORM;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_NARROWER_AUTHORITY;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_RELATED_AUTHORITY;
-import static edu.cornell.library.integration.authority.mads.MadsConstants.RDA_FIELDS;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.OCCUPATION;
 import static edu.cornell.library.integration.authority.mads.MadsConstants.RELATIONSHIP_KEYS;
 import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
@@ -161,13 +169,13 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 			return null;
 		}
 
-		var authLabel = AuthorityJsonldUtils.getAuthorativeLabel(mainEntry);
+		String authLabel = AuthorityJsonldUtils.getAuthorativeLabel(mainEntry);
 		MadsHeadingType t = AuthorityJsonldUtils.headingType(mainEntry, lcId);
-		MadsHeading mainHead = headingProcess(mainEntry, graph, authLabel, null, t);
+		MadsHeading mainHead = headingProcess(authority, mainEntry, graph, authLabel, null, t);
 
 		// List<ReferenceMap> references = madsReferencesPopulate(authority, headings);
 		// (JsonObject mainEntry, JsonArray graph, String lcId, HeadingMap mainHead)
-		List<MadsRelationship> sees = seesPopulate(mainEntry, graph, lcId, mainHead);
+		List<MadsRelationship> sees = seesPopulate(authority, mainEntry, graph, lcId, mainHead);
 		List<MadsRelationship> seeAlsos = seeAlsosPopulate(authority, mainEntry, graph, lcId, mainHead);
 		List<String> notes = notesPopulate(authority, mainEntry, graph);
 
@@ -176,11 +184,10 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 
 		String nativeHeading = AuthorityJsonldUtils.getAuthorativeLabel(mainEntry);
 		AuthoritySource authSource = AuthorityJsonldUtils.translateAuthoritySource(rec.vocab);
-		// AuthorityMap(AtomicReference<Integer> id, HeadingMap mainHead, String nativeHeading, String lccn, String catalogId, AuthoritySource source, boolean undifferentiated, List<Relationship> sees, List<Relationship> seeAlsos, List<String> notes, String rda)
 		return new MadsAuthority(new AtomicReference<>(0), mainHead, nativeHeading, rec.lccn, rec.catalogId(), authSource, undifferentiated, sees, seeAlsos, notes, Rda.json(data));
 	}
 
-	protected static MadsHeading headingProcess(JsonObject entry, JsonArray graph, String heading, String mainHeading, MadsHeadingType ht) {
+	protected static MadsHeading headingProcess(Connection authority, JsonObject entry, JsonArray graph, String heading, String mainHeading, MadsHeadingType ht) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
 		// Emulates processHeadingField's parent heading logic for AUTHORTITLE fields:
 		// when the heading type is NAME_TITLE, the first component (the name/author part)
 		// becomes a parent HeadingMap, mirroring how MARC builds a parent Heading for WORK entries.
@@ -191,10 +198,12 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 				System.out.println("No components found for NAME_TITLE heading: " + heading);
 				return new MadsHeading(null, heading, FilingNormalization.getFilingForm(heading), ht);
 			}
-			var first = componentList.first();
-			heading = constructHeadingFromComponentListSimple(heading, componentList);
-			if (first.authorativeLabel != null && first.headingType != null)
-				parent = new MadsHeading(null, first.authorativeLabel, FilingNormalization.getFilingForm(first.authorativeLabel), first.headingType);
+			var first = firstComponent(authority, componentList);
+			if (first != null) {
+				heading = constructHeadingFromComponentList(authority, heading, first, componentList);
+				if (first.authorativeLabel != null && first.headingType != null)
+					parent = new MadsHeading(null, first.authorativeLabel, FilingNormalization.getFilingForm(first.authorativeLabel), first.headingType);
+			}
 		}
 
 		heading = prettyHeading(heading);
@@ -202,28 +211,44 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 		return new MadsHeading(parent, heading, FilingNormalization.getFilingForm(heading), ht);
 	}
 
-	protected static String constructHeadingFromComponentList(String heading, ComponentList componentList) {
-		StringBuilder sb = new StringBuilder();
+	protected static Component firstComponent(Connection authority, ComponentList componentList) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		if (componentList.components.isEmpty()) return null;
+
 		var first = componentList.first();
+		System.out.println("First component: " + first.id + " | " + first.headingType + " | " + first.authorativeLabel);
+		if ((first.authorativeLabel == null || first.authorativeLabel.isBlank())
+				&& first.id.startsWith("http://id.loc.gov")) {
+			var comp = authDataFromLcId(authority, first.id);
+			var doc = comp.doc();
+			var mainEntry = getJsonObjectForId(doc.getJsonArray("@graph"), first.id);
+			var authLabel = comp.auth().authorativeLabel;
+			first.authorativeLabel = authLabel;
+			first.headingType = parseHeadingType(mainEntry).get(0);
+		}
+		return first;
+	}
+
+	protected static String constructHeadingFromComponentList(Connection authority, String heading, Component first, ComponentList componentList) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
 		if (first == null) return heading;
-		
-		StringBuilder restB = new StringBuilder();
+
+		StringBuilder sb = new StringBuilder(first.authorativeLabel);
+		List<String> restLabels = new ArrayList<>();
 		for (var component : componentList.restComponents()) {
 			if (component.authorativeLabel == null || component.authorativeLabel.isBlank()) {
 				if (component.id.startsWith("http://id.loc.gov")) {
-					/*
-					 * fetch the url and parse the label from the authority record
-					 * String content = parse(component.id);
-					 * AuthorityDataMadsSimple rec = AuthorityJsonldUtils.parseAuthorityData(content);
-					 * rest += " -- " + rec.authorativeLabel;
-					 */
+					var comp = authDataFromLcId(authority, component.id);
+					var authLabel = comp.auth().authorativeLabel;
+					if (authLabel != null && !authLabel.isBlank())
+						restLabels.add(authLabel);
+					else
+						System.out.println("No label found for component: " + component.id);
 				}
 				continue;
 			}
-			restB.append(" -- ").append(component.authorativeLabel);
+			restLabels.add(component.authorativeLabel);
 		}
-		String rest = restB.toString();
-		if (!rest.isBlank()) sb.append("|").append(rest);
+		String rest = String.join(" -- ", restLabels);
+		if (!rest.isBlank()) sb.append(" | ").append(rest);
 
 		return sb.toString();
 	}
@@ -236,7 +261,7 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 		return heading;
 	}
 
-	protected static List<MadsRelationship> seesPopulate(JsonObject mainEntry, JsonArray graph, String lcId, MadsHeading mainHead) throws IOException, InterruptedException {
+	protected static List<MadsRelationship> seesPopulate(Connection authority, JsonObject mainEntry, JsonArray graph, String lcId, MadsHeading mainHead) throws IOException, InterruptedException, SQLException, JsonLdError, URISyntaxException {
 		Set<String> seen = new HashSet<>();
 		seen.add(fingerprint(mainHead));
 		List<MadsRelationship> sees = new ArrayList<>();
@@ -253,7 +278,7 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 
 			MadsHeadingType vt = AuthorityJsonldUtils.headingType(variant, lcId);
 			// Relationship rel = relationshipForNode(variant, graph, true);
-			MadsHeading varMap = headingProcess(variant, graph, label, mainHead.heading(), vt);
+			MadsHeading varMap = headingProcess(authority, variant, graph, label, mainHead.heading(), vt);
 			if (seen.contains(fingerprint(varMap))) continue;
 			seen.add(fingerprint(varMap));
 
@@ -310,7 +335,7 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 
 				JsonObject relatedNode = AuthorityJsonldUtils.getJsonObjectForId(relatedGraph, relatedAuthId);
 				MadsHeadingType ht = AuthorityJsonldUtils.headingType(relatedNode, relatedAuthId);
-				MadsHeading relMap = headingProcess(relatedNode, relatedGraph, label, null, ht);
+				MadsHeading relMap = headingProcess(authority, relatedNode, relatedGraph, label, null, ht);
 				if (seen.contains(fingerprint(relMap))) continue;
 				seen.add(fingerprint(relMap));
 
@@ -433,6 +458,14 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 
 	public static Map<String, RWO> rwoCache = new HashMap<>();
 
+	public static Map<String, String> RDA_FIELDS = Map.of(
+			ASSOCIATED_LOCALE, "Country",
+			BIRTH_PLACE, "Birth Place",
+			DEATH_PLACE, "Place of Death",
+			FIELD_OF_ACTIVITY, "Field",
+			HAS_AFFILIATION, "Group/Organization",
+			OCCUPATION, "Occupation"
+	);
 	static final ObjectMapper mapper = new ObjectMapper();
 	public static class Rda {
 		Map<String, Boolean> recursiveChecker = null;
@@ -445,15 +478,6 @@ public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, S
 			recursiveChecker = new HashMap<>();
 			List<JsonObject> rwos = AuthorityJsonldUtils.getRwos(mainEntry, graph);
 			for (JsonObject rwo : rwos) {
-				JsonValue birthPlace = rwo.get("madsrdf:birthPlace");
-				if (birthPlace != null) {
-					List<String> ids = AuthorityJsonldUtils.getIdAsList(birthPlace);
-					for (String id : ids) {
-						String bp = followRdaNode(authority, graph, id);
-						if (bp != null)
-							add(data, "Birth Place", bp);
-					}
-				}
 				for (String key : RDA_FIELDS.keySet()) {
 					JsonValue val = rwo.get(key);
 					if (val == null) continue;
