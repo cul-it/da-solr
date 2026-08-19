@@ -32,6 +32,9 @@ public class ProcessCacheUpdQueue {
 			while (upd != null) {
 				System.out.format("%s %s (%s)\n", upd.type.toUpperCase(), upd.uuid, upd.cause);
 				switch (upd.type) {
+				case "bib":
+					updateBib(inventory, folio, upd);
+					break;
 				case "instance":
 					updateInstance(inventory, folio, upd);
 					break;
@@ -216,9 +219,13 @@ public class ProcessCacheUpdQueue {
 
 
 	private static void updateBib(Connection inventory, FolioClient folio, Update upd) throws SQLException, IOException {
+		// bib deletes not yet supported
+		if (upd.type.equals("DELETE"))
+			return;
+
 		// this presumes that the uuid in the Update record for a bib will be the instance uuid.
 		String hrid = getHridFromInventory(inventory, upd);
-		if (hrid == null && ! upd.type.equals("DELETE")) {
+		if (hrid == null) {
 			updateInstance(inventory, folio, upd);
 			hrid = getHridFromInventory(inventory, upd);
 		}
