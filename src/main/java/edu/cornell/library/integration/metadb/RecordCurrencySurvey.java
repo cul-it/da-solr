@@ -22,6 +22,13 @@ public class RecordCurrencySurvey {
 			UUID lastCursor = null;
 
 
+			UUID bibCursor = UUID.fromString("00000000-0000-0000-0000-000000000000");
+			while ( ! bibCursor.equals(lastCursor) ) { 
+				lastCursor = bibCursor;
+				bibCursor = checkBatch(inventory, FolioType.BIB,  metadb, bibCursor);
+			}
+
+
 			UUID instanceCursor = UUID.fromString("00000000-0000-0000-0000-000000000000");
 			while ( ! instanceCursor.equals(lastCursor) ) { 
 				lastCursor = instanceCursor;
@@ -47,20 +54,44 @@ public class RecordCurrencySurvey {
 	private static UUID checkBatch(Connection inventory, FolioType type, Connection metadb, UUID cursor)
 			throws SQLException {
 		int batchSize = 10000;
-		try (PreparedStatement cacheStmt = inventory.prepareStatement(
+		String cacheQuery;
+		String metadbQuery;
+		if (type.equals(FolioType.BIB)) {
+			cacheQuery =
+				"SELECT instance.id,"+
+				"       bib.moddate"+
+				"  FROM instanceFolio AS instance,"+
+				"       bibFolio AS bib"+
+				" WHERE bib.instanceHrid = instance.hrid"+
+				"   AND instance.id > ?"+
+				" ORDER BY instance.id"+
+				" LIMIT "+batchSize;
+			metadbQuery =
+				"SELECT external_id AS id,"+
+				"       updated_date AS moddate"+
+				"  FROM "+type.metadbTableName +
+				" WHERE external_id > ?"+
+				"   AND state = 'ACTUAL'"+
+				" ORDER BY external_id, updated_date desc"+
+				" LIMIT "+batchSize;
+		} else {
+			cacheQuery =
 				"SELECT id," +
 				"       TRIM(BOTH '\"' FROM JSON_EXTRACT(content,'$.metadata.updatedDate')) AS moddate" +
 				"  FROM " + type.cacheTableName +
 				" WHERE id > ?" +
 				" ORDER BY id" +
-				" LIMIT "+batchSize);
-			 PreparedStatement metadbStmt = metadb.prepareStatement(
+				" LIMIT "+batchSize;
+			metadbQuery =
 				"SELECT id," +
-				"       JSONB_EXTRACT_PATH_TEXT(jsonb,'metadata','updatedDate') AS moddate" +
+				"       JSONB_EXTRACT_PATH_TEXT(jsonb,'metadata','updatedDate') AS moddate"+
 				"  FROM "+ type.metadbTableName +
 				" WHERE id > ?" +
 				" ORDER BY id" +
-				" LIMIT "+batchSize)) {
+				" LIMIT "+batchSize;
+		}
+		try (PreparedStatement cacheStmt = inventory.prepareStatement(cacheQuery);
+			 PreparedStatement metadbStmt = metadb.prepareStatement(metadbQuery)) {
 
 			String folioGoLiveDate = "2021-07-01";
 
@@ -94,10 +125,14 @@ public class RecordCurrencySurvey {
 							if (mDate.substring(0,10).compareTo(folioGoLiveDate) > 0) {
 								queueUpdateToCache(inventory, mId, type, Cause.UPDATED);
 							}
-						} else if ((mDate.substring(0,23).compareTo(cDate.substring(0,23)) > 0)
+						} else if ((mDate.substring(0,19).compareTo(cDate.substring(0,19)) > 0)
 								&& (mDate.substring(0,10).compareTo(folioGoLiveDate) > 0))
 							queueUpdateToCache(inventory, mId, type, Cause.UPDATED);
 						if (!cacheRs.next() || ! metadbRs.next()) return cursor;
+						while (mId.equals((UUID)metadbRs.getObject("id"))) { // if this is a duplicate, skip ahead
+							if ( ! metadbRs.next() ) return cursor;
+						}
+
 						break;
 
 					case -1: // mId < cId, so mId appears to be missing from cache
@@ -105,6 +140,9 @@ public class RecordCurrencySurvey {
 						queueUpdateToCache(inventory, mId, type, Cause.ADDED);
 						cursor = mId;
 						if (! metadbRs.next()) return cursor;
+						while (mId.equals((UUID)metadbRs.getObject("id"))) { // if this is a duplicate, skip ahead
+							if ( ! metadbRs.next() ) return cursor;
+						}
 						break;
 
 					case 1: // mId > cId, so cId not in metadb - deleted from folio?
@@ -134,9 +172,9 @@ public class RecordCurrencySurvey {
 
 	private enum FolioType {
 		INSTANCE ( "instanceFolio", "folio_inventory.instance"),
-		HOLDING ( "holdingFolio", "folio_inventory.holdings_record"), 
+		HOLDING ( "holdingFolio", "folio_inventory.holdings_record"),
 		ITEM ("itemFolio", "folio_inventory.item"),
-		BIB ("bibFolio", "folio_source_record.records_lb"); //TODO needs different metadb query
+		BIB ("bibFolio", "folio_source_record.records_lb");
 
 		final public String cacheTableName;
 		final public String metadbTableName;
