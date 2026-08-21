@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,13 +24,14 @@ public class RecordCurrencySurvey {
 			 Connection metadb    = config.getDatabaseConnection("MetaDB");) {
 			UUID lastCursor = null;
 
-
-			UUID bibCursor = UUID.fromString("00000000-0000-0000-0000-000000000000");
-			while ( ! bibCursor.equals(lastCursor) ) { 
-				lastCursor = bibCursor;
-				bibCursor = checkBatch(inventory, FolioType.BIB,  metadb, bibCursor);
+			// Only compare the bib lists once a week due to this process being much slower than the others
+			if (ZonedDateTime.now(ZoneOffset.UTC).getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
+				UUID bibCursor = UUID.fromString("00000000-0000-0000-0000-000000000000");
+				while ( ! bibCursor.equals(lastCursor) ) { 
+					lastCursor = bibCursor;
+					bibCursor = checkBatch(inventory, FolioType.BIB,  metadb, bibCursor);
+				}
 			}
-
 
 			UUID instanceCursor = UUID.fromString("00000000-0000-0000-0000-000000000000");
 			while ( ! instanceCursor.equals(lastCursor) ) { 
