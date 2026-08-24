@@ -220,7 +220,7 @@ public class ProcessCacheUpdQueue {
 
 	private static void updateBib(Connection inventory, FolioClient folio, Update upd) throws SQLException, IOException {
 		// bib deletes not yet supported
-		if (upd.type.equals("DELETE"))
+		if (upd.type.equals("DELETED"))
 			return;
 
 		// this presumes that the uuid in the Update record for a bib will be the instance uuid.
