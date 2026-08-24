@@ -360,6 +360,13 @@ public class SimpleProc implements SolrFieldGenerator {
 				vals.add("lc_controlnum_display", idValue);
 				vals.add("lc_controlnum_s", idValue);
 				break;
+			case "ISSN":
+				vals.add("issn_display", idValue);
+				vals.add("issn_t", idValue);
+				break;
+			case "GPO item number":
+				vals.add("id_left_chunked",idValue);
+				break;
 			}
 		}
 		return vals;

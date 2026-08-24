@@ -410,6 +410,20 @@ public class SimpleProcTest {
 		}
 	}
 
+
+	@Test
+	public void instanceIssn() throws SQLException, IOException { //TODO
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("value","1908-3327");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("ISSN"));  }} ));
+		String expected =
+		"issn_display: 1908-3327\n"+
+		"issn_t: 1908-3327\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
 	@Test
 	public void testInstanceThesisNote() throws SQLException, IOException {
 		Map<String,Object> instance = new HashMap<>();
@@ -423,4 +437,23 @@ public class SimpleProcTest {
 		"notes_t: Doctor of Philosophy - PhD.  University of British Columbia, 2008.\n";
 		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
+
+	@Test
+	public void instanceGPOItemNumber() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("value","(OCoLC)156993816");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("OCLC"));  }},
+				new HashMap<String,Object>() {{
+					put("value","231-B");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("GPO item number"));  }},
+				new HashMap<String,Object>() {{
+					put("value","ATHM_Post1930_noCULholdings");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("Collection ID"));  }}
+				));
+		String expected = "id_left_chunked: 231-B\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
 }
