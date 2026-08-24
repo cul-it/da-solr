@@ -178,7 +178,7 @@ public class ISBNTest {
 		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
 		Map<String,Object> instance = new HashMap<>();
 		instance.put("identifiers", Arrays.asList(
-				new HashMap<>() {{put("value","9786022630395");put("identifierTypeId",isbnUUID);}} ));
+				new HashMap<String,String>() {{put("value","9786022630395");put("identifierTypeId",isbnUUID);}} ));
 		String expected =
 		"isbn_t: 9786022630395\n"+
 		"isbn_t: 6022630398\n"+
@@ -194,8 +194,8 @@ public class ISBNTest {
 		String scnUUID = SupportReferenceData.identifierTypes.getUuid("System control number");
 		Map<String,Object> instance = new HashMap<>();
 		instance.put("identifiers", Arrays.asList(
-				new HashMap<>() {{put("value","9783031079283");put("identifierTypeId",isbnUUID);}},
-				new HashMap<>() {{put("value","(CaONFJC)114935494");put("identifierTypeId",scnUUID);}} ));
+				new HashMap<String,String>() {{put("value","9783031079283");put("identifierTypeId",isbnUUID);}},
+				new HashMap<String,String>() {{put("value","(CaONFJC)114935494");put("identifierTypeId",scnUUID);}} ));
 		String expected =
 		"isbn_t: 9783031079283\n"+
 		"isbn_t: 3031079280\n"+
@@ -209,10 +209,10 @@ public class ISBNTest {
 		String isbnUUID = SupportReferenceData.identifierTypes.getUuid("ISBN");
 		Map<String,Object> instance = new HashMap<>();
 		instance.put("identifiers", Arrays.asList(
-				new HashMap<>() {{put("value","9789710180592 (v.1)");put("identifierTypeId",isbnUUID);}},
-				new HashMap<>() {{put("value","9789710180578 (v.2a)");put("identifierTypeId",isbnUUID);}},
-				new HashMap<>() {{put("value","9789710180585 (v.2b)");put("identifierTypeId",isbnUUID);}},
-				new HashMap<>() {{put("value","97897101800622 (v.3)");put("identifierTypeId",isbnUUID);}}
+				new HashMap<String,String>() {{put("value","9789710180592 (v.1)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<String,String>() {{put("value","9789710180578 (v.2a)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<String,String>() {{put("value","9789710180585 (v.2b)");put("identifierTypeId",isbnUUID);}},
+				new HashMap<String,String>() {{put("value","97897101800622 (v.3)");put("identifierTypeId",isbnUUID);}}
 				));
 		String expected =
 		"isbn_t: 9789710180592\n"+

@@ -5,16 +5,27 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class SimpleProcTest {
 
 	SolrFieldGenerator gen = new SimpleProc();
+
+	@Before
+	public void before() throws IOException {
+		SupportReferenceData.initializeInstanceNoteTypes("example_reference_data/instance-note-types.json");
+		SupportReferenceData.initializeIdentifierTypes("example_reference_data/identifier-types.json");
+	}
 
 	@Test
 	public void testNoNotes() throws SQLException, IOException {
@@ -30,6 +41,20 @@ public class SimpleProcTest {
 		"summary_display: Here's a 520 note.\n"+
 		"notes_t: Here's a 520 note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void testInstanceSummary() throws SQLException, IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("notes", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("note","On women workers in the rice and batik industries of Central Java.");
+					put("instanceNoteTypeId",SupportReferenceData.instanceNoteTypes.getUuid("Summary"));
+					put("staffOnly",false); }} ));
+		String expected =
+		"summary_display: On women workers in the rice and batik industries of Central Java.\n"+
+		"notes_t: On women workers in the rice and batik industries of Central Java.\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 	@Test
@@ -60,6 +85,7 @@ public class SimpleProcTest {
 		String expected = "donor_display: Here's a 541 note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
 	}
+
 	@Test
 	public void testRestricted541() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
@@ -85,6 +111,16 @@ public class SimpleProcTest {
 	}
 
 	@Test
+	public void testInstanceDescription() throws SQLException, IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("physicalDescriptions", Arrays.asList("xix, 137 pages : illustrations ; 21 cm",""));
+		String expected = 
+		"description_display: xix, 137 pages : illustrations ; 21 cm\n"+
+		"notes_t: xix, 137 pages : illustrations ; 21 cm\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
 	public void testLccn() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"010",' ',' ',"‡a 2015231566"));
@@ -95,6 +131,19 @@ public class SimpleProcTest {
 	}
 
 	@Test
+	public void testInstanceLccn() throws SQLException, IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("value","2021-347676");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("LCCN"));  }} ));
+		String expected =
+		"lc_controlnum_display: 2021-347676\n"+
+		"lc_controlnum_s: 2021-347676\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
 	public void testEdition() throws SQLException, IOException {
 		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
 		rec.dataFields.add(new DataField(1,"250",' ',' ',"‡a First edition."));
@@ -102,6 +151,16 @@ public class SimpleProcTest {
 		"edition_display: First edition.\n"+
 		"notes_t: First edition.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void testInstanceEdition() throws SQLException, IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("editions", Arrays.asList("Edisi pertama",""));
+		String expected = 
+		"edition_display: Edisi pertama\n"+
+		"notes_t: Edisi pertama\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 	@Test
@@ -181,6 +240,32 @@ public class SimpleProcTest {
 		"notes_display: Context note: Here's the third note.\n"+
 		"notes_t: Here's the third note.\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void instanceNote() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("notes", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("note","Publication begin v.1 no.1 (2014); title from cover");
+					put("instanceNoteTypeId",SupportReferenceData.instanceNoteTypes.getUuid("General note"));
+					put("staffOnly",false); }} ));
+		String expected =
+		"notes_display: Publication begin v.1 no.1 (2014); title from cover\n"+
+		"notes_t: Publication begin v.1 no.1 (2014); title from cover\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+
+	@Test
+	public void instanceNoteSuppressed() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("notes", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("note","Publication begin v.1 no.1 (2014); title from cover");
+					put("instanceNoteTypeId",SupportReferenceData.instanceNoteTypes.getUuid("General note"));
+					put("staffOnly",true); }} ));
+		assertEquals("",gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 	@Test
@@ -283,5 +368,19 @@ public class SimpleProcTest {
 			assertEquals("Testing subfield " + subfield, "issn_t: 1570-1522\n",
 					this.gen.generateSolrFields(rec, null).toString());
 		}
+	}
+
+	@Test
+	public void testInstanceThesisNote() throws SQLException, IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("notes", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("note","Doctor of Philosophy - PhD.  University of British Columbia, 2008.");
+					put("instanceNoteTypeId",SupportReferenceData.instanceNoteTypes.getUuid("Dissertation note"));
+					put("staffOnly",false); }} ));
+		String expected =
+		"thesis_display: Doctor of Philosophy - PhD.  University of British Columbia, 2008.\n"+
+		"notes_t: Doctor of Philosophy - PhD.  University of British Columbia, 2008.\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 }
