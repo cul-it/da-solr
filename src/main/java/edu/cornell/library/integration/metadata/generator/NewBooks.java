@@ -74,7 +74,7 @@ public class NewBooks implements SolrFieldGenerator {
 					loccodes.add(folioLocations.getName(holding.get("temporaryLocationId").toString()));
 				if ( holding.containsKey("notes") ) {
 					for (Map<String,String> note : (List<Map<String,String>>) holding.get("notes")) {
-						String val = note.get("note").toLowerCase();
+						String val = note.getOrDefault("note","").toLowerCase();
 						if (val.contains("new book") && val.contains("shelf"))
 							newBooksZNote = true;
 					}
