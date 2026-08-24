@@ -320,6 +320,34 @@ public class SimpleProc implements SolrFieldGenerator {
 				}
 			}
 		}
+		if (instance.containsKey("alternativeTitles")) {
+			for (Map<String,String> altTitle : (List<Map<String,String>>)instance.get("alternativeTitles")) {
+
+				if ( ! altTitle.containsKey("alternativeTitleTypeId")) continue;
+				String titleValue = (String)altTitle.getOrDefault("alternativeTitle", null);
+				if (titleValue == null || titleValue.isBlank()) continue;
+
+				String displayField = null;
+				switch( SupportReferenceData.alternativeTitleTypes
+						.getName((String)altTitle.get("alternativeTitleTypeId"))) {
+				case "Other title":
+				case "Variant title":
+				case "Cover title":
+				case "Caption title":
+				case "Added title page title":
+				case "Parallel title":
+				case "Portion of title":
+				case "Running title":
+				case "Distinctive title":
+					displayField = "title_other_display";
+					break;
+				}
+				if (displayField != null) {
+					vals.add(displayField, titleValue);
+					vals.add("title_addl_t", titleValue);
+				}
+			}
+		}
 		if ( ! instance.containsKey("identifiers")) return vals;
 		for (Map<String,String> identifier : (List<Map<String, String>>) instance.get("identifiers")) {
 

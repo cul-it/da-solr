@@ -25,6 +25,7 @@ public class SimpleProcTest {
 	public void before() throws IOException {
 		SupportReferenceData.initializeInstanceNoteTypes("example_reference_data/instance-note-types.json");
 		SupportReferenceData.initializeIdentifierTypes("example_reference_data/identifier-types.json");
+		SupportReferenceData.initializeAlternativeTitleTypes("example_reference_data/alternative-title-types.json");
 	}
 
 	@Test
@@ -181,6 +182,45 @@ public class SimpleProcTest {
 		"title_other_display: South African Veterinary Association journal\n"+
 		"title_addl_t: South African Veterinary Association journal\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+	}
+
+	@Test
+	public void testInstanceOtherTitles() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("alternativeTitles", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","PTFOMS accomplishment report");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Cover title"));}},
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","Presidential Task Force on Media Security accomplishment report");
+					put("alternativeTitleTypeId",
+							SupportReferenceData.alternativeTitleTypes.getUuid("Distinctive title"));}}
+				));
+		String expected =
+		"title_other_display: PTFOMS accomplishment report\n"+
+		"title_addl_t: PTFOMS accomplishment report\n"+
+		"title_other_display: Presidential Task Force on Media Security accomplishment report\n"+
+		"title_addl_t: Presidential Task Force on Media Security accomplishment report\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		instance = new HashMap<>();
+		instance.put("alternativeTitles", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","V tribune (Denpasar)");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Uniform title"));}},
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","Jurnal seni budaya");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Other title"));}},
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","Jurnal seni budaya V tribune");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Other title"));}}
+				));
+		expected =
+		"title_other_display: Jurnal seni budaya\n"+
+		"title_addl_t: Jurnal seni budaya\n"+
+		"title_other_display: Jurnal seni budaya V tribune\n"+
+		"title_addl_t: Jurnal seni budaya V tribune\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 	@Test

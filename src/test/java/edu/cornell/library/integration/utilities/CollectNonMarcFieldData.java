@@ -28,6 +28,9 @@ public class CollectNonMarcFieldData {
 		Map<String,Integer> identifierTypesCounts = new HashMap<>();
 		ReferenceData identifierTypes = new ReferenceData( folio,  "/identifier-types","name");
 
+		Map<String,Integer> alternativeTitleTypesCounts = new HashMap<>();
+		ReferenceData alternativeTitleTypes = new ReferenceData( folio,  "/alternative-title-types","name");
+
 		int totalSubjects = 0;
 
 		try (Connection inventory = config.getDatabaseConnection("Current");
@@ -85,6 +88,18 @@ public class CollectNonMarcFieldData {
 //						List<Map<String,String>> values = (List)value;
 //						for (Map<String,String> subject : values) if ( ! isEmpty(subject) ) totalSubjects++;
 					}
+					if (field.equals("alternativeTitles")) {
+						for (Map<String,String> altTitle : (List<Map<String,String>>)value) {
+							String type = alternativeTitleTypes.getName(altTitle.get("alternativeTitleTypeId"));
+							if (alternativeTitleTypesCounts.containsKey(type))
+								alternativeTitleTypesCounts.put(type, alternativeTitleTypesCounts.get(type)+1);
+							else
+								alternativeTitleTypesCounts.put(type, 1);
+							if ( ! type.equals("Other title"))
+								System.out.format("%s '%s' title %s\n", (String)instance.get("hrid"),type,
+										mapper.writeValueAsString(instance.get(field)));
+						}
+					}
 
 				}
 			}
@@ -97,6 +112,8 @@ public class CollectNonMarcFieldData {
 				System.out.format("public note type '%s': %d\n",noteType,noteTypesCounts.get(noteType));
 			for (String idType : identifierTypesCounts.keySet())
 				System.out.format("identifer type '%s': %d\n",idType,identifierTypesCounts.get(idType));
+			for (String type : alternativeTitleTypesCounts.keySet())
+				System.out.format("title type '%s': %d\n",type,alternativeTitleTypesCounts.get(type));
 			System.out.format("total subject count: %d\n", totalSubjects);
 			System.out.format("%d records tabulated\n",counted);
 		}

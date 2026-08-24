@@ -9,6 +9,7 @@ import edu.cornell.library.integration.folio.ReferenceData;
 
 public class SupportReferenceData {
 
+	public static ReferenceData alternativeTitleTypes;
 	public static ReferenceData callNumberTypes;
 	public static ReferenceData contributorTypes;
 	public static ReferenceData contributorNameTypes;
@@ -18,6 +19,7 @@ public class SupportReferenceData {
 	public static ReferenceData instanceTypes;
 	public static ReferenceData locations;
 	public static void initialize( FolioClient folio) throws IOException {
+		alternativeTitleTypes = new ReferenceData(folio,"/alternative-title-types","name");
 		callNumberTypes = new ReferenceData(folio,"/call-number-types","name");
 		contributorTypes = new ReferenceData( folio, "/contributor-types","name");
 		contributorNameTypes = new ReferenceData( folio, "/contributor-name-types","ordering");
@@ -26,6 +28,9 @@ public class SupportReferenceData {
 		instanceStatuses = new ReferenceData( folio, "/instance-statuses","code");
 		instanceStatuses = new ReferenceData( folio, "/instance-types","name");
 		locations = new ReferenceData( folio,"/locations","code");
+	}
+	public static void initializeAlternativeTitleTypes(String filename) throws IOException {
+		alternativeTitleTypes = new ReferenceData( loadResourceFile(filename), "name");
 	}
 	public static void initializeCallNumberTypes(String filename) throws IOException {
 		callNumberTypes = new ReferenceData( loadResourceFile(filename), "name");
