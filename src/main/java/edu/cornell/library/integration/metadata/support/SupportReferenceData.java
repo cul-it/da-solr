@@ -14,6 +14,7 @@ public class SupportReferenceData {
 	public static ReferenceData contributorTypes;
 	public static ReferenceData contributorNameTypes;
 	public static ReferenceData identifierTypes;
+	public static ReferenceData instanceFormats;
 	public static ReferenceData instanceNoteTypes;
 	public static ReferenceData instanceStatuses;
 	public static ReferenceData instanceTypes;
@@ -24,6 +25,7 @@ public class SupportReferenceData {
 		contributorTypes = new ReferenceData( folio, "/contributor-types","name");
 		contributorNameTypes = new ReferenceData( folio, "/contributor-name-types","ordering");
 		identifierTypes = new ReferenceData( folio, "/identifier-types","name");
+		instanceFormats = new ReferenceData( folio, "/instance-formats","name");
 		instanceNoteTypes = new ReferenceData( folio, "/instance-note-types","name");
 		instanceStatuses = new ReferenceData( folio, "/instance-statuses","code");
 		instanceStatuses = new ReferenceData( folio, "/instance-types","name");
@@ -43,6 +45,9 @@ public class SupportReferenceData {
 	}
 	public static void initializeIdentifierTypes(String filename) throws IOException {
 		identifierTypes = new ReferenceData( loadResourceFile(filename), "name");
+	}
+	public static void initializeInstanceFormats(String filename) throws IOException {
+		instanceFormats = new ReferenceData( loadResourceFile(filename), "name");
 	}
 	public static void initializeInstanceNoteTypes(String filename) throws IOException {
 		instanceNoteTypes = new ReferenceData( loadResourceFile(filename), "name");

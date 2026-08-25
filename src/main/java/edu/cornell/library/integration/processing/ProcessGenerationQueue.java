@@ -58,7 +58,7 @@ public class ProcessGenerationQueue {
 				EnumSet.allOf(Generator.class),
 				EnumSet.of(Generator.AUTHORTITLE,Generator.RECORDTYPE,Generator.CALLNUMBER,Generator.PUBINFO,
 						Generator.LANGUAGE, Generator.MARC, Generator.URL, Generator.FORMAT, Generator.ISBN,
-						Generator.SIMPLEPROC, Generator.OTHERIDS),
+						Generator.SIMPLEPROC, Generator.OTHERIDS, Generator.SERIES),
 				"processedMarc" );
 
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);

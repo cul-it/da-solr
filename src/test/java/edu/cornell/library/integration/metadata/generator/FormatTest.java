@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -25,6 +25,7 @@ public class FormatTest {
 
 	@BeforeClass
 	public static void instantiateTestInstanceResourceTypes() throws IOException {
+		SupportReferenceData.initializeInstanceFormats("example_reference_data/instance-formats.json");
 		SupportReferenceData.initializeInstanceTypes("example_reference_data/instance-types.json");
 		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 	}
@@ -171,7 +172,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testInstanceResourceTypes() throws IOException {
+	public void testInstanceTypes() throws IOException {
 		Map<String,Object> instance = new LinkedHashMap<>();
 
 		instance.put("instanceTypeId", "c7f7446f-4642-4d97-88c9-55bae2ad6c7f");
@@ -202,6 +203,47 @@ public class FormatTest {
 		"database_b: false\n",
 		this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
+
+	@Test
+	public void testInstanceFormats() throws IOException {
+		Map<String,Object> instance = new LinkedHashMap<>();
+
+		// an unspecified instance type defaults to book
+		instance.put("instanceTypeId", SupportReferenceData.instanceTypes.getUuid("unspecified"));
+		assertEquals(
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// audio cassette may be musical or non-musical, the choice of non-musical may be incorrect
+		instance.put("instanceFormatIds",Arrays.asList(
+				SupportReferenceData.instanceFormats.getUuid("audio -- audiocassette")));
+		assertEquals(
+		"format: Non-musical Recording\n" + 
+		"format_main_facet: Non-musical Recording\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// a microform book
+		instance.put("instanceFormatIds",Arrays.asList(
+				SupportReferenceData.instanceFormats.getUuid("microform -- microfilm cartridge")));
+		assertEquals(
+		"format: Microform\n" + 
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// a microform map
+		instance.put("instanceTypeId", SupportReferenceData.instanceTypes.getUuid("cartographic image"));
+		assertEquals(
+		"format: Map\n" + 
+		"format: Microform\n" + 
+		"format_main_facet: Map\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+}
 
 	@Test
 	public void testLocations() throws SQLException, IOException {
