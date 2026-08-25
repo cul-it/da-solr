@@ -106,7 +106,8 @@ public class FolioClient {
 
 		final URL fullPath = new URL(this.url + endPoint);
 		final HttpURLConnection c = (HttpURLConnection) fullPath.openConnection();
-		c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+		if (contentType == null) c.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+		else                     c.setRequestProperty("Content-Type", contentType);
 		c.setRequestProperty("X-Okapi-Tenant", this.tenant);
 		if (this.accessToken != null)
 			c.setRequestProperty("X-Okapi-Token", this.accessToken);
