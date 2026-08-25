@@ -4,13 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
-import edu.cornell.library.integration.marc.MarcRecord;
-import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
+import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.marc.Subfield;
 
 public class LanguageTest {
 
@@ -161,4 +164,18 @@ public class LanguageTest {
 		"language_articles_t: the a an\n";
 		assertEquals(expected,this.gen.generateSolrFields ( rec, null ).toString());
 	}
+
+	@Test
+	public void instanceLanguage() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("languages", Arrays.asList("eng"));
+		String expected =
+		"language_iana_data: en\n"+
+		"language_facet: English\n"+
+		"language_display: English.\n"+
+		"language_articles_t: the a an\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+		
+	}
+
 }
