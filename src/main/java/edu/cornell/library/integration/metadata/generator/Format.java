@@ -331,7 +331,8 @@ public class Format implements SolrFieldGenerator {
 				switch (formatParts[0]) {
 				case "audio":
 					if (mainFormat == null) mainFormat = BLFormat.NONMUSIC;
-					sfs.add("format", BLFormat.NONMUSIC.display());
+					if ( ! mainFormat.equals(BLFormat.MUSIC))
+						sfs.add("format", BLFormat.NONMUSIC.display());
 					break;
 				case "microform": // not a candidate for main format
 					sfs.add("format", BLFormat.MICRO.display());

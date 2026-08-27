@@ -243,6 +243,16 @@ public class FormatTest {
 		"format_main_facet: Map\n" + 
 		"database_b: false\n",
 		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// musical recording
+		instance.put("instanceTypeId", SupportReferenceData.instanceTypes.getUuid("performed music"));
+		instance.put("instanceFormatIds",Arrays.asList(
+				SupportReferenceData.instanceFormats.getUuid("audio -- audio disc")));
+		assertEquals(
+		"format: Musical Recording\n" + 
+		"format_main_facet: Musical Recording\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
 }
 
 	@Test
@@ -284,6 +294,8 @@ public class FormatTest {
 				"bib_format_display: pc\n"+
 				"database_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, null).toString());
+
+		
 	}
 	
 	public MarcRecord generateTestMarcRecord(String leader, String locationId) {
