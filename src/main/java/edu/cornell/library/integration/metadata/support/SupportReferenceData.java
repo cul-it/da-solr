@@ -28,7 +28,7 @@ public class SupportReferenceData {
 		instanceFormats = new ReferenceData( folio, "/instance-formats","name");
 		instanceNoteTypes = new ReferenceData( folio, "/instance-note-types","name");
 		instanceStatuses = new ReferenceData( folio, "/instance-statuses","code");
-		instanceStatuses = new ReferenceData( folio, "/instance-types","name");
+		instanceTypes = new ReferenceData( folio, "/instance-types","name");
 		locations = new ReferenceData( folio,"/locations","code");
 	}
 	public static void initializeAlternativeTitleTypes(String filename) throws IOException {
