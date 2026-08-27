@@ -3,19 +3,17 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -24,21 +22,12 @@ import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 public class FormatTest {
 
 	SolrFieldGenerator gen = new Format();
-	
-	public String loadResourceFile(String filename) throws IOException {
-        try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-                Scanner s = new Scanner(is,"UTF-8")) {
-            return s.useDelimiter("\\A").next();
-        }
-    }
 
 	@BeforeClass
 	public static void instantiateTestInstanceResourceTypes() throws IOException {
-		Format.resourceTypes = new ReferenceData("name");
-		Format.resourceTypes.addTestValue("c7f7446f-4642-4d97-88c9-55bae2ad6c7f", "spoken word");
-		Format.resourceTypes.addTestValue("2afc8005-8654-4401-8321-d991f8cb95e9", "borrow direct");
-		Format.resourceTypes.addTestValue("6312d172-f0cf-40f6-b27d-9fa8feaf332f", "text");
-		Format.resourceTypes.addTestValue("497b5090-3da2-486c-b57f-de5bb3c2e26d", "notated music");
+		SupportReferenceData.initializeInstanceFormats("example_reference_data/instance-formats.json");
+		SupportReferenceData.initializeInstanceTypes("example_reference_data/instance-types.json");
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 	}
 
 	@Test
@@ -183,7 +172,7 @@ public class FormatTest {
 	}
 
 	@Test
-	public void testInstanceResourceTypes() throws IOException {
+	public void testInstanceTypes() throws IOException {
 		Map<String,Object> instance = new LinkedHashMap<>();
 
 		instance.put("instanceTypeId", "c7f7446f-4642-4d97-88c9-55bae2ad6c7f");
@@ -216,10 +205,49 @@ public class FormatTest {
 	}
 
 	@Test
+	public void testInstanceFormats() throws IOException {
+		Map<String,Object> instance = new LinkedHashMap<>();
+
+		// an unspecified instance type defaults to book
+		instance.put("instanceTypeId", SupportReferenceData.instanceTypes.getUuid("unspecified"));
+		assertEquals(
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// audio cassette may be musical or non-musical, the choice of non-musical may be incorrect
+		instance.put("instanceFormatIds",Arrays.asList(
+				SupportReferenceData.instanceFormats.getUuid("audio -- audiocassette")));
+		assertEquals(
+		"format: Non-musical Recording\n" + 
+		"format_main_facet: Non-musical Recording\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// a microform book
+		instance.put("instanceFormatIds",Arrays.asList(
+				SupportReferenceData.instanceFormats.getUuid("microform -- microfilm cartridge")));
+		assertEquals(
+		"format: Microform\n" + 
+		"format: Book\n" + 
+		"format_main_facet: Book\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+
+		// a microform map
+		instance.put("instanceTypeId", SupportReferenceData.instanceTypes.getUuid("cartographic image"));
+		assertEquals(
+		"format: Map\n" + 
+		"format: Microform\n" + 
+		"format_main_facet: Map\n" + 
+		"database_b: false\n",
+		this.gen.generateNonMarcSolrFields(instance, null).toString());
+}
+
+	@Test
 	public void testLocations() throws SQLException, IOException {
-		String resourceDataJson = null;
-		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
-		SupportReferenceData.initializeLocations((resourceDataJson));
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 
 		// online, o
 		MarcRecord rec = generateTestMarcRecord("01548cocaa2200265 a 4500", "serv,remo");

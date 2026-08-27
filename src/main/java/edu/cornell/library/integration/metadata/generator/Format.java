@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.library.integration.folio.FolioClient;
-import edu.cornell.library.integration.folio.ReferenceData;
 import edu.cornell.library.integration.marc.ControlField;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -81,15 +79,9 @@ public class Format implements SolrFieldGenerator {
 				for (Subfield sf : f.subfields)
 					if (sf.code.equals('b')) loccodes.add(sf.value);
 		if ( rec.folioHoldings != null ) {
-			if ( folioLocations == null ) 
-				folioLocations = SupportReferenceData.locations;
-				if (folioLocations == null) {
-					FolioClient folio = config.getFolio("Folio");
-					folioLocations = new ReferenceData( folio,"/locations","code");
-				}
 			for (Map<String,Object> holding : rec.folioHoldings)
 				if ( holding.containsKey("permanentLocationId") ) {
-					String locationCode = folioLocations.getName(holding.get("permanentLocationId").toString());
+					String locationCode = SupportReferenceData.locations.getName(holding.get("permanentLocationId").toString());
 					if ( locationCode != null ) loccodes.add(locationCode);
 				}
 		}
@@ -239,11 +231,13 @@ public class Format implements SolrFieldGenerator {
 
 	@Override
 	public SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config config ) throws IOException {
-		BLFormat format = BLFormat.MONO; //default
+		SolrFields sfs = new SolrFields();
+		sfs.add("database_b",false);// we currently have no instance flags for this
+
+		BLFormat mainFormat = null;
 		if (instance.containsKey("instanceTypeId")) {
-			if ( resourceTypes == null )
-				resourceTypes = new ReferenceData(config.getFolio("Folio"),"/instance-types","name");
-			String resourceType = resourceTypes.getName((String)instance.get("instanceTypeId"));
+
+			String resourceType = SupportReferenceData.instanceTypes.getName((String)instance.get("instanceTypeId"));
 			if ( resourceType == null )
 				// Most likely someone has been editing resource types in the last few hours. Very rare.
 				System.out.printf("instanceTypeId %s not known resource type.\n",
@@ -259,15 +253,15 @@ public class Format implements SolrFieldGenerator {
 				case "cartographic tactile image":
 				case "cartographic tactile three-dimensional form":
 				case "cartographic three-dimensional form":
-					format = BLFormat.MAP;
+					mainFormat = BLFormat.MAP;
 					break;
 
 				case "computer dataset":
-					format = BLFormat.DB;
+					mainFormat = BLFormat.DB;
 					break;
 
 				case "computer program":
-					format = BLFormat.FILE;
+					mainFormat = BLFormat.FILE;
 					break;
 
 				case "interlibrary loan":
@@ -275,36 +269,36 @@ public class Format implements SolrFieldGenerator {
 
 				case "notated movement":
 				case "notated music":
-					format = BLFormat.SCORE;
+					mainFormat = BLFormat.SCORE;
 					break;
 
 				case "other":
 					break;
 
 				case "performed music":
-					format = BLFormat.MUSIC;
+					mainFormat = BLFormat.MUSIC;
 					break;
 
 				case "sounds":
 				case "spoken word":
-					format = BLFormat.NONMUSIC;
+					mainFormat = BLFormat.NONMUSIC;
 					break;
 
 				case "still image":
 				case "tactile image":
-					format = BLFormat.IMG;
+					mainFormat = BLFormat.IMG;
 					break;
 
 				case "tactile notated movement":
 				case "tactile notated music":
-					format = BLFormat.SCORE;
+					mainFormat = BLFormat.SCORE;
 					break;
 
 				case "tactile text":
 					break; //Book
 
 				case "tactile three-dimensional form":
-					format = BLFormat.OBJ;
+					mainFormat = BLFormat.OBJ;
 					break;
 
 				case "text":
@@ -312,12 +306,12 @@ public class Format implements SolrFieldGenerator {
 					break; //Book? Serial?
 
 				case "three-dimensional form":
-					format = BLFormat.OBJ;
+					mainFormat = BLFormat.OBJ;
 					break;
 
 				case "three-dimensional moving image":
 				case "two-dimensional moving image":
-					format = BLFormat.VIDEO;
+					mainFormat = BLFormat.VIDEO;
 					break;
 
 				case "unspecified":
@@ -327,19 +321,54 @@ public class Format implements SolrFieldGenerator {
 					System.out.printf("Resource type '%s' not expected.\n",resourceType);
 					break;
 			}
+			if (mainFormat != null)
+				sfs.add("format",mainFormat.display());
 		}
-		SolrFields sfs = new SolrFields();
-		sfs.add("format",format.display());
-		sfs.add("format_main_facet",format.display());
-		// bib_format_display -We lack this data, but may need to fake it if we need Aeon compatibility
-		sfs.add("database_b",false);// we currently have no instance flags for this
+		if (instance.containsKey("instanceFormatIds")) {
+			for (String formatId : (List<String>) instance.get("instanceFormatIds")) {
+				String format = SupportReferenceData.instanceFormats.getName(formatId);
+				String[] formatParts = format.split(" -- ");
+				switch (formatParts[0]) {
+				case "audio":
+					if (mainFormat == null) mainFormat = BLFormat.NONMUSIC;
+					sfs.add("format", BLFormat.NONMUSIC.display());
+					break;
+				case "microform": // not a candidate for main format
+					sfs.add("format", BLFormat.MICRO.display());
+					break;
+				case "computer":
+					if (mainFormat == null) mainFormat = BLFormat.FILE;
+					sfs.add("format", BLFormat.FILE.display());
+					break;
+				case "stereographic":
+				case "projected image":
+					if (mainFormat == null) mainFormat = BLFormat.IMG;
+					sfs.add("format", BLFormat.IMG.display());
+					break;
+				case "unmediated":
+				case "unspecified":
+					// no format information infered
+					break;
+				case "video":
+					if (mainFormat == null) mainFormat = BLFormat.VIDEO;
+					sfs.add("format", BLFormat.VIDEO.display());
+					break;
+				case "microscopic":
+					if (mainFormat == null) mainFormat = BLFormat.OBJ;
+					sfs.add("format", BLFormat.OBJ.display());
+					break;
+				}
+			}
+		}
+		if (mainFormat != null) {
+			sfs.add("format_main_facet", mainFormat.display());
+			return sfs;
+		}
+		sfs.add("format",BLFormat.MONO.display());
+		sfs.add("format_main_facet",BLFormat.MONO.display());
 		return sfs;
 
 	}
-
-	private static ReferenceData folioLocations = null;
-
-	static ReferenceData resourceTypes = null;
 
 	private enum BLFormat {
 		MONO    ("Book"),

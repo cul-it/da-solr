@@ -18,7 +18,6 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.SolrFields;
-import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 /**
  * Process language data into language_display and language_facet
@@ -142,7 +141,9 @@ public class Language implements SolrFieldGenerator {
 		List<String> facet = new ArrayList<>();
 		List<String> notes = new ArrayList<>();
 		Set<String> articles = new LinkedHashSet<>();
+		SolrFields vals = new SolrFields();
 
+		boolean ianaPopulated = false;
 		if ( instance.containsKey("languages") ) {
 			List<String> langs = (List<String>) instance.get("languages");
 			for ( String lang : langs ) {
@@ -155,6 +156,11 @@ public class Language implements SolrFieldGenerator {
 				display.add(c.getLanguageName());
 				facet.add(c.getLanguageName());
 				if ( c.getArticles() != null ) articles.add(c.getArticles());
+				String ianaCode = c.getIanaCode();
+				if ( ! ianaPopulated && ianaCode != null) {
+					ianaPopulated = true;
+					vals.add("language_iana_data", ianaCode);
+				}
 			}
 		}
 
@@ -184,9 +190,8 @@ public class Language implements SolrFieldGenerator {
 				}
 			}
 		}
-		SolrFields vals = new SolrFields();
 		Iterator<String> i = facet.iterator();
-		while (i.hasNext()) vals.add(new SolrField("language_facet",i.next()));
+		while (i.hasNext()) vals.add("language_facet",i.next());
 		if ( ! display.isEmpty()) {
 			List<String> tmp = new ArrayList<>();
 			tmp.add(String.join(", ",display)+'.');
@@ -194,9 +199,9 @@ public class Language implements SolrFieldGenerator {
 		}
 		display.addAll(notes);
 		if (! display.isEmpty())
-			vals.add(new SolrField("language_display",String.join(" ", display)));
+			vals.add("language_display",String.join(" ", display));
 		for (String articlesForLang : articles)
-			vals.add(new SolrField("language_articles_t",articlesForLang));
+			vals.add("language_articles_t",articlesForLang);
 		return vals;
 	}
 

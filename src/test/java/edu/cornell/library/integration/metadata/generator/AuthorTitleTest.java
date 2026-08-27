@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,6 +14,7 @@ import org.junit.Test;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class AuthorTitleTest extends DbBaseTest {
 	SolrFieldGenerator gen = new AuthorTitle();
@@ -24,6 +28,8 @@ public class AuthorTitleTest extends DbBaseTest {
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
 		setup("Headings");
+		SupportReferenceData.initializeAlternativeTitleTypes("example_reference_data/alternative-title-types.json");
+		SupportReferenceData.initializeContributorNameTypes("example_reference_data/contributor-name-types.json");
 	}
 
 	@Test
@@ -40,8 +46,7 @@ public class AuthorTitleTest extends DbBaseTest {
 		"title_2letter_s: na\n"+
 		"title_1letter_s: n\n"+
 		"title_display: The national law journal\n"+
-		"fulltitle_display: The national law journal\n"+
-		"subtitle_display: \n";
+		"fulltitle_display: The national law journal\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
@@ -71,7 +76,6 @@ public class AuthorTitleTest extends DbBaseTest {
 		"authortitle_filing: leon cupe mariano 1932 0000 cabana historia cultura y tradicion\n"+
 		"title_display: Cabana, historia, cultura y tradición\n"+
 		"fulltitle_display: Cabana, historia, cultura y tradición\n"+
-		"subtitle_display: \n"+
 		"title_responsibility_display: Mariano León Cupe, Jorge León Quispe.\n"+
 		"author_245c_t: Mariano León Cupe, Jorge León Quispe.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
@@ -136,7 +140,6 @@ public class AuthorTitleTest extends DbBaseTest {
 		"authortitle_filing: kalavrezos nicholas 0000 lumps and bumps in the mouth and lips\n"+
 		"title_display: Lumps and bumps in the mouth and lips\n"+
 		"fulltitle_display: Lumps and bumps in the mouth and lips\n"+
-		"subtitle_display: \n"+
 		"title_responsibility_display: Nicholas Kalavrezos.\n"+
 		"author_245c_t: Nicholas Kalavrezos.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
@@ -186,6 +189,43 @@ public class AuthorTitleTest extends DbBaseTest {
 									" by Alasdair Hawkyard.\n"+
 		"author_245c_t: John Speed ; introduction by Nigel Nicolson ; country commentaries by Alasdair Hawkyard.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
+	}
+
+	@Test
+	public void testInstanceUniformTitle() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("alternativeTitles", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","V tribune (Denpasar)");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Uniform title"));}},
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","Jurnal seni budaya");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Other title"));}},
+				new HashMap<String,Object>() {{
+					put("alternativeTitle","Jurnal seni budaya V tribune");
+					put("alternativeTitleTypeId",SupportReferenceData.alternativeTitleTypes.getUuid("Other title"));}}
+				));
+		String expected =
+		"title_uniform_t: V tribune (Denpasar)\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+		instance.put("contributors", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("name","Hartanto");
+					put("contributorTypeText","Contributor");
+					put("contributorNameTypeId",SupportReferenceData.contributorNameTypes.getUuid("Personal name"));
+					put("primary",true); }}
+				));
+		expected =
+		"author_facet: Hartanto\n"+
+		"author_display: Hartanto, contributor\n"+
+		"author_t: Hartanto, contributor\n"+
+		"author_json: {\"name1\":\"Hartanto, contributor\",\"search1\":\"Hartanto\",\"relator\":\"contributor\"}\n"+
+		"author_sort: hartanto\n"+
+		"title_uniform_display: V tribune (Denpasar)|V tribune (Denpasar)|Hartanto\n"+
+		"authortitle_facet: Hartanto | V tribune (Denpasar)\n"+
+		"authortitle_filing: hartanto 0000 v tribune denpasar\n"+
+		"title_uniform_t: V tribune (Denpasar)\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
 	}
 
 	@Test
@@ -456,8 +496,7 @@ public class AuthorTitleTest extends DbBaseTest {
 		"title_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
 		"title_vern_display: Черноморский флот в период правления Екатерины II\n"+
 		"fulltitle_display: Chernomorskiĭ flot v period pravlenii︠a︡ Ekateriny II\n"+
-		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n"+
-		"subtitle_display: \n";
+		"fulltitle_vern_display: Черноморский флот в период правления Екатерины II\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, config).toString() );
 	}
 
