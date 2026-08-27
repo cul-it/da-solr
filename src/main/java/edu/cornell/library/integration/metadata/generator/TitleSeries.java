@@ -106,8 +106,16 @@ public class TitleSeries implements SolrFieldGenerator {
 		SolrFields sfs = new SolrFields();
 		if (! instance.containsKey("series")) return sfs;
 
-		for (Map<String,String> series : (List<Map<String,String>>) instance.get("series")) {
-			String title = series.getOrDefault( "value", null);
+		for (Object series : (List) instance.get("series")) {
+			String title = null;
+			switch (series.getClass().getCanonicalName()) {
+			case "java.lang.String":
+				title = (String) series;
+				break;
+			case "java.util.LinkedHashMap":
+				title = ((Map<String,String>)series).getOrDefault( "value", null);
+				break;
+			}
 			if ( title != null && ! title.isBlank() ) {
 				sfs.add("title_series_t",title);
 				sfs.add("title_series_display",title);

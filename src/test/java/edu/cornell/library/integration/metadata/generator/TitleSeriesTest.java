@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -223,12 +224,21 @@ public class TitleSeriesTest {
 	}
 
 	@Test
-	public void instanceSeriesTitle() throws IOException {
+	public void instanceSeriesTitleMap() throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		// deserialize json to match object types in production
+		Map<String,Object> instance = mapper.readValue(
+				"{\"series\": [{\"value\": \"An Evening with Sherlock Holmes (WVHC Broadcast)\"}]}", Map.class);
+		String expected =
+		"title_series_t: An Evening with Sherlock Holmes (WVHC Broadcast)\n"+
+		"title_series_display: An Evening with Sherlock Holmes (WVHC Broadcast)\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
+	public void instanceSeriesTitleString() throws IOException {
 		Map<String,Object> instance = new HashMap<>();
-		instance.put("series", Arrays.asList(
-				new HashMap<String,Object>() {{
-					put("value","An Evening with Sherlock Holmes (WVHC Broadcast)");  }}
-				));
+		instance.put("series", Arrays.asList("An Evening with Sherlock Holmes (WVHC Broadcast)"));
 		String expected =
 		"title_series_t: An Evening with Sherlock Holmes (WVHC Broadcast)\n"+
 		"title_series_display: An Evening with Sherlock Holmes (WVHC Broadcast)\n";

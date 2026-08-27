@@ -290,10 +290,10 @@ public class SimpleProc implements SolrFieldGenerator {
 		SolrFields vals = new SolrFields();
 		for (Entry<String,String> e : fieldsToMap.entrySet())
 			if (instance.containsKey(e.getKey()))
-				for (String edition : (List<String>)instance.get(e.getKey()))
-					if ( ! edition.isBlank()) {
-						vals.add(e.getValue(), edition);
-						vals.add("notes_t", edition);
+				for (String value : (List<String>)instance.get(e.getKey()))
+					if ( value != null && ! value.isBlank()) {
+						vals.add(e.getValue(), value);
+						vals.add("notes_t", value);
 					}
 		if (instance.containsKey("notes")) {
 			for (Map<String,Object> note : (List<Map<String,Object>>)instance.get("notes")) {
