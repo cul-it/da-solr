@@ -354,7 +354,9 @@ public class SimpleProc implements SolrFieldGenerator {
 			if (! identifier.containsKey("identifierTypeId")) continue;
 			String idValue = (String)identifier.getOrDefault("value", null);
 			if (idValue == null || idValue.isBlank()) continue;
-
+			if (identifier.get("identifierTypeId") == null) {
+				System.out.format("NULL IDENTIFIER TYPE: %s\n",(String)instance.get("hrid"));
+				continue;}
 			switch(SupportReferenceData.identifierTypes.getName((String)identifier.get("identifierTypeId"))) {
 			case "LCCN":
 				vals.add("lc_controlnum_display", idValue);
