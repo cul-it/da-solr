@@ -71,6 +71,11 @@ public class OtherIDs implements SolrFieldGenerator {
 			String type = SupportReferenceData.identifierTypes.getName((String)identifier.get("identifierTypeId"));
 			String idValue = (String)identifier.getOrDefault("value", null);
 			if (idValue == null || idValue.isBlank()) continue;
+			if (type == null ) {
+				System.out.format("NULL IDENTIFIER TYPE ID (%s): %s\n",
+						(String)identifier.get("identifierTypeId"), 
+						(String)instance.get("hrid"));
+				continue; }
 
 			switch (type) {
 			case "OCLC":
