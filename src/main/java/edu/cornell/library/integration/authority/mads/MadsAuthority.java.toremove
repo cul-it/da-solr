@@ -1,0 +1,594 @@
+package edu.cornell.library.integration.authority.mads;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.apicatalog.jsonld.JsonLdError;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.cornell.library.integration.authority.activitystreams.IFetcher;
+import static edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils.getJsonObjectForId;
+import static edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils.parseHeadingType;
+import edu.cornell.library.integration.authority.mads.ComponentList.Component;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.ASSOCIATED_LOCALE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.BIRTH_PLACE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.DEATH_PLACE;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.FIELD_OF_ACTIVITY;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_AFFILIATION;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_BROADER_AUTHORITY;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_EARLIER_ESTABLISHED_FORM;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_LATER_ESTABLISHED_FORM;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_NARROWER_AUTHORITY;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.HAS_RELATED_AUTHORITY;
+import static edu.cornell.library.integration.authority.mads.MadsConstants.OCCUPATION;
+import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
+import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
+import edu.cornell.library.integration.utilities.FilingNormalization;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.json.JsonValue.ValueType;
+
+public record MadsAuthority(AtomicReference<Integer> id, MadsHeading mainHead, String nativeHeading, String lccn, String catalogId, AuthoritySource source, boolean undifferentiated, List<MadsRelationship> sees, List<MadsRelationship> seeAlsos, List<String> notes, String rda) {
+	// private static final List<String> NOTE_KEYS = List.of(
+	// 		"madsrdf:note",
+	// 		"madsrdf:editorialNote",
+	// 		"madsrdf:historyNote",
+	// 		"madsrdf:definitionNote",
+	// 		"madsrdf:scopeNote",
+	// 		"madsrdf:sourceNote",
+	// 		"madsrdf:citationNote");
+	public static IFetcher fetcher = new IFetcher.HttpFetcher();
+	private static final String PADDING = "  ";
+
+	public int setId(int id) {
+		this.id.set(id);
+		return id;
+	}
+
+	public void print(String padding) {
+		System.out.println(padding + "id: " + id.get());
+		System.out.println(padding + "mainHead start");
+		mainHead.print(padding);
+		System.out.println(padding + "mainHead end");
+		System.out.println(padding + nativeHeading);
+		System.out.println(padding + "lccn: " + lccn);
+		System.out.println(padding + "catalogId: " + catalogId);
+		System.out.println(padding + "source: " + source);
+		System.out.println(padding + "undifferentiated: " + undifferentiated);
+		if (!sees.isEmpty())
+			System.out.println(padding + "Sees:");
+		for (MadsRelationship see : sees)
+			see.print(padding + PADDING);
+		if (!seeAlsos.isEmpty())
+			System.out.println(padding + "SeeAlsos:");
+		for (MadsRelationship seeAlso : seeAlsos)
+			seeAlso.print(padding + PADDING);
+		if (!notes.isEmpty())
+			System.out.println(padding + "Notes:");
+		for (String note : notes)
+			System.out.println(padding + PADDING + note);
+		if (rda != null && !rda.isBlank())
+			System.out.println(padding + "RDA: " + rda);
+	}
+
+	public void print() {
+		print("");
+	}
+
+	/*
+	public record HeadingMap(AtomicReference<Integer> id, HeadingMap parent, String heading, String sort, MadsHeadingType headingType,
+			int worksBy, int worksAbout, int works, boolean mainEntry, ReferenceType refType,
+			String relationship, String reciprocalRelationship, boolean display) {
+	 */
+	public record MadsHeading(AtomicReference<Integer> id, MadsHeading parent, String heading, String sort, MadsHeadingType headingType) {
+		public void print(String padding) {
+			if (parent != null) {
+				System.out.println(padding + "parent start");
+				parent.print(padding + PADDING);
+				System.out.println(padding + "parent end");
+			}
+			System.out.println(padding + "heading: " + heading);
+			System.out.println(padding + "sort: " + sort);
+			System.out.println(padding + "heading type: " + headingType);
+			System.out.println(padding + "----");
+		}
+
+		public MadsHeading(MadsHeading parent, String heading, String sort, MadsHeadingType headingType) {
+			this(new AtomicReference<>(0), parent, heading, sort, headingType);
+		}
+
+		public int setHeadingId(int id) {
+			this.id.set(id);
+			return id;
+		}
+
+		public int headingId() {
+			return this.id.get();
+		}
+
+		public int parentId() {
+			if (parent == null) return 0;
+			return parent.headingId();
+		}
+	}
+
+	public record MadsReference(int id, MadsHeading fromHeading, MadsHeading toHeading, ReferenceType refType, String refDesc) {
+		public void print(String padding) {
+			System.out.println(padding + "from heading: " + fromHeading.heading);
+			System.out.println(padding + "to heading: " + toHeading.heading);
+			System.out.println(padding + "ref type: " + refType.toString());
+			System.out.println(padding + "ref desc: " + refDesc);
+			System.out.println(padding + "----");
+		}
+	}
+
+	public static List<String> getIdentifiesRWO(JsonObject node) {
+		return AuthorityJsonldUtils.asList(node, "madsrdf:identifiesRWO");
+	}
+
+	public static List<String> getRelatedAuthority(JsonObject mainEntry) {
+		return AuthorityJsonldUtils.asList(mainEntry, "madsrdf:hasRelatedAuthority");
+	}
+
+	public static List<String> getVariants(JsonObject mainEntry) {
+		return AuthorityJsonldUtils.asList(mainEntry, "madsrdf:hasVariant");
+	}
+
+	public static MadsAuthority fromMadsJsonld(Connection authority, String lcId, String source, boolean undifferentiated) throws JsonLdError, SQLException, URISyntaxException, IOException, InterruptedException {
+		JsonObject doc = AuthorityJsonldUtils.parseJsonLd(source);
+		MadsAuthorityData rec = AuthorityJsonldUtils.parseAuthorityData(doc, lcId);
+		System.out.println(rec.source);
+		System.out.println("--------------------");
+		JsonArray graph = doc.getJsonArray("@graph");
+		JsonObject mainEntry = AuthorityJsonldUtils.getJsonObjectForId(graph, lcId);
+
+		if (rec.lccn != null && rec.lccn.startsWith("sj")) {
+			System.out.println("Skipping Juvenile subject authority heading: " + lcId);
+			return null;
+		}
+
+		if (AuthorityJsonldUtils.parseIsSubdivision(mainEntry.get("madsrdf:isMemberOfMADSCollection"))) {
+			System.out.println("Skipping subdivision authority heading: " + lcId);
+			return null;
+		}
+
+		String authLabel = AuthorityJsonldUtils.getAuthorativeLabel(mainEntry);
+		MadsHeadingType t = AuthorityJsonldUtils.headingType(mainEntry, lcId);
+		MadsHeading mainHead = headingProcess(authority, mainEntry, graph, authLabel, null, t);
+
+		// List<ReferenceMap> references = madsReferencesPopulate(authority, headings);
+		// (JsonObject mainEntry, JsonArray graph, String lcId, HeadingMap mainHead)
+		List<MadsRelationship> sees = seesPopulate(authority, mainEntry, graph, lcId, mainHead);
+		List<MadsRelationship> seeAlsos = seeAlsosPopulate(authority, mainEntry, graph, lcId, mainHead);
+		List<String> notes = notesPopulate(authority, mainEntry, graph);
+
+		Rda rda = new Rda();
+		Map<String,Collection<String>> data = rda.populateRda(authority, mainEntry, graph);
+
+		String nativeHeading = AuthorityJsonldUtils.getAuthorativeLabel(mainEntry);
+		AuthoritySource authSource = AuthorityJsonldUtils.translateAuthoritySource(rec.vocab);
+		return new MadsAuthority(new AtomicReference<>(0), mainHead, nativeHeading, rec.lccn, rec.catalogId(), authSource, undifferentiated, sees, seeAlsos, notes, Rda.json(data));
+	}
+
+	protected static MadsHeading headingProcess(Connection authority, JsonObject entry, JsonArray graph, String heading, String mainHeading, MadsHeadingType ht) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		// Emulates processHeadingField's parent heading logic for AUTHORTITLE fields:
+		// when the heading type is NAME_TITLE, the first component (the name/author part)
+		// becomes a parent HeadingMap, mirroring how MARC builds a parent Heading for WORK entries.
+		MadsHeading parent = null;
+		if (ht == MadsHeadingType.NAME_TITLE) {
+			ComponentList componentList = AuthorityJsonldUtils.parseComponentList(entry, graph);
+			if (componentList.components.isEmpty()) {
+				System.out.println("No components found for NAME_TITLE heading: " + heading);
+				return new MadsHeading(null, heading, FilingNormalization.getFilingForm(heading), ht);
+			}
+			var first = firstComponent(authority, componentList);
+			if (first != null) {
+				heading = constructHeadingFromComponentList(authority, heading, first, componentList);
+				if (first.authorativeLabel != null && first.headingType != null)
+					parent = new MadsHeading(null, first.authorativeLabel, FilingNormalization.getFilingForm(first.authorativeLabel), first.headingType);
+			}
+		}
+
+		heading = prettyHeading(heading);
+		heading = acronym(heading, mainHeading);
+		return new MadsHeading(parent, heading, FilingNormalization.getFilingForm(heading), ht);
+	}
+
+	protected static Component firstComponent(Connection authority, ComponentList componentList) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		if (componentList.components.isEmpty()) return null;
+
+		var first = componentList.first();
+		System.out.println("First component: " + first.id + " | " + first.headingType + " | " + first.authorativeLabel);
+		if ((first.authorativeLabel == null || first.authorativeLabel.isBlank())
+				&& first.id.startsWith("http://id.loc.gov")) {
+			var comp = authDataFromLcId(authority, first.id);
+			var doc = comp.doc();
+			var mainEntry = getJsonObjectForId(doc.getJsonArray("@graph"), first.id);
+			var authLabel = comp.auth().authorativeLabel;
+			first.authorativeLabel = authLabel;
+			first.headingType = parseHeadingType(mainEntry).get(0);
+		}
+		return first;
+	}
+
+	protected static String constructHeadingFromComponentList(Connection authority, String heading, Component first, ComponentList componentList) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		if (first == null) return heading;
+
+		StringBuilder sb = new StringBuilder(first.authorativeLabel);
+		List<String> restLabels = new ArrayList<>();
+		for (var component : componentList.restComponents()) {
+			if (component.authorativeLabel == null || component.authorativeLabel.isBlank()) {
+				if (component.id.startsWith("http://id.loc.gov")) {
+					var comp = authDataFromLcId(authority, component.id);
+					var authLabel = comp.auth().authorativeLabel;
+					if (authLabel != null && !authLabel.isBlank())
+						restLabels.add(authLabel);
+					else
+						System.out.println("No label found for component: " + component.id);
+				}
+				continue;
+			}
+			restLabels.add(component.authorativeLabel);
+		}
+		String rest = String.join(" -- ", restLabels);
+		if (!rest.isBlank()) sb.append(" | ").append(rest);
+
+		return sb.toString();
+	}
+
+	protected static String constructHeadingFromComponentListSimple(String heading, ComponentList componentList) {
+		var first = componentList.first();
+		if (first == null) return heading;
+		if (heading.startsWith(first.authorativeLabel))
+			heading = heading.replace(first.authorativeLabel, first.authorativeLabel + " |");
+		return heading;
+	}
+
+	protected static List<MadsRelationship> seesPopulate(Connection authority, JsonObject mainEntry, JsonArray graph, String lcId, MadsHeading mainHead) throws IOException, InterruptedException, SQLException, JsonLdError, URISyntaxException {
+		Set<String> seen = new HashSet<>();
+		seen.add(fingerprint(mainHead));
+		List<MadsRelationship> sees = new ArrayList<>();
+
+		List<String> variantIds = getVariants(mainEntry);
+		List<String> earlierLabels = earlierLabels(graph, mainEntry);
+		for (String variantId : variantIds) {
+			JsonObject variant = AuthorityJsonldUtils.getJsonObjectForId(graph, variantId);
+			if (variant == null || variant.isEmpty()) continue;
+
+			String label = variantLabel(graph, variant);
+			if (label == null || label.isBlank()) continue;
+			boolean display = !earlierLabels.contains(label);
+
+			MadsHeadingType vt = AuthorityJsonldUtils.headingType(variant, lcId);
+			// Relationship rel = relationshipForNode(variant, graph, true);
+			MadsHeading varMap = headingProcess(authority, variant, graph, label, mainHead.heading(), vt);
+			if (seen.contains(fingerprint(varMap))) continue;
+			seen.add(fingerprint(varMap));
+
+			// String relationship, String reciprocalRelationship, HeadingMap heading, boolean display
+			MadsRelationship rel = new MadsRelationship(null, null, varMap, display);
+			sees.add(rel);
+		}
+		return sees;
+	}
+
+	public static String variantLabel(JsonArray graph, JsonObject node) {
+		String label = AuthorityJsonldUtils.getString(node, "madsrdf:variantLabel");
+		if (label != null) return label;
+		List<String> elementValues = AuthorityJsonldUtils.parseElementList(graph, node);
+		return String.join(" ", elementValues);
+	}
+
+	public static List<String> earlierLabels(JsonArray graph, JsonObject node) {
+		List<String> labels = new ArrayList<>();
+		var earler = node.get("madsrdf:hasEarlierEstablishedForm");
+		if (earler == null) return labels;
+		List<String> earlierIds = AuthorityJsonldUtils.getIdAsList(earler);
+		for (String earlierId : earlierIds) {
+			JsonObject earlierNode = AuthorityJsonldUtils.getJsonObjectForId(graph, earlierId);
+			String label = variantLabel(graph, earlierNode);
+			if (label != null && !label.isBlank())
+				labels.add(label);
+		}
+		return labels;
+	}
+
+	public static List<MadsRelationship> seeAlsosPopulate(Connection authority, JsonObject mainEntry, JsonArray graph, String lcId, MadsHeading mainHead) throws IOException, InterruptedException, JsonLdError, URISyntaxException, SQLException {
+		Set<String> seen = new HashSet<>();
+		seen.add(fingerprint(mainHead));
+		List<MadsRelationship> seeAlsos = new ArrayList<>();
+
+		// for (String relationshipKey : RELATIONSHIP_KEYS) {
+		// 	var related = AuthorityJsonldUtils.asList(mainEntry, relationshipKey);
+		// 	if (related.isEmpty()) continue;
+
+		// 	for (String relatedAuthId : related) {
+		// 		if (relatedAuthId == null || relatedAuthId.isBlank()) continue;
+		// 		String label;
+		// 		JsonArray relatedGraph;
+		// 		if (relatedAuthId.startsWith("http://id.loc.gov/")) {
+		// 			var relatedAuth = authDataFromLcId(authority, relatedAuthId);
+		// 			label = relatedAuth.auth().authorativeLabel;
+		// 			relatedGraph = relatedAuth.doc().getJsonArray("@graph");
+		// 		} else {
+		// 			label = AuthorityJsonldUtils.getAuthorativeLabel(AuthorityJsonldUtils.getJsonObjectForId(graph, relatedAuthId));
+		// 			relatedGraph = graph;
+		// 		}
+		// 		if (label == null || label.isBlank()) continue;
+
+		// 		JsonObject relatedNode = AuthorityJsonldUtils.getJsonObjectForId(relatedGraph, relatedAuthId);
+		// 		MadsHeadingType ht = AuthorityJsonldUtils.headingType(relatedNode, relatedAuthId);
+		// 		MadsHeading relMap = headingProcess(authority, relatedNode, relatedGraph, label, null, ht);
+		// 		if (seen.contains(fingerprint(relMap))) continue;
+		// 		seen.add(fingerprint(relMap));
+
+		// 		MadsRelationship rel = determineRelationship(relationshipKey, relMap);
+		// 		seeAlsos.add(rel);
+		// 	}
+		// }
+		return seeAlsos;
+	}
+
+	public record AuthData(MadsAuthorityData auth, JsonObject doc) {}
+
+	protected static AuthData authDataFromLcId(Connection authority, String id) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		MadsAuthorityData auth = AuthorityDbUtils.authorityRecordMostRecent(authority, id);
+		JsonObject doc;
+		if (auth == null) {
+			try (InputStream is = fetcher.fetch(id + ".madsrdf.json")) {
+				doc = AuthorityJsonldUtils.parseFlatJsonLd(is, id);
+				auth = AuthorityJsonldUtils.parseAuthorityData(doc, id);
+			}
+		} else
+			doc = AuthorityJsonldUtils.parseJsonLd(auth.source);
+
+		return new AuthData(auth, doc);
+	}
+
+	protected static MadsRelationship determineRelationship(String relationshipKey, MadsHeading relMap) {
+		switch (relationshipKey) {
+			case HAS_BROADER_AUTHORITY -> {
+				return new MadsRelationship(forRelationshipKey(relationshipKey), forRelationshipKey(HAS_NARROWER_AUTHORITY), relMap, true);
+			}
+			case HAS_NARROWER_AUTHORITY -> {
+				return new MadsRelationship(forRelationshipKey(relationshipKey), forRelationshipKey(HAS_BROADER_AUTHORITY), relMap, true);
+			}
+			case HAS_EARLIER_ESTABLISHED_FORM -> {
+				return new MadsRelationship(forRelationshipKey(relationshipKey), forRelationshipKey(HAS_LATER_ESTABLISHED_FORM), relMap, true);
+			}
+			case HAS_LATER_ESTABLISHED_FORM -> {
+				return new MadsRelationship(forRelationshipKey(relationshipKey), forRelationshipKey(HAS_EARLIER_ESTABLISHED_FORM), relMap, true);
+			}
+			default -> {
+				return new MadsRelationship(null, null, relMap, true);
+			}
+
+		}
+	}
+
+	protected static String forRelationshipKey(String relationshipKey) {
+		return switch (relationshipKey) {
+			case HAS_BROADER_AUTHORITY -> "Narrower Term";
+			case HAS_NARROWER_AUTHORITY -> "Broader Term";
+			case HAS_EARLIER_ESTABLISHED_FORM -> "Later Heading";
+			case HAS_LATER_ESTABLISHED_FORM -> "Earlier Heading";
+			case HAS_RELATED_AUTHORITY -> "Related Term";
+			default -> null;
+		};
+	}
+
+	protected static List<String> notesPopulate(Connection authority, JsonObject mainEntry, JsonArray graph) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		List<String> notes = new ArrayList<>();
+
+		List<String> ids = AuthorityJsonldUtils.getIdAsList(mainEntry.get("madsrdf:see"));
+		if (ids.isEmpty()) return notes;
+		List<Map<String, String>> noteDataList = new ArrayList<>();
+		for (String id : ids) {
+			Map<String, String> noteData = new HashMap<>();
+			if (id.startsWith("http://id.loc.gov/")) {
+				AuthData data = authDataFromLcId(authority, id);
+				noteData.put("header", data.auth().authorativeLabel);
+			} else {
+				var noteNode = AuthorityJsonldUtils.getJsonObjectForId(graph, id);
+				noteData.put("header", AuthorityJsonldUtils.getAuthorativeLabel(noteNode));
+			}
+			noteDataList.add(noteData);
+		}
+		notes.add("Search also under: " + mapper.writeValueAsString(noteDataList));
+
+		return notes;
+	}
+
+	private static String fingerprint(MadsHeading map) {
+		String parent = (map.parent == null) ? "" : map.parent.heading() + "|" + map.parent.headingType() + "|" + map.parent.sort();
+		return map.heading() + "|" + map.headingType() + "|" + map.sort() + parent;
+	}
+
+	protected static String prettyHeading(String label) {
+		if (label == null) return null;
+		/*
+			If the label contains "--" (double dash) with any number of whitespace before or after, replace it including the whitespaces with " > " (space, greater-than symbol, space).
+			Otherwise, return the label unchanged.
+		 */
+		return label.replaceAll("\\s*--\\s*", " > ");
+	}
+
+	protected static String acronym(String heading, String mainHeading) {
+		if (mainHeading == null) return heading;
+
+		int capitalCount = 0;
+		for (char c : heading.toCharArray()) {
+			if ( Character.isUpperCase(c) ) capitalCount++;
+			else if ( c != '.' ) return heading;
+
+			if (capitalCount > 5) break;
+		}
+
+		return heading+" ("+mainHeading+")";
+	}
+
+	// add notes here?
+	public record MadsRelationship(String relationship, String reciprocalRelationship, MadsHeading heading, boolean display) {
+		public void print(String padding) {
+			System.out.println(padding + "relationship: " + relationship);
+			System.out.println(padding + "reciprocal: " + reciprocalRelationship);
+			if (heading != null)
+				heading.print(padding + PADDING);
+			System.out.println(padding + "display: " + display);
+			System.out.println(padding + "----");
+		}
+	}
+
+	public static Map<String, RWO> rwoCache = new HashMap<>();
+
+	public static Map<String, String> RDA_FIELDS = Map.of(
+			ASSOCIATED_LOCALE, "Country",
+			BIRTH_PLACE, "Birth Place",
+			DEATH_PLACE, "Place of Death",
+			FIELD_OF_ACTIVITY, "Field",
+			HAS_AFFILIATION, "Group/Organization",
+			OCCUPATION, "Occupation"
+	);
+	static final ObjectMapper mapper = new ObjectMapper();
+	public static class Rda {
+		Map<String, Boolean> recursiveChecker = null;
+
+		public Rda() {
+		}
+
+		public Map<String,Collection<String>> populateRda(Connection authority, JsonObject mainEntry, JsonArray graph) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+			Map<String,Collection<String>> data = new HashMap<>();
+			recursiveChecker = new HashMap<>();
+			List<JsonObject> rwos = AuthorityJsonldUtils.getRwos(mainEntry, graph);
+			for (JsonObject rwo : rwos) {
+				for (String key : RDA_FIELDS.keySet()) {
+					JsonValue val = rwo.get(key);
+					if (val == null) continue;
+
+					switch (val.getValueType()) {
+						case ARRAY, OBJECT -> {
+							List<String> ids = AuthorityJsonldUtils.getIdAsList(val);
+							for (String id : ids) {
+								String value = followRdaNode(authority, graph, id);
+								if (value != null)
+									add(data, RDA_FIELDS.get(key), value);
+							}
+						}
+						case STRING -> add(data, RDA_FIELDS.get(key), AuthorityJsonldUtils.getString(val));
+						default -> {}
+					}
+				}
+			}
+
+			return data;
+		}
+
+		public String followRdaNode(Connection authority, JsonArray graph, String blankNodeId) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+			if (recursiveChecker.containsKey(blankNodeId))
+				// cyclic pointer found, ignore this key
+				return null;
+
+			recursiveChecker.put(blankNodeId, true);
+
+			JsonObject obj = AuthorityJsonldUtils.getJsonObjectForId(graph, blankNodeId);
+			if (obj.isEmpty())
+				if (blankNodeId.startsWith("http://id.loc.gov/rwo/"))
+					return rwoLabel(blankNodeId);
+				else if (blankNodeId.startsWith("http://id.loc.gov/")) {
+					AuthData authData = authDataFromLcId(authority, blankNodeId);
+					return authData.auth().authorativeLabel;
+				}
+				else return null;
+
+			// https://id.loc.gov/authorities/names/n00000203
+			// has Occupation "Author" which is not from a URI
+			String label = AuthorityJsonldUtils.getString(obj, "rdfs:label");
+			if (label != null) return label;
+
+			for (String key : obj.keySet()) {
+				if ("@id".equals(key)) continue;
+				JsonValue val = obj.get(key);
+				if (val.getValueType() == ValueType.OBJECT)
+					return followRdaNode(authority, graph, AuthorityJsonldUtils.getString(val.asJsonObject(), "@id"));
+			}
+
+			return null;
+		}
+
+		public static String rwoLabel(String id) throws IOException, InterruptedException, JsonLdError {
+			if (rwoCache.containsKey(id))
+				return rwoCache.get(id).label();
+
+			try (InputStream is = fetcher.fetch(id + ".madsrdf.json")) {
+				var doc = AuthorityJsonldUtils.parseFlatJsonLd(is, id);
+				var rwo = AuthorityJsonldUtils.parseRwo(doc, id);
+				rwoCache.put(id, rwo);
+				return rwo.label();
+			}
+		}
+
+		protected void add(Map<String,Collection<String>> data, String field, String value) {
+			if ( ! data.containsKey(field))
+				data.put(field, new HashSet<>());
+			data.get(field).add(value);
+		}
+
+		public static String json(Map<String,Collection<String>> data) throws JsonProcessingException {
+			if (data.isEmpty()) return null;
+			return mapper.writeValueAsString(data);
+		}
+	}
+
+	public static List<String> valuesFromArray(JsonValue value, JsonArray graph) {
+		List<String> values = new ArrayList<>();
+		if (value == null) return values;
+		switch (value.getValueType()) {
+			case STRING -> values.add(AuthorityJsonldUtils.getString(value));
+			case OBJECT -> values.addAll(valuesFromObject(value.asJsonObject(), graph));
+			case ARRAY -> {
+				for (JsonValue v : value.asJsonArray()) {
+					values.addAll(valuesFromArray(v, graph));
+				}
+			}
+			default -> {}
+		}
+		return values;
+	}
+
+	public static List<String> valuesFromObject(JsonObject value, JsonArray graph) {
+		List<String> values = new ArrayList<>();
+		String asValue = AuthorityJsonldUtils.getString(value, "@value");
+		if (asValue != null) {
+			values.add(asValue);
+			return values;
+		}
+
+		String id = AuthorityJsonldUtils.getString(value, "@id");
+		if (id != null) {
+			JsonObject obj = AuthorityJsonldUtils.getJsonObjectForId(graph, id);
+			if (!obj.isEmpty()) {
+				String label = AuthorityJsonldUtils.getString(obj, "rdfs:label");
+				if (label != null) values.add(label);
+				String authLabel = AuthorityJsonldUtils.getString(obj, "madsrdf:authoritativeLabel");
+				if (authLabel != null) values.add(authLabel);
+			}
+		}
+
+		String str = AuthorityJsonldUtils.getString(value);
+		if (str != null) values.add(str);
+		return values;
+	}
+}

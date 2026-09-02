@@ -22,11 +22,10 @@ import org.junit.jupiter.api.Test;
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.AuthoritySource;
-import edu.cornell.library.integration.authority.mads.AuthorityDbUtils;
-import edu.cornell.library.integration.authority.mads.MadsHeadingType;
-import edu.cornell.library.integration.authority.mads.MadsRecordStatus;
+import edu.cornell.library.integration.authority.mads.DbUtils;
+import edu.cornell.library.integration.authority.mads.HeadingType;
+import edu.cornell.library.integration.authority.mads.RecordStatus;
 import edu.cornell.library.integration.db_test.DbBaseTest;
-import edu.cornell.library.integration.db_test.SqliteBaseTest;
 
 public class BulkDownloadHandlerTest extends DbBaseTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
@@ -37,13 +36,13 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();
 		if (useTestContainers != null) {
 			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				ActivityStreamsUtils.setUpDatabase(authority);
+				Utils.setUpDatabase(authority);
 			}
 		} else if (useSqlite != null) {
 			String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
 			String sql = new File(extraSqlite).getAbsolutePath();
 			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				SqliteBaseTest.runStmt(Arrays.asList(sql), authority);
+				DbBaseTest.runStmt(Arrays.asList(sql), authority);
 			}
 		}
 
@@ -72,10 +71,10 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 		Path tempFile = Files.createTempFile("myPrefix", ".tmp");
 		try (OutputStream out = Files.newOutputStream(tempFile);
 			 Connection authority = config.getDatabaseConnection("Authority");
-			 PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND numUpdates = ? AND moddate = ?".formatted(AuthorityDbUtils.MADS_UPDATE_TABLE))) {
+			 PreparedStatement stmt = authority.prepareStatement("SELECT * FROM %s WHERE id = ? AND numUpdates = ? AND moddate = ?".formatted(DbUtils.MADS_UPDATE_TABLE))) {
 			out.write(builder.toString().getBytes(StandardCharsets.UTF_8));
 
-			String today = ActivityStreamsUtils.getToday();
+			String today = Utils.getToday();
 			BulkDownloadHandler bdh = new BulkDownloadHandler();
 			bdh.processData(today, tempFile, authority, 2, 0);
 
@@ -86,9 +85,9 @@ public class BulkDownloadHandlerTest extends DbBaseTest {
 			assertEquals(true, rs.next());
 			assertEquals("n 00000001", rs.getString("lccn"));
 			assertEquals(AuthoritySource.valueOf("NAF").ordinal(), rs.getInt("vocabulary"));
-			assertEquals(MadsRecordStatus.valueOf("REVISED").ordinal(), rs.getInt("recordStatus"));
+			assertEquals(RecordStatus.valueOf("REVISED").ordinal(), rs.getInt("recordStatus"));
 			assertEquals("McQuerry, Maureen, 1955-", rs.getString("heading"));
-			assertEquals(MadsHeadingType.valueOf("PERSONAL_NAME").ordinal(), rs.getInt("headingType"));
+			assertEquals(HeadingType.valueOf("PERSONAL_NAME").ordinal(), rs.getInt("headingType"));
 			assertEquals(false, rs.getBoolean("isSubdivision"));
 			assertEquals(false, rs.getBoolean("undifferentiated"));
 			assertEquals(today, rs.getString("addedDate"));

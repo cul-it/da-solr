@@ -14,8 +14,8 @@ public class Scratch {
 
 		IFetcher fetcher = new IFetcher.HttpFetcher();
 		try (InputStream is = fetcher.fetch(id + ".madsrdf.json")) {
-			var doc = AuthorityJsonldUtils.parseFlatJsonLd(is, id);
-			var auth = AuthorityJsonldUtils.parseAuthorityData(doc, id);
+			var doc = JsonldUtils.parseFlatJsonLd(is, id);
+			var auth = JsonldUtils.parseAuthorityData(doc, id);
 			auth.print();
 		}
 	}

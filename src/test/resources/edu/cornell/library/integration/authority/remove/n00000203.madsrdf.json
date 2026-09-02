@@ -1,0 +1,332 @@
+[
+    {
+        "@id": "_:b44iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Bottoms, Greg. Angelhead, 2000:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "CIP t.p. (Greg Bottoms)"
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/rwo/agents/n00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#RWO",
+            "http://id.loc.gov/ontologies/bibframe/Person",
+            "http://xmlns.com/foaf/0.1/Person"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#label": [
+            {
+                "@value": "Bottoms, Greg"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#birthDate": [
+            {
+                "@type": "http://id.loc.gov/datatypes/edtf",
+                "@value": "1970"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#birthPlace": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n79089613"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#fieldOfActivity": [
+            {
+                "@id": "_:b27iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasAffiliation": [
+            {
+                "@id": "_:b30iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#occupation": [
+            {
+                "@id": "_:b33iddOtlocdOtgovauthoritiesnamesn00000203"
+            },
+            {
+                "@id": "_:b40iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isIdentifiedByAuthority": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/n00000203"
+            }
+        ]
+    },
+    {
+        "@id": "_:b76iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2000-01-12T00:00:00"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "new"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b52iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "Lowest white boy, 2019:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "ECIP t.p. (Greg Bottoms) galley (b. 1970, in Hampton, VA)"
+            }
+        ]
+    },
+    {
+        "@id": "_:b84iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                "@value": "2025-08-05T02:34:36"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "revised"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/icrlf"
+            }
+        ],
+        "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+            }
+        ]
+    },
+    {
+        "@id": "_:b40iddOtlocdOtgovauthoritiesnamesn00000203",
+        "http://www.loc.gov/mads/rdf/v1#occupation": [
+            {
+                "@id": "http://id.loc.gov/authorities/subjects/sh88001224"
+            }
+        ]
+    },
+    {
+        "@id": "_:b35iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Occupation"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#label": [
+            {
+                "@value": "Author"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+            {
+                "@id": "http://id.loc.gov/authorities/subjects"
+            }
+        ]
+    },
+    {
+        "@id": "_:b60iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Source"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationStatus": [
+            {
+                "@value": "found"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationSource": [
+            {
+                "@value": "His Lowest white boy, 2019:"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#citationNote": [
+            {
+                "@value": "back cover (Greg Bottoms; writes about growing up in Tidewater, Virginia, in the 1970s; professor of English at the University of Vermont)"
+            }
+        ]
+    },
+    {
+        "@id": "http://id.loc.gov/authorities/names/n00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#PersonalName",
+            "http://www.loc.gov/mads/rdf/v1#Authority"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+            {
+                "@value": "Bottoms, Greg"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementList": [
+            {
+                "@list": [
+                    {
+                        "@id": "_:b8iddOtlocdOtgovauthoritiesnamesn00000203"
+                    }
+                ]
+            }
+        ],
+        "http://id.loc.gov/ontologies/bflc/marcKey": [
+            {
+                "@value": "1001 $aBottoms, Greg"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#classification": [
+            {
+                "@id": "_:b13iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#identifiesRWO": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n00000203"
+            },
+            {
+                "@id": "https://isni.org/isni/0000000073676985"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasSource": [
+            {
+                "@id": "_:b44iddOtlocdOtgovauthoritiesnamesn00000203"
+            },
+            {
+                "@id": "_:b52iddOtlocdOtgovauthoritiesnamesn00000203"
+            },
+            {
+                "@id": "_:b60iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ],
+        "http://id.loc.gov/vocabulary/identifiers/lccn": [
+            {
+                "@value": "n 00000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+            },
+            {
+                "@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+            {
+                "@id": "http://id.loc.gov/authorities/names"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority": [
+            {
+                "@id": "http://viaf.org/en/viaf/LC%7Cn%20%2000000203"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#hasCloseExternalAuthority": [
+            {
+                "@id": "http://id.worldcat.org/fast/442751"
+            }
+        ],
+        "http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+            {
+                "@id": "_:b76iddOtlocdOtgovauthoritiesnamesn00000203"
+            },
+            {
+                "@id": "_:b84iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ]
+    },
+    {
+        "@id": "_:b27iddOtlocdOtgovauthoritiesnamesn00000203",
+        "http://www.loc.gov/mads/rdf/v1#fieldOfActivity": [
+            {
+                "@id": "http://id.loc.gov/authorities/subjects/sh85043705"
+            }
+        ]
+    },
+    {
+        "@id": "_:b30iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#Affiliation"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#organization": [
+            {
+                "@id": "http://id.loc.gov/rwo/agents/n50000589"
+            }
+        ]
+    },
+    {
+        "@id": "_:b13iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://id.loc.gov/ontologies/lcc#ClassNumber"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#code": [
+            {
+                "@value": "PS3602.O88"
+            }
+        ],
+        "http://id.loc.gov/ontologies/bibframe/assigner": [
+            {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            }
+        ]
+    },
+    {
+        "@id": "_:b33iddOtlocdOtgovauthoritiesnamesn00000203",
+        "http://www.loc.gov/mads/rdf/v1#occupation": [
+            {
+                "@id": "_:b35iddOtlocdOtgovauthoritiesnamesn00000203"
+            }
+        ]
+    },
+    {
+        "@id": "_:b8iddOtlocdOtgovauthoritiesnamesn00000203",
+        "@type": [
+            "http://www.loc.gov/mads/rdf/v1#FullNameElement"
+        ],
+        "http://www.loc.gov/mads/rdf/v1#elementValue": [
+            {
+                "@value": "Bottoms, Greg"
+            }
+        ]
+    }
+]

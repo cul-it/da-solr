@@ -15,8 +15,6 @@ import java.util.Set;
 import com.apicatalog.jsonld.JsonLdError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.cornell.library.integration.authority.mads.MadsAuthority.MadsHeading;
-import edu.cornell.library.integration.authority.mads.MadsAuthority.MadsRelationship;
 import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
 import edu.cornell.library.integration.utilities.Config;
@@ -44,12 +42,14 @@ public class IndexMadsAuthorityRecords {
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
 
-			if (setupDb)
-				AuthorityDbUtils.setUpDatabase(headings);
+			if (setupDb) {
+				DbUtils.setUpHeadingsDatabase(headings);
+				DbUtils.setupAuthorityDatabase(authority);
+			}
 
 			authority.setAutoCommit(false);
-			String maxAddedDate = AuthorityDbUtils.maxAddedDate(authority);
-			Set<String> identifiers = AuthorityDbUtils.identifiers(authority);
+			String maxAddedDate = DbUtils.maxAddedDate(authority);
+			Set<String> identifiers = DbUtils.identifiers(authority);
 			authority.setAutoCommit(true);
 
 			headings.setAutoCommit(false);
@@ -58,7 +58,7 @@ public class IndexMadsAuthorityRecords {
 				headings.commit();
 			}
 
-			AuthorityDbUtils.cursorReplace(headings, maxAddedDate);
+			DbUtils.cursorReplace(headings, maxAddedDate);
 			headings.commit();
 
 			return maxAddedDate;
@@ -69,97 +69,116 @@ public class IndexMadsAuthorityRecords {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			String cursor = AuthorityDbUtils.cursor(headings);
+			String cursor = DbUtils.cursor(headings);
 
 			authority.setAutoCommit(false);
-			String maxAddedDate = AuthorityDbUtils.maxAddedDate(authority);
-			Set<String> identifiers = AuthorityDbUtils.identifiersNewerThan(authority, cursor);
+			String maxAddedDate = DbUtils.maxAddedDate(authority);
+			Set<String> identifiers = DbUtils.identifiersNewerThan(authority, cursor);
 			authority.setAutoCommit(true);
 
 			headings.setAutoCommit(false);
 			for (String identifier : identifiers) {
-				processIdentifier(authority, headings, identifier);
-				headings.commit();
+				if (processIdentifier(authority, headings, identifier))
+					headings.commit();
+				else
+					headings.rollback();
 			}
 
-			AuthorityDbUtils.cursorReplace(headings, maxAddedDate);
+			DbUtils.cursorReplace(headings, maxAddedDate);
 			headings.commit();
 
 			return maxAddedDate;
 		}
 	}
 
-	protected static void processIdentifier(Connection authority, Connection headings, String identifier)
+	protected static boolean processIdentifier(Connection authority, Connection headings, String identifier)
 			throws SQLException, IOException, JsonLdError, URISyntaxException, InterruptedException {
-		AuthorityDataMadsSimple latest = AuthorityDbUtils.authorityRecordMostRecent(authority, identifier);
-		if (latest == null) return;
+		AuthorityData latest = DbUtils.authorityRecord(authority, identifier);
+		if (latest == null) return false;
 
 		if (latest.lccn == null) latest.lccn = "local " + latest.catalogId();
 
 		removeExistingAuthorityRecord(headings, latest.lccn, latest.id);
-		if (MadsRecordStatus.DEPRECATED == latest.recordStatus) {
-			System.out.format("%s deprecated; removed existing mapped heading data.\n", identifier);
-			return;
+		if (RecordStatus.DEPRECATED == latest.recordStatus) {
+			System.out.format("%s deprecated; removed existing heading data.\n", identifier);
+			return true;
 		}
 
-		MadsAuthority map = MadsAuthority.fromMadsJsonld(authority, latest.id, latest.source, latest.undifferentiated);
-		if (map == null || map.mainHead() == null || map.mainHead().headingType() == null) {
-			System.out.format("Skipping %s, unable to derive a main heading.\n", identifier);
-			return;
-		}
-
-		persistAuthorityMap(headings, map, latest);
+		return indexMadsAuthorityData(authority, headings, latest);
 	}
 
-	protected static void persistAuthorityMap(Connection headings, MadsAuthority map, AuthorityDataMadsSimple latest)
-			throws SQLException, URISyntaxException {
-		// map and map.mainHeading() are guaranteed to be not null when called from processIdentifier
-		Integer mainHeadingId = getOrCreateHeadingId(headings, map.mainHead());
+	protected static Heading mainHeading(Connection authority, AuthorityData latest) throws SQLException, JsonLdError, IOException, URISyntaxException, InterruptedException {
+		String authLabel = JsonldUtils.getAuthorativeLabel(latest.mainEntry);
+		HeadingType t = JsonldUtils.headingType(latest.mainEntry, latest.id);
+		return Heading.processHeading(authority, latest.mainEntry, latest.graph, authLabel, null, t);
+	}
+
+	protected static boolean indexMadsAuthorityData(Connection authority, Connection headings, AuthorityData latest)
+			throws SQLException, URISyntaxException, JsonLdError, IOException, InterruptedException {
+		if (latest.lccn != null && latest.lccn.startsWith("sj")) {
+			System.out.println("Skipping Juvenile subject authority heading: " + latest.id);
+			return false;
+		}
+
+		if (latest.isSubdivision) {
+			System.out.println("Skipping subdivision authority heading: " + latest.id);
+			return false;
+		}
+
+		Heading mainHeading = mainHeading(authority, latest);
+		if (mainHeading == null || mainHeading.headingType() == null) {
+			System.out.format("Skipping %s, unable to derive a main heading.\n", latest.id);
+			return false;
+		}
+
+		Integer mainHeadingId = getOrCreateHeadingId(headings, mainHeading);
 		Integer authorityId = getOrCreateAuthorityId(headings, latest, mainHeadingId);
 
 		if (authorityId == null) {
 			System.out.format("Skipping %s, authority row could not be persisted.\n", latest.id);
-			return;
+			return false;
 		}
 
-		if (map.notes() != null) {
-			for (String note : map.notes()) {
-				if (note == null || note.isBlank()) continue;
-
-				AuthorityDbUtils.noteAdd(headings, mainHeadingId, authorityId, note);
-			}
+		for (String note : Notes.notes(authority, latest.mainEntry, latest.graph)) {
+			if (note == null || note.isBlank()) continue;
+			DbUtils.noteAdd(headings, mainHeadingId, authorityId, note);
 		}
 
-		for (MadsRelationship r : map.sees()) {
+		for (var r : References.sees(authority, latest.mainEntry, latest.graph, latest.id, mainHeading)) {
 			if (! r.display()) continue;
+
 			int headingId = getOrCreateHeadingId(headings, r.heading());
 			referenceAdd(headings, headingId, mainHeadingId, authorityId, ReferenceType.FROM4XX, r.relationship());
 		}
 
-		for (MadsRelationship r : map.seeAlsos()) {
+		for (var r : References.seeAlsos(authority, latest.mainEntry, latest.graph, latest.id, mainHeading)) {
 			if (! r.display()) continue;
+
 			int headingId = getOrCreateHeadingId(headings, r.heading());
 			referenceAdd(headings, headingId, mainHeadingId, authorityId, ReferenceType.FROM5XX, r.relationship());
 			if (r.reciprocalRelationship() != null)
 				referenceAdd(headings, mainHeadingId, headingId, authorityId, ReferenceType.TO5XX, r.reciprocalRelationship());
 		}
 
-		if (map.rda() != null) AuthorityDbUtils.rdaAdd(headings, mainHeadingId, authorityId, map.rda());
+		var rda = Rda.json(Rda.rda(authority, latest));
+		if (rda != null) DbUtils.rdaAdd(headings, mainHeadingId, authorityId, rda);
+
+		return true;
 	}
 
 	public static void referenceAdd(Connection headings, int fromId, int toId, int authorityId,
 			ReferenceType rt, String relationshipDescription) throws SQLException {
 		String description = (relationshipDescription == null) ? "" : relationshipDescription;
-		Integer referenceId = AuthorityDbUtils.referenceId(headings, fromId, toId, rt, description);
+		Integer referenceId = DbUtils.referenceId(headings, fromId, toId, rt, description);
 
-		if (referenceId == null) referenceId = AuthorityDbUtils.referenceAdd(headings, fromId, toId, rt, description);
+		if (referenceId == null) referenceId = DbUtils.referenceAdd(headings, fromId, toId, rt, description);
 
 		if (referenceId == null) return;
 
-		AuthorityDbUtils.authority2ReferenceReplace(headings, referenceId, authorityId);
+		DbUtils.authority2ReferenceReplace(headings, referenceId, authorityId);
 	}
 
-	protected static Integer getAuthorityId(Connection headings, AuthorityDataMadsSimple latest) throws SQLException {
+	protected static Integer getAuthorityId(Connection headings, AuthorityData latest) throws SQLException {
 		if (latest.lccn == null) return null;
 
 		AuthoritySource source = parseSource(latest.lccn);
@@ -168,49 +187,49 @@ public class IndexMadsAuthorityRecords {
 			return null;
 		}
 
-		return AuthorityDbUtils.authorityId(headings, latest.lccn, source);
+		return DbUtils.authorityId(headings, latest.lccn, source);
 	}
 
-	protected static Integer getOrCreateAuthorityId(Connection headings, AuthorityDataMadsSimple latest, Integer mainHeadingId)
+	protected static Integer getOrCreateAuthorityId(Connection headings, AuthorityData latest, Integer mainHeadingId)
 			throws SQLException, URISyntaxException {
 		Integer authorityId = getAuthorityId(headings, latest);
 		if ( authorityId != null )
 			System.out.println("Possible duplicate authority ID: "+authorityId);
 		else
-			authorityId = AuthorityDbUtils.authorityAdd(headings, latest);
+			authorityId = DbUtils.authorityAdd(headings, latest);
 
 		if (authorityId == null) return null;
 
-		AuthorityDbUtils.authority2HeadingReplace(headings, mainHeadingId, authorityId);
+		DbUtils.authority2HeadingReplace(headings, mainHeadingId, authorityId);
 
 		return authorityId;
 	}
 
-	protected static Integer getOrCreateHeadingId(Connection headings, MadsHeading h) throws SQLException {
+	protected static Integer getOrCreateHeadingId(Connection headings, Heading h) throws SQLException {
 		if (h.parent() != null) getOrCreateHeadingId(headings, h.parent());
 
-		MadsHeadingType headingType = h.headingType();
+		HeadingType headingType = h.headingType();
 
-		Integer headingId = AuthorityDbUtils.headingId(headings, headingType, h.sort());
+		Integer headingId = DbUtils.headingId(headings, headingType, h.sort());
 		if (headingId != null) return h.setHeadingId(headingId);
 
-		return AuthorityDbUtils.headingAdd(headings, h);
+		return DbUtils.addHeading(headings, h);
 	}
 
 	protected static void removeExistingAuthorityRecord(Connection headings, String lccn, String id)
 			throws SQLException, JsonProcessingException {
 		AuthoritySource source = parseSource(lccn);
 
-		Integer authorityId = AuthorityDbUtils.authorityId(headings, lccn, source);
+		Integer authorityId = DbUtils.authorityId(headings, lccn, source);
 		if (authorityId == null) return; // a new record, nothing to remove
 
 		removeReference(headings, authorityId);
 
-		try (PreparedStatement removeFromAuthority2Heading = AuthorityDbUtils.authority2HeadingRemove(headings);
-			 PreparedStatement removeFromAuthority2Reference = AuthorityDbUtils.authority2ReferenceRemove(headings);
-			 PreparedStatement removeFromNote = AuthorityDbUtils.noteRemove(headings);
-			 PreparedStatement removeFromRda = AuthorityDbUtils.rdaRemove(headings);
-			 PreparedStatement removeFromAuthority = AuthorityDbUtils.authorityRemove(headings)) {
+		try (PreparedStatement removeFromAuthority2Heading = DbUtils.authority2HeadingRemove(headings);
+			 PreparedStatement removeFromAuthority2Reference = DbUtils.authority2ReferenceRemove(headings);
+			 PreparedStatement removeFromNote = DbUtils.noteRemove(headings);
+			 PreparedStatement removeFromRda = DbUtils.rdaRemove(headings);
+			 PreparedStatement removeFromAuthority = DbUtils.authorityRemove(headings)) {
 
 			for (PreparedStatement pstmt : Arrays.asList(
 					removeFromAuthority2Heading,
@@ -225,10 +244,10 @@ public class IndexMadsAuthorityRecords {
 	}
 
 	protected static void removeReference(Connection headings, int authorityId) throws SQLException {
-		try (PreparedStatement checkReferenceWithAuthId = AuthorityDbUtils.checkReferenceWithAuthId(headings);
-			 PreparedStatement checkReferenceWithRefId = AuthorityDbUtils.checkReferenceWithRefId(headings);
-			 PreparedStatement removeFromAuthority2Reference = AuthorityDbUtils.authority2ReferenceRemove(headings);
-			 PreparedStatement removeReference = AuthorityDbUtils.referenceRemove(headings)) {
+		try (PreparedStatement checkReferenceWithAuthId = DbUtils.checkReferenceWithAuthId(headings);
+			 PreparedStatement checkReferenceWithRefId = DbUtils.checkReferenceWithRefId(headings);
+			 PreparedStatement removeFromAuthority2Reference = DbUtils.authority2ReferenceRemove(headings);
+			 PreparedStatement removeReference = DbUtils.referenceRemove(headings)) {
 			checkReferenceWithAuthId.setInt(1, authorityId);
 			List<Integer> refIds = new java.util.ArrayList<>();
 			try (ResultSet rs = checkReferenceWithAuthId.executeQuery()) {
@@ -248,17 +267,17 @@ public class IndexMadsAuthorityRecords {
 		}
 	}
 
-	protected static void addReference(Connection headings, int fromId, int toId, int authorityId,
-			ReferenceType rt, String relationshipDescription) throws SQLException {
-		String description = (relationshipDescription == null) ? "" : relationshipDescription;
-		Integer referenceId = AuthorityDbUtils.referenceId(headings, fromId, toId, rt, description);
+	// protected static void addReference(Connection headings, int fromId, int toId, int authorityId,
+	// 		ReferenceType rt, String relationshipDescription) throws SQLException {
+	// 	String description = (relationshipDescription == null) ? "" : relationshipDescription;
+	// 	Integer referenceId = AuthorityDbUtils.referenceId(headings, fromId, toId, rt, description);
 
-		if (referenceId == null) referenceId = AuthorityDbUtils.referenceAdd(headings, fromId, toId, rt, description);
+	// 	if (referenceId == null) referenceId = AuthorityDbUtils.referenceAdd(headings, fromId, toId, rt, description);
 
-		if (referenceId == null) return;
+	// 	if (referenceId == null) return;
 
-		AuthorityDbUtils.authority2ReferenceReplace(headings, referenceId, authorityId);
-	}
+	// 	AuthorityDbUtils.authority2ReferenceReplace(headings, referenceId, authorityId);
+	// }
 
 	protected static AuthoritySource parseSource(String lccn) {
 		for (AuthoritySource source : AuthoritySource.values())

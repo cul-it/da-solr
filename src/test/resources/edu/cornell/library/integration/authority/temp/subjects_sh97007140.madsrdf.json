@@ -1,0 +1,715 @@
+[
+	{
+		"@id": "_:b219iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Lahji language"
+			}
+		]
+	},
+	{
+		"@id": "_:b246iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Work cat.: 97-157432: Agarunov, I͡A. Tatsko (Evreĭsko)-russkiĭ slovarʹ, 1997:"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@language": "en",
+				"@value": "p. 4 (Jew-Tatish language)"
+			}
+		]
+	},
+	{
+		"@id": "_:b274iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Encyc. Judaica"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@language": "en",
+				"@value": "(\"Iranian dialect in use among the Jewish communities of the eastern Caucasus, known as the Mountain Jews ... The Jewish Tats are established chiefly in ... Daghestan and ... to the north of Soviet Azerbaijan.\")"
+			}
+		]
+	},
+	{
+		"@id": "_:b48iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Dzhuhuric language"
+			}
+		]
+	},
+	{
+		"@id": "_:b151iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Juhur language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b162iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b189iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Juwri language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b200iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b75iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Hebrew Tati language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b86iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b302iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "notfound"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Britannica Macro.;Britannica Micro."
+			}
+		]
+	},
+	{
+		"@id": "_:b170iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Juhuri language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b181iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b200iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Juwri language"
+			}
+		]
+	},
+	{
+		"@id": "_:b327iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "1997-09-17T00:00:00"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "new"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			}
+		]
+	},
+	{
+		"@id": "_:b67iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Hebrew Tat language"
+			}
+		]
+	},
+	{
+		"@id": "_:b37iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Dzhuhuric language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b48iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b86iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Hebrew Tati language"
+			}
+		]
+	},
+	{
+		"@id": "_:b113iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Jewish Tat language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b124iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b340iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "2026-04-24T09:03:42"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "revised"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			}
+		]
+	},
+	{
+		"@id": "_:b18iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Bik language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b29iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b56iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Hebrew Tat language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b67iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b105iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Jew-Tatish language"
+			}
+		]
+	},
+	{
+		"@id": "_:b162iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Juhur language"
+			}
+		]
+	},
+	{
+		"@id": "_:b10iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Judeo-Tat language"
+			}
+		]
+	},
+	{
+		"@id": "_:b94iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Jew-Tatish language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b105iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b238iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Mountain Jewish language"
+			}
+		]
+	},
+	{
+		"@id": "_:b143iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Judeo-Tatic language"
+			}
+		]
+	},
+	{
+		"@id": "_:b288iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Ethnologue online, Sept. 10, 2021"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@language": "en",
+				"@value": "(Judeo-Tat; a language of the Russian Federation; also spoken in Azerbaijan; alternate names: Bik, Dzhuhuric, Hebrew Tat, Jewish Tat, Judeo-Tatic, Juhur, Juhuri, Juwri, Lahji, Mountain Jewish, Tati; classification: Indo-European, Indo-Iranian, Iranian, Western, Southwestern, Tat)"
+			}
+		]
+	},
+	{
+		"@id": "_:b208iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Lahji language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b219iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b124iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Jewish Tat language"
+			}
+		]
+	},
+	{
+		"@id": "_:b132iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Judeo-Tatic language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b143iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/authorities/subjects/sh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Authority"
+		],
+		"http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+			{
+				"@language": "en",
+				"@value": "Judeo-Tat language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b10iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		],
+		"http://id.loc.gov/ontologies/bflc/marcKey": [
+			{
+				"@value": "150	$aJudeo-Tat language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasVariant": [
+			{
+				"@id": "_:b18iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b37iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b56iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b75iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b94iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b113iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b132iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b151iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b170iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b189iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b208iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b227iddOtlocdOtgovauthoritiessubjectssh97007140"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasSource": [
+			{
+				"@id": "_:b246iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b260iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b274iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b288iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b302iddOtlocdOtgovauthoritiessubjectssh97007140"
+			}
+		],
+		"http://id.loc.gov/vocabulary/identifiers/lccn": [
+			{
+				"@value": "sh 97007140"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#classification": [
+			{
+				"@id": "http://id.loc.gov/authorities/classification/PJ5089.297-PJ5089.29795"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+			{
+				"@id": "http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/subjects/collection_LCSH_General"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+			{
+				"@id": "http://id.loc.gov/authorities/subjects"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasBroaderAuthority": [
+			{
+				"@id": "http://id.loc.gov/authorities/subjects/sh85132738"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/subjects/sh85116017"
+			}
+		],
+		"http://www.w3.org/2002/07/owl#sameAs": [
+			{
+				"@id": "info:lc/authorities/sh97007140"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/sh97007140#concept"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasCloseExternalAuthority": [
+			{
+				"@id": "http://data.bnf.fr/ark:/12148/cb167137738"
+			},
+			{
+				"@id": "http://id.worldcat.org/fast/984484"
+			},
+			{
+				"@id": "http://purl.org/bncf/tid/48118"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+			{
+				"@id": "_:b327iddOtlocdOtgovauthoritiessubjectssh97007140"
+			},
+			{
+				"@id": "_:b340iddOtlocdOtgovauthoritiessubjectssh97007140"
+			}
+		]
+	},
+	{
+		"@id": "_:b181iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Juhuri language"
+			}
+		]
+	},
+	{
+		"@id": "_:b260iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Ethnologue:"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@language": "en",
+				"@value": "p. 482 (Bik language; Dzhuhuric language; Hebrew Tat language; Hebrew Tati language; Jewish Tat language; Judeo-Tat language; Judeo-Tatic language)"
+			}
+		]
+	},
+	{
+		"@id": "_:b227iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Topic",
+			"http://www.loc.gov/mads/rdf/v1#Variant"
+		],
+		"http://www.loc.gov/mads/rdf/v1#variantLabel": [
+			{
+				"@language": "en-latn",
+				"@value": "Mountain Jewish language"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b238iddOtlocdOtgovauthoritiessubjectssh97007140"
+					}
+				]
+			}
+		]
+	},
+	{
+		"@id": "_:b29iddOtlocdOtgovauthoritiessubjectssh97007140",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#TopicElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@language": "en",
+				"@value": "Bik language"
+			}
+		]
+	}
+]

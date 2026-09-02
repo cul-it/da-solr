@@ -1,0 +1,24 @@
+[
+  {
+    "@id": "https://lds-downloads.s3.amazonaws.com/authorities/names.madsrdf.jsonld.json",
+    "@type": "http://rdfs.org/ns/void#Dataset",
+    "http://purl.org/dc/terms/description": "Names scheme bulk download file in MADSRDF format serialized as JSONLD.",
+    "http://purl.org/dc/terms/modified": {
+      "@type": "http://www.w3.org/2001/XMLSchema#date",
+      "@value": "2025-12-21"
+    },
+    "http://purl.org/dc/terms/issued": {
+      "@type": "http://www.w3.org/2001/XMLSchema#date",
+      "@value": "2025-12-28"
+    },
+    "http://purl.org/dc/terms/title": "Names scheme in MADSRDF format serialized as JSONLD.",
+    "http://rdfs.org/ns/void#dataDump": "http://id.loc.gov/download/authorities/names.madsrdf.jsonld.gz"
+  },
+  {
+    "@id": "http://id.loc.gov/download/authorities/names.madsrdf.jsonld.gz",
+    "http://www.loc.gov/premis/rdf/v3/fixity": {
+      "@type": "http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions/sha1",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": "a444a744580817270d0e53b35ea7b49e8c2cffd6"
+    }
+  }
+]

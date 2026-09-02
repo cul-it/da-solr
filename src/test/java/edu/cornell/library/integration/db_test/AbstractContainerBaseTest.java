@@ -51,9 +51,7 @@ public class AbstractContainerBaseTest {
 					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"));
 					String line;
 					while ((line = br.readLine()) != null) {
-						if (StringUtils.isBlank(line) || line.startsWith("--")) {
-							continue;
-						}
+						if (StringUtils.isBlank(line) || line.startsWith("--")) continue;
 						stmt.executeUpdate(line);
 					}
 				}

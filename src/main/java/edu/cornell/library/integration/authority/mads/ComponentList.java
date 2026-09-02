@@ -9,7 +9,7 @@ public class ComponentList {
 		components = new ArrayList<>();
 	}
 
-	public void addComponent(String id, MadsHeadingType headingType, String authorativeLabel) {
+	public void addComponent(String id, HeadingType headingType, String authorativeLabel) {
 		components.add(new Component(id, headingType, authorativeLabel));
 	}
 
@@ -25,9 +25,9 @@ public class ComponentList {
 
 	public class Component {
 		public String id;
-		public MadsHeadingType headingType;
+		public HeadingType headingType;
 		public String authorativeLabel;
-		public Component(String id, MadsHeadingType headingType, String authorativeLabel) {
+		public Component(String id, HeadingType headingType, String authorativeLabel) {
 			this.id = id;
 			this.headingType = headingType;
 			this.authorativeLabel = authorativeLabel;

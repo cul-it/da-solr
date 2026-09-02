@@ -11,6 +11,7 @@
 	"summary": "Page 1 of 123058 pages in http://id.loc.gov/authorities/names/activitystreams/feed",
 	"type": "OrderedCollectionPage",
 	"id": "http://id.loc.gov/authorities/names/activitystreams/feed/1",
+	"next": "http://id.loc.gov/authorities/names/activitystreams/feed/2",
 	"partOf": "http://id.loc.gov/authorities/names/activitystreams/feed",
 	"orderedItems": [
 		{

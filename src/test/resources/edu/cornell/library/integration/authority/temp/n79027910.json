@@ -1,0 +1,461 @@
+[
+	{
+		"@id": "_:b8iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#FullNameElement"
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementValue": [
+			{
+				"@value": "Mason, Jack"
+			}
+		]
+	},
+	{
+		"@id": "_:b30iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Norton, D. Malice in wonderland, c1932 (a.e.)"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@value": "t.p. (Jack Mason)"
+			}
+		]
+	},
+	{
+		"@id": "_:b71iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "1979-03-23T00:00:00"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "new"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			}
+		]
+	},
+	{
+		"@id": "_:b145iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://purl.org/vocab/changeset/schema#ChangeSet"
+		],
+		"http://purl.org/vocab/changeset/schema#subjectOfChange": [
+			{
+				"@id": "http://id.loc.gov/authorities/names/n79027910"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#creatorName": [
+			{
+				"@value": "Washington University, Gaylord Music LibraryMoSW-MumoswmuUS-moswmu"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#createdDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "2026-01-09T04:07:09"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#changeReason": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "revised"
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/vocabulary/organizations/moswmu",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#CorporateName",
+			"http://www.loc.gov/mads/rdf/v1#Authority"
+		],
+		"http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+			{
+				"@value": "Washington University, Gaylord Music Library"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#code": [
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/code",
+				"@value": "MoSW-Mu"
+			},
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/normalized",
+				"@value": "moswmu"
+			},
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/iso15511",
+				"@value": "US-moswmu"
+			}
+		]
+	},
+	{
+		"@id": "_:b38iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "[Collaborator on The demand for higher education in Michigan]"
+			}
+		]
+	},
+	{
+		"@id": "_:b136iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://purl.org/vocab/changeset/schema#ChangeSet"
+		],
+		"http://purl.org/vocab/changeset/schema#subjectOfChange": [
+			{
+				"@id": "http://id.loc.gov/authorities/names/n79027910"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#creatorName": [
+			{
+				"@value": "United States, Library of CongressDLCdlcUS-dlc"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#createdDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "1979-03-23T00:00:00"
+			}
+		],
+		"http://purl.org/vocab/changeset/schema#changeReason": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "new"
+			}
+		]
+	},
+	{
+		"@id": "_:b52iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "notfound"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "AMWS 1977;WW computers c1971;Nat. fac. direct., 1979;Contemp. authors v. 1-72."
+			}
+		]
+	},
+	{
+		"@id": "_:b24iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "[Joint author of Malice in wonderland]"
+			}
+		]
+	},
+	{
+		"@id": "_:b100iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://id.loc.gov/ontologies/RecordInfo#RecordInfo"
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+				"@value": "2026-01-09T04:07:09"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordStatus": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "revised"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/organizations/moswmu"
+			}
+		],
+		"http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [
+			{
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/rwo/agents/n79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#RWO",
+			"http://id.loc.gov/ontologies/bibframe/Person",
+			"http://xmlns.com/foaf/0.1/Person"
+		],
+		"http://www.w3.org/2000/01/rdf-schema#label": [
+			{
+				"@value": "Mason, Jack"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#isIdentifiedByAuthority": [
+			{
+				"@id": "http://id.loc.gov/authorities/names/n79027910"
+			}
+		]
+	},
+	{
+		"@id": "_:b44iddOtlocdOtgovauthoritiesnamesn79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Source"
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationStatus": [
+			{
+				"@value": "found"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationSource": [
+			{
+				"@value": "Moor, J. R. The demand for higher ed. in Mich., c1979 (a.e.)"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#citationNote": [
+			{
+				"@value": "t.p. (Jack Mason) p. 7 (programmer and assistant on several modeling projects)"
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#CorporateName",
+			"http://www.loc.gov/mads/rdf/v1#Authority"
+		],
+		"http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+			{
+				"@value": "United States, Library of Congress"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#code": [
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/code",
+				"@value": "DLC"
+			},
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/normalized",
+				"@value": "dlc"
+			},
+			{
+				"@type": "http://id.loc.gov/datatypes/orgs/iso15511",
+				"@value": "US-dlc"
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/authorities/names/n79027910",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#PersonalName",
+			"http://www.loc.gov/mads/rdf/v1#Authority",
+			"http://www.loc.gov/mads/rdf/v1#PersonalName",
+			"http://www.loc.gov/mads/rdf/v1#Authority",
+			"http://www.w3.org/2004/02/skos/core#Concept"
+		],
+		"http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+			{
+				"@value": "Mason, Jack"
+			},
+			{
+				"@value": "Mason, Jack"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#elementList": [
+			{
+				"@list": [
+					{
+						"@id": "_:b8iddOtlocdOtgovauthoritiesnamesn79027910"
+					}
+				]
+			}
+		],
+		"http://id.loc.gov/ontologies/bflc/marcKey": [
+			{
+				"@value": "1001 $aMason, Jack"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#identifiesRWO": [
+			{
+				"@id": "http://id.loc.gov/rwo/agents/n79027910"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasSource": [
+			{
+				"@id": "_:b24iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b30iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b38iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b44iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b52iddOtlocdOtgovauthoritiesnamesn79027910"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#editorialNote": [
+			{
+				"@value": "[THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN DCM Z1 008/32]"
+			}
+		],
+		"http://id.loc.gov/vocabulary/identifiers/lccn": [
+			{
+				"@value": "n 79027910"
+			}
+		],
+		"http://id.loc.gov/vocabulary/identifiers/local": [
+			{
+				"@value": "oca00261607"
+			},
+			{
+				"@value": "oca00261607"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [
+			{
+				"@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+			},
+			{
+				"@id": "http://id.loc.gov/authorities/names/collection_NamesUndifferentiated"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [
+			{
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority": [
+			{
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2079027910"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#adminMetadata": [
+			{
+				"@id": "_:b71iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b100iddOtlocdOtgovauthoritiesnamesn79027910"
+			}
+		],
+		"http://www.w3.org/2004/02/skos/core#prefLabel": [
+			{
+				"@value": "Mason, Jack"
+			}
+		],
+		"http://www.w3.org/2004/02/skos/core#exactMatch": [
+			{
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2079027910"
+			}
+		],
+		"http://www.w3.org/2004/02/skos/core#editorialNote": [
+			{
+				"@value": "[THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN DCM Z1 008/32]"
+			}
+		],
+		"http://www.w3.org/2004/02/skos/core#inScheme": [
+			{
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		],
+		"http://www.w3.org/2004/02/skos/core#changeNote": [
+			{
+				"@id": "_:b136iddOtlocdOtgovauthoritiesnamesn79027910"
+			},
+			{
+				"@id": "_:b145iddOtlocdOtgovauthoritiesnamesn79027910"
+			}
+		]
+	},
+	{
+		"@id": "http://id.loc.gov/vocabulary/iso639-2/eng",
+		"@type": [
+			"http://www.loc.gov/mads/rdf/v1#Language",
+			"http://www.loc.gov/mads/rdf/v1#Authority",
+			"http://id.loc.gov/vocabulary/iso639-2/iso639-2_Language",
+			"http://www.loc.gov/mads/rdf/v1#Language",
+			"http://www.loc.gov/mads/rdf/v1#Authority",
+			"http://id.loc.gov/vocabulary/iso639-2/iso639-2_Language"
+		],
+		"http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [
+			{
+				"@language": "en",
+				"@value": "English"
+			},
+			{
+				"@language": "fr",
+				"@value": "anglais"
+			},
+			{
+				"@language": "de",
+				"@value": "Englisch"
+			},
+			{
+				"@language": "en",
+				"@value": "English"
+			},
+			{
+				"@language": "fr",
+				"@value": "anglais"
+			},
+			{
+				"@language": "de",
+				"@value": "Englisch"
+			}
+		],
+		"http://www.loc.gov/mads/rdf/v1#code": [
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "eng"
+			},
+			{
+				"@type": "http://www.w3.org/2001/XMLSchema#string",
+				"@value": "eng"
+			}
+		]
+	}
+]

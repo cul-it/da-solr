@@ -54,9 +54,8 @@ public interface IFetcher {
 			}
 			if (debug) {
 				System.out.println("Fetching from local file: " + path);
-				if (! Files.exists(path)) {
-					System.out.println("File does not exist: " + path);
-				}
+				if (! Files.exists(path))
+					System.out.println("File does not exist: " + localDir + ", " + basename);
 			}
 			return Files.newInputStream(path, StandardOpenOption.READ);
 		}

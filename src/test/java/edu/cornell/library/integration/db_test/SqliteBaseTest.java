@@ -1,25 +1,20 @@
 package edu.cornell.library.integration.db_test;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.platform.commons.util.StringUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 public class SqliteBaseTest {
@@ -63,22 +58,7 @@ public class SqliteBaseTest {
 			sourceInitDb = new File(INIT_DB_PATH);
 			sourceInitDb.deleteOnExit();
 			try (Connection conn = DriverManager.getConnection("jdbc:sqlite:"+sourceInitDb.getAbsolutePath())) {
-				runStmt(sqls, conn);
-			}
-		}
-	}
-
-	public static void runStmt(List<String> sqls, Connection conn) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
-		for (String sql : sqls) {
-			try (Statement stmt = conn.createStatement();
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
-				String line;
-				while ((line = br.readLine()) != null) {
-					if (StringUtils.isBlank(line)) {
-						continue;
-					}
-					stmt.executeUpdate(line);
-				}
+				DbBaseTest.runStmt(sqls, conn);
 			}
 		}
 	}

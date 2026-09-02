@@ -17,8 +17,8 @@ import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
-import edu.cornell.library.integration.authority.mads.AuthorityDataMadsSimple;
-import edu.cornell.library.integration.authority.mads.AuthorityJsonldUtils;
+import edu.cornell.library.integration.authority.mads.AuthorityData;
+import edu.cornell.library.integration.authority.mads.JsonldUtils;
 import edu.cornell.library.integration.utilities.Config;
 import jakarta.json.JsonObject;
 
@@ -29,9 +29,9 @@ public class DataLoader {
 		Map<String, String> env = System.getenv();
 		int chunkSize = Integer.parseInt(env.getOrDefault("ChunkSize", "100"));
 		String idList = env.getOrDefault("idList", "/cul/app/scratch/data/id_list.txt");
-		String addedDate = ActivityStreamsUtils.getToday();
+		String addedDate = Utils.getToday();
 		String dataset = env.getOrDefault("dataset", "LCNAF");
-		var params = ActivityStreamsDataset.getParam(dataset);
+		var params = Dataset.getParam(dataset);
 		if (params == null) {
 			System.out.println("Unknown dataset provided: " + dataset);
 			System.exit(1);
@@ -52,23 +52,23 @@ public class DataLoader {
 	}
 
 	public void processData(String addedDate, Connection authority, IFetcher fetcher, String idList, String contextUrl) throws InterruptedException, IOException, JsonLdError, SQLException, URISyntaxException {
-		try (PreparedStatement insertStmt = ActivityStreamsUtils.replaceStmt(authority);
-			 PreparedStatement existsStmt = ActivityStreamsUtils.existsStmt(authority)) {
+		try (PreparedStatement insertStmt = Utils.replaceStmt(authority);
+			 PreparedStatement existsStmt = Utils.existsStmt(authority)) {
 			List<String> urls = getAllIdentifiers(idList);
 			for (String url : urls) {
-				AuthorityDataMadsSimple parsed = fetchAndParse(fetcher, url, contextUrl);
-				if (!ActivityStreamsUtils.exists(existsStmt, parsed))
-					ActivityStreamsUtils.addBatch(insertStmt, parsed, addedDate);
+				AuthorityData parsed = fetchAndParse(fetcher, url, contextUrl);
+				if (!Utils.exists(existsStmt, parsed))
+					Utils.addBatch(insertStmt, parsed, addedDate);
 			}
 			insertStmt.executeBatch();
 		}
 	}
 
-	public AuthorityDataMadsSimple fetchAndParse(IFetcher fetcher, String url, String context) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
+	public AuthorityData fetchAndParse(IFetcher fetcher, String url, String context) throws InterruptedException, IOException, JsonLdError, URISyntaxException {
 		try (InputStream is = fetcher.fetch(url + ".madsrdf.json")) {
 			Document doc = JsonDocument.of(is);
 			JsonObject compact = JsonLd.compact(doc, context).get();
-			return AuthorityJsonldUtils.parseAuthorityData(compact, url);
+			return JsonldUtils.parseAuthorityData(compact, url);
 		}
 	}
 }
